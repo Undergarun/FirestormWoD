@@ -141,7 +141,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             }
         }
 
-        [Parser(Opcode.CMSG_CAST_SPELL)]
+        /*[Parser(Opcode.CMSG_CAST_SPELL)]
         public static void HandleCastSpell(Packet packet)
         {
             var counter = packet.ReadBits(2);
@@ -244,9 +244,392 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             if (hasbitFC)
                 packet.ReadSingle("FloatFC");
+        }*/
+
+        [Parser(Opcode.CMSG_CAST_SPELL)]
+        public static void HandleCastSpell(Packet packet)
+        {
+            var GUID0 = new byte[8];
+            var TargetGUID = new byte[8];
+            var GUID2 = new byte[8];
+            var GUID3 = new byte[8];
+
+            var hasCastFlags = !packet.ReadBit();
+            var hasCountCast = !packet.ReadBit();
+            var hasUnk1 = !packet.ReadBit();
+            var hasSpellId = !packet.ReadBit();
+            var unkCounter = packet.ReadBits(2);
+            var hasGUID0 = !packet.ReadBit();
+            var hasElevation = !packet.ReadBit();
+            var hasTargetGUID = !packet.ReadBit();
+            var hasGUID3 = packet.ReadBit();
+            var hasSpeed = !packet.ReadBit();
+            var hasUnkString = !packet.ReadBit(); // string
+            var hasGUID2 = packet.ReadBit();
+            var hasMovement = packet.ReadBit();
+            var hasUnk4 = !packet.ReadBit(); // 5 bits ...
+
+            uint unkStringLenght = 0;
+
+            for (var i = 0; i < unkCounter; ++i)
+                packet.ReadBits("unkCounter", 2, i);
+
+            if (hasMovement)
+            {
+                // somes shits ...
+            }
+
+            if (hasCastFlags)
+                packet.ReadEnum<CastFlag>("Cast Flags", 20);
+
+            GUID0 = packet.StartBitStream(2, 1, 3, 6, 5, 4, 7, 0);
+            if (hasGUID3)
+                GUID3 = packet.StartBitStream(3, 6, 1, 0, 4, 5, 7, 2);
+            if (hasGUID2)
+                GUID2 = packet.StartBitStream(6, 3, 5, 2, 0, 4, 1, 7);
+
+            TargetGUID = packet.StartBitStream(5, 0, 2, 3, 1, 4, 6, 7);
+
+            if (hasUnkString)
+                unkStringLenght = packet.ReadBits(7);
+
+            if (hasUnk4)
+                packet.ReadBits(5);
+
+            packet.ResetBitReader();
+
+            for (var i = 0; i < unkCounter; ++i)
+            {
+                packet.ReadInt32("unk value1", i);
+                packet.ReadInt32("unk value2", i);
+            }
+
+            if (hasMovement)
+            {
+                // Some shits ...
+            }
+
+            if (hasSpellId)
+                packet.ReadUInt32("Spell entry");
+
+            if (hasGUID2)
+            {
+                var pos = new Vector3();
+                packet.ReadXORByte(GUID2, 7);
+                pos.X = packet.ReadSingle();
+                packet.ReadXORByte(GUID2, 6);
+                packet.ReadXORByte(GUID2, 0);
+                pos.Y = packet.ReadSingle();
+                packet.ReadXORByte(GUID2, 1);
+                packet.ReadXORByte(GUID2, 4);
+                pos.Z = packet.ReadSingle();
+                packet.ReadXORByte(GUID2, 3);
+                packet.ReadXORByte(GUID2, 2);
+                packet.ReadXORByte(GUID2, 5);
+                packet.WriteGuid("GUID2", GUID2);
+                packet.WriteLine("Position: {0}", pos);
+            }
+
+            if (hasGUID3)
+            {
+                var pos = new Vector3();
+                packet.ReadXORByte(GUID3, 5);
+                packet.ReadXORByte(GUID3, 4);
+                packet.ReadXORByte(GUID3, 3);
+                packet.ReadXORByte(GUID3, 1);
+                pos.Z = packet.ReadSingle();
+                pos.Y = packet.ReadSingle();
+                packet.ReadXORByte(GUID3, 2);
+                packet.ReadXORByte(GUID3, 6);
+                packet.ReadXORByte(GUID3, 7);
+                pos.X = packet.ReadSingle();
+                packet.ReadXORByte(GUID3, 0);
+                packet.WriteGuid("GUID3", GUID2);
+                packet.WriteLine("Position: {0}", pos);
+            }
+
+            packet.ParseBitStream(TargetGUID, 7, 2, 6, 0, 4, 5, 1, 3);
+            packet.ParseBitStream(GUID0, 1, 0, 2, 3, 5, 6, 7, 4);
+
+            if (hasCountCast)
+                packet.ReadSByte("countCast");
+
+            if (hasSpeed)
+                packet.ReadSingle("spell speed");
+
+            if (hasUnkString)
+                packet.ReadWoWString("String", (int)unkStringLenght);
+
+            if (hasUnk1)
+                packet.ReadUInt32("unkInt");
+
+            if (hasElevation)
+                packet.ReadSingle("spell elevation");
         }
 
         [HasSniffData]
+        [Parser(Opcode.SMSG_SPELL_START)]
+        public static void HandleSpellStart540(Packet packet)
+        {
+            var PowerUnitGUID = new byte[8];
+            var unkGUID6 = new byte[8];
+            var sourceTransportGUID = new byte[8];
+            var unkGUID4 = new byte[8];
+            var destTransportGUID = new byte[8];
+            var unkGUID2 = new byte[8];
+            var unkGUID1 = new byte[8];
+            var unkGUID0 = new byte[8];
+
+            var hasDestTransportGUID = packet.ReadBit();
+            unkGUID0[6] = packet.ReadBit(); // 70
+            unkGUID0[7] = packet.ReadBit(); // 71
+            var hasUnkGUID2 = !packet.ReadBit();
+            unkGUID2 = packet.StartBitStream(2, 6, 0, 3, 4, 1, 7, 5);
+            unkGUID1[4] = packet.ReadBit(); // 76
+            unkGUID0[1] = packet.ReadBit(); // 65
+            unkGUID1[2] = packet.ReadBit(); // 74
+
+            var counterUnk1 = packet.ReadBits(24);
+            unkGUID0[0] = packet.ReadBit(); // 64
+            var counterUnk2 = packet.ReadBits(24);
+            unkGUID1[5] = packet.ReadBit(); // 77
+
+            if (hasDestTransportGUID)
+                destTransportGUID = packet.StartBitStream(4, 7, 5, 3, 6, 2, 1, 0);
+
+            var hasUnkGUID4 = !packet.ReadBit();
+            unkGUID4 = packet.StartBitStream(5, 3, 4, 6, 7, 1, 2, 0);
+            var unkBit = !packet.ReadBit();
+            var hasUnkInt = !packet.ReadBit();
+            var hasUnkByte = !packet.ReadBit();
+            var hasUnkInt2 = !packet.ReadBit();
+            unkGUID1[7] = packet.ReadBit(); // 79
+
+            var unkGUIDs1 = new byte[counterUnk2][];
+            for (var i = 0; i < counterUnk2; ++i)
+            {
+                unkGUIDs1[i] = new byte[8];
+                packet.StartBitStream(unkGUIDs1[i], 5, 3, 1, 4, 6, 0, 2, 7);
+            }
+
+            var unkGUIDs2 = new byte[counterUnk1][];
+            for (var i = 0; i < counterUnk1; ++i)
+            {
+                unkGUIDs2[i] = new byte[8];
+                packet.StartBitStream(unkGUIDs2[i], 0, 2, 7, 4, 6, 3, 5, 1);
+            }
+
+            var hasTargetFlags = !packet.ReadBit();
+            var hasUnkInt3 = !packet.ReadBit();
+
+            var powerCount = packet.ReadBits(21);
+            var hasPowerData = packet.ReadBit("Has Power Data");
+            var hasSourceTransportGUID = packet.ReadBit();
+            var hasUnkByte2 = !packet.ReadBit();
+
+            if (hasSourceTransportGUID)
+                packet.StartBitStream(sourceTransportGUID, 4, 7, 6, 3, 2, 0, 5, 1);
+
+            var hasUnkByte3 = !packet.ReadBit();
+            var hasUnkByte4 = !packet.ReadBit();
+            unkGUID0[4] = packet.ReadBit(); // 68
+
+            uint PowerTypeCount = 0;
+            if (hasPowerData)
+            {
+                PowerUnitGUID[4] = packet.ReadBit();
+                PowerTypeCount = packet.ReadBits("Power Type Count", 21);
+                packet.StartBitStream(PowerUnitGUID, 2, 3, 7, 6, 5, 0, 1);
+            }
+
+            var hasUnkFloat1 = !packet.ReadBit();
+            var hasUnkInt4 = !packet.ReadBit();
+
+            if (hasTargetFlags)
+                packet.ReadEnum<TargetFlag>("Target Flags", 20);
+
+            packet.ReadBits(13);
+            unkGUID0[3] = packet.ReadBit(); // 67
+            var RuneCooldownCount = packet.ReadBits("Rune Cooldown Count", 3);
+            var unkHasGUID6 = !packet.ReadBit();
+            unkGUID0[2] = packet.ReadBit(); // 66
+            var hasUnkByte5 = !packet.ReadBit();
+            unkGUID1[3] = packet.ReadBit(); // 75
+
+            var unkCounter3 = packet.ReadBits(20);
+            var unkGUIDs3 = new byte[unkCounter3][];
+            for (int i = 0; i < unkCounter3; i++)
+            {
+                unkGUIDs3[i] = new byte[8];
+                packet.StartBitStream(unkGUIDs3[i], 5, 1, 4, 7, 3, 6, 0, 2);
+            }
+
+            packet.StartBitStream(unkGUID6, 4, 1, 5, 2, 7, 6, 0, 3);
+            unkGUID1[1] = packet.ReadBit(); // 73
+            unkGUID0[5] = packet.ReadBit(); // 69
+            unkGUID1[6] = packet.ReadBit(); // 78
+            var unkCounter4 = packet.ReadBits(25);
+            unkGUID1[0] = packet.ReadBit(); // 72
+
+            uint unkStringLenght = 0;
+            if (unkBit)
+                unkStringLenght = packet.ReadBits(7);
+
+            var hasUnkInt5 = !packet.ReadBit();
+            var hasUnkByte6 = packet.ReadBit();
+
+            for (var i = 0; i < unkCounter4; ++i)
+            {
+                if (packet.ReadBits("bits22[0]", 4, i) == 11)
+                    packet.ReadBits("bits22[1]", 4, i);
+            }
+
+            packet.ParseBitStream(unkGUID6, 5, 3, 4, 2, 0, 1, 7, 6);
+            packet.ReadXORByte(unkGUID0, 2);
+            packet.ReadUInt32("cast timer");
+
+            for (int i = 0; i < counterUnk1; i++)
+                packet.ParseBitStream(unkGUIDs2[i], 3, 6, 7, 5, 0, 4, 2, 1);
+
+            packet.ReadXORByte(unkGUID0, 6);
+
+            for (int i = 0; i < counterUnk2; i++)
+                packet.ParseBitStream(unkGUIDs1[i], 6, 0, 3, 7, 2, 1, 5, 4);
+
+            packet.ReadXORByte(unkGUID1, 0);
+
+            // TARGET_FLAG_SOURCE_LOCATION
+            if (hasSourceTransportGUID)
+            {
+                packet.ParseBitStream(sourceTransportGUID, 6, 7, 3, 0);
+                packet.ReadSingle("source Y");
+                packet.ParseBitStream(sourceTransportGUID, 1);
+                packet.ReadSingle("source Z");
+                packet.ParseBitStream(sourceTransportGUID, 4, 2);
+                packet.ReadSingle("source X");
+                packet.ParseBitStream(sourceTransportGUID, 5);
+            }
+
+            if (hasUnkInt)
+                packet.ReadUInt32("UnkInt");
+
+            // TARGET_FLAG_DEST_LOCATION
+            if (hasDestTransportGUID)
+            {
+                packet.ParseBitStream(destTransportGUID, 5, 1, 6, 0, 3, 4);
+                packet.ReadSingle("Dest x");
+                packet.ReadXORByte(destTransportGUID, 2);
+                packet.ReadSingle("Dest y");
+                packet.ReadSingle("Dest z");
+                packet.ReadXORByte(destTransportGUID, 7);
+            }
+
+            if (hasUnkByte5)
+                packet.ReadSByte("unkByte5");
+
+            packet.ReadXORByte(unkGUID0, 5);
+            packet.ReadXORByte(unkGUID0, 7);
+
+            packet.ParseBitStream(unkGUID4, 1, 7, 3, 0, 6, 2, 4, 5);
+
+            if (hasUnkByte6)
+            {
+                packet.ReadUInt32("hasUnkByte6 1");
+                packet.ReadUInt32("hasUnkByte6 2");
+            }
+
+            packet.ReadXORByte(unkGUID0, 4);
+
+            for (int i = 0; i < unkCounter3; i++)
+            {
+                packet.ParseBitStream(unkGUIDs3[i], 4, 5);
+                packet.ReadSingle("unkGUIDs3 Y");
+                packet.ParseBitStream(unkGUIDs3[i], 1, 2, 3);
+                packet.ReadSingle("unkGUIDs3 X");
+                packet.ReadSingle("unkGUIDs3 Z");
+                packet.ParseBitStream(unkGUIDs3[i], 6, 7);
+            }
+
+            if (hasPowerData)
+            {
+                packet.ReadInt32("Attack power");
+                packet.ReadInt32("Spell power");
+
+                for (int i = 0; i < PowerTypeCount; i++)
+                {
+                    packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
+                    packet.ReadInt32("Power Value", i);
+                }
+
+                packet.ParseBitStream(PowerUnitGUID, 4, 7, 0, 2, 3, 5, 6, 1);
+                packet.ReadInt32("Current Heal");
+                packet.WriteGuid("PowerUnitGUID", PowerUnitGUID);
+            }
+
+            packet.ReadXORByte(unkGUID1, 6);
+            packet.ReadXORByte(unkGUID0, 3);
+
+            if (hasUnkByte)
+                packet.ReadSByte("hasUnkByte");
+
+            packet.ParseBitStream(unkGUID2, 3, 2, 1, 4, 6, 0, 7, 5);
+            packet.ReadXORByte(unkGUID1, 3);
+
+            for (int i = 0; i < RuneCooldownCount; i++)
+                packet.ReadSByte("cooldown rune byte");
+
+            if (unkStringLenght > 0)
+                packet.ReadWoWString("String:", unkStringLenght);
+
+            packet.ReadSByte("cast count");
+
+            if (hasUnkInt5)
+                packet.ReadInt32("UnkInt5");
+
+            packet.ReadXORByte(unkGUID1, 7);
+
+            if (hasUnkInt2)
+                packet.ReadInt32("UnkInt2"); // spell entry, look like proc or bonus
+
+            if (hasUnkFloat1)
+                packet.ReadSingle("unkFloat1");
+
+            packet.ReadInt32("88 uint");
+            packet.ReadXORByte(unkGUID1, 4);
+            packet.ReadXORByte(unkGUID1, 1);
+            packet.ReadInt32("SpellID");
+
+            if (hasUnkByte4)
+                packet.ReadSingle("UnkByte4");
+
+            for (var i = 0; i < powerCount; ++i)
+            {
+                packet.ReadEnum<PowerType>("Power Type", TypeCode.Byte, i);
+                packet.ReadInt32("Power Value", i);
+            }
+
+            packet.ReadXORByte(unkGUID0, 0);
+
+            if (hasUnkByte2)
+                packet.ReadSByte("unkByte2");
+
+            if (hasUnkByte3)
+                packet.ReadSByte("UnkByte3");
+
+            if (hasUnkInt4)
+                packet.ReadUInt32("unkInt4");
+
+            packet.ReadXORByte(unkGUID0, 1);
+
+            if (hasUnkInt3)
+                packet.ReadUInt32("unkInt3");
+
+
+            packet.ReadXORByte(unkGUID1, 5);
+            packet.ReadXORByte(unkGUID1, 2);
+        }
+
+        /*[HasSniffData]
         [Parser(Opcode.SMSG_SPELL_START)]
         public static void HandleSpellStart(Packet packet)
         {
@@ -515,7 +898,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.ReadXORByte(guid3, 7);
             packet.WriteGuid("GUID3", guid3);
             packet.WriteGuid("GUID4", guid4);
-        }
+        }*/
 
         [Parser(Opcode.SMSG_INITIAL_SPELLS)]
         public static void HandleInitialSpells(Packet packet)
@@ -542,6 +925,267 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         }
 
         [Parser(Opcode.SMSG_SPELL_GO)]
+        public static void HandleSpellGo540(Packet packet)
+        {
+            var GUID1 = new byte[8];
+            var GUID2 = new byte[8];
+            var GUID3 = new byte[8];
+            var GUID4 = new byte[8]; // 16-23
+            var GUID5 = new byte[8]; // 24-31
+            var GUID6 = new byte[8];
+            var GUID7 = new byte[8];
+            var PowerUnitGUID = new byte[8];
+
+            var hasGUID1 = !packet.ReadBit();
+            GUID5[4] = packet.ReadBit();
+            var hasBit102 = !packet.ReadBit();
+            var hasBit368 = !packet.ReadBit();
+            var hasBit90 = !packet.ReadBit();
+            var hasGUID2 = !packet.ReadBit();
+            GUID4[7] = packet.ReadBit();
+            packet.StartBitStream(GUID1, 2, 5, 6, 1, 0, 3, 7, 4);
+            GUID5[1] = packet.ReadBit();
+            var hasBit337 = !packet.ReadBit();
+            packet.StartBitStream(GUID2, 7, 0, 1, 3, 4, 2, 5, 6);
+            GUID4[2] = packet.ReadBit();
+            var hasTargetFlags = !packet.ReadBit();
+            var hasBit384 = !packet.ReadBit();
+            GUID5[5] = packet.ReadBit();
+            var hasBit428 = !packet.ReadBit();
+            var counter320 = packet.ReadBits(21);
+            var hasBit91 = !packet.ReadBit();
+            var counter11 = packet.ReadBits(13);
+            var hasBit380 = packet.ReadBit();
+            var hasBit152 = packet.ReadBit(); // HAS GUID 3
+            GUID4[3] = packet.ReadBit();
+            var counter388 = packet.ReadBits(20);
+            GUID4[1] = packet.ReadBit();
+            GUID5[0] = packet.ReadBit();
+            GUID4[6] = packet.ReadBit();
+            GUID4[5] = packet.ReadBit();
+            var hasBit101 = !packet.ReadBit();
+            var counter68 = packet.ReadBits(24);
+            GUID5[3] = packet.ReadBit();
+            var hasBit106 = !packet.ReadBit();
+            var hasBit48 = !packet.ReadBit();
+
+            uint counter104 = 0;
+            if (hasTargetFlags)
+                packet.ReadEnum<TargetFlag>("Target Flags", 20);
+
+            GUID5[2] = packet.ReadBit();
+            
+            // HAS GUID3
+            if (hasBit152)
+                packet.StartBitStream(GUID3, 2, 4, 6, 3, 7, 5, 1, 0);
+
+            var GUIDS1 = new byte[counter68][];
+            for (int i = 0; i < counter68; i++)
+            {
+                GUIDS1[i] = new byte[8];
+                packet.StartBitStream(GUIDS1[i], 6, 7, 0, 2, 5, 4, 1, 3);
+            }
+
+            var hasBit184 = packet.ReadBit();
+            var hasBit416 = !packet.ReadBit(); // has GUID6
+
+            var GUIDS2 = new byte[counter388][];
+            for (int i = 0; i < counter388; i++)
+            {
+                GUIDS2[i] = new byte[8];
+                packet.StartBitStream(GUIDS2[i], 0, 4, 3, 1, 6, 7, 2, 5);
+            }
+
+            packet.StartBitStream(GUID6, 4, 6, 7, 0, 1, 2, 3, 5);
+            var hasBit356 = !packet.ReadBit();
+
+            if (hasBit184)
+                packet.StartBitStream(GUID7, 4, 1, 7, 3, 0, 5, 6, 2);
+
+            var hasPowerUnitGUID = packet.ReadBit(); // HAS GUID8
+            var counter52 = packet.ReadBits(24);
+
+            uint PowerTypeCount = 0;
+            if (hasPowerUnitGUID)
+            {
+                packet.StartBitStream(PowerUnitGUID, 7, 4, 0, 6);
+                PowerTypeCount = packet.ReadBits(21);
+                packet.StartBitStream(PowerUnitGUID, 5, 2, 3, 1);
+            }
+
+            var GUIDS3 = new byte[counter52][];
+            for (int i = 0; i < counter52; i++)
+            {
+                GUIDS3[i] = new byte[8];
+                packet.StartBitStream(GUIDS3[i], 4, 0, 2, 7, 6, 1, 3, 5);
+            }
+
+            GUID4[0] = packet.ReadBit();
+            GUID4[4] = packet.ReadBit();
+            GUID5[6] = packet.ReadBit();
+
+            var RuneCooldownCount = packet.ReadBits(3);
+            var hasBit336 = !packet.ReadBit();
+            GUID5[7] = packet.ReadBit();
+
+            var counter84 = packet.ReadBits(25);
+
+            uint unkStringLenght = 0;
+            if (hasBit48)
+                unkStringLenght = packet.ReadBits(7);
+
+            for (var i = 0; i < counter84; ++i)
+            {
+                if (packet.ReadBits("bits22[0]", 4, i) == 11) // missCondition
+                    packet.ReadBits("bits22[1]", 4, i); // SPELL_MISS_REFLECT
+            }
+
+            packet.ReadXORByte(GUID5, 7);
+
+            if (hasPowerUnitGUID)
+            {
+                //PowerTypeCount
+                packet.ParseBitStream(PowerUnitGUID, 3, 5, 1, 4);
+                for (int i = 0; i < PowerTypeCount; i++)
+                {
+                    packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
+                    packet.ReadInt32("Power Value", i);
+                }
+
+                packet.ParseBitStream(PowerUnitGUID, 6, 2);
+                packet.ReadInt32("power 1");
+                packet.ReadInt32("power 2");
+                packet.ReadInt32("power 3");
+                packet.ParseBitStream(PowerUnitGUID, 7, 0);
+            }
+
+            packet.ParseBitStream(GUID6, 5, 3, 2, 7, 4, 0, 6, 1);
+
+            for (int i = 0; i < counter68; i++)
+                packet.ParseBitStream(GUIDS1[i], 7, 1, 0, 4, 2, 5, 6, 3);
+
+            // GUID3 sourcePos
+            if (hasBit152)
+            {
+                packet.ParseBitStream(GUID3, 2, 6, 0, 3, 4);
+                packet.ReadSingle("Y");
+                packet.ReadSingle("X");
+                packet.ReadSingle("Z");
+                packet.ParseBitStream(GUID3, 7, 5, 1);
+            }
+
+            packet.ParseBitStream(GUID2, 0, 6, 5, 7, 3, 2, 4, 1);
+            packet.ReadXORByte(GUID4, 3);
+
+            for (int i = 0; i < counter52; i++)
+            {
+                packet.ParseBitStream(GUIDS3[i], 6, 0, 7, 1, 2, 5, 3, 4);
+                packet.WriteGuid(GUIDS3[i]);
+            }
+
+            if (hasBit90)
+                packet.ReadSingle("float 1");
+
+            packet.ParseBitStream(GUID1, 3, 1, 5, 0, 7, 6, 4, 2);
+            packet.ReadXORByte(GUID5, 3);
+
+            if (hasBit428)
+                packet.ReadSByte("428 byte");
+
+            packet.ReadXORByte(GUID4, 4);
+
+            if (hasBit102)
+                packet.ReadUInt32("unk uint32 102");
+
+            if (hasBit337)
+                packet.ReadSByte("337 byte");
+
+            packet.ReadXORByte(GUID4, 0);
+            packet.ReadXORByte(GUID5, 4);
+
+            // destPos
+            if (hasBit184)
+            {
+                packet.ReadSingle("Z");
+                packet.ReadXORByte(GUID7, 4);
+                packet.ReadSingle("Y");
+                packet.ReadSingle("X");
+                packet.ParseBitStream(GUID7, 7, 3, 2, 1, 6, 0, 5);
+            }
+
+            packet.ReadXORByte(GUID4, 2);
+            packet.ReadXORByte(GUID5, 6);
+
+            if (hasBit336)
+                packet.ReadSByte("336 byte");
+
+            packet.ReadXORByte(GUID5, 1);
+            packet.ReadUInt32("timestamp");
+
+            for (int i = 0; i < counter388; i++)
+            {
+                packet.ReadXORByte(GUIDS2[i], 2);
+                packet.ReadSingle("Y");
+                packet.ReadXORByte(GUIDS2[i], 6);
+                packet.ReadSingle("Z");
+                packet.ReadSingle("X");
+                packet.ParseBitStream(GUIDS2[i], 4, 1, 3, 0, 7, 5);
+            }
+
+            if (hasBit380)
+            {
+                packet.ReadUInt32("94 uint32");
+                packet.ReadUInt32("32 uint32");
+            }
+
+            packet.ReadUInt32("spell ID");
+
+            if (hasBit91)
+                packet.ReadUInt32("91 uint32");
+
+            packet.ReadXORByte(GUID4, 6);
+
+            if (hasBit106)
+                packet.ReadUInt32("uint32 106");
+
+            for (int i = 0; i < counter320; i++)
+            {
+                packet.ReadInt32("Power Value", i);
+                packet.ReadEnum<PowerType>("Power Type", TypeCode.Byte, i);
+            }
+
+            for (int i = 0; i < RuneCooldownCount; i++)
+                packet.ReadSingle("rune cooldown");
+
+            if (unkStringLenght > 0)
+                packet.ReadWoWString("string unk", (int)unkStringLenght);
+
+            packet.ReadXORByte(GUID4, 1);
+
+            if (hasBit368)
+                packet.ReadSByte("byte 368");
+
+            if (hasBit356)
+                packet.ReadUInt32("uint 356");
+
+            if (hasBit384)
+                packet.ReadSByte("byte 384");
+
+            packet.ReadUInt32("uint 10");
+            packet.ReadXORByte(GUID5, 5);
+
+            if (hasBit101)
+                packet.ReadUInt32("uint 101");
+
+            packet.ReadXORByte(GUID5, 0);
+            packet.ReadXORByte(GUID4, 7);
+            packet.ReadXORByte(GUID4, 5);
+            packet.ReadXORByte(GUID5, 2);
+
+            packet.ReadSByte("byte 32");
+        }
+
+        /*[Parser(Opcode.SMSG_SPELL_GO)]
         public static void HandleSpellGo(Packet packet)
         {
             var guid = new byte[8];
@@ -813,7 +1457,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             packet.WriteGuid("GUID10", guid10);
             packet.WriteGuid("GUID11", guid11);
-        }
+        }*/
 
         [Parser(Opcode.SMSG_REMOVED_SPELL)]
         public static void HandleRemovedSpell2(Packet packet)

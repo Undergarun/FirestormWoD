@@ -261,6 +261,7 @@ namespace WowPacketParser.Misc
                 Writer = new StringBuilder();
 
             Writer.AppendFormat(format, args);
+            Console.Write(format, args);
         }
 
         public void WriteLine()
@@ -272,6 +273,7 @@ namespace WowPacketParser.Misc
                 Writer = new StringBuilder();
 
             Writer.AppendLine();
+            Console.WriteLine();
         }
 
         public void WriteLine(string value)
@@ -283,17 +285,19 @@ namespace WowPacketParser.Misc
                 Writer = new StringBuilder();
 
             Writer.AppendLine(value);
+            Console.WriteLine(value);
         }
 
         public void WriteLine(string format, params object[] args)
         {
-            if (!Settings.DumpFormatWithText())
-                return;
+           // if (!Settings.DumpFormatWithText())
+             //   return;
 
             if (Writer == null)
                 Writer = new StringBuilder();
 
             Writer.AppendLine(string.Format(format, args));
+            Console.WriteLine(string.Format(format, args));
         }
 
         public void ClosePacket()

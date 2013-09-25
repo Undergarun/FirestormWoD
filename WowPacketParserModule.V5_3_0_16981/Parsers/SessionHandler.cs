@@ -31,6 +31,52 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         public static void HandleAuthSession(Packet packet)
         {
             var sha = new byte[20];
+            packet.ReadUInt32("unk 1");
+            sha[4] = packet.ReadByte();
+            packet.ReadUInt32("unk 2");
+            packet.ReadByte("unk Byte 1");
+            sha[19] = packet.ReadByte();
+            sha[12] = packet.ReadByte();
+            sha[9] = packet.ReadByte();
+            sha[6] = packet.ReadByte();
+            sha[18] = packet.ReadByte();
+            sha[17] = packet.ReadByte();
+            sha[8] = packet.ReadByte();
+            sha[13] = packet.ReadByte();
+            sha[1] = packet.ReadByte();
+            sha[10] = packet.ReadByte();
+            sha[11] = packet.ReadByte();
+            sha[15] = packet.ReadByte();
+            packet.ReadUInt32("seed");
+            sha[3] = packet.ReadByte();
+            sha[14] = packet.ReadByte();
+            sha[7] = packet.ReadByte();
+            packet.ReadUInt64("unk 64");
+            packet.ReadByte("unk Byte 2");
+            packet.ReadUInt32("unk 3");
+            sha[5] = packet.ReadByte();
+            sha[0] = packet.ReadByte();
+            packet.ReadUInt16("build client");
+            sha[16] = packet.ReadByte();
+            sha[2] = packet.ReadByte();
+            packet.ReadUInt32("unk 4");
+            using (var addons = new Packet(packet.ReadBytes(packet.ReadInt32("addon size")), packet.Opcode, packet.Time, packet.Direction, packet.Number, packet.Writer, packet.FileName))
+            {
+                var pkt2 = addons;
+                CoreParsers.AddonHandler.ReadClientAddonsList(ref pkt2);
+            }
+
+            uint nameLenght = packet.ReadBits(12);
+            packet.ReadBit();
+            packet.ResetBitReader();
+            packet.WriteLine("Account name: {0}", Encoding.UTF8.GetString(packet.ReadBytes((int)nameLenght)));
+            packet.WriteLine("Proof SHA-1 Hash: " + Utilities.ByteArrayToHexString(sha));
+        }
+
+        /*[Parser(Opcode.CMSG_AUTH_SESSION)]
+        public static void HandleAuthSession(Packet packet)
+        {
+            var sha = new byte[20];
             packet.ReadUInt32("UInt32 2");//16
             sha[8] = packet.ReadByte();//40
             sha[13] = packet.ReadByte();//45
@@ -72,9 +118,105 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.ResetBitReader();
             packet.WriteLine("Account name: {0}", Encoding.UTF8.GetString(packet.ReadBytes(size)));
             packet.WriteLine("Proof SHA-1 Hash: " + Utilities.ByteArrayToHexString(sha));
-        }
+        }*/
 
         [Parser(Opcode.SMSG_AUTH_RESPONSE)]
+        public static void HandleAuthResponse540(Packet packet)
+        {
+            uint classCounter = 0;
+            uint raceCounter = 0;
+            var has112bit = false;
+            uint unkCounter1 = 0;
+            var hasBit116 = false;
+            uint unkCounter5 = 0;
+            uint unkStringLenght1 = 0;
+            uint unkStringLenght2 = 0;
+
+            var isQueued = packet.ReadBit();
+            var hasAccountData = packet.ReadBit();
+
+            if (hasAccountData)
+            {
+                unkCounter1 = packet.ReadBits(21);
+                var has108bit = packet.ReadBit();
+                classCounter = packet.ReadBits(23); // class count ?
+                var has54bit = packet.ReadBit();
+                has112bit = packet.ReadBit();
+
+                for (int i = 0; i < unkCounter1; i++)
+                {
+                    var unkCounter3 = packet.ReadBits(23);
+                    var unkNb = packet.ReadBits(7);
+                    var unkCounter4 = packet.ReadBits(22);
+                }
+
+                unkCounter5 = packet.ReadBits(21);
+                for (int i = 0; i < unkCounter5; i++)
+                {
+                    unkStringLenght1 = packet.ReadBits("unk", 8);
+                    var unk2 = packet.ReadBit("unk 2");
+                    unkStringLenght2 = packet.ReadBits("unk 3", 8);
+                }
+
+                hasBit116 = packet.ReadBit();
+                raceCounter = packet.ReadBits(23); // race counter
+            }
+
+            if (isQueued)
+            {
+                var hasBit128 = packet.ReadBit(); // ??? need to be 0
+                if (isQueued) // blizz ...
+                    packet.ReadUInt32("position in queue");
+            }
+
+            if (hasAccountData)
+            {
+                for (int i = 0; i < classCounter; i++)
+                {
+                    packet.ReadEnum<Class>("Class", TypeCode.Byte, i);
+                    packet.ReadEnum<ClientType>("Class Expansion", TypeCode.Byte, i);
+                }
+
+                packet.ReadUInt32("unk uint32 48");
+
+                for (int i = 0; i < raceCounter; i++)
+                {
+                    packet.ReadByte("is In extension");
+                    packet.ReadEnum<Race>("Race", TypeCode.Byte, i);
+                }
+
+                packet.ReadUInt32("unk 40"); // time left in mins
+                packet.ReadUInt32("unk 56"); // unk (0)
+
+                if (has112bit)
+                    packet.ReadUInt16("unk 110");
+
+                // fuck it
+                /*for (int i = 0; i < unkCounter1; i++)
+                {
+                }*/
+
+                packet.ReadByte("unk 53"); // exp player
+                packet.ReadByte("unk 52"); // exp account
+
+                if (hasBit116)
+                    packet.ReadUInt16("unk 114");
+
+                for (int i = 0; i < unkCounter5; i++)
+                {
+                    packet.ReadWoWString("string2", (int)unkStringLenght2); // realm name
+                    packet.ReadWoWString("string1", (int)unkStringLenght1); // realm name
+                    packet.ReadUInt32("unk 28 uint32"); // realm guid flags ??
+                }
+
+                packet.ReadUInt32("unk 20");
+                packet.ReadUInt32("unk 44"); // 0
+            }
+
+            packet.ReadByte("byte 16"); // auth code
+        }
+
+       // [Parser(Opcode.SMSG_AUTH_RESPONSE)]
         public static void HandleAuthResponse(Packet packet)
         {
             var count = 0u;

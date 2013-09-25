@@ -150,6 +150,7 @@ namespace WowPacketParser.Parsing
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("ERREUR DURRING DUMP !!!");
                     packet.WriteLine(ex.GetType().ToString());
                     packet.WriteLine(ex.Message);
                     packet.WriteLine(ex.StackTrace);

@@ -4,5 +4,6 @@
     {
         Bin,
         Pkt,
+        Fabi,
     }
 }

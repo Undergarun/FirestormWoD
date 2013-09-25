@@ -338,6 +338,7 @@
     <Compile Include="Enums\WardenOpcode.cs" />
     <Compile Include="Enums\WeatherState.cs" />
     <Compile Include="Loading\BinaryPacketReader.cs" />
+    <Compile Include="Loading\FabiParser.cs" />
     <Compile Include="Loading\IPacketReader.cs" />
     <Compile Include="Loading\Reader.cs" />
     <Compile Include="Misc\BiDictionary.cs" />

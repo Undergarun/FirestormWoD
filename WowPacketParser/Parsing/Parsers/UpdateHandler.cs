@@ -220,6 +220,7 @@ namespace WowPacketParser.Parsing.Parsers
                     }
                 }
                 packet.WriteLine("[" + index + "] " + key + ": " + value);
+                Console.WriteLine("[" + index + "] " + key + ": " + value);
                 dict.Add(i, blockVal);
             }
 
@@ -259,6 +260,7 @@ namespace WowPacketParser.Parsing.Parsers
                                     string key = "Dynamic block Value ";
                                     string value = blockVal.UInt32Value + "/" + blockVal.SingleValue;
                                     packet.WriteLine("[" + index + "] " + key + ": " + value, i, j, k);
+                                    Console.WriteLine("[" + index + "] " + key + ": " + value, i, j, k);
                                 }
                             }
                         }

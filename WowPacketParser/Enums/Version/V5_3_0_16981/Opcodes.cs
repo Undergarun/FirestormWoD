@@ -11,7 +11,13 @@ namespace WowPacketParser.Enums.Version.V5_3_0_16981
 
         private static readonly BiDictionary<Opcode, int> Opcs = new BiDictionary<Opcode, int>
         {
-            {Opcode.CMSG_ADDON_REGISTERED_PREFIXES, 0x0470},
+            {Opcode.SMSG_UPDATE_OBJECT, 6105},
+            {Opcode.CMSG_CAST_SPELL, 5161},
+            {Opcode.SMSG_SPELL_START, 7191},
+            {Opcode.SMSG_SPELL_GO, 4278},
+            {Opcode.CMSG_AUTH_SESSION, 1936},
+            {Opcode.SMSG_AUTH_RESPONSE, 2318}
+            /*{Opcode.CMSG_ADDON_REGISTERED_PREFIXES, 0x0470},
             {Opcode.CMSG_AUTH_SESSION, 0x09F1},
             {Opcode.CMSG_AREATRIGGER, 0x04DB},
             {Opcode.CMSG_CAST_SPELL, 0x01CE},
@@ -397,7 +403,7 @@ namespace WowPacketParser.Enums.Version.V5_3_0_16981
             {Opcode.SMSG_WHOIS, 0x0D89},
             {Opcode.SMSG_WORLD_SERVER_INFO, 0x1091},
             {Opcode.SMSG_XP_GAIN_ABORTED, 0x1188},
-            {Opcode.SMSG_ZONE_UNDER_ATTACK, 0x053F}
+            {Opcode.SMSG_ZONE_UNDER_ATTACK, 0x053F}*/
         };
     }
 }
