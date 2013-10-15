@@ -455,11 +455,12 @@ void SmartAI::RemoveAuras()
 
 void SmartAI::EnterEvadeMode()
 {
-    if (!me->isAlive())
+    if (!me->isAlive() || me->IsInEvadeMode())
         return;
 
     RemoveAuras();
 
+    me->AddUnitState(UNIT_STATE_EVADE);
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
