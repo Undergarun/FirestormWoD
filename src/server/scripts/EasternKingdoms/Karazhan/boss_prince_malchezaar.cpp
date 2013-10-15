@@ -380,10 +380,8 @@ public:
                 me->GetRandomNearPosition(pos, 60);
             else
             {
-                std::vector<InfernalPoint*>::iterator itr = positions.begin()+rand()%positions.size();
-                point = *itr;
-                positions.erase(itr);
-                pos.Relocate(point->x, point->y, INFERNAL_Z);
+                point = JadeCore::Containers::SelectRandomContainerElement(positions);
+                pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
             }
 
             Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
