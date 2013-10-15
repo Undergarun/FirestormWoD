@@ -837,9 +837,10 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW           = 33,
     PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES        = 34,
     PLAYER_LOGIN_QUERY_LOADSEASONALQUESTSTATUS      = 35,
-    PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE              = 36,
-    PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 37,
-    //PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES          = 38, //id on TC.
+    PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS    = 36,
+    PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE              = 37,
+    PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 38,
+    //PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES          = 39, //id on TC.
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1604,6 +1605,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg);
         bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
+        bool SatisfyQuestMonth(Quest const* qInfo, bool msg);
         bool SatisfyQuestSeasonal(Quest const* qInfo, bool msg);
         bool GiveQuestSourceItem(Quest const* quest);
         bool TakeQuestSourceItem(uint32 questId, bool msg);
@@ -1615,9 +1617,11 @@ class Player : public Unit, public GridObject<Player>
 
         void SetDailyQuestStatus(uint32 quest_id);
         void SetWeeklyQuestStatus(uint32 quest_id);
+        void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
+        void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
 
         uint16 FindQuestSlot(uint32 quest_id) const;
@@ -2899,6 +2903,7 @@ class Player : public Unit, public GridObject<Player>
         typedef UNORDERED_MAP<uint32,SeasonalQuestSet> SeasonalEventQuestMap;
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
+        QuestSet m_monthlyquests;
         SeasonalEventQuestMap m_seasonalquests;
 
         uint64 m_divider;
@@ -2921,6 +2926,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
+        void _LoadMonthlyQuestStatus(PreparedQueryResult result);
         void _LoadSeasonalQuestStatus(PreparedQueryResult result);
         void _LoadRandomBGStatus(PreparedQueryResult result);
         void _LoadGroup(PreparedQueryResult result);
@@ -2949,6 +2955,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveQuestStatus(SQLTransaction& trans);
         void _SaveDailyQuestStatus(SQLTransaction& trans);
         void _SaveWeeklyQuestStatus(SQLTransaction& trans);
+        void _SaveMonthlyQuestStatus(SQLTransaction& trans);
         void _SaveSeasonalQuestStatus(SQLTransaction& trans);
         void _SaveSkills(SQLTransaction& trans);
         void _SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans);
@@ -3055,6 +3062,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool   m_DailyQuestChanged;
         bool   m_WeeklyQuestChanged;
+        bool   m_MonthlyQuestChanged;
         bool   m_SeasonalQuestChanged;
         time_t m_lastDailyQuestTime;
 
