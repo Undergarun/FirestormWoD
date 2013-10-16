@@ -1161,7 +1161,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             break;
         }
-        case 58730: // No fly Zone - Wintergrasp
+        case 91604: // No fly Zone - Wintergrasp
         {
             if (!player)
                 return false;

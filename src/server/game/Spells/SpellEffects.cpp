@@ -6879,13 +6879,13 @@ void Spell::EffectPlayMusic(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    uint32 soundid = m_spellInfo->Effects[effIndex].MiscValue;
+    uint32 soundId = m_spellInfo->Effects[effIndex].MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundid))
+    if (!sSoundEntriesStore.LookupEntry(soundId))
         return;
 
     WorldPacket data(SMSG_PLAY_MUSIC, 4);
-    data << uint32(soundid);
+    data << uint32(soundId);
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -6921,7 +6921,7 @@ void Spell::EffectPlaySound(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 58730: // Restricted Flight Area
+        case 91604: // Restricted Flight Area
         case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;
