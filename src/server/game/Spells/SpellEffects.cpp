@@ -6922,7 +6922,6 @@ void Spell::EffectPlaySound(SpellEffIndex effIndex)
     switch (m_spellInfo->Id)
     {
         case 91604: // Restricted Flight Area
-        case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;
         default:
