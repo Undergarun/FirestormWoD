@@ -149,7 +149,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
                 break;
 
         if (itr2 == itr->second.end())
-            return;
+            continue;
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -305,11 +305,12 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         trans->Append(stmt);
             
         CharacterDatabase.CommitTransaction(trans);
-        _membershipRequests[guildId].erase(itr);
 
         // Notify the applicant his submition has been removed
         if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HIGHGUID_PLAYER)))
             SendMembershipRequestListUpdate(*player);
+
+        ++itr;
     }
 
     _membershipRequests.erase(guildId);
