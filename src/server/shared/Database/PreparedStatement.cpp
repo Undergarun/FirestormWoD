@@ -192,6 +192,7 @@ void PreparedStatement::setString(const uint8 index, const std::string& value)
 }
 
 MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt) :
+m_stmt(NULL),
 m_Mstmt(stmt),
 m_bind(NULL)
 {
