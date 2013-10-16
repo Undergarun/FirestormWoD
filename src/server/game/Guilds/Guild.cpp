@@ -1231,6 +1231,19 @@ void Guild::SaveToDB()
 
 ///////////////////////////////////////////////////////////////////////////////
 // HANDLE CLIENT COMMANDS
+bool Guild::SetName(std::string const& name)
+{
+    if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+        return false;
+
+    m_name = name;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_NAME);
+    stmt->setString(0, m_name);
+    stmt->setUInt32(1, GetId());
+    CharacterDatabase.Execute(stmt);
+    return true;
+}
+
 void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 {
     ByteBuffer memberData(100);
