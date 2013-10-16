@@ -8398,15 +8398,12 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         oldWeekCount = itr->second.weekCount;
         oldSeasonTotalCount = itr->second.seasonTotal;
     }
-    
+
     // count can't be more then weekCap.
     uint32 weekCap = GetCurrencyWeekCap(currency);
     if (weekCap && count > int32(weekCap))
     {
         count = weekCap;
-        
-        
-        
     }
 
     int32 newTotalCount = int32(oldTotalCount) + count;
@@ -8416,7 +8413,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     int32 newWeekCount = int32(oldWeekCount) + (count > 0 ? count : 0);
     if (newWeekCount < 0)
         newWeekCount = 0;
-    
+
     int32 newSeasonTotalCount = int32(oldSeasonTotalCount) + (count > 0 ? count : 0);
 
     if (weekCap)
