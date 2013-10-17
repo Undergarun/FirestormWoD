@@ -745,7 +745,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             me->AI()->EnterEvadeMode();
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature %u EnterEvadeMode", me->GetGUIDLow());
-            return;
+            break;
         }
         case SMART_ACTION_FLEE_FOR_ASSIST:
         {
@@ -1480,7 +1480,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);
                             delete targets;
-                            return;
+                            break;
                         }
                         npc->SetCurrentEquipmentId(e.action.equip.entry);
                         slot[0] = einfo->ItemEntry[0];
@@ -1943,7 +1943,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!storedTargets)
             {
                 delete targets;
-                return;
+                break;
             }
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
