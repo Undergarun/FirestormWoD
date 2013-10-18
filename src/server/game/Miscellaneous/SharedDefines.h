@@ -3285,12 +3285,12 @@ enum CreatureFamily
     CREATURE_FAMILY_INFERNAL            = 108,      // New on MoP 5.0.5
     CREATURE_FAMILY_ELEMENTAL_FIRE_TOTEM = 116,     // New on MoP 5.0.5
     CREATURE_FAMILY_ELEMENTAL_EARTH_TOTEM =117,     // New on MoP 5.0.5
-    CREATURE_FAMILY_MONK_CRANEKICK      = 125,      // New on MoP 5.0.5
-    CREATURE_FAMILY_ELEMENTAL_MOTE      = 126,      // New on MoP 5.0.5
-    CREATURE_FAMILY_BOAR_NEW            = 127,      // New on MoP 5.0.5
-    CREATURE_FAMILY_CAT_NEW             = 128,      // New on MoP 5.0.5
-    CREATURE_FAMILY_MOUNTAINRAM         = 129,      // New on MoP 5.0.5
-    CREATURE_FAMILY_CROCOLISK_NEW       = 130,      // New on MoP 5.0.5
+    CREATURE_FAMILY_CRANE               = 125,      // New on MoP 5.4.0
+    CREATURE_FAMILY_WATER_STRIDER       = 126,      // New on MoP 5.4.0
+    CREATURE_FAMILY_PORCUPINE           = 127,      // New on MoP 5.4.0
+    CREATURE_FAMILY_QUIEL               = 128,      // New on MoP 5.4.0
+    CREATURE_FAMILY_GOAT                = 129,      // New on MoP 5.4.0
+    CREATURE_FAMILY_BASILISK            = 130,      // New on MoP 5.4.0
     CREATURE_FAMILY_DIREHORN            = 138       // Isle of giant creature ?
 
 };
@@ -3328,7 +3328,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
     CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
-    REATURE_TYPEFLAGS_QUEST_BOSS        = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
+    CREATURE_TYPEFLAGS_QUEST_BOSS        = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
 };
 
 enum CreatureTypeFlags2
