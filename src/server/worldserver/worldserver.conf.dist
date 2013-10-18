@@ -3082,6 +3082,25 @@ AnnounceMute = 0
 
 SpellForbidden = 0
 
+#     Antispam.Mail.Enabled
+#        Description: Enable or disable email Antispam system
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Antispam.Mail.Enabled = 1
+
+#     Antispam.Mail.Timer
+#        Description: Time (in seconds) between emails to be counted into Antispam.Mail.Count
+#        Default:     3600 - (Enabled, best value)
+
+Antispam.Mail.Timer = 3600
+
+#     Antispam.Mail.Count
+#        Description: Email antispam, number of emails that player can send
+#        Default:     12 - (Enabled, best value)
+
+Antispam.Mail.Count = 12
+
 ###################################################################################################
 # VIP CONFIG
 #

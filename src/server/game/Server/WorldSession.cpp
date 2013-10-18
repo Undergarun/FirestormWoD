@@ -111,7 +111,8 @@ timeCharEnumOpcode(0),
 playerLoginCounter(0),
 sellItemOpcodeTimer(5000),
 sellItemOpcodeCounter(0),
-timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand
+timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand,
+m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -315,6 +316,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
     else
         sellItemOpcodeTimer -= diff;
+
+    /// Antispam Timer update
+    if (sWorld->getBoolConfig(CONFIG_ANTISPAM_ENABLED))
+        UpdateAntispamTimer(diff);
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
