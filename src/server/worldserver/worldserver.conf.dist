@@ -27,6 +27,7 @@
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    VIP CONFIG
 #
 ###################################################################################################
 
@@ -393,8 +394,8 @@ CleanCharacterDB = 0
 PersistentCharacterCleanFlags = 0
 
 #
-#	Skip update in specific zone
-#		Actualy Orgrimmar & Stormwind
+#   Skip update in specific zone
+#       Actualy Orgrimmar & Stormwind
 #
 
 ZoneSkipUpdate.count = 15
@@ -619,7 +620,7 @@ DeclinedNames = 0
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
 #        Default:     4 - (Expansion 4 Mists of Pandaria)
-#				      3 - (Expansion 3 Cataclysm)
+#                     3 - (Expansion 3 Cataclysm)
 #                     2 - (Expansion 2 Warth of the Lich King)
 #                     1 - (Expansion 1 Burning Crusade)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
@@ -3044,7 +3045,7 @@ Currency.ConquestPointsArenaReward = 180
 # CUSTOM SETTINGS
 #
 #     AnnounceBan
-#		 Description: Announce in chat server all ban by GameMaster
+#        Description: Announce in chat server all ban by GameMaster
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -3052,7 +3053,7 @@ AnnounceBan = 0
 
 #
 #     AnnounceMute
-#		 Description: Announce in chat server all mutes by GameMaster
+#        Description: Announce in chat server all mutes by GameMaster
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -3060,7 +3061,7 @@ AnnounceMute = 0
 
 #
 #     Spell Forbidden
-#		 Description: Auto ban when a player learn a spell forbidden in DB world.spell_forbiden
+#        Description: Auto ban when a player learn a spell forbidden in DB world.spell_forbiden
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -3077,32 +3078,32 @@ SpellForbidden = 0
 #        Description: Enables rates modifier to VIPs.
 #        Default: 1
 
-Rate.XP.Kill.Premium    = 1.5
-Rate.XP.Quest.Premium   = 1.5
-Rate.XP.Explore.Premium = 1.5
-Rate.Honor.Premium      = 1.5
+Rate.XP.Kill.Premium         = 1.5
+Rate.XP.Quest.Premium        = 1.5
+Rate.XP.Explore.Premium      = 1.5
+Rate.Honor.Premium           = 1.5
 Rate.Reputation.Gain.Premium = 1.5
 
-#    Vip.Debuff.Command = 1
-#    Vip.Bank.Command = 1
-#    Vip.Repair.Command = 1
+#    Vip.Debuff.Command        = 1
+#    Vip.Bank.Command          = 1
+#    Vip.Repair.Command        = 1
 #    Vip.Reset.Talents.Command = 1
-#    Vip.Taxi.Command = 1
-#    Vip.Home.Command = 1
-#    Vip.Capital.Command = 1
+#    Vip.Taxi.Command          = 1
+#    Vip.Home.Command          = 1
+#    Vip.Capital.Command       = 1
 #    Vip.Exchange.Arena.Command
 #        Description: Here you can enable or disable some VIP commands.
 #        Default: 1
 
-Vip.Debuff.Command = 0
-Vip.Bank.Command = 1
-Vip.Repair.Command = 0
-Vip.Reset.Talents.Command = 0
-Vip.Taxi.Command = 0
-Vip.Home.Command = 1
-Vip.Capital.Command = 0
-Vip.Exchange.Arena.Command = 0
-Vip.Exchange.Frost.Command = 0
-Vip.Rate.Exchange.Honor.In.Arena = 1
+Vip.Debuff.Command                 = 0
+Vip.Bank.Command                   = 1
+Vip.Repair.Command                 = 0
+Vip.Reset.Talents.Command          = 0
+Vip.Taxi.Command                   = 0
+Vip.Home.Command                   = 1
+Vip.Capital.Command                = 0
+Vip.Exchange.Arena.Command         = 0
+Vip.Exchange.Frost.Command         = 0
+Vip.Rate.Exchange.Honor.In.Arena   = 1
 Vip.Rate.Exchange.Triumph.In.Frost = 1
 ###################################################################################################

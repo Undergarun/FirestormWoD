@@ -1120,12 +1120,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     QueryResult premresult = LoginDatabase.PQuery
-	                           ("SELECT 1 "
+                               ("SELECT 1 "
                                 "FROM account_premium "
                                 "WHERE id = '%u' "
                                 "AND active = 1",
                                 id);
-    if (premresult) // if account premium
+    if (premresult) // If account premium
     {
         isPremium = true;
     }
