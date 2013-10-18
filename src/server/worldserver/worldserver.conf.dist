@@ -3065,3 +3065,44 @@ AnnounceMute = 0
 #                     1 - (Enabled)
 
 SpellForbidden = 0
+
+###################################################################################################
+# VIP CONFIG
+#
+#    Rate.XP.Kill.Premium
+#    Rate.XP.Quest.Premium
+#    Rate.XP.Explore.Premium
+#    Rate.Honor.Premium
+#    Rate.Reputation.Gain.Premium
+#        Description: Enables rates modifier to VIPs.
+#        Default: 1
+
+Rate.XP.Kill.Premium    = 1.5
+Rate.XP.Quest.Premium   = 1.5
+Rate.XP.Explore.Premium = 1.5
+Rate.Honor.Premium      = 1.5
+Rate.Reputation.Gain.Premium = 1.5
+
+#    Vip.Debuff.Command = 1
+#    Vip.Bank.Command = 1
+#    Vip.Repair.Command = 1
+#    Vip.Reset.Talents.Command = 1
+#    Vip.Taxi.Command = 1
+#    Vip.Home.Command = 1
+#    Vip.Capital.Command = 1
+#    Vip.Exchange.Arena.Command
+#        Description: Here you can enable or disable some VIP commands.
+#        Default: 1
+
+Vip.Debuff.Command = 0
+Vip.Bank.Command = 1
+Vip.Repair.Command = 0
+Vip.Reset.Talents.Command = 0
+Vip.Taxi.Command = 0
+Vip.Home.Command = 1
+Vip.Capital.Command = 0
+Vip.Exchange.Arena.Command = 0
+Vip.Exchange.Frost.Command = 0
+Vip.Rate.Exchange.Honor.In.Arena = 1
+Vip.Rate.Exchange.Triumph.In.Frost = 1
+###################################################################################################

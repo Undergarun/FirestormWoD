@@ -293,7 +293,7 @@ void World::AddSession_(WorldSession* s)
     if (decrease_session)
         --Sessions;
 
-    if (pLimit > 0 && Sessions >= pLimit && AccountMgr::IsPlayerAccount(s->GetSecurity()) && !HasRecentlyDisconnected(s))
+    if (pLimit > 0 && Sessions >= pLimit && AccountMgr::IsPlayerAccount(s->GetSecurity()) && !HasRecentlyDisconnected(s) && !s->IsPremium())
     {
         AddQueuedPlayer (s);
         UpdateMaxSessionCounters();
@@ -496,6 +496,13 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.RepairCost (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_REPAIRCOST]);
         rate_values[RATE_REPAIRCOST] = 0.0f;
     }
+	
+    rate_values[RATE_XP_KILL_PREMIUM]    = ConfigMgr::GetFloatDefault("Rate.XP.Kill.Premium", 1.0f);
+    rate_values[RATE_XP_QUEST_PREMIUM]   = ConfigMgr::GetFloatDefault("Rate.XP.Quest.Premium", 1.0f);
+    rate_values[RATE_XP_EXPLORE_PREMIUM] = ConfigMgr::GetFloatDefault("Rate.XP.Explore.Premium", 1.0f);
+    rate_values[RATE_REPUTATION_GAIN_PREMIUM]  = ConfigMgr::GetFloatDefault("Rate.Reputation.Gain.Premium", 1.0f);
+    rate_values[RATE_HONOR_PREMIUM] = ConfigMgr::GetFloatDefault("Rate.Honor.Premium", 1.0f);
+
     rate_values[RATE_REPUTATION_GAIN]  = ConfigMgr::GetFloatDefault("Rate.Reputation.Gain", 1.0f);
     rate_values[RATE_REPUTATION_LOWLEVEL_KILL]  = ConfigMgr::GetFloatDefault("Rate.Reputation.LowLevel.Kill", 1.0f);
     rate_values[RATE_REPUTATION_LOWLEVEL_QUEST]  = ConfigMgr::GetFloatDefault("Rate.Reputation.LowLevel.Quest", 1.0f);
@@ -1307,6 +1314,18 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ANNOUNCE_MUTE] = ConfigMgr::GetBoolDefault("AnnounceMute", false);
     m_bool_configs[CONFIG_SPELL_FORBIDDEN] = ConfigMgr::GetBoolDefault("SpellForbidden", false);
 
+    // Vip Commands
+    m_bool_configs[CONFIG_VIP_DEBUFF_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Debuff.Command", false);
+    m_bool_configs[CONFIG_VIP_BANK_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Bank.Command", true);
+    m_bool_configs[CONFIG_VIP_REPAIR_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Repair.Command", false);
+    m_bool_configs[CONFIG_VIP_RESET_TALENTS_COMMAND] = ConfigMgr::GetBoolDefault("VIP.Reset.Talents.Command", false);
+    m_bool_configs[CONFIG_VIP_TAXI_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Taxi.Command", false);
+    m_bool_configs[CONFIG_VIP_HOME_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Home.Command", true);
+    m_bool_configs[CONFIG_VIP_CAPITAL_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Capital.Command", false);
+    m_bool_configs[CONFIG_VIP_EXCHANGE_ARENA_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Exchange.Arena.Command",false);
+    m_bool_configs[CONFIG_VIP_EXCHANGE_FROST_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Exchange.Frost.Command",false);
+    m_int_configs[CONFIG_VIP_RATE_EXHANGE_HONOR_IN_ARENA]  = ConfigMgr::GetIntDefault("Vip.Rate.Exchange.Honor.In.Arena", 1);
+    m_int_configs[CONFIG_VIP_RATE_EXHANGE_TRIUMPH_IN_FROST]  = ConfigMgr::GetIntDefault("Vip.Rate.Exchange.Triumph.In.Frost", 1);
 
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

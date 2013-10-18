@@ -1156,6 +1156,14 @@ enum TrinityStrings
     LANG_INVALID_REALMID                = 11001,
     LANG_NPC_LIST_CHAT                  = 11002,
 
+    // Vip Commands
+    LANG_PLAYER_NOT_VIP                 = 11007,
+    LANG_VIP_COMMAND_DISABLED           = 11008,
+    LANG_VIP_ERROR                      = 11009,
+    LANG_VIP_ARENA_ERROR                = 11010,
+    LANG_VIP_INCORRECT_VALUE            = 11011,
+    LANG_VIP_FROST_ERROR                = 11012,
+
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
