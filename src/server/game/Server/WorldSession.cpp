@@ -111,7 +111,7 @@ timeCharEnumOpcode(0),
 playerLoginCounter(0),
 sellItemOpcodeTimer(5000),
 sellItemOpcodeCounter(0),
-timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand,
+timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand(0),
 m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0)
 {
     _warden = NULL;
