@@ -20115,13 +20115,14 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         if (GetTypeId() == TYPEID_PLAYER)
             GetMap()->PlayerRelocation(ToPlayer(), x, y, z, orientation);
         else
+        {
             GetMap()->CreatureRelocation(ToCreature(), x, y, z, orientation);
+            // code block for underwater state update
+            UpdateUnderwaterState(GetMap(), x, y, z);
+        }
     }
     else if (turn)
         UpdateOrientation(orientation);
-
-    // code block for underwater state update
-    UpdateUnderwaterState(GetMap(), x, y, z);
 
     return (relocated || turn);
 }
