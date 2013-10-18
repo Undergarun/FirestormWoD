@@ -1581,6 +1581,21 @@ ChatFlood.MessageDelay = 1
 ChatFlood.MuteTime = 10
 
 #
+#    ChatFlood.PrivateMessageCount
+#        Description: Chat flood protection, number of private messages that player can send.
+#        Default:     10 - (Enabled)
+#                     0  - (Disabled)
+
+ChatFlood.PrivateMessageCount = 10
+
+#
+#    ChatFlood.PrivateMessageDelay
+#        Description: Time (in seconds) between messages to be counted into ChatFlood.PrivateMessageCount.
+#        Default:     1
+
+ChatFlood.PrivateMessageDelay = 1
+
+#
 #    Channel.RestrictedLfg
 #        Description: Restrict LookupForGroup channel to characters registered in the LFG tool.
 #        Default:     1 - (Enabled, Allow join to channel only if registered in LFG)
@@ -3066,6 +3081,25 @@ AnnounceMute = 0
 #                     1 - (Enabled)
 
 SpellForbidden = 0
+
+#     Antispam.Mail.Enabled
+#        Description: Enable or disable email Antispam system
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Antispam.Mail.Enabled = 1
+
+#     Antispam.Mail.Timer
+#        Description: Time (in seconds) between emails to be counted into Antispam.Mail.Count
+#        Default:     3600 - (Enabled, best value)
+
+Antispam.Mail.Timer = 3600
+
+#     Antispam.Mail.Count
+#        Description: Email antispam, number of emails that player can send
+#        Default:     12 - (Enabled, best value)
+
+Antispam.Mail.Count = 12
 
 ###################################################################################################
 # VIP CONFIG

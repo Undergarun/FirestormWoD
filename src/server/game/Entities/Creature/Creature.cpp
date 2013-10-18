@@ -466,28 +466,28 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
 
 void Creature::Update(uint32 diff)
 {
-	if (m_LOSCheckTimer <= diff)
-	{
-		m_LOSCheck_player = true;
-		m_LOSCheck_creature = true;
-		m_LOSCheckTimer = DEFAULT_VISIBILITY_NOTIFY_PERIOD*2;
+    if (m_LOSCheckTimer <= diff)
+    {
+        m_LOSCheck_player = true;
+        m_LOSCheck_creature = true;
+        m_LOSCheckTimer = DEFAULT_VISIBILITY_NOTIFY_PERIOD*2;
     }
     else
         m_LOSCheckTimer -= diff;
 
-	// Zone Skip Update
+    // Zone Skip Update
     if ((sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
-	{
-		_skipCount++;
-		_skipDiff += diff;
+    {
+        _skipCount++;
+        _skipDiff += diff;
 
-		if (_skipCount != sObjectMgr->GetSkipUpdateCount())
-			return;
+        if (_skipCount != sObjectMgr->GetSkipUpdateCount())
+            return;
 
-		diff = _skipDiff;
-		_skipCount = 0;
-		_skipDiff = 0;
-	}
+        diff = _skipDiff;
+        _skipCount = 0;
+        _skipDiff = 0;
+    }
 
     if (IsAIEnabled && TriggerJustRespawned)
     {
@@ -495,17 +495,6 @@ void Creature::Update(uint32 diff)
         AI()->JustRespawned();
         if (m_vehicleKit)
             m_vehicleKit->Reset();
-    }
-
-    if (IsInWater())
-    {
-        if (canSwim())
-            AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    }
-    else
-    {
-        if (canWalk())
-            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     }
 
     switch (m_deathState)

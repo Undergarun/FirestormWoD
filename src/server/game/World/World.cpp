@@ -1012,6 +1012,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHATFLOOD_MESSAGE_DELAY] = ConfigMgr::GetIntDefault("ChatFlood.MessageDelay", 1);
     m_int_configs[CONFIG_CHATFLOOD_MUTE_TIME]     = ConfigMgr::GetIntDefault("ChatFlood.MuteTime", 10);
 
+    m_int_configs[CONFIG_CHATFLOOD_PRIVATE_MESSAGE_COUNT] = ConfigMgr::GetIntDefault("ChatFlood.PrivateMessageCount", 10);
+    m_int_configs[CONFIG_CHATFLOOD_PRIVATE_MESSAGE_DELAY] = ConfigMgr::GetIntDefault("ChatFlood.PrivateMessageMessageDelay", 1);
+
     m_int_configs[CONFIG_EVENT_ANNOUNCE] = ConfigMgr::GetIntDefault("Event.Announce", 0);
 
     m_float_configs[CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS] = ConfigMgr::GetFloatDefault("CreatureFamilyFleeAssistanceRadius", 30.0f);
@@ -1326,6 +1329,11 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_VIP_EXCHANGE_FROST_COMMAND] = ConfigMgr::GetBoolDefault("Vip.Exchange.Frost.Command",false);
     m_int_configs[CONFIG_VIP_RATE_EXHANGE_HONOR_IN_ARENA]  = ConfigMgr::GetIntDefault("Vip.Rate.Exchange.Honor.In.Arena", 1);
     m_int_configs[CONFIG_VIP_RATE_EXHANGE_TRIUMPH_IN_FROST]  = ConfigMgr::GetIntDefault("Vip.Rate.Exchange.Triumph.In.Frost", 1);
+
+    // Mail Antispam
+    m_bool_configs[CONFIG_ANTISPAM_ENABLED] = ConfigMgr::GetBoolDefault("Antispam.Mail.Enabled", false);
+    m_int_configs[CONFIG_ANTISPAM_MAIL_TIMER] = ConfigMgr::GetIntDefault("Antispam.Mail.Timer", 3600) * IN_MILLISECONDS;
+    m_int_configs[CONFIG_ANTISPAM_MAIL_COUNT] = ConfigMgr::GetIntDefault("Antispam.Mail.Count", 10);
 
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

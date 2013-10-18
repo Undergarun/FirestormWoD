@@ -2248,25 +2248,42 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
         return true;
 
     float distance = GetExactDist(obj);
-    float combatReach = 0.0f;
 
-    if (isType(TYPEMASK_UNIT))
-        combatReach = ((Unit*)this)->GetCombatReach();
-
-    if (distance < combatReach)
-        return true;
-
-    if (!HasInArc(M_PI, obj))
-        return false;
-
-    for (uint32 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
+    // stealth detection of traps = invisibility detection, calculate from compare detection and stealth values
+    if (obj->m_stealth.HasFlag(STEALTH_TRAP))
     {
-        if (!(obj->m_stealth.GetFlags() & (1 << i)))
-            continue;
+        if (!HasInArc(M_PI, obj))
+            return false;
+
+        // rogue class - detect traps limit to 20 yards
+        float maxDetectDistance = 20.0f;
+        if (distance > maxDetectDistance)
+            return false;
+
+        int32 objTrapStealthValue = obj->m_stealth.GetValue(STEALTH_TRAP);
+        int32 ownTrapStealthDetectValue = m_stealthDetect.GetValue(STEALTH_TRAP);
+
+        if (ownTrapStealthDetectValue < objTrapStealthValue)
+            // not rogue class - detect traps limit to melee distance
+            if (distance > 4.0f)
+                return false;
+    }
+    else
+    {
+        float combatReach = 0.0f;
 
         if (isType(TYPEMASK_UNIT))
-            if (((Unit*)this)->HasAuraTypeWithMiscvalue(SPELL_AURA_DETECT_STEALTH, i))
+        {
+            combatReach = ((Unit*)this)->GetCombatReach();
+            if (distance < combatReach)
                 return true;
+
+            if (((Unit*)this)->HasAuraType(SPELL_AURA_DETECT_STEALTH))
+                return true;
+        }
+
+        if (!HasInArc(M_PI, obj))
+            return false;
 
         // Starting points
         int32 detectionValue = 30;
@@ -2277,12 +2294,12 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
         detectionValue += int32(getLevelForTarget(obj) - 1) * 5;
 
         // Apply modifiers
-        detectionValue += m_stealthDetect.GetValue(StealthType(i));
+        detectionValue += m_stealthDetect.GetValue(STEALTH_GENERAL);
         if (obj->isType(TYPEMASK_GAMEOBJECT))
             if (Unit* owner = ((GameObject*)obj)->GetOwner())
                 detectionValue -= int32(owner->getLevelForTarget(this) - 1) * 5;
 
-        detectionValue -= obj->m_stealth.GetValue(StealthType(i));
+        detectionValue -= obj->m_stealth.GetValue(STEALTH_GENERAL);
 
         // Calculate max distance
         float visibilityRange = float(detectionValue) * 0.3f + combatReach;

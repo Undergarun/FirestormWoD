@@ -729,6 +729,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_speakTime = 0;
     m_speakCount = 0;
 
+    m_pmChatTime = 0;
+    m_pmChatCount = 0;
+
     m_petSlotUsed = 0;
     m_currentPetSlot = PET_SLOT_DELETED;
 
@@ -3678,17 +3681,36 @@ void Player::GiveLevel(uint8 level)
 
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS_PER_CLASS*4+MAX_STATS*4));
-    data << uint32(level);
+
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
-    // for (int i = 0; i < MAX_POWERS_PER_CLASS; ++i)          // Powers loop (0-10)
+
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
+        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+
+    bool talent = false;
+
+    switch (level)
+    {
+        case 15:
+        case 30:
+        case 45:
+        case 60:
+        case 75:
+        case 90:
+            talent = true;
+            break;
+        default:
+            break;
+    }
+
+    data << uint32(talent);     // Has talent
+    data << uint32(level);
+
     data << uint32(int32(basemana)   - int32(GetCreateMana()));
     data << uint32(0);
     data << uint32(0);
     data << uint32(0);
     data << uint32(0);
-    // end for
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
-        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
 
     GetSession()->SendPacket(&data);
 
@@ -14658,45 +14680,118 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
 
 void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
-    data << uint8(msg);
-
     if (msg != EQUIP_ERR_OK)
     {
-        data << uint64(pItem ? pItem->GetGUID() : 0);
-        data << uint64(pItem2 ? pItem2->GetGUID() : 0);
+        //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
+        WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE);
+
+        ObjectGuid item1 = pItem ? pItem->GetGUID() : NULL;
+        ObjectGuid item2 = pItem2 ? pItem2->GetGUID() : NULL;
+
+        data.WriteBit(item1[2]);
+        data.WriteBit(item2[6]);
+        data.WriteBit(item2[5]);
+        data.WriteBit(item1[4]);
+        data.WriteBit(item1[7]);
+        data.WriteBit(item2[7]);
+        data.WriteBit(item1[1]);
+        data.WriteBit(item1[3]);
+        data.WriteBit(item2[4]);
+        data.WriteBit(item2[0]);
+        data.WriteBit(item2[3]);
+        data.WriteBit(item1[6]);
+        data.WriteBit(item2[2]);
+        data.WriteBit(item1[5]);
+        data.WriteBit(item1[0]);
+        data.WriteBit(item2[1]);
+
+        data.WriteByteSeq(item2[4]);
+        data.WriteByteSeq(item1[7]);
+        data.WriteByteSeq(item1[0]);
+        data.WriteByteSeq(item2[0]);
+        data.WriteByteSeq(item1[1]);
+
+        data << uint8(msg);
+
+        data.WriteByteSeq(item2[3]);
+
+        if (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I || msg == EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW)
+        {
+            ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
+            data << uint32(proto ? proto->RequiredLevel : 0);
+        }
+
+        data.WriteByteSeq(item1[2]);
+
+        // no idea about this one...
+        if (msg == EQUIP_ERR_NO_OUTPUT)
+        {
+            data << uint32(0); // slot
+        }
+
+        if (msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS ||
+            msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS ||
+            msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS)
+        {
+            ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
+            data << uint32(proto ? proto->ItemLimitCategory : 0);
+        }
+
+        data.WriteByteSeq(item1[5]);
+        data.WriteByteSeq(item2[7]);
+        data.WriteByteSeq(item1[4]);
+        data.WriteByteSeq(item2[2]);
+        data.WriteByteSeq(item2[5]);
+        data.WriteByteSeq(item2[6]);
+        data.WriteByteSeq(item1[3]);
+        data.WriteByteSeq(item1[6]);
+        data.WriteByteSeq(item2[1]);
+
         data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
 
-        switch (msg)
+        // no idea about this one...
+        if (msg == EQUIP_ERR_NO_OUTPUT)
         {
-            case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
-            case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
-            {
-                ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->RequiredLevel : 0);
-                break;
-            }
-            case EQUIP_ERR_NO_OUTPUT:    // no idea about this one...
-            {
-                data << uint64(0); // item guid
-                data << uint32(0); // slot
-                data << uint64(0); // container
-                break;
-            }
-            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
-            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
-            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
-            {
-                ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->ItemLimitCategory : 0);
-                break;
-            }
-            default:
-                break;
+            ObjectGuid itemGuid = NULL;
+            ObjectGuid containerGuid = NULL;
+
+            data.WriteBit(itemGuid[2]);
+            data.WriteBit(itemGuid[5]);
+            data.WriteBit(containerGuid[7]);
+            data.WriteBit(itemGuid[6]);
+            data.WriteBit(itemGuid[4]);
+            data.WriteBit(containerGuid[5]);
+            data.WriteBit(containerGuid[6]);
+            data.WriteBit(containerGuid[0]);
+            data.WriteBit(itemGuid[7]);
+            data.WriteBit(containerGuid[2]);
+            data.WriteBit(itemGuid[3]);
+            data.WriteBit(itemGuid[0]);
+            data.WriteBit(itemGuid[1]);
+            data.WriteBit(containerGuid[3]);
+            data.WriteBit(containerGuid[4]);
+            data.WriteBit(containerGuid[1]);
+
+            data.WriteByteSeq(containerGuid[6]);
+            data.WriteByteSeq(containerGuid[4]);
+            data.WriteByteSeq(containerGuid[5]);
+            data.WriteByteSeq(containerGuid[1]);
+            data.WriteByteSeq(itemGuid[1]);
+            data.WriteByteSeq(itemGuid[2]);
+            data.WriteByteSeq(itemGuid[5]);
+            data.WriteByteSeq(containerGuid[0]);
+            data.WriteByteSeq(itemGuid[7]);
+            data.WriteByteSeq(itemGuid[3]);
+            data.WriteByteSeq(containerGuid[2]);
+            data.WriteByteSeq(containerGuid[3]);
+            data.WriteByteSeq(itemGuid[4]);
+            data.WriteByteSeq(itemGuid[0]);
+            data.WriteByteSeq(itemGuid[6]);
+            data.WriteByteSeq(containerGuid[7]);
         }
+
+        GetSession()->SendPacket(&data);
     }
-    GetSession()->SendPacket(&data);
 }
 
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
@@ -21597,6 +21692,30 @@ void Player::UpdateSpeakTime()
         m_speakCount = 0;
 
     m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+}
+
+bool Player::UpdatePmChatTime()
+{
+    // ignore chat spam protection for GMs in any mode
+    if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
+        return true;
+
+    time_t current = time (NULL);
+    if (m_pmChatTime > current)
+    {
+        uint32 max_count = sWorld->getIntConfig(CONFIG_CHATFLOOD_PRIVATE_MESSAGE_COUNT);
+        if (!max_count)
+            return true;
+
+        ++m_pmChatCount;
+        if (m_pmChatCount >= max_count)
+            return false;
+    }
+    else
+        m_pmChatCount = 0;
+
+    m_pmChatTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_PRIVATE_MESSAGE_DELAY);
+    return true;
 }
 
 bool Player::CanSpeak() const

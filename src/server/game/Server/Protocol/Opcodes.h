@@ -56,8 +56,8 @@ enum Opcodes
     CMSG_ARENA_TEAM_QUERY                             = 0x000,  // 5.0.5 16048
     CMSG_ARENA_TEAM_REMOVE                            = 0x000,  // 5.0.5 16048
     CMSG_ARENA_TEAM_ROSTER                            = 0x000,  // 5.0.5 16048
-    CMSG_ATTACKSTOP                                   = 0x000,  // 5.0.5 16048
-    CMSG_ATTACKSWING                                  = 0x000,  // 5.0.5 16048
+    CMSG_ATTACKSTOP                                   = 0x118E, // 5.4.0 17399
+    CMSG_ATTACKSWING                                  = 0x14AF, // 5.4.0 17399
     CMSG_AUCTION_LIST_BIDDER_ITEMS                    = 0x000,  // 5.0.5 16048
     CMSG_AUCTION_LIST_ITEMS                           = 0x000,  // 5.0.5 16048
     CMSG_AUCTION_LIST_OWNER_ITEMS                     = 0x000,  // 5.0.5 16048
@@ -68,7 +68,7 @@ enum Opcodes
     CMSG_AUTH_SESSION                                 = 0x790,  // 5.4.0 17371
     CMSG_AUTOBANK_ITEM                                = 0x000,  // 5.0.5 16048
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x000,  // 5.0.5 16048
-    CMSG_AUTOEQUIP_ITEM                               = 0x000,  // 5.0.5 16048
+    CMSG_AUTOEQUIP_ITEM                               = 0x564,  // 5.4.0 17399
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x000,  // 5.0.5 16048
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x000,  // 5.0.5 16048
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x000,  // 5.0.5 16048
@@ -116,7 +116,7 @@ enum Opcodes
     CMSG_CALENDAR_REMOVE_EVENT                        = 0x000,  // 5.0.5 16048
     CMSG_CALENDAR_UPDATE_EVENT                        = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_AURA                                  = 0x000,  // 5.0.5 16048
-    CMSG_CANCEL_AUTO_REPEAT_SPELL                     = 0x000,  // 5.0.5 16048
+    CMSG_CANCEL_AUTO_REPEAT_SPELL                     = 0x12FB,  // 5.4.0 17399
     CMSG_CANCEL_CAST                                  = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_CHANNELLING                           = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_GROWTH_AURA                           = 0x000,  // 5.0.5 16048
@@ -182,7 +182,7 @@ enum Opcodes
     CMSG_DEL_FRIEND                                   = 0x000,  // 5.0.5 16048
     CMSG_DEL_IGNORE                                   = 0x000,  // 5.0.5 16048
     CMSG_DEL_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
-    CMSG_DESTROY_ITEM                                 = 0x000,  // 5.0.5 16048
+    CMSG_DESTROY_ITEM                                 = 0x1401,  // 5.4.0 17399
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x000,  // 5.0.5 16048
     CMSG_DISMISS_CRITTER                              = 0x000,  // 5.0.5 16048
     CMSG_DUEL_ACCEPTED                                = 0x000,  // 5.0.5 16048
@@ -508,7 +508,7 @@ enum Opcodes
     CMSG_SOCKET_GEMS                                  = 0x000,  // 5.0.5 16048
     CMSG_SPELLCLICK                                   = 0x000,  // 5.0.5 16048
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x000,  // 5.0.5 16048
-    CMSG_SPLIT_ITEM                                   = 0x000,  // 5.0.5 16048
+    CMSG_SPLIT_ITEM                                   = 0x161,  // 5.4.0 17399
     CMSG_STANDSTATECHANGE                             = 0x000,  // 5.0.5 16048
     CMSG_START_QUEST                                  = 0x000,  // 5.0.5 16048
     CMSG_STOP_DANCE                                   = 0x000,  // 5.0.5 16048
@@ -519,8 +519,8 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x000,  // 5.0.5 16048
     CMSG_SUMMON_RESPONSE                              = 0x000,  // 5.0.5 16048
     CMSG_SUSPEND_TOKEN                                = 0x000,  // 5.0.5 16048 Unused
-    CMSG_SWAP_INV_ITEM                                = 0x000,  // 5.0.5 16048
-    CMSG_SWAP_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_SWAP_INV_ITEM                                = 0x445,  // 5.4.0 17399
+    CMSG_SWAP_ITEM                                    = 0x440,  // 5.4.0 17399
     CMSG_SYNC_DANCE                                   = 0x000,  // 5.0.5 16048
     CMSG_TAXICLEARALLNODES                            = 0x000,  // 5.0.5 16048
     CMSG_TAXIENABLEALLNODES                           = 0x000,  // 5.0.5 16048
@@ -659,9 +659,9 @@ enum Opcodes
     SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0x000,  // 5.0.5 16048
     SMSG_ARENA_TEAM_ROSTER                            = 0x000,  // 5.0.5 16048
     SMSG_ARENA_TEAM_STATS                             = 0x000,  // 5.0.5 16048
-    SMSG_ATTACKERSTATEUPDATE                          = 0x000,  // 5.0.5 16048
-    SMSG_ATTACKSTART                                  = 0x000,  // 5.0.5 16048
-    SMSG_ATTACKSTOP                                   = 0x000,  // 5.0.5 16048
+    SMSG_ATTACKERSTATEUPDATE                          = 0x1BC0,  // 5.4.0 17399
+    SMSG_ATTACKSTART                                  = 0x427,  // 5.4.0 17399
+    SMSG_ATTACKSTOP                                   = 0x012,  // 5.4.0 17399
     SMSG_ATTACKSWING_BADFACING                        = 0x000,  // 5.0.5 16048
     SMSG_ATTACKSWING_CANT_ATTACK                      = 0x000,  // 5.0.5 16048
     SMSG_ATTACKSWING_DEADTARGET                       = 0x000,  // 5.0.5 16048
@@ -954,7 +954,7 @@ enum Opcodes
     SMSG_INVALIDATE_DANCE                             = 0x000,  // 5.0.5 16048
     SMSG_INVALIDATE_PLAYER                            = 0x0013, // 5.4.0 17399 (JamList)
     SMSG_INVALID_PROMOTION_CODE                       = 0x000,  // 5.0.5 16048
-    SMSG_INVENTORY_CHANGE_FAILURE                     = 0x000,  // 5.0.5 16048
+    SMSG_INVENTORY_CHANGE_FAILURE                     = 0x813,  // 5.4.0 17399
     SMSG_ITEM_ADD_PASSIVE                             = 0x000,  // 5.0.5 16048
     SMSG_ITEM_COOLDOWN                                = 0x000,  // 5.0.5 16048
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x0483, // 5.4.0 17399 (JamList)
@@ -971,7 +971,7 @@ enum Opcodes
     SMSG_LEARNED_DANCE_MOVES                          = 0x000,  // 5.0.5 16048
     SMSG_SEND_KNOWN_SPELLS                            = 0x1534, // 5.4.0 17399
     SMSG_LEARNED_SPELL                                = 0x000,  // 5.0.5 16048
-    SMSG_LEVELUP_INFO                                 = 0x000,  // 5.0.5 16048
+    SMSG_LEVELUP_INFO                                 = 0x402,  // 5.4.0 17399
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
     SMSG_LFG_DISABLED                                 = 0x000,  // 5.0.5 16048
     SMSG_LFG_JOIN_RESULT                              = 0x0017, // 5.4.0 17399 (JamList)

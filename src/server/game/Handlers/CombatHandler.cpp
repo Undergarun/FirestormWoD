@@ -28,8 +28,13 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+
+    uint8 bitsOrder[8] = { 7, 6, 4, 3, 5, 0, 2, 1 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 6, 3, 2, 5, 4, 7, 1, 0 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
@@ -89,9 +94,33 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));             // we guess size
-    data.append(GetPlayer()->GetPackGUID());
-    data.append(enemy ? enemy->GetPackGUID() : 0);          // must be packed guid
+    WorldPacket data(SMSG_ATTACKSTOP);
+
+    ObjectGuid attackerGuid = GetPlayer()->GetGUID();
+    ObjectGuid victimGuid = enemy->GetGUID();
+
+    data.WriteBits(1, 21); // unk 5.4.0
+
+    uint8 playerOrder[8] = { 7, 4, 3, 2, 6, 1, 0, 5 };
+    uint8 victimOrder[8] = { 2, 7, 4, 0, 1, 6, 3, 5 };
+
+    data.WriteBitInOrder(attackerGuid, playerOrder);
+    data.WriteBitInOrder(victimGuid, victimOrder);
+
+    data.WriteByteSeq(attackerGuid[2]);
+    data.WriteByteSeq(attackerGuid[5]);
+    data.WriteByteSeq(attackerGuid[6]);
+    data.WriteByteSeq(attackerGuid[0]);
+    data.WriteByteSeq(attackerGuid[1]);
+    data.WriteByteSeq(attackerGuid[4]);
+
     data << uint32(0);                                      // unk, can be 1 also
+
+    data.WriteByteSeq(attackerGuid[7]);
+    data.WriteByteSeq(attackerGuid[3]);
+
+    uint8 bytesOrder[8] = { 1, 0, 6, 3, 2, 7, 5, 4 };
+    data.WriteBytesSeq(victimGuid, bytesOrder);
+
     SendPacket(&data);
 }

@@ -855,6 +855,12 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
+    time_t now = time(NULL);
+    if (now - timeLastChangeSubGroupCommand < 2)
+        return;
+    else
+       timeLastChangeSubGroupCommand = now;
+
     std::string name;
     uint8 groupNr;
     recvData >> name;

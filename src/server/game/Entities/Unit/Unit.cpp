@@ -2456,17 +2456,77 @@ float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACKSTART, 8 + 8);
-    data << uint64(GetGUID());
-    data << uint64(victim->GetGUID());
+
+    ObjectGuid attackerGuid = GetGUID();
+    ObjectGuid victimGuid = victim->GetGUID();
+
+    data.WriteBit(victimGuid[6]);
+    data.WriteBit(victimGuid[1]);
+    data.WriteBit(attackerGuid[7]);
+    data.WriteBit(attackerGuid[5]);
+    data.WriteBit(victimGuid[2]);
+    data.WriteBit(attackerGuid[2]);
+    data.WriteBit(attackerGuid[1]);
+    data.WriteBit(victimGuid[0]);
+    data.WriteBit(attackerGuid[4]);
+    data.WriteBit(attackerGuid[0]);
+    data.WriteBit(victimGuid[4]);
+    data.WriteBit(victimGuid[7]);
+    data.WriteBit(victimGuid[5]);
+    data.WriteBit(attackerGuid[3]);
+    data.WriteBit(victimGuid[3]);
+    data.WriteBit(attackerGuid[6]);
+
+    data.WriteByteSeq(attackerGuid[6]);
+    data.WriteByteSeq(attackerGuid[2]);
+    data.WriteByteSeq(attackerGuid[0]);
+    data.WriteByteSeq(victimGuid[5]);
+    data.WriteByteSeq(victimGuid[6]);
+    data.WriteByteSeq(victimGuid[0]);
+    data.WriteByteSeq(victimGuid[1]);
+    data.WriteByteSeq(attackerGuid[7]);
+    data.WriteByteSeq(attackerGuid[4]);
+    data.WriteByteSeq(victimGuid[7]);
+    data.WriteByteSeq(attackerGuid[3]);
+    data.WriteByteSeq(victimGuid[3]);
+    data.WriteByteSeq(victimGuid[2]);
+    data.WriteByteSeq(victimGuid[4]);
+    data.WriteByteSeq(attackerGuid[1]);
+    data.WriteByteSeq(attackerGuid[5]);
+
     SendMessageToSet(&data, true);
 }
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));
-    data.append(GetPackGUID());
-    data.append(victim ? victim->GetPackGUID() : 0);
-    data << uint32(0);                                     //! Can also take the value 0x01, which seems related to updating rotation
+    WorldPacket data(SMSG_ATTACKSTOP);
+
+    ObjectGuid attackerGuid = GetGUID();
+    ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
+
+    data.WriteBits(1, 21); // unk 5.4.0
+
+    uint8 playerOrder[8] = { 7, 4, 3, 2, 6, 1, 0, 5 };
+    uint8 victimOrder[8] = { 2, 7, 4, 0, 1, 6, 3, 5 };
+
+    data.WriteBitInOrder(attackerGuid, playerOrder);
+    data.WriteBitInOrder(victimGuid, victimOrder);
+
+    data.WriteByteSeq(attackerGuid[2]);
+    data.WriteByteSeq(attackerGuid[5]);
+    data.WriteByteSeq(attackerGuid[6]);
+    data.WriteByteSeq(attackerGuid[0]);
+    data.WriteByteSeq(attackerGuid[1]);
+    data.WriteByteSeq(attackerGuid[4]);
+
+    data << uint32(0);                                      // unk, can be 1 also
+
+    data.WriteByteSeq(attackerGuid[7]);
+    data.WriteByteSeq(attackerGuid[3]);
+
+    uint8 bytesOrder[8] = { 1, 0, 6, 3, 2, 7, 5, 4 };
+    data.WriteBytesSeq(victimGuid, bytesOrder);
+
     SendMessageToSet(&data, true);
 }
 
@@ -20115,13 +20175,14 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         if (GetTypeId() == TYPEID_PLAYER)
             GetMap()->PlayerRelocation(ToPlayer(), x, y, z, orientation);
         else
+        {
             GetMap()->CreatureRelocation(ToCreature(), x, y, z, orientation);
+            // code block for underwater state update
+            UpdateUnderwaterState(GetMap(), x, y, z);
+        }
     }
     else if (turn)
         UpdateOrientation(orientation);
-
-    // code block for underwater state update
-    UpdateUnderwaterState(GetMap(), x, y, z);
 
     return (relocated || turn);
 }

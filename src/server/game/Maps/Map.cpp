@@ -667,6 +667,18 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
             creature->GetVehicleKit()->RelocatePassengers();
         creature->OnRelocated();
         RemoveCreatureFromMoveList(creature);
+
+        // update movement flags
+        if (creature->IsInWater())
+        {
+            if (creature->canSwim())
+                creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+        }
+        else
+        {
+            if (creature->canWalk())
+                creature->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+        }
     }
 
     ASSERT(CheckGridIntegrity(creature, true));

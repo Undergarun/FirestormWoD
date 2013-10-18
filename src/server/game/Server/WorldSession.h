@@ -416,6 +416,29 @@ class WorldSession
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
 
+        // Antispam Functions
+        void UpdateAntispamTimer(uint32 diff)
+        {
+            if (m_uiAntispamMailSentTimer <= diff)
+            {
+                m_uiAntispamMailSentTimer = sWorld->getIntConfig(CONFIG_ANTISPAM_MAIL_TIMER);
+                m_uiAntispamMailSentCount = 0;
+            }
+            else
+                m_uiAntispamMailSentTimer -= diff;
+        }
+
+        bool UpdateAntispamCount()
+        {
+            if (!sWorld->getBoolConfig(CONFIG_ANTISPAM_ENABLED))
+                return true;
+
+            m_uiAntispamMailSentCount++;
+            if (m_uiAntispamMailSentCount > sWorld->getIntConfig(CONFIG_ANTISPAM_MAIL_COUNT))
+                return false;
+            return true;
+        }
+
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
     public:                                                 // opcodes handlers
@@ -1094,9 +1117,16 @@ class WorldSession
         time_t timeLastChannelUnmoderCommand;
         time_t timeLastChannelUnmuteCommand;
         time_t timeLastChannelKickCommand;
+        time_t timeLastServerCommand;
+        time_t timeLastArenaTeamCommand;
+        time_t timeLastCalendarInvCommand;
+        time_t timeLastChangeSubGroupCommand;
 
         uint32 sellItemOpcodeTimer;
         uint32 sellItemOpcodeCounter;
+
+        uint32 m_uiAntispamMailSentCount;
+        uint32 m_uiAntispamMailSentTimer;
 
         uint8 playerLoginCounter;
         z_stream_s* _compressionStream;
