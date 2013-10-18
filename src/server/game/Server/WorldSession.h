@@ -1094,6 +1094,10 @@ class WorldSession
         time_t timeLastChannelUnmoderCommand;
         time_t timeLastChannelUnmuteCommand;
         time_t timeLastChannelKickCommand;
+        time_t timeLastServerCommand;
+        time_t timeLastArenaTeamCommand;
+        time_t timeLastCalendarInvCommand;
+        time_t timeLastChangeSubGroupCommand;
 
         uint32 sellItemOpcodeTimer;
         uint32 sellItemOpcodeCounter;

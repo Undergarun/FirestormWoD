@@ -110,7 +110,8 @@ timeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
 playerLoginCounter(0),
 sellItemOpcodeTimer(5000),
-sellItemOpcodeCounter(0)
+sellItemOpcodeCounter(0),
+timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand
 {
     _warden = NULL;
     _filterAddonMessages = false;
