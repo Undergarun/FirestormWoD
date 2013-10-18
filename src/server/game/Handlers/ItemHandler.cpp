@@ -36,7 +36,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
     uint8 srcbag, srcslot, dstbag, dstslot;
     uint32 count;
 
-    recvData >> srcbag >> srcslot >> dstbag >> dstslot >> count;
+    recvData >> count >> srcslot >> dstslot >> srcbag >> dstbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u, count = %u", srcbag, srcslot, dstbag, dstslot, count);
 
     uint16 src = ((srcbag << 8) | srcslot);
@@ -116,7 +116,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_ITEM");
     uint8 dstbag, dstslot, srcbag, srcslot;
 
-    recvData >> dstbag >> dstslot >> srcbag >> srcslot;
+    recvData >> srcslot >> dstslot >> srcbag >> dstbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((srcbag << 8) | srcslot);
@@ -146,7 +146,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOEQUIP_ITEM");
     uint8 srcbag, srcslot;
 
-    recvData >> srcbag >> srcslot;
+    recvData >> srcslot >> srcbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
     Item* pSrcItem  = _player->GetItemByPos(srcbag, srcslot);
@@ -240,7 +240,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
     uint8 bag, slot, count, data1, data2, data3;
 
-    recvData >> bag >> slot >> count >> data1 >> data2 >> data3;
+    recvData >> count >> data1 >> data2 >> data3 >> bag >> slot;
     //sLog->outDebug("STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
 
     uint16 pos = (bag << 8) | slot;
