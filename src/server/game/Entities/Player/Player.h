@@ -2517,6 +2517,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void UpdateSpeakTime();
+        bool UpdatePmChatTime();
         bool CanSpeak() const;
         void ChangeSpeakTime(int utime);
 
@@ -2988,6 +2989,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_nextSave;
         time_t m_speakTime;
         uint32 m_speakCount;
+        time_t m_pmChatTime;
+        uint32 m_pmChatCount;
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_raidMapDifficulty;

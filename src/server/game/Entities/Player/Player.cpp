@@ -729,6 +729,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_speakTime = 0;
     m_speakCount = 0;
 
+    m_pmChatTime = 0;
+    m_pmChatCount = 0;
+
     m_petSlotUsed = 0;
     m_currentPetSlot = PET_SLOT_DELETED;
 
@@ -21597,6 +21600,30 @@ void Player::UpdateSpeakTime()
         m_speakCount = 0;
 
     m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+}
+
+bool Player::UpdatePmChatTime()
+{
+    // ignore chat spam protection for GMs in any mode
+    if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
+        return true;
+
+    time_t current = time (NULL);
+    if (m_pmChatTime > current)
+    {
+        uint32 max_count = sWorld->getIntConfig(CONFIG_CHATFLOOD_PRIVATE_MESSAGE_COUNT);
+        if (!max_count)
+            return true;
+
+        ++m_pmChatCount;
+        if (m_pmChatCount >= max_count)
+            return false;
+    }
+    else
+        m_pmChatCount = 0;
+
+    m_pmChatTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_PRIVATE_MESSAGE_DELAY);
+    return true;
 }
 
 bool Player::CanSpeak() const

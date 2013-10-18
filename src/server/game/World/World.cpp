@@ -1012,6 +1012,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHATFLOOD_MESSAGE_DELAY] = ConfigMgr::GetIntDefault("ChatFlood.MessageDelay", 1);
     m_int_configs[CONFIG_CHATFLOOD_MUTE_TIME]     = ConfigMgr::GetIntDefault("ChatFlood.MuteTime", 10);
 
+    m_int_configs[CONFIG_CHATFLOOD_PRIVATE_MESSAGE_COUNT] = ConfigMgr::GetIntDefault("ChatFlood.PrivateMessageCount", 10);
+    m_int_configs[CONFIG_CHATFLOOD_PRIVATE_MESSAGE_DELAY] = ConfigMgr::GetIntDefault("ChatFlood.PrivateMessageMessageDelay", 1);
+
     m_int_configs[CONFIG_EVENT_ANNOUNCE] = ConfigMgr::GetIntDefault("Event.Announce", 0);
 
     m_float_configs[CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS] = ConfigMgr::GetFloatDefault("CreatureFamilyFleeAssistanceRadius", 30.0f);

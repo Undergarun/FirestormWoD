@@ -1581,6 +1581,21 @@ ChatFlood.MessageDelay = 1
 ChatFlood.MuteTime = 10
 
 #
+#    ChatFlood.PrivateMessageCount
+#        Description: Chat flood protection, number of private messages that player can send.
+#        Default:     10 - (Enabled)
+#                     0  - (Disabled)
+
+ChatFlood.PrivateMessageCount = 10
+
+#
+#    ChatFlood.PrivateMessageDelay
+#        Description: Time (in seconds) between messages to be counted into ChatFlood.PrivateMessageCount.
+#        Default:     1
+
+ChatFlood.PrivateMessageDelay = 1
+
+#
 #    Channel.RestrictedLfg
 #        Description: Restrict LookupForGroup channel to characters registered in the LFG tool.
 #        Default:     1 - (Enabled, Allow join to channel only if registered in LFG)
