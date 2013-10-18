@@ -3285,13 +3285,13 @@ enum CreatureFamily
     CREATURE_FAMILY_INFERNAL            = 108,      // New on MoP 5.0.5
     CREATURE_FAMILY_ELEMENTAL_FIRE_TOTEM = 116,     // New on MoP 5.0.5
     CREATURE_FAMILY_ELEMENTAL_EARTH_TOTEM =117,     // New on MoP 5.0.5
-    CREATURE_FAMILY_CRANE               = 125,      // New on MoP 5.4.0
-    CREATURE_FAMILY_WATER_STRIDER       = 126,      // New on MoP 5.4.0
-    CREATURE_FAMILY_PORCUPINE           = 127,      // New on MoP 5.4.0
-    CREATURE_FAMILY_QUIEL               = 128,      // New on MoP 5.4.0
-    CREATURE_FAMILY_GOAT                = 129,      // New on MoP 5.4.0
-    CREATURE_FAMILY_BASILISK            = 130,      // New on MoP 5.4.0
-    CREATURE_FAMILY_DIREHORN            = 138       // Isle of giant creature ?
+    CREATURE_FAMILY_CRANE               = 125,      // New on MoP 5.0.5
+    CREATURE_FAMILY_WATER_STRIDER       = 126,      // New on MoP 5.0.5
+    CREATURE_FAMILY_PORCUPINE           = 127,      // New on MoP 5.0.5
+    CREATURE_FAMILY_QUIEL               = 128,      // New on MoP 5.0.5
+    CREATURE_FAMILY_GOAT                = 129,      // New on MoP 5.0.5
+    CREATURE_FAMILY_BASILISK            = 130,      // New on MoP 5.0.5
+    CREATURE_FAMILY_DIREHORN            = 138       // New on MoP 5.2.0
 
 };
 

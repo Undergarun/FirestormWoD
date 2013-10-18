@@ -174,6 +174,16 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
             }
 
+            if (type == CHAT_MSG_WHISPER)
+            {
+                if (!sender->UpdatePmChatTime())
+                {
+                    SendNotification("You have sent too many whisper messages in a short time interval.");
+                    recvData.rfinish();
+                    return;
+                }
+            }
+
             // Disabled addon channel?
             if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
                 return;

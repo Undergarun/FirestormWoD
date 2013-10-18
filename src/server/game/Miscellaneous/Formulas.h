@@ -191,6 +191,9 @@ namespace JadeCore
                     KillXpRate = sWorld->getRate(RATE_XP_KILL);
 
                 gain = uint32(gain * KillXpRate);
+
+                float premium_rate = player->GetSession()->IsPremium() ? sWorld->getRate(RATE_XP_KILL_PREMIUM) : 1.0f;
+                return uint32(gain*sWorld->getRate(RATE_XP_KILL)*premium_rate);
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);

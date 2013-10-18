@@ -729,6 +729,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_speakTime = 0;
     m_speakCount = 0;
 
+    m_pmChatTime = 0;
+    m_pmChatCount = 0;
+
     m_petSlotUsed = 0;
     m_currentPetSlot = PET_SLOT_DELETED;
 
@@ -7772,6 +7775,9 @@ void Player::CheckAreaExploreAndOutdoor()
                 {
                     XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * ExploreXpRate);
                 }
+				
+                if (GetSession()->IsPremium())
+                    XP *= sWorld->getRate(RATE_XP_EXPLORE_PREMIUM);
 
                 GiveXP(XP, NULL);
                 SendExplorationExperience(area, XP);
@@ -8138,6 +8144,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f /= groupsize;
 
     honor_f *= sWorld->getRate(RATE_HONOR);
+	
+    if (GetSession()->IsPremium())
+        honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
+
     // Back to int now
     honor = int32(honor_f);
     // honor - for show honor points in log
@@ -16734,6 +16744,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
         AddPct(XP, (*i)->GetAmount());
 
+    if (GetSession()->IsPremium())
+        XP *= sWorld->getRate(RATE_XP_QUEST_PREMIUM);
+
     int32 moneyRew = 0;
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP(XP, NULL);
@@ -21679,6 +21692,30 @@ void Player::UpdateSpeakTime()
         m_speakCount = 0;
 
     m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+}
+
+bool Player::UpdatePmChatTime()
+{
+    // ignore chat spam protection for GMs in any mode
+    if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
+        return true;
+
+    time_t current = time (NULL);
+    if (m_pmChatTime > current)
+    {
+        uint32 max_count = sWorld->getIntConfig(CONFIG_CHATFLOOD_PRIVATE_MESSAGE_COUNT);
+        if (!max_count)
+            return true;
+
+        ++m_pmChatCount;
+        if (m_pmChatCount >= max_count)
+            return false;
+    }
+    else
+        m_pmChatCount = 0;
+
+    m_pmChatTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_PRIVATE_MESSAGE_DELAY);
+    return true;
 }
 
 bool Player::CanSpeak() const
