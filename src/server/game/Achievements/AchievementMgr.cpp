@@ -404,6 +404,9 @@ void AchievementMgr<Player>::SendPacket(WorldPacket* data) const
 template<class T>
 void AchievementMgr<T>::RemoveCriteriaProgress(const AchievementCriteriaEntry* entry)
 {
+    if (!entry)
+        return;
+
     CriteriaProgressMap* progressMap = GetCriteriaProgressMap();
 
     if (!progressMap)
@@ -1742,6 +1745,9 @@ bool AchievementMgr<Player>::CanCompleteCriteria(AchievementCriteriaEntry const*
 template<class T>
 bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
 {
+    if (!achievement)
+        return false;
+
     // counter can never complete
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER)
         return false;

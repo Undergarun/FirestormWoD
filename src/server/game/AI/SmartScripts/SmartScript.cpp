@@ -253,9 +253,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(*itr))
                     {
-                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.range > 0 ? true : false);
+                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.onlySelf > 0 ? true : false);
                         sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
-                            (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range);
+                            (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.onlySelf);
                     }
                 }
 
@@ -745,7 +745,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             me->AI()->EnterEvadeMode();
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature %u EnterEvadeMode", me->GetGUIDLow());
-            return;
+            break;
         }
         case SMART_ACTION_FLEE_FOR_ASSIST:
         {
@@ -1124,13 +1124,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_VISIBILITY:
         {
             if (me)
-                me->SetVisible(e.action.visibility.state ? true : false);
+                me->SetVisible(e.action.visibility.state);
             break;
         }
         case SMART_ACTION_SET_ACTIVE:
         {
-            if (GetBaseObject())
-                GetBaseObject()->setActive(true);
+            if (WorldObject* baseObj = GetBaseObject())
+                baseObj->setActive(e.action.active.state);
             break;
         }
         case SMART_ACTION_ATTACK_START:
@@ -1415,7 +1415,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 e.GetTargetType() == SMART_TARGET_CREATURE_DISTANCE || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_RANGE ||
                 e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
                 e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
-                e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER)
+                e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
+                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY)
             {
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets)
@@ -1478,7 +1479,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         if (!einfo)
                         {
                             sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);
-                            return;
+                            delete targets;
+                            break;
                         }
                         npc->SetCurrentEquipmentId(e.action.equip.entry);
                         slot[0] = einfo->ItemEntry[0];
@@ -1803,15 +1805,27 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets)
                 break;
 
+            bool foundTarget = false;
+
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
                 if (IsCreature((*itr)))
                 {
+                    foundTarget = true;
+
                     if (e.action.moveRandom.distance)
                         (*itr)->ToCreature()->GetMotionMaster()->MoveRandom((float)e.action.moveRandom.distance);
                     else
                         (*itr)->ToCreature()->GetMotionMaster()->MoveIdle();
                 }
+            }
+
+            if (!foundTarget && me && IsCreature(me))
+            {
+                if (e.action.moveRandom.distance)
+                    me->GetMotionMaster()->MoveRandom((float)e.action.moveRandom.distance);
+                else
+                    me->GetMotionMaster()->MoveIdle();
             }
 
             delete targets;
@@ -1941,7 +1955,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!storedTargets)
             {
                 delete targets;
-                return;
+                break;
             }
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
@@ -2159,8 +2173,8 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 l->push_back(GetBaseObject());
             break;
         case SMART_TARGET_VICTIM:
-            if (me && me->getVictim())
-                l->push_back(me->getVictim());
+                if (Unit* victim = me->getVictim())
+                    l->push_back(victim);
             break;
         case SMART_TARGET_HOSTILE_SECOND_AGGRO:
             if (me)
@@ -2390,8 +2404,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         case SMART_TARGET_OWNER_OR_SUMMONER:
         {
             if (me)
-                if (Unit* owner = ObjectAccessor::GetUnit(*me, me->GetCharmerOrOwnerGUID()))
+            {
+                uint64 charmerOrOwnerGuid = me->GetCharmerOrOwnerGUID();
+                if (!charmerOrOwnerGuid)
+                    charmerOrOwnerGuid = me->GetCreatorGUID();
+
+                if (Unit* owner = ObjectAccessor::GetUnit(*me, charmerOrOwnerGuid))
                     l->push_back(owner);
+            }
             break;
         }
         case SMART_TARGET_THREAT_LIST:
@@ -2403,6 +2423,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                     if (Unit* temp = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                         l->push_back(temp);
             }
+            break;
+        }
+        case SMART_TARGET_CLOSEST_ENEMY:
+        {
+            if (me)
+                if (Unit* target = me->SelectNearestTarget(e.target.closestAttackable.maxDist))
+                    l->push_back(target);
+
             break;
         }
         case SMART_TARGET_POSITION:

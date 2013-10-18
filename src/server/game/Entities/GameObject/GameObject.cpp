@@ -89,7 +89,10 @@ bool GameObject::AIM_Initialize()
 
 std::string GameObject::GetAIName() const
 {
-    return sObjectMgr->GetGameObjectTemplate(GetEntry())->AIName;
+    if (GameObjectTemplate const* got = sObjectMgr->GetGameObjectTemplate(GetEntry()))
+        return got->AIName;
+
+    return "";
 }
 
 void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
@@ -1137,7 +1140,7 @@ void GameObject::Use(Unit* user)
 
             Player* player = user->ToPlayer();
 
-            player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID);
+            player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID, true);
             player->SendPreparedGossip(this);
             return;
         }

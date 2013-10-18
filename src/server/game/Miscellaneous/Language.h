@@ -86,7 +86,9 @@ enum TrinityStrings
     LANG_CONNECTED_PLAYERS              = 60,
     LANG_ACCOUNT_ADDON                  = 61,
     LANG_IMPROPER_VALUE                 = 62,
-    // Room for more level 0              63-99 not used
+    LANG_GUILD_RENAME_ALREADY_EXISTS    = 63,
+    LANG_GUILD_RENAME_DONE              = 64,
+    // Room for more level 0              65-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -180,8 +182,10 @@ enum TrinityStrings
     LANG_PHASING_FAILED                 = 179,	
     LANG_PHASING_LAST_PHASE             = 180,	
     LANG_PHASING_LIST                   = 181,	
-    LANG_PHASING_PHASEMASK              = 182,	
-    // Room for more level 1              183-199 not used
+    LANG_PHASING_PHASEMASK              = 182,
+    LANG_INVALID_GAMEOBJECT_TYPE        = 183,              // Damage on GO
+    LANG_GAMEOBJECT_DAMAGED             = 184,
+    // Room for more level 1              185-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,

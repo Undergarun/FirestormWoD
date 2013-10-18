@@ -536,6 +536,9 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
 
 SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
 {
+    if (!spell)
+        return NULL;
+
     if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
         return spell;
 

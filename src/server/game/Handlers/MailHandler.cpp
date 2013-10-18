@@ -282,7 +282,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (money > 0 && !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
         {
-            //TODO: charcter guid
+            //TODO: character guid
             sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                             rc_account, "", 0, receiver.c_str(),
                             "GM %s (Account: %u) mail money: %u to player: %s (Account: %u)",

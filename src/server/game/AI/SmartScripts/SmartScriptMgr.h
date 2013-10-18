@@ -386,7 +386,7 @@ enum SMART_ACTION
     SMART_ACTION_TALK                               = 1,      // groupID from creature_text, duration to wait before TEXT_OVER event is triggered
     SMART_ACTION_SET_FACTION                        = 2,      // FactionId (or 0 for default)
     SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL            = 3,      // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to demorph)
-    SMART_ACTION_SOUND                              = 4,      // SoundId, TextRange
+    SMART_ACTION_SOUND                              = 4,      // oundId, onlySelf
     SMART_ACTION_PLAY_EMOTE                         = 5,      // EmoteId
     SMART_ACTION_FAIL_QUEST                         = 6,      // QuestID
     SMART_ACTION_ADD_QUEST                          = 7,      // QuestID
@@ -431,7 +431,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature TODO)
     SMART_ACTION_MOVE_FORWARD                       = 46,     // distance
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
-    SMART_ACTION_SET_ACTIVE                         = 48,     // No Params
+    SMART_ACTION_SET_ACTIVE                         = 48,     // on/off
     SMART_ACTION_ATTACK_START                       = 49,     //
     SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in ms,
     SMART_ACTION_KILL_UNIT                          = 51,     //
@@ -518,7 +518,7 @@ struct SmartAction
         struct
         {
             uint32 sound;
-            uint32 range;
+            uint32 onlySelf;
         } sound;
 
         struct
@@ -723,6 +723,11 @@ struct SmartAction
             uint32 entry;
             uint32 despawnTime;
         } summonGO;
+
+        struct
+        {
+            uint32 state;
+        } active;
 
         struct
         {
@@ -978,7 +983,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
-    SMART_TARGET_END                            = 25,
+    SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist
+
+    SMART_TARGET_END                            = 26
 };
 
 struct SmartTarget
@@ -1059,6 +1066,11 @@ struct SmartTarget
             uint32 dist;
             uint32 dead;
         } closest;
+
+        struct
+        {
+            uint32 maxDist;
+        } closestAttackable;
 
         struct
         {

@@ -458,7 +458,7 @@ enum Opcodes
     CMSG_RESET_FACTION_CHEAT                          = 0x000,  // 5.0.5 16048
     CMSG_RESET_INSTANCES                              = 0x000,  // 5.0.5 16048
     CMSG_RESURRECT_RESPONSE                           = 0x000,  // 5.0.5 16048
-    CMSG_RETURN_TO_GRAVEYARD                          = 0x000,  // 5.0.5 16048
+    CMSG_RETURN_TO_GRAVEYARD                          = 0x122A,  // 5.4.0 17399
     CMSG_ROLE_POLL_BEGIN                              = 0x000,  // 5.0.5 16048
     CMSG_SAVE_CUF_PROFILES                            = 0x000,  // 5.0.5 16048
     CMSG_SAVE_PLAYER                                  = 0x000,  // Not found in 4.3.4

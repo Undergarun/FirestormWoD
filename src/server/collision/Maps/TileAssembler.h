@@ -41,6 +41,7 @@ namespace VMAP
         private:
             G3D::Matrix3 iRotation;
         public:
+            ModelPosition(): iScale(0.0f) { }
             G3D::Vector3 iPos;
             G3D::Vector3 iDir;
             float iScale;
@@ -75,7 +76,8 @@ namespace VMAP
         ACE_Based::LockedVector<G3D::Vector3> vertexArray;
         class WmoLiquid *liquid;
 
-        GroupModel_Raw() : liquid(0) {}
+         GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0),
+            liquid(NULL) {}
         ~GroupModel_Raw();
 
         bool Read(FILE * f);

@@ -708,6 +708,8 @@ public:
     const std::string& GetMOTD() const { return m_motd; }
     const std::string& GetInfo() const { return m_info; }
 
+    bool SetName(std::string const& name);
+
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
     void HandleQuery(WorldSession* session);
