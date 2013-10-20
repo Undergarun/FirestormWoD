@@ -1,0 +1,1 @@
+INSERT INTO spell_linked_spell VALUES ('2812', '-115654', '0', 'Glyph of Denounce');
