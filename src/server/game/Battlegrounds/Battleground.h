@@ -106,6 +106,7 @@ enum BattlegroundSpells
 
 enum BattlegroundTimeIntervals
 {
+    CHECK_PLAYER_POSITION_INVERVAL  = 1000,                 // ms
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
@@ -627,6 +628,7 @@ class Battleground
         void _ProcessProgress(uint32 diff);
         void _ProcessLeave(uint32 diff);
         void _ProcessJoin(uint32 diff);
+        void _CheckSafePositions(uint32 diff);
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores

@@ -268,7 +268,10 @@ void Battleground::Update(uint32 diff)
     {
         case STATUS_WAIT_JOIN:
             if (GetPlayersSize())
+            {
                 _ProcessJoin(diff);
+                _CheckSafePositions(diff);
+            }
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();
@@ -318,6 +321,33 @@ void Battleground::Update(uint32 diff)
     m_ValidStartPositionTimer += diff;
 
     PostUpdateImpl(diff);
+}
+
+inline void Battleground::_CheckSafePositions(uint32 diff)
+{
+    float maxDist = GetStartMaxDist();
+    if (!maxDist)
+        return;
+
+    m_ValidStartPositionTimer += diff;
+    if (m_ValidStartPositionTimer >= CHECK_PLAYER_POSITION_INVERVAL)
+    {
+        m_ValidStartPositionTimer = 0;
+
+        Position pos;
+        float x, y, z, o;
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            {
+                player->GetPosition(&pos);
+                GetTeamStartLoc(player->GetBGTeam(), x, y, z, o);
+                if (pos.GetExactDistSq(x, y, z) > maxDist)
+                {
+                    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", player->GetName(), GetMapId());
+                    player->TeleportTo(GetMapId(), x, y, z, o);
+                }
+            }
+    }
 }
 
 inline void Battleground::_ProcessOfflineQueue()
