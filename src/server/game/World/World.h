@@ -197,6 +197,7 @@ enum WorldBoolConfigs
     CONFIG_VIP_EXCHANGE_ARENA_COMMAND,
     CONFIG_VIP_EXCHANGE_FROST_COMMAND,
     CONFIG_ANTISPAM_ENABLED,
+    CONFIG_DISABLE_RESTART,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -379,6 +380,7 @@ enum WorldIntConfigs
     CONFIG_VIP_RATE_EXHANGE_TRIUMPH_IN_FROST,
     CONFIG_ANTISPAM_MAIL_TIMER,
     CONFIG_ANTISPAM_MAIL_COUNT,
+    CONFIG_AUTO_SERVER_RESTART_HOUR,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -532,6 +534,7 @@ enum WorldStates
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20004,                     // Next monthly reset time
+    WS_AUTO_SERVER_RESTART_TIME = 20005,                     // Next server restart time
 };
 
 // DB scripting commands
@@ -873,12 +876,14 @@ class World
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
+        void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();
         void ResetCurrencyWeekCap();
+        void AutoRestartServer();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
@@ -942,6 +947,7 @@ class World
         time_t m_NextMonthlyQuestReset;
         time_t m_NextRandomBGReset;
         time_t m_NextCurrencyReset;
+        time_t m_NextServerRestart;
 
         //Player Queue
         Queue m_QueuedPlayer;
