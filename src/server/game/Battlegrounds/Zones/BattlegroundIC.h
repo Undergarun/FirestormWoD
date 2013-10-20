@@ -848,8 +848,8 @@ const ICNodePoint nodePointInitial[7] =
 
 enum HonorRewards
 {
-    RESOURCE_HONOR_AMOUNT   = 12,
-    WINNER_HONOR_AMOUNT     = 500
+    RESOURCE_HONOR_AMOUNT   = 10,
+    WINNER_HONOR_AMOUNT     = 200
 };
 
 class BattlegroundICScore : public BattlegroundScore
