@@ -18,13 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef m__BattlegroundBFG_H
-#define m__BattlegroundBFG_H
-
-#include "Player.h"
-#include "Battleground.h"
-#include "BattlegroundMgr.h"
-#include "Language.h"
+#ifndef __BattlegroundBFG_H
+#define __BattlegroundBFG_H
 
 class Battleground;
 
@@ -253,9 +248,9 @@ class BattlegroundBFG : public Battleground
         /* Creature spawning/removing */
         // TODO: need to get the peons spawns scripted
         void _NodeOccupied(uint8 node, Team team);
-        void m_NodeDeOccupied(uint8 node);
+        void _NodeDeOccupied(uint8 node);
 
-        int32 m_GetNodeNameId(uint8 node);
+        int32 _GetNodeNameId(uint8 node);
 
         /* Nodes info:
          *  0: neutral

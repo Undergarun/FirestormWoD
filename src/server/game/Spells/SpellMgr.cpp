@@ -4219,10 +4219,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 66637:
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                     break;
-                // Ram
-                case 60206:
-                    spellInfo->Effects[EFFECT_2].SetRadiusIndex(EFFECT_RADIUS_10_YARDS);
-                    break;
                 case 66550: // teleports outside (Isle of Conquest)
                 case 66551: // teleports inside (Isle of Conquest)
                     spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
@@ -4874,6 +4870,9 @@ void SpellMgr::LoadDbcDataCorrections()
     case 73530: // Shadow Trap (visual)
     spellInfo->DurationIndex = 28;          // 5 seconds
     break;
+    case 60206: // Ram
+       spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_10_YARDS;
+       break;
     case 73529: // Shadow Trap
     spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;   // 10yd
     break;
