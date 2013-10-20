@@ -1829,9 +1829,6 @@ void Battleground::SendMessage2ToAll(int32 entry, ChatMsg type, Player const* so
 
 void Battleground::SendCountdownTimer()
 {
-    if (m_CountdownTimer <= 0 || m_CountdownTimer >= 30000)
-        return;
-
     int countdownSec = (GetMaxCountdownTimer() - ceil(float(GetElapsedTime()) / 1000));
 
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -2127,4 +2124,27 @@ void Battleground::SendFlagsPositions()
     }
 
     SendPacketToAll(&data);
+}
+
+void Battleground::RelocateDeadPlayers(uint64 queueIndex)
+{
+    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
+    std::vector<uint64>& ghostList = m_ReviveQueue[queueIndex];
+    if (!ghostList.empty())
+    {
+        WorldSafeLocsEntry const* closestGrave = NULL;
+        for (std::vector<uint64>::const_iterator itr = ghostList.begin(); itr != ghostList.end(); ++itr)
+        {
+            Player* player = ObjectAccessor::FindPlayer(*itr);
+            if (!player)
+                continue;
+
+            if (!closestGrave)
+                closestGrave = GetClosestGraveYard(player);
+
+            if (closestGrave)
+                player->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
+        }
+        ghostList.clear();
+    }
 }

@@ -80,6 +80,9 @@ enum BG_SA_Timers
 
 enum BG_SA_WorldStates
 {
+    BG_SA_TIMER_MINS                = 3559,
+    BG_SA_TIMER_SEC_TENS            = 3560,
+    BG_SA_TIMER_SEC_DECS            = 3561,
     BG_SA_ALLY_ATTACKS              = 4352,
     BG_SA_HORDE_ATTACKS             = 4353,
     BG_SA_PURPLE_GATEWS             = 3614,
@@ -102,7 +105,6 @@ enum BG_SA_WorldStates
     BG_SA_CENTER_GY_HORDE           = 3634,
     BG_SA_BONUS_TIMER               = 0xdf3,
     BG_SA_ENABLE_TIMER              = 3564,
-    BG_SA_TIMER_END_TIMESTAMP       = 3557,
 };
 
 enum npc
@@ -125,15 +127,19 @@ enum BG_SA_NPCs
     BG_SA_GUN_8,
     BG_SA_GUN_9,
     BG_SA_GUN_10,
-    BG_SA_DEMOLISHER_1,
-    BG_SA_DEMOLISHER_2,
-    BG_SA_DEMOLISHER_3,
-    BG_SA_DEMOLISHER_4,
     BG_SA_NPC_TRIGGER_1,
     BG_SA_NPC_TRIGGER_2,
     BG_SA_NPC_TRIGGER_3,
     BG_SA_NPC_TRIGGER_4,
     BG_SA_NPC_TRIGGER_5,
+    BG_SA_DEMOLISHER_1,
+    BG_SA_DEMOLISHER_2,
+    BG_SA_DEMOLISHER_3,
+    BG_SA_DEMOLISHER_4,
+    BG_SA_DEMOLISHER_5,
+    BG_SA_DEMOLISHER_6,
+    BG_SA_DEMOLISHER_7,
+    BG_SA_DEMOLISHER_8,
     BG_SA_NPC_SPARKLIGHT,
     BG_SA_NPC_RIGSPARK,
     BG_SA_MAXNPC
@@ -159,17 +165,22 @@ uint32 const BG_SA_NpcEntries[BG_SA_MAXNPC] =
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
-    // 4 beach demolishers
-    NPC_DEMOLISHER_SA,
-    NPC_DEMOLISHER_SA,
-    NPC_DEMOLISHER_SA,
-    NPC_DEMOLISHER_SA,
     // Triggers
     23472,
     23472,
     23472,
     23472,
     23472,
+    // 4 beach demolishers
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    // 4 factory demolishers
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
     // Used Demolisher Salesman
     NPC_RIGGER_SPARKLIGHT,
     NPC_GORGRIL_RIGSPARK
@@ -188,25 +199,25 @@ float const BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
     { 1249.634f, -224.189f, 66.72f, 0.635f },
     { 1236.213f, 92.287f, 64.965f, 5.751f },
     { 1215.11f, 57.772f, 64.739f, 5.78f },
-    // Demolishers
-    { 1611.597656f, -117.270073f, 8.719355f, 2.513274f},
-    { 1575.562500f, -158.421875f, 5.024450f, 2.129302f},
-    { 1618.047729f, 61.424641f, 7.248210f, 3.979351f},
-    { 1575.103149f, 98.873344f, 2.830360f, 3.752458f},
     // Triggers
     { 1453.49f, -250.453f, 30.896f, 4.2883f},
     { 1377.05f, 97.036f, 30.8605f, 2.46539f},
     { 1186.05f, 58.8048f, 56.5491f, 2.75992f},
     { 1042.83f, -72.839f, 84.8145f, 3.58615f},
     { 1233.62f, -250.49f, 55.4036f, 3.7016f},
-    // Npcs
-    { 1348.644165f, -298.786469f, 31.080130f, 1.710423f},
-    { 1358.191040f, 195.527786f, 31.018187f, 4.171337f},
+    // Demolishers
+    { 1611.597656f, -117.270073f, 8.719355f, 2.513274f},
+    { 1575.562500f, -158.421875f, 5.024450f, 2.129302f},
+    { 1618.047729f, 61.424641f, 7.248210f, 3.979351f},
+    { 1575.103149f, 98.873344f, 2.830360f, 3.752458f},
     // Demolishers 2
     { 1371.055786f, -317.071136f, 35.007359f, 1.947460f},
     { 1424.034912f, -260.195190f, 31.084425f, 2.820013f},
     { 1353.139893f, 223.745438f, 35.265411f, 4.343684f},
-    { 1404.809570f, 197.027237f, 32.046032f, 3.605401f}
+    { 1404.809570f, 197.027237f, 32.046032f, 3.605401f},
+    // Npcs
+    { 1348.644165f, -298.786469f, 31.080130f, 1.710423f},
+    { 1358.191040f, 195.527786f, 31.018187f, 4.171337f}
 };
 
 enum BG_SA_Objects
@@ -218,6 +229,13 @@ enum BG_SA_Objects
     BG_SA_PURPLE_GATE,
     BG_SA_ANCIENT_GATE,
     BG_SA_TITAN_RELIC,
+    BG_SA_PORTAL_DEFFENDER_BLUE,
+    BG_SA_PORTAL_DEFFENDER_GREEN,
+    BG_SA_PORTAL_DEFFENDER_YELLOW,
+    BG_SA_PORTAL_DEFFENDER_PURPLE,
+    BG_SA_PORTAL_DEFFENDER_RED,
+    BG_SA_BOAT_ONE,
+    BG_SA_BOAT_TWO,
     BG_SA_SIGIL_1,
     BG_SA_SIGIL_2,
     BG_SA_SIGIL_3,
@@ -229,11 +247,6 @@ enum BG_SA_Objects
     BG_SA_CENTRAL_FLAG,
     BG_SA_RIGHT_FLAG,
     BG_SA_LEFT_FLAG,
-    BG_SA_PORTAL_DEFFENDER_BLUE,
-    BG_SA_PORTAL_DEFFENDER_GREEN,
-    BG_SA_PORTAL_DEFFENDER_YELLOW,
-    BG_SA_PORTAL_DEFFENDER_PURPLE,
-    BG_SA_PORTAL_DEFFENDER_RED,
     BG_SA_BOMB,
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
@@ -247,6 +260,15 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     { 1214.681f, 81.21f, 53.413f, 5.745f },
     { 878.555f, -108.2f, 117.845f, 0.0f },
     { 836.5f, -108.8f, 120.219f, 0.0f },
+    // Portal
+    {1468.380005f, -225.798996f, 30.896200f, 0.0f}, //blue
+    {1394.270020f, 72.551399f, 31.054300f, 0.0f}, //green
+    {1065.260010f, -89.79501f, 81.073402f, 0.0f}, //yellow
+    {1216.069946f, 47.904301f, 54.278198f, 0.0f}, //purple
+    {1255.569946f, -233.548996f, 56.43699f, 0.0f}, //red
+    // Ships
+    { 2679.696777f, -826.891235f, 3.712860f, 5.78367f}, //rot2 1 rot3 0.0002f
+    { 2574.003662f, 981.261475f, 2.603424f, 0.807696f},
     // Sigils
     { 1414.054f, 106.72f, 41.442f, 5.441f },
     { 1060.63f, -107.8f, 94.7f, 0.034f },
@@ -261,25 +283,8 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     { 1215.108032f, -65.715767f, 70.084267f, -3.124123f},
     { 1338.859253f, -153.327316f, 30.895077f, -2.530723f},
     { 1309.192017f, 9.416233f, 30.893402f, 1.518436f},
-    // Portal
-    {1468.380005f, -225.798996f, 30.896200f, 0.0f}, //blue
-    {1394.270020f, 72.551399f, 31.054300f, 0.0f}, //green
-    {1065.260010f, -89.79501f, 81.073402f, 0.0f}, //yellow
-    {1216.069946f, 47.904301f, 54.278198f, 0.0f}, //purple
-    {1255.569946f, -233.548996f, 56.43699f, 0.0f}, //red
     // Bombs
-    {1333.45f, 211.354f, 31.0538f, 5.03666f},
-    {1334.29f, 209.582f, 31.0532f, 1.28088f},
-    {1332.72f, 210.049f, 31.0532f, 1.28088f},
-    {1334.28f, 210.78f, 31.0538f, 3.85856f},
-    {1332.64f, 211.39f, 31.0532f, 1.29266f},
-    {1371.41f, 194.028f, 31.5107f, 0.753095f},
-    {1372.39f, 194.951f, 31.4679f, 0.753095f},
-    {1371.58f, 196.942f, 30.9349f, 1.01777f},
-    {1370.43f, 196.614f, 30.9349f, 0.957299f},
-    {1369.46f, 196.877f, 30.9351f, 2.45348f},
-    {1370.35f, 197.361f, 30.9349f, 1.08689f},
-    {1369.47f, 197.941f, 30.9349f, 0.984787f},
+    // main
     {1592.49f, 47.5969f, 7.52271f, 4.63218f},
     {1593.91f, 47.8036f, 7.65856f, 4.63218f},
     {1593.13f, 46.8106f, 7.54073f, 4.63218f},
@@ -302,6 +307,20 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     {1583.2f, -91.2291f, 8.49227f, 1.40038f},
     {1581.94f, -91.0119f, 8.49977f, 1.40038f},
     {1582.33f, -91.951f, 8.49353f, 1.1844f},
+    // green
+    {1333.45f, 211.354f, 31.0538f, 5.03666f},
+    {1334.29f, 209.582f, 31.0532f, 1.28088f},
+    {1332.72f, 210.049f, 31.0532f, 1.28088f},
+    {1334.28f, 210.78f, 31.0538f, 3.85856f},
+    {1332.64f, 211.39f, 31.0532f, 1.29266f},
+    {1371.41f, 194.028f, 31.5107f, 0.753095f},
+    {1372.39f, 194.951f, 31.4679f, 0.753095f},
+    {1371.58f, 196.942f, 30.9349f, 1.01777f},
+    {1370.43f, 196.614f, 30.9349f, 0.957299f},
+    {1369.46f, 196.877f, 30.9351f, 2.45348f},
+    {1370.35f, 197.361f, 30.9349f, 1.08689f},
+    {1369.47f, 197.941f, 30.9349f, 0.984787f},
+    // blue
     {1342.06f, -304.049f, 30.9532f, 5.59507f},
     {1340.96f, -304.536f, 30.9458f, 1.28323f},
     {1341.22f, -303.316f, 30.9413f, 0.486051f},
@@ -311,6 +330,7 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     {1381.55f, -286.536f, 32.3929f, 2.84225f},
     {1382.75f, -286.354f, 32.4099f, 1.00442f},
     {1379.92f, -287.34f, 32.2872f, 3.81615f},
+    // purple || red
     {1100.52f, -2.41391f, 70.2984f, 0.131054f},
     {1099.35f, -2.13851f, 70.3375f, 4.4586f},
     {1099.59f, -1.00329f, 70.238f, 2.49903f},
@@ -320,6 +340,7 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     {1097.53f, -7.39704f, 70.7959f, 4.1523f},
     {1097.32f, -6.64233f, 70.7424f, 4.1523f},
     {1096.45f, -5.96664f, 70.7242f, 4.1523f},
+    // yellow
     {971.725f, 0.496763f, 86.8467f, 2.09233f},
     {973.589f, 0.119518f, 86.7985f, 3.17225f},
     {972.524f, 1.25333f, 86.8351f, 5.28497f},
@@ -360,6 +381,13 @@ uint32 const BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     190723,
     192549,
     192834,
+    192819,
+    192819,
+    192819,
+    192819,
+    192819,
+    0, // Boat
+    0, // Boat
     192687,
     192685,
     192689,
@@ -371,11 +399,6 @@ uint32 const BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     191310,
     191306,
     191308,
-    192819,
-    192819,
-    192819,
-    192819,
-    192819,
     190753
 };
 
@@ -560,6 +583,8 @@ class BattlegroundSA : public Battleground
          * -Delete gameobject in front of door (lighting object, with different colours for each door)
          */
         void DestroyGate(Player* player, GameObject* go);
+        /// Update timer worldstate
+        void SendTime();
         /**
          * \brief Called when a graveyard is capture
          * -Update spiritguide
@@ -580,9 +605,6 @@ class BattlegroundSA : public Battleground
         void SendTransportInit(Player* player);
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player* player);
-
-        // Create Transport into the battleground
-        Transport* CreateTransport(uint32 goEntry, uint32 period, float x, float y, float z, float o);
 
         /// Totale elapsed time of current round
         uint32 TotalTime;
@@ -612,8 +634,5 @@ class BattlegroundSA : public Battleground
 
         // Achievement: Not Even a Scratch
         bool _notEvenAScratch[BG_TEAMS_COUNT];
-
-        Transport* boatOne;
-        Transport* boatTwo;
 };
 #endif

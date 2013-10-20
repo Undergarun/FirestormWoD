@@ -4214,6 +4214,21 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                     spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                     break;
+                // Isle of Conquest Gunship Portal
+                case 66630:
+                case 66637:
+                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                    break;
+                // Ram
+                case 60206:
+                    spellInfo->Effects[EFFECT_2].SetRadiusIndex(EFFECT_RADIUS_10_YARDS);
+                    break;
+                case 66550: // teleports outside (Isle of Conquest)
+                case 66551: // teleports inside (Isle of Conquest)
+                    spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                    spellInfo->Effects[EFFECT_0].TargetB = 0;
+                    break;
                 default:
                     break;
             }

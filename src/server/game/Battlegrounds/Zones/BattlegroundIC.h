@@ -41,7 +41,10 @@ enum creaturesIC
     NPC_GLAIVE_THROWER_H                = 35273,
     NPC_CATAPULT                        = 34793,
     NPC_HORDE_GUNSHIP_CANNON            = 34935,
-    NPC_ALLIANCE_GUNSHIP_CANNON         = 34929
+    NPC_ALLIANCE_GUNSHIP_CANNON         = 34929,
+
+    NPC_TRIGGER_1   = 23472,
+    NPC_TRIGGER_2   = 22515,
 };
 
 enum gameobjectsIC
@@ -782,6 +785,8 @@ const uint32 BG_IC_GraveyardIds[MAX_NODE_TYPES+2] = {0, 0, 1480, 1481, 1482, 148
 
 const Position TransportMovementInfo        = {7.305609f, -0.095246f, 34.51022f, 0.0f};
 const Position TeleportToTransportPosition  = {661.0f,    -1244.0f,   288.0f,    0.0f};
+const Position allianceShipPos = {-22.291981f, 6.3076372f, 20.507608f, 1.5147992f};
+const Position hordeShipPos = {-0.62292081f, -10.558434f, 34.176037f, 4.6480589f};
 
 const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
 {
@@ -879,6 +884,7 @@ class BattlegroundIC : public Battleground
 
         void EventPlayerDamagedGO(Player* /*player*/, GameObject* go, uint32 eventType);
         void DestroyGate(Player* player, GameObject* go);
+        void ActivateBoss(uint8 faction);
 
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
@@ -958,7 +964,6 @@ class BattlegroundIC : public Battleground
             return uws;
         }
 
-        void RealocatePlayers(ICNodePointType nodeType);
         void UpdateNodeWorldState(ICNodePoint* nodePoint);
         void HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture);
         void HandleContestedNodes(ICNodePoint* nodePoint);

@@ -97,6 +97,28 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
         }
     }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if(m_CheatersCheckTimer <= 0)
+        {
+            for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < 1249)
+                {
+                    if (plr->GetTeam() == HORDE)
+                        plr->TeleportTo(566, 1807.73f, 1539.41f, 1267.63f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(566, 2523.68f, 1596.59f, 1269.35f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 3000;
+        }
+    }
 }
 
 void BattlegroundEY::StartingEventCloseDoors()
@@ -259,6 +281,11 @@ void BattlegroundEY::UpdatePointStatuses()
                     if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetTeam() != m_PointOwnedByTeam[point])
                         this->EventTeamLostPoint(player, point);
                 }
+                // hack fix for Fel Reaver Ruins	
+                if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())	
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                        if (player->GetDistance2d(2044,1730) < 2)	
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
             }
         }
     }

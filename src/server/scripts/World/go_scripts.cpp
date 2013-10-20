@@ -1324,6 +1324,20 @@ public:
     }
 };
 
+class go_seaforium_charge : public GameObjectScript
+{
+    public:
+        go_seaforium_charge() : GameObjectScript("go_seaforium_charge") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (player->HasAura(52418))
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1366,4 +1380,5 @@ void AddSC_go_scripts()
     new go_veil_skith_cage;
     new go_frostblade_shrine;
     new go_midsummer_bonfire;
+    new go_seaforium_charge;
 }

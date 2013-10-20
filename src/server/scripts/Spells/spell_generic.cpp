@@ -1401,11 +1401,11 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 {
                     case SPELL_GEAR_SCALING:
                         factor = 1.0f;
-                        baseItemLevel = 205;
+                        baseItemLevel = 405;
                         break;
                     default:
                         factor = 1.0f;
-                        baseItemLevel = 170;
+                        baseItemLevel = 405;
                         break;
                 }
 

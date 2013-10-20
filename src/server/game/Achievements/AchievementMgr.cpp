@@ -330,6 +330,23 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             Battleground* bg = source->GetBattleground();
             if (!bg)
                 return false;
+
+            uint16 winnerTeamScore = 0;
+            switch(bg->GetTypeID(true))
+            {
+                case BATTLEGROUND_WS:
+                    winnerTeamScore = 3;
+                    break;
+                case BATTLEGROUND_AB:
+                case BATTLEGROUND_EY:
+                    winnerTeamScore = 1600;
+                    break;
+                default:
+                    break;
+            }
+            if (winnerTeamScore > 0 && !bg->IsTeamScoreInRange(source->GetTeam(), winnerTeamScore, winnerTeamScore))
+                return false;
+
             return bg->IsTeamScoreInRange(source->GetTeam() == ALLIANCE ? HORDE : ALLIANCE, bg_loss_team_score.min_score, bg_loss_team_score.max_score);
         }
         case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:

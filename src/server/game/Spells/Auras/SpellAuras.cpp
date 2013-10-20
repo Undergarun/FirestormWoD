@@ -1538,6 +1538,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_GENERIC:
                 switch (GetId())
                 {
+                    case 52418: // Carrying Seaforium
+                        if (removeMode == AURA_REMOVE_BY_CANCEL)
+                            target->CastSpell(target, 52417, true);
+                        break;
                     case 72368: // Shared Suffering
                     case 72369:
                         if (caster)

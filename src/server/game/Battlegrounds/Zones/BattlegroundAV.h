@@ -1043,63 +1043,62 @@ enum BG_AV_CreatureIds
 
 //entry, team, minlevel, maxlevel
 //TODO this array should be removed, the only needed things are the entrys (for spawning(?) and handlekillunit)
-const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] =
-{
-    { 12050, 1216, 58, 58 }, //Stormpike Defender
-    { 13326, 1216, 59, 59 }, //Seasoned Defender
-    { 13331, 1216, 60, 60 }, //Veteran Defender
-    { 13422, 1216, 61, 61 }, //Champion Defender
-    { 13358, 1216, 59, 60 }, //Stormpike Bowman //i think its 60, 61 and 69, 70.. but this is until now not possible TODO look if this is ok
+const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] = {
+    { 12050, 1216, 48, 48 }, //Stormpike Defender
+    { 13326, 1216, 49, 49 }, //Seasoned Defender
+    { 13331, 1216, 49, 49 }, //Veteran Defender
+    { 13422, 1216, 50, 50 }, //Champion Defender
+    { 13358, 1216, 49, 49 }, //Stormpike Bowman //i think its 60, 61 and 69, 70.. but this is until now not possible TODO look if this is ok
     { 11949, 469, 0, 0}, //not spawned with this data, but used for handlekillunit
     { 11948, 469, 0, 0}, //not spawned with this data, but used for handlekillunit
-    { 12053, 1214, 58, 58 }, //Frostwolf Guardian
-    { 13328, 1214, 59, 59 }, //Seasoned Guardian
-    { 13332, 1214, 60, 60 }, //Veteran Guardian
-    { 13421, 1214, 61, 61 }, //Champion Guardian
-    { 13359, 1214, 59, 60 }, //Frostwolf Bowman
+    { 12053, 1214, 48, 48 }, //Frostwolf Guardian
+    { 13328, 1214, 49, 49 }, //Seasoned Guardian
+    { 13332, 1214, 49, 49 }, //Veteran Guardian
+    { 13421, 1214, 50, 50 }, //Champion Guardian
+    { 13359, 1214, 49, 49 }, //Frostwolf Bowman
     { 11947, 67, 0, 0}, //not spawned with this data, but used for handlekillunit
     { 11946, 67, 0, 0}, //not spawned with this data, but used for handlekillunit
-    { 14763, 1534, 60, 60 }, //Dun Baldar South Marshal
-    { 14762, 1534, 60, 60 }, //Dun Baldar North Marshal
-    { 14764, 1534, 60, 60 }, //Icewing Marshal
-    { 14765, 1534, 60, 60 }, //Stonehearth Marshal
+    { 14763, 1534, 49, 49 }, //Dun Baldar South Marshal
+    { 14762, 1534, 49, 60 }, //Dun Baldar North Marshal
+    { 14764, 1534, 49, 49 }, //Icewing Marshal
+    { 14765, 1534, 49, 49 }, //Stonehearth Marshal
 
-    { 14773, 1214, 60, 60 }, //Iceblood Warmaster
-    { 14776, 1214, 60, 60 }, //Tower Point Warmaster
-    { 14772, 1214, 60, 60 }, //East Frostwolf Warmaster
-    { 14777, 1214, 60, 60 }, //West Frostwolf Warmaster
+    { 14773, 1214, 49, 49 }, //Iceblood Warmaster
+    { 14776, 1214, 49, 49 }, //Tower Point Warmaster
+    { 14772, 1214, 49, 49 }, //East Frostwolf Warmaster
+    { 14777, 1214, 49, 49 }, //West Frostwolf Warmaster
 
-    { 10987, 59, 52, 53 }, //Irondeep Trogg
-    { 11600, 59, 53, 54 }, //Irondeep Shaman
-    { 11602, 59, 54, 55 }, //Irondeep Skullthumper
-    { 11657, 59, 58, 58 }, //Morloch
+    { 10987, 59, 45, 46 }, //Irondeep Trogg
+    { 11600, 59, 46, 47 }, //Irondeep Shaman
+    { 11602, 59, 47, 47 }, //Irondeep Skullthumper
+    { 11657, 59, 48, 48 }, //Morloch
 
-    {13396, 469, 52, 53}, //irondeep alliance TODO: get the right ids
-    {13080, 469, 53, 54},
-    {13098, 469, 54, 55},
-    {13078, 469, 58, 58},
+    {13396, 469, 45, 46}, //irondeep alliance TODO: get the right ids
+    {13080, 469, 45, 46},
+    {13098, 469, 46, 47},
+    {13078, 469, 48, 48},
 
-    {13397, 67, 52, 53}, //irondeep horde
-    {13099, 67, 53, 54},
-    {13081, 67, 54, 55},
-    {13079, 67, 58, 58},
+    {13397, 67, 45, 46}, //irondeep horde
+    {13099, 67, 45, 46},
+    {13081, 67, 46, 47},
+    {13079, 67, 48, 48},
 
-    { 11603, 59, 52, 53 }, //south mine neutral
-    { 11604, 59, 53, 54 },
-    { 11605, 59, 54, 55 },
-    { 11677, 59, 58, 58 },
-    { 10982, 59, 52, 53 }, //vermin
+    { 11603, 59, 46, 46 }, //south mine neutral
+    { 11604, 59, 45, 46 },
+    { 11605, 59, 46, 47 },
+    { 11677, 59, 48, 48 },
+    { 10982, 59, 45, 46 }, //vermin
 
-    {13317, 469, 52, 53}, //alliance
-    {13096, 469, 54, 55}, //explorer
-    {13087, 469, 54, 55}, //invader
-    {13086, 469, 58, 58},
+    {13317, 469, 45, 46}, //alliance
+    {13096, 469, 46, 47}, //explorer
+    {13087, 469, 46, 47}, //invader
+    {13086, 469, 48, 48},
 
-    {13316, 67, 52, 53}, //horde
-    {13097, 67, 54, 55}, //surveypr
-    {13089, 67, 54, 55}, //guard
-    {13088, 67, 58, 58},
-    {14848, 67, 58, 58} //Herald
+    {13316, 67, 45, 46}, //horde
+    {13097, 67, 46, 47}, //surveypr
+    {13089, 67, 46, 47}, //guard
+    {13088, 67, 48, 48},
+    {14848, 67, 48, 48} //Herald
 
 };
 
@@ -1233,59 +1232,58 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] =
 
 };
 
-const uint32 BG_AV_StaticCreatureInfo[51][4] =
-{
-    { 2225, 1215, 55, 55 }, //Zora Guthrek
-    { 3343, 1215, 55, 55 }, //Grelkor
-    { 3625, 1215, 55, 55 }, //Rarck
-    { 4255, 1217, 55, 55 }, //Brogus Thunderbrew
-    { 4257, 1217, 55, 55 }, //Lana Thunderbrew
-    { 5134, 1217, 55, 55 }, //Jonivera Farmountain
-    { 5135, 1217, 55, 55 }, //Svalbrad Farmountain
-    { 5139, 1217, 55, 55 }, //Kurdrum Barleybeard
-    { 10364, 1215, 55, 55 }, //Yaelika Farclaw
-    { 10367, 1215, 55, 55 }, //Shrye Ragefist
-    { 10981, 38, 50, 51 }, //Frostwolf
-    { 10986, 514, 52, 53 }, //Snowblind Harpy
-    { 10990, 1274, 50, 51 }, //Alterac Ram
-    { 11675, 514, 53, 53 }, //Snowblind Windcaller
-    { 11678, 14, 52, 53 }, //Snowblind Ambusher
-    { 11839, 39, 56, 56 }, //Wildpaw Brute
-    { 11947, 1214, 61, 61 }, //Captain Galvangar --TODO: doubled
-    { 11948, 1216, 63, 63 }, //Vanndar Stormpike
-    { 11949, 1216, 61, 61 }, //Captain Balinda Stonehearth
-    { 11997, 1334, 60, 60 }, //Stormpike Herald
-    { 12051, 1214, 57, 57 }, //Frostwolf Legionnaire
-    { 12096, 1217, 55, 55 }, //Stormpike Quartermaster
-    { 12097, 1215, 55, 55 }, //Frostwolf Quartermaster
-    { 12127, 1216, 57, 57 }, //Stormpike Guardsman
-    { 13176, 1215, 60, 60 }, //Smith Regzar
-    { 13179, 1215, 59, 59 }, //Wing Commander Guse
-    { 13216, 1217, 58, 58 }, //Gaelden Hammersmith
-    { 13218, 1215, 58, 58 }, //Grunnda Wolfheart
-    { 13236, 1214, 60, 60 }, //Primalist Thurloga
-    { 13257, 1216, 60, 60 }, //Murgot Deepforge
-    { 13284, 1214, 58, 58 }, //Frostwolf Shaman
-    { 13438, 1217, 58, 58 }, //Wing Commander Slidore
-    { 13442, 1216, 60, 60 }, //Arch Druid Renferal
-    { 13443, 1216, 60, 60 }, //Druid of the Grove
-    { 13447, 1216, 58, 58 }, //Corporal Noreg Stormpike
-    { 13577, 1216, 60, 60 }, //Stormpike Ram Rider Commander
-    { 13617, 1216, 60, 60 }, //Stormpike Stable Master
-    { 13797, 32, 60, 61 }, //Mountaineer Boombellow
-    { 13798, 1214, 60, 61 }, //Jotek
-    { 13816, 1216, 61, 61 }, //Prospector Stonehewer
-    { 14185, 877, 59, 59 }, //Najak Hexxen
-    { 14186, 105, 60, 60 }, //Ravak Grimtotem
-    { 14187, 1594, 60, 60 }, //Athramanis
-    { 14188, 57, 59, 59 }, //Dirk Swindle
-    { 14282, 1214, 53, 54 }, //Frostwolf Bloodhound
-    { 14283, 1216, 53, 54 }, //Stormpike Owl
-    { 14284, 1216, 61, 61 }, //Stormpike Battleguard
-    { 11946, 1214, 63, 63 }, //Drek'Thar //TODO: make the levels right (boss=0 maybe)
-    { 11948, 1216, 63, 63 }, //Vanndar Stormpike
-    { 11947, 1214, 61, 61 }, //Captain Galvangar
-    { 11949, 1216, 61, 61 } //Captain Balinda Stonehearth
+const uint32 BG_AV_StaticCreatureInfo[51][4] = {
+    { 2225, 1215, 47, 47 }, //Zora Guthrek
+    { 3343, 1215, 47, 47 }, //Grelkor
+    { 3625, 1215, 47, 47 }, //Rarck
+    { 4255, 1217, 47, 47 }, //Brogus Thunderbrew
+    { 4257, 1217, 47, 47 }, //Lana Thunderbrew
+    { 5134, 1217, 47, 47 }, //Jonivera Farmountain
+    { 5135, 1217, 47, 47 }, //Svalbrad Farmountain
+    { 5139, 1217, 47, 47 }, //Kurdrum Barleybeard
+    { 10364, 1215, 47, 47 }, //Yaelika Farclaw
+    { 10367, 1215, 47, 47 }, //Shrye Ragefist
+    { 10981, 38, 45, 46 }, //Frostwolf
+    { 10986, 514, 47, 48 }, //Snowblind Harpy
+    { 10990, 1274, 45, 46 }, //Alterac Ram
+    { 11675, 514, 48, 48 }, //Snowblind Windcaller
+    { 11678, 14, 47, 48 }, //Snowblind Ambusher
+    { 11839, 39, 48, 48 }, //Wildpaw Brute
+    { 11947, 1214, 50, 50 }, //Captain Galvangar --TODO: doubled
+    { 11948, 1216, 52, 52 }, //Vanndar Stormpike
+    { 11949, 1216, 50, 50 }, //Captain Balinda Stonehearth
+    { 11997, 1334, 49, 49 }, //Stormpike Herald
+    { 12051, 1214, 47, 47 }, //Frostwolf Legionnaire
+    { 12096, 1217, 47, 47 }, //Stormpike Quartermaster
+    { 12097, 1215, 47, 47 }, //Frostwolf Quartermaster
+    { 12127, 1216, 48, 48 }, //Stormpike Guardsman
+    { 13176, 1215, 49, 49 }, //Smith Regzar
+    { 13179, 1215, 49, 49 }, //Wing Commander Guse
+    { 13216, 1217, 48, 48 }, //Gaelden Hammersmith
+    { 13218, 1215, 48, 48 }, //Grunnda Wolfheart
+    { 13236, 1214, 49, 49 }, //Primalist Thurloga
+    { 13257, 1216, 49, 49 }, //Murgot Deepforge
+    { 13284, 1214, 48, 48 }, //Frostwolf Shaman
+    { 13438, 1217, 48, 48 }, //Wing Commander Slidore
+    { 13442, 1216, 49, 49 }, //Arch Druid Renferal
+    { 13443, 1216, 49, 49 }, //Druid of the Grove
+    { 13447, 1216, 48, 48 }, //Corporal Noreg Stormpike
+    { 13577, 1216, 49, 49 }, //Stormpike Ram Rider Commander
+    { 13617, 1216, 49, 49 }, //Stormpike Stable Master
+    { 13797, 32, 49, 50 }, //Mountaineer Boombellow
+    { 13798, 1214, 49, 50 }, //Jotek
+    { 13816, 1216, 50, 50 }, //Prospector Stonehewer
+    { 14185, 877, 49, 49 }, //Najak Hexxen
+    { 14186, 105, 49, 49 }, //Ravak Grimtotem
+    { 14187, 1594, 49, 49 }, //Athramanis
+    { 14188, 57, 49, 49 }, //Dirk Swindle
+    { 14282, 1214, 46, 47 }, //Frostwolf Bloodhound
+    { 14283, 1216, 46, 47 }, //Stormpike Owl
+    { 14284, 1216, 50, 50 }, //Stormpike Battleguard
+    { 11946, 1214, 52, 52 }, //Drek'Thar //TODO: make the levels right (boss=0 maybe)
+    { 11948, 1216, 52, 52 }, //Vanndar Stormpike
+    { 11947, 1214, 50, 50 }, //Captain Galvangar
+    { 11949, 1216, 50, 50 } //Captain Balinda Stonehearth
 };
 
 enum BG_AV_Graveyards

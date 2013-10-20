@@ -37,10 +37,10 @@ enum BG_WSG_Rewards
     BG_WSG_REWARD_NUM
 };
 
-uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] =
+uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] = 
 {
-    {2000, 4000, 4000}, // normal honor
-    {6000, 4000, 8000}  // holiday
+    {20, 40, 40}, // normal honor
+    {60, 40, 80}  // holiday
 };
 
 BattlegroundWS::BattlegroundWS()
@@ -83,7 +83,8 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             else
                 EndBattleground(ALLIANCE);
         }
-        else if (GetElapsedTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS))
+        // first update needed after 1 minute of game already in progress
+        else if (GetElapsedTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS) +  3 * MINUTE * IN_MILLISECONDS)
         {
             ++_minutesElapsed;
             UpdateWorldState(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
@@ -159,6 +160,17 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
         }
         else
         {
+            if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[0]))
+            {
+                player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+                player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
+            }
+            if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[1]))
+            {
+                player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+                player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
+            }
+
             _flagSpellForceTimer = 0; //reset timer.
             _flagDebuffState = 0;
         }
@@ -714,27 +726,14 @@ void BattlegroundWS::Reset()
     m_TeamScores[BG_TEAM_ALLIANCE] = 0;
     m_TeamScores[BG_TEAM_HORDE] = 0;
 
-    if (sBattlegroundMgr->IsBGWeekend(GetTypeID()))
-    {
-        m_ReputationCapture = 45;
-        m_HonorWinKills = 3;
-        m_HonorEndKills = 4;
-    }
-    else
-    {
-        m_ReputationCapture = 35;
-        m_HonorWinKills = 1;
-        m_HonorEndKills = 2;
-    }
+    bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
+    m_ReputationCapture = (isBGWeekend) ? 45 : 35;
+    m_HonorWinKills = (isBGWeekend) ? 3 : 1;
+    m_HonorEndKills = (isBGWeekend) ? 4 : 2;
+
+    // For WorldState
     _minutesElapsed = 0;
     _lastFlagCaptureTeam = 0;
-    _bothFlagsKept = false;
-    _flagDebuffState = 0;
-    _flagSpellForceTimer = 0;
-    _flagsDropTimer[BG_TEAM_ALLIANCE] = 0;
-    _flagsDropTimer[BG_TEAM_HORDE] = 0;
-    _flagsTimer[BG_TEAM_ALLIANCE] = 0;
-    _flagsTimer[BG_TEAM_HORDE] = 0;
 }
 
 void BattlegroundWS::EndBattleground(uint32 winner)
