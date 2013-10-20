@@ -648,7 +648,7 @@ public:
                         updatePlayerList();
                         for(int i = 0; i < std::max((int)playersInvolved.size()*3,3); i++)
                         {
-                            if(TempSummon* temp = me->SummonCreature(59637, 1144.55f, 3435.65f, 104.97f, 3.3f,TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                            if(TempSummon* temp = me->SummonCreature(59637, 1144.55f, 3435.65f, 104.97f, 3.3f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
                             {
                                 if (temp->AI())
                                     temp->AI()->AttackStart(me);
