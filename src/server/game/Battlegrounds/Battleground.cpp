@@ -606,34 +606,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
     if (m_EndTime > 0 && (m_EndTime -= diff) > 0)
         m_EndTime -= diff;
-
-
-    // Find if the player left our start zone; if so, teleport it back
-    if (m_ValidStartPositionTimer > 1000)
-    {
-        m_ValidStartPositionTimer = 0;
-        float maxDist = GetStartMaxDist();
-        if (maxDist > 0.0f)
-        {
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
-                if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    float x, y, z, o;
-                    uint32 team = plr->GetBGTeam();
-                    GetTeamStartLoc(team, x, y, z, o);
-
-                    float dist = plr->GetDistance(x, y, z);
-
-                    if (dist >= maxDist)
-                    {
-                        sLog->outError(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", plr->GetName(), GetMapId());
-                        plr->TeleportTo(GetMapId(), x, y, z, o);
-                    }
-                }
-            }
-        }
-    }
 }
 
 inline void Battleground::_ProcessLeave(uint32 diff)
