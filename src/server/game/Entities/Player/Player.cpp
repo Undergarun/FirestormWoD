@@ -24237,12 +24237,13 @@ void Player::ReportedAfkBy(Player* reporter)
     if (m_bgData.bgAfkReporter.find(reporter->GetGUIDLow()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(43681) && reporter->CanReportAfkDueToLimit())
     {
         m_bgData.bgAfkReporter.insert(reporter->GetGUIDLow());
-        // 3 players have to complain to apply debuff
-        if (m_bgData.bgAfkReporter.size() >= 3)
+        // 5 players have to complain to apply debuff
+        if (m_bgData.bgAfkReporter.size() >= 5)
         {
             // cast 'Idle' spell
-            CastSpell(this, 43680, true);
+            //CastSpell(this, 43680, true);
             m_bgData.bgAfkReporter.clear();
+            LeaveBattleground();
         }
     }
 }
