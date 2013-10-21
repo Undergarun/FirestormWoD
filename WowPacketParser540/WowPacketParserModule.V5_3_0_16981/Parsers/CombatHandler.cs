@@ -48,24 +48,42 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var VictimGUID = new byte[8];
             var AttackerGUID = new byte[8];
 
+            AttackerGUID[0] = packet.ReadBit();
             VictimGUID[4] = packet.ReadBit();
-            packet.StartBitStream(AttackerGUID, 1, 3, 0, 6, 5);
-            VictimGUID[1] = packet.ReadBit();
-            AttackerGUID[7] = packet.ReadBit();
-            packet.StartBitStream(VictimGUID, 5, 6, 0);
-            packet.StartBitStream(AttackerGUID, 2, 4);
-            packet.StartBitStream(VictimGUID, 7, 2);
-            packet.ReadBit("Unk bit");
-            VictimGUID[3] = packet.ReadBit();
+            AttackerGUID[1] = packet.ReadBit();
+            VictimGUID[7] = packet.ReadBit();
+            AttackerGUID[6] = packet.ReadBit();
+            AttackerGUID[3] = packet.ReadBit();
 
-            packet.ReadXORBytes(VictimGUID, 2, 0);
-            packet.ReadXORBytes(AttackerGUID, 5, 0, 4);
-            packet.ReadXORBytes(VictimGUID, 4, 6, 7);
-            packet.ReadXORBytes(AttackerGUID, 2, 3);
-            packet.ReadXORBytes(VictimGUID, 5, 1);
-            packet.ReadXORBytes(AttackerGUID, 1, 7);
+            var trueOrFalse = packet.ReadBit("CombatState");
+
+            AttackerGUID[5] = packet.ReadBit();
+            VictimGUID[1] = packet.ReadBit();
+            VictimGUID[0] = packet.ReadBit();
+            AttackerGUID[7] = packet.ReadBit();
+            VictimGUID[6] = packet.ReadBit();
+            AttackerGUID[4] = packet.ReadBit();
+            AttackerGUID[2] = packet.ReadBit();
+            VictimGUID[3] = packet.ReadBit();
+            VictimGUID[2] = packet.ReadBit();
+            VictimGUID[5] = packet.ReadBit();
+
+            packet.ReadXORByte(VictimGUID, 2);
+            packet.ReadXORByte(VictimGUID, 7);
+            packet.ReadXORByte(AttackerGUID, 0);
+            packet.ReadXORByte(VictimGUID, 5);
+            packet.ReadXORByte(AttackerGUID, 5);
             packet.ReadXORByte(VictimGUID, 3);
+            packet.ReadXORByte(AttackerGUID, 7);
+            packet.ReadXORByte(AttackerGUID, 1);
+            packet.ReadXORByte(AttackerGUID, 3);
+            packet.ReadXORByte(VictimGUID, 0);
+            packet.ReadXORByte(AttackerGUID, 4);
             packet.ReadXORByte(AttackerGUID, 6);
+            packet.ReadXORByte(VictimGUID, 1);
+            packet.ReadXORByte(VictimGUID, 6);
+            packet.ReadXORByte(AttackerGUID, 2);
+            packet.ReadXORByte(VictimGUID, 4);
 
             packet.WriteGuid("Attacker GUID", AttackerGUID);
             packet.WriteGuid("Victim GUID", VictimGUID);

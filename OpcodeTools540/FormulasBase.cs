@@ -6,9 +6,11 @@ namespace OpcodeTools
         public abstract uint CalcCryptedFromOpcode(uint opcode);
         public abstract uint CalcSpecialFromOpcode(uint opcode);
         public abstract uint CalcAuthFromOpcode(uint opcode);
+        public abstract uint CalcGuildFromOpcode(uint opcode);
         protected abstract bool NormalCheck(uint opcode);
         protected abstract bool SpecialCheck(uint opcode);
         public abstract bool IsSpecialSpellOpcode(uint opcode);
+        public abstract bool IsSpecialGuildOpcode(uint opcode);
         protected abstract bool AuthCheck(uint opcode);
         protected virtual uint BaseOffset { get { return 1376; } }
 
@@ -55,6 +57,20 @@ namespace OpcodeTools
                 if (IsSpecialSpellOpcode(i))
                 {
                     if (CalcSpellFromOpcode(i) == spell)
+                        return i;
+                }
+            }
+
+            return 0;
+        }
+
+        public uint CalcOpcodeFromGuild(uint guild)
+        {
+            for (uint i = 1; i < 0xFFFF; ++i)
+            {
+                if (IsSpecialGuildOpcode(i))
+                {
+                    if (CalcGuildFromOpcode(i) == guild)
                         return i;
                 }
             }

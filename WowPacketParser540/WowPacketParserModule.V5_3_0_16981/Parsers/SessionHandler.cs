@@ -282,7 +282,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var lineCount = packet.ReadBits("Line Count", 4);
             var lineLength = new int[lineCount];
             for (var i = 0; i < lineCount; i++)
-                lineLength[i] = (int)packet.ReadBits(7);
+                lineLength[i] = (int)packet.ReadBits("lineLength x", 7);
 
             for (var i = 0; i < lineCount; i++)
                 packet.ReadWoWString("Line", lineLength[i], i);

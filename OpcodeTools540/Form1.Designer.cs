@@ -44,6 +44,8 @@
             this.Versions = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.spellBox = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.guildBox1 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // opcodeDecBox
@@ -130,7 +132,6 @@
             this.label5.Size = new System.Drawing.Size(87, 13);
             this.label5.TabIndex = 9;
             this.label5.Text = "Special (jam) hex";
-            this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
             // specialBox
             // 
@@ -191,7 +192,7 @@
             this.label6.TabIndex = 21;
             this.label6.Text = "Spell Special (jam) hex";
             // 
-            // textBox1
+            // spellBox
             // 
             this.spellBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.spellBox.Location = new System.Drawing.Point(241, 65);
@@ -199,13 +200,33 @@
             this.spellBox.Size = new System.Drawing.Size(46, 20);
             this.spellBox.TabIndex = 20;
             this.spellBox.TextChanged += new System.EventHandler(this.spellBox_TextChanged);
-
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(238, 88);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(114, 13);
+            this.label7.TabIndex = 23;
+            this.label7.Text = "Guild Special (jam) hex";
+            // 
+            // textBox1
+            // 
+            this.guildBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.guildBox1.Location = new System.Drawing.Point(241, 104);
+            this.guildBox1.Name = "guildBox1";
+            this.guildBox1.Size = new System.Drawing.Size(46, 20);
+            this.guildBox1.TabIndex = 22;
+            this.guildBox1.TextChanged += new System.EventHandler(this.guildBox1_TextChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(503, 211);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.guildBox1);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.spellBox);
             this.Controls.Add(this.Versions);
@@ -249,6 +270,8 @@
         private System.Windows.Forms.ComboBox Versions;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox spellBox;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox guildBox1;
 	}
 }
 

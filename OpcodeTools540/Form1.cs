@@ -78,6 +78,11 @@ namespace OpcodeTools
                 uint nb = f.CalcSpellFromOpcode(opcode);
                 spellBox.Text = String.Format("{0:x}", nb);
             }
+            else if (f.IsSpecialGuildOpcode(opcode))
+            {
+                uint nb = f.CalcGuildFromOpcode(opcode);
+                guildBox1.Text = String.Format("{0:x}", nb);
+            }
             IgnoreTextChanged = false;
 		}
 
@@ -101,6 +106,19 @@ namespace OpcodeTools
             try
             {
                 SetOpcode(f.CalcOpcodeFromSpell(Convert.ToUInt32(spellBox.Text, 16)));
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void guildBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (IgnoreTextChanged)
+                return;
+            try
+            {
+                SetOpcode(f.CalcOpcodeFromGuild(Convert.ToUInt32(guildBox1.Text, 16)));
             }
             catch (Exception)
             {
@@ -159,11 +177,6 @@ namespace OpcodeTools
             }
             // choose the newest by default
             Versions.SelectedIndex = Versions.Items.Count - 1;
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
         }
 	}
 }

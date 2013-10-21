@@ -13,6 +13,68 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var guid1 = new byte[8];
             var guid2 = new byte[8];
 
+            packet.StartBitStream(guid1, 6, 2, 0, 3, 4, 1, 5);
+
+            var hasData = packet.ReadBit("hasData");
+
+            int nameLen = 0;
+            int rankCount = 0;
+            int[] rankName = null;
+            if (hasData)
+            {
+                packet.StartBitStream(guid2, 0);
+                nameLen = (int)packet.ReadBits("nameLength", 7);
+                rankCount = (int)packet.ReadBits("Rank count", 21);
+                rankName = new int[rankCount];
+
+                for (var i = 0; i < rankCount; ++i)
+                    rankName[i] = (int)packet.ReadBits("rankNameLength", 7);
+
+                packet.StartBitStream(guid2, 1, 2, 5, 3, 7, 4, 6);
+
+                guid1[7] = packet.ReadBit();
+
+                packet.ReadUInt32("unk 32 1");
+
+                for (var i = 0; i < rankCount; ++i)
+                {
+                    packet.ReadUInt32("Creation Order", i);
+                    packet.ReadWoWString("Rank Name", rankName[i], i);
+                    packet.ReadUInt32("Rights Order", i);
+                }
+
+                packet.ReadXORByte(guid2, 1);
+
+                packet.ReadUInt32("unk 32 emblem color ?");
+                packet.ReadUInt32("unk 32 2");
+                packet.ReadUInt32("unk 32 3");
+                packet.ReadUInt32("unk 32 4");
+                packet.ReadXORByte(guid2, 0);
+                packet.ReadUInt32("unk 32 5");
+                packet.ReadXORByte(guid2, 6);
+                packet.ReadWoWString("Guild Name", nameLen);
+                packet.ReadXORByte(guid2, 5);
+                packet.ReadXORByte(guid2, 3);
+                packet.ReadXORByte(guid2, 2);
+                packet.ReadXORByte(guid2, 7);
+                packet.ReadXORByte(guid2, 4);
+                packet.ReadXORBytes(guid1, 4);
+                packet.ReadXORBytes(guid1, 1);
+                packet.ReadXORBytes(guid1, 0);
+                packet.ReadXORBytes(guid1, 3);
+                packet.ReadXORBytes(guid1, 5);
+                packet.ReadXORBytes(guid1, 7);
+                packet.ReadXORBytes(guid1, 6);
+                packet.ReadXORBytes(guid1, 2);
+            }
+        }
+
+        /*[Parser(Opcode.SMSG_GUILD_QUERY_RESPONSE)]
+        public static void HandleGuildQueryResponse(Packet packet)
+        {
+            var guid1 = new byte[8];
+            var guid2 = new byte[8];
+
             var hasData = packet.ReadBit();
 
             int nameLen = 0;
@@ -54,6 +116,6 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             packet.ParseBitStream(guid1, 1, 6, 3, 5, 4, 0, 2, 7);
             packet.WriteGuid("Guid1", guid1);
-        }
+        }*/
     }
 }

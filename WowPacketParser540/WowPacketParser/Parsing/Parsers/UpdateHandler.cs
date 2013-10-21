@@ -137,10 +137,14 @@ namespace WowPacketParser.Parsing.Parsers
         public static Dictionary<int, UpdateField> ReadValuesUpdateBlock(ref Packet packet, ObjectType type, int index, bool isCreating)
         {
             var maskSize = packet.ReadByte();
+            Console.WriteLine("maskSize {0}", maskSize);
 
             var updateMask = new int[maskSize];
             for (var i = 0; i < maskSize; i++)
+            {
                 updateMask[i] = packet.ReadInt32();
+                Console.WriteLine("updatemask[{0}] : {1}", i, updateMask[i]);
+            }
 
             var mask = new BitArray(updateMask);
             var dict = new Dictionary<int, UpdateField>();
@@ -158,7 +162,8 @@ namespace WowPacketParser.Parsing.Parsers
                     continue;
 
                 string key = "Block Value " + i;
-                string value = blockVal.UInt32Value + "/" + blockVal.SingleValue;
+                int entry = (int)blockVal.UInt32Value;
+                string value = entry + "/" + blockVal.SingleValue;
 
                 if (i < objectEnd)
                     key = UpdateFields.GetUpdateFieldName<ObjectField>(i);

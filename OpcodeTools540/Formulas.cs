@@ -474,6 +474,11 @@ namespace OpcodeTools
             return (opcode & 0x1240) != 0 && (opcode & 0x1248) == 4096;
         }
 
+        public override bool IsSpecialGuildOpcode(uint opcode)
+        {
+            return (opcode & 0x1240) != 0 && (opcode & 0x16C2) == 1090;
+        }
+
         protected override bool NormalCheck(uint opcode)
         {
             return (opcode & 0x90CC) == 4;
@@ -497,6 +502,11 @@ namespace OpcodeTools
         public override uint CalcSpellFromOpcode(uint opcode)
         {
             return opcode & 7 | ((opcode & 0x30 | ((opcode & 0x180 | ((opcode & 0xC00 | (opcode >> 1) & 0x7000) >> 1)) >> 1)) >> 1);
+        }
+
+        public override uint CalcGuildFromOpcode(uint opcode)
+        {
+            return opcode & 1 | ((opcode & 0x3C | ((opcode & 0x100 | ((opcode & 0x800 | (opcode >> 1) & 0x7000) >> 2)) >> 2)) >> 1);
         }
     }
 

@@ -112,7 +112,6 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         {
             var moveInfo = new MovementInfo();
 
-            var isSpline = false;
             var hasTransportData = false;
             var unkBit600 = false;
             var unkBit644 = false;
@@ -161,16 +160,16 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var unkBit680 = packet.ReadBit();
             var unkBit1044 = packet.ReadBit();
             var transportFrames = packet.ReadBits(22);
-            packet.ReadBit();
-            packet.ReadBit();
+            var unkbit6 = packet.ReadBit();
+            var unkbit7 = packet.ReadBit();
             var living = packet.ReadBit();
             var hasStartionaryPosition = packet.ReadBit();
             var hasGameObjectData = packet.ReadBit();
             var hasGameObjectRotation = packet.ReadBit();
             var hasTarget = packet.ReadBit();
             var unkBit1064 = packet.ReadBit();
-            packet.ReadBit();
-            packet.ReadBit();
+            var unkbit8 = packet.ReadBit();
+            var unkbit9 = packet.ReadBit();
             var isSelf = packet.ReadBit();
             var hasVehicleData = packet.ReadBit();
 

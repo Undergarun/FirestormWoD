@@ -14,6 +14,103 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         [Parser(Opcode.SMSG_MESSAGECHAT)]
         public static void HandleServerChatMessage(Packet packet)
         {
+            var GroupGUID = new byte[8];
+            var GuildGUID = new byte[8];
+            var ReceiverGUID = new byte[8];
+            var SenderGUID = new byte[8];
+
+            var bit5269 = packet.ReadBit("bit5269"); // unk
+            var hasText = !packet.ReadBit("hasText");
+            var bit5256 = !packet.ReadBit("bit5256");
+
+            var hasSender = !packet.ReadBit("hasSender");
+            var hasSenderGuid = packet.ReadBit("hasSenderGuid");
+            packet.StartBitStream(SenderGUID, 2, 4, 0, 6, 1, 3, 5, 7);
+
+            var hasGroupGuid = packet.ReadBit("hasGroupGuid");
+            packet.StartBitStream(GroupGUID, 6, 0, 4, 1, 2, 3, 7, 5);
+
+            var hasPrefix = !packet.ReadBit("hasPrefix");
+            var bit5268 = packet.ReadBit("bit5268");
+            var unkBit = !packet.ReadBit("unkBit");
+            var hasBit5264 = !packet.ReadBit("hasBit5264");
+
+            int senderName = 0;
+            if (hasSender)
+                senderName = (int)packet.ReadBits("SenderName", 11);
+
+            var hasReceiverGuid = packet.ReadBit("hasReceiverGuid");
+            packet.StartBitStream(ReceiverGUID, 4, 0, 6, 7, 5, 1, 3, 2);
+
+            int prefixLen = 0;
+            if (hasPrefix)
+                prefixLen = (int)packet.ReadBits("prefixLength", 5);
+
+            var hasReceiver = !packet.ReadBit("hasReceiver");
+            var hasChatTag = !packet.ReadBit("hasChatTag");
+
+            int textLen = 0;
+            if (hasText)
+                textLen = (int)packet.ReadBits("textLength", 12);
+
+            var hasLang = !packet.ReadBit("hasLanguage");
+
+            if (hasChatTag)
+                packet.ReadEnum<ChatTag>("Chat Tag", 9);
+
+            var hasGuildGuid = packet.ReadBit("hasGuildGuid");
+
+            int receiverLen = 0;
+            if (hasReceiver)
+                receiverLen = (int)packet.ReadBits("receiverLength", 11);
+
+            packet.StartBitStream(GuildGUID, 0, 2, 1, 4, 6, 7, 5, 3);
+
+            var hasChannel = !packet.ReadBit("hasChannel");
+            int channelLen = 0;
+            if (hasChannel)
+                channelLen = (int)packet.ReadBits("ChannelLength", 7);
+
+            if (hasChannel)
+                packet.ReadWoWString("Channel Name", channelLen);
+
+            if (hasSender)
+                packet.ReadWoWString("Sender Name", senderName);
+
+            packet.ParseBitStream(GroupGUID, 6, 7, 1, 2, 4, 3, 0, 5);
+            packet.ParseBitStream(ReceiverGUID, 0, 4, 1, 3, 5, 7, 2, 6);
+
+            packet.ReadEnum<ChatMessageType530>("Chat type", TypeCode.Byte);
+
+            packet.ParseBitStream(SenderGUID, 7, 6, 5, 4, 0, 2, 1, 3);
+
+            if (hasPrefix)
+                packet.ReadWoWString("Addon Message Prefix", prefixLen);
+
+            if (unkBit)
+                packet.ReadUInt32("unk Uint32");
+
+            packet.ParseBitStream(GuildGUID, 1, 0, 3, 7, 6, 5, 2, 4);
+
+            if (hasReceiver)
+                packet.ReadWoWString("Receiver Name", receiverLen);
+
+            if (bit5256)
+                packet.ReadUInt32("bit 5256 uint32 value");
+
+            if (hasLang)
+                packet.ReadEnum<Language>("Language", TypeCode.Byte);
+
+            if (hasText)
+                packet.ReadWoWString("Text", textLen);
+
+            if (hasBit5264)
+                packet.ReadInt32("bit5264 int32 value");
+        }
+
+        /*[Parser(Opcode.SMSG_MESSAGECHAT)]
+        public static void HandleServerChatMessage(Packet packet)
+        {
             var text = new CreatureText();
             var GroupGUID = new byte[8];
             var GuildGUID = new byte[8];
@@ -116,7 +213,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             if (entry != 0)
                 Storage.CreatureTexts.Add(entry, text, packet.TimeSpan);
-        }
+        }*/
 
         [Parser(Opcode.CMSG_TEXT_EMOTE)]
         public static void HandleTextEmote(Packet packet)

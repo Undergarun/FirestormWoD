@@ -7,6 +7,33 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 {
     public static class ItemHandler
     {
+        [Parser(Opcode.CMSG_REQUEST_HOTFIX)]
+        public static void HandleItemRequestHotfix(Packet packet)
+        {
+            packet.ReadUInt32("Type");
+            var count = packet.ReadBits("Count", 23);
+            var guidBytes = new byte[count][];
+            for (var i = 0; i < count; ++i)
+                guidBytes[i] = packet.StartBitStream(3, 4, 7, 2, 5, 1, 6, 0);
+
+            for (var i = 0; i < count; ++i)
+            {
+                packet.ReadXORByte(guidBytes[i], 6);
+                packet.ReadXORByte(guidBytes[i], 1);
+                packet.ReadXORByte(guidBytes[i], 2);
+
+                packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Entry", i);
+
+                packet.ReadXORByte(guidBytes[i], 4);
+                packet.ReadXORByte(guidBytes[i], 5);
+                packet.ReadXORByte(guidBytes[i], 7);
+                packet.ReadXORByte(guidBytes[i], 0);
+                packet.ReadXORByte(guidBytes[i], 3);
+
+                packet.WriteGuid("GUID", guidBytes[i], i);
+            }
+        }
+
         [Parser(Opcode.SMSG_SET_PROFICIENCY)]
         public static void HandleSetProficency(Packet packet)
         {

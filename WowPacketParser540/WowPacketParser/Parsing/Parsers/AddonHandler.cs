@@ -48,35 +48,56 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_ADDON_INFO)]
         public static void HandleServerAddonsList(Packet packet)
         {
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V5_3_0_17128))
+            {
+                var addonCount = packet.ReadBits("Addons Size", 23);
+                var usePublicKey = new bool[addonCount];
+                var sendCrc = new bool[addonCount];
+
+                for (var i = 0; i < addonCount; i++)
+                {
+                    var hasString = packet.ReadBit("hasString", i);
+
+                    usePublicKey[i] = packet.ReadBit("Use Public Key", i);
+
+                    if (hasString)
+                        packet.ReadBits("unk 2 - string size", 8);
+
+                    sendCrc[i] = packet.ReadBit("Use CRC", i);
+                }
+
+                packet.ReadBits("Unk bit counter", 18);
+
+                for (var i = 0; i < addonCount; i++)
+                {
+                    var crcpub = sendCrc[i];
+
+                    var unk3 = false;
+                    if (unk3)
+                        packet.ReadWoWString(0);
+
+                    if (usePublicKey[i])
+                    {
+                        var pubKey = packet.ReadBytes(256);
+                        packet.WriteLine("[{0}] Name MD5: {1}", i, Utilities.ByteArrayToHexString(pubKey));
+                    }
+
+                    if (crcpub)
+                    {
+                        packet.ReadByte("unk byte");
+                        packet.ReadInt32("Unk Int32", i);
+                    }
+
+                    packet.ReadByte("State");
+                }
+            }
+
             // This packet requires _addonCount from CMSG_AUTH_SESSION to be parsed.
             if (_addonCount == -1)
             {
                 packet.WriteLine("CMSG_AUTH_SESSION was not received - cannot successfully parse this packet.");
                 packet.ReadToEnd();
                 return;
-            }
-
-            for (var i = 0; i < _addonCount; i++)
-            {
-                packet.ReadByte("Addon State", i);
-
-                var sendCrc = packet.ReadBoolean("Use CRC", i);
-
-                if (sendCrc)
-                {
-                    var usePublicKey = packet.ReadBoolean("Use Public Key", i);
-
-                    if (usePublicKey)
-                    {
-                        var pubKey = packet.ReadBytes(256);
-                        packet.WriteLine("[{0}] Name MD5: {1}", i, Utilities.ByteArrayToHexString(pubKey));
-                    }
-
-                    packet.ReadInt32("Unk Int32", i);
-                }
-
-                if (packet.ReadBoolean("Use URL File", i))
-                    packet.ReadCString("Addon URL File", i);
             }
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_0_8_9464))

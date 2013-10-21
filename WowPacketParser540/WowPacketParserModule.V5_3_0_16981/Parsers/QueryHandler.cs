@@ -23,6 +23,94 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         public static void HandleCreatureQueryResponse(Packet packet)
         {
             var entry = packet.ReadEntry("Entry");
+            var hasData = packet.ReadBit("hasData");
+
+            var stringLens = new int[4][];
+            if (!hasData)
+                return;
+
+            var creature = new UnitTemplate();
+
+            for (var i = 0; i < 4; i++)
+            {
+                stringLens[i] = new int[2];
+                stringLens[i][0] = (int)packet.ReadBits("sLengthA", 11);
+                stringLens[i][1] = (int)packet.ReadBits("sLengthB", 11);
+            }
+
+            var qItemCount = packet.ReadBits("itemCount", 22);
+            uint sLenght1 = packet.ReadBits(6) ^ 1;
+            System.Console.WriteLine("sLength1: " + sLenght1);
+            uint sLenght2 = packet.ReadBits("sLength2", 11);
+            uint sLenght3 = packet.ReadBits("sLength3", 11);
+
+            creature.RacialLeader = packet.ReadBit("Racial Leader");
+            creature.Type = packet.ReadEnum<CreatureType>("Type", TypeCode.UInt32);
+            creature.KillCredits = new uint[2];
+            creature.KillCredits[1] = packet.ReadUInt32("Kill Credit 2");
+            creature.DisplayIds = new uint[4];
+            creature.DisplayIds[3] = packet.ReadUInt32("Display ID 3");
+            creature.DisplayIds[2] = packet.ReadUInt32("Display ID 2");
+
+            creature.QuestItems = new uint[qItemCount];
+            for (var i = 0; i < qItemCount; ++i)
+                creature.QuestItems[i] = (uint)packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Quest Item", i);
+
+            creature.Expansion = packet.ReadEnum<ClientType>("Expansion", TypeCode.UInt32);
+
+            var name = new string[8];
+            for (var i = 0; i < 4; ++i)
+            {
+                if ( stringLens[i][1] > 1)
+                    packet.ReadCString("Female Name", i);
+
+                if (stringLens[i][0] > 1)
+                    name[i] = packet.ReadCString("Name", i);
+            }
+
+            creature.Name = name[0];
+
+
+            if (sLenght3 > 1)
+                packet.ReadCString("Unk 505");
+
+            creature.Modifier2 = packet.ReadSingle("Mana mod");
+            creature.DisplayIds[0] = packet.ReadUInt32("Display ID 0");
+
+            if (sLenght1 > 1)
+                creature.IconName = packet.ReadCString("Icon Name");
+
+            creature.KillCredits[0] = packet.ReadUInt32("Kill Credit 1");
+            creature.DisplayIds[1] = packet.ReadUInt32("Display ID 1");
+
+            if (sLenght2 > 1)
+                creature.SubName = packet.ReadCString("Subname");
+
+            creature.TypeFlags = packet.ReadEnum<CreatureTypeFlag>("Type Flags", TypeCode.UInt32);
+            creature.TypeFlags2 = packet.ReadUInt32("type_flags2");
+
+            creature.Modifier1 = packet.ReadSingle("Health mod");
+            creature.Family = packet.ReadEnum<CreatureFamily>("Family", TypeCode.UInt32);
+            creature.Rank = packet.ReadEnum<CreatureRank>("Rank", TypeCode.UInt32);
+            creature.MovementId = packet.ReadUInt32("Movement ID");
+
+            packet.AddSniffData(StoreNameType.Unit, entry.Key, "QUERY_RESPONSE");
+
+            Storage.UnitTemplates.Add((uint)entry.Key, creature, packet.TimeSpan);
+
+            var objectName = new ObjectName
+            {
+                ObjectType = ObjectType.Unit,
+                Name = creature.Name,
+            };
+            Storage.ObjectNames.Add((uint)entry.Key, objectName, packet.TimeSpan);
+        }
+
+        /*[HasSniffData]
+        [Parser(Opcode.SMSG_CREATURE_QUERY_RESPONSE)]
+        public static void HandleCreatureQueryResponse(Packet packet)
+        {
+            var entry = packet.ReadEntry("Entry");
             var hasData = packet.ReadBit();
             if (!hasData)
                 return; // nothing to do
@@ -99,7 +187,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
                 Name = creature.Name,
             };
             Storage.ObjectNames.Add((uint)entry.Key, objectName, packet.TimeSpan);
-        }
+        }*/
 
         [Parser(Opcode.CMSG_NPC_TEXT_QUERY)]
         public static void HandleNpcTextQuery(Packet packet)

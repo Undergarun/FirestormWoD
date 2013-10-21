@@ -258,7 +258,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var hasCountCast = !packet.ReadBit();
             var hasUnk1 = !packet.ReadBit();
             var hasSpellId = !packet.ReadBit();
-            var unkCounter = packet.ReadBits(2);
+            var archeologyCounter = packet.ReadBits(2);
             var hasGUID0 = !packet.ReadBit();
             var hasElevation = !packet.ReadBit();
             var hasTargetGUID = !packet.ReadBit();
@@ -271,8 +271,9 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             uint unkStringLenght = 0;
 
-            for (var i = 0; i < unkCounter; ++i)
-                packet.ReadBits("unkCounter", 2, i);
+            var archeologyType = new UInt32[archeologyCounter];
+            for (var i = 0; i < archeologyCounter; ++i)
+                archeologyType[i] = packet.ReadBits("unkCounter", 2, i);
 
             if (hasMovement)
             {
@@ -298,10 +299,13 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             packet.ResetBitReader();
 
-            for (var i = 0; i < unkCounter; ++i)
+            var entry = new UInt32[archeologyCounter];
+            var usedCount = new UInt32[archeologyCounter];
+            for (var i = 0; i < archeologyCounter; ++i)
             {
-                packet.ReadInt32("unk value1", i);
-                packet.ReadInt32("unk value2", i);
+                // not sure about this order
+                entry[i] = packet.ReadUInt32("unk value1", i);
+                usedCount[i] = packet.ReadUInt32("unk value2", i);
             }
 
             if (hasMovement)
@@ -544,7 +548,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             {
                 packet.ParseBitStream(unkGUIDs3[i], 4, 5);
                 packet.ReadSingle("unkGUIDs3 Y");
-                packet.ParseBitStream(unkGUIDs3[i], 1, 2, 3);
+                packet.ParseBitStream(unkGUIDs3[i], 0, 1, 2, 3);
                 packet.ReadSingle("unkGUIDs3 X");
                 packet.ReadSingle("unkGUIDs3 Z");
                 packet.ParseBitStream(unkGUIDs3[i], 6, 7);
@@ -623,7 +627,6 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             if (hasUnkInt3)
                 packet.ReadUInt32("unkInt3");
-
 
             packet.ReadXORByte(unkGUID1, 5);
             packet.ReadXORByte(unkGUID1, 2);
@@ -969,7 +972,6 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var hasBit106 = !packet.ReadBit();
             var hasBit48 = !packet.ReadBit();
 
-            uint counter104 = 0;
             if (hasTargetFlags)
                 packet.ReadEnum<TargetFlag>("Target Flags", 20);
 

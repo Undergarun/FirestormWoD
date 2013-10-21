@@ -20,7 +20,35 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.WriteGuid("GUID", GUID);
         }
 
-        [HasSniffData]
+        [Parser(Opcode.SMSG_GAMEOBJECT_QUERY_RESPONSE)]
+        public static void HandleGameObjectQueryResponse(Packet packet)
+        {
+            packet.ReadByte("Unk byte"); // 128 in sniff of Guild Vault
+            packet.ResetBitReader();
+
+            packet.ReadUInt32("Entry");
+            packet.ReadUInt32("data size");
+            packet.ReadEnum<GameObjectType>("Type", TypeCode.UInt32);
+            packet.ReadUInt32("Display ID");
+
+            packet.ReadCString("Name");
+            packet.ReadUInt32("Unk uint32 2");
+            packet.ReadCString("Cast Caption");
+            packet.ReadCString("Icon Name");
+
+            for (var i = 0; i < 32; i++)
+                packet.ReadUInt32("Data", i);
+
+            packet.ReadSingle("Size");
+
+            var questItemCount = packet.ReadByte("questItemCount");
+            for (var i = 0; i < questItemCount; i++)
+                packet.ReadUInt32("QuestItem", i);
+
+            packet.ReadUInt32("Unk uint32 3");
+        }
+
+        /*[HasSniffData]
         [Parser(Opcode.SMSG_GAMEOBJECT_QUERY_RESPONSE)]
         public static void HandleGameObjectQueryResponse(Packet packet)
         {
@@ -72,6 +100,6 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
                 Name = gameObject.Name,
             };
             Storage.ObjectNames.Add((uint)entry.Key, objectName, packet.TimeSpan);
-        }
+        }*/
     }
 }

@@ -1294,9 +1294,54 @@ namespace WowPacketParser.Parsing.Parsers
             }
         }
 
+        [Parser(Opcode.SMSG_UPDATE_TALENT_DATA)]
+        public static void HandleUpdateTalentDatas(Packet packet)
+        {
+            var specCount = packet.ReadBits("specCounter", 19);
+
+            var talentCount = new uint[specCount];
+            for (int i = 0; i < specCount; i++)
+                talentCount[i] = packet.ReadBits("Counter 2", 23);
+
+            var talents = new uint[specCount][];
+            var glyphs = new uint[specCount][];
+            for (int i = 0; i < specCount; i++)
+            {
+                // Glyphs data
+                for (int j = 0; j < 6; j++)
+                {
+                    glyphs[i] = new uint[6];
+                    glyphs[i][j] = packet.ReadUInt16("Glyph");
+                }
+
+                for (int j = 0; j < talentCount[i]; j++)
+                {
+                    talents[i] = new uint[talentCount[i]];
+                    talents[i][j] = packet.ReadUInt16("Talent ID");
+                }
+
+                packet.ReadUInt32("Specialization ID");
+            }
+
+            packet.ReadByte("ActiveSpec");
+        }
+
         [Parser(Opcode.SMSG_LEVELUP_INFO)]
         public static void HandleLevelUp(Packet packet)
         {
+            packet.ReadUInt32("Health");
+
+            for (var i = 0; i < 5; i++)
+                packet.WriteLine("Stat " + (StatType)i + ": " + packet.ReadInt32());
+
+            packet.ReadUInt32("hasTalent");
+            packet.ReadUInt32("Level");
+
+            for (var i = 0; i < 5; i++)
+                packet.WriteLine("Power " + (PowerType)i + ": " + packet.ReadInt32());
+
+
+            /*
             packet.ReadInt32("Level");
             packet.ReadInt32("Health");
 
@@ -1314,7 +1359,7 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.WriteLine("Stat " + (StatType)i + ": " + packet.ReadInt32());
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V5_1_0_16309))
-                packet.ReadInt32("Talent Level"); // 0 - No Talent gain / 1 - Talent Point gain
+                packet.ReadInt32("Talent Level"); // 0 - No Talent gain / 1 - Talent Point gain*/
         }
 
         [Parser(Opcode.SMSG_HEALTH_UPDATE)]
