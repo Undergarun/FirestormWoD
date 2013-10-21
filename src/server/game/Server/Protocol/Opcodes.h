@@ -446,7 +446,7 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_PET_INFO                             = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_PVP_REWARDS                          = 0x008A, // 5.4.0 17399 (JamList)
+    CMSG_REQUEST_PVP_REWARDS                          = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RAID_INFO                            = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RATED_BG_INFO                        = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RATED_BG_STATS                       = 0x000,  // 5.0.5 16048
@@ -526,7 +526,7 @@ enum Opcodes
     CMSG_TAXIENABLEALLNODES                           = 0x000,  // 5.0.5 16048
     CMSG_TAXINODE_STATUS_QUERY                        = 0x000,  // 5.0.5 16048
     CMSG_TAXIQUERYAVAILABLENODES                      = 0x000,  // 5.0.5 16048
-    CMSG_TAXISHOWNODES                                = 0x0032, // 5.4.0 17399 (JamList)
+    CMSG_TAXISHOWNODES                                = 0x000,  // 5.0.5 16048
     CMSG_TELEPORT_TO_UNIT                             = 0x000,  // 5.0.5 16048
     CMSG_TEXT_EMOTE                                   = 0x000,  // 5.0.5 16048
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x000,  // 5.0.5 16048
@@ -1217,7 +1217,7 @@ enum Opcodes
     SMSG_REMOVED_SPELL                                = 0x000,  // 5.0.5 16048
     SMSG_REPORT_PVP_AFK_RESULT                        = 0x003F, // 5.4.0 17399 (JamList)
     SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x000,  // 5.0.5 16048
-    SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x000,  // 5.0.5 16048
+    SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x008A, // 5.4.0 17399 (JamList)
     SMSG_RESEARCH_COMPLETE                            = 0x000,  // 5.0.5 16048
     SMSG_RESEARCH_SETUP_HISTORY                       = 0x0034, // 5.4.0 17399 (JamList)
     SMSG_RESET_COMPRESSION_CONTEXT                    = 0x000,  // 5.0.5 16048
@@ -1329,6 +1329,7 @@ enum Opcodes
     SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x000,  // 5.0.5 16048
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x0083, // 5.4.0 17399 (JamList)
     SMSG_TAXINODE_STATUS                              = 0x000,  // 5.0.5 16048
+    SMSG_TAXISHOWNODES                                = 0x0032, // 5.4.0 17399 (JamList) (NYI)
     SMSG_TEST_DROP_RATE_RESULT                        = 0x000,  // 5.0.5 16048 Unused
     SMSG_TEXT_EMOTE                                   = 0x003B, // 5.4.0 17399 (JamList)
     SMSG_THREAT_CLEAR                                 = 0x000,  // 5.0.5 16048
