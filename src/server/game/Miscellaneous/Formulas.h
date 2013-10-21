@@ -185,7 +185,8 @@ namespace JadeCore
                 }
 
                 float KillXpRate = 1;
-				float premium_rate = player->GetSession()->IsPremium() ? sWorld->getRate(RATE_XP_KILL_PREMIUM) : 1.0f;
+                float premium_rate = player->GetSession()->IsPremium() ? sWorld->getRate(RATE_XP_KILL_PREMIUM) : 1.0f;
+
                 if (player->GetPersonnalXpRate())
                     KillXpRate = player->GetPersonnalXpRate();
                 else
