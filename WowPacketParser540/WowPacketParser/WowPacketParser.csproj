@@ -1,0 +1,513 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0BF6F270-0B6F-4705-8E1A-F57DB76DB407}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WowPacketParser</RootNamespace>
+    <AssemblyName>WowPacketParser</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <StartupObject>WowPacketParser.Program</StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
+    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
+    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
+    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
+    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
+    <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
+    <CodeContractsBoundsObligations>False</CodeContractsBoundsObligations>
+    <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
+    <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
+    <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
+    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
+    <CodeContractsShowSquigglies>False</CodeContractsShowSquigglies>
+    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
+    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
+    <CodeContractsCustomRewriterAssembly />
+    <CodeContractsCustomRewriterClass />
+    <CodeContractsLibPaths />
+    <CodeContractsExtraRewriteOptions />
+    <CodeContractsExtraAnalysisOptions />
+    <CodeContractsBaseLineFile />
+    <CodeContractsCacheAnalysisResults>False</CodeContractsCacheAnalysisResults>
+    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
+    <CodeContractsReferenceAssembly>%28none%29</CodeContractsReferenceAssembly>
+    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <Prefer32Bit>false</Prefer32Bit>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="MySql.Data, Version=6.2.2.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
+      <HintPath>Dependencies\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="SharpSSH, Version=2.0.0.25137, Culture=neutral, PublicKeyToken=null">
+      <HintPath>Dependencies\SharpSSH.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zlib">
+      <HintPath>Dependencies\Ionic.Zlib.dll</HintPath>
+    </Reference>
+    <Reference Include="PowerCollections">
+      <HintPath>Dependencies\PowerCollections.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Enums\AccountDataType.cs" />
+    <Compile Include="Enums\ActionButtonType.cs" />
+    <Compile Include="Enums\AIReaction.cs" />
+    <Compile Include="Enums\AmmoType.cs" />
+    <Compile Include="Enums\ArenaCommandResult.cs" />
+    <Compile Include="Enums\ArenaEvent.cs" />
+    <Compile Include="Enums\AttackerStateFlags.cs" />
+    <Compile Include="Enums\AuctionHouseAction.cs" />
+    <Compile Include="Enums\AuctionHouseError.cs" />
+    <Compile Include="Enums\AuraFlag.cs" />
+    <Compile Include="Enums\AuraType.cs" />
+    <Compile Include="Enums\BagFamilyMask.cs" />
+    <Compile Include="Enums\BankSlotResult.cs" />
+    <Compile Include="Enums\BarberShopResult.cs" />
+    <Compile Include="Enums\BattlegroundError.cs" />
+    <Compile Include="Enums\BattlegroundListFlags.cs" />
+    <Compile Include="Enums\BattlegroundStatus.cs" />
+    <Compile Include="Enums\BattlegroundUpdateFlags.cs" />
+    <Compile Include="Enums\BillingFlag.cs" />
+    <Compile Include="Enums\CalendarError.cs" />
+    <Compile Include="Enums\CalendarEventStatus.cs" />
+    <Compile Include="Enums\CalendarEventType.cs" />
+    <Compile Include="Enums\CalendarFlag.cs" />
+    <Compile Include="Enums\CalendarModerationRank.cs" />
+    <Compile Include="Enums\CalendarRepeatType.cs" />
+    <Compile Include="Enums\CalendarSendEventType.cs" />
+    <Compile Include="Enums\CastFlag.cs" />
+    <Compile Include="Enums\ChannelFlag.cs" />
+    <Compile Include="Enums\ChannelMemberFlag.cs" />
+    <Compile Include="Enums\CharacterFlag.cs" />
+    <Compile Include="Enums\ChatMessageType.cs" />
+    <Compile Include="Enums\ChatNotificationType.cs" />
+    <Compile Include="Enums\ChatRestrictionType.cs" />
+    <Compile Include="Enums\ChatTag.cs" />
+    <Compile Include="Enums\Class.cs" />
+    <Compile Include="Enums\ClassMask.cs" />
+    <Compile Include="Enums\ClientType.cs" />
+    <Compile Include="Enums\ClientVersionBuild.cs" />
+    <Compile Include="Enums\ContactEntryFlag.cs" />
+    <Compile Include="Enums\ContactListFlag.cs" />
+    <Compile Include="Enums\ContactResult.cs" />
+    <Compile Include="Enums\ContactStatus.cs" />
+    <Compile Include="Enums\BuyResult.cs" />
+    <Compile Include="Enums\ItemFieldFlags.cs" />
+    <Compile Include="Enums\QuestFlags2.cs" />
+    <Compile Include="Enums\QuestRequirementType.cs" />
+    <Compile Include="Enums\CreatureFamily.cs" />
+    <Compile Include="Enums\CreatureRank.cs" />
+    <Compile Include="Enums\CreatureType.cs" />
+    <Compile Include="Enums\CreatureTypeFlag.cs" />
+    <Compile Include="Enums\CustomizationFlag.cs" />
+    <Compile Include="Enums\DamageType.cs" />
+    <Compile Include="Enums\DifficultyChangeType.cs" />
+    <Compile Include="Enums\Direction.cs" />
+    <Compile Include="Enums\DismountResult.cs" />
+    <Compile Include="Enums\DrunkenState.cs" />
+    <Compile Include="Enums\DumpFormatType.cs" />
+    <Compile Include="Enums\EmoteTextType.cs" />
+    <Compile Include="Enums\EmoteType.cs" />
+    <Compile Include="Enums\EncounterFrame.cs" />
+    <Compile Include="Enums\EnvironmentDamage.cs" />
+    <Compile Include="Enums\EquipmentSetState.cs" />
+    <Compile Include="Enums\EquipmentSlotType.cs" />
+    <Compile Include="Enums\FactionFlag.cs" />
+    <Compile Include="Enums\GameObjectDynamicFlag.cs" />
+    <Compile Include="Enums\GameObjectFlag.cs" />
+    <Compile Include="Enums\GameObjectType.cs" />
+    <Compile Include="Enums\Gender.cs" />
+    <Compile Include="Enums\GMTicketResponse.cs" />
+    <Compile Include="Enums\GMTicketStatus.cs" />
+    <Compile Include="Enums\GossipOptionIcon.cs" />
+    <Compile Include="Enums\GossipPoiIcon.cs" />
+    <Compile Include="Enums\GroupMemberStatusFlag.cs" />
+    <Compile Include="Enums\GroupTypeFlag.cs" />
+    <Compile Include="Enums\GroupUpdateFlag.cs" />
+    <Compile Include="Enums\GuildBankEventLogType.cs" />
+    <Compile Include="Enums\GuildBankRightsFlag.cs" />
+    <Compile Include="Enums\GuildCommandError.cs" />
+    <Compile Include="Enums\GuildCommandType.cs" />
+    <Compile Include="Enums\GuildEmblemError.cs" />
+    <Compile Include="Enums\GuildEventLogType.cs" />
+    <Compile Include="Enums\GuildEventType.cs" />
+    <Compile Include="Enums\GuildFinder.cs" />
+    <Compile Include="Enums\GuildMemberFlag.cs" />
+    <Compile Include="Enums\GuildRankRightsFlag.cs" />
+    <Compile Include="Enums\HighGuidMask.cs" />
+    <Compile Include="Enums\HighGuidType.cs" />
+    <Compile Include="Enums\Holiday.cs" />
+    <Compile Include="Enums\InhabitType.cs" />
+    <Compile Include="Enums\MountResult.cs" />
+    <Compile Include="Enums\RaidSummonFail.cs" />
+    <Compile Include="Enums\TalentErrors.cs" />
+    <Compile Include="Enums\TargetIcon.cs" />
+    <Compile Include="Enums\InstanceResetWarningType.cs" />
+    <Compile Include="Enums\InstanceStatus.cs" />
+    <Compile Include="Enums\InventoryResult.cs" />
+    <Compile Include="Enums\InventoryType.cs" />
+    <Compile Include="Enums\ItemBonding.cs" />
+    <Compile Include="Enums\ItemClass.cs" />
+    <Compile Include="Enums\ItemProtoFlags.cs" />
+    <Compile Include="Enums\ItemFlagExtra.cs" />
+    <Compile Include="Enums\ItemModType.cs" />
+    <Compile Include="Enums\ItemQuality.cs" />
+    <Compile Include="Enums\ItemSocketColor.cs" />
+    <Compile Include="Enums\ItemSpellTriggerType.cs" />
+    <Compile Include="Enums\KickReason.cs" />
+    <Compile Include="Enums\Language.cs" />
+    <Compile Include="Enums\LfgEntryCheckResult.cs" />
+    <Compile Include="Enums\LfgError.cs" />
+    <Compile Include="Enums\LfgJoinResult.cs" />
+    <Compile Include="Enums\LfgProposalState.cs" />
+    <Compile Include="Enums\LfgRoleCheckStatus.cs" />
+    <Compile Include="Enums\LfgRoleFlag.cs" />
+    <Compile Include="Enums\LfgType.cs" />
+    <Compile Include="Enums\LfgUpdateFlag.cs" />
+    <Compile Include="Enums\LfgUpdateType.cs" />
+    <Compile Include="Enums\LootMethod.cs" />
+    <Compile Include="Enums\LootRoolType.cs" />
+    <Compile Include="Enums\LootSlotType.cs" />
+    <Compile Include="Enums\LootType.cs" />
+    <Compile Include="Enums\LootVoteFlags.cs" />
+    <Compile Include="Enums\MailActionType.cs" />
+    <Compile Include="Enums\MailErrorType.cs" />
+    <Compile Include="Enums\MailType.cs" />
+    <Compile Include="Enums\MapDifficulty.cs" />
+    <Compile Include="Enums\Material.cs" />
+    <Compile Include="Enums\MirrorTimerType.cs" />
+    <Compile Include="Enums\MovementAnimationState.cs" />
+    <Compile Include="Enums\MovementFlag.cs" />
+    <Compile Include="Enums\MovementFlagExtra.cs" />
+    <Compile Include="Enums\NPCFlags.cs" />
+    <Compile Include="Enums\ObjectType.cs" />
+    <Compile Include="Enums\Opcode.cs" />
+    <Compile Include="Enums\PageMaterial.cs" />
+    <Compile Include="Enums\ParsedStatus.cs" />
+    <Compile Include="Enums\PartyCommand.cs" />
+    <Compile Include="Enums\PartyResult.cs" />
+    <Compile Include="Enums\PetFeedback.cs" />
+    <Compile Include="Enums\PetitionResultType.cs" />
+    <Compile Include="Enums\PetModeFlags.cs" />
+    <Compile Include="Enums\PetTameFailureReason.cs" />
+    <Compile Include="Enums\PlayerFieldBytesMiscFlags.cs" />
+    <Compile Include="Enums\PlayerFlags.cs" />
+    <Compile Include="Enums\PowerType.cs" />
+    <Compile Include="Enums\QuestFlags.cs" />
+    <Compile Include="Enums\QuestGiverStatus.cs" />
+    <Compile Include="Enums\QuestMethod.cs" />
+    <Compile Include="Enums\QuestPartyResult.cs" />
+    <Compile Include="Enums\QuestReasonType.cs" />
+    <Compile Include="Enums\QuestSort.cs" />
+    <Compile Include="Enums\QuestType.cs" />
+    <Compile Include="Enums\Race.cs" />
+    <Compile Include="Enums\RaceMask.cs" />
+    <Compile Include="Enums\RaidInstanceResetWarning.cs" />
+    <Compile Include="Enums\RealmSplitState.cs" />
+    <Compile Include="Enums\ReputationRank.cs" />
+    <Compile Include="Enums\ResponseCode.cs" />
+    <Compile Include="Enums\SellResult.cs" />
+    <Compile Include="Enums\SheathState.cs" />
+    <Compile Include="Enums\SheathType.cs" />
+    <Compile Include="Enums\SniffType.cs" />
+    <Compile Include="Enums\SpeedType.cs" />
+    <Compile Include="Enums\SpellCastFailureReason.cs" />
+    <Compile Include="Enums\SpellEffect.cs" />
+    <Compile Include="Enums\SpellHitInfo.cs" />
+    <Compile Include="Enums\SpellHitType.cs" />
+    <Compile Include="Enums\SpellMechanic.cs" />
+    <Compile Include="Enums\SpellMissType.cs" />
+    <Compile Include="Enums\SpellModOp.cs" />
+    <Compile Include="Enums\SplineFlag422.cs" />
+    <Compile Include="Enums\SplineFlag.cs" />
+    <Compile Include="Enums\SplineMode.cs" />
+    <Compile Include="Enums\SplineType.cs" />
+    <Compile Include="Enums\SQLOutput.cs" />
+    <Compile Include="Enums\StatType.cs" />
+    <Compile Include="Enums\StoreNameType.cs" />
+    <Compile Include="Enums\TargetFlag.cs" />
+    <Compile Include="Enums\TaxiError.cs" />
+    <Compile Include="Enums\TeamType.cs" />
+    <Compile Include="Enums\TimerType.cs" />
+    <Compile Include="Enums\TotemCategory.cs" />
+    <Compile Include="Enums\TradeStatus.cs" />
+    <Compile Include="Enums\TrainerSpellState.cs" />
+    <Compile Include="Enums\TrainerType.cs" />
+    <Compile Include="Enums\TransferAbortReason.cs" />
+    <Compile Include="Enums\TypeMask.cs" />
+    <Compile Include="Enums\UnitDynamicFlags.cs" />
+    <Compile Include="Enums\UnitFlags2.cs" />
+    <Compile Include="Enums\UnitFlags.cs" />
+    <Compile Include="Enums\UnknownFlags.cs" />
+    <Compile Include="Enums\UpdateFields.cs" />
+    <Compile Include="Enums\UpdateFlag.cs" />
+    <Compile Include="Enums\UpdateType.cs" />
+    <Compile Include="Enums\VehicleFlags.cs" />
+    <Compile Include="Enums\Version\V5_0_5_16048\Opcodes.cs" />
+    <Compile Include="Enums\Version\V5_0_5_16048\UpdateFields.cs" />
+    <Compile Include="Enums\Version\Opcodes.cs" />
+    <Compile Include="Enums\Version\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V3_3_0_10958\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V3_3_5a_12340\Opcodes.cs" />
+    <Compile Include="Enums\Version\V3_3_5a_12340\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_0_3_13329\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_0_6_13596\Opcodes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Enums\Version\V4_0_6_13596\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_1_0_13914\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_2_0_14480\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_2_0_14480\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_2_2_14545\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_2_2_14545\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_3_0_15005\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_3_0_15005\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_3_2_15211\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_3_2_15211\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_3_3_15354\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_3_3_15354\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V4_3_4_15595\Opcodes.cs" />
+    <Compile Include="Enums\Version\V4_3_4_15595\SplineFlag434.cs" />
+    <Compile Include="Enums\Version\V5_0_4_16016\Opcodes.cs" />
+    <Compile Include="Enums\Version\V5_0_4_16016\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V5_1_0_16309\Opcodes.cs" />
+    <Compile Include="Enums\Version\V5_1_0_16309\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V5_2_0_16650\Opcodes.cs" />
+    <Compile Include="Enums\Version\V5_2_0_16650\UpdateFields.cs" />
+    <Compile Include="Enums\Version\V5_3_0_16981\Opcodes.cs" />
+    <Compile Include="Enums\Version\V5_3_0_16981\UpdateFields.cs" />
+    <Compile Include="Enums\VictimStates.cs" />
+    <Compile Include="Enums\VoidTransferError.cs" />
+    <Compile Include="Enums\WardenCheckType.cs" />
+    <Compile Include="Enums\WardenOpcode.cs" />
+    <Compile Include="Enums\WeatherState.cs" />
+    <Compile Include="Loading\BinaryPacketReader.cs" />
+    <Compile Include="Loading\FabiParser.cs" />
+    <Compile Include="Loading\IPacketReader.cs" />
+    <Compile Include="Loading\Reader.cs" />
+    <Compile Include="Misc\BiDictionary.cs" />
+    <Compile Include="Misc\Bit.cs" />
+    <Compile Include="Misc\ClientVersion.cs" />
+    <Compile Include="Misc\Extensions.cs" />
+    <Compile Include="Misc\Filters.cs" />
+    <Compile Include="Misc\Guid.cs" />
+    <Compile Include="Misc\LfgEntry.cs" />
+    <Compile Include="Misc\Logger.cs" />
+    <Compile Include="Misc\MovementInfo.cs" />
+    <Compile Include="Misc\Packet.cs" />
+    <Compile Include="Misc\PacketReads.cs" />
+    <Compile Include="Loading\SniffFile.cs" />
+    <Compile Include="Misc\Statistics.cs" />
+    <Compile Include="Misc\Quaternion.cs" />
+    <Compile Include="Misc\Settings.cs" />
+    <Compile Include="Misc\StoreGetters.cs" />
+    <Compile Include="Misc\UpdateField.cs" />
+    <Compile Include="Misc\Utilities.cs" />
+    <Compile Include="Misc\Vector2.cs" />
+    <Compile Include="Misc\Vector3.cs" />
+    <Compile Include="Misc\Vector4.cs" />
+    <Compile Include="Parsing\Handler.cs" />
+    <Compile Include="Parsing\HasSniffDataAttribute.cs" />
+    <Compile Include="Parsing\ParserAttribute.cs" />
+    <Compile Include="Parsing\Parsers\AccountDataHandler.cs" />
+    <Compile Include="Parsing\Parsers\AchievementHandler.cs" />
+    <Compile Include="Parsing\Parsers\ActionBarHandler.cs" />
+    <Compile Include="Parsing\Parsers\AddonHandler.cs" />
+    <Compile Include="Parsing\Parsers\ArchaelogyHandler.cs" />
+    <Compile Include="Parsing\Parsers\AuctionHouseHandler.cs" />
+    <Compile Include="Parsing\Parsers\BattlegroundHandler.cs" />
+    <Compile Include="Parsing\Parsers\CalendarHandler.cs" />
+    <Compile Include="Parsing\Parsers\ChannelHandler.cs" />
+    <Compile Include="Parsing\Parsers\CharacterHandler.cs" />
+    <Compile Include="Parsing\Parsers\ChatHandler.cs" />
+    <Compile Include="Parsing\Parsers\CombatHandler.cs" />
+    <Compile Include="Parsing\Parsers\CombatLogHandler.cs" />
+    <Compile Include="Parsing\Parsers\ContactHandler.cs" />
+    <Compile Include="Parsing\Parsers\CorpseHandler.cs" />
+    <Compile Include="Parsing\Parsers\EquipmentSetHandler.cs" />
+    <Compile Include="Parsing\Parsers\GameObjectHandler.cs" />
+    <Compile Include="Parsing\Parsers\GroupHandler.cs" />
+    <Compile Include="Parsing\Parsers\GuildFinderHandler.cs" />
+    <Compile Include="Parsing\Parsers\GuildHandler.cs" />
+    <Compile Include="Parsing\Parsers\InstanceHandler.cs" />
+    <Compile Include="Parsing\Parsers\ItemHandler.cs" />
+    <Compile Include="Parsing\Parsers\LfgHandler.cs" />
+    <Compile Include="Parsing\Parsers\LootHandler.cs" />
+    <Compile Include="Parsing\Parsers\MailHandler.cs" />
+    <Compile Include="Parsing\Parsers\MiscellaneousHandler.cs" />
+    <Compile Include="Parsing\Parsers\MovementHandler.cs" />
+    <Compile Include="Parsing\Parsers\NpcHandler.cs" />
+    <Compile Include="Parsing\Parsers\PetHandler.cs" />
+    <Compile Include="Parsing\Parsers\QueryHandler.cs" />
+    <Compile Include="Parsing\Parsers\QuestHandler.cs" />
+    <Compile Include="Parsing\Parsers\ReputationHandler.cs" />
+    <Compile Include="Parsing\Parsers\SessionHandler.cs" />
+    <Compile Include="Parsing\Parsers\SpellHandler.cs" />
+    <Compile Include="Parsing\Parsers\TalentHandler.cs" />
+    <Compile Include="Parsing\Parsers\TaxiHandler.cs" />
+    <Compile Include="Parsing\Parsers\TestHandler.cs" />
+    <Compile Include="Parsing\Parsers\TicketHandler.cs" />
+    <Compile Include="Parsing\Parsers\TradeHandler.cs" />
+    <Compile Include="Parsing\Parsers\UpdateHandler.cs" />
+    <Compile Include="Parsing\Parsers\VoiceChatHandler.cs" />
+    <Compile Include="Parsing\Parsers\VoidStorageHandler.cs" />
+    <Compile Include="Parsing\Parsers\WardenHandler.cs" />
+    <Compile Include="Parsing\Parsers\WorldStateHandler.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Saving\BinaryPacketWriter.cs" />
+    <Compile Include="Saving\SplitBinaryPacketWriter.cs" />
+    <Compile Include="SQL\Builder.cs" />
+    <Compile Include="SQL\Builders\Miscellaneous.cs" />
+    <Compile Include="SQL\Builders\QuestMisc.cs" />
+    <Compile Include="SQL\Builders\Spawns.cs" />
+    <Compile Include="SQL\Builders\UnitMisc.cs" />
+    <Compile Include="SQL\Builders\WDBTemplates.cs" />
+    <Compile Include="SQL\DBFieldNameAttribute.cs" />
+    <Compile Include="SQL\DBTableNameAttribute.cs" />
+    <Compile Include="SQL\ISQLQuery.cs" />
+    <Compile Include="SQL\QueryBuilder.cs" />
+    <Compile Include="SQL\SQLConnector.cs" />
+    <Compile Include="SQL\SQLDatabase.cs" />
+    <Compile Include="SQL\SQLFile.cs" />
+    <Compile Include="SQL\SQLUtil.cs" />
+    <Compile Include="SQL\SSHTunnel.cs" />
+    <Compile Include="Store\Objects\Aura.cs" />
+    <Compile Include="Store\Objects\CreatureEquipment.cs" />
+    <Compile Include="Store\Objects\GameObjectTemplateNonWDB.cs" />
+    <Compile Include="Store\Objects\CreatureText.cs" />
+    <Compile Include="Store\Objects\GameObject.cs" />
+    <Compile Include="Store\Objects\GameObjectTemplate.cs" />
+    <Compile Include="Store\Objects\Gossip.cs" />
+    <Compile Include="Store\Objects\GossipPOI.cs" />
+    <Compile Include="Store\Objects\Item.cs" />
+    <Compile Include="Store\Objects\ItemTemplate.cs" />
+    <Compile Include="Store\Objects\Loot.cs" />
+    <Compile Include="Store\Objects\LootItem.cs" />
+    <Compile Include="Store\Objects\ModelData.cs" />
+    <Compile Include="Store\Objects\NpcText.cs" />
+    <Compile Include="Store\Objects\NpcTrainer.cs" />
+    <Compile Include="Store\Objects\NpcVendor.cs" />
+    <Compile Include="Store\Objects\ObjectName.cs" />
+    <Compile Include="Store\Objects\PageText.cs" />
+    <Compile Include="Store\Objects\Player.cs" />
+    <Compile Include="Store\Objects\QuestMisc.cs" />
+    <Compile Include="Store\Objects\QuestPOI.cs" />
+    <Compile Include="Store\Objects\QuestPOIPoint.cs" />
+    <Compile Include="Store\Objects\QuestTemplate.cs" />
+    <Compile Include="Store\Objects\SniffData.cs" />
+    <Compile Include="Store\Objects\SpellsX.cs" />
+    <Compile Include="Store\Objects\StartAction.cs" />
+    <Compile Include="Store\Objects\StartItem.cs" />
+    <Compile Include="Store\Objects\StartPosition.cs" />
+    <Compile Include="Store\Objects\StartSpell.cs" />
+    <Compile Include="Store\Objects\TrainerSpell.cs" />
+    <Compile Include="Store\Objects\Unit.cs" />
+    <Compile Include="Store\Objects\UnitTemplate.cs" />
+    <Compile Include="Store\Objects\UnitTemplateNonWDB.cs" />
+    <Compile Include="Store\Objects\VendorItem.cs" />
+    <Compile Include="Store\Objects\WoWObject.cs" />
+    <Compile Include="Store\Storage.cs" />
+    <Compile Include="Store\StoreDictionaries.cs" />
+    <Compile Include="Enums\GuildNewsType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy FileWidth="120" NoTabsAfterNonTabs="True" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>

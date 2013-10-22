@@ -1439,6 +1439,54 @@ public:
     }
 };
 
+enum StormCloud
+{
+    STORM_COULD         = 29939,
+    HEALING_WINDS       = 55549,
+    STORM_VISUAL        = 55708,
+    GYMERS_GRAB         = 55516,
+    RIDE_VEHICLE        = 43671
+};
+
+class npc_storm_cloud : public CreatureScript
+{
+public:
+    npc_storm_cloud() : CreatureScript("npc_storm_cloud") { }
+
+    struct npc_storm_cloudAI : public ScriptedAI
+    {
+        npc_storm_cloudAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            me->CastSpell(me, STORM_VISUAL, true);
+        }
+
+        void JustRespawned()
+        {
+            Reset();
+        }
+
+        void SpellHit(Unit* caster, const SpellInfo* spell)
+        {
+            if (spell->Id != GYMERS_GRAB)
+                return;
+
+            if (Vehicle* veh = caster->GetVehicleKit())
+                if (veh->GetAvailableSeatCount() != 0)
+            {
+                me->CastSpell(caster, RIDE_VEHICLE, true);
+                me->CastSpell(caster, HEALING_WINDS, true);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature)
+    {
+        return new npc_storm_cloudAI(creature);
+    }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles;
@@ -1454,4 +1502,5 @@ void AddSC_zuldrak()
     new npc_elemental_lord;
     new npc_fiend_elemental;
     new go_scourge_enclosure;
+    new npc_storm_cloud();
 }

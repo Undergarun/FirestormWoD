@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v9.02 
-MySQL - 5.5.29-30.0-log : Database - 505_auth
+MySQL - 5.6.11-log : Database - 505_auth
 *********************************************************************
 */
 
@@ -20,6 +20,7 @@ CREATE TABLE `account` (
   `sessionkey` varchar(80) NOT NULL DEFAULT '',
   `v` varchar(64) NOT NULL DEFAULT '',
   `s` varchar(64) NOT NULL DEFAULT '',
+  `token_key` varchar(100) NOT NULL DEFAULT '',
   `email` varchar(254) NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
@@ -36,7 +37,7 @@ CREATE TABLE `account` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`),
   KEY `recruiterIndex` (`recruiter`)
-) ENGINE=InnoDB AUTO_INCREMENT=628055 DEFAULT CHARSET=utf8 COMMENT='Account System';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Account System';
 
 /*Table structure for table `account_access` */
 
@@ -69,6 +70,18 @@ CREATE TABLE `account_log_ip` (
   PRIMARY KEY (`accountid`,`ip`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+/*Table structure for table `account_premium` */
+
+CREATE TABLE `account_premium` (
+  `id` int(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
+  `setdate` bigint(40) NOT NULL DEFAULT '0',
+  `unsetdate` bigint(40) NOT NULL DEFAULT '0',
+  `premium_type` tinyint(4) unsigned NOT NULL DEFAULT '1',
+  `gm` varchar(12) NOT NULL DEFAULT '0',
+  `active` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`,`setdate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 /*Table structure for table `account_spell` */
 
 CREATE TABLE `account_spell` (
@@ -93,7 +106,7 @@ CREATE TABLE `firewall_farms` (
 CREATE TABLE `ip_banned` (
   `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
   `bandate` int(10) unsigned NOT NULL,
-  `unbandate` int(10) NOT NULL,
+  `unbandate` int(10) unsigned NOT NULL,
   `bannedby` varchar(50) NOT NULL DEFAULT '[Console]',
   `banreason` varchar(255) NOT NULL DEFAULT 'no reason',
   PRIMARY KEY (`ip`,`bandate`)
@@ -151,11 +164,11 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '17371',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '17399',
   `online` int(10) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='Realm System';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Realm System';
 
 /*Table structure for table `stat_lifetime_retention` */
 

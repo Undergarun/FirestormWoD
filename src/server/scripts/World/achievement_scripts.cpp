@@ -56,7 +56,7 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
             if (!bg)
                 return false;
 
-            if (!bg->IsAllNodesConrolledByTeam(source->GetTeam()))
+            if (!bg->IsAllNodesControlledByTeam(source->GetTeam()))
                 return false;
 
             return true;
