@@ -113,7 +113,7 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
 // this void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 {
-    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, 40);
+    WorldPacket data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 40);
     data << uint32(auction->Id);
     data << uint64(auction->bid);
     data << uint64(0);                                     //unk

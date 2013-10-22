@@ -7503,7 +7503,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS);
+    WorldPacket data(SMSG_UPDATE_ACTION_BUTTONS);
 
     /*
         state can be 0, 1, 2
@@ -21772,7 +21772,7 @@ bool Player::CanSpeak() const
 
 void Player::SendAttackSwingNotInRange()
 {
-    WorldPacket data(SMSG_ATTACKSWING_NOTINRANGE, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_NOT_IN_RANGE, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -21829,13 +21829,13 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
 
 void Player::SendAttackSwingDeadTarget()
 {
-    WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_DEAD_TARGET, 0);
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendAttackSwingCantAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_CANT_ATTACK, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_CANT_ATTACK, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -21847,7 +21847,7 @@ void Player::SendAttackSwingCancelAttack()
 
 void Player::SendAttackSwingBadFacingAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_BADFACING, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_BAD_FACING, 0);
     GetSession()->SendPacket(&data);
 }
 
