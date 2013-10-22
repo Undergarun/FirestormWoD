@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v9.02 
-MySQL - 5.6.13-rc60.5 : Database - 505_characters_hellscream
+MySQL - 5.6.11-log : Database - 505_char
 *********************************************************************
 */
 
@@ -321,7 +321,7 @@ CREATE TABLE `character_equipmentsets` (
   PRIMARY KEY (`setguid`),
   UNIQUE KEY `idx_set` (`guid`,`setguid`,`setindex`),
   KEY `Idx_setindex` (`setindex`)
-) ENGINE=InnoDB AUTO_INCREMENT=27159 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `character_gifts` */
 
@@ -453,6 +453,15 @@ CREATE TABLE `character_queststatus_daily` (
   PRIMARY KEY (`guid`,`quest`),
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
+
+/*Table structure for table `character_queststatus_monthly` */
+
+CREATE TABLE `character_queststatus_monthly` (
+  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
+  PRIMARY KEY (`guid`,`quest`),
+  KEY `idx_guid` (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
 /*Table structure for table `character_queststatus_rewarded` */
 
@@ -771,7 +780,7 @@ CREATE TABLE `gm_subsurveys` (
   `rank` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` text NOT NULL,
   PRIMARY KEY (`surveyId`,`subsurveyId`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
 
 /*Table structure for table `gm_surveys` */
 
@@ -782,7 +791,7 @@ CREATE TABLE `gm_surveys` (
   `overallComment` longtext NOT NULL,
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`surveyId`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
 
 /*Table structure for table `gm_tickets` */
 
@@ -804,7 +813,7 @@ CREATE TABLE `gm_tickets` (
   `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ticketId`)
-) ENGINE=InnoDB AUTO_INCREMENT=48310 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Player System';
 
 /*Table structure for table `group_instance` */
 
@@ -1286,7 +1295,7 @@ CREATE TABLE `log_arena` (
   `timestamp` int(11) DEFAULT NULL,
   `string` blob,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=813593 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `log_faction_change` */
 
@@ -1316,7 +1325,7 @@ CREATE TABLE `log_gm` (
   `sc_character_name` blob NOT NULL,
   `command` blob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5541218 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `log_gm_chat` */
 
@@ -1334,7 +1343,7 @@ CREATE TABLE `log_gm_chat` (
   `to_character_name` blob NOT NULL,
   `message` blob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=380994 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `log_mail` */
 
@@ -1372,7 +1381,7 @@ CREATE TABLE `log_store_gold` (
   `guid` int(11) NOT NULL DEFAULT '0',
   `gold` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1156 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `log_store_item` */
 
@@ -1400,7 +1409,7 @@ CREATE TABLE `log_trade` (
   `item_entry` int(11) DEFAULT NULL,
   `item_count` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `mail` */
 
@@ -1543,7 +1552,7 @@ CREATE TABLE `store_gold` (
   PRIMARY KEY (`transaction`),
   UNIQUE KEY `transaction` (`transaction`),
   KEY `guid` (`guid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1238 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `store_item` */
 
@@ -1555,7 +1564,7 @@ CREATE TABLE `store_item` (
   PRIMARY KEY (`transaction`),
   UNIQUE KEY `transaction` (`transaction`),
   KEY `guid` (`guid`)
-) ENGINE=InnoDB AUTO_INCREMENT=119756 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `store_level` */
 
@@ -1566,7 +1575,7 @@ CREATE TABLE `store_level` (
   PRIMARY KEY (`transaction`),
   UNIQUE KEY `transaction` (`transaction`),
   KEY `guid` (`guid`)
-) ENGINE=InnoDB AUTO_INCREMENT=22205 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `store_metier` */
 
@@ -1577,7 +1586,7 @@ CREATE TABLE `store_metier` (
   `transaction` int(11) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`transaction`),
   UNIQUE KEY `NewIndex1` (`skill`,`guid`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `time_diff_log` */
 
@@ -1588,7 +1597,7 @@ CREATE TABLE `time_diff_log` (
   `max` int(10) unsigned DEFAULT '0',
   `players` int(10) unsigned DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=318106 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+) ENGINE=MyISAM AUTO_INCREMENT=322536 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
 /*Table structure for table `warden_action` */
 

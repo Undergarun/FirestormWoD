@@ -301,7 +301,7 @@ void BattlegroundIC::StartingEventOpenDoors()
     }
 }
 
-bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundIC::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     ICNodeState controlledState = team == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;

@@ -235,7 +235,7 @@ class BattlegroundBFG : public Battleground
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
         /* achievement requirements. */
-        bool IsAllNodesConrolledByTeam(uint32 team) const;
+        bool IsAllNodesControlledByTeam(uint32 team) const;
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
 
     private:
