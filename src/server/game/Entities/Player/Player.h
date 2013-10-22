@@ -226,6 +226,12 @@ enum ActionButtonType
 #define ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
 #define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
 
+struct ActionButtonPacket
+{
+    uint32 id;
+    uint32 type;
+};
+
 struct ActionButton
 {
     ActionButton() : packedData(0), uState(ACTIONBUTTON_NEW) {}
@@ -2007,6 +2013,7 @@ class Player : public Unit, public GridObject<Player>
         ActionButton const* GetActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(0); }
         void SendActionButtons(uint32 state) const;
+        void BuildActionButtonsDatas(WorldPacket* data, uint8 buttons[MAX_ACTION_BUTTONS][8], uint8 order, bool byte = false) const;
         bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type);
 
         int8 GetFreeActionButton();

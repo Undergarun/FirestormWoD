@@ -3854,8 +3854,8 @@ void Player::InitSpellForLevel()
         {
             bool find = false;
 
-            for(auto itr : spell->SpecializationIdList)
-                if(itr == specializationId)
+            for (auto itr : spell->SpecializationIdList)
+                if (itr == specializationId)
                     find = true;
 
             if(!find)
@@ -4565,6 +4565,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 else
                 {
                     WorldPacket data(SMSG_REMOVED_SPELL, 4);
+                    data.WriteBits(1, 22);  // Count spells, always one by one
                     data << uint32(spellId);
                     GetSession()->SendPacket(&data);
                 }
@@ -4873,9 +4874,9 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
     {
-        WorldPacket data(SMSG_LEARNED_SPELL, 8);
-        data.WriteBits(1, 24); //count of spell_id to send.
-        data << uint8(0); // 0 : auto push spell to action bar , 1 : don't auto push spell to action bar
+        WorldPacket data(SMSG_LEARNED_SPELL);
+        data.WriteBit(0);       // auto push in action bar (ReadBit() != 0)
+        data.WriteBits(1, 22);  // count of spell_id to send.
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
@@ -5110,7 +5111,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (!prev_activate)
     {
         WorldPacket data(SMSG_REMOVED_SPELL, 4);
-        data.WriteBits(1, 24);
+        data.WriteBits(1, 22);  // Count spells, always one by one
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
@@ -7502,23 +7503,51 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
+    WorldPacket data(SMSG_ACTION_BUTTONS);
+
     /*
         state can be 0, 1, 2
         0 - Sends initial action buttons, client does not validate if we have the spell or not
         1 - Used used after spec swaps, client validates if a spell is known.
         2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
     */
+
+    uint8 buttons[MAX_ACTION_BUTTONS][8];
+    ActionButtonPacket* buttonsTab = (ActionButtonPacket*)buttons;
+    memset(buttons, 0, MAX_ACTION_BUTTONS * 8);
+
+    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
+    {
+        ActionButton const* ab = ((Player*)this)->GetActionButton(i);
+        if (!ab)
+        {
+            buttonsTab[i].id = 0;
+            buttonsTab[i].type = 0;
+            continue;
+        }
+
+        buttonsTab[i].id = ab->GetAction();
+        buttonsTab[i].type = uint32(ab->GetType());
+    }
+
     if (state != 2)
     {
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-        {
-            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-                data << uint32(itr->second.packedData);
-            else
-                data << uint32(0);
-        }
+        BuildActionButtonsDatas(&data, buttons, 7);
+        BuildActionButtonsDatas(&data, buttons, 2);
+        BuildActionButtonsDatas(&data, buttons, 1);
+        BuildActionButtonsDatas(&data, buttons, 6);
+        BuildActionButtonsDatas(&data, buttons, 3);
+        BuildActionButtonsDatas(&data, buttons, 4);
+        BuildActionButtonsDatas(&data, buttons, 5);
+        BuildActionButtonsDatas(&data, buttons, 0);
+        BuildActionButtonsDatas(&data, buttons, 3, true);
+        BuildActionButtonsDatas(&data, buttons, 1, true);
+        BuildActionButtonsDatas(&data, buttons, 4, true);
+        BuildActionButtonsDatas(&data, buttons, 5, true);
+        BuildActionButtonsDatas(&data, buttons, 6, true);
+        BuildActionButtonsDatas(&data, buttons, 2, true);
+        BuildActionButtonsDatas(&data, buttons, 7, true);
+        BuildActionButtonsDatas(&data, buttons, 0, true);
     }
     else
         data.resize(MAX_ACTION_BUTTONS * 4);    // insert crap, client doesnt even parse this for state == 2
@@ -7526,6 +7555,20 @@ void Player::SendActionButtons(uint32 state) const
     data << uint8(state);
     GetSession()->SendPacket(&data);
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
+}
+
+void Player::BuildActionButtonsDatas(WorldPacket* data, uint8 buttons[MAX_ACTION_BUTTONS][8], uint8 order, bool byte) const
+{
+    if (!byte)
+    {
+        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+            data->WriteBit(buttons[button][order]);
+    }
+    else
+    {
+        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+            data->WriteByteSeq(buttons[button][order]);
+    }
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
@@ -24632,9 +24675,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // Homebind
     WorldPacket data(SMSG_BINDPOINTUPDATE, 5*4);
-    data << m_homebindX << m_homebindY << m_homebindZ;
-    data << (uint32) m_homebindMapId;
-    data << (uint32) m_homebindAreaId;
+    data << m_homebindY << m_homebindX << m_homebindZ;
+    data << uint32(m_homebindAreaId);
+    data << uint32(m_homebindMapId);
     GetSession()->SendPacket(&data);
 
     // SMSG_SET_PROFICIENCY
@@ -25065,14 +25108,59 @@ void Player::SendAurasForTarget(Unit* target)
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SendMovementHover();
 
-    WorldPacket data(SMSG_AURA_UPDATE_ALL);
-    data.append(target->GetPackGUID());
+    bool powerData = false;
+    ObjectGuid targetGuid = target->GetGUID();
+
+    WorldPacket data(SMSG_AURA_UPDATE);
+    data.WriteBit(true); // full update bit
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBits(target->GetVisibleAuras()->size(), 24); // aura counter
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(powerData); // has power data, don't care about it ?
+
+    if (powerData)
+    {
+        //packet.StartBitStream(guid2, 7, 0, 6);
+        //powerCounter = packet.ReadBits(21);
+        //packet.StartBitStream(guid2, 3, 1, 2, 4, 5);
+    }
+
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
 
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
         AuraApplication * auraApp = itr->second;
-        auraApp->BuildUpdatePacket(data, false);
+        auraApp->BuildBitsUpdatePacket(data, false);
+    }
+
+    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    {
+        AuraApplication * auraApp = itr->second;
+        auraApp->BuildBytesUpdatePacket(data, false);
+    }
+
+    if (powerData)
+    {
+        //packet.ReadXORBytes(guid2, 7, 4, 5, 1, 6);
+
+        //for (var i = 0; i < powerCounter; ++i)
+        //{
+            //packet.ReadInt32("Power Value", i);
+            //packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
+        //}
+
+        //packet.ReadInt32("Attack power");
+        //packet.ReadInt32("Spell power");
+        //packet.ReadXORBytes(guid2, 3);
+        //packet.ReadInt32("Current Health");
+        //packet.ReadXORBytes(guid2, 0, 2);
+        //packet.WriteGuid("PowerUnitGUID", guid2);
     }
 
     GetSession()->SendPacket(&data);
@@ -26989,12 +27077,10 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 bool Player::LearnTalent(uint32 talentId)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
-
     if (CurTalentPoints == 0)
         return false;
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
     if (!talentInfo)
         return false;
 
@@ -27028,7 +27114,6 @@ bool Player::LearnTalent(uint32 talentId)
             return false;
         }
     }
-
 
     // learn! (other talent ranks will unlearned at learning)
     learnSpell(spellid, false);
@@ -27116,39 +27201,54 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
 
 void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
 {
-    *data << uint8(GetSpecsCount());
-    *data << uint8(GetActiveSpec());
+    uint8 specCount = GetSpecsCount();
+    uint8 activeSpec = GetActiveSpec();
 
-    if (GetSpecsCount())
+    if (specCount)
     {
-        if (GetSpecsCount() > MAX_TALENT_SPECS)
+        if (specCount > MAX_TALENT_SPECS)
             SetSpecsCount(MAX_TALENT_SPECS);
 
-        // loop through all specs (only 1 for now)
-        for (uint8 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
+        data->WriteBits(specCount, 19);
+
+        uint8* talentCount = 0;
+        talentCount = new uint8[specCount];
+
+        // loop through all specs to set talent counter
+        for (uint8 specIdx = 0; specIdx < specCount; ++specIdx)
         {
-            *data << uint32(GetSpecializationId(specIdx));
+            talentCount[specIdx] = 0;
 
-            uint32 pos = data->wpos();
-            *data << uint8(0); // talent count
-
-            uint8 count = 0;
             for (auto itr : *GetTalentMap(specIdx))
             {
                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
                 if (spell && spell->talentId)
-                {
-                    *data << uint16(spell->talentId);
-                    count++;
-                }
+                    talentCount[specIdx]++;
             }
+        }
 
-            data->put(pos, count);
+        for (uint8 i = 0; i < specCount; i++)
+            data->WriteBits(talentCount[i], 23);
 
-            *data << uint8(MAX_GLYPH_SLOT_INDEX);
+        // loop through all specs (only 1 for now)
+        for (uint8 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
+        {
+            // Glyphs datas
             for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
                 *data << uint16(GetGlyph(specIdx, i));               // GlyphProperties.dbc
+
+            // Talents datas
+            for (auto itr : *GetTalentMap(specIdx))
+            {
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+                if (spell && spell->talentId)
+                    *data << uint16(spell->talentId);           // Talents.dbc
+            }
+
+            *data << uint32(GetSpecializationId(specIdx));
         }
+
+        *data << uint8(activeSpec);
     }
 }
 

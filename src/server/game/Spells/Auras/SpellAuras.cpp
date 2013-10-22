@@ -192,47 +192,77 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     SetNeedClientUpdate();
 }
 
-void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
+void AuraApplication::BuildBitsUpdatePacket(ByteBuffer& data, bool remove) const
 {
-    data << uint8(_slot);
+    data.WriteBit(!remove);
 
     if (remove)
-    {
-        ASSERT(!_target->GetVisibleAura(_slot));
-        data << uint32(0);
         return;
-    }
-    ASSERT(_target->GetVisibleAura(_slot));
 
     constAuraPtr aura = GetBase();
-    data << uint32(aura->GetId());
     uint32 flags = _flags;
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
-    data << uint8(flags);
-    uint32 effectMaskPos = data.wpos();
-    data << uint32(GetEffectMask());
-    data << uint16(aura->GetCasterLevel());
-    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
-    // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
-
-    if (!(flags & AFLAG_CASTER))
-        data.appendPackGUID(aura->GetCasterGUID());
-
-    if (flags & AFLAG_DURATION)
-    {
-        data << uint32(aura->GetMaxDuration());
-        data << uint32(aura->GetDuration());
-    }
 
     uint32 EffectMask = 0;
+    uint8 count = 0;
     if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
     {
-        size_t pos = data.wpos();
-        uint8 count = 0;
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
+                EffectMask |= 1 << i;
 
-        data << uint8(0);
+            count++;
+        }
+    }
+
+    data.WriteBit(flags & AFLAG_DURATION); // duration
+    data.WriteBits(count, 22);
+    data.WriteBit((flags & AFLAG_CASTER) == 0);
+
+    if (!(flags & AFLAG_CASTER))
+    {
+        ObjectGuid casterGuid = aura->GetCasterGUID();
+        uint8 order[8] = {3, 0, 2, 6, 5, 7, 4, 1};
+
+        data.WriteBitInOrder(casterGuid, order);
+    }
+
+    data.WriteBit(flags & AFLAG_DURATION); // max duration
+    data.WriteBits(0, 22); // second effect count
+}
+
+void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint32 overrideSpell) const
+{
+    if (remove)
+    {
+        data << uint8(_slot);
+        return;
+    }
+
+    constAuraPtr aura = GetBase();
+    uint32 flags = _flags;
+    if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
+        flags |= AFLAG_DURATION;
+
+    uint32 EffectMask = 0;
+
+    if (flags & AFLAG_DURATION)
+        data << uint32(aura->GetMaxDuration());
+
+    if (!(flags & AFLAG_CASTER))
+    {
+        ObjectGuid casterGuid = aura->GetCasterGUID();
+        uint8 order[8] = {0, 7, 5, 6, 1, 3, 2, 4};
+
+        data.WriteBytesSeq(casterGuid, order);
+    }
+
+    data << uint8(flags);
+
+    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+    {
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
@@ -240,85 +270,132 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
                 data << float(eff->GetAmount());
                 EffectMask |= 1 << i;
             }
-            count++;
+            else
+                data << float(0.00f);
         }
-
-        data.put(effectMaskPos, EffectMask);
-
-        data.put(pos, count);
     }
+
+    if (overrideSpell != 0)
+        data << uint32(overrideSpell);
+    else
+        data << uint32(aura->GetId());
+
+    if (flags & AFLAG_DURATION)
+        data << uint32(aura->GetDuration());
+
+    // effect value 2 for
+
+    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
+    data << uint32(EffectMask);
+    data << uint16(aura->GetCasterLevel());
+    data << uint8(_slot);
 }
 
 void AuraApplication::ClientUpdate(bool remove)
 {
     _needClientUpdate = false;
 
+    bool powerData = false;
+    ObjectGuid targetGuid = GetTarget()->GetGUID();
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.append(GetTarget()->GetPackGUID());
-    BuildUpdatePacket(data, remove);
+
+    data.WriteBit(false); // full update bit
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBits(1, 24); // aura counter
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(powerData); // has power data, don't care about it ?
+
+    if (powerData)
+    {
+        //packet.StartBitStream(guid2, 7, 0, 6);
+        //powerCounter = packet.ReadBits(21);
+        //packet.StartBitStream(guid2, 3, 1, 2, 4, 5);
+    }
+
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
+
+    BuildBitsUpdatePacket(data, remove);
+    BuildBytesUpdatePacket(data, remove);
+
+    if (powerData)
+    {
+        //packet.ReadXORBytes(guid2, 7, 4, 5, 1, 6);
+
+        //for (var i = 0; i < powerCounter; ++i)
+        //{
+            //packet.ReadInt32("Power Value", i);
+            //packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
+        //}
+
+        //packet.ReadInt32("Attack power");
+        //packet.ReadInt32("Spell power");
+        //packet.ReadXORBytes(guid2, 3);
+        //packet.ReadInt32("Current Health");
+        //packet.ReadXORBytes(guid2, 0, 2);
+        //packet.WriteGuid("PowerUnitGUID", guid2);
+    }
+
+    uint8 orderGuid[8] = {0, 4, 3, 7, 5, 6, 2, 1};
+    data.WriteBytesSeq(targetGuid, orderGuid);
 
     _target->SendMessageToSet(&data, true);
 }
 
 void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
 {
-    if (!GetTarget())
-        return;
-
+    bool powerData = false;
+    ObjectGuid targetGuid = GetTarget()->GetGUID();
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.append(GetTarget()->GetPackGUID());
-    data << uint8(64);
 
-    if (remove)
+    data.WriteBit(false); // full update bit
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBits(1, 24); // aura counter
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(powerData); // has power data, don't care about it ?
+
+    if (powerData)
     {
-        data << uint32(0);
-        _target->SendMessageToSet(&data, true);
-        return;
+        //packet.StartBitStream(guid2, 7, 0, 6);
+        //powerCounter = packet.ReadBits(21);
+        //packet.StartBitStream(guid2, 3, 1, 2, 4, 5);
     }
 
-    constAuraPtr aura = GetBase();
-    data << uint32(auraId);
-    uint32 flags = _flags;
-    if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
-    data << uint8(flags);
-    uint32 effectMaskPos = data.wpos();
-    data << uint32(GetEffectMask());
-    data << uint16(aura->GetCasterLevel());
-    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
-    // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
 
-    if (!(flags & AFLAG_CASTER))
-        data.appendPackGUID(aura->GetCasterGUID());
+    BuildBitsUpdatePacket(data, remove);
+    BuildBytesUpdatePacket(data, remove, auraId);
 
-    if (flags & AFLAG_DURATION)
+    if (powerData)
     {
-        data << uint32(aura->GetMaxDuration());
-        data << uint32(aura->GetDuration());
+        //packet.ReadXORBytes(guid2, 7, 4, 5, 1, 6);
+
+        //for (var i = 0; i < powerCounter; ++i)
+        //{
+            //packet.ReadInt32("Power Value", i);
+            //packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
+        //}
+
+        //packet.ReadInt32("Attack power");
+        //packet.ReadInt32("Spell power");
+        //packet.ReadXORBytes(guid2, 3);
+        //packet.ReadInt32("Current Health");
+
+        //packet.ReadXORBytes(guid2, 0, 2);
+        //packet.WriteGuid("PowerUnitGUID", guid2);
     }
 
-    uint32 EffectMask = 0;
-    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-    {
-        size_t pos = data.wpos();
-        uint8 count = 0;
-
-        data << uint8(0);
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
-            {
-                data << float(eff->GetAmount());
-                EffectMask |= 1 << i;
-            }
-            count++;
-        }
-
-        data.put(effectMaskPos, EffectMask);
-
-        data.put(pos, count);
-    }
+    uint8 orderGuid[8] = {0, 4, 3, 7, 5, 6, 2, 1};
+    data.WriteBytesSeq(targetGuid, orderGuid);
 
     _target->SendMessageToSet(&data, true);
  }

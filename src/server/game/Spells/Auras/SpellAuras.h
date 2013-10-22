@@ -79,7 +79,8 @@ class AuraApplication
 
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
+        void BuildBitsUpdatePacket(ByteBuffer& data, bool remove) const;
+        void BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint32 overrideSpell = 0) const;
         void ClientUpdate(bool remove = false);
         void SendFakeAuraUpdate(uint32 auraId, bool remove);
 };
