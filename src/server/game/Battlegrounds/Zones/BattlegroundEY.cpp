@@ -955,7 +955,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
     return nearestEntry;
 }
 
-bool BattlegroundEY::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundEY::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     for (int i = 0; i < EY_POINTS_MAX; ++i)
