@@ -1462,7 +1462,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
+    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
     data << uint64(GetGUID());
     data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
     data << uint32(damage);
@@ -3553,7 +3553,7 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
 
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
 {
-    WorldPacket data(SMSG_LOG_XPGAIN, 21); // guess size?
+    WorldPacket data(SMSG_LOG_XP_GAIN, 21); // guess size?
     data << uint64(victim ? victim->GetGUID() : 0);         // guid
     data << uint32(GivenXP + BonusXP);                      // given experience
     data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
@@ -7818,7 +7818,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 {
                     XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * ExploreXpRate);
                 }
-				
+
                 if (GetSession()->IsPremium())
                     XP *= sWorld->getRate(RATE_XP_EXPLORE_PREMIUM);
 
@@ -8187,7 +8187,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f /= groupsize;
 
     honor_f *= sWorld->getRate(RATE_HONOR);
-	
+
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
 
@@ -8960,7 +8960,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUTOFBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
     }
@@ -24699,7 +24699,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 * 5);
+    data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
     data << float(0.01666667f);                                 // game speed
     data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
     data << uint32(0);                                          // added in 3.1.2
@@ -27779,7 +27779,7 @@ void Player::ResetTimeSync()
 
 void Player::SendTimeSync()
 {
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
+    WorldPacket data(SMSG_TIME_SYNC_REQUEST, 4);
     data << uint32(m_timeSyncCounter++);
     GetSession()->SendPacket(&data);
 
