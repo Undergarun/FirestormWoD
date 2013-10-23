@@ -7503,7 +7503,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS);
+    WorldPacket data(SMSG_UPDATE_ACTION_BUTTONS);
 
     /*
         state can be 0, 1, 2
@@ -21772,7 +21772,7 @@ bool Player::CanSpeak() const
 
 void Player::SendAttackSwingNotInRange()
 {
-    WorldPacket data(SMSG_ATTACKSWING_NOTINRANGE, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_NOT_IN_RANGE, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -21829,13 +21829,13 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
 
 void Player::SendAttackSwingDeadTarget()
 {
-    WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_DEAD_TARGET, 0);
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendAttackSwingCantAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_CANT_ATTACK, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_CANT_ATTACK, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -21847,7 +21847,7 @@ void Player::SendAttackSwingCancelAttack()
 
 void Player::SendAttackSwingBadFacingAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_BADFACING, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_BAD_FACING, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -22248,7 +22248,7 @@ void Player::Say(const std::string& text, const uint32 language)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
@@ -22258,7 +22258,7 @@ void Player::Yell(const std::string& text, const uint32 language)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
@@ -22268,7 +22268,7 @@ void Player::TextEmote(const std::string& text)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
@@ -22281,7 +22281,7 @@ void Player::WhisperAddon(const std::string& text, const std::string& prefix, Pl
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
     receiver->GetSession()->SendPacket(&data);
 }
@@ -22296,11 +22296,11 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
     // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!rPlayer->isDND() || isGameMaster())
     {
-        WorldPacket data(SMSG_MESSAGECHAT, 200);
+        WorldPacket data(SMSG_MESSAGE_CHAT, 200);
         BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
         rPlayer->GetSession()->SendPacket(&data);
 
-        data.Initialize(SMSG_MESSAGECHAT, 200);
+        data.Initialize(SMSG_MESSAGE_CHAT, 200);
         rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
         GetSession()->SendPacket(&data);
     }
@@ -24671,10 +24671,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this);
 
-    // guild bank list wtf?
+    // Guild bank list wtf?
 
     // Homebind
-    WorldPacket data(SMSG_BINDPOINTUPDATE, 5*4);
+    WorldPacket data(SMSG_BIND_POINT_UPDATE, 5 * 4);
     data << m_homebindY << m_homebindX << m_homebindZ;
     data << uint32(m_homebindAreaId);
     data << uint32(m_homebindMapId);

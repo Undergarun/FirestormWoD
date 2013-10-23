@@ -270,7 +270,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         }
         case STATUS_WAIT_JOIN:
         {
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEEDCONFIRMATION, 44);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 44);
 
             data->WriteBit(guidBytes2[1]);
             data->WriteBit(guidBytes1[4]);
@@ -375,7 +375,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         }
         case STATUS_WAIT_LEAVE:
         {
-          /*  data->Initialize(SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS, 48);
+          /*  data->Initialize(SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS, 48);
 
             *data << uint8(0);                          // unk
             *data << uint32(bg->GetStatus());           // Status

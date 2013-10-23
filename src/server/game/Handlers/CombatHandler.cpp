@@ -94,7 +94,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    WorldPacket data(SMSG_ATTACKSTOP);
+    WorldPacket data(SMSG_ATTACK_STOP);
 
     ObjectGuid attackerGuid = GetPlayer()->GetGUID();
     ObjectGuid victimGuid = enemy ? enemy->GetGUID() : NULL;

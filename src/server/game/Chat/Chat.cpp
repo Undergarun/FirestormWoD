@@ -650,7 +650,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     ObjectGuid receiverGuid = target_guid;
     ObjectGuid guildGuid;
 
-    data->Initialize(SMSG_MESSAGECHAT, 100);                    // guess size
+    data->Initialize(SMSG_MESSAGE_CHAT, 100);                    // guess size
 
     data->WriteBit(0);                                          // Unk bit 5269
     data->WriteBit(message ? 0 : 1);

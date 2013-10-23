@@ -2455,7 +2455,7 @@ float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
 
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTART, 8 + 8);
+    WorldPacket data(SMSG_ATTACK_START, 8 + 8);
 
     ObjectGuid attackerGuid = GetGUID();
     ObjectGuid victimGuid = victim->GetGUID();
@@ -2499,7 +2499,7 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTOP);
+    WorldPacket data(SMSG_ATTACK_STOP);
 
     ObjectGuid attackerGuid = GetGUID();
     ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
@@ -5425,8 +5425,8 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     uint32 count = 1;
-    size_t maxsize = 4+5+5+4+4+1+4+4+4+4+4+1+4+4+4+4+4*12;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);    // we guess size
+    size_t maxsize = 4 + 5 + 5 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 * 12;
+    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
     data << uint32(damageInfo->HitInfo);
     data.append(damageInfo->attacker->GetPackGUID());
     data.append(damageInfo->target->GetPackGUID());
@@ -17702,7 +17702,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); // send event PARTY_KILL
+        WorldPacket data(SMSG_PARTY_KILL_LOG, (8+8)); // send event PARTY_KILL
         data << uint64(player->GetGUID()); // player with killing blow
         data << uint64(victim->GetGUID()); // victim
 

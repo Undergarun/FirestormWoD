@@ -1228,7 +1228,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
                         if (GetEntry() == 34924 || GetEntry() == 34922) // IC Bosses, elite rank, but should have huge damage
                         {
                             bg_mindmg = hp->ratio * 1.1;
-                            bg_maxdmg = hp->ratio * 1.2;    
+                            bg_maxdmg = hp->ratio * 1.2;
                         }
                         bg_mindmg = hp->ratio / 3;
                         bg_maxdmg = hp->ratio / 2;
@@ -1718,7 +1718,7 @@ void Creature::setDeathState(DeathState s)
 
 void Creature::Respawn(bool force)
 {
-	Movement::MoveSplineInit(*this).Stop(true);
+    Movement::MoveSplineInit(*this).Stop(true);
     DestroyForNearbyPlayers();
 
     if (force)
