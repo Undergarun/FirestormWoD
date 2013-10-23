@@ -1038,8 +1038,7 @@ enum Opcodes
     SMSG_MISSILE_CANCEL                               = 0x000,  // 5.0.5 16048
     SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
     SMSG_MONEY_NOTIFY                                 = 0x000,  // 5.0.5 16048
-    SMSG_MONSTER_MOVE                                 = 0x000,  // 5.0.5 16048
-    SMSG_MONSTER_MOVE_TRANSPORT                       = 0x000,  // 5.0.5 16048
+    SMSG_MONSTER_MOVE                                 = 0x137A, // 5.4.0 17399
     SMSG_MOTD                                         = 0x82A,  // 5.4.0 17371
     SMSG_MOUNTRESULT                                  = 0x000,  // 5.0.5 16048
     SMSG_MOUNTSPECIAL_ANIM                            = 0x000,  // 5.0.5 16048
