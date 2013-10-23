@@ -3858,7 +3858,7 @@ void Player::InitSpellForLevel()
                 if (itr == specializationId)
                     find = true;
 
-            if(!find)
+            if (!find)
                 continue;
         }
 
@@ -4556,8 +4556,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 {
                     // update spell ranks in spellbook and action bar
                     WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                    data.WriteBits(1, 24);
-                    data.WriteBits(1, 24);
+                    data.WriteBits(1, 22);
+                    data.WriteBits(1, 22);
                     data << uint32(spellId);
                     data << uint32(next_active_spell_id);
                     GetSession()->SendPacket(&data);
@@ -4676,8 +4676,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     }
                 }
             }
-            data.WriteBits(bitCount, 24);
-            data.WriteBits(bitCount, 24);
+            data.WriteBits(bitCount, 22);
+            data.WriteBits(bitCount, 22);
             data.append(dataBuffer1);
             data.append(dataBuffer2);
             GetSession()->SendPacket(&data);
@@ -5076,8 +5076,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     {
                         // downgrade spell ranks in spellbook and action bar
                         WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                        data.WriteBits(1, 24);
-                        data.WriteBits(1, 24);
+                        data.WriteBits(1, 22);
+                        data.WriteBits(1, 22);
                         data << uint32(spell_id);
                         data << uint32(prev_id);
                         GetSession()->SendPacket(&data);
@@ -24699,10 +24699,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
-    data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
-    data << float(0.01666667f);                             // game speed
-    data << uint32(0);                                      // added in 3.1.2
+    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 * 5);
+    data << float(0.01666667f);                                 // game speed
+    data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
+    data << uint32(0);                                          // added in 3.1.2
+    data << uint32(0);                                          // added in 5.4.0
+    data << uint32(secsToTimeBitFields(time(NULL)));            // local hour
     GetSession()->SendPacket(&data);
 
     GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS

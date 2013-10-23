@@ -173,7 +173,7 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                               = 0x000,  // 5.0.5 16048
     CMSG_CONFIRM_RESPEC_WIPE                          = 0x000,  // 5.0.5 16048
     CMSG_CONNECT_TO_FAILED                            = 0x000,  // 5.0.5 16048
-    CMSG_CONTACT_LIST                                 = 0x000,  // 5.0.5 16048
+    CMSG_CONTACT_LIST                                 = 0x1351, // 5.4.0 17399
     CMSG_CORPSE_MAP_POSITION_QUERY                    = 0x000,  // 5.0.5 16048
     CMSG_CREATURE_QUERY                               = 0x1585, // 5.4.0 17399
     CMSG_DANCE_QUERY                                  = 0x000,  // 5.0.5 16048
@@ -182,7 +182,7 @@ enum Opcodes
     CMSG_DEL_FRIEND                                   = 0x000,  // 5.0.5 16048
     CMSG_DEL_IGNORE                                   = 0x000,  // 5.0.5 16048
     CMSG_DEL_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
-    CMSG_DESTROY_ITEM                                 = 0x1401,  // 5.4.0 17399
+    CMSG_DESTROY_ITEM                                 = 0x1401, // 5.4.0 17399
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x000,  // 5.0.5 16048
     CMSG_DISMISS_CRITTER                              = 0x000,  // 5.0.5 16048
     CMSG_DUEL_ACCEPTED                                = 0x000,  // 5.0.5 16048
@@ -784,7 +784,7 @@ enum Opcodes
     SMSG_COMSAT_CONNECT_FAIL                          = 0x000,  // 5.0.5 16048
     SMSG_COMSAT_DISCONNECT                            = 0x000,  // 5.0.5 16048
     SMSG_COMSAT_RECONNECT_TRY                         = 0x000,  // 5.0.5 16048
-    SMSG_CONTACT_LIST                                 = 0x000,  // 5.0.5 16048
+    SMSG_CONTACT_LIST                                 = 0x13F5, // 5.4.0 17399
     SMSG_CONVERT_RUNE                                 = 0x000,  // 5.0.5 16048
     SMSG_COOLDOWN_CHEAT                               = 0x000,  // 5.0.5 16048
     SMSG_COOLDOWN_EVENT                               = 0x000,  // 5.0.5 16048
@@ -815,7 +815,7 @@ enum Opcodes
     SMSG_DISMOUNTRESULT                               = 0x001,  // 5.4.0 17399 (JamList)
     SMSG_DISPEL_FAILED                                = 0x000,  // 5.0.5 16048
     SMSG_DISPLAY_GAME_ERROR                           = 0x000,  // 5.0.5 16048
-    SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x000,  // 5.0.5 16048
+    SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x181,  // 5.4.0 17399
     SMSG_DROP_NEW_CONNECTION                          = 0x000,  // 5.0.5 16048
     SMSG_DUEL_COMPLETE                                = 0x000,  // 5.0.5 16048
     SMSG_DUEL_COUNTDOWN                               = 0x000,  // 5.0.5 16048
@@ -938,7 +938,7 @@ enum Opcodes
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x000B, // 5.4.0 17399 (JamList)
     SMSG_HOTFIX_INFO                                  = 0x000,  // 5.0.5 16048
     SMSG_HOTFIX_NOTIFY                                = 0x417,  // 5.4.0 17399
-    SMSG_INITIALIZE_FACTIONS                          = 0x000,  // 5.0.5 16048
+    SMSG_INITIALIZE_FACTIONS                          = 0x90F,  // 5.4.0 17399
     SMSG_INITIAL_SPELLS                               = 0x000,  // 5.0.5 16048 Deprecated    
     SMSG_INIT_CURRENCY                                = 0x000,  // 5.0.5 16048
     SMSG_INIT_WORLD_STATES                            = 0x000,  // 5.0.5 16048
@@ -1003,7 +1003,7 @@ enum Opcodes
     SMSG_LF_GUILD_SEARCH_RESULT                       = 0x000,  // 5.0.5 16048
     SMSG_LIST_INVENTORY                               = 0x000,  // 5.0.5 16048
     SMSG_LOAD_CUF_PROFILES                            = 0x000,  // 5.0.5 16048
-    SMSG_LOGIN_SETTIMESPEED                           = 0x000,  // 5.0.5 16048
+    SMSG_LOGIN_SETTIMESPEED                           = 0x1AF,  // 5.4.0 17399
     SMSG_LOGIN_VERIFY_WORLD                           = 0x000,  // 5.0.5 16048
     SMSG_LOGOUT_CANCEL_ACK                            = 0x000,  // 5.0.5 16048
     SMSG_LOGOUT_COMPLETE                              = 0x0A8,  // 5.4.0 17399
@@ -1272,7 +1272,7 @@ enum Opcodes
     SMSG_SPELLINTERRUPTLOG                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGMISS                                 = 0x000,  // 5.0.5 16048
-    SMSG_SPELLNONMELEEDAMAGELOG                       = 0x000,  // 5.0.5 16048
+    SMSG_SPELL_NON_MELEE_DAMAGE_LOG                   = 0x1085, // 5.4.0 17399
     SMSG_SPELLORDAMAGE_IMMUNE                         = 0x000,  // 5.0.5 16048
     SMSG_SPELLSTEALLOG                                = 0x000,  // 5.0.5 16048
     SMSG_SPELL_CATEGORY_COOLDOWN                      = 0x000,  // 5.0.5 16048
@@ -1322,7 +1322,7 @@ enum Opcodes
     SMSG_STREAMING_MOVIE                              = 0x0088, // 5.4.0 17399 (JamList)
     SMSG_SUMMON_CANCEL                                = 0x000,  // 5.0.5 16048
     SMSG_SUMMON_REQUEST                               = 0x000,  // 5.0.5 16048
-    SMSG_SUPERCEDED_SPELL                             = 0x000,  // 5.0.5 16048
+    SMSG_SUPERCEDED_SPELL                             = 0x117,  // 5.4.0 17399
     SMSG_SUPPRESS_NPC_GREETINGS                       = 0x000,  // 5.0.5 16048
     SMSG_SUSPEND_COMMS                                = 0x000,  // 5.0.5 16048
     SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x000,  // 5.0.5 16048

@@ -2511,7 +2511,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     data.WriteBit(attackerGuid[6]);
     data.WriteBit(attackerGuid[3]);
 
-    data.WriteBit(GetTypeId() == TYPEID_PLAYER ? 0 : 1); // Unk bit
+    data.WriteBit(0);                   // Unk bit - updating rotation ?
 
     data.WriteBit(attackerGuid[5]);
     data.WriteBit(victimGuid[1]);
@@ -5222,21 +5222,99 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
-    data.append(log->target->GetPackGUID());
-    data.append(log->attacker->GetPackGUID());
-    data << uint32(log->SpellID);
+    WorldPacket data(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 73);  // we guess size (73 is from sniffs without debug flag)
+
+    // target is sended twice
+    ObjectGuid target = log->target->GetGUID();
+    ObjectGuid caster = log->attacker->GetGUID();
+
     data << uint32(log->damage);                            // damage amount
+    data << uint32(log->resist);
+    data << uint32(log->HitInfo);
+    data << uint32(log->blocked);
+    data << uint32(log->SpellID);
     int32 overkill = log->damage - log->target->GetHealth();
     data << uint32(overkill > 0 ? overkill : 0);            // overkill
-    data << uint8 (log->schoolMask);                        // damage school
-    data << uint32(log->absorb);                            // AbsorbedDamage
-    data << uint32(log->resist);                            // resist
-    data << uint8 (log->physicalLog);                       // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    data << uint8 (log->unused);                            // unused
-    data << uint32(log->blocked);                           // blocked
-    data << uint32(log->HitInfo);
-    data << uint8 (0);                                      // flag to use extend data
+    data << uint32(log->absorb);
+    data << uint8(log->schoolMask);                         // damage school
+
+    data.WriteBit(0);                                       // debug flag for extend datas
+
+    data.WriteBit(caster[1]);
+    data.WriteBit(caster[7]);
+    data.WriteBit(target[1]);
+
+    // log->physicalLog or log->unused ?
+    data.WriteBit(0);                                       // unk flag, send 0 (ReadBit() != 0)
+
+    data.WriteBit(target[5]);
+    data.WriteBit(target[0]);
+    data.WriteBit(target[3]);
+    data.WriteBit(target[6]);
+    data.WriteBit(target[2]);
+    data.WriteBit(caster[6]);
+    data.WriteBit(caster[5]);
+    data.WriteBit(caster[4]);
+
+    data.WriteBit(1);                                       // hasCasterGuid = true
+
+    data.WriteBit(target[1]);
+    data.WriteBit(target[5]);
+    data.WriteBit(target[7]);
+    data.WriteBit(target[4]);
+    data.WriteBit(target[6]);
+    data.WriteBit(target[3]);
+    data.WriteBits(1, 21);                                  // counter
+    data.WriteBit(target[2]);
+    data.WriteBit(target[0]);
+    data.WriteBit(target[7]);
+    data.WriteBit(caster[3]);
+    data.WriteBit(target[4]);
+    data.WriteBit(caster[0]);
+    data.WriteBit(caster[2]);
+
+    // log->physicalLog or log->unused ?
+    data.WriteBit(0);                                       // unk flag, send 0 (ReadBit() != 0)
+
+    data.WriteByteSeq(caster[7]);
+    data.WriteByteSeq(target[3]);
+
+    data << uint32(log->attacker->GetTotalAttackPowerValue(BASE_ATTACK));
+
+    data.WriteByteSeq(target[5]);
+    data.WriteByteSeq(target[1]);
+    data.WriteByteSeq(target[7]);
+
+    data << uint32(log->attacker->GetPower(POWER_MANA));
+    data << uint32(0);                                      // second power, not used
+
+    data.WriteByteSeq(target[4]);
+    data.WriteByteSeq(target[0]);
+
+    data << uint32(log->attacker->GetHealth());
+
+    data.WriteByteSeq(target[6]);
+
+    data << uint32(log->attacker->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
+
+    data.WriteByteSeq(target[2]);
+
+    data.WriteByteSeq(target[2]);
+    data.WriteByteSeq(target[1]);
+    data.WriteByteSeq(caster[1]);
+    data.WriteByteSeq(target[4]);
+    data.WriteByteSeq(target[7]);
+    data.WriteByteSeq(caster[6]);
+    data.WriteByteSeq(target[5]);
+    data.WriteByteSeq(caster[2]);
+    data.WriteByteSeq(caster[3]);
+    data.WriteByteSeq(target[6]);
+    data.WriteByteSeq(caster[0]);
+    data.WriteByteSeq(caster[4]);
+    data.WriteByteSeq(caster[5]);
+    data.WriteByteSeq(target[3]);
+    data.WriteByteSeq(target[0]);
+
     SendMessageToSet(&data, true);
 }
 

@@ -106,7 +106,7 @@ void WorldSession::SendAttackStop(Unit const* enemy)
     data.WriteBit(attackerGuid[6]);
     data.WriteBit(attackerGuid[3]);
 
-    data.WriteBit(0); // Unk bit
+    data.WriteBit(0); // Unk bit - updating rotation ?
 
     data.WriteBit(attackerGuid[5]);
     data.WriteBit(victimGuid[1]);
