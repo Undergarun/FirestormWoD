@@ -25,7 +25,6 @@
 #include "Battleground.h"
 #include "BattlegroundBFG.h"
 #include "Language.h"
- 
 #include "gamePCH.h"
 #include "World.h"
 #include "WorldPacket.h"

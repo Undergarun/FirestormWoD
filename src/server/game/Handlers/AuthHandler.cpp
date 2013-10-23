@@ -152,7 +152,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
-    WorldPacket data(SMSG_CLIENTCACHE_VERSION, 4);
+    WorldPacket data(SMSG_CLIENT_CACHE_VERSION, 4);
     data << uint32(version);
     SendPacket(&data);
 }

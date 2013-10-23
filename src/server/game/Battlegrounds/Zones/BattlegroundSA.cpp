@@ -250,7 +250,7 @@ bool BattlegroundSA::ResetObjs()
 
     // set status manually so preparation is cast correctly in 2nd round too
     SetStatus(STATUS_WAIT_JOIN);
-                
+
     TeleportPlayers();
     return true;
 }
@@ -533,7 +533,7 @@ void BattlegroundSA::TeleportPlayers()
                 player->CastSpell(player, 12438, true);     //Without this player falls before boat loads...
 
                 player->TeleportTo(607, 1828.809f, -28.069f, 57.951f, 3.11f, 0);
-                
+
             }
             else
                 player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
@@ -553,7 +553,7 @@ void BattlegroundSA::EventPlayerDamagedGO(Player* /*player*/, GameObject* go, ui
         uint32 uws = getWorldStateFromGateId(i);
         if (uws)
             UpdateWorldState(uws, GateStatus[i]);
-            
+
         SendWarningToAll(LANG_BG_SA_IS_UNDER_ATTACK, go->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
     }
     else if (eventType == go->GetGOInfo()->building.destroyedEvent)
@@ -793,7 +793,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
                 AddCreature(BG_SA_NpcEntries[j], j, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
                     BG_SA_NpcSpawnlocs[j][0], BG_SA_NpcSpawnlocs[j][1],
                     BG_SA_NpcSpawnlocs[j][2], BG_SA_NpcSpawnlocs[j][3], 600);
-                    
+
                 if (Creature* dem = GetBGCreature(j))
                     dem->setFaction(BG_SA_Factions[Attackers]);
             }
@@ -822,11 +822,11 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
                 AddCreature(BG_SA_NpcEntries[j], j, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
                     BG_SA_NpcSpawnlocs[j][0], BG_SA_NpcSpawnlocs[j][1],
                     BG_SA_NpcSpawnlocs[j][2], BG_SA_NpcSpawnlocs[j][3], 600);
-                    
+
                 if (Creature* dem = GetBGCreature(j))
                     dem->setFaction(BG_SA_Factions[Attackers]);
             }
-            
+
             UpdateWorldState(BG_SA_RIGHT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 1 : 0));
             UpdateWorldState(BG_SA_RIGHT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE ? 0 : 1));
             if (Source->GetTeamId() == TEAM_ALLIANCE)

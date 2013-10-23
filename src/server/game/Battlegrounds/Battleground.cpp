@@ -728,7 +728,7 @@ void Battleground::YellToAll(Creature* creature, const char* text, uint32 langua
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayer(itr, "YellToAll"))
         {
-            WorldPacket data(SMSG_MESSAGECHAT, 200);
+            WorldPacket data(SMSG_MESSAGE_CHAT, 200);
             creature->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, text, language, creature->GetName(), itr->first);
             player->GetSession()->SendPacket(&data);
         }
@@ -1800,7 +1800,7 @@ void Battleground::SendWarningToAll(int32 entry, ...)
     va_end(ap);
     std::string msg(str);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
 
     data << (uint8)CHAT_MSG_RAID_BOSS_EMOTE;
     data << (uint32)LANG_UNIVERSAL;

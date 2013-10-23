@@ -2455,7 +2455,7 @@ float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
 
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTART, 8 + 8);
+    WorldPacket data(SMSG_ATTACK_START, 8 + 8);
 
     ObjectGuid attackerGuid = GetGUID();
     ObjectGuid victimGuid = victim->GetGUID();
@@ -2499,33 +2499,47 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTOP);
+    WorldPacket data(SMSG_ATTACK_STOP);
 
     ObjectGuid attackerGuid = GetGUID();
     ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
 
-    data.WriteBits(1, 21); // unk 5.4.0
+    data.WriteBit(attackerGuid[0]);
+    data.WriteBit(victimGuid[4]);
+    data.WriteBit(attackerGuid[1]);
+    data.WriteBit(victimGuid[7]);
+    data.WriteBit(attackerGuid[6]);
+    data.WriteBit(attackerGuid[3]);
 
-    uint8 playerOrder[8] = { 7, 4, 3, 2, 6, 1, 0, 5 };
-    uint8 victimOrder[8] = { 2, 7, 4, 0, 1, 6, 3, 5 };
+    data.WriteBit(0);                   // Unk bit - updating rotation ?
 
-    data.WriteBitInOrder(attackerGuid, playerOrder);
-    data.WriteBitInOrder(victimGuid, victimOrder);
+    data.WriteBit(attackerGuid[5]);
+    data.WriteBit(victimGuid[1]);
+    data.WriteBit(victimGuid[0]);
+    data.WriteBit(attackerGuid[7]);
+    data.WriteBit(victimGuid[6]);
+    data.WriteBit(attackerGuid[4]);
+    data.WriteBit(attackerGuid[2]);
+    data.WriteBit(victimGuid[3]);
+    data.WriteBit(victimGuid[2]);
+    data.WriteBit(victimGuid[5]);
 
-    data.WriteByteSeq(attackerGuid[2]);
-    data.WriteByteSeq(attackerGuid[5]);
-    data.WriteByteSeq(attackerGuid[6]);
+    data.WriteByteSeq(victimGuid[2]);
+    data.WriteByteSeq(victimGuid[7]);
     data.WriteByteSeq(attackerGuid[0]);
-    data.WriteByteSeq(attackerGuid[1]);
-    data.WriteByteSeq(attackerGuid[4]);
-
-    data << uint32(0);                                      // unk, can be 1 also
-
+    data.WriteByteSeq(victimGuid[5]);
+    data.WriteByteSeq(attackerGuid[5]);
+    data.WriteByteSeq(victimGuid[3]);
     data.WriteByteSeq(attackerGuid[7]);
+    data.WriteByteSeq(attackerGuid[1]);
     data.WriteByteSeq(attackerGuid[3]);
-
-    uint8 bytesOrder[8] = { 1, 0, 6, 3, 2, 7, 5, 4 };
-    data.WriteBytesSeq(victimGuid, bytesOrder);
+    data.WriteByteSeq(victimGuid[0]);
+    data.WriteByteSeq(attackerGuid[4]);
+    data.WriteByteSeq(attackerGuid[6]);
+    data.WriteByteSeq(victimGuid[1]);
+    data.WriteByteSeq(victimGuid[6]);
+    data.WriteByteSeq(attackerGuid[2]);
+    data.WriteByteSeq(victimGuid[4]);
 
     SendMessageToSet(&data, true);
 }
@@ -5208,21 +5222,99 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
-    data.append(log->target->GetPackGUID());
-    data.append(log->attacker->GetPackGUID());
-    data << uint32(log->SpellID);
+    WorldPacket data(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 73);  // we guess size (73 is from sniffs without debug flag)
+
+    // target is sended twice
+    ObjectGuid target = log->target->GetGUID();
+    ObjectGuid caster = log->attacker->GetGUID();
+
     data << uint32(log->damage);                            // damage amount
+    data << uint32(log->resist);
+    data << uint32(log->HitInfo);
+    data << uint32(log->blocked);
+    data << uint32(log->SpellID);
     int32 overkill = log->damage - log->target->GetHealth();
     data << uint32(overkill > 0 ? overkill : 0);            // overkill
-    data << uint8 (log->schoolMask);                        // damage school
-    data << uint32(log->absorb);                            // AbsorbedDamage
-    data << uint32(log->resist);                            // resist
-    data << uint8 (log->physicalLog);                       // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    data << uint8 (log->unused);                            // unused
-    data << uint32(log->blocked);                           // blocked
-    data << uint32(log->HitInfo);
-    data << uint8 (0);                                      // flag to use extend data
+    data << uint32(log->absorb);
+    data << uint8(log->schoolMask);                         // damage school
+
+    data.WriteBit(0);                                       // debug flag for extend datas
+
+    data.WriteBit(caster[1]);
+    data.WriteBit(caster[7]);
+    data.WriteBit(target[1]);
+
+    // log->physicalLog or log->unused ?
+    data.WriteBit(0);                                       // unk flag, send 0 (ReadBit() != 0)
+
+    data.WriteBit(target[5]);
+    data.WriteBit(target[0]);
+    data.WriteBit(target[3]);
+    data.WriteBit(target[6]);
+    data.WriteBit(target[2]);
+    data.WriteBit(caster[6]);
+    data.WriteBit(caster[5]);
+    data.WriteBit(caster[4]);
+
+    data.WriteBit(1);                                       // hasCasterGuid = true
+
+    data.WriteBit(target[1]);
+    data.WriteBit(target[5]);
+    data.WriteBit(target[7]);
+    data.WriteBit(target[4]);
+    data.WriteBit(target[6]);
+    data.WriteBit(target[3]);
+    data.WriteBits(1, 21);                                  // counter
+    data.WriteBit(target[2]);
+    data.WriteBit(target[0]);
+    data.WriteBit(target[7]);
+    data.WriteBit(caster[3]);
+    data.WriteBit(target[4]);
+    data.WriteBit(caster[0]);
+    data.WriteBit(caster[2]);
+
+    // log->physicalLog or log->unused ?
+    data.WriteBit(0);                                       // unk flag, send 0 (ReadBit() != 0)
+
+    data.WriteByteSeq(caster[7]);
+    data.WriteByteSeq(target[3]);
+
+    data << uint32(log->attacker->GetTotalAttackPowerValue(BASE_ATTACK));
+
+    data.WriteByteSeq(target[5]);
+    data.WriteByteSeq(target[1]);
+    data.WriteByteSeq(target[7]);
+
+    data << uint32(log->attacker->GetPower(POWER_MANA));
+    data << uint32(0);                                      // second power, not used
+
+    data.WriteByteSeq(target[4]);
+    data.WriteByteSeq(target[0]);
+
+    data << uint32(log->attacker->GetHealth());
+
+    data.WriteByteSeq(target[6]);
+
+    data << uint32(log->attacker->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
+
+    data.WriteByteSeq(target[2]);
+
+    data.WriteByteSeq(target[2]);
+    data.WriteByteSeq(target[1]);
+    data.WriteByteSeq(caster[1]);
+    data.WriteByteSeq(target[4]);
+    data.WriteByteSeq(target[7]);
+    data.WriteByteSeq(caster[6]);
+    data.WriteByteSeq(target[5]);
+    data.WriteByteSeq(caster[2]);
+    data.WriteByteSeq(caster[3]);
+    data.WriteByteSeq(target[6]);
+    data.WriteByteSeq(caster[0]);
+    data.WriteByteSeq(caster[4]);
+    data.WriteByteSeq(caster[5]);
+    data.WriteByteSeq(target[3]);
+    data.WriteByteSeq(target[0]);
+
     SendMessageToSet(&data, true);
 }
 
@@ -5333,8 +5425,8 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     uint32 count = 1;
-    size_t maxsize = 4+5+5+4+4+1+4+4+4+4+4+1+4+4+4+4+4*12;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, maxsize);    // we guess size
+    size_t maxsize = 4 + 5 + 5 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 * 12;
+    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
     data << uint32(damageInfo->HitInfo);
     data.append(damageInfo->attacker->GetPackGUID());
     data.append(damageInfo->target->GetPackGUID());
@@ -17610,7 +17702,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); // send event PARTY_KILL
+        WorldPacket data(SMSG_PARTY_KILL_LOG, (8+8)); // send event PARTY_KILL
         data << uint64(player->GetGUID()); // player with killing blow
         data << uint64(victim->GetGUID()); // victim
 
@@ -20210,14 +20302,52 @@ void Unit::SendThreatListUpdate()
         uint32 count = getThreatManager().getThreatList().size();
 
         WorldPacket data(SMSG_THREAT_UPDATE);
-        data.append(GetPackGUID());
-        data << uint32(count);
+
+        data.WriteBits(count, 21);
+
         std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data.appendPackGUID((*itr)->getUnitGuid());
-            data << uint32((*itr)->getThreat() * 100);
+            ObjectGuid unitGuid = (*itr)->getUnitGuid();
+            data.WriteBit(unitGuid[7]);
+            data.WriteBit(unitGuid[4]);
+            data.WriteBit(unitGuid[3]);
+            data.WriteBit(unitGuid[2]);
+            data.WriteBit(unitGuid[6]);
+            data.WriteBit(unitGuid[1]);
+            data.WriteBit(unitGuid[0]);
+            data.WriteBit(unitGuid[5]);
         }
+
+        ObjectGuid thisGuid = GetGUID();
+        data.WriteBit(thisGuid[2]);
+        data.WriteBit(thisGuid[7]);
+        data.WriteBit(thisGuid[4]);
+        data.WriteBit(thisGuid[0]);
+        data.WriteBit(thisGuid[1]);
+        data.WriteBit(thisGuid[6]);
+        data.WriteBit(thisGuid[3]);
+        data.WriteBit(thisGuid[5]);
+
+        for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        {
+            ObjectGuid unitGuid = (*itr)->getUnitGuid();
+            data.WriteByteSeq(unitGuid[2]);
+            data.WriteByteSeq(unitGuid[5]);
+            data.WriteByteSeq(unitGuid[6]);
+            data.WriteByteSeq(unitGuid[0]);
+            data.WriteByteSeq(unitGuid[1]);
+            data.WriteByteSeq(unitGuid[4]);
+
+            data << uint32((*itr)->getThreat());
+
+            data.WriteByteSeq(unitGuid[7]);
+            data.WriteByteSeq(unitGuid[3]);
+        }
+
+        uint8 bytesOrder[8] = { 1, 0, 6, 3, 2, 7, 5, 4 };
+        data.WriteBytesSeq(thisGuid, bytesOrder);
+
         SendMessageToSet(&data, false);
     }
 }
@@ -20245,7 +20375,15 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 void Unit::SendClearThreatListOpcode()
 {
     WorldPacket data(SMSG_THREAT_CLEAR, 8);
-    data.append(GetPackGUID());
+
+    ObjectGuid guid = GetGUID();
+
+    uint8 bitsOrder[8] = { 3, 2, 7, 0, 4, 6, 1, 5 };
+    data.WriteBitInOrder(guid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 0, 5, 2, 6, 7, 4, 1, 3 };
+    data.WriteBytesSeq(guid, bytesOrder);
+
     SendMessageToSet(&data, false);
 }
 

@@ -177,7 +177,7 @@ void WorldSession::SendBfEntered(uint64 guid)
 {
     ObjectGuid bgGuid = guid;
 //    m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED);
+    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERING);
     data.WriteBit(bgGuid[7]);
     data.WriteBit(bgGuid[3]);
     data.WriteBit(bgGuid[2]);
