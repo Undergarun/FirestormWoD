@@ -6106,7 +6106,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
-    if (GetGuild() && GetGuild()->GetLevel() >= 15)
+    if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559))
         RemoveAurasDueToSpell(84559); // The Quick and the Dead
 
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
