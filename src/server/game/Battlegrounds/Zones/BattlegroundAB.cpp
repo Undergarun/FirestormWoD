@@ -678,7 +678,7 @@ void BattlegroundAB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     }
 }
 
-bool BattlegroundAB::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundAB::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)

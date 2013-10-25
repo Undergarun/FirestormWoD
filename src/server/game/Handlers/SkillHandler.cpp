@@ -32,7 +32,7 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
     uint8 classId = _player->getClass();
 
     // Avoid cheat - hack
-    if(_player->GetSpecializationId(_player->GetActiveSpec()))
+    if (_player->GetSpecializationId(_player->GetActiveSpec()))
         return;
 
     uint32 specializationId = 0;
@@ -65,11 +65,10 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
 
 void WorldSession::HandleLearnTalents(WorldPacket& recvData)
 {
-    uint32 count = recvData.ReadBits(25);
+    uint32 count = recvData.ReadBits(23);
     recvData.FlushBits();
 
-    // Cheat - Hack check
-    if (count > 6)
+    if (count > MAX_TALENT_SPELLS)
         return;
 
     if (count > _player->GetFreeTalentPoints())

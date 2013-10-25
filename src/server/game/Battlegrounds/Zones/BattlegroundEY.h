@@ -370,7 +370,7 @@ class BattlegroundEY : public Battleground
         virtual void EventPlayerDroppedFlag(Player* Source);
 
         /* achievement req. */
-        bool IsAllNodesConrolledByTeam(uint32 team) const;
+        bool IsAllNodesControlledByTeam(uint32 team) const;
     private:
         virtual void PostUpdateImpl(uint32 diff);
 

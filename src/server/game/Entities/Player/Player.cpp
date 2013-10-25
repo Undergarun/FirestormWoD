@@ -1462,7 +1462,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
+    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
     data << uint64(GetGUID());
     data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
     data << uint32(damage);
@@ -3553,7 +3553,7 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
 
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
 {
-    WorldPacket data(SMSG_LOG_XPGAIN, 21); // guess size?
+    WorldPacket data(SMSG_LOG_XP_GAIN, 21); // guess size?
     data << uint64(victim ? victim->GetGUID() : 0);         // guid
     data << uint32(GivenXP + BonusXP);                      // given experience
     data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
@@ -3854,11 +3854,11 @@ void Player::InitSpellForLevel()
         {
             bool find = false;
 
-            for(auto itr : spell->SpecializationIdList)
-                if(itr == specializationId)
+            for (auto itr : spell->SpecializationIdList)
+                if (itr == specializationId)
                     find = true;
 
-            if(!find)
+            if (!find)
                 continue;
         }
 
@@ -4556,8 +4556,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 {
                     // update spell ranks in spellbook and action bar
                     WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                    data.WriteBits(1, 24);
-                    data.WriteBits(1, 24);
+                    data.WriteBits(1, 22);
+                    data.WriteBits(1, 22);
                     data << uint32(spellId);
                     data << uint32(next_active_spell_id);
                     GetSession()->SendPacket(&data);
@@ -4565,6 +4565,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 else
                 {
                     WorldPacket data(SMSG_REMOVED_SPELL, 4);
+                    data.WriteBits(1, 22);  // Count spells, always one by one
                     data << uint32(spellId);
                     GetSession()->SendPacket(&data);
                 }
@@ -4675,8 +4676,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     }
                 }
             }
-            data.WriteBits(bitCount, 24);
-            data.WriteBits(bitCount, 24);
+            data.WriteBits(bitCount, 22);
+            data.WriteBits(bitCount, 22);
             data.append(dataBuffer1);
             data.append(dataBuffer2);
             GetSession()->SendPacket(&data);
@@ -4873,9 +4874,9 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
     {
-        WorldPacket data(SMSG_LEARNED_SPELL, 8);
-        data.WriteBits(1, 24); //count of spell_id to send.
-        data << uint8(0); // 0 : auto push spell to action bar , 1 : don't auto push spell to action bar
+        WorldPacket data(SMSG_LEARNED_SPELL);
+        data.WriteBit(0);       // auto push in action bar (ReadBit() != 0)
+        data.WriteBits(1, 22);  // count of spell_id to send.
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
@@ -5075,8 +5076,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     {
                         // downgrade spell ranks in spellbook and action bar
                         WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                        data.WriteBits(1, 24);
-                        data.WriteBits(1, 24);
+                        data.WriteBits(1, 22);
+                        data.WriteBits(1, 22);
                         data << uint32(spell_id);
                         data << uint32(prev_id);
                         GetSession()->SendPacket(&data);
@@ -5110,7 +5111,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (!prev_activate)
     {
         WorldPacket data(SMSG_REMOVED_SPELL, 4);
-        data.WriteBits(1, 24);
+        data.WriteBits(1, 22);  // Count spells, always one by one
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
@@ -7502,23 +7503,51 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
+    WorldPacket data(SMSG_UPDATE_ACTION_BUTTONS);
+
     /*
         state can be 0, 1, 2
         0 - Sends initial action buttons, client does not validate if we have the spell or not
         1 - Used used after spec swaps, client validates if a spell is known.
         2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
     */
+
+    uint8 buttons[MAX_ACTION_BUTTONS][8];
+    ActionButtonPacket* buttonsTab = (ActionButtonPacket*)buttons;
+    memset(buttons, 0, MAX_ACTION_BUTTONS * 8);
+
+    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
+    {
+        ActionButton const* ab = ((Player*)this)->GetActionButton(i);
+        if (!ab)
+        {
+            buttonsTab[i].id = 0;
+            buttonsTab[i].type = 0;
+            continue;
+        }
+
+        buttonsTab[i].id = ab->GetAction();
+        buttonsTab[i].type = uint32(ab->GetType());
+    }
+
     if (state != 2)
     {
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-        {
-            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-                data << uint32(itr->second.packedData);
-            else
-                data << uint32(0);
-        }
+        BuildActionButtonsDatas(&data, buttons, 7);
+        BuildActionButtonsDatas(&data, buttons, 2);
+        BuildActionButtonsDatas(&data, buttons, 1);
+        BuildActionButtonsDatas(&data, buttons, 6);
+        BuildActionButtonsDatas(&data, buttons, 3);
+        BuildActionButtonsDatas(&data, buttons, 4);
+        BuildActionButtonsDatas(&data, buttons, 5);
+        BuildActionButtonsDatas(&data, buttons, 0);
+        BuildActionButtonsDatas(&data, buttons, 3, true);
+        BuildActionButtonsDatas(&data, buttons, 1, true);
+        BuildActionButtonsDatas(&data, buttons, 4, true);
+        BuildActionButtonsDatas(&data, buttons, 5, true);
+        BuildActionButtonsDatas(&data, buttons, 6, true);
+        BuildActionButtonsDatas(&data, buttons, 2, true);
+        BuildActionButtonsDatas(&data, buttons, 7, true);
+        BuildActionButtonsDatas(&data, buttons, 0, true);
     }
     else
         data.resize(MAX_ACTION_BUTTONS * 4);    // insert crap, client doesnt even parse this for state == 2
@@ -7526,6 +7555,20 @@ void Player::SendActionButtons(uint32 state) const
     data << uint8(state);
     GetSession()->SendPacket(&data);
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
+}
+
+void Player::BuildActionButtonsDatas(WorldPacket* data, uint8 buttons[MAX_ACTION_BUTTONS][8], uint8 order, bool byte) const
+{
+    if (!byte)
+    {
+        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+            data->WriteBit(buttons[button][order]);
+    }
+    else
+    {
+        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+            data->WriteByteSeq(buttons[button][order]);
+    }
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
@@ -7775,7 +7818,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 {
                     XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * ExploreXpRate);
                 }
-				
+
                 if (GetSession()->IsPremium())
                     XP *= sWorld->getRate(RATE_XP_EXPLORE_PREMIUM);
 
@@ -8144,7 +8187,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f /= groupsize;
 
     honor_f *= sWorld->getRate(RATE_HONOR);
-	
+
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
 
@@ -8917,7 +8960,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUTOFBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
     }
@@ -21729,7 +21772,7 @@ bool Player::CanSpeak() const
 
 void Player::SendAttackSwingNotInRange()
 {
-    WorldPacket data(SMSG_ATTACKSWING_NOTINRANGE, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_NOT_IN_RANGE, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -21786,13 +21829,13 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
 
 void Player::SendAttackSwingDeadTarget()
 {
-    WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_DEAD_TARGET, 0);
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendAttackSwingCantAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_CANT_ATTACK, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_CANT_ATTACK, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -21804,7 +21847,7 @@ void Player::SendAttackSwingCancelAttack()
 
 void Player::SendAttackSwingBadFacingAttack()
 {
-    WorldPacket data(SMSG_ATTACKSWING_BADFACING, 0);
+    WorldPacket data(SMSG_ATTACK_SWING_BAD_FACING, 0);
     GetSession()->SendPacket(&data);
 }
 
@@ -22205,7 +22248,7 @@ void Player::Say(const std::string& text, const uint32 language)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
@@ -22215,7 +22258,7 @@ void Player::Yell(const std::string& text, const uint32 language)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
@@ -22225,7 +22268,7 @@ void Player::TextEmote(const std::string& text)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
@@ -22238,7 +22281,7 @@ void Player::WhisperAddon(const std::string& text, const std::string& prefix, Pl
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
     receiver->GetSession()->SendPacket(&data);
 }
@@ -22253,11 +22296,11 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
     // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!rPlayer->isDND() || isGameMaster())
     {
-        WorldPacket data(SMSG_MESSAGECHAT, 200);
+        WorldPacket data(SMSG_MESSAGE_CHAT, 200);
         BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
         rPlayer->GetSession()->SendPacket(&data);
 
-        data.Initialize(SMSG_MESSAGECHAT, 200);
+        data.Initialize(SMSG_MESSAGE_CHAT, 200);
         rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
         GetSession()->SendPacket(&data);
     }
@@ -24628,13 +24671,13 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this);
 
-    // guild bank list wtf?
+    // Guild bank list wtf?
 
     // Homebind
-    WorldPacket data(SMSG_BINDPOINTUPDATE, 5*4);
-    data << m_homebindX << m_homebindY << m_homebindZ;
-    data << (uint32) m_homebindMapId;
-    data << (uint32) m_homebindAreaId;
+    WorldPacket data(SMSG_BIND_POINT_UPDATE, 5 * 4);
+    data << m_homebindY << m_homebindX << m_homebindZ;
+    data << uint32(m_homebindAreaId);
+    data << uint32(m_homebindMapId);
     GetSession()->SendPacket(&data);
 
     // SMSG_SET_PROFICIENCY
@@ -24656,10 +24699,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
-    data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
-    data << float(0.01666667f);                             // game speed
-    data << uint32(0);                                      // added in 3.1.2
+    data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
+    data << float(0.01666667f);                                 // game speed
+    data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
+    data << uint32(0);                                          // added in 3.1.2
+    data << uint32(0);                                          // added in 5.4.0
+    data << uint32(secsToTimeBitFields(time(NULL)));            // local hour
     GetSession()->SendPacket(&data);
 
     GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
@@ -25065,14 +25110,59 @@ void Player::SendAurasForTarget(Unit* target)
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SendMovementHover();
 
-    WorldPacket data(SMSG_AURA_UPDATE_ALL);
-    data.append(target->GetPackGUID());
+    bool powerData = false;
+    ObjectGuid targetGuid = target->GetGUID();
+
+    WorldPacket data(SMSG_AURA_UPDATE);
+    data.WriteBit(true); // full update bit
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBits(target->GetVisibleAuras()->size(), 24); // aura counter
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(powerData); // has power data, don't care about it ?
+
+    if (powerData)
+    {
+        //packet.StartBitStream(guid2, 7, 0, 6);
+        //powerCounter = packet.ReadBits(21);
+        //packet.StartBitStream(guid2, 3, 1, 2, 4, 5);
+    }
+
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
 
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
         AuraApplication * auraApp = itr->second;
-        auraApp->BuildUpdatePacket(data, false);
+        auraApp->BuildBitsUpdatePacket(data, false);
+    }
+
+    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    {
+        AuraApplication * auraApp = itr->second;
+        auraApp->BuildBytesUpdatePacket(data, false);
+    }
+
+    if (powerData)
+    {
+        //packet.ReadXORBytes(guid2, 7, 4, 5, 1, 6);
+
+        //for (var i = 0; i < powerCounter; ++i)
+        //{
+            //packet.ReadInt32("Power Value", i);
+            //packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
+        //}
+
+        //packet.ReadInt32("Attack power");
+        //packet.ReadInt32("Spell power");
+        //packet.ReadXORBytes(guid2, 3);
+        //packet.ReadInt32("Current Health");
+        //packet.ReadXORBytes(guid2, 0, 2);
+        //packet.WriteGuid("PowerUnitGUID", guid2);
     }
 
     GetSession()->SendPacket(&data);
@@ -26989,12 +27079,10 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 bool Player::LearnTalent(uint32 talentId)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
-
     if (CurTalentPoints == 0)
         return false;
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
     if (!talentInfo)
         return false;
 
@@ -27028,7 +27116,6 @@ bool Player::LearnTalent(uint32 talentId)
             return false;
         }
     }
-
 
     // learn! (other talent ranks will unlearned at learning)
     learnSpell(spellid, false);
@@ -27116,39 +27203,54 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
 
 void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
 {
-    *data << uint8(GetSpecsCount());
-    *data << uint8(GetActiveSpec());
+    uint8 specCount = GetSpecsCount();
+    uint8 activeSpec = GetActiveSpec();
 
-    if (GetSpecsCount())
+    if (specCount)
     {
-        if (GetSpecsCount() > MAX_TALENT_SPECS)
+        if (specCount > MAX_TALENT_SPECS)
             SetSpecsCount(MAX_TALENT_SPECS);
 
-        // loop through all specs (only 1 for now)
-        for (uint8 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
+        data->WriteBits(specCount, 19);
+
+        uint8* talentCount = 0;
+        talentCount = new uint8[specCount];
+
+        // loop through all specs to set talent counter
+        for (uint8 specIdx = 0; specIdx < specCount; ++specIdx)
         {
-            *data << uint32(GetSpecializationId(specIdx));
+            talentCount[specIdx] = 0;
 
-            uint32 pos = data->wpos();
-            *data << uint8(0); // talent count
-
-            uint8 count = 0;
             for (auto itr : *GetTalentMap(specIdx))
             {
                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
                 if (spell && spell->talentId)
-                {
-                    *data << uint16(spell->talentId);
-                    count++;
-                }
+                    talentCount[specIdx]++;
             }
+        }
 
-            data->put(pos, count);
+        for (uint8 i = 0; i < specCount; i++)
+            data->WriteBits(talentCount[i], 23);
 
-            *data << uint8(MAX_GLYPH_SLOT_INDEX);
+        // loop through all specs (only 1 for now)
+        for (uint8 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
+        {
+            // Glyphs datas
             for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
                 *data << uint16(GetGlyph(specIdx, i));               // GlyphProperties.dbc
+
+            // Talents datas
+            for (auto itr : *GetTalentMap(specIdx))
+            {
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+                if (spell && spell->talentId)
+                    *data << uint16(spell->talentId);           // Talents.dbc
+            }
+
+            *data << uint32(GetSpecializationId(specIdx));
         }
+
+        *data << uint8(activeSpec);
     }
 }
 
@@ -27677,7 +27779,7 @@ void Player::ResetTimeSync()
 
 void Player::SendTimeSync()
 {
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
+    WorldPacket data(SMSG_TIME_SYNC_REQUEST, 4);
     data << uint32(m_timeSyncCounter++);
     GetSession()->SendPacket(&data);
 

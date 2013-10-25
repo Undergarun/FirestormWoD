@@ -102,16 +102,16 @@ void BattlegroundIC::DoAction(uint32 action, uint64 var)
 
     player->SetTransport((player->GetTeamId() == TEAM_ALLIANCE) ? gunshipAlliance : gunshipHorde);
     player->m_movementInfo.t_guid = (player->GetTeamId() == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde)->GetGUID();
-    player->m_movementInfo.t_pos.m_positionX = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionX(); 
-    player->m_movementInfo.t_pos.m_positionY = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionY(); 
-    player->m_movementInfo.t_pos.m_positionZ = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionZ(); 
+    player->m_movementInfo.t_pos.m_positionX = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionX();
+    player->m_movementInfo.t_pos.m_positionY = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionY();
+    player->m_movementInfo.t_pos.m_positionZ = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionZ();
     player->m_movementInfo.t_pos.m_orientation = ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetOrientation();
 
-    if (player->TeleportTo(GetMapId(), 
-        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionX(), 
-        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionY(), 
-        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionZ(), 
-        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetOrientation(), 
+    if (player->TeleportTo(GetMapId(),
+        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionX(),
+        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionY(),
+        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetPositionZ(),
+        ((player->GetTeamId() == TEAM_ALLIANCE) ? allianceShipPos : hordeShipPos).GetOrientation(),
         TELE_TO_NOT_LEAVE_TRANSPORT))
     {
         player->CastSpell(player, SPELL_PARACHUTE, true); // this must be changed, there is a trigger in each transport that casts the spell.
@@ -301,7 +301,7 @@ void BattlegroundIC::StartingEventOpenDoors()
     }
 }
 
-bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundIC::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     ICNodeState controlledState = team == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;

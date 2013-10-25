@@ -1077,14 +1077,22 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ACTION_BUTTON");
     uint8 button;
-    uint32 packetData;
-    recvData >> packetData >> button;
 
-    uint32 action = ACTION_BUTTON_ACTION(packetData);
-    uint8  type   = ACTION_BUTTON_TYPE(packetData);
+    recvData >> button;
+
+    ObjectGuid guid;
+
+    uint8 bitsOrder[8] = { 1, 7, 6, 5, 2, 4, 0, 3 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 2, 7, 1, 4, 0, 5, 3, 6 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
+
+    uint32 action = ACTION_BUTTON_ACTION(guid);
+    uint8  type   = ACTION_BUTTON_TYPE(guid);
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
-    if (!packetData)
+    if (!guid)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
         GetPlayer()->removeActionButton(button);
@@ -1093,25 +1101,25 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
     {
         switch (type)
         {
-        case ACTION_BUTTON_MACRO:
-        case ACTION_BUTTON_CMACRO:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, button);
-            break;
-        case ACTION_BUTTON_EQSET:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSet %u into button %u", action, button);
-            break;
-        case ACTION_BUTTON_SPELL:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, button);
-            break;
-        case ACTION_BUTTON_SUB_BUTTON:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, button);
-            break;
-        case ACTION_BUTTON_ITEM:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, button);
-            break;
-        default:
-            sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
-            return;
+            case ACTION_BUTTON_MACRO:
+            case ACTION_BUTTON_CMACRO:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, button);
+                break;
+            case ACTION_BUTTON_EQSET:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSet %u into button %u", action, button);
+                break;
+            case ACTION_BUTTON_SPELL:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, button);
+                break;
+            case ACTION_BUTTON_SUB_BUTTON:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, button);
+                break;
+            case ACTION_BUTTON_ITEM:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, button);
+                break;
+            default:
+                sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
+                return;
         }
         GetPlayer()->addActionButton(button, action, type);
     }

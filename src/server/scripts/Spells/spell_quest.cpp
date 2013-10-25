@@ -1867,6 +1867,86 @@ class spell_q24861_funeral_offering: public SpellScriptLoader
         }
 };
 
+enum Quest_The_Storm_King
+{
+    SPELL_RIDE_GYMER            = 43671,
+    SPELL_GRABBED               = 55424
+};
+
+class spell_q12919_gymers_grab : public SpellScriptLoader
+{
+    public:
+        spell_q12919_gymers_grab() : SpellScriptLoader("spell_q12919_gymers_grab") { }
+
+        class spell_q12919_gymers_grab_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12919_gymers_grab_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_GYMER))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                int8 seatId = 2;
+                if (!GetHitCreature())
+                    return;
+                GetHitCreature()->CastCustomSpell(SPELL_RIDE_GYMER, SPELLVALUE_BASE_POINT0, seatId, GetCaster(), true);
+                GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_grab_SpellScript::HandleScript, EFFECT_0,  SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript()
+        {
+            return new spell_q12919_gymers_grab_SpellScript();
+        }
+};
+
+enum Quest_The_Storm_King_Throw
+{
+    SPELL_VARGUL_EXPLOSION      = 55569
+};
+
+class spell_q12919_gymers_throw : public SpellScriptLoader
+{
+    public:
+        spell_q12919_gymers_throw() : SpellScriptLoader("spell_q12919_gymers_throw") { }
+
+        class spell_q12919_gymers_throw_SpellScript : public SpellScript
+        {
+           PrepareSpellScript(spell_q12919_gymers_throw_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsVehicle())
+                    if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(1))
+                    {
+                         passenger->ExitVehicle();
+                         caster->CastSpell(passenger, SPELL_VARGUL_EXPLOSION, true);
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_throw_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript()
+        {
+            return new spell_q12919_gymers_throw_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1913,4 +1993,6 @@ void AddSC_quest_spell_scripts()
     new spell_q31112_ping_bunny();
     new spell_q14491_soothe_earth_spirit();
     new spell_q24861_funeral_offering();
+    new spell_q12919_gymers_grab();
+    new spell_q12919_gymers_throw();
 }

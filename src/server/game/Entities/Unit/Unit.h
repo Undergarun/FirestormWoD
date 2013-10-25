@@ -973,7 +973,7 @@ public:
 };
 
 // Struct for use in Unit::CalculateMeleeDamage
-// Need create structure like in SMSG_ATTACKERSTATEUPDATE opcode
+// Need create structure like in SMSG_ATTACKER_STATE_UPDATE opcode
 struct CalcDamageInfo
 {
     Unit  *attacker;             // Attacker
@@ -994,7 +994,7 @@ struct CalcDamageInfo
     MeleeHitOutcome hitOutCome;  // TODO: remove this field (need use TargetState)
 };
 
-// Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
+// Spell damage info structure based on structure sending in SMSG_SPELL_NON_MELEE_DAMAGE_LOG opcode
 struct SpellNonMeleeDamage{
     SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),

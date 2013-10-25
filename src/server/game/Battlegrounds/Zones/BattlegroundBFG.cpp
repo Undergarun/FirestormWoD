@@ -25,7 +25,6 @@
 #include "Battleground.h"
 #include "BattlegroundBFG.h"
 #include "Language.h"
- 
 #include "gamePCH.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -702,7 +701,7 @@ WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
-bool BattlegroundBFG::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundBFG::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     for (int i = 0; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
