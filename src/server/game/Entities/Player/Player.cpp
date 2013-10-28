@@ -5164,7 +5164,7 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         if (entry &&
             entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
             entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            (entry->CategoryFlags & SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN) == 0)
+            (entry->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT) == 0)
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
@@ -23920,8 +23920,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 
     // New MoP skill cooldown
-    // SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN
-    if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN)
+    // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
+    if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
     {
         int days = catrec / 1000;
         time_t cooldown = curTime + (86400 * days);
