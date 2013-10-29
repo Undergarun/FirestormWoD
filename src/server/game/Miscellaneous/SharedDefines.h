@@ -775,7 +775,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR10_MOUNT_CHARACTER                  = 0x20000000, // 29
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
@@ -1341,8 +1341,8 @@ enum SpellCastResult
     SPELL_FAILED_WRONG_BATTLE_PET_TYPE          = 217,
     SPELL_FAILED_NO_DUNGEON_ENCOUNTER           = 218,
     SPELL_FAILED_NO_TELEPORT_FROM_DUNGEON       = 219, // @author Selenium: 253 on TC code, find on 5.4 client
-    SPELL_FAILED_UNKNOWN                        = 254, // custom value, default case
-    SPELL_CAST_OK                               = 255 // custom value, must not be sent to client
+    SPELL_FAILED_UNKNOWN                        = 254, // Custom value, default case
+    SPELL_CAST_OK                               = 255  // Custom value, must not be sent to client
 };
 
 enum SpellCustomErrors
