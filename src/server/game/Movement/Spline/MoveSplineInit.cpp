@@ -486,7 +486,7 @@ namespace Movement
         if (false)
             data << uint32(0);                  // unk uint32
 
-        PacketBuilder::WriteStopMovement(loc, args.splineId, data);
+        //PacketBuilder::WriteStopMovement(loc, args.splineId, data);
         unit.SendMessageToSet(&data, true);
     }
 

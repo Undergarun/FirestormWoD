@@ -4272,7 +4272,7 @@ void Spell::SendSpellStart()
     data.WriteBits(unkCounter1, 24);                        // unk counter, related to hit target, dodge ...etc, useless for SMSG_SPELL_START
     data.WriteBit(itemCaster[0]);
     data.WriteBits(unkCounter2, 24);                        // unk counter 2, related to hit target, dodge ...etc, useless for SMSG_SPELL_START
-    data.WriteBit(caster[6]);
+    data.WriteBit(caster[5]);
 
     if (m_targets.HasDst())
     {
@@ -4289,6 +4289,7 @@ void Spell::SendSpellStart()
     data.WriteBit(!unkInt);                                 // !has unk int
     data.WriteBit(!unkByte);                                // !has unk byte
     data.WriteBit(!unkInt2);                                // !has unk int 2
+    data.WriteBit(caster[7]);
 
     ObjectGuid* unkGuids1;
     unkGuids1 = new ObjectGuid[unkCounter2];
@@ -4306,7 +4307,7 @@ void Spell::SendSpellStart()
         data.WriteBitInOrder(unkGuids2[i], unkBitsOrder);
     }
 
-    data.WriteBit(1);                                       // !hasTargetFlags
+    data.WriteBit(!m_targets.GetTargetMask());              // !hasTargetFlags
     data.WriteBit(!unkInt3);                                // !has unk int 3
     data.WriteBits(powerCount, 21);                         // powerCount
     data.WriteBit(castFlags & CAST_FLAG_POWER_LEFT_SELF);   // hasPowerData
@@ -4327,9 +4328,13 @@ void Spell::SendSpellStart()
     {
         data.WriteBit(powerUnit[4]);
         data.WriteBits(1, 21);                              // power type count, always 1 ?
-
-        uint8 powerOrder[7] = { 2, 3, 7, 6, 5, 0, 1 };
-        data.WriteBitInOrder(powerUnit, powerOrder);
+        data.WriteBit(powerUnit[2]);
+        data.WriteBit(powerUnit[3]);
+        data.WriteBit(powerUnit[7]);
+        data.WriteBit(powerUnit[6]);
+        data.WriteBit(powerUnit[5]);
+        data.WriteBit(powerUnit[0]);
+        data.WriteBit(powerUnit[1]);
     }
 
     data.WriteBit(!unkFloat);                               // !has unk float
@@ -4375,7 +4380,7 @@ void Spell::SendSpellStart()
         data.WriteBits(unkStringLength, 7);                 // unk string length
 
     data.WriteBit(!unkInt5);                                // !has unk int 5
-    data.WriteBit(!unkByte6);                               // !has unk byte 6
+    data.WriteBit(unkByte6);                               // has unk byte 6
 
     for (uint32 i = 0; i < unkCounter4; i++)
     {
