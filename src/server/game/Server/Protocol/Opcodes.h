@@ -619,7 +619,7 @@ enum Opcodes
     MSG_MOVE_UPDATE_RUN_SPEED                         = 0,      // Client patched
     MSG_MOVE_UPDATE_TELEPORT                          = 0,      // Client patched
     MSG_MOVE_WATER_WALK                               = 0,      // Client patched
-    MSG_MOVE_WORLDPORT_ACK                            = 0,      // Client patched
+    MSG_MOVE_WORLDPORT_ACK                            = 0x1752, // 5.4.0 17399
     MSG_NOTIFY_PARTY_SQUELCH                          = 0x000,  // 5.0.5 16048
     MSG_PARTY_ASSIGNMENT                              = 0x000,  // 5.0.5 16048
     MSG_PETITION_DECLINE                              = 0x000,  // 5.0.5 16048
@@ -775,7 +775,7 @@ enum Opcodes
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0x000,  // 5.0.5 16048
     SMSG_CAMERA_SHAKE                                 = 0x88E,  // 5.4.0 17399 (JamList)
     SMSG_CANCEL_AUTO_REPEAT                           = 0x41C,  // 5.4.0 17399 (JamList)
-    SMSG_CANCEL_COMBAT                                = 0x48E,  // 5.4.0 17399 (JamList)
+    SMSG_CANCEL_COMBAT                                = 0x48E,  // 5.4.0 17399
     SMSG_CANCEL_SCENE                                 = 0x589,  // 5.4.0 17399 (JamList) SCENE System (NYI)
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x42C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CANCEL_SPELL_VISUAL                          = 0x8A2,  // 5.4.0 17399 (JamList) (NYI)
@@ -1203,7 +1203,7 @@ enum Opcodes
     SMSG_MULTIPLE_PACKETS                             = 0x000,  // 5.0.5 16048
     SMSG_NAME_QUERY_RESPONSE                          = 0x0B7,  // 5.4.0 17399
     SMSG_NEW_TAXI_PATH                                = 0x431,  // 5.4.0 17399 (JamList)
-    SMSG_NEW_WORLD                                    = 0x1AE,  // 5.4.0 17399 (JamList)
+    SMSG_NEW_WORLD                                    = 0x1AE,  // 5.4.0 17399
     SMSG_NEW_WORLD_ABORT                              = 0x896,  // 5.4.0 17399
     SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x918,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_NOTIFICATION                                 = 0x000,  // 5.0.5 16048
@@ -1521,8 +1521,8 @@ enum Opcodes
     SMSG_TRAINER_BUY_FAILED                           = 0x031,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_TRAINER_LIST                                 = 0x09A,  // 5.4.0 17399 (JamList)
     SMSG_TRAINER_SERVICE                              = 0x000,  // 5.0.5 16048
-    SMSG_TRANSFER_ABORTED                             = 0x8A9,  // 5.4.0 17399 (JamList)
-    SMSG_TRANSFER_PENDING                             = 0x8B5,  // 5.4.0 17399 (JamList)
+    SMSG_TRANSFER_ABORTED                             = 0x8A9,  // 5.4.0 17399
+    SMSG_TRANSFER_PENDING                             = 0x8B5,  // 5.4.0 17399
     SMSG_TRIGGER_CINEMATIC                            = 0x000,  // 5.0.5 16048
     SMSG_TRIGGER_MOVIE                                = 0x414,  // 5.4.0 17399 (JamList)
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x916,  // 5.4.0 17399 (JamList)
@@ -1540,7 +1540,7 @@ enum Opcodes
     SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x18B,  // 5.4.0 17399 (JamList)
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x081,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0x000,  // 5.0.5 16048
-    SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x089,  // 5.4.0 17399 (JamList)
+    SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x089,  // 5.4.0 17399
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_LAST_INSTANCE                         = 0x5B2,  // 5.4.0 17399 (JamList)
     SMSG_UPDATE_OBJECT                                = 0x17D9, // 5.4.0 17399
