@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (8056, 'spell_sha_frozen_power');

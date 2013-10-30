@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (49998, 'spell_dk_death_strike');

@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (123693, 'spell_dk_plague_leech');

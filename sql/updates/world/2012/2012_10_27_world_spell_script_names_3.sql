@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (115080, 'spell_monk_touch_of_death');

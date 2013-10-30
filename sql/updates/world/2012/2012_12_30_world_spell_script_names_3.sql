@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (12294, 'spell_warr_mortal_strike');
