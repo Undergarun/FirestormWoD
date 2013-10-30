@@ -2661,20 +2661,25 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
+                bool unk = false;
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
+                data << uint32(mapid);
                 
                 if (m_transport)
                 {
-                    data.WriteBit(0);       // unknown
-                    data.WriteBit(1);   // has transport
-                    data  << m_transport->GetEntry() << GetMapId();
+                    data.WriteBit(unk);       // unknown
+                    data.WriteBit(1);         // has transport
+                    data  << GetMapId() << m_transport->GetEntry();
                 }
                 else
                 {
-                    data.WriteBit(0);       // unknown
-                    data.WriteBit(0);   // has transport
+                    data.WriteBit(unk);       // unknown
+                    data.WriteBit(0);         // has transport
                 }
-                data << uint32(mapid);
+
+                if (unk)
+                    data << uint32(0);
+                
                 GetSession()->SendPacket(&data);
             }
 
@@ -2704,12 +2709,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << float(m_teleport_dest.GetOrientation());
-                data << float(m_teleport_dest.GetPositionX());
                 data << float(m_teleport_dest.GetPositionY());
-                data << uint32(mapid);
+                data << float(m_teleport_dest.GetOrientation());
                 data << float(m_teleport_dest.GetPositionZ());
-
+                data << float(m_teleport_dest.GetPositionX());
+                data << uint32(mapid);
                 GetSession()->SendPacket(&data);
                 SendSavedInstances();
             }
@@ -24812,9 +24816,12 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
 {
     WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
+    data.WriteBits(reason, 5);
+    data.WriteBit(!arg);
     data << uint32(mapid);
-    data << uint8(reason); // transfer abort reason
-    data << uint8(arg);
+    if (arg)
+        data << uint8(arg);
+
     GetSession()->SendPacket(&data);
 }
 
