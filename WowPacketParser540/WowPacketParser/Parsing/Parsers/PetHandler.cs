@@ -113,16 +113,77 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_PET_NAME_QUERY)]
         public static void HandlePetNameQuery(Packet packet)
         {
-            var number = packet.ReadInt32("Pet number").ToString(CultureInfo.InvariantCulture);
-            var guid = packet.ReadGuid("Guid");
+            var petNumber = new byte[8];
+            var petGuid = new byte[8];
 
-            // Store temporary name (will be replaced in SMSG_PET_NAME_QUERY_RESPONSE)
-            StoreGetters.AddName(guid, number);
+            petGuid[5] = packet.ReadBit();
+            petNumber[3] = packet.ReadBit();
+            petGuid[6] = packet.ReadBit();
+            petNumber[5] = packet.ReadBit();
+            petNumber[7] = packet.ReadBit();
+            petGuid[2] = packet.ReadBit();
+            petGuid[4] = packet.ReadBit();
+            petNumber[2] = packet.ReadBit();
+            petGuid[3] = packet.ReadBit();
+            petNumber[1] = packet.ReadBit();
+            petGuid[7] = packet.ReadBit();
+            petNumber[6] = packet.ReadBit();
+            petGuid[1] = packet.ReadBit();
+            petGuid[0] = packet.ReadBit();
+            petNumber[4] = packet.ReadBit();
+            petNumber[0] = packet.ReadBit();
+
+            packet.ResetBitReader();
+
+            packet.ReadXORByte(petNumber, 5);
+            packet.ReadXORByte(petGuid, 4);
+            packet.ReadXORByte(petGuid, 3);
+            packet.ReadXORByte(petNumber, 7);
+            packet.ReadXORByte(petNumber, 4);
+            packet.ReadXORByte(petGuid, 5);
+            packet.ReadXORByte(petGuid, 2);
+            packet.ReadXORByte(petGuid, 0);
+            packet.ReadXORByte(petGuid, 6);
+            packet.ReadXORByte(petNumber, 2);
+            packet.ReadXORByte(petNumber, 0);
+            packet.ReadXORByte(petNumber, 6);
+            packet.ReadXORByte(petGuid, 1);
+            packet.ReadXORByte(petNumber, 3);
+            packet.ReadXORByte(petGuid, 7);
+            packet.ReadXORByte(petNumber, 1);
+
+            Console.WriteLine("petNumber: " + BitConverter.ToUInt64(petNumber, 0));
+            packet.WriteGuid("Pet Guid", petGuid);
         }
 
         [Parser(Opcode.SMSG_PET_NAME_QUERY_RESPONSE)]
         public static void HandlePetNameQueryResponse(Packet packet)
         {
+            packet.ReadUInt64("Pet number");
+
+            var declined = packet.ReadBit() != 0;
+            Console.WriteLine("Declined: " + declined);
+
+            if (declined)
+            {
+                var names = new uint[5];
+                for (var i = 0; i < 5; i++)
+                    names[i] = packet.ReadBits("Declined Name Length", 7, i);
+
+                var unkbit = packet.ReadBit() != 0;
+                Console.WriteLine("unkbit: " + unkbit);
+
+                var nameLen = packet.ReadBits("Name Length", 8);
+
+                var realNames = new string[5];
+                for (var i = 0; i < 5; i++)
+                    realNames[i] = packet.ReadWoWString("Pet Declined Name", names[i], i);
+
+                packet.ReadUInt32("Pet name timestamp");
+                packet.ReadWoWString("Pet Name", nameLen);
+            }
+
+            /*
             var number = packet.ReadInt32("Pet number").ToString(CultureInfo.InvariantCulture);
 
             var petName = packet.ReadCString("Pet name");
@@ -144,6 +205,7 @@ namespace WowPacketParser.Parsing.Parsers
             if (declined)
                 for (var i = 0; i < maxDeclinedNameCases; i++)
                     packet.ReadCString("Declined name", i);
+            */
         }
 
         [Parser(Opcode.SMSG_PET_MODE)]
@@ -184,13 +246,61 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_PET_ACTION)]
         public static void HandlePetAction(Packet packet)
         {
-            packet.ReadGuid("GUID");
+            var playerGuid = new byte[8];
+            var petGuid = new byte[8];
+
+            packet.ReadUInt32("Datas");
+            packet.ReadSingle("X");
+            packet.ReadSingle("Z");
+            packet.ReadSingle("Y");
+
+            playerGuid[0] = packet.ReadBit();
+            playerGuid[2] = packet.ReadBit();
+            playerGuid[6] = packet.ReadBit();
+            playerGuid[1] = packet.ReadBit();
+            petGuid[6] = packet.ReadBit();
+            petGuid[4] = packet.ReadBit();
+            petGuid[0] = packet.ReadBit();
+            petGuid[1] = packet.ReadBit();
+            petGuid[3] = packet.ReadBit();
+            playerGuid[3] = packet.ReadBit();
+            petGuid[2] = packet.ReadBit();
+            playerGuid[4] = packet.ReadBit();
+            petGuid[5] = packet.ReadBit();
+            petGuid[7] = packet.ReadBit();
+            playerGuid[5] = packet.ReadBit();
+            playerGuid[7] = packet.ReadBit();
+
+            packet.ResetBitReader();
+
+            packet.ReadXORByte(petGuid, 7);
+            packet.ReadXORByte(playerGuid, 7);
+            packet.ReadXORByte(petGuid, 6);
+            packet.ReadXORByte(petGuid, 0);
+            packet.ReadXORByte(petGuid, 3);
+            packet.ReadXORByte(playerGuid, 1);
+            packet.ReadXORByte(petGuid, 2);
+            packet.ReadXORByte(petGuid, 1);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 5);
+            packet.ReadXORByte(playerGuid, 6);
+            packet.ReadXORByte(playerGuid, 0);
+            packet.ReadXORByte(playerGuid, 3);
+            packet.ReadXORByte(petGuid, 4);
+            packet.ReadXORByte(petGuid, 5);
+            packet.ReadXORByte(playerGuid, 4);
+
+            packet.WriteGuid("Player GUID", playerGuid);
+            packet.WriteGuid("Pet GUID", petGuid);
+
+
+            /*packet.ReadGuid("GUID");
             var action = (uint)packet.ReadUInt16() + (packet.ReadByte() << 16);
             packet.WriteLine("Action: {0}", action);
             packet.ReadEnum<ActionButtonType>("Type", TypeCode.Byte);
             packet.ReadGuid("GUID");
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6_13596))
-                packet.ReadVector3("Position");
+                packet.ReadVector3("Position");*/
         }
 
         [Parser(Opcode.CMSG_PET_CANCEL_AURA)]

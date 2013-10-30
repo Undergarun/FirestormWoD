@@ -1227,6 +1227,7 @@ namespace WowPacketParser.Enums
         SMSG_GROUP_DECLINE,
         SMSG_GROUP_DESTROYED,
         SMSG_GROUP_INVITE,
+        SMSG_PARTY_UPDATE,
         SMSG_GROUP_LIST,
         SMSG_GROUP_SET_LEADER,
         SMSG_GROUP_SET_ROLE,

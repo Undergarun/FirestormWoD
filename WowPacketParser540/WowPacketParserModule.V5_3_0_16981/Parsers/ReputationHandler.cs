@@ -16,10 +16,14 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
                 packet.ReadEnum<FactionFlag>("Faction Flags", TypeCode.Byte, i);
             }
 
+            Console.WriteLine("Standing and Flags Parsed !");
+
             for (var i = 0; i < 256; i++)
             {
-                var bit1296 = packet.ReadBit("Count");
+                var bit1296 = packet.ReadBit("Count", i);
             }
+
+            Console.WriteLine("SMSG_INITIALIZE_FACTION Parsed !");
         }
     }
 }
