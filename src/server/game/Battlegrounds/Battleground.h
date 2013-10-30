@@ -360,7 +360,7 @@ class Battleground
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
         /* achievement req. */
-        virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
+        virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
         bool IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const;
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
@@ -456,8 +456,8 @@ class Battleground
         void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
 
-        /// Relocate all players in ReviveQueue to the closest graveyard 
-        void RelocateDeadPlayers(uint64 queueIndex); 
+        /// Relocate all players in ReviveQueue to the closest graveyard
+        void RelocateDeadPlayers(uint64 queueIndex);
 
         void StartBattleground();
 

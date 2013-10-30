@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (5215, 'spell_dru_prowl');

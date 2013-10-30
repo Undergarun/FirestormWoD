@@ -558,6 +558,19 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
         std::ostringstream ssCharDel;
         std::ostringstream ssCharIns;
+        std::ostringstream sscount;
+
+        uint32 points = 0;
+
+        for (CompletedAchievementMap::iterator itr =  m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+            if (AchievementEntry const* pAchievement = sAchievementStore.LookupEntry(itr->first))
+                points += pAchievement->points;
+
+        if (points)
+        {
+            sscount << "REPLACE INTO character_achievement_count (guid, count) VALUES (" << GetOwner()->GetGUIDLow() << "," << points << ");";
+            trans->Append(sscount.str().c_str());
+        }
 
         for (CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
         {

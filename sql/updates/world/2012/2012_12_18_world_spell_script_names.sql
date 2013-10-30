@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (109259, 'spell_hun_powershot');

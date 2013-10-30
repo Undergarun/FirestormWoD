@@ -141,7 +141,7 @@ class CreatureTextLocalizer
             // create if not cached yet
             if (!_packetCache[loc_idx])
             {
-                messageTemplate = new WorldPacket(SMSG_MESSAGECHAT, 200);
+                messageTemplate = new WorldPacket(SMSG_MESSAGE_CHAT, 200);
                 whisperGUIDpos = _builder(messageTemplate, loc_idx);
                 _packetCache[loc_idx] = new std::pair<WorldPacket*, size_t>(messageTemplate, whisperGUIDpos);
             }

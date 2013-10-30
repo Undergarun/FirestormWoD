@@ -49,6 +49,7 @@ namespace Movement
             Result_NextSegment  = 0x08,
         };
         friend class PacketBuilder;
+        friend class MoveSplineInit;
     protected:
         MySpline        spline;
 

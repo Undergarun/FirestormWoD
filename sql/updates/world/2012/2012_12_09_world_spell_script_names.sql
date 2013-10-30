@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (3045, 'spell_hun_rapid_fire');

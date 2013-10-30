@@ -363,7 +363,9 @@ enum SpellCategory
 
 enum SpellCategoryFlags
 {
-    SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN		= 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
+    SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT        = 0x08
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
@@ -773,7 +775,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR10_MOUNT_CHARACTER                  = 0x20000000, // 29
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
@@ -782,6 +784,7 @@ enum SpellAttr10
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2
+#define MAX_TALENT_SPELLS       6
 #define MAX_GLYPH_SLOT_INDEX    6
 #define REQ_PRIMARY_TREE_TALENTS 31
 
@@ -1005,7 +1008,7 @@ enum SpellEffects
     SPELL_EFFECT_SUMMON_DEAD_PET                    = 109,
     SPELL_EFFECT_DESTROY_ALL_TOTEMS                 = 110,
     SPELL_EFFECT_DURABILITY_DAMAGE                  = 111,
-    SPELL_EFFECT_112                                = 112, // only 72759
+    SPELL_EFFECT_FORCE_RIDE_ROCKET                  = 112, // only 72759
     SPELL_EFFECT_RESURRECT_NEW                      = 113,
     SPELL_EFFECT_ATTACK_ME                          = 114,
     SPELL_EFFECT_DURABILITY_DAMAGE_PCT              = 115,
@@ -1070,10 +1073,10 @@ enum SpellEffects
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
-    SPELL_EFFECT_177                                = 177, // despawn areatrigger
+    SPELL_EFFECT_177                                = 177,
     SPELL_EFFECT_178                                = 178, // Unused (5.0.5)
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
-    SPELL_EFFECT_180                                = 180, // Only one spell : "Update Area Triggers" 106584
+    SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // Only one spell : "Update Area Triggers" 106584
     SPELL_EFFECT_UNLEARN_TALENT                     = 181,
     SPELL_EFFECT_182                                = 182, // despawwn areatrigger
     SPELL_EFFECT_183                                = 183, // Unused (5.0.5)
@@ -1083,7 +1086,7 @@ enum SpellEffects
     SPELL_EFFECT_RANDOM_DIGSITE                     = 187, // 126957 only
     SPELL_EFFECT_STAMPEDE                           = 188, // Stampede 121818
     SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
-    SPELL_EFFECT_190                                = 190, // Unused (5.0.5)
+    SPELL_EFFECT_190                                = 190, // 1 internal spell
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
     SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
     SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
@@ -1092,9 +1095,9 @@ enum SpellEffects
     SPELL_EFFECT_196                                = 196, // summon multi NPC
     SPELL_EFFECT_197                                = 197, // 130243 only
     SPELL_EFFECT_198                                = 198, // Mini scene event
-    SPELL_EFFECT_199                                = 199, // Unused (5.0.5)
+    SPELL_EFFECT_199                                = 199, // 129857
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
-    SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot
+    SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
     TOTAL_SPELL_EFFECTS                             = 202
 };
 
@@ -1337,9 +1340,9 @@ enum SpellCastResult
     SPELL_FAILED_CANT_UPGRADE_BATTLE_PET        = 216,
     SPELL_FAILED_WRONG_BATTLE_PET_TYPE          = 217,
     SPELL_FAILED_NO_DUNGEON_ENCOUNTER           = 218,
-    SPELL_FAILED_NO_TELEPORT_FROM_DUNGEON       = 219, // @author Selenium: 253 on TC code, find on 5.4 client
-    SPELL_FAILED_UNKNOWN                        = 254, // custom value, default case
-    SPELL_CAST_OK                               = 255 // custom value, must not be sent to client
+    SPELL_FAILED_NO_TELEPORT_FROM_DUNGEON       = 219, // @author Selenium: 253 on TC code, found on 5.4 client
+    SPELL_FAILED_UNKNOWN                        = 254, // Custom value, default case
+    SPELL_CAST_OK                               = 255  // Custom value, must not be sent to client
 };
 
 enum SpellCustomErrors

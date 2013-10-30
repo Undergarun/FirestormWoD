@@ -51,7 +51,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
         response = GMTICKET_RESPONSE_CREATE_SUCCESS;
     }
 
-    WorldPacket data(SMSG_GMTICKET_CREATE, 4);
+    WorldPacket data(SMSG_GM_TICKET_CREATE, 4);
     data << uint32(response);
     SendPacket(&data);
 }
@@ -73,7 +73,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recvData)
         response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
     }
 
-    WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 4);
+    WorldPacket data(SMSG_GM_TICKET_UPDATE_TEXT, 4);
     data << uint32(response);
     SendPacket(&data);
 }
@@ -82,7 +82,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
 {
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
-        WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+        WorldPacket data(SMSG_GM_TICKET_DELETE_TICKET, 4);
         data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
         SendPacket(&data);
 
@@ -112,7 +112,7 @@ void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
     // are we sure this is a uint32? Should ask Zor
-    WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
+    WorldPacket data(SMSG_GM_TICKET_SYSTEM_STATUS, 4);
     data << uint32(sTicketMgr->GetStatus() ? GMTICKET_QUEUE_STATUS_ENABLED : GMTICKET_QUEUE_STATUS_DISABLED);
     SendPacket(&data);
 }
@@ -190,11 +190,11 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
         if (float(rand_chance()) < sWorld->getFloatConfig(CONFIG_CHANCE_OF_GM_SURVEY))
             getSurvey = 1;
 
-        WorldPacket data(SMSG_GMRESPONSE_STATUS_UPDATE, 4);
+        WorldPacket data(SMSG_GM_RESPONSE_STATUS_UPDATE, 4);
         data << uint8(getSurvey);
         SendPacket(&data);
 
-        WorldPacket data2(SMSG_GMTICKET_DELETETICKET, 4);
+        WorldPacket data2(SMSG_GM_TICKET_DELETE_TICKET, 4);
         data2 << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
         SendPacket(&data2);
 

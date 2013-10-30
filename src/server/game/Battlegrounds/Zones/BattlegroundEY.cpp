@@ -281,10 +281,10 @@ void BattlegroundEY::UpdatePointStatuses()
                     if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetTeam() != m_PointOwnedByTeam[point])
                         this->EventTeamLostPoint(player, point);
                 }
-                // hack fix for Fel Reaver Ruins	
-                if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())	
+                // hack fix for Fel Reaver Ruins
+                if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
                     if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
-                        if (player->GetDistance2d(2044,1730) < 2)	
+                        if (player->GetDistance2d(2044,1730) < 2)
                             EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
             }
         }
@@ -955,7 +955,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
     return nearestEntry;
 }
 
-bool BattlegroundEY::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundEY::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     for (int i = 0; i < EY_POINTS_MAX; ++i)
