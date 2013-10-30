@@ -1,1 +1,0 @@
-UPDATE spell_bonus_data SET ap_dot_bonus = 0.053 WHERE entry = 9007;

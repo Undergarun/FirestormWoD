@@ -1,1 +1,0 @@
-DELETE FROM spell_script_names WHERE ScriptName = 'spell_rog_smoke_bomb' OR ScriptName = 'spell_rog_smoke_bomb_aura';

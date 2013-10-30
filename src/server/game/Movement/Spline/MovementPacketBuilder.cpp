@@ -97,110 +97,21 @@ namespace Movement
         data << uint8(MonsterMoveStop);
     }
 
-    void WriteLinearPath(const Spline<int32>& spline, ByteBuffer& data)
-    {
-        uint32 last_idx = spline.getPointCount() - 3;
-        const Vector3 * real_path = &spline.getPoint(1);
-
-        data << last_idx;
-        data << real_path[last_idx];   // destination
-        if (last_idx > 1)
-        {
-            Vector3 middle = (real_path[0] + real_path[last_idx]) / 2.f;
-            Vector3 offset;
-            // first and last points already appended
-            for (uint32 i = 1; i < last_idx; ++i)
-            {
-                offset = middle - real_path[i];
-                data.appendPackXYZ(offset.x, offset.y, offset.z);
-            }
-        }
-
-        // Unknow 5.0.5 MoP
-        uint16 unkCount = 0;
-        data << uint16(unkCount); // unk 5.0.5 count
-        if(unkCount)
-        {
-            data << float(0);
-            data << uint16(0);
-            data << uint16(0);
-            data << float(0);
-            data << uint16(0);
-
-            for(int i = 0; i < unkCount; i++)
-            {
-                data << uint16(0);
-                data << uint16(0);
-            }
-        }
-    }
-
-    void WriteCatmullRomPath(const Spline<int32>& spline, ByteBuffer& data)
-    {
-        uint32 count = spline.getPointCount() - 3;
-        data << count;
-        data.append<Vector3>(&spline.getPoint(2), count);
-
-        // Unknow 5.0.5 MoP
-        uint16 unkCount = 0;
-        data << uint16(unkCount); // unk 5.0.5 count
-        if(unkCount)
-        {
-            data << float(0);
-            data << uint16(0);
-            data << uint16(0);
-            data << float(0);
-            data << uint16(0);
-
-            for(int i = 0; i < unkCount; i++)
-            {
-                data << uint16(0);
-                data << uint16(0);
-            }
-        }
-    }
-
-    void WriteCatmullRomCyclicPath(const Spline<int32>& spline, ByteBuffer& data)
-    {
-        uint32 count = spline.getPointCount() - 3;
-        data << uint32(count + 1);
-        data << spline.getPoint(1); // fake point, client will erase it from the spline after first cycle done
-        data.append<Vector3>(&spline.getPoint(1), count);
-
-        // Unknow 5.0.5 MoP
-        uint16 unkCount = 0;
-        data << uint16(unkCount); // unk 5.0.5 count
-        if(unkCount)
-        {
-            data << float(0);
-            data << uint16(0);
-            data << uint16(0);
-            data << float(0);
-            data << uint16(0);
-
-            for(int i = 0; i < unkCount; i++)
-            {
-                data << uint16(0);
-                data << uint16(0);
-            }
-        }
-    }
-
     void PacketBuilder::WriteMonsterMove(const MoveSpline& move_spline, WorldPacket& data)
     {
         WriteCommonMonsterMovePart(move_spline, data);
 
         const Spline<int32>& spline = move_spline.spline;
         MoveSplineFlag splineflags = move_spline.splineflags;
-        if (splineflags & MoveSplineFlag::UncompressedPath)
+        /*if (splineflags & MoveSplineFlag::UncompressedPath)
         {
             if (splineflags.cyclic)
                 WriteCatmullRomCyclicPath(spline, data);
             else
                 WriteCatmullRomPath(spline, data);
-        }
-        else
-            WriteLinearPath(spline, data);
+        }*/
+        //else
+            //WriteLinearPath(spline, data);
     }
 
     void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data)

@@ -1,1 +1,0 @@
-UPDATE creature_template SET spell1 = 58859, spell2 = 0, spell3 = 0, spell4 = 0, ScriptName = 'npc_feral_spirit' WHERE entry = 29264;

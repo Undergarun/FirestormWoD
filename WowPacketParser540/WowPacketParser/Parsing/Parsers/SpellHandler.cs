@@ -72,11 +72,30 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("Slot");
         }
 
+        [Parser(Opcode.SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR)]
+        public static void HandleDontAutoPushSpellsToActionBar(Packet packet)
+        {
+            var spellCounter = packet.ReadBits("SpellCounter", 22);
+            var nextSpellIdCounter = packet.ReadBits("nextSpellIdCounter", 22);
+
+            for (int i = 0; i < spellCounter; i++)
+                packet.ReadUInt32("Spell ID");
+
+            for (int i = 0; i < nextSpellIdCounter; i++)
+                packet.ReadUInt32("nextSpell ID");
+        }
+
         [Parser(Opcode.SMSG_SUPERCEDED_SPELL)]
         public static void HandleSupercededSpell(Packet packet)
         {
-            packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Spell ID");
-            packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Next Spell ID");
+            var spellCounter = packet.ReadBits("SpellCounter", 22);
+            var nextSpellIdCounter = packet.ReadBits("nextSpellIdCounter", 22);
+
+            for (int i = 0; i < spellCounter; i++)
+                packet.ReadUInt32("Spell ID");
+
+            for (int i = 0; i < nextSpellIdCounter; i++)
+                packet.ReadUInt32("nextSpell ID");
         }
 
         [Parser(Opcode.SMSG_RESYNC_RUNES)]
@@ -867,15 +886,13 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_LEARNED_SPELL)]
         public static void HandleLearnedSpell(Packet packet)
         {
-            packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Spell ID");
+            var autoPush = packet.ReadBit() != 0;
+            Console.WriteLine("autoPush: " + autoPush);
 
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_3_0_10958))
-            {
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_3_0_15005))
-                    packet.ReadInt32("Unk Int32");
-                else
-                    packet.ReadInt16("Unk Int16");
-            }
+            var count = packet.ReadBits("Count", 22);
+
+            for (int i = 0; i < count; i++)
+                packet.ReadUInt32("Spell ID");
         }
 
         [Parser(Opcode.CMSG_UPDATE_PROJECTILE_POSITION)]

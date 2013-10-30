@@ -1,2 +1,0 @@
-ALTER TABLE character_pet
-ADD COLUMN specialization INT(10) UNSIGNED DEFAULT 0 NOT NULL AFTER abdata;

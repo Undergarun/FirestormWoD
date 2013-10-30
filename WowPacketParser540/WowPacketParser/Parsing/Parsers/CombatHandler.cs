@@ -246,8 +246,29 @@ namespace WowPacketParser.Parsing.Parsers
             }
         }
 
-        [Parser(Opcode.SMSG_DUEL_OUTOFBOUNDS)]
         [Parser(Opcode.SMSG_CANCEL_COMBAT)]
+        public static void HandleCancelCombat(Packet packet)
+        {
+            var guid = new byte[8];
+            packet.StartBitStream(guid, 2, 1, 7, 0, 5, 3, 4, 6);
+
+            packet.ReadByte("Unk byte");
+
+            packet.ReadXORByte(guid, 7);
+            packet.ReadXORByte(guid, 4);
+            packet.ReadXORByte(guid, 5);
+
+            packet.ReadByte("Unk byte");
+            packet.ReadUInt32("Unk uint32");
+
+            packet.ReadXORByte(guid, 3);
+            packet.ReadXORByte(guid, 6);
+            packet.ReadXORByte(guid, 0);
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(guid, 2);
+        }
+
+        [Parser(Opcode.SMSG_DUEL_OUTOFBOUNDS)]
         [Parser(Opcode.CMSG_ATTACKSTOP)]
         [Parser(Opcode.SMSG_ATTACKSWING_NOTINRANGE)]
         [Parser(Opcode.SMSG_ATTACKSWING_BADFACING)]

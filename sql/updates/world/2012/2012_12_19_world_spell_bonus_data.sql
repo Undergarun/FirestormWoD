@@ -1,1 +1,0 @@
-INSERT INTO spell_bonus_data VALUE (77799, 0.45, -1, -1, -1, 'Warlock - Fel Flame');

@@ -1,1 +1,0 @@
-ALTER TABLE `quest_template` ADD COLUMN `RequiredTeam` TINYINT(1) DEFAULT '-1' NOT NULL AFTER `LimitTime`; 

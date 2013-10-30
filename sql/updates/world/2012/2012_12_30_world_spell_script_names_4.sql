@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (20243, 'spell_warr_sword_and_board');

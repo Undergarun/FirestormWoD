@@ -920,7 +920,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->GetDarkSimulacrum())
         creator = creator->GetDarkSimulacrum();
 
-    WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+    WorldPacket data(SMSG_MIRROR_IMAGE_DATA, 68);
     data << uint64(guid);
     data << uint32(creator->GetDisplayId());
     data << uint8(creator->getRace());

@@ -1,1 +1,0 @@
-UPDATE spell_script_names SET spell_id = 32645 WHERE ScriptName = 'spell_rog_cut_to_the_chase' AND spell_id = 1329;

@@ -1462,7 +1462,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
+    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
     data << uint64(GetGUID());
     data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
     data << uint32(damage);
@@ -2415,42 +2415,57 @@ void Player::SendTeleportPacket(Position &oldPos)
 {
     ObjectGuid guid = GetGUID();
     ObjectGuid transGuid = GetTransGUID();
+    bool unk = false;
 
-    WorldPacket data(MSG_MOVE_TELEPORT, 38);
-    data.WriteBit(uint64(transGuid));
-    data.WriteBit(guid[5]);
+    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
+    data << float(GetOrientation());
+    data << float(GetPositionY());
+    data << float(GetPositionX());
+    data << float(GetPositionZMinusOffset());
+    data << uint32(0);                  //  mask ? 0x180 on retail sniff
+
+    data.WriteBit(unk);                 // unk bit
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(uint64(transGuid));   // has transport
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+
     if (transGuid)
     {
-        uint8 bitOrder[8] = {5, 6, 2, 0, 1, 4, 7, 3};
+        uint8 bitOrder[8] = {2, 5, 3, 6, 1, 4, 7, 0};
         data.WriteBitInOrder(transGuid, bitOrder);
     }
-    data.WriteBit(guid[1]);
+
     data.WriteBit(guid[4]);
+
+    if (unk)
+    {
+        data.WriteBit(0);
+        data.WriteBit(0);
+    }
+
     data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
     data.WriteBit(guid[0]);
-    data.WriteBit(0);       // unknown
-    data.WriteBit(guid[2]);
-    data.FlushBits();
+    data.WriteBit(guid[5]);
+    data.WriteByteSeq(guid[7]);
+
     if (transGuid)
     {
-        uint8 byteOrder[8] = {2, 7, 1, 5, 6, 0, 4, 3};
+        uint8 byteOrder[8] = {3, 0, 1, 7, 2, 6, 5, 4};
         data.WriteBytesSeq(transGuid, byteOrder);
     }
+
+    data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data << float(GetOrientation());
-    data << float(GetPositionX());
-    data << float(GetPositionY());
-    data << uint32(0);  // counter
-    data << float(GetPositionZMinusOffset());
+
+    if (unk)
+        data << uint8(0);           // unk, maybe seat ?
 
     Relocate(&oldPos);
     SendDirectMessage(&data);
@@ -2661,20 +2676,25 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
+                bool unk = false;
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
+                data << uint32(mapid);
                 
                 if (m_transport)
                 {
-                    data.WriteBit(0);       // unknown
-                    data.WriteBit(1);   // has transport
-                    data  << m_transport->GetEntry() << GetMapId();
+                    data.WriteBit(unk);       // unknown
+                    data.WriteBit(1);         // has transport
+                    data  << GetMapId() << m_transport->GetEntry();
                 }
                 else
                 {
-                    data.WriteBit(0);       // unknown
-                    data.WriteBit(0);   // has transport
+                    data.WriteBit(unk);       // unknown
+                    data.WriteBit(0);         // has transport
                 }
-                data << uint32(mapid);
+
+                if (unk)
+                    data << uint32(0);
+                
                 GetSession()->SendPacket(&data);
             }
 
@@ -2704,12 +2724,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << float(m_teleport_dest.GetOrientation());
-                data << float(m_teleport_dest.GetPositionX());
                 data << float(m_teleport_dest.GetPositionY());
-                data << uint32(mapid);
+                data << float(m_teleport_dest.GetOrientation());
                 data << float(m_teleport_dest.GetPositionZ());
-
+                data << float(m_teleport_dest.GetPositionX());
+                data << uint32(mapid);
                 GetSession()->SendPacket(&data);
                 SendSavedInstances();
             }
@@ -5180,7 +5199,7 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         if (entry &&
             entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
             entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            (entry->CategoryFlags & SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN) == 0)
+            (entry->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT) == 0)
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
@@ -6123,7 +6142,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
-    if (GetGuild() && GetGuild()->GetLevel() >= 15)
+    if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559))
         RemoveAurasDueToSpell(84559); // The Quick and the Dead
 
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
@@ -7834,7 +7853,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 {
                     XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * ExploreXpRate);
                 }
-				
+
                 if (GetSession()->IsPremium())
                     XP *= sWorld->getRate(RATE_XP_EXPLORE_PREMIUM);
 
@@ -8203,7 +8222,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f /= groupsize;
 
     honor_f *= sWorld->getRate(RATE_HONOR);
-	
+
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
 
@@ -8976,7 +8995,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUTOFBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
     }
@@ -21623,7 +21642,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && (spell->IsAbilityOfSkillType(SKILL_MOUNT) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !SPELL_ATTR10_MOUNT_CHARACTER) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -23936,8 +23955,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 
     // New MoP skill cooldown
-    // SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN
-    if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAGS_IS_DAILY_COOLDOWN)
+    // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
+    if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
     {
         int days = catrec / 1000;
         time_t cooldown = curTime + (86400 * days);
@@ -24715,7 +24734,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 * 5);
+    data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
     data << float(0.01666667f);                                 // game speed
     data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
     data << uint32(0);                                          // added in 3.1.2
@@ -24828,9 +24847,12 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
 {
     WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
+    data.WriteBits(reason, 5);
+    data.WriteBit(!arg);
     data << uint32(mapid);
-    data << uint8(reason); // transfer abort reason
-    data << uint8(arg);
+    if (arg)
+        data << uint8(arg);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -27795,7 +27817,7 @@ void Player::ResetTimeSync()
 
 void Player::SendTimeSync()
 {
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
+    WorldPacket data(SMSG_TIME_SYNC_REQUEST, 4);
     data << uint32(m_timeSyncCounter++);
     GetSession()->SendPacket(&data);
 

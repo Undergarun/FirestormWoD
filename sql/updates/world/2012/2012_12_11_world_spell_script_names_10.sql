@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (108196, 'spell_dk_death_siphon');

@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (5384, 'spell_hun_feign_death');

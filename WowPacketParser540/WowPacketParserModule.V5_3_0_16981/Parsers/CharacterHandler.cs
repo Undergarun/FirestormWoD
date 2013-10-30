@@ -297,6 +297,54 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         public static void HandleLogXPGain(Packet packet)
         {
             var guid = new byte[8];
+
+            var bit28 = packet.ReadBit() != 0;
+            Console.WriteLine("bit28: " + bit28);
+
+            guid[3] = packet.ReadBit();
+            guid[0] = packet.ReadBit();
+
+            var unkBit = packet.ReadBit();
+            Console.WriteLine("unkBit: " + unkBit);
+
+            guid[1] = packet.ReadBit();
+            guid[4] = packet.ReadBit();
+            guid[5] = packet.ReadBit();
+            guid[7] = packet.ReadBit();
+            guid[2] = packet.ReadBit();
+
+            var hasVictim = packet.ReadBit() == 0;
+            Console.WriteLine("hasVictim: " + hasVictim);
+
+            guid[6] = packet.ReadBit();
+
+            packet.ReadXORByte(guid, 5);
+            packet.ReadXORByte(guid, 3);
+
+            if (hasVictim)
+                packet.ReadUInt32("Base XP");
+
+            packet.ReadUInt32("Total XP");
+
+            packet.ReadXORByte(guid, 4);
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(guid, 6);
+
+            /*
+                if (hasGroupRate)
+                    packet.ReadUInt32("unk uint32");
+            */
+
+            packet.ReadXORByte(guid, 2);
+            packet.ReadXORByte(guid, 0);
+            packet.ReadXORByte(guid, 7);
+
+            // 0 : Kill Type, 1 : Non-Kill Type
+            packet.ReadByte("XP Type");
+
+            packet.WriteGuid("Victim GUID", guid);
+
+            /*
             packet.StartBitStream(guid, 1, 0, 3, 7);
             var hasBaseXP = !packet.ReadBit();
             packet.StartBitStream(guid, 4, 2, 6, 5);
@@ -318,6 +366,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.ReadXORBytes(guid, 1, 7);
 
             packet.WriteGuid("Guid", guid);
+            */
         }
 
         [Parser(Opcode.SMSG_TITLE_EARNED)]

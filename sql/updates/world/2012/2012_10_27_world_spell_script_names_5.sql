@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (115546, 'spell_monk_provoke');

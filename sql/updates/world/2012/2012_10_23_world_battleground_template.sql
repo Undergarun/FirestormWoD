@@ -1,1 +1,0 @@
-update battleground_template set Weight=1 where Weight=0;
