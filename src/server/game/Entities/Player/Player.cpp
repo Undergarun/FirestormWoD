@@ -2415,42 +2415,57 @@ void Player::SendTeleportPacket(Position &oldPos)
 {
     ObjectGuid guid = GetGUID();
     ObjectGuid transGuid = GetTransGUID();
+    bool unk = false;
 
-    WorldPacket data(MSG_MOVE_TELEPORT, 38);
-    data.WriteBit(uint64(transGuid));
-    data.WriteBit(guid[5]);
+    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
+    data << float(GetOrientation());
+    data << float(GetPositionY());
+    data << float(GetPositionX());
+    data << float(GetPositionZMinusOffset());
+    data << uint32(0);                  //  mask ? 0x180 on retail sniff
+
+    data.WriteBit(unk);                 // unk bit
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(uint64(transGuid));   // has transport
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+
     if (transGuid)
     {
-        uint8 bitOrder[8] = {5, 6, 2, 0, 1, 4, 7, 3};
+        uint8 bitOrder[8] = {2, 5, 3, 6, 1, 4, 7, 0};
         data.WriteBitInOrder(transGuid, bitOrder);
     }
-    data.WriteBit(guid[1]);
+
     data.WriteBit(guid[4]);
+
+    if (unk)
+    {
+        data.WriteBit(0);
+        data.WriteBit(0);
+    }
+
     data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
     data.WriteBit(guid[0]);
-    data.WriteBit(0);       // unknown
-    data.WriteBit(guid[2]);
-    data.FlushBits();
+    data.WriteBit(guid[5]);
+    data.WriteByteSeq(guid[7]);
+
     if (transGuid)
     {
-        uint8 byteOrder[8] = {2, 7, 1, 5, 6, 0, 4, 3};
+        uint8 byteOrder[8] = {3, 0, 1, 7, 2, 6, 5, 4};
         data.WriteBytesSeq(transGuid, byteOrder);
     }
+
+    data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data << float(GetOrientation());
-    data << float(GetPositionX());
-    data << float(GetPositionY());
-    data << uint32(0);  // counter
-    data << float(GetPositionZMinusOffset());
+
+    if (unk)
+        data << uint8(0);           // unk, maybe seat ?
 
     Relocate(&oldPos);
     SendDirectMessage(&data);

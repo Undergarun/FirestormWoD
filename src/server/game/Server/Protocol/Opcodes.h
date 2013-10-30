@@ -606,7 +606,7 @@ enum Opcodes
     MSG_MOVE_START_BACKWARD                           = 0,      // Client patched
     MSG_MOVE_START_DESCEND                            = 0,      // Client patched
     MSG_MOVE_STOP                                     = 0,      // Client patched
-    MSG_MOVE_TELEPORT                                 = 0,      // Client patched
+    SMSG_MOVE_TELEPORT                                = 0x1342, // 5.4.0 17371
     MSG_MOVE_TELEPORT_ACK                             = 0,      // Client patched
     MSG_MOVE_TELEPORT_CHEAT                           = 0,      // Client patched
     MSG_MOVE_TIME_SKIPPED                             = 0,      // Client patched
