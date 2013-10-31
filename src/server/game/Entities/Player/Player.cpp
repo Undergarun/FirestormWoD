@@ -28285,35 +28285,37 @@ void Player::SendMovementSetCanFly(bool apply)
     {
         data.Initialize(SMSG_MOVE_SET_CAN_FLY, 1 + 8 + 4);
 
-        uint8 bitOrder[8] = {0, 7, 6, 5, 1, 3, 4, 2};
+        uint8 bitOrder[8] = {0, 1, 6, 5, 7, 2, 3, 4};
         data.WriteBitInOrder(guid, bitOrder);
 
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[4]);
         data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
+
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[6]);
     }
     else
     {
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 1 + 8 + 4);
 
-        uint8 bitOrder[8] = {5, 7, 2, 3, 6, 0, 4, 1};
+        uint8 bitOrder[8] = {4, 3, 2, 0, 1, 5, 7, 6};
         data.WriteBitInOrder(guid, bitOrder);
 
-        data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[4]);
-        data << uint32(0);          //! movement counter
         data.WriteByteSeq(guid[6]);
+        data << uint32(0);          //! movement counter
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[0]);
+        
     }
     SendDirectMessage(&data);
 }
