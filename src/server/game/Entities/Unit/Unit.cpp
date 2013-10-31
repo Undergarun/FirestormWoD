@@ -18939,24 +18939,21 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
     
-    uint8 bitOrder[8] = {7, 0, 5, 1, 4, 6, 2, 3};
+    uint8 bitOrder[8] = {4, 6, 3, 7, 2, 5, 0, 1};
     data.WriteBitInOrder(guid, bitOrder);
-    
-    data << float(speedZ); //32
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data << float(speedXY); //24
     data.WriteByteSeq(guid[2]);
-    data << float(vcos);   //36
-    data << float(vsin); //40
-    data << uint32(0);   //28
-    data.WriteByteSeq(guid[6]);
-
-
+    data << float(vsin);
+    data.WriteByteSeq(guid[3]);
+    data << float(speedXY);
+    data << float(speedZ);
+    data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[1]);
+    data << uint32(0);
+    data << float(vcos);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
 
     player->GetSession()->SendPacket(&data);
 }

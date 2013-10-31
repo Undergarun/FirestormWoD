@@ -1164,7 +1164,7 @@ enum Opcodes
     SMSG_MOVE_FEATHER_FALL                            = 0x000,  // 5.0.5 16048
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x000,  // 5.0.5 16048
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x000,  // 5.0.5 16048
-    SMSG_MOVE_KNOCK_BACK                              = 0x000,  // 5.0.5 16048
+    SMSG_MOVE_KNOCK_BACK                              = 0x16FA, // 5.4.0 17371
     SMSG_MOVE_LAND_WALK                               = 0x000,  // 5.0.5 16048
     SMSG_MOVE_NORMAL_FALL                             = 0x000,  // 5.0.5 16048
     SMSG_MOVE_ROOT                                    = 0x000,  // 5.0.5 16048
