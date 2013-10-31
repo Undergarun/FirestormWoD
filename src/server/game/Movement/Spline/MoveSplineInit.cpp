@@ -98,7 +98,7 @@ namespace Movement
     {
         uint32 count = spline.getPointCount() - 2;
 
-        for (int i = 0; i < count; i++)
+        for (uint32 i = 0; i < count; i++)
             data << spline.getPoint(i+2).y << spline.getPoint(i+2).x << spline.getPoint(i+2).z;
 
         //data.append<Vector3>(&spline.getPoint(2), count);
@@ -108,7 +108,7 @@ namespace Movement
     {
         uint32 count = spline.getPointCount() - 2;
         data << spline.getPoint(1).y << spline.getPoint(1).z << spline.getPoint(1).x ; // fake point, client will erase it from the spline after first cycle done
-        for (int i = 0; i < count; i++)
+        for (uint32 i = 0; i < count; i++)
             data << spline.getPoint(i+1).y << spline.getPoint(i+1).x << spline.getPoint(i+1).z;
         //data.append<Vector3>(&spline.getPoint(1), count);
     }
@@ -249,7 +249,7 @@ namespace Movement
             data << float(0.0f);
             data << uint16(0);
 
-            for (int i = 0; i < unkCounter; i++)
+            for (uint32 i = 0; i < unkCounter; i++)
             {
                 data << uint16(0);
                 data << uint16(0);
@@ -444,7 +444,7 @@ namespace Movement
             data << float(0.0f);
             data << uint16(0);
 
-            for (int i = 0; i < unkCounter; i++)
+            for (uint32 i = 0; i < unkCounter; i++)
             {
                 data << uint16(0);
                 data << uint16(0);

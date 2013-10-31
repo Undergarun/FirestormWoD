@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (45524, 'spell_dk_chilblains');

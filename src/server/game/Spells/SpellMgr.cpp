@@ -3445,6 +3445,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Dispel = DISPEL_MAGIC;
                     break;
                 case 113792:// Pyschic Horror - Psyfiend
+                case 42442: // Vengeance Landing Cannonfire (cause wow error)
                     spellInfo->MaxAffectedTargets = 1;
                     break;
                 case 125972:// Felin Grace

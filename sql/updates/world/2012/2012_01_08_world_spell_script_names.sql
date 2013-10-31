@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (73651, 'spell_rog_recuperate');

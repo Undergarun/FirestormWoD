@@ -298,9 +298,150 @@ namespace WowPacketParser.Parsing.Parsers
 
         private static void ReadSpellNonMeleeDamageLog(ref Packet packet, int index = -1)
         {
+            var caster = new byte[8];
+            var target = new byte[8];
+            var caster2 = new byte[8];
+
+            // Missed abosrb, resist, blocked
+            packet.ReadUInt32("Damage");
+            packet.ReadUInt32("Unk uint32");
+            packet.ReadEnum<SpellHitType>("HitType", TypeCode.Int32, index);
+            packet.ReadUInt32("Unk uint32");
+            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID", index);
+            packet.ReadUInt32("Overkill");
+            packet.ReadUInt32("Unk uint32");
+            packet.ReadEnum<SpellSchoolMask>("SpellSchoolMask", TypeCode.Byte, index);
+
+            // Must send 0 ?
+            var debugFlag = packet.ReadBit() != 0;
+            Console.WriteLine("Debug Flag: " + debugFlag);
+
+            target[1] = packet.ReadBit();
+            target[7] = packet.ReadBit();
+            caster[1] = packet.ReadBit();
+
+            var table = new byte[10];
+            if (debugFlag)
+            {
+                table[7] = packet.ReadBit();
+                table[0] = packet.ReadBit();
+                table[3] = packet.ReadBit();
+                table[5] = packet.ReadBit();
+                table[4] = packet.ReadBit();
+                table[9] = packet.ReadBit();
+                table[2] = packet.ReadBit();
+                table[1] = packet.ReadBit();
+                table[6] = packet.ReadBit();
+                table[8] = packet.ReadBit();
+            }
+
+            var bit68 = packet.ReadBit() != 0;
+            Console.WriteLine("bit 68: " + bit68);
+
+            caster[5] = packet.ReadBit();
+            caster[0] = packet.ReadBit();
+            caster[3] = packet.ReadBit();
+            caster[6] = packet.ReadBit();
+            caster[2] = packet.ReadBit();
+            target[6] = packet.ReadBit();
+            target[5] = packet.ReadBit();
+            target[4] = packet.ReadBit();
+
+            var hasGuid = packet.ReadBit() != 0;
+            Console.WriteLine("hasGuid: " + hasGuid);
+
+            uint counter = 0;
+            if (hasGuid)
+            {
+                caster2[1] = packet.ReadBit();
+                caster2[5] = packet.ReadBit();
+                caster2[7] = packet.ReadBit();
+                caster2[4] = packet.ReadBit();
+                caster2[6] = packet.ReadBit();
+                caster2[3] = packet.ReadBit();
+
+                counter = packet.ReadBits("Counter", 21);
+
+                caster2[2] = packet.ReadBit();
+                caster2[0] = packet.ReadBit();
+            }
+
+            caster[7] = packet.ReadBit();
+            target[3] = packet.ReadBit();
+            caster[4] = packet.ReadBit();
+            target[0] = packet.ReadBit();
+            target[2] = packet.ReadBit();
+
+            var bit80 = packet.ReadBit() != 0;
+            Console.WriteLine("bit80: " + bit80);
+
+            if (debugFlag)
+            {
+                packet.ReadSingle("Unk float 6 1");
+                packet.ReadSingle("Unk float 6 2");
+                packet.ReadSingle("Unk float 6 3");
+                packet.ReadSingle("Unk float 6 4");
+                packet.ReadSingle("Unk float 6 5");
+                packet.ReadSingle("Unk float 6 6");
+                packet.ReadSingle("Unk float 6 7");
+                packet.ReadSingle("Unk float 6 8");
+                packet.ReadSingle("Unk float 6 9");
+                packet.ReadSingle("Unk float 6 10");
+            }
+
+            packet.ReadXORByte(target, 7);
+
+            if (hasGuid)
+            {
+                packet.ReadXORByte(caster2, 3);
+
+                packet.ReadUInt32("Caster's Attack Power");
+
+                packet.ReadXORByte(caster2, 5);
+                packet.ReadXORByte(caster2, 1);
+                packet.ReadXORByte(caster2, 7);
+
+                for (int i = 0; i < counter; i++)
+                {
+                    packet.ReadUInt32("Caster's Mana");
+                    packet.ReadUInt32("Caster's Unk Power");
+                }
+
+                packet.ReadXORByte(caster2, 4);
+                packet.ReadXORByte(caster2, 0);
+
+                packet.ReadUInt32("Caster's Health");
+
+                packet.ReadXORByte(caster2, 6);
+
+                packet.ReadUInt32("Caster's Base Spell Power");
+
+                packet.ReadXORByte(caster2, 2);
+            }
+
+            packet.ReadXORByte(caster, 2);
+            packet.ReadXORByte(caster, 1);
+            packet.ReadXORByte(target, 1);
+            packet.ReadXORByte(caster, 4);
+            packet.ReadXORByte(caster, 7);
+            packet.ReadXORByte(target, 6);
+            packet.ReadXORByte(caster, 5);
+            packet.ReadXORByte(target, 2);
+            packet.ReadXORByte(target, 3);
+            packet.ReadXORByte(caster, 6);
+            packet.ReadXORByte(target, 0);
+            packet.ReadXORByte(target, 4);
+            packet.ReadXORByte(target, 5);
+            packet.ReadXORByte(caster, 3);
+            packet.ReadXORByte(caster, 0);
+
+            packet.WriteGuid("caster GUID", caster);
+            packet.WriteGuid("target GUID", target);
+            packet.WriteGuid("caster2 GUID", caster2);
+
+            /*
             packet.ReadPackedGuid("Target GUID", index);
             packet.ReadPackedGuid("Caster GUID", index);
-            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID", index);
             packet.ReadUInt32("Damage", index);
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_0_3_9183))
@@ -341,6 +482,7 @@ namespace WowPacketParser.Parsing.Parsers
                     }
                 }
             }
+            */
         }
 
         private static void ReadSpellHealLog(ref Packet packet, int index = -1)

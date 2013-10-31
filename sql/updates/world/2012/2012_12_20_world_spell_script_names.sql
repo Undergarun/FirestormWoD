@@ -1,1 +1,0 @@
-INSERT INTO spell_script_names VALUE (116858, 'spell_warl_chaos_bolt');

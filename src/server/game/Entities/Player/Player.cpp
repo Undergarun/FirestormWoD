@@ -3572,20 +3572,36 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
 
 void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
 {
-    WorldPacket data(SMSG_LOG_XP_GAIN, 21); // guess size?
-    data << uint64(victim ? victim->GetGUID() : 0);         // guid
-    data << uint32(GivenXP + BonusXP);                      // given experience
-    data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
+    WorldPacket data(SMSG_LOG_XP_GAIN);
+
+    ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
+
+    data.WriteBit(0);                                       // unk bit28, send 0
+    data.WriteBit(victimGuid[3]);
+    data.WriteBit(victimGuid[0]);
+    data.WriteBit(1);                                       // unk bit, send 1
+    data.WriteBit(victimGuid[1]);
+    data.WriteBit(victimGuid[4]);
+    data.WriteBit(victimGuid[5]);
+    data.WriteBit(victimGuid[7]);
+    data.WriteBit(victimGuid[2]);
+    data.WriteBit(victim ? 0 : 1);                          // has victim
+    data.WriteBit(victimGuid[6]);
+
+    data.WriteByteSeq(victimGuid[5]);
+    data.WriteByteSeq(victimGuid[3]);
 
     if (victim)
-    {
-        data << uint32(GivenXP);                            // experience without bonus
+        data << uint32(GivenXP);
 
-        // should use group_rate here but can't figure out how
-        data << float(1);                                   // 1 - none 0 - 100% group bonus output
-    }
+    data << uint32(GivenXP + BonusXP);
 
-    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
+    data.WriteByteSeq(victimGuid[4]);
+    data.WriteByteSeq(victimGuid[1]);
+    data.WriteByteSeq(victimGuid[6]);
+
+    data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
+
     GetSession()->SendPacket(&data);
 }
 

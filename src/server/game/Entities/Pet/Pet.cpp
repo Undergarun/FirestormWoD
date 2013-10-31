@@ -1811,7 +1811,7 @@ bool Pet::learnSpell(uint32 spell_id)
     if (!m_loading)
     {
         WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
-        data.WriteBits(1, 24);
+        data.WriteBits(1, 22);
         data << uint32(spell_id);
         m_owner->GetSession()->SendPacket(&data);
         m_owner->PetSpellInitialize();
@@ -1865,7 +1865,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         if (!m_loading)
         {
             WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
-            data.WriteBits(1, 24);
+            data.WriteBits(1, 22);
             data << uint32(spell_id);
             m_owner->GetSession()->SendPacket(&data);
         }

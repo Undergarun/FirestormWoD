@@ -1,1 +1,0 @@
-INSERT INTO conditions (SourceTypeOrReferenceId, SourceEntry, ConditionTarget, ConditionTypeOrReference, ConditionValue1) VALUES (17, 75554, 0, 4, 616);

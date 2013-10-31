@@ -73,40 +73,47 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     ObjectGuid crossRealmGuid; // unused
 
     recvData.read_skip<uint32>(); // Non-zero in cross realm invites
-    recvData.read_skip<uint8>();
     recvData.read_skip<uint32>(); // Always 0
+    recvData.read_skip<uint8>();
+
     std::string realmName, memberName;
-
-    uint8 realmLen = recvData.ReadBits(9);
-
-    crossRealmGuid[1] = recvData.ReadBit();
-    crossRealmGuid[3] = recvData.ReadBit();
-    crossRealmGuid[4] = recvData.ReadBit();
-    crossRealmGuid[6] = recvData.ReadBit();
-    crossRealmGuid[5] = recvData.ReadBit();
-
-    uint8 nameLen = recvData.ReadBits(10);
+    realmName = "";
+    memberName = "";
 
     crossRealmGuid[7] = recvData.ReadBit();
     crossRealmGuid[0] = recvData.ReadBit();
+    crossRealmGuid[4] = recvData.ReadBit();
+    crossRealmGuid[3] = recvData.ReadBit();
+    crossRealmGuid[6] = recvData.ReadBit();
+
+    uint8 realmLen = recvData.ReadBits(9);
+    recvData.ReadBit(); // unk
+
     crossRealmGuid[2] = recvData.ReadBit();
+    crossRealmGuid[5] = recvData.ReadBit();
+    crossRealmGuid[1] = recvData.ReadBit();
+
+    uint8 nameLen = recvData.ReadBits(9);
+    recvData.ReadBit(); // unk
 
     recvData.FlushBits();
 
-    recvData.ReadByteSeq(crossRealmGuid[4]);
     recvData.ReadByteSeq(crossRealmGuid[0]);
-
-    realmName = recvData.ReadString(realmLen); // unused
-
-    recvData.ReadByteSeq(crossRealmGuid[7]);
-
-    memberName = recvData.ReadString(nameLen);
-
-    recvData.ReadByteSeq(crossRealmGuid[1]);
-    recvData.ReadByteSeq(crossRealmGuid[6]);
+    recvData.ReadByteSeq(crossRealmGuid[4]);
     recvData.ReadByteSeq(crossRealmGuid[5]);
-    recvData.ReadByteSeq(crossRealmGuid[2]);
+    recvData.ReadByteSeq(crossRealmGuid[7]);
+    recvData.ReadByteSeq(crossRealmGuid[1]);
+
+    if (realmLen > 0)
+        realmName = recvData.ReadString((realmLen/2)); // unused
+
     recvData.ReadByteSeq(crossRealmGuid[3]);
+
+    if (nameLen > 0)
+        memberName = recvData.ReadString((nameLen/2));
+
+    recvData.ReadByteSeq(crossRealmGuid[6]);
+    recvData.ReadByteSeq(crossRealmGuid[2]);
 
     // attempt add selected player
 
@@ -176,53 +183,53 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
             // tell the player that they were invited but it failed as they were already in a group
             WorldPacket data(SMSG_GROUP_INVITE, 45);
 
+            data.WriteBit(1);                                   // (this + 353) - Already in group
+            data.WriteBit(0);
             data.WriteBit(invitedGuid[4]);
 
-            data.WriteBit(0);
-            data.WriteBits(strlen(GetPlayer()->GetName()), 7); // Inviter name length
-
-            data.WriteBit(0); // Inverse already in group
+            data.WriteBits(strlen(GetPlayer()->GetName()), 6);  // Inviter name length
 
             data.WriteBit(invitedGuid[2]);
+
+            data.WriteBit(0);                                   // (this + 33)
+            data.WriteBit(0);                                   // (this + 32)
+
             data.WriteBit(invitedGuid[3]);
-            data.WriteBit(invitedGuid[5]);
-            data.WriteBit(invitedGuid[1]);
             data.WriteBit(invitedGuid[7]);
-            data.WriteBit(invitedGuid[0]);
 
-            data.WriteBits(0, 9); // Realm name
-
-            data.WriteBit(invitedGuid[6]);
-
-            data.WriteBits(0, 24); // Count 2
-
+            data.WriteBits(0, 8);                               // Realm name
             data.WriteBit(0);
 
-            data.FlushBits();
+            data.WriteBit(invitedGuid[0]);
+            data.WriteBit(invitedGuid[5]);
 
-            data.WriteByteSeq(invitedGuid[1]);
-            data << int32(0);
+            data.WriteBits(0, 22);                              // Count 2
 
-            data.WriteByteSeq(invitedGuid[4]);
+            data.WriteBit(invitedGuid[6]);
+            data.WriteBit(invitedGuid[1]);
+
+            data << int32(0);                                   // unk
+            data << uint64(0);                                  // unk
+
             data.WriteByteSeq(invitedGuid[3]);
-            data.WriteByteSeq(invitedGuid[6]);
             data.WriteByteSeq(invitedGuid[5]);
 
             data << int32(0);
-            data << int32(getMSTime());
+            // data.append(realm name);
+            data.WriteString(GetPlayer()->GetName()); // inviter name
+            data << int32(0);
 
-            data.WriteByteSeq(invitedGuid[0]);
             data.WriteByteSeq(invitedGuid[7]);
+            data.WriteByteSeq(invitedGuid[4]);
+            data.WriteByteSeq(invitedGuid[1]);
 
             // for count2 { int32(0) }
 
-            data << int32(0);
-
-            // data.append(realm name);
-
-            data.WriteString(GetPlayer()->GetName()); // inviter name
-
             data.WriteByteSeq(invitedGuid[2]);
+            data.WriteByteSeq(invitedGuid[6]);
+            data.WriteByteSeq(invitedGuid[0]);
+
+            //data << int32(getMSTime());
 
             player->GetSession()->SendPacket(&data);
         }
@@ -263,6 +270,12 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
             delete group;
             return;
         }
+        // We must create group with inviter player before
+        if (!group->AddMember(GetPlayer()))
+        {
+            delete group;
+            return;
+        }
     }
     else
     {
@@ -277,53 +290,53 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
     WorldPacket data(SMSG_GROUP_INVITE, 45);
 
+    data.WriteBit(0);                                   // Inverse already in group
+    data.WriteBit(0);
     data.WriteBit(invitedGuid[4]);
 
-    data.WriteBit(0);
-    data.WriteBits(strlen(GetPlayer()->GetName()), 7); // Inviter name length
-
-    data.WriteBit(1); // Inverse already in group
+    data.WriteBits(strlen(GetPlayer()->GetName()), 6);  // Inviter name length
 
     data.WriteBit(invitedGuid[2]);
-    data.WriteBit(invitedGuid[3]);
-    data.WriteBit(invitedGuid[5]);
-    data.WriteBit(invitedGuid[1]);
-    data.WriteBit(invitedGuid[7]);
-    data.WriteBit(invitedGuid[0]);
-
-    data.WriteBits(0, 9); // Realm name
-
-    data.WriteBit(invitedGuid[6]);
-
-    data.WriteBits(0, 24); // Count 2
 
     data.WriteBit(0);
+    data.WriteBit(1);
 
-    data.FlushBits();
+    data.WriteBit(invitedGuid[3]);
+    data.WriteBit(invitedGuid[7]);
 
-    data.WriteByteSeq(invitedGuid[1]);
-    data << int32(0);
+    data.WriteBits(0, 8);                               // Realm name
+    data.WriteBit(0);
 
-    data.WriteByteSeq(invitedGuid[4]);
+    data.WriteBit(invitedGuid[0]);
+    data.WriteBit(invitedGuid[5]);
+
+    data.WriteBits(0, 22);                              // Count 2
+
+    data.WriteBit(invitedGuid[6]);
+    data.WriteBit(invitedGuid[1]);
+
+    data << int32(0);                                   // unk
+    data << uint64(0);                                  // unk
+
     data.WriteByteSeq(invitedGuid[3]);
-    data.WriteByteSeq(invitedGuid[6]);
     data.WriteByteSeq(invitedGuid[5]);
 
     data << int32(0);
-    data << int32(getMSTime());
+    // data.append(realm name);
+    data.WriteString(GetPlayer()->GetName()); // inviter name
+    data << int32(0);
 
-    data.WriteByteSeq(invitedGuid[0]);
     data.WriteByteSeq(invitedGuid[7]);
+    data.WriteByteSeq(invitedGuid[4]);
+    data.WriteByteSeq(invitedGuid[1]);
 
     // for count2 { int32(0) }
 
-    data << int32(0);
-
-    // data.append(realm name);
-
-    data.WriteString(GetPlayer()->GetName()); // invited name
-
     data.WriteByteSeq(invitedGuid[2]);
+    data.WriteByteSeq(invitedGuid[6]);
+    data.WriteByteSeq(invitedGuid[0]);
+
+    //data << int32(getMSTime());
 
     player->GetSession()->SendPacket(&data);
 
@@ -335,11 +348,10 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE_RESPONSE");
 
     recvData.read_skip<uint8>(); // unk
-    recvData.ReadBit();
     bool accept = recvData.ReadBit();
+    recvData.ReadBit();
 
     Group* group = GetPlayer()->GetGroupInvite();
-
     if (!group)
         return;
 
@@ -550,6 +562,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
     group->ChangeLeader(guid);
     group->SendUpdate();
 }
+
 /* TODO: FIXME FOR 5.0.5 */
 void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
 {
@@ -620,6 +633,7 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     else
         SendPacket(&data);
 }
+
 void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_DISBAND");
@@ -1402,13 +1416,16 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
     return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_PARTY_MEMBER_STATS");
+
     ObjectGuid Guid;
     recvData.read_skip<uint8>();
 
-    uint8 bitOrder[8] = {2, 0, 1, 3, 6, 4, 5, 7};
+    uint8 bitOrder[8] = { 7, 1, 4, 3, 6, 2, 5, 0 };
     recvData.ReadBitInOrder(Guid, bitOrder);
 
-    uint8 byteOrder[8] = {3, 0, 7, 4, 1, 5, 2, 6};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 7, 0, 4, 2, 1, 6, 5, 3 };
     recvData.ReadBytesSeq(Guid, byteOrder);
 
     Player* player = HashMapHolder<Player>::Find(Guid);
