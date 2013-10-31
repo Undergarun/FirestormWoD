@@ -18047,20 +18047,18 @@ void Unit::SendMoveRoot(uint32 value)
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
     
-    uint8 bitOrder[8] = {4, 6, 3, 1, 0, 2, 5, 7};
+    uint8 bitOrder[8] = {2, 7, 0, 6, 5, 3, 1, 4};
     data.WriteBitInOrder(guid, bitOrder);
 
-    data.FlushBits();
-
+    data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
     data << uint32(value);
-    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
 
     SendMessageToSet(&data, true);
 }
@@ -18069,19 +18067,13 @@ void Unit::SendMoveUnroot(uint32 value)
 {
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
+    data << uint32(value);
     
-    uint8 bitOrder[8] = {2, 1, 0, 3, 7, 4, 5, 6};
+    uint8 bitOrder[8] = {2, 7, 1, 3, 5, 6, 4, 0};
     data.WriteBitInOrder(guid, bitOrder);
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
-    data << uint32(value);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
+    uint8 byteOrder[8] = {4, 2, 1, 6, 5, 7, 0, 3};
+    data.WriteBytesSeq(guid, byteOrder);
 
     SendMessageToSet(&data, true);
 }
