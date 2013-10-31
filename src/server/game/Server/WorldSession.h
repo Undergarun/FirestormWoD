@@ -598,6 +598,7 @@ class WorldSession
         void HandleGroupAssistantLeaderOpcode(WorldPacket& recvData);
         void HandleGroupEveryoneIsAssistantOpcode(WorldPacket& recvData);
         void HandlePartyAssignmentOpcode(WorldPacket& recvData);
+        void HandleRolePollBegin(WorldPacket& recvData);
 
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);

@@ -227,13 +227,13 @@ enum Opcodes
     CMSG_GROUP_DISBAND                                = 0x165E, // 5.4.0 17399
     CMSG_GROUP_INVITE                                 = 0x121E, // 5.4.0 17399
     CMSG_GROUP_INVITE_RESPONSE                        = 0x1B0A, // 5.4.0 17399
-    CMSG_GROUP_RAID_CONVERT                           = 0x000,  // 5.0.5 16048
+    CMSG_GROUP_RAID_CONVERT                           = 0x161B, // 5.4.0 17399
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x000,  // 5.0.5 16048
-    CMSG_GROUP_SET_LEADER                             = 0x000,  // 5.0.5 16048
-    CMSG_GROUP_SET_ROLES                              = 0x000,  // 5.0.5 16048
+    CMSG_GROUP_SET_LEADER                             = 0x17DF, // 5.4.0 17399
+    CMSG_GROUP_SET_ROLES                              = 0x1AC7, // 5.4.0 17399
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x000,  // 5.0.5 16048
     CMSG_GROUP_UNINVITE                               = 0x000,  // 5.0.5 16048
-    CMSG_GROUP_UNINVITE_GUID                          = 0x000,  // 5.0.5 16048
+    CMSG_GROUP_UNINVITE_GUID                          = 0x1BCF, // 5.4.0 17399
     CMSG_GUILD_ACCEPT                                 = 0x000,  // 5.0.5 16048
     CMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0x000,  // 5.0.5 16048
     CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY             = 0x000,  // 5.0.5 16048
@@ -423,8 +423,9 @@ enum Opcodes
     CMSG_QUEST_NPC_QUERY                              = 0x000,  // 5.0.5 16048
     CMSG_QUEST_POI_QUERY                              = 0x000,  // 5.0.5 16048
     CMSG_QUEST_QUERY                                  = 0x000,  // 5.0.5 16048
-    CMSG_RAID_LEADER_READY_CHECK                      = 0x000,  // 5.0.5 16048
-    CMSG_RAID_CONFIRM_READY_CHECK                     = 0x000,  // 5.0.5 16048
+    CMSG_RAID_LEADER_READY_CHECK                      = 0x1307, // 5.4.0 17399
+    CMSG_RAID_CONFIRM_READY_CHECK                     = 0x124E, // 5.4.0 17399
+    CMSG_RAID_TARGET_UPDATE                           = 0x1E16, // 5.4.0 17399
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x000,  // 5.0.5 16048
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0x1A0E, // 5.4.0 17399
     CMSG_READ_ITEM                                    = 0x000,  // 5.0.5 16048
@@ -459,7 +460,7 @@ enum Opcodes
     CMSG_RESET_INSTANCES                              = 0x000,  // 5.0.5 16048
     CMSG_RESURRECT_RESPONSE                           = 0x000,  // 5.0.5 16048
     CMSG_RETURN_TO_GRAVEYARD                          = 0x122A, // 5.4.0 17399
-    CMSG_ROLE_POLL_BEGIN                              = 0x000,  // 5.0.5 16048
+    CMSG_ROLE_POLL_BEGIN                              = 0x1A1E, // 5.4.0 17399
     CMSG_SAVE_CUF_PROFILES                            = 0x000,  // 5.0.5 16048
     CMSG_SAVE_PLAYER                                  = 0x000,  // 5.0.5 16048
     CMSG_SEARCH_LFG_JOIN                              = 0x000,  // 5.0.5 16048
@@ -568,7 +569,6 @@ enum Opcodes
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_MOVE                                  = 0x717,  // 5.4.0 17399 CUSTOM OPCODE, client patch
     CMSG_CORPSE_QUERY                                 = 0x000,  // 5.0.5 16048
-    CMSG_RAID_TARGET_UPDATE                           = 0x000,  // 5.0.5 16048
 
     // MSG
     MSG_INSPECT_ARENA_TEAMS                           = 0x000,  // 5.0.5 16048
@@ -975,13 +975,11 @@ enum Opcodes
     SMSG_GROUP_ACTION_THROTTLED                       = 0x429,  // 5.4.0 17399 (JamList)
     SMSG_GROUP_CANCEL                                 = 0x000,  // 5.0.5 16048
     SMSG_GROUP_DECLINE                                = 0x12D1, // 5.4.0 17399
-    SMSG_GROUP_DESTROYED                              = 0x000,  // 5.0.5 16048
+    SMSG_GROUP_DESTROYED                              = 0x1279, // 5.4.0 17399 -- Not sure, can be 0x16AD !
     SMSG_GROUP_INVITE                                 = 0x01C,  // 5.4.0 17399
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x000,  // 5.0.5 16048
-    SMSG_GROUP_NEW_LEADER                             = 0x43F,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_GROUP_SET_LEADER                             = 0x000,  // 0xA1A Not sure !
-    SMSG_GROUP_SET_ROLE                               = 0x000,  // 5.0.5 16048
-    SMSG_GROUP_UNINVITE                               = 0x000,  // 5.0.5 16048
+    SMSG_GROUP_SET_LEADER                             = 0x43F,  // 5.4.0 17399
+    SMSG_GROUP_UNINVITE                               = 0x16AD, // 5.4.0 17399 -- Not sure, can be 0x1279 !
     SMSG_GUILD_ACHIEVEMENT_DATA                       = 0x000,  // 5.0.5 16048
     SMSG_GUILD_ACHIEVEMENT_DELETED                    = 0x000,  // 5.0.5 16048
     SMSG_GUILD_ACHIEVEMENT_EARNED                     = 0x000,  // 5.0.5 16048
@@ -1330,12 +1328,12 @@ enum Opcodes
     SMSG_RAID_INSTANCE_INFO                           = 0x000,  // 5.0.5 16048
     SMSG_RAID_INSTANCE_MESSAGE                        = 0x41F,  // 5.4.0 17399 (JamList)
     SMSG_RAID_MARKERS_CHANGED                         = 0x094,  // 5.4.0 17399 (JamList)
-    SMSG_RAID_READY_CHECK_COMPLETED                   = 0x085,  // 5.4.0 17399 (JamList)
-    SMSG_RAID_READY_CHECK_RESPONSE                    = 0x529,  // 5.4.0 17399 (JamList)
-    SMSG_RAID_READY_CHECK_STARTED                     = 0x12D,  // 5.4.0 17399 (JamList)
+    SMSG_RAID_READY_CHECK_COMPLETED                   = 0x085,  // 5.4.0 17399
+    SMSG_RAID_READY_CHECK_RESPONSE                    = 0x529,  // 5.4.0 17399
+    SMSG_RAID_READY_CHECK_STARTED                     = 0x12D,  // 5.4.0 17399
     SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0x000,  // 5.0.5 16048
     SMSG_RAID_SUMMON_FAILED                           = 0x000,  // 5.0.5 16048
-    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x597,  // 5.4.0 17399 (JamList)
+    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x597,  // 5.4.0 17399
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0x09E,  // 5.4.0 17399 (JamList)
     SMSG_RANDOMIZE_CHAR_NAME                          = 0x8B9,  // 5.4.0 17399 (JamList)
     SMSG_RANDOM_ROLL                                  = 0x821,  // 5.4.0 17399 (JamList) (NYI)
@@ -1369,9 +1367,8 @@ enum Opcodes
     SMSG_RESURRECT_REQUEST                            = 0x511,  // 5.4.0 17399 (JamList)
     SMSG_RESUME_TOKEN                                 = 0x0AA,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_RESYNC_RUNES                                 = 0x52C,  // 5.4.0 17399 (JamList)
-    SMSG_ROLE_CHANGED_INFORM                          = 0x88B,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_ROLE_POLL_BEGIN                              = 0x000,  // 5.0.5 16048
-    SMSG_ROLL_POLL_INFORM                             = 0x80F,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_ROLE_CHANGED_INFORM                          = 0x88B,  // 5.4.0 17399 (JamList)
+    SMSG_ROLL_POLL_INFORM                             = 0x80F,  // 5.4.0 17399 (JamList)
     SMSG_RWHOIS                                       = 0x000,  // 5.0.5 16048
     SMSG_SCENARIO_POI                                 = 0x89C,  // 5.4.0 17399 SCENARIO systeme (NYI)
     SMSG_SCENARIO_PROGRESS_UPDATE                     = 0x198,  // 5.4.0 17399 SCENARIO systeme (NYI)

@@ -266,6 +266,7 @@ class Group
         void SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid);
         void SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag);
         void setGroupMemberRole(uint64 guid, uint32 role);
+        uint32 getGroupMemberRole(uint64 guid);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
         Difficulty GetDifficulty(bool isRaid) const;
