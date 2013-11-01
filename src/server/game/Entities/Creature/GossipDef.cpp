@@ -167,31 +167,60 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 {
+    ObjectGuid guid = objectGUID;
+
     WorldPacket data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
-    data << uint64(objectGUID);
-    data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
-    data << uint32(0); //unk
     data << uint32(titleTextId);
-    
-    data << uint32(_gossipMenu.GetMenuItemCount());     // max count 0x20
+    data << uint32(0);                                  // Friendship faction
+    data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
+
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBits(_gossipMenu.GetMenuItems().size(), 20);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
 
     for (GossipMenuItemContainer::const_iterator itr = _gossipMenu.GetMenuItems().begin(); itr != _gossipMenu.GetMenuItems().end(); ++itr)
     {
         GossipMenuItem const& item = itr->second;
-        data << uint32(itr->first);
-        data << uint8(item.MenuItemIcon);
-        data << uint8(item.IsCoded);                    // makes pop up box password
-        data << uint32(item.BoxMoney);                  // money required to open menu, 2.0.3
-        data << item.Message;                           // text for gossip item
-        data << item.BoxMessage;                        // accept text (related to money) pop up box, 2.0.3
+        data.WriteBits(item.Message.size(), 12);
+        data.WriteBits(item.BoxMessage.size(), 12);
     }
-    data << uint32(_questMenu.GetMenuItemCount());      // max count 0x20
+
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBits(_questMenu.GetMenuItemCount(), 19);
 
     for (uint32 iI = 0; iI < _questMenu.GetMenuItemCount(); ++iI)
     {
         QuestMenuItem const& item = _questMenu.GetItem(iI);
         uint32 questID = item.QuestId;
         Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+        std::string title = quest->GetTitle();
+
+        int locale = _session->GetSessionDbLocaleIndex();
+        if (locale >= 0)
+            if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
+                ObjectMgr::GetLocaleString(localeData->Title, locale, title);
+
+        data.WriteBits(title.size(), 9);
+        data.WriteBit(0);                   // 3.3.3 changes icon: blue question or yellow exclamation
+    }
+
+    data.WriteBit(guid[5]);
+
+    for (uint32 iI = 0; iI < _questMenu.GetMenuItemCount(); ++iI)
+    {
+        QuestMenuItem const& item = _questMenu.GetItem(iI);
+        uint32 questID = item.QuestId;
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+        std::string title = quest->GetTitle();
+
+        int locale = _session->GetSessionDbLocaleIndex();
+        if (locale >= 0)
+            if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
+                ObjectMgr::GetLocaleString(localeData->Title, locale, title);
 
         Player* plr = _session->GetPlayer();
 
@@ -203,22 +232,28 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
             questStat = 1;
         else if(questStat == QUEST_STATUS_INCOMPLETE)
             questStat = 2;
-        
+
+        data << uint32(0);                              // quest flags 2
+        data << uint32(questStat);                      // quest icon
+        data.append(title.c_str(), title.size());       // quest title
+        data << uint32(quest->GetFlags());              // quest flags
+        data << int32(quest->GetQuestLevel());          // quest level
         data << uint32(questID);
-        data << uint32(questStat);
-        data << int32(quest->GetQuestLevel());
-        data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-        data << uint32(0); // unk
-        data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-        std::string title = quest->GetTitle();
-
-        int locale = _session->GetSessionDbLocaleIndex();
-        if (locale >= 0)
-            if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                ObjectMgr::GetLocaleString(localeData->Title, locale, title);
-
-        data << title;                                  // max 0x200
     }
+
+    for (GossipMenuItemContainer::const_iterator itr = _gossipMenu.GetMenuItems().begin(); itr != _gossipMenu.GetMenuItems().end(); ++itr)
+    {
+        GossipMenuItem const& item = itr->second;
+        data << uint32(item.BoxMoney);                                  // money required to open menu, 2.0.3
+        data << uint32(itr->first);
+        data.append(item.BoxMessage.c_str(), item.BoxMessage.size());
+        data << uint8(item.IsCoded);                                    // makes pop up box password
+        data.append(item.Message.c_str(), item.Message.size());
+        data << uint8(item.MenuItemIcon);
+    }
+
+    uint8 byteOrder[8] = {3, 4, 7, 2, 1, 6, 0, 5};
+    data.WriteBytesSeq(guid, byteOrder);
 
     _session->SendPacket(&data);
 }

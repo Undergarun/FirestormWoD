@@ -367,7 +367,7 @@ enum Opcodes
     CMSG_NAME_QUERY                                   = 0x16DB, // 5.4.0 17399
     CMSG_NEW_SPELL_SLOT                               = 0x000,  // 5.0.5 16048
     CMSG_NEXT_CINEMATIC_CAMERA                        = 0x000,  // 5.0.5 16048
-    CMSG_NPC_TEXT_QUERY                               = 0x000,  // 5.0.5 16048
+    CMSG_NPC_TEXT_QUERY                               = 0x108B, // 5.4.0 17399
     CMSG_OBJECT_UPDATE_FAILED                         = 0x000,  // 5.0.5 16048
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x000,  // 5.0.5 16048
     CMSG_OFFER_PETITION                               = 0x000,  // 5.0.5 16048
@@ -970,7 +970,7 @@ enum Opcodes
     SMSG_GM_UNSQUELCH                                 = 0x915,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GOD_MODE                                     = 0x533,  // 5.4.0 17399 (JamList)
     SMSG_GOSSIP_COMPLETE                              = 0x000,  // 5.0.5 16048
-    SMSG_GOSSIP_MESSAGE                               = 0x000,  // 5.0.5 16048
+    SMSG_GOSSIP_MESSAGE                               = 0x1508, // 5.4.0 17399
     SMSG_GOSSIP_POI                                   = 0x000,  // 5.0.5 16048
     SMSG_GROUP_ACTION_THROTTLED                       = 0x429,  // 5.4.0 17399 (JamList)
     SMSG_GROUP_CANCEL                                 = 0x000,  // 5.0.5 16048
@@ -1207,7 +1207,7 @@ enum Opcodes
     SMSG_NOTIFICATION                                 = 0x000,  // 5.0.5 16048
     SMSG_NOTIFY_DANCE                                 = 0x000,  // 5.0.5 16048
     SMSG_NOTIFY_DEST_LOC_SPELL_CAST                   = 0x000,  // 5.0.5 16048
-    SMSG_NPC_TEXT_UPDATE                              = 0x03B,  // 5.4.0 17399 (JamList)
+    SMSG_NPC_TEXT_UPDATE                              = 0x886,  // 5.4.0 17399
     SMSG_NPC_WONT_TALK                                = 0x000,  // 5.0.5 16048
     SMSG_OFFER_PETITION_ERROR                         = 0x126,  // 5.4.0 17399 (JamList)
     SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA         = 0x43E,  // 5.4.0 17399 (JamList)

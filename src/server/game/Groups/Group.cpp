@@ -2141,8 +2141,16 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteBit(groupGuid[7]);
     data.WriteBits(memberCount, 21);
 
+    data.WriteBits(strlen(player->GetName()), 6);
+    uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
+    data.WriteBitInOrder(playerGUID, bitsSelfOrder);
+
+
     for (uint32 i = 0; i < memberCount; i++)
     {
+        if (memberGuids[i] == ObjectGuid(playerGUID))
+            continue;
+
         data.WriteBits(memberNameLength[i], 6);
 
         uint8 bitsOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
