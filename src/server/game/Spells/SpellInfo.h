@@ -192,6 +192,10 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
     SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER     = 0x00080000,  // Periodic auras with this flag keep old periodic timer when refreshing
+    // @todo: 4.3.4 core
+    //SPELL_ATTR0_CU_CAN_STACK_FROM_DIFF_CASTERS   = 0x00100000,  // Collect auras with diff casters in one stackable aura
+    //SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000,  // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
+    //SPELL_ATTR0_CU_BINARY                        = 0x00400000,  // Binary spells can be fully resisted
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };

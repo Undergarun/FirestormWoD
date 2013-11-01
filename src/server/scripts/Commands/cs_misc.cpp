@@ -2952,7 +2952,7 @@ public:
                             << ", " << 0 << ", " << entry->Area << ", " << entry->Map << ", " << entry->BagFamily << ", " << entry->TotemCategory
                             << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0
                             << ", " << entry->SocketBonus << ", " << entry->GemProperties << ", " << entry->ArmorDamageModifier << ", " << entry->Duration << ", " << entry->ItemLimitCategory
-                            << ", " << entry->HolidayId << ", " << entry->StatScalingFactor << ", " << entry->CurrencySubstitutionId << ", " << entry->CurrencySubstitutionCount << ", " << 0 << ", " << 16135 << ");\n";
+                            << ", " << entry->HolidayId << ", " << entry->StatScalingFactor << ", " << entry->CurrencySubstitutionId << ", " << entry->CurrencySubstitutionCount << ", " << 0 << ", " << 17399 << ");\n";
                 }
         }
         file.close();

@@ -83,6 +83,11 @@ namespace OpcodeTools
                 uint nb = f.CalcGuildFromOpcode(opcode);
                 guildBox1.Text = String.Format("{0:x}", nb);
             }
+            else if (f.IsSpecialMovementOpcode(opcode))
+            {
+                uint nb = f.CalcMovementFromOpcode(opcode);
+                MovementBox.Text = String.Format("{0}", nb);
+            }
             IgnoreTextChanged = false;
 		}
 
@@ -152,6 +157,19 @@ namespace OpcodeTools
             }
         }
 
+        private void MovementBox_TextChanged(object sender, EventArgs e)
+        {
+            if (IgnoreTextChanged)
+                return;
+            try
+            {
+                SetOpcode(f.CalcOpcodeFromMovement(Convert.ToUInt32(MovementBox.Text)));
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         private void SetOpcode(uint opcode)
         {
             IgnoreTextChanged = true;
@@ -177,6 +195,11 @@ namespace OpcodeTools
             }
             // choose the newest by default
             Versions.SelectedIndex = Versions.Items.Count - 1;
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
         }
 	}
 }
