@@ -117,13 +117,12 @@ public:
             { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
             { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            "", NULL },
             { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
-            { "possess",            SEC_ADMINISTRATOR,      false, &HandlePossessCommand,                "", NULL },
-            { "unpossess",          SEC_ADMINISTRATOR,      false, &HandleUnPossessCommand,              "", NULL },
-            { "bindsight",          SEC_ADMINISTRATOR,      false, &HandleBindSightCommand,              "", NULL },
-            { "unbindsight",        SEC_ADMINISTRATOR,      false, &HandleUnbindSightCommand,            "", NULL },
-            { "playall",            SEC_GAMEMASTER,         false, &HandlePlayAllCommand,                "", NULL },
-            { "selectfaction",      SEC_ADMINISTRATOR,      false, &HandleSelectFactionCommand,          "", NULL },
-            { "outItemTemplate",    SEC_ADMINISTRATOR,      false, &HandleOutItemTemplateCommand,        "", NULL },
+            { "possess",            SEC_ADMINISTRATOR,      false, &HandlePossessCommand,               "", NULL },
+            { "unpossess",          SEC_ADMINISTRATOR,      false, &HandleUnPossessCommand,             "", NULL },
+            { "bindsight",          SEC_ADMINISTRATOR,      false, &HandleBindSightCommand,             "", NULL },
+            { "unbindsight",        SEC_ADMINISTRATOR,      false, &HandleUnbindSightCommand,           "", NULL },
+            { "playall",            SEC_GAMEMASTER,         false, &HandlePlayAllCommand,               "", NULL },
+            { "selectfaction",      SEC_ADMINISTRATOR,      false, &HandleSelectFactionCommand,         "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         return commandTable;
@@ -2923,41 +2922,6 @@ public:
         return true;
     }
 
-    static bool HandleOutItemTemplateCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        std::ofstream file("item_template.sql");
-        for (uint32 i = 0; i < sItemStore.GetNumRows(); ++i)
-        {
-            if (const ItemEntry* itemEntry = sItemStore.LookupEntry(i))
-                if (const ItemSparseEntry* entry = sItemSparseStore.LookupEntry(i))
-                {
-                    file << "REPLACE INTO item_template VALUES (" << itemEntry->ID << ", " << itemEntry->Class << ", " << itemEntry->SubClass << ", " << itemEntry->SoundOverrideSubclass
-                        << ", \"" << entry->Name << "\", " << itemEntry->DisplayId << ", " << entry->Quality << ", " << entry->Flags << ", " << entry->Flags2 << ", " << entry->Unk430_1
-                        << ", " << entry->Unk430_2 << ", " << entry->BuyCount << ", " << entry->BuyPrice << ", " << entry->SellPrice << ", " << entry->InventoryType << ", " << entry->AllowableClass
-                        << ", " << entry->AllowableRace << ", " << entry->ItemLevel << ", " << entry->RequiredLevel << ", " << entry->RequiredSkill << ", " << entry->RequiredSkillRank
-                        << ", " << entry->RequiredSpell << ", " << entry->RequiredHonorRank << ", " << entry->RequiredCityRank << ", " << entry->RequiredReputationFaction << ", " << entry->RequiredReputationRank
-                        << ", " << entry->MaxCount << ", " << entry->Stackable << ", " << entry->ContainerSlots;
-
-                        for (uint8 i = 0; i < 10; ++i)
-                            file << ", " << entry->ItemStatType[i] << ", " << entry->ItemStatValue[i] << ", " << entry->ItemStatUnk1[i] << ", " << entry->ItemStatUnk2[i];
-
-                        file << ", " << entry->ScalingStatDistribution << ", " << entry->DamageType << ", " << entry->Delay << ", " << entry->RangedModRange;
-
-                        for (uint8 i = 0; i < 5; ++i)
-                            file << ", " << entry->SpellId[i] << ", " << entry->SpellTrigger[i] << ", " << entry->SpellCharges[i] << ", " << entry->SpellCooldown[i] << ", " << entry->SpellCategory[i]
-                                      << ", " << entry->SpellCategoryCooldown[i];
-
-                        file << ", " << entry->Bonding << ", \"" << entry->Description << "\", " << entry->PageText << ", " << entry->LanguageID << ", " << entry->PageMaterial << ", " << entry->StartQuest
-                            << ", " << entry->LockID << ", " << entry->Material << ", " << entry->Sheath << ", " << entry->RandomProperty << ", " << entry->RandomSuffix << ", " << entry->ItemSet
-                            << ", " << 0 << ", " << entry->Area << ", " << entry->Map << ", " << entry->BagFamily << ", " << entry->TotemCategory
-                            << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0
-                            << ", " << entry->SocketBonus << ", " << entry->GemProperties << ", " << entry->ArmorDamageModifier << ", " << entry->Duration << ", " << entry->ItemLimitCategory
-                            << ", " << entry->HolidayId << ", " << entry->StatScalingFactor << ", " << entry->CurrencySubstitutionId << ", " << entry->CurrencySubstitutionCount << ", " << 0 << ", " << 17399 << ");\n";
-                }
-        }
-        file.close();
-        return true;
-    }
 };
 
 void AddSC_misc_commandscript()
