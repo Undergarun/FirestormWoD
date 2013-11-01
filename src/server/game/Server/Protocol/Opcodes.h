@@ -975,11 +975,11 @@ enum Opcodes
     SMSG_GROUP_ACTION_THROTTLED                       = 0x429,  // 5.4.0 17399 (JamList)
     SMSG_GROUP_CANCEL                                 = 0x000,  // 5.0.5 16048
     SMSG_GROUP_DECLINE                                = 0x12D1, // 5.4.0 17399
-    SMSG_GROUP_DESTROYED                              = 0x1279, // 5.4.0 17399 -- Not sure, can be 0x16AD !
+    SMSG_GROUP_DESTROYED                              = 0x000, // 5.4.0 17399 -- Not sure, can be 0x16AD !
     SMSG_GROUP_INVITE                                 = 0x01C,  // 5.4.0 17399
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x000,  // 5.0.5 16048
     SMSG_GROUP_SET_LEADER                             = 0x43F,  // 5.4.0 17399
-    SMSG_GROUP_UNINVITE                               = 0x16AD, // 5.4.0 17399 -- Not sure, can be 0x1279 !
+    SMSG_GROUP_UNINVITE                               = 0x000,  // 5.4.0 17399 -- Not sure, can be 0x1279 !
     SMSG_GUILD_ACHIEVEMENT_DATA                       = 0x000,  // 5.0.5 16048
     SMSG_GUILD_ACHIEVEMENT_DELETED                    = 0x000,  // 5.0.5 16048
     SMSG_GUILD_ACHIEVEMENT_EARNED                     = 0x000,  // 5.0.5 16048

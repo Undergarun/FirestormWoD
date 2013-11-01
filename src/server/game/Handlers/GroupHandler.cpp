@@ -259,6 +259,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     if (!group)
     {
         group = new Group;
+
         // new group: if can't add then delete
         if (!group->AddLeaderInvite(GetPlayer()))
         {
@@ -270,12 +271,8 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
             delete group;
             return;
         }
-        // We must create group with inviter player before
-        if (!group->AddMember(GetPlayer()))
-        {
-            delete group;
-            return;
-        }
+
+        group->Create(GetPlayer());
     }
     else
     {

@@ -363,21 +363,21 @@ enum SpellCategory
 
 enum SpellCategoryFlags
 {
-    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
+    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // Unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT        = 0x08
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
 {
-    0xff9d9d9d,        //GREY
-    0xffffffff,        //WHITE
-    0xff1eff00,        //GREEN
-    0xff0070dd,        //BLUE
-    0xffa335ee,        //PURPLE
-    0xffff8000,        //ORANGE
-    0xffe6cc80,        //LIGHT YELLOW
-    0xffe6cc80         //LIGHT YELLOW
+    0xff9d9d9d,        // GREY
+    0xffffffff,        // WHITE
+    0xff1eff00,        // GREEN
+    0xff0070dd,        // BLUE
+    0xffa335ee,        // PURPLE
+    0xffff8000,        // ORANGE
+    0xffe6cc80,        // LIGHT YELLOW
+    0xffe6cc80         // LIGHT YELLOW
 };
 
 // ***********************************
@@ -800,9 +800,9 @@ enum SpellClickUserTypes
 
 enum SpellClickCastFlags
 {
-    NPC_CLICK_CAST_CASTER_CLICKER       = 0x01,
-    NPC_CLICK_CAST_TARGET_CLICKER       = 0x02,
-    NPC_CLICK_CAST_ORIG_CASTER_OWNER    = 0x04,
+    NPC_CLICK_CAST_CASTER_CLICKER      = 0x01,
+    NPC_CLICK_CAST_TARGET_CLICKER      = 0x02,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04,
 };
 
 enum SheathTypes
@@ -845,31 +845,31 @@ enum CharacterSlot
 
 enum Language
 {
-    LANG_UNIVERSAL      = 0,
-    LANG_ORCISH         = 1,
-    LANG_DARNASSIAN     = 2,
-    LANG_TAURAHE        = 3,
-    LANG_DWARVISH       = 6,
-    LANG_COMMON         = 7,
-    LANG_DEMONIC        = 8,
-    LANG_TITAN          = 9,
-    LANG_THALASSIAN     = 10,
-    LANG_DRACONIC       = 11,
-    LANG_KALIMAG        = 12,
-    LANG_GNOMISH        = 13,
-    LANG_TROLL          = 14,
-    LANG_GUTTERSPEAK    = 33,
-    LANG_DRAENEI        = 35,
-    LANG_ZOMBIE         = 36,
-    LANG_GNOMISH_BINARY = 37,
-    LANG_GOBLIN_BINARY  = 38,
-    LANG_WORGEN         = 39,
-    LANG_GOBLIN         = 40,
-    LANG_PANDAREN_N     = 42,  //Pandaren neutral
-    LANG_PANDAREN_A     = 43,  //Pandaren Alliance
-    LANG_PANDAREN_H     = 44,  //Pandaren Horde
-    LANG_RIKKITUN       = 168,
-    LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
+    LANG_UNIVERSAL                     = 0,
+    LANG_ORCISH                        = 1,
+    LANG_DARNASSIAN                    = 2,
+    LANG_TAURAHE                       = 3,
+    LANG_DWARVISH                      = 6,
+    LANG_COMMON                        = 7,
+    LANG_DEMONIC                       = 8,
+    LANG_TITAN                         = 9,
+    LANG_THALASSIAN                    = 10,
+    LANG_DRACONIC                      = 11,
+    LANG_KALIMAG                       = 12,
+    LANG_GNOMISH                       = 13,
+    LANG_TROLL                         = 14,
+    LANG_GUTTERSPEAK                   = 33,
+    LANG_DRAENEI                       = 35,
+    LANG_ZOMBIE                        = 36,
+    LANG_GNOMISH_BINARY                = 37,
+    LANG_GOBLIN_BINARY                 = 38,
+    LANG_WORGEN                        = 39,
+    LANG_GOBLIN                        = 40,
+    LANG_PANDAREN_N                    = 42,           // Pandaren neutral
+    LANG_PANDAREN_A                    = 43,           // Pandaren Alliance
+    LANG_PANDAREN_H                    = 44,           // Pandaren Horde
+    LANG_RIKKITUN                      = 168,
+    LANG_ADDON                         = 0xFFFFFFFF    // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
 #define LANGUAGES_COUNT   25
@@ -1648,7 +1648,7 @@ enum SpellImmunity
 
 #define MAX_SPELL_IMMUNITY           7
 
-// target enum name consist of:
+// Target enum name consist of:
 // TARGET_[OBJECT_TYPE]_[REFERENCE_TYPE(skipped for caster)]_[SELECTION_TYPE(skipped for default)]_[additional specifiers(friendly, BACK_LEFT, etc.]
 enum Targets
 {
@@ -1678,7 +1678,7 @@ enum Targets
     TARGET_DEST_DYNOBJ_ALLY            = 29,
     TARGET_UNIT_SRC_AREA_ALLY          = 30,
     TARGET_UNIT_DEST_AREA_ALLY         = 31,
-    TARGET_DEST_CASTER_SUMMON          = 32, // front left, doesn't use radius
+    TARGET_DEST_CASTER_SUMMON          = 32, // Front left, doesn't use radius
     TARGET_UNIT_SRC_AREA_PARTY         = 33,
     TARGET_UNIT_DEST_AREA_PARTY        = 34,
     TARGET_UNIT_TARGET_PARTY           = 35,
@@ -1701,7 +1701,7 @@ enum Targets
     TARGET_GAMEOBJECT_DEST_AREA        = 52,
     TARGET_DEST_TARGET_ENEMY           = 53,
     TARGET_UNIT_CONE_ENEMY_54          = 54,
-    TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
+    TARGET_DEST_CASTER_FRONT_LEAP      = 55, // For a leap spell
     TARGET_UNIT_CASTER_AREA_RAID       = 56,
     TARGET_UNIT_TARGET_RAID            = 57,
     TARGET_UNIT_NEARBY_RAID            = 58,
