@@ -18128,12 +18128,12 @@ void Unit::SetRooted(bool apply)
             ObjectGuid guid = GetGUID();
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
     
-            uint8 bitOrder[8] = {7, 3, 0, 5, 6, 1, 2, 4};
+            uint8 bitOrder[8] = {4, 2, 5, 1, 0, 7, 6, 3};
             data.WriteBitInOrder(guid, bitOrder);
 
             data.FlushBits();
     
-            uint8 byteOrder[8] = {4, 2, 1, 7, 5, 3, 6, 0};
+            uint8 byteOrder[8] = {7, 5, 3, 0, 6, 1, 4, 2};
             data.WriteBytesSeq(guid, byteOrder);
 
             SendMessageToSet(&data, true);
@@ -18151,12 +18151,12 @@ void Unit::SetRooted(bool apply)
                 ObjectGuid guid = GetGUID();
                 WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
                     
-                uint8 bitOrder[8] = {4, 2, 5, 3, 0, 1, 6, 7};
+                uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
                 data.WriteBitInOrder(guid, bitOrder);
 
                 data.FlushBits();
     
-                uint8 byteOrder[8] = {7, 1, 2, 6, 5, 3, 4, 0};
+                uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
                 data.WriteBytesSeq(guid, byteOrder);
 
                 SendMessageToSet(&data, true);
@@ -20080,12 +20080,12 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
         ObjectGuid guid = GetGUID();
     
-        uint8 bitOrder[8] = {4, 2, 5, 3, 0, 1, 6, 7};
+        uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
         data.WriteBitInOrder(guid, bitOrder);
 
         data.FlushBits();
     
-        uint8 byteOrder[8] = {7, 1, 2, 6, 5, 3, 4, 0};
+        uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
         data.WriteBytesSeq(guid, byteOrder);
 
         SendMessageToSet(&data, false);
