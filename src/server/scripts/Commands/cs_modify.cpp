@@ -987,8 +987,8 @@ public:
         target->SendMessageToSet(&data, true);
 
         data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        uint8 bitOrder[8] = {0, 5, 2, 6, 7, 4, 1, 3};
-        data.WriteBitInOrder(guid, bitOrder);
+        uint8 bitOrder2[8] = {0, 5, 2, 6, 7, 4, 1, 3};
+        data.WriteBitInOrder(guid, bitOrder2);
 
         data.WriteByteSeq(guid[4]);
         data.WriteByteSeq(guid[5]);
