@@ -46,6 +46,8 @@
             this.spellBox = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.guildBox1 = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.MovementBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // opcodeDecBox
@@ -211,7 +213,7 @@
             this.label7.TabIndex = 23;
             this.label7.Text = "Guild Special (jam) hex";
             // 
-            // textBox1
+            // guildBox1
             // 
             this.guildBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.guildBox1.Location = new System.Drawing.Point(241, 104);
@@ -220,11 +222,33 @@
             this.guildBox1.TabIndex = 22;
             this.guildBox1.TextChanged += new System.EventHandler(this.guildBox1_TextChanged);
             // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(238, 138);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(141, 13);
+            this.label8.TabIndex = 25;
+            this.label8.Text = "Movement Special (jam) dec";
+            this.label8.Click += new System.EventHandler(this.label8_Click);
+            // 
+            // MovementBox
+            // 
+            this.MovementBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.MovementBox.Location = new System.Drawing.Point(241, 154);
+            this.MovementBox.Name = "MovementBox";
+            this.MovementBox.Size = new System.Drawing.Size(46, 20);
+            this.MovementBox.TabIndex = 24;
+            this.MovementBox.TextChanged += new System.EventHandler(this.MovementBox_TextChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(503, 211);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.MovementBox);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.guildBox1);
             this.Controls.Add(this.label6);
@@ -272,6 +296,8 @@
         private System.Windows.Forms.TextBox spellBox;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox guildBox1;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox MovementBox;
 	}
 }
 
