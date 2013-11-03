@@ -316,7 +316,7 @@ enum Opcodes
     CMSG_LF_GUILD_SET_GUILD_POST                      = 0x000,  // 5.0.5 16048
     CMSG_LIST_INVENTORY                               = 0x000,  // 5.0.5 16048
     CMSG_LOAD_SCREEN                                  = 0x160B, // 5.4.0 17399
-    CMSG_LOGOUT_CANCEL                                = 0x000,  // 5.0.5 16048
+    CMSG_LOGOUT_CANCEL                                = 0x1B62, // 5.4.0 17399
     CMSG_LOGOUT_REQUEST                               = 0x16E7, // 5.4.0 17399
     CMSG_LOG_DISCONNECT                               = 0x380,  // 5.4.0 17399
     CMSG_LOOT                                         = 0x000,  // 5.0.5 16048
@@ -368,8 +368,8 @@ enum Opcodes
     CMSG_NEW_SPELL_SLOT                               = 0x000,  // 5.0.5 16048
     CMSG_NEXT_CINEMATIC_CAMERA                        = 0x000,  // 5.0.5 16048
     CMSG_NPC_TEXT_QUERY                               = 0x108B, // 5.4.0 17399
-    CMSG_OBJECT_UPDATE_FAILED                         = 0x000,  // 5.0.5 16048
-    CMSG_OBJECT_UPDATE_RESCUED                        = 0x000,  // 5.0.5 16048
+    CMSG_OBJECT_UPDATE_FAILED                         = 0x1926, // 5.4.0 17399
+    CMSG_OBJECT_UPDATE_RESCUED                        = 0x1526, // 5.4.0 17399
     CMSG_OFFER_PETITION                               = 0x000,  // 5.0.5 16048
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
     CMSG_OPEN_ITEM                                    = 0x000,  // 5.0.5 16048
@@ -412,11 +412,11 @@ enum Opcodes
     CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0x000,  // 5.0.5 16048
     CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0x000,  // 5.0.5 16048
     CMSG_QUESTGIVER_HELLO                             = 0x000,  // 5.0.5 16048
-    CMSG_QUESTGIVER_QUERY_QUEST                       = 0x000,  // 5.0.5 16048
+    CMSG_QUESTGIVER_QUERY_QUEST                       = 0x1377, // 5.4.0 17399
     CMSG_QUESTGIVER_QUEST_AUTOLAUNCH                  = 0x000,  // 5.0.5 16048
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0x000,  // 5.0.5 16048
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY             = 0x000,  // 5.0.5 16048
-    CMSG_QUESTGIVER_STATUS_QUERY                      = 0x000,  // 5.0.5 16048
+    CMSG_QUESTGIVER_STATUS_QUERY                      = 0x17AE, // 5.4.0 17399
     CMSG_QUESTLOG_REMOVE_QUEST                        = 0x000,  // 5.0.5 16048
     CMSG_QUESTLOG_SWAP_QUEST                          = 0x000,  // 5.0.5 16048
     CMSG_QUEST_CONFIRM_ACCEPT                         = 0x000,  // 5.0.5 16048
@@ -510,7 +510,7 @@ enum Opcodes
     CMSG_SPELLCLICK                                   = 0x000,  // 5.0.5 16048
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x000,  // 5.0.5 16048
     CMSG_SPLIT_ITEM                                   = 0x161,  // 5.4.0 17399
-    CMSG_STANDSTATECHANGE                             = 0x000,  // 5.0.5 16048
+    CMSG_STANDSTATECHANGE                             = 0x1181, // 5.4.0 17399
     CMSG_START_QUEST                                  = 0x000,  // 5.0.5 16048
     CMSG_STOP_DANCE                                   = 0x000,  // 5.0.5 16048
     CMSG_STORE_LOOT_IN_SLOT                           = 0x000,  // 5.0.5 16048
@@ -563,7 +563,7 @@ enum Opcodes
     CMSG_WARGAME_START                                = 0x000,  // 5.0.5 16048
     CMSG_WHO                                          = 0x000,  // 5.0.5 16048
     CMSG_WHOIS                                        = 0x000,  // 5.0.5 16048
-    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x000,  // 5.0.5 16048
+    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x1646, // 5.4.0 17399
     CMSG_WORLD_TELEPORT                               = 0x000,  // 5.0.5 16048
     CMSG_WRAP_ITEM                                    = 0x000,  // 5.0.5 16048
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
