@@ -1,5 +1,5 @@
 update creature_template set rank = 1, minlevel = 65, maxlevel = 90 where entry in (28781, 32796);
-update creature_template set exp = 3 where entry in (27894, 28781, 32795, 32796);
+update creature_template set exp = 4 where entry in (27894, 28781, 32795, 32796);
 update creature_template set Health_mod = 15 where entry = 28781;
 update creature_template set Health_mod = 20 where entry = 32796;
 replace into creature_template 
