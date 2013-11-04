@@ -187,7 +187,7 @@ enum Opcodes
     CMSG_DISMISS_CRITTER                              = 0x000,  // 5.0.5 16048
     CMSG_DUEL_ACCEPTED                                = 0x000,  // 5.0.5 16048
     CMSG_DUEL_CANCELLED                               = 0x000,  // 5.0.5 16048
-    CMSG_DUEL_PROPOSED                                = 0x000,  // 5.0.5 16048
+    CMSG_DUEL_PROPOSED                                = 0x129B, // 5.4.0 17399
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0x000,  // 5.0.5 16048
     CMSG_EJECT_PASSENGER                              = 0x000,  // 5.0.5 16048
     CMSG_EMOTE                                        = 0x000,  // 5.0.5 16048
@@ -883,7 +883,7 @@ enum Opcodes
     SMSG_DUEL_COUNTDOWN                               = 0x805,  // 5.4.0 17399 (JamList)
     SMSG_DUEL_INBOUNDS                                = 0x40E,  // 5.4.0 17399 (JamList)
     SMSG_DUEL_OUT_OF_BOUNDS                           = 0x83E,  // 5.4.0 17399 (JamList)
-    SMSG_DUEL_REQUESTED                               = 0x80C,  // 5.4.0 17399 (JamList)
+    SMSG_DUEL_REQUESTED                               = 0x129B, // 5.4.0 17399
     SMSG_DUEL_WINNER                                  = 0x599,  // 5.4.0 17399 (JamList)
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x000,  // 5.0.5 16048
     SMSG_DUMP_OBJECTS_DATA                            = 0x58E,  // 5.4.0 17399 (JamList) (NYI)
