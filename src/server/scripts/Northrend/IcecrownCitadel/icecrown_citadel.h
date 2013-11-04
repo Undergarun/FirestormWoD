@@ -477,7 +477,7 @@ enum AchievementCriteriaIds
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013,
 };
 
-enum AchivementsId
+enum AchievementsId
 {
     I_M_ON_A_BOAT_10                    = 4536,
     I_M_ON_A_BOAT_25                    = 4612,
