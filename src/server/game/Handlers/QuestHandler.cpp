@@ -35,8 +35,15 @@
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+
+    uint8 bitOrder[8] = {3, 1, 2, 6, 4, 7, 0, 5};
+    recvData.FlushBits();
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = {3, 0, 5, 2, 7, 6, 1, 4};
+    recvData.ReadBytesSeq(guid, byteOrder);
+
     uint32 questStatus = DIALOG_STATUS_NONE;
     uint32 defstatus = DIALOG_STATUS_NONE;
 
@@ -328,10 +335,22 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint32 questId;
-    uint8 unk1;
-    recvData >> guid >> questId >> unk1;
+    bool unk1;
+
+    recvData >> questId;
+
+    uint8 bitOrder[8] = { 3, 4, 1, 0, 6, 2, 7, 5 };
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    recvData >> unk1;
+
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 6, 7, 4, 5, 3, 1, 0, 2 };
+    recvData.ReadBytesSeq(guid, bitOrder);
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, unk1 = %u", uint32(GUID_LOPART(guid)), questId, unk1);
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest

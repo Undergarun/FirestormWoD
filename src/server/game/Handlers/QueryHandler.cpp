@@ -484,18 +484,24 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
 void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
 {
     uint32 textID;
-    uint64 guid;
+    ObjectGuid guid;
 
     recvData >> textID;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
-    recvData >> guid;
+    uint8 bitOrder[8] = {7, 3, 1, 5, 6, 4, 0, 2};
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = {1, 5, 2, 7, 3, 6, 4, 0};
+    recvData.ReadBytesSeq(guid, byteOrder);
+
     GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 
     WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
     data << textID;
+    data << uint32(0x40);       // size of packet
     data << uint32(0x3F800000); // unk flags 5.0.5
     data << uint32(0x00); // unk 5.0.5
     data << uint32(0x00); // unk 5.0.5
@@ -512,6 +518,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
     data << uint32(0x00); // unk 5.0.5
     data << uint32(0x00); // unk 5.0.5
     data << uint32(0x00); // unk 5.0.5
+    data.WriteBit(1);     // unk bit (true on retail sniff)
+    data.FlushBits();
 
     /*if (!pGossip)
     {
@@ -605,12 +613,15 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
     buff << uint16(size2);
     if(size2)
         buff << std::string(pGossip ? pGossip->Options[0].Text_1 : text);
+
     buff << uint32(0);
     buff << uint32(0);
     buff << uint32(0);
+
     buff << uint32(0);
     buff << uint32(0);
     buff << uint32(0);
+
     buff << uint32(0); // sound Id
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Delay : 0); // Delay
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Emote : 0); // Emote
@@ -618,8 +629,8 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
     data << uint32(buff.size());
     data.append(buff);
 
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
+    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
     data << uint32(entry);
 
     SendPacket(&data);
