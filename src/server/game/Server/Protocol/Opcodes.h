@@ -35,7 +35,7 @@ enum Opcodes
 
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x000,  // 5.0.5 16048
-    CMSG_ACCEPT_TRADE                                 = 0x000,  // 5.0.5 16048
+    CMSG_ACCEPT_TRADE                                 = 0x1501, // 5.4.0 17399
     CMSG_ACTIVATETAXI                                 = 0x000,  // 5.0.5 16048
     CMSG_ACTIVATETAXIEXPRESS                          = 0x000,  // 5.0.5 16048
     CMSG_ADDON_REGISTERED_PREFIXES                    = 0x000,  // 5.0.5 16048
@@ -90,7 +90,7 @@ enum Opcodes
     CMSG_BATTLEMASTER_JOIN                            = 0x000,  // 5.0.5 16048
     CMSG_BATTLEMASTER_JOIN_ARENA                      = 0x000,  // 5.0.5 16048
     CMSG_BATTLEMASTER_JOIN_RATED                      = 0x000,  // 5.0.5 16048
-    CMSG_BEGIN_TRADE                                  = 0x000,  // 5.0.5 16048
+    CMSG_BEGIN_TRADE                                  = 0x1806, // 5.4.0 17399
     CMSG_BINDER_ACTIVATE                              = 0x000,  // 5.0.5 16048
     CMSG_BOT_DETECTED2                                = 0x000,  // 5.0.5 16048
     CMSG_BUG                                          = 0x000,  // 5.0.5 16048
@@ -123,7 +123,7 @@ enum Opcodes
     CMSG_CANCEL_MOUNT_AURA                            = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_QUEUED_SPELL                          = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x000,  // 5.0.5 16048
-    CMSG_CANCEL_TRADE                                 = 0x000,  // 5.0.5 16048
+    CMSG_CANCEL_TRADE                                 = 0x1807, // 5.4.0 17399
     CMSG_CAST_SPELL                                   = 0x1429, // 5.4.0 17399
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0x000,  // 5.0.5 16048
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0x000,  // 5.0.5 16048
@@ -158,7 +158,7 @@ enum Opcodes
     CMSG_CHAT_IGNORED                                 = 0x000,  // 5.0.5 16048
     CMSG_CLEAR_CHANNEL_WATCH                          = 0x000,  // 5.0.5 16048
     CMSG_CLEAR_RAID_MARKER                            = 0x000,  // 5.0.5 16048
-    CMSG_CLEAR_TRADE_ITEM                             = 0x000,  // 5.0.5 16048
+    CMSG_CLEAR_TRADE_ITEM                             = 0x1500, // 5.4.0 17399
     CMSG_COMMENTATOR_ENABLE                           = 0x000,  // 5.0.5 16048
     CMSG_COMMENTATOR_ENTER_INSTANCE                   = 0x000,  // 5.0.5 16048
     CMSG_COMMENTATOR_EXIT_INSTANCE                    = 0x000,  // 5.0.5 16048
@@ -282,10 +282,10 @@ enum Opcodes
     CMSG_GUILD_SET_RANK_PERMISSIONS                   = 0x000,  // 5.0.5 16048
     CMSG_GUILD_SWITCH_RANK                            = 0x000,  // 5.0.5 16048
     CMSG_HEARTH_AND_RESURRECT                         = 0x000,  // 5.0.5 16048
-    CMSG_IGNORE_TRADE                                 = 0x000,  // 5.0.5 16048 Deprecated ?
-    CMSG_INITIATE_TRADE                               = 0x000,  // 5.0.5 16048
-    CMSG_INSPECT                                      = 0x000,  // 5.0.5 16048
-    CMSG_INSPECT_HONOR_STATS                          = 0x000,  // 5.0.5 16048
+    CMSG_IGNORE_TRADE                                 = 0x1089, // 5.4.0 17399
+    CMSG_INITIATE_TRADE                               = 0x108E, // 5.4.0 17399
+    CMSG_INSPECT                                      = 0x167E, // 5.4.0 17399
+    CMSG_INSPECT_HONOR_STATS                          = 0x14AC, // 5.4.0 17399
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x000,  // 5.0.5 16048
     CMSG_ITEM_REFUND                                  = 0x000,  // 5.0.5 16048
     CMSG_ITEM_REFUND_INFO                             = 0x000,  // 5.0.5 16048
@@ -322,7 +322,7 @@ enum Opcodes
     CMSG_LOOT                                         = 0x000,  // 5.0.5 16048
     CMSG_LOOT_CURRENCY                                = 0x000,  // 5.0.5 16048
     CMSG_LOOT_MASTER_GIVE                             = 0x000,  // 5.0.5 16048
-    CMSG_LOOT_METHOD                                  = 0x000,  // 5.0.5 16048
+    CMSG_LOOT_METHOD                                  = 0x1352, // 5.4.0 17399
     CMSG_LOOT_MONEY                                   = 0x000,  // 5.0.5 16048
     CMSG_LOOT_RELEASE                                 = 0x000,  // 5.0.5 16048
     CMSG_LOOT_ROLL                                    = 0x000,  // 5.0.5 16048
@@ -426,6 +426,7 @@ enum Opcodes
     CMSG_RAID_LEADER_READY_CHECK                      = 0x1307, // 5.4.0 17399
     CMSG_RAID_CONFIRM_READY_CHECK                     = 0x124E, // 5.4.0 17399
     CMSG_RAID_TARGET_UPDATE                           = 0x1E16, // 5.4.0 17399
+    CMSG_RANDOM_ROLL                                  = 0x1A9B, // 5.4.0 17399
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x000,  // 5.0.5 16048
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0x1A0E, // 5.4.0 17399
     CMSG_READ_ITEM                                    = 0x000,  // 5.0.5 16048
@@ -443,7 +444,7 @@ enum Opcodes
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_CEMETERY_LIST                        = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_HOTFIX                               = 0x1A8B,	// 5.4.0 17399
-    CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x1757, // 5.4.0 17399
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
     CMSG_REQUEST_PET_INFO                             = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x000,  // 5.0.5 16048
@@ -483,7 +484,7 @@ enum Opcodes
     CMSG_SET_CHANNEL_WATCH                            = 0x000,  // 5.0.5 16048
     CMSG_SET_CONTACT_NOTES                            = 0x000,  // 5.0.5 16048
     CMSG_SET_CURRENCY_FLAGS                           = 0x000,  // 5.0.5 16048
-    CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0x000,  // 5.0.5 16048
+    CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0x1386, // 5.4.0 17399
     CMSG_SET_FACTION_ATWAR                            = 0x000,  // 5.0.5 16048
     CMSG_SET_FACTION_CHEAT                            = 0x000,  // 5.0.5 16048
     CMSG_SET_FACTION_INACTIVE                         = 0x000,  // 5.0.5 16048
@@ -500,8 +501,8 @@ enum Opcodes
     CMSG_SET_TAXI_BENCHMARK_MODE                      = 0x000,  // 5.0.5 16048
     CMSG_SET_TITLE                                    = 0x000,  // 5.0.5 16048
     CMSG_SET_TRADE_CURRENCY                           = 0x000,  // 5.0.5 16048
-    CMSG_SET_TRADE_GOLD                               = 0x000,  // 5.0.5 16048
-    CMSG_SET_TRADE_ITEM                               = 0x000,  // 5.0.5 16048
+    CMSG_SET_TRADE_GOLD                               = 0x1187, // 5.4.0 17399
+    CMSG_SET_TRADE_ITEM                               = 0x1425, // 5.4.0 17399
     CMSG_SET_VEHICLE_REC_ID_ACK                       = 0x000,  // 5.0.5 16048
     CMSG_SET_WATCHED_FACTION                          = 0x000,  // 5.0.5 16048
     CMSG_SHOWING_CLOAK                                = 0x000,  // 5.0.5 16048
@@ -543,7 +544,7 @@ enum Opcodes
     CMSG_TUTORIAL_CLEAR                               = 0x000,  // 5.0.5 16048
     CMSG_TUTORIAL_FLAG                                = 0x000,  // 5.0.5 16048
     CMSG_TUTORIAL_RESET                               = 0x000,  // 5.0.5 16048
-    CMSG_UNACCEPT_TRADE                               = 0x000,  // 5.0.5 16048
+    CMSG_UNACCEPT_TRADE                               = 0x15A0, // 5.4.0 17399
     CMSG_UNLEARN_SKILL                                = 0x000,  // 5.0.5 16048
     CMSG_UNLEARN_SPECIALIZATION                       = 0x000,  // 5.0.5 16048
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x000,  // 5.0.5 16048
@@ -626,7 +627,6 @@ enum Opcodes
     MSG_PETITION_RENAME                               = 0x000,  // 5.0.5 16048
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x000,  // 5.0.5 16048
     MSG_QUEST_PUSH_RESULT                             = 0x000,  // 5.0.5 16048
-    MSG_RANDOM_ROLL                                   = 0x000,  // 5.0.5 16048
     MSG_SAVE_GUILD_EMBLEM                             = 0x000,  // 5.0.5 16048
     MSG_SET_DUNGEON_DIFFICULTY                        = 0x000,  // 5.0.5 16048
     MSG_SET_RAID_DIFFICULTY                           = 0x000,  // 5.0.5 16048
@@ -1044,9 +1044,8 @@ enum Opcodes
     SMSG_INSPECT                                      = 0x000,  // 5.0.5 16048
     SMSG_INSPECT_RATED_BG_STATS                       = 0x480,  // 5.4.0 17399 (JamList)
     SMSG_INSPECT_HONOR_STATS                          = 0x584,  // 5.4.0 17399 (JamList)
-    SMSG_INSPECT_RESULT                               = 0x901,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x000,  // 5.0.5 16048
-    SMSG_INSPECT_TALENT                               = 0x000,  // 5.0.5 16048
+    SMSG_INSPECT_TALENT                               = 0x901,  // 5.4.0 17399
     SMSG_INSTANCE_DIFFICULTY                          = 0x000,  // 5.0.5 16048
     SMSG_INSTANCE_INFO                                = 0x4B3,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0x000,  // 5.0.5 16048
@@ -1336,7 +1335,7 @@ enum Opcodes
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x597,  // 5.4.0 17399
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0x09E,  // 5.4.0 17399 (JamList)
     SMSG_RANDOMIZE_CHAR_NAME                          = 0x8B9,  // 5.4.0 17399 (JamList)
-    SMSG_RANDOM_ROLL                                  = 0x821,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_RANDOM_ROLL                                  = 0x821,  // 5.4.0 17399
     SMSG_RATED_BG_RATING                              = 0x000,  // 5.0.5 16048
     SMSG_RATED_BG_STATS                               = 0x000,  // 5.0.5 16048
     SMSG_READ_ITEM_FAILED                             = 0x000,  // 5.0.5 16048
@@ -1510,9 +1509,8 @@ enum Opcodes
     SMSG_TITLE_LOST                                   = 0x839,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_TOGGLE_XP_GAIN                               = 0x000,  // 5.0.5 16048
     SMSG_TOTEM_CREATED                                = 0x904,  // 5.4.0 17399 (JamList)
-    SMSG_TRADE_STATUS                                 = 0x10F,  // 5.4.0 17399 (JamList)
-    SMSG_TRADE_STATUS_EXTENDED                        = 0x000,  // 5.0.5 16048
-    SMSG_TRADE_UPDATED                                = 0x912,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_TRADE_STATUS                                 = 0x10F,  // 5.4.0 17399
+    SMSG_TRADE_UPDATED                                = 0x912,  // 5.4.0 17399
     SMSG_TRAINER_BUY_FAILED                           = 0x031,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_TRAINER_LIST                                 = 0x09A,  // 5.4.0 17399 (JamList)
     SMSG_TRAINER_SERVICE                              = 0x000,  // 5.0.5 16048
