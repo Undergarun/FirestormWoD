@@ -682,39 +682,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data.WriteByteSeq(guid2[7]);
     data.WriteByteSeq(guid[1]);
 
-
-    /*
-
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS, 100);   // guess size
-    data << uint64(npcGUID);
-    data << uint64(0);                                      // either 0 or a npc guid (quest giver)
-    data << uint32(quest->GetQuestId());
-    data << uint32(0);
-    data << questTitle;
-    data << questDetails;
-    data << questObjectives;
-    data << questGiverTextWindow;                           // 4.x
-    data << questGiverTargetName;                           // 4.x
-    data << questTurnTextWindow;                            // 4.x
-    data << questTurnTargetName;                            // 4.x
-    data << uint32(quest->GetQuestGiverPortrait());         // 4.x
-    data << uint32(quest->GetQuestTurnInPortrait());        // 4.x
-    data << uint8(1);//activateAccept ? 1 : 0);                  // auto finish
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    data << uint32(quest->GetSuggestedPlayers());
-    data << uint32(0);
-    data << uint8(0);                                       // IsFinished? value is sent back to server in quest accept packet
-    data << uint8(0);                                       // 4.x FIXME: Starts at AreaTrigger
-    data << uint32(0);
-
-    quest->BuildExtraQuestInfo(data, _session->GetPlayer());
-
-    data << uint32(QUEST_EMOTE_COUNT);
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
-    {
-        data << uint32(quest->DetailsEmote[i]);
-        data << uint32(quest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)
-    }*/
     _session->SendPacket(&data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
