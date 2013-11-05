@@ -1174,6 +1174,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     m_fixed_periodic.SetFixedTotalDamage(temp_damage * (GetBase()->GetMaxDuration() / GetAmplitude()));
 
                 hasFixedPeriodic = true;
+                amount = temp_damage;
             }
         }
     }
@@ -1816,9 +1817,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId = 3025;
             spellId2 = 48629;
             spellId3 = 106840;
-            break;
-        case FORM_TREE:
-            spellId = 34123;
             break;
         case FORM_TRAVEL:
             spellId = 5419;
