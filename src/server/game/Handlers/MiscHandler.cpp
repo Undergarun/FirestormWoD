@@ -1254,179 +1254,203 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 
 void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
-    uint8 bitOrder[8] = {2, 0, 6, 1, 5, 7, 3, 4};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    ObjectGuid playerGuid;
 
-    uint8 byteOrder[8] = {3, 6, 5, 0, 4, 7, 1, 2};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    uint8 bitOrder[8] = { 2, 5, 1, 6, 7, 4, 0, 3 };
+    recvData.ReadBitInOrder(playerGuid, bitOrder);
+
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 0, 1, 5, 6, 4, 2, 3, 7 };
+    recvData.ReadBytesSeq(playerGuid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_INSPECT");
 
-    _player->SetSelection(guid);
+    _player->SetSelection(playerGuid);
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(playerGuid);
     if (!player)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT: No player found from GUID: " UI64FMTD, uint64(guid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT: No player found from GUID: " UI64FMTD, uint64(playerGuid));
         return;
     }
 
-    uint32 talent_points = 41;
-    WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
-    data << uint32(player->GetSpecializationId(player->GetActiveSpec()));
-    //data << uint32(0);
-    ObjectGuid playerGuid = player->GetGUID();
-    data.WriteBit(playerGuid[6]);
+    WorldPacket data(SMSG_INSPECT_TALENT);
 
+    ByteBuffer talentData;
+    ByteBuffer glyphData;
+
+    uint32 talentCount = 0;
     uint32 glyphCount = 0;
-    size_t glyphPos = data.bitwpos();
-    data.WriteBits(glyphCount, 25); //GlyphCount
-
-    data.WriteBit(playerGuid[3]);
-
     uint32 equipmentCount = 0;
-    size_t equipmentPos = data.bitwpos();
-    data.WriteBits(equipmentCount, 22); //equipmentCount
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (!item)
-            continue;
-        
-        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR); // item creator
-
-        data.WriteBit(itemCreator[7]);
-        data.WriteBit(0);
-        data.WriteBit(itemCreator[4]);
-        data.WriteBit(itemCreator[2]);
-        data.WriteBit(0);
-        data.WriteBit(itemCreator[6]);
-        data.WriteBit(itemCreator[5]);
-        data.WriteBit(itemCreator[0]);
-        data.WriteBit(itemCreator[3]);
-        data.WriteBit(1);
-        data.WriteBit(itemCreator[1]);
-
-        uint32 enchantmentCount = 0;
-        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
-        {
-            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
-
-            if (!enchId)
-                continue;
-            ++enchantmentCount;
-        }
-        data.WriteBits(enchantmentCount, 23);
-        ++equipmentCount;
-    }
-    data.PutBits<uint32>(equipmentPos, equipmentCount, 22);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[3]);
 
     Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId());
     data.WriteBit(guild != nullptr);
-    if (guild != nullptr)
-    {
-        ObjectGuid guildGuid = guild->GetGUID();
-    
-        uint8 bitOrder[8] = {4, 6, 3, 2, 7, 0, 5, 1};
-        data.WriteBitInOrder(guildGuid, bitOrder);
-    }
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[7]);
-    
-    uint32 talentCount = 0;
-    size_t talentPos = data.bitwpos();
-    data.WriteBits(talentCount, 25);
-
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[1]);
-    data.FlushBits();
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (!item)
-            continue;
-        
-        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR); // item creator
-
-        data.WriteByteSeq(itemCreator[0]);
-        data.WriteByteSeq(itemCreator[2]);
-        data.WriteByteSeq(itemCreator[7]);
-        data.WriteByteSeq(itemCreator[1]);
-        data << uint32(item->GetEntry());                  // item entry
-        // if unk
-        //      data << unk32
-        data.WriteByteSeq(itemCreator[4]);
-        data.WriteByteSeq(itemCreator[3]);
-        data.WriteByteSeq(itemCreator[6]);
-        // if unk
-        //      data << unk32
-        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
-        {
-            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
-
-            if (!enchId)
-                continue;
-            
-            data << uint32(enchId);                        // enchantmentId?
-            data << uint8(0); //unk
-        }
-        data << uint32(0); //always 8
-        data.WriteByteSeq(itemCreator[5]);
-        data << uint8(i);
-    }
 
     if (guild != nullptr)
     {
         ObjectGuid guildGuid = guild->GetGUID();
-        
-        data << uint32(guild->GetLevel());
-        data.WriteByteSeq(guildGuid[3]);
-        data.WriteByteSeq(guildGuid[7]);
-        data.WriteByteSeq(guildGuid[5]);
-        data.WriteByteSeq(guildGuid[1]);
-        data.WriteByteSeq(guildGuid[4]);
-        data.WriteByteSeq(guildGuid[6]);
-        data.WriteByteSeq(guildGuid[2]);
-        data << uint64(guild->GetExperience());
-        data << uint32(guild->GetMembersCount());
-        data.WriteByteSeq(guildGuid[0]);
+
+        data.WriteBit(guildGuid[6]);
+        data.WriteBit(guildGuid[7]);
+        data.WriteBit(guildGuid[4]);
+        data.WriteBit(guildGuid[5]);
+        data.WriteBit(guildGuid[2]);
+        data.WriteBit(guildGuid[3]);
+        data.WriteBit(guildGuid[1]);
+        data.WriteBit(guildGuid[0]);
     }
 
-   for (auto itr : *player->GetTalentMap(player->GetActiveSpec()))
+    for (auto itr : *player->GetTalentMap(player->GetActiveSpec()))
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
         if (spell && spell->talentId)
         {
-            data << uint16(spell->talentId);
+            talentData << uint16(spell->talentId);
             ++talentCount;
         }
     }
-    data.PutBits<uint32>(talentPos, talentCount, 25);
-    
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[5]);
 
     for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
     {
         if (player->GetGlyph(0, i) == 0)
             continue;
 
-        data << uint16(player->GetGlyph(0, i));               // GlyphProperties.dbc
+        glyphData << uint16(player->GetGlyph(0, i));               // GlyphProperties.dbc
         ++glyphCount;
     }
-    data.PutBits<uint32>(glyphPos, glyphCount, 25); 
 
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[6]);
+    data.WriteBits(talentCount, 23);
+    data.WriteBits(glyphCount, 23);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(playerGuid[6]);
+
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (!item)
+            continue;
+
+        ++equipmentCount;
+    }
+
+    data.WriteBits(equipmentCount, 20);
+
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (!item)
+            continue;
+
+        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+
+        data.WriteBit(itemCreator[0]);
+        data.WriteBit(0);               // unk bit
+        data.WriteBit(itemCreator[6]);
+        data.WriteBit(itemCreator[7]);
+        data.WriteBit(0);               // unk bit
+        data.WriteBit(itemCreator[3]);
+        data.WriteBit(itemCreator[2]);
+        data.WriteBit(itemCreator[1]);
+
+        uint32 enchantmentCount = 0;
+
+        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
+        {
+            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
+            if (!enchId)
+                continue;
+
+            ++enchantmentCount;
+        }
+
+        data.WriteBits(enchantmentCount, 21);
+        data.WriteBit(0);               // unk bit
+        data.WriteBit(itemCreator[5]);
+        data.WriteBit(itemCreator[4]);
+    }
+    
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(playerGuid[0]);
+
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (!item)
+            continue;
+
+        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+
+        // if (unkBit)
+        //     data << uint16(UNK);
+
+        data.WriteByteSeq(itemCreator[3]);
+        data.WriteByteSeq(itemCreator[4]);
+
+        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
+        {
+            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
+            if (!enchId)
+                continue;
+
+            data << uint8(0);           // unk byte
+            data << uint32(enchId);
+        }
+
+        // if (unkBit)
+        //     data << uint32(UNK);
+
+        data.WriteByteSeq(itemCreator[0]);
+        data.WriteByteSeq(itemCreator[2]);
+        data.WriteByteSeq(itemCreator[6]);
+        data << uint32(0);              // unk byte counter
+        data.WriteByteSeq(itemCreator[1]);
+        data.WriteByteSeq(itemCreator[7]);
+        data.WriteByteSeq(itemCreator[5]);
+        data << uint8(i);
+        data << uint32(item->GetEntry());
+    }
+
     data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[0]);
+
+    data << uint32(player->GetSpecializationId(player->GetActiveSpec()));
+
+    if (guild != nullptr)
+    {
+        ObjectGuid guildGuid = guild->GetGUID();
+
+        data << uint32(guild->GetLevel());
+
+        data.WriteByteSeq(guildGuid[1]);
+        data.WriteByteSeq(guildGuid[3]);
+
+        data << uint32(guild->GetMembersCount());
+
+        data.WriteByteSeq(guildGuid[6]);
+        data.WriteByteSeq(guildGuid[2]);
+        data.WriteByteSeq(guildGuid[5]);
+        data.WriteByteSeq(guildGuid[4]);
+        data.WriteByteSeq(guildGuid[0]);
+        data.WriteByteSeq(guildGuid[7]);
+
+        data << uint64(guild->GetExperience());
+    }
+    
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[2]);
     data.WriteByteSeq(playerGuid[3]);
+
+    data.append(talentData);
+    data.append(glyphData);
 
     SendPacket(&data);
 }
@@ -1434,14 +1458,15 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    uint8 bitOrder[8] = {0, 7, 6, 5, 2, 1, 3, 4};
+    uint8 bitOrder[8] = { 0, 3, 2, 4, 6, 7, 5, 1 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {2, 5, 4, 7, 0, 6, 3, 1};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 5, 0, 2, 7, 6, 3, 1, 4 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
-
     if (!player)
     {
         //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
@@ -1449,12 +1474,15 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     }
 
     ObjectGuid playerGuid = player->GetGUID();
-    WorldPacket data(SMSG_INSPECT_HONOR_STATS, 8+1+4+4);
+    WorldPacket data(SMSG_INSPECT_HONOR_STATS);
     
-    uint8 bitOrder2[8] = {2, 0, 3, 5, 1, 6, 7, 4};
+    uint8 bitOrder2[8] = { 7, 0, 5, 6, 3, 1, 4, 2 };
     data.WriteBitInOrder(playerGuid, bitOrder2);
 
-    data << uint16(4);
+    uint8 byteOrder2[8] = { 3, 1, 7, 5, 2, 6, 0, 4 };
+    data.WriteBytesSeq(playerGuid, byteOrder2);
+
+    /*data << uint16(4);
     data.WriteByteSeq(playerGuid[3]);
     data << uint8(3);                                               // rank
     data << uint16(6);
@@ -1468,10 +1496,39 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     data.WriteByteSeq(playerGuid[6]);
 
     //data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 1));  // yesterday kills
-    //data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));  // today kills
-    SendPacket(&data);
+    //data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));  // today kills*/
 
-    data.Initialize(SMSG_INSPECT_RATED_BG_STATS, 8+1+4*6);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleInspectRatedBGStatsOpcode(WorldPacket& recvData)
+{
+    uint32 unk;
+    ObjectGuid guid;
+
+    recvData >> unk;
+
+    uint8 bitOrder[8] = { 1, 3, 5, 2, 6, 7, 0, 4 };
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 4, 7, 0, 3, 5, 2, 6, 1 };
+    recvData.ReadBytesSeq(guid, byteOrder);
+
+    Player* player = ObjectAccessor::FindPlayer(guid);
+    if (!player)
+    {
+        //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_INSPECT_RATED_BG_STATS: No player found from GUID: " UI64FMTD, guid);
+        return;
+    }
+
+    return;
+
+    // TODO //
+    ObjectGuid playerGuid = player->GetGUID();
+    WorldPacket data(SMSG_INSPECT_RATED_BG_STATS);
+
     ObjectGuid gguid = guid;
     data << uint32(0); //SeasonWin
     data << uint32(0); //SeasonPlayed
@@ -2155,6 +2212,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
         HandleMovementOpcodes(recvPacket);
     }
 }
+
 void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
 {
     uint8 violenceLevel;

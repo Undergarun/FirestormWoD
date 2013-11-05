@@ -1813,34 +1813,51 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_SAVE");
 
-    uint64 setGuid;
-    recvData.readPackGUID(setGuid);
-
+    ObjectGuid setGuid;
     uint32 index;
+    EquipmentSet eqSet;
+    uint8 iconNameLen, setNameLen;
+
     recvData >> index;
+
     if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
         return;
 
-    std::string name;
-    recvData >> name;
+    setGuid[7] = recvData.ReadBit();
 
-    std::string iconName;
-    recvData >> iconName;
-
-    EquipmentSet eqSet;
-
-    eqSet.Guid      = setGuid;
-    eqSet.Name      = name;
-    eqSet.IconName  = iconName;
-    eqSet.state     = EQUIPMENT_SET_NEW;
+    ObjectGuid* itemGuid;
+    itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        uint64 itemGuid;
-        recvData.readPackGUID(itemGuid);
+        uint8 bitsOrder[8] = { 4, 6, 0, 1, 3, 5, 2, 7 };
+        recvData.ReadBitInOrder(itemGuid[i], bitsOrder);
+    }
+
+    setGuid[4] = recvData.ReadBit();
+    setGuid[1] = recvData.ReadBit();
+    setGuid[5] = recvData.ReadBit();
+    setGuid[0] = recvData.ReadBit();
+    setGuid[3] = recvData.ReadBit();
+    setGuid[2] = recvData.ReadBit();
+
+    iconNameLen = 2 * recvData.ReadBits(8);
+    bool pair = recvData.ReadBit();
+
+    if (pair)
+        iconNameLen++;
+
+    setNameLen = recvData.ReadBits(8);
+    setGuid[6] = recvData.ReadBit();
+    recvData.FlushBits();
+
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        uint8 bytesOrder[8] = { 6, 1, 4, 0, 3, 5, 7, 2 };
+        recvData.ReadBytesSeq(itemGuid[i], bytesOrder);
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid == 1)
+        if (itemGuid[i] == 1)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqSet.IgnoreMask |= 1 << i;
@@ -1849,14 +1866,34 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-        if (!item && itemGuid)                               // cheating check 1
+        if (!item && itemGuid[i])                               // cheating check 1
             return;
 
-        if (item && item->GetGUID() != itemGuid)             // cheating check 2
+        if (item && item->GetGUID() != itemGuid[i])             // cheating check 2
             return;
 
-        eqSet.Items[i] = GUID_LOPART(itemGuid);
+        eqSet.Items[i] = GUID_LOPART(itemGuid[i]);
     }
+
+    recvData.ReadByteSeq(setGuid[4]);
+    recvData.ReadByteSeq(setGuid[3]);
+
+    std::string name, iconName;
+
+    iconName = recvData.ReadString(iconNameLen);
+    name = recvData.ReadString(setNameLen);
+
+    recvData.ReadByteSeq(setGuid[5]);
+    recvData.ReadByteSeq(setGuid[0]);
+    recvData.ReadByteSeq(setGuid[1]);
+    recvData.ReadByteSeq(setGuid[7]);
+    recvData.ReadByteSeq(setGuid[6]);
+    recvData.ReadByteSeq(setGuid[2]);
+
+    eqSet.Guid      = setGuid;
+    eqSet.Name      = name;
+    eqSet.IconName  = iconName;
+    eqSet.state     = EQUIPMENT_SET_NEW;
 
     _player->SetEquipmentSet(index, eqSet);
 }
@@ -1865,8 +1902,15 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_DELETE");
 
-    uint64 setGuid;
-    recvData.readPackGUID(setGuid);
+    ObjectGuid setGuid;
+
+    uint8 bitsOrder[8] = { 4, 1, 7, 0, 5, 6, 3, 2 };
+    recvData.ReadBitInOrder(setGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 5, 1, 3, 4, 2, 0, 7, 6 };
+    recvData.ReadBytesSeq(setGuid, bytesOrder);
 
     _player->DeleteEquipmentSet(setGuid);
 }
@@ -1875,27 +1919,53 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
 
+    uint8* srcbag;
+    uint8* srcslot;
+    srcbag = new uint8[EQUIPMENT_SLOT_END];
+    srcslot = new uint8[EQUIPMENT_SLOT_END];
+
+    ObjectGuid* itemGuid = NULL;
+    itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
+
     EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
+
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        recvData >> srcslot[i] >> srcbag[i];
+
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        uint8 bitsOrder[8] = { 2, 5, 0, 1, 3, 6, 4, 7 };
+        recvData.ReadBitInOrder(itemGuid[i], bitsOrder);
+    }
+
+    uint8 unkCounter = recvData.ReadBits(2);
+
+    for (uint8 i = 0; i < unkCounter; i++)
+    {
+        recvData.ReadBit();
+        recvData.ReadBit();
+    }
+
+    recvData.FlushBits();
+
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         if (i == 17)
             continue;
-        uint64 itemGuid;
-        recvData.readPackGUID(itemGuid);
 
-        uint8 srcbag, srcslot;
-        recvData >> srcbag >> srcslot;
+        uint8 bytesOrder[8] = { 4, 1, 6, 5, 3, 2, 0, 7 };
+        recvData.ReadBytesSeq(itemGuid[i], bytesOrder);
         
         if (i < uint32(startSlot))
             continue;
 
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid[i], srcbag[i], srcslot[i]);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid == 1)
+        if (itemGuid[i] == 1)
             continue;
 
-        Item* item = _player->GetItemByGuid(itemGuid);
+        Item* item = _player->GetItemByGuid(itemGuid[i]);
 
         uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
@@ -1924,8 +1994,14 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         _player->SwapItem(item->GetPos(), dstpos);
     }
 
-    WorldPacket data(SMSG_EQUIPMENT_SET_USE_RESULT, 1);
-    data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
+    for (uint8 i = 0; i < unkCounter; i++)
+    {
+        recvData.read_skip<uint8>();
+        recvData.read_skip<uint8>();
+    }
+
+    WorldPacket data(SMSG_DUMP_OBJECTS_DATA);
+    data << uint8(0);   // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
 }
 
