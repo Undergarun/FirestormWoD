@@ -70,7 +70,7 @@ enum Opcodes
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x000,  // 5.0.5 16048
     CMSG_AUTOEQUIP_ITEM                               = 0x564,  // 5.4.0 17399
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x000,  // 5.0.5 16048
-    CMSG_AUTOSTORE_BAG_ITEM                           = 0x000,  // 5.0.5 16048
+    CMSG_AUTOSTORE_BAG_ITEM                           = 0x863,  // 5.4.0 17399
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x000,  // 5.0.5 16048
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x000,  // 5.0.5 16048
     CMSG_AUTOSTORE_LOOT_ITEM                          = 0x000,  // 5.0.5 16048
@@ -193,8 +193,9 @@ enum Opcodes
     CMSG_EMOTE                                        = 0x000,  // 5.0.5 16048
     CMSG_ENABLETAXI                                   = 0x000,  // 5.0.5 16048
     CMSG_ENABLE_NAGLE                                 = 0x000,  // 5.0.5 16048
-    CMSG_EQUIPMENT_SET_SAVE                           = 0x000,  // 5.0.5 16048
-    CMSG_EQUIPMENT_SET_USE                            = 0x000,  // 5.0.5 16048
+    CMSG_EQUIPMENT_SET_SAVE                           = 0x127A, // 5.4.0 17399
+    CMSG_EQUIPMENT_SET_USE                            = 0x064,  // 5.4.0 17399
+    CMSG_EQUIPMENT_SET_DELETE                         = 0x16B6, // 5.4.0 17399
     CMSG_FAR_SIGHT                                    = 0x000,  // 5.0.5 16048
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x000,  // Deprecated
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x000,  // Deprecated
@@ -886,7 +887,7 @@ enum Opcodes
     SMSG_DUEL_REQUESTED                               = 0x129B, // 5.4.0 17399
     SMSG_DUEL_WINNER                                  = 0x599,  // 5.4.0 17399 (JamList)
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x000,  // 5.0.5 16048
-    SMSG_DUMP_OBJECTS_DATA                            = 0x58E,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_DUMP_OBJECTS_DATA                            = 0x58E,  // 5.4.0 17399
     SMSG_DURABILITY_DAMAGE_DEATH                      = 0x1B3,  // 5.4.0 17399 (JamList)
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x095,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ECHO_PARTY_SQUELCH                           = 0x000,  // 5.0.5 16048
@@ -895,10 +896,9 @@ enum Opcodes
     SMSG_ENABLE_HONOR_BUDDY_DETECTION                 = 0x125,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ENCHANTMENT_LOG                              = 0x922,  // 5.4.0 17399 (JamList)
     SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x000,  // 5.0.5 16048
-    SMSG_EQUIPMENT_SET_ID                             = 0x5AD,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_EQUIPMENT_SET_LIST                           = 0x000,  // 5.0.5 16048
-    SMSG_EQUIPMENT_SET_SAVED                          = 0x000,  // 5.0.5 16048
-    SMSG_EQUIPMENT_SET_USE_RESULT                     = 0x194,  // 5.4.0 17399 (JamList)
+    SMSG_EQUIPMENT_SET_LIST                           = 0x938,  // 5.4.0 17399
+    SMSG_EQUIPMENT_SET_SAVED                          = 0x5AD,  // 5.4.0 17399
+    SMSG_EQUIPMENT_SET_USE_RESULT                     = 0x194,  // 5.4.0 17399 (JamList) - replaced by Dump object data ?
     SMSG_EXPECTED_SPAM_RECORDS                        = 0x10A,  // 5.4.0 17399 (JamList)
     SMSG_EXPLORATION_EXPERIENCE                       = 0x88A,  // 5.4.0 17399 (JamList)
     SMSG_FACTION_BONUS_INFO                           = 0x407,  // 5.4.0 17399 (JamList) (NYI)
@@ -1039,7 +1039,7 @@ enum Opcodes
     SMSG_INITIALIZE_FACTIONS                          = 0x90F,  // 5.4.0 17399
     SMSG_INITIAL_SPELLS                               = 0x000,  // 5.0.5 16048 Deprecated
     SMSG_INITIAL_SETUP                                = 0x1AD,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_INIT_CURRENCY                                = 0x000,  // 5.0.5 16048
+    SMSG_INIT_CURRENCY                                = 0x494,  // 5.4.0 17399
     SMSG_INIT_WORLD_STATES                            = 0x929,  // 5.4.0 17399 (JamList)
     SMSG_INSPECT                                      = 0x000,  // 5.0.5 16048
     SMSG_INSPECT_RATED_BG_STATS                       = 0x480,  // 5.4.0 17399 (JamList)
@@ -1107,7 +1107,6 @@ enum Opcodes
     SMSG_LIST_INVENTORY                               = 0x000,  // 5.0.5 16048
     SMSG_LIST_TARGETS                                 = 0x418,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_LOAD_CUF_PROFILES                            = 0x09D,  // 5.4.0 17399 (JamList)
-    SMSG_LOAD_EQUIPEMENT_SET                          = 0x938,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_LOGIN_SET_TIME_SPEED                         = 0x1AF,  // 5.4.0 17399
     SMSG_LOGIN_VERIFY_WORLD                           = 0x000,  // 5.0.5 16048
     SMSG_LOGOUT_CANCEL_ACK                            = 0x417,  // 5.4.0 17399 (JamList)
@@ -1166,7 +1165,7 @@ enum Opcodes
     SMSG_MOVE_NORMAL_FALL                             = 0x000,  // 5.0.5 16048
     SMSG_MOVE_ROOT                                    = 0x130B, // 5.4.0 17371
     SMSG_MOVE_UPDATE                                  = 0x139F, // 5.4.0 17399
-    SMSG_MOVE_SET_ACTIVE_MOVER                        = 0x000,  // 5.0.5 16048
+    SMSG_MOVE_SET_ACTIVE_MOVER                        = 0x12E3, // 5.4.0 17399
     SMSG_MOVE_SET_CAN_FLY                             = 0x1353, // 5.4.0 17399
     SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x000,  // 5.0.5 16048
     SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x000,  // 5.0.5 16048
@@ -1350,7 +1349,7 @@ enum Opcodes
     SMSG_REFORGE_RESULT                               = 0x884,  // 5.4.0 17399 (JamList)
     SMSG_REFRESH_COMPONENT                            = 0x028,  // 5.4.0 17399 (JamList)
     SMSG_REMOVE_LOSS_OF_CONTROL                       = 0x438,  // 5.4.0 17399 (JamList)
-    SMSG_REMOVED_SPELL                                = 0x523,  // 5.4.0 17399
+    SMSG_UNLEARNED_SPELLS                             = 0x523,  // 5.4.0 17399
     SMSG_REPORT_PVP_AFK_RESULT                        = 0x03F,  // 5.4.0 17399 (JamList)
     SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x499,  // 5.4.0 17399 (JamList)
     SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x08A,  // 5.4.0 17399 (JamList)
@@ -1396,7 +1395,6 @@ enum Opcodes
     SMSG_SERVER_MESSAGE                               = 0x000,  // 5.0.5 16048
     SMSG_SERVER_PERF                                  = 0x58C,  // 5.4.0 17399 (JamList)
     SMSG_SETUP_RESEARCH_HISTORY                       = 0x000,  // 5.0.5 16048
-    SMSG_SETUP_CURRENCY                               = 0x494,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_AI_ANIM_KIT                              = 0x1B9,  // 5.4.0 17399 (JamList)
     SMSG_SET_ANIM_TIMER                               = 0x12C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x1B0,  // 5.4.0 17399 (JamList)
@@ -1406,7 +1404,7 @@ enum Opcodes
     SMSG_SET_FACTION_VISIBLE                          = 0x525,  // 5.4.0 17399 (JamList)
     SMSG_SET_FACTION_NOT_VISIBLE                      = 0x406,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_FLAT_SPELL_MODIFIER                      = 0x000,  // 5.0.5 16048
-    SMSG_SET_FORCED_REACTIONS                         = 0x098,  // 5.4.0 17399 (JamList)
+    SMSG_SET_FORCED_REACTIONS                         = 0x098,  // 5.4.0 17399
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                 = 0x8B4,  // 5.4.0 17399 (JamList) Challenge mode (NYI)
     SMSG_SET_ITEM_PURCHASE_DATA                       = 0x197,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_MAX_WEEKLY_QUANTITY                      = 0x19D,  // 5.4.0 17399 (JamList) (NYI)
@@ -1523,7 +1521,6 @@ enum Opcodes
     SMSG_UI_TIME                                      = 0x911,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x000,  // 5.0.5 16048
     SMSG_UNIT_SPELLCAST_START                         = 0x000,  // 5.0.5 16048
-    SMSG_UNLEARN_SPELL                                = 0x523,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,	// 5.4.0 17399
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_ACTION_BUTTONS                        = 0x096,  // 5.4.0 17399
