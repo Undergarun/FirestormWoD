@@ -259,7 +259,7 @@ class npc_gilthares_firebough : public CreatureScript
 
 void AddSC_generic_creature()
 {
-    new npc_gilthares_firebough();
+    //new npc_gilthares_firebough();
     //new generic_creature;
     new trigger_periodic;
     //new trigger_death;

@@ -33,38 +33,28 @@
 
 void WorldSession::SendTradeStatus(TradeStatus status)
 {
-    WorldPacket data;
+    WorldPacket data(SMSG_TRADE_STATUS);
 
-    //Struct not updated
-    data.Initialize(SMSG_TRADE_STATUS, 1+4+4);
     data.WriteBits(status, 5);
+    data.WriteBit(0); // unk bit, usually 0
 
     switch (status)
     {
-        case TRADE_STATUS_BEGIN_TRADE:
-            data.WriteBits(0, 8); // zero guid
-            data.FlushBits();
-            break;
         case TRADE_STATUS_OPEN_WINDOW:
             data.FlushBits();
-            data << uint32(18); // unk
+            data << uint32(TRADE_STATUS_BEGIN_TRADE);
             break;
-        case TRADE_STATUS_CLOSE_WINDOW:
-            data.WriteBit(0); // unk
+        case TRADE_STATUS_TARGET_LOGOUT:
             data.FlushBits();
-            data << uint32(0); // unk
-            data << uint32(0); // unk
+            data.WriteBit(0);
+            data << uint32(0);
+            data << uint32(0);
             break;
         case TRADE_STATUS_ONLY_CONJURED:
         case TRADE_STATUS_NOT_ELIGIBLE:
             data.FlushBits();
             data << uint8(0); // unk
             break;
-        case TRADE_STATUS_CURRENCY: // Not implemented
-        //case TRADE_STATUS_CURRENCY_NOT_TRADABLE: // Not implemented
-            data.FlushBits();
-            data << uint32(0); // unk
-            data << uint32(0); // unk
         default:
             data.FlushBits();
             break;
@@ -76,6 +66,8 @@ void WorldSession::SendTradeStatus(TradeStatus status)
 void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Ignore Trade %u", _player->GetGUIDLow());
+
+    SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
@@ -87,24 +79,25 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 {
     TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();
 
-    ByteBuffer itemData(7*2 + 7*4 + 3*4 + 3*4 + 1);
+    ByteBuffer itemData;
 
     uint8 count = 0;
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
         if (view_trade->GetItem(TradeSlots(i)))
             ++count;
 
-    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED);
-    data << uint8(trader_data);                             // 1 means traders data, 0 means own
+    WorldPacket data(SMSG_TRADE_UPDATED);
+
+    data << uint32(0);
+    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
+    data << uint64(view_trade->GetMoney());                 // trader gold
     data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = prev field in most cases
     data << uint32(0);
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
     data << uint32(0);
-    data << uint64(view_trade->GetMoney());                 // trader gold
-    data << uint32(18); //unk values but necessary, TradeStatus ?
-    data << uint32(0);
+    data << uint8(trader_data);                             // 1 means traders data, 0 means own
+    data << uint32(TRADE_STATUS_BEGIN_TRADE);               // unk values but necessary, TradeStatus ?
 
-    data.WriteBits(count, 22);
+    data.WriteBits(count, 20);
 
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
     {
@@ -115,154 +108,66 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR);
         ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
 
-        data.WriteBit(giftCreatorGuid[1]);
+        data.WriteBit(giftCreatorGuid[3]);
+        data.WriteBit(giftCreatorGuid[0]);
+        data.WriteBit(giftCreatorGuid[6]);
         bool notWrapped = data.WriteBit(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED));
-        data.WriteBit(giftCreatorGuid[5]);
+        data.WriteBit(giftCreatorGuid[1]);
         data.WriteBit(giftCreatorGuid[2]);
+        data.WriteBit(giftCreatorGuid[7]);
 
         if (notWrapped)
         {
-            data.WriteBit(creatorGuid[2]);
             data.WriteBit(creatorGuid[6]);
-            data.WriteBit(creatorGuid[0]);
-            data.WriteBit(item->GetTemplate()->LockID != 0);
             data.WriteBit(creatorGuid[3]);
+            data.WriteBit(creatorGuid[5]);
             data.WriteBit(creatorGuid[1]);
             data.WriteBit(creatorGuid[4]);
-            data.WriteBit(creatorGuid[5]);
+            data.WriteBit(creatorGuid[2]);
+            data.WriteBit(item->GetTemplate()->LockID != 0);
             data.WriteBit(creatorGuid[7]);
-            
-            itemData.WriteByteSeq(creatorGuid[0]);
-            itemData << uint32(0);
-            itemData << uint32(0);
-            itemData.WriteByteSeq(creatorGuid[4]);
-            itemData << uint32(0);
-            itemData.WriteByteSeq(creatorGuid[5]);
+            data.WriteBit(creatorGuid[0]);
+
             for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
                 itemData << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
-                
+
+            itemData.WriteByteSeq(creatorGuid[2]);
+            itemData << uint32(0);
+            itemData << uint32(0);
             itemData << uint32(0);
             itemData.WriteByteSeq(creatorGuid[6]);
-            itemData << uint32(0);
-            itemData << uint32(0);
-            itemData.WriteByteSeq(creatorGuid[7]);
             itemData << uint32(0);
             itemData.WriteByteSeq(creatorGuid[3]);
+            itemData << uint32(0);
             itemData.WriteByteSeq(creatorGuid[1]);
             itemData << uint32(0);
-            itemData.WriteByteSeq(creatorGuid[2]);
-        }
-        data.WriteBit(giftCreatorGuid[7]);
-        data.WriteBit(giftCreatorGuid[0]);
-        data.WriteBit(giftCreatorGuid[3]);
-        data.WriteBit(giftCreatorGuid[4]);
-        data.WriteBit(giftCreatorGuid[6]);
-
-        itemData.WriteByteSeq(giftCreatorGuid[5]);
-        itemData.WriteByteSeq(giftCreatorGuid[0]);
-        itemData << uint32(item->GetTemplate()->ItemId);
-        itemData.WriteByteSeq(giftCreatorGuid[7]);
-        itemData.WriteByteSeq(giftCreatorGuid[3]);
-        itemData << uint32(item->GetCount());
-        itemData.WriteByteSeq(giftCreatorGuid[1]);
-        itemData.WriteByteSeq(giftCreatorGuid[2]);
-        itemData.WriteByteSeq(giftCreatorGuid[4]);
-        itemData.WriteByteSeq(giftCreatorGuid[6]);
-        itemData << uint8(i);
-    }
-    data.FlushBits();
-    data.append(itemData);
-
-    /*data << uint32(0);                                      // this value must be equal to value from TRADE_STATUS_OPEN_WINDOW status packet (different value for different players to block multiple trades?)
-    data << uint32(0);                                      // unk 2
-    data << uint64(view_trade->GetMoney());                 // trader gold
-    data << uint32(view_trade->GetSpell());                 // spell casted on lowest slot item
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
-    data << uint32(0);                                      // unk 5
-    
-    data.WriteBits(count, 22);
-
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-    {
-        Item* item = view_trade->GetItem(TradeSlots(i));
-        if (!item)
-            continue;
-
-        ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR);
-        ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
-
-        data.WriteBit(giftCreatorGuid[7]);
-        data.WriteBit(giftCreatorGuid[1]);
-        bool notWrapped = data.WriteBit(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED));
-        data.WriteBit(giftCreatorGuid[3]);
-
-        if (notWrapped)
-        {
-            data.WriteBit(creatorGuid[7]);
-            data.WriteBit(creatorGuid[1]);
-            data.WriteBit(creatorGuid[4]);
-            data.WriteBit(creatorGuid[6]);
-            data.WriteBit(creatorGuid[2]);
-            data.WriteBit(creatorGuid[3]);
-            data.WriteBit(creatorGuid[5]);
-            data.WriteBit(item->GetTemplate()->LockID != 0);
-            data.WriteBit(creatorGuid[0]);
-
-            itemData.WriteByteSeq(creatorGuid[1]);
-
-            itemData << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-            for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS /*3*//*; ++enchant_slot)
-                itemData << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
-            itemData << uint32(item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
-
-            itemData.WriteByteSeq(creatorGuid[6]);
-            itemData.WriteByteSeq(creatorGuid[2]);
+            itemData.WriteByteSeq(creatorGuid[0]);
             itemData.WriteByteSeq(creatorGuid[7]);
             itemData.WriteByteSeq(creatorGuid[4]);
-
-            itemData << uint32(0); // reforge id, FIXME: not implemented
-            itemData << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY));
-            itemData << uint32(item->GetItemRandomPropertyId());
-
-            itemData.WriteByteSeq(creatorGuid[3]);
-
-            itemData << uint32(0); // unk7
-
-            itemData.WriteByteSeq(creatorGuid[0]);
-
-            itemData << uint32(item->GetSpellCharges());
-            itemData << uint32(item->GetItemSuffixFactor());
-
             itemData.WriteByteSeq(creatorGuid[5]);
+
+            itemData << uint32(0);
+            itemData << uint32(0);
         }
 
-        data.WriteBit(giftCreatorGuid[6]);
         data.WriteBit(giftCreatorGuid[4]);
-        data.WriteBit(giftCreatorGuid[2]);
-        data.WriteBit(giftCreatorGuid[0]);
         data.WriteBit(giftCreatorGuid[5]);
 
-        itemData.WriteByteSeq(giftCreatorGuid[6]);
-        itemData.WriteByteSeq(giftCreatorGuid[1]);
+        itemData.WriteByteSeq(giftCreatorGuid[3]);
         itemData.WriteByteSeq(giftCreatorGuid[7]);
         itemData.WriteByteSeq(giftCreatorGuid[4]);
-
-        itemData << uint32(item->GetTemplate()->ItemId);
-
-        itemData.WriteByteSeq(giftCreatorGuid[0]);
-
-        itemData << uint32(item->GetCount());
-
-        itemData.WriteByteSeq(giftCreatorGuid[5]);
-
         itemData << uint8(i);
-
+        itemData.WriteByteSeq(giftCreatorGuid[6]);
+        itemData << uint32(item->GetTemplate()->ItemId);
+        itemData.WriteByteSeq(giftCreatorGuid[0]);
+        itemData.WriteByteSeq(giftCreatorGuid[1]);
         itemData.WriteByteSeq(giftCreatorGuid[2]);
-        itemData.WriteByteSeq(giftCreatorGuid[3]);
+        itemData.WriteByteSeq(giftCreatorGuid[5]);
+        itemData << uint32(item->GetCount());
     }
 
     data.FlushBits();
-    data.append(itemData);*/
+    data.append(itemData);
 
     SendPacket(&data);
 }
@@ -458,7 +363,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
             if (item->IsBindedNotWith(trader))
             {
                 SendTradeStatus(TRADE_STATUS_NOT_ELIGIBLE);
-                SendTradeStatus(TRADE_STATUS_CLOSE_WINDOW/*TRADE_STATUS_TRADE_CANCELED*/);
+                SendTradeStatus(/*TRADE_STATUS_CLOSE_WINDOW*/TRADE_STATUS_TRADE_CANCELED);
                 return;
             }
         }
@@ -662,9 +567,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
     }
     else
-    {
         trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
-    }
 }
 
 void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
@@ -705,10 +608,12 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = {2, 5, 0, 7, 6, 4, 1, 3};
+    uint8 bitOrder[8] = { 7, 4, 2, 6, 0, 1, 3, 5 };
     recvPacket.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {0, 4, 2, 7, 3, 6, 1, 5};
+    recvPacket.FlushBits();
+
+    uint8 byteOrder[8] = { 2, 5, 0, 3, 7, 1, 6, 4 };
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     if (GetPlayer()->m_trade)
@@ -754,7 +659,8 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
     if (pOther == GetPlayer() || pOther->m_trade)
     {
-        SendTradeStatus(TRADE_STATUS_BUSY);
+        // Ignore
+        SendTradeStatus(TRADE_STATUS_BUSY_2);
         return;
     }
 
@@ -810,19 +716,21 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     _player->m_trade = new TradeData(_player, pOther);
     pOther->m_trade = new TradeData(pOther, _player);
 
-    WorldPacket data(SMSG_TRADE_STATUS, 2+7);
+    WorldPacket data(SMSG_TRADE_STATUS);
+
+    // Is need update statuts enum ?
     data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
 
     ObjectGuid playerGuid = _player->GetGUID();
     // WTB StartBitStream...
     
-    uint8 bitOrder2[8] = {4, 0, 5, 6, 1, 3, 2, 7};
-    data.WriteBitInOrder(guid, bitOrder2);
+    uint8 bitOrder2[8] = { 2, 4, 1, 0, 6, 3, 7, 5 };
+    data.WriteBitInOrder(playerGuid, bitOrder2);
 
     data.WriteBit(0); // unk bit, usually 0
     
-    uint8 byteOrder2[8] = {0, 2, 4, 7, 5, 6, 1, 3};
-    data.WriteBytesSeq(guid, byteOrder2);
+    uint8 byteOrder2[8] = { 3, 1, 5, 7, 4, 0, 6, 2 };
+    data.WriteBytesSeq(playerGuid, byteOrder2);
 
     pOther->GetSession()->SendPacket(&data);
 }
@@ -844,12 +752,12 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
 {
     // send update
     uint8 tradeSlot;
-    uint8 bag;
-    uint8 slot;
+    uint8 srcBag;
+    uint8 srcSlot;
     
-    recvPacket >> bag;
     recvPacket >> tradeSlot;
-    recvPacket >> slot;
+    recvPacket >> srcSlot;
+    recvPacket >> srcBag;
 
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -863,7 +771,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     }
 
     // check cheating, can't fail with correct client operations
-    Item* item = _player->GetItemByPos(bag, slot);
+    Item* item = _player->GetItemByPos(srcBag, srcSlot);
     if (!item || (tradeSlot != TRADE_SLOT_NONTRADED && !item->CanBeTraded(false, true)))
     {
         SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);

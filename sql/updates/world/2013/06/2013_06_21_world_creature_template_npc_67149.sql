@@ -4,7 +4,7 @@
     INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `isActive`) VALUES('67149','870','5785','5961','1','1','0','0','1528.89','-533.504','317.127','5.84862','300','7.786','0','1','0','1','0','559104','0','0');
     UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14, `unit_flags` = 0, `ScriptName` = 'mob_grookin_outrunner' WHERE `entry` = 67149;
     UPDATE creature_template SET lootid = 67149 WHERE entry = 67149;
-    DELETE FROM creature_looy_template WHERE entry = 67149;
+    DELETE FROM creature_loot_template WHERE entry = 67149;
     INSERT INTO creature_loot_template VALUES (67149, 90167, 97.718, 1, 0, 1, 1);
     INSERT INTO creature_loot_template VALUES (67149, 82328, 91.598, 1, 0, 1, 1);
     INSERT INTO creature_loot_template VALUES (67149, 74838, 57.469, 1, 0, 1, 1);

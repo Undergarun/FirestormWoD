@@ -1,7 +1,7 @@
-update creature_template set rank=1, minlevel=79, maxlevel=80 where entry in (28781, 32796);
-update creature_template set exp=3 where entry in (27894, 28781, 32795, 32796);
-update creature_template set Health_mod=15 where entry=28781;
-update creature_template set Health_mod=20 where entry=32796;
+update creature_template set rank = 1, minlevel = 65, maxlevel = 90 where entry in (28781, 32796);
+update creature_template set exp = 4 where entry in (27894, 28781, 32795, 32796);
+update creature_template set Health_mod = 15 where entry = 28781;
+update creature_template set Health_mod = 20 where entry = 32796;
 replace into creature_template 
 (entry , difficulty_entry_1 , difficulty_entry_2 , difficulty_entry_3 , KillCredit1 , KillCredit2 , modelid1 , modelid2 , modelid3 , modelid4 , name                    , subname                  , IconName       , gossip_menu_id , minlevel , maxlevel , exp , exp_unk , faction_A , faction_H , npcflag  , speed_walk , speed_run , scale , rank , mindmg , maxdmg , dmgschool , attackpower , dmg_multiplier , baseattacktime , rangeattacktime , unit_class , unit_flags , unit_flags2 , dynamicflags , family , trainer_type , trainer_spell , trainer_class , trainer_race , minrangedmg , maxrangedmg , rangedattackpower , type , type_flags , type_flags2 , lootid , pickpocketloot , skinloot , resistance1 , resistance2 , resistance3 , resistance4 , resistance5 , resistance6 , spell1 , spell2 , spell3 , spell4 , spell5 , spell6 , spell7 , spell8 , PetSpellDataId , VehicleId , mingold , maxgold , AIName , MovementType , InhabitType , HoverHeight , Health_mod , Mana_mod , Mana_mod_extra , Armor_mod , RacialLeader , questItem1 , questItem2 , questItem3 , questItem4 , questItem5 , questItem6 , movementId , RegenHealth , equipment_id , mechanic_immune_mask , flags_extra , ScriptName , WDBVerified)
 values

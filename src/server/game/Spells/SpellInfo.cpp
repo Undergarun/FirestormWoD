@@ -2882,7 +2882,6 @@ bool SpellInfo::IsBreakingCamouflage() const
         case 13813: // Explosive Trap
         case 19263: // Deterence
         case 19434: // Aimed Shot
-        case 23989: // Readiness
         case 26297: // Berserking
         case 34477: // Misdirection
         case 34600: // Snake Trap

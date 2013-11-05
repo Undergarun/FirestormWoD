@@ -116,7 +116,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_ITEM");
     uint8 dstbag, dstslot, srcbag, srcslot;
 
-    recvData >> srcslot >> dstslot >> srcbag >> dstbag;
+    recvData >> srcslot >> dstbag >> dstslot >> srcbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((srcbag << 8) | srcslot);
@@ -949,11 +949,25 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
     uint8 srcbag, srcslot, dstbag;
 
-    recvData >> srcbag >> srcslot >> dstbag;
-    //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
+    recvData >> dstbag >> srcbag >> srcslot;
+
+    uint8 unkCounter = recvData.ReadBits(2);
+
+    for (uint8 i = 0; i < unkCounter; i++)
+    {
+        recvData.ReadBit();
+        recvData.ReadBit();
+    }
+
+    recvData.FlushBits();
+
+    for (uint8 i = 0; i < unkCounter; i++)
+    {
+        recvData.read_skip<uint8>();
+        recvData.read_skip<uint8>();
+    }
 
     Item* pItem = _player->GetItemByPos(srcbag, srcslot);
     if (!pItem)

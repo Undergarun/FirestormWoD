@@ -33,10 +33,12 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = {2, 7, 0, 5, 6, 3, 1, 4};
+    uint8 bitOrder[8] = { 6, 2, 4, 1, 5, 3, 0, 7 };
     recvPacket.ReadBitInOrder(guid, bitOrder);
+
+    recvPacket.FlushBits();
     
-    uint8 byteOrder[8] = {3, 4, 1, 5, 0, 2, 7, 6};
+    uint8 byteOrder[8] = { 5, 2, 3, 6, 1, 0, 4, 7 };
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     Player* caster = GetPlayer();
@@ -51,6 +53,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()))
         return;
     caster->CastSpell(unitTarget, 7266, false);
+
     // Players can only fight a duel in zones with this flag
     /*AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetAreaId());
     if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))

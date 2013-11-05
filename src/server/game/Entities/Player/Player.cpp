@@ -4599,7 +4599,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 }
                 else
                 {
-                    WorldPacket data(SMSG_REMOVED_SPELL, 4);
+                    WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
                     data.WriteBits(1, 22);  // Count spells, always one by one
                     data << uint32(spellId);
                     GetSession()->SendPacket(&data);
@@ -5145,7 +5145,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // remove from spell book if not replaced by lesser rank
     if (!prev_activate)
     {
-        WorldPacket data(SMSG_REMOVED_SPELL, 4);
+        WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
         data.WriteBits(1, 22);  // Count spells, always one by one
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
@@ -8347,8 +8347,9 @@ void Player::SendNewCurrency(uint32 id) const
         return;
 
     ByteBuffer currencyData;
-    WorldPacket packet(SMSG_INIT_CURRENCY, 4 + 1*(5*4 + 1));
-    packet.WriteBits(1, 22);
+    WorldPacket packet(SMSG_INIT_CURRENCY);
+
+    packet.WriteBits(1, 21);
     
     CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
     if (!entry) // should never happen
@@ -8359,31 +8360,34 @@ void Player::SendNewCurrency(uint32 id) const
     uint32 weekCap = GetCurrencyWeekCap(entry) / precision;
     uint32 seasonTotal = itr->second.seasonTotal / precision;
     
-    packet.WriteBit(weekCap);
     packet.WriteBit(weekCount);
-    packet.WriteBit(seasonTotal);     // season total earned
-    packet.WriteBits(0, 5);           // some flags
-    
-    if (weekCap)
-        currencyData << uint32(weekCap);
+    packet.WriteBit(seasonTotal);
+    packet.WriteBit(weekCap);
+    packet.WriteBits(0, 5);           // Unk flags
+
+    currencyData << uint32(itr->second.totalCount / precision);
+
     if (weekCount)
         currencyData << uint32(weekCount);
+    if (weekCap)
+        currencyData << uint32(weekCap);
     if (seasonTotal)
         currencyData << uint32(seasonTotal);
     
-    currencyData << uint32(itr->second.totalCount / precision);
     currencyData << uint32(entry->ID);
     
     packet.FlushBits();
     packet.append(currencyData);
+
     GetSession()->SendPacket(&packet);
 }
 
 void Player::SendCurrencies() const
 {
     ByteBuffer currencyData;
-    WorldPacket packet(SMSG_INIT_CURRENCY, 4 + _currencyStorage.size()*(5*4 + 1));
-    packet.WriteBits(_currencyStorage.size(), 22);
+    WorldPacket packet(SMSG_INIT_CURRENCY);
+
+    packet.WriteBits(_currencyStorage.size(), 21);
 
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
@@ -8396,24 +8400,26 @@ void Player::SendCurrencies() const
         uint32 weekCap = GetCurrencyWeekCap(entry) / precision;
         uint32 seasonTotal = itr->second.seasonTotal / precision;
         
-        packet.WriteBit(weekCap);
         packet.WriteBit(weekCount);
-        packet.WriteBit(seasonTotal);     // season total earned
-        packet.WriteBits(0, 5); // some flags
+        packet.WriteBit(seasonTotal);
+        packet.WriteBit(weekCap);
+        packet.WriteBits(0, 5);         // Unk flags
+
+        currencyData << uint32(itr->second.totalCount / precision);
         
-        if (weekCap)
-            currencyData << uint32(weekCap);
         if (weekCount)
             currencyData << uint32(weekCount);
+        if (weekCap)
+            currencyData << uint32(weekCap);
         if (seasonTotal)
             currencyData << uint32(seasonTotal);
 
-        currencyData << uint32(itr->second.totalCount / precision);
         currencyData << uint32(entry->ID);
     }
 
     packet.FlushBits();
     packet.append(currencyData);
+
     GetSession()->SendPacket(&packet);
 }
 
@@ -24724,8 +24730,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendKnownSpells();
 
-    data.Initialize(SMSG_SEND_UNLEARN_SPELLS);
-    data.WriteBits(0, 24);                         // count, read uint32 spells id
+    data.Initialize(SMSG_UNLEARNED_SPELLS);
+    data.WriteBits(0, 22);                         // count, read uint32 spells id
     GetSession()->SendPacket(&data);
 
     SendInitialActionButtons();
@@ -27357,29 +27363,96 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 void Player::SendEquipmentSetList()
 {
     uint32 count = 0;
-    WorldPacket data(SMSG_EQUIPMENT_SET_LIST, 4);
-    size_t count_pos = data.wpos();
-    data << uint32(count);                                  // count placeholder
+
+    WorldPacket data(SMSG_EQUIPMENT_SET_LIST);
+    ByteBuffer bytesData;
+
     for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
     {
         if (itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
-        data.appendPackGUID(itr->second.Guid);
-        data << uint32(itr->first);
-        data << itr->second.Name;
-        data << itr->second.IconName;
+
+        ++count;
+    }
+
+    data.WriteBits(count, 19);
+
+    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    {
+        if (itr->second.state == EQUIPMENT_SET_DELETED)
+            continue;
+
+        ObjectGuid setGuid = itr->second.Guid;
+
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
             if (itr->second.IgnoreMask & (1 << i))
-                data.appendPackGUID(uint64(1));
+            {
+                uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
+                data.WriteBitInOrder(NULL, bitsOrder);
+            }
             else
-                data.appendPackGUID(MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM));
+            {
+                ObjectGuid itemGuid = MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM);
+
+                uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
+                data.WriteBitInOrder(itemGuid, bitsOrder);
+            }
         }
 
-        ++count;                                            // client have limit but it checked at loading and set
+        data.WriteBit(setGuid[6]);
+        data.WriteBit(setGuid[0]);
+        data.WriteBit(setGuid[2]);
+        data.WriteBit(setGuid[5]);
+        data.WriteBits(itr->second.Name.size(), 8);
+        data.WriteBit(setGuid[3]);
+
+        uint8 wrongLen = itr->second.IconName.size() % 2;
+        data.WriteBits((itr->second.IconName.size() - wrongLen) / 2, 8);
+        data.WriteBit(wrongLen != 0);
+        data.WriteBit(setGuid[4]);
+        data.WriteBit(setGuid[7]);
+        data.WriteBit(setGuid[1]);
     }
-    data.put<uint32>(count_pos, count);
+
+    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    {
+        if (itr->second.state == EQUIPMENT_SET_DELETED)
+            continue;
+
+        ObjectGuid setGuid = itr->second.Guid;
+
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        {
+            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
+            if (itr->second.IgnoreMask & (1 << i))
+            {
+                uint8 bytesOrder[8] = { 4, 6, 3, 5, 0, 2, 1, 7 };
+                data.WriteBytesSeq(NULL, bytesOrder);
+            }
+            else
+            {
+                ObjectGuid itemGuid = MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM);
+
+                uint8 bytesOrder[8] = { 4, 6, 3, 5, 0, 2, 1, 7 };
+                data.WriteBytesSeq(itemGuid, bytesOrder);
+            }
+        }
+
+        data.append(itr->second.Name.c_str(), itr->second.Name.size());
+        data.WriteByteSeq(setGuid[5]);
+        data.WriteByteSeq(setGuid[0]);
+        data.WriteByteSeq(setGuid[3]);
+        data.WriteByteSeq(setGuid[6]);
+        data.WriteByteSeq(setGuid[1]);
+        data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+        data.WriteByteSeq(setGuid[7]);
+        data.WriteByteSeq(setGuid[4]);
+        data.WriteByteSeq(setGuid[2]);
+        data << uint32(itr->first);
+    }
+
     GetSession()->SendPacket(&data);
 }
 
@@ -27414,10 +27487,25 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
     if (eqset.Guid == 0)
     {
         eqslot.Guid = sObjectMgr->GenerateEquipmentSetGuid();
+        ObjectGuid guid = eqslot.Guid;
 
-        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
+        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED);
+
+        uint8 bitsOrder[8] = { 2, 6, 0, 5, 3, 4, 1, 7 };
+        data.WriteBitInOrder(guid, bitsOrder);
+
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[1]);
+
         data << uint32(index);
-        data.appendPackGUID(eqslot.Guid);
+
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[3]);
+
         GetSession()->SendPacket(&data);
     }
 
@@ -28507,15 +28595,15 @@ void Player::SetMover(Unit* target)
     m_mover = target;
     m_mover->m_movedPlayer = this;
 
-    if(m_mover)
+    if (m_mover)
     {
         WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
         ObjectGuid guid = m_mover->GetGUID();
     
-        uint8 bitOrder[8] = {7, 0, 3, 4, 5, 1, 2, 6};
+        uint8 bitOrder[8] = { 7, 4, 2, 6, 0, 1, 3, 5 };
         data.WriteBitInOrder(guid, bitOrder);
     
-        uint8 byteOrder[8] = {0, 2, 6, 7, 1, 3, 4, 5};
+        uint8 byteOrder[8] = { 2, 5, 0, 3, 7, 1, 6, 4 };
         data.WriteBytesSeq(guid, byteOrder);
 
         GetSession()->SendPacket(&data);
