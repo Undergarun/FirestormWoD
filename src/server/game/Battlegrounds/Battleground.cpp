@@ -313,12 +313,7 @@ void Battleground::Update(uint32 diff)
 
     // Update start time and reset stats timer
     m_StartTime += diff;
-    if (GetStatus() == STATUS_WAIT_JOIN)
-    {
-        m_ResetStatTimer += diff;
-        m_CountdownTimer += diff;
-    }
-    m_ValidStartPositionTimer += diff;
+    m_ResetStatTimer += diff;
 
     PostUpdateImpl(diff);
 }
@@ -476,8 +471,10 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     // ***           BATTLEGROUND STARTING SYSTEM            ***
     // *********************************************************
     ModifyStartDelayTime(diff);
+    ModifyCountdownTimer(diff);
 
-    if (!isArena())
+    // I know it's a too big but it's the value sent in packet, I get it from retail sniff.
+    // I think it's link to the countdown when bgs start
     SetRemainingTime(300000);
 
     if (m_ResetStatTimer > 5000)
@@ -486,23 +483,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 player->ResetAllPowers();
-    }
-
-    // Send packet every 10 seconds until the 2nd field reach 0
-    if (m_CountdownTimer >= 10000)
-    {
-        uint32 countdownMaxForBGType = isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
-
-        WorldPacket data(SMSG_START_TIMER, 4+4+4);
-        data << uint32(0); // unk
-        data << uint32(countdownMaxForBGType - (m_CountdownTimer / 1000));
-        data << uint32(countdownMaxForBGType);
-
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->GetSession()->SendPacket(&data);
-
-        m_CountdownTimer = 0;
     }
 
     if (!(m_Events & BG_STARTING_EVENT_1))
@@ -525,6 +505,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         StartingEventCloseDoors();
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
+        SetCountdownTimer(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
         // First start warning - 2 or 1 minute
         SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }

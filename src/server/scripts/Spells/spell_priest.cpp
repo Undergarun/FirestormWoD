@@ -43,7 +43,7 @@ enum PriestSpells
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
     PRIEST_INNER_WILL                               = 73413,
     PRIEST_INNER_FIRE                               = 588,
-    PRIEST_NPC_SHADOWY_APPARITION                   = 61966,
+    PRIEST_NPC_SHADOWY_APPARITION                   = 46954,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
