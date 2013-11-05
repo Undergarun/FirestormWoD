@@ -9493,6 +9493,9 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
     AuraEffectList const& auraDamagePctList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
         _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
+
+    UpdateMeleeHitChances();
+    UpdateRangedHitChances();
 }
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply)
