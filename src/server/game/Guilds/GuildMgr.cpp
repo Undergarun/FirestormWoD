@@ -438,12 +438,12 @@ void GuildMgr::LoadGuilds()
     // 10. Loading Guild news
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
     {
-         for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-         {
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
             stmt->setInt32(0, itr->first);
             itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
-         }
+        }
     }
     
     // 11. Validate loaded guild data

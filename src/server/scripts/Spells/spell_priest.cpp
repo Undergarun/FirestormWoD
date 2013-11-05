@@ -125,7 +125,7 @@ enum PriestSpells
     PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
-    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562,
+    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562
 };
 
 // Power Word : Fortitude - 21562
@@ -1610,13 +1610,13 @@ class spell_pri_evangelism : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_evangelism_SpellScript);
 
-			void HandleOnHit()
-			{
+            void HandleOnHit()
+            {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (_player->HasAura(PRIEST_EVANGELISM_AURA))
                         if (GetHitDamage())
                             _player->CastSpell(_player, PRIEST_EVANGELISM_STACK, true);
-			}
+            }
 
             void Register()
             {
@@ -1640,24 +1640,24 @@ class spell_pri_archangel : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_archangel_SpellScript);
 
-			void HandleOnHit()
-			{
-				if (Player* _player = GetCaster()->ToPlayer())
-				{
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
                     int stackNumber = _player->GetAura(PRIEST_EVANGELISM_STACK)->GetStackAmount();
-					if (!(stackNumber > 0))
-						return;
+                    if (!(stackNumber > 0))
+                        return;
 
-					if (AuraPtr archangel = _player->GetAura(GetSpellInfo()->Id))
-					{
-						if (archangel->GetEffect(0))
-						{
+                    if (AuraPtr archangel = _player->GetAura(GetSpellInfo()->Id))
+                    {
+                        if (archangel->GetEffect(0))
+                        {
                             archangel->GetEffect(0)->ChangeAmount(archangel->GetEffect(0)->GetAmount() * stackNumber);
                             _player->RemoveAura(PRIEST_EVANGELISM_STACK);
-						}
-					}
-				}
-			}
+                        }
+                    }
+                }
+            }
 
             void Register()
             {
@@ -2514,14 +2514,14 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 // Called by Renew - 139
 // Rapid Renew - 95649
-class spell_priest_renew : public SpellScriptLoader
+class spell_pri_renew : public SpellScriptLoader
 {
     public:
-        spell_priest_renew() : SpellScriptLoader("spell_priest_renew") { }
+        spell_pri_renew() : SpellScriptLoader("spell_priest_renew") { }
 
-        class spell_priest_renew_AuraScript : public AuraScript
+        class spell_pri_renew_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_priest_renew_AuraScript);
+            PrepareAuraScript(spell_pri_renew_AuraScript);
 
             void HandleApplyEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
@@ -2547,7 +2547,7 @@ class spell_priest_renew : public SpellScriptLoader
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_priest_renew_AuraScript();
+            return new spell_pri_renew_AuraScript();
         }
 };
 
@@ -2673,7 +2673,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_reflective_shield_trigger();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_vampiric_touch();
-    new spell_priest_renew();
+    new spell_pri_renew();
     new spell_pri_shadowform();
     new spell_pri_evangelism();
     new spell_pri_archangel();
