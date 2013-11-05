@@ -175,7 +175,7 @@ enum TrinityStrings
     LANG_YOU_CHANGE_RUNIC_POWER         = 173,
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
     LANG_LIQUID_STATUS                  = 175,
-	
+
     LANG_PHASING_REPORT_STATUS          = 176,	
     LANG_PHASING_NO_DEFINITIONS         = 177,              // Phasing
     LANG_PHASING_SUCCESS                = 178,
@@ -951,21 +951,21 @@ enum TrinityStrings
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
 
-	// Silvershard Mines
-	LANG_BG_SM_CART_1                   = 1334,
+    // Silvershard Mines
+    LANG_BG_SM_CART_1                   = 1334,
     LANG_BG_SM_CART_2                   = 1335,
     LANG_BG_SM_CART_3                   = 1336,
     LANG_BG_SM_CART_TAKEN               = 1337,
     LANG_BG_SM_CART_DEFENDED            = 1338,
     LANG_BG_SM_CART_ASSAULTED           = 1339,
     LANG_BG_SM_CART_CLAIMED             = 1340,
-	LANG_BG_SM_START_ONE_MINUTE         = 1341,
+    LANG_BG_SM_START_ONE_MINUTE         = 1341,
     LANG_BG_SM_START_HALF_MINUTE        = 1342,
     LANG_BG_SM_HAS_BEGUN                = 1343,
     LANG_BG_SM_A_NEAR_VICTORY           = 1344,
     LANG_BG_SM_H_NEAR_VICTORY           = 1345,
 
-	// Temple of Kotmogu
+    // Temple of Kotmogu
     LANG_BG_KT_START_ONE_MINUTE         = 1346,
     LANG_BG_KT_START_HALF_MINUTE        = 1347,
     LANG_BG_KT_HAS_BEGUN                = 1348,

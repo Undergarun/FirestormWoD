@@ -43,7 +43,7 @@ enum PriestSpells
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
     PRIEST_INNER_WILL                               = 73413,
     PRIEST_INNER_FIRE                               = 588,
-    PRIEST_NPC_SHADOWY_APPARITION                   = 61966,
+    PRIEST_NPC_SHADOWY_APPARITION                   = 46954,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -2517,7 +2517,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 class spell_pri_renew : public SpellScriptLoader
 {
     public:
-        spell_pri_renew() : SpellScriptLoader("spell_priest_renew") { }
+        spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
 
         class spell_pri_renew_AuraScript : public AuraScript
         {
@@ -2541,7 +2541,7 @@ class spell_pri_renew : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_priest_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_pri_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 

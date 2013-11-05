@@ -1342,8 +1342,8 @@ void AddPandarieScripts()
 
     AddSC_townlong_steppes();
     AddSC_dread_wastes();
-	AddSC_valley_of_the_four_winds();
-	AddSC_krasarang_wilds();
+    AddSC_valley_of_the_four_winds();
+    AddSC_krasarang_wilds();
     AddSC_jade_forest();
     AddSC_kun_lai_summit();
     AddSC_vale_of_eternal_blossoms();

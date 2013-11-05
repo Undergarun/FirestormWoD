@@ -203,7 +203,7 @@ enum CreaturesIds
     //Horde
     NPC_SAURCROC_GUNSHIP                        = 36939,
     NPC_GUNSHIP_H                               = 37215,
-    NPC_CANON_H	                                = 36839,
+    NPC_CANON_H                                 = 36839,
     NPC_TIREUR_H                                = 36968,
     NPC_MAGE_H                                  = 37117,
     NPC_ARTILLEUR_H                             = 36982,
