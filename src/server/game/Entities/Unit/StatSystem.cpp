@@ -476,9 +476,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     if (IsInFeralForm())                                    //check if player is druid and in cat or bear forms
     {
         float weaponSpeed = BASE_ATTACK_TIME / 1000.f;
-        if (Item* weapon = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-            if (weapon->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                weaponSpeed = float(0.001f * weapon->GetTemplate()->Delay); 
+        if (Item* weapon = GetWeaponForAttack(BASE_ATTACK, true))
+            weaponSpeed =  weapon->GetTemplate()->Delay / 1000;
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
@@ -761,18 +760,7 @@ void Player::UpdateMasteryPercentage()
 
 void Player::UpdateMeleeHitChances()
 {
-    m_modMeleeHitChance = 0;
-    AuraEffectList const & alist = GetAuraEffectsByType(SPELL_AURA_MOD_HIT_CHANCE);
-    Item *weapon = this->GetWeaponForAttack(BASE_ATTACK);
-    for (AuraEffectList::const_iterator itr = alist.begin(); itr != alist.end(); ++itr)
-    {
-        if ((*itr)->GetSpellInfo()->EquippedItemSubClassMask && !weapon)
-            continue;
-        if (weapon && !weapon->IsFitToSpellRequirements((*itr)->GetSpellInfo()))
-            continue;
-        m_modMeleeHitChance += (*itr)->GetAmount();
-    }
-    SetFloatValue(PLAYER_FIELD_UI_HIT_MODIFIER, m_modMeleeHitChance);
+    m_modMeleeHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
     m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
 
     if (Pet* pet = GetPet())

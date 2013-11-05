@@ -458,7 +458,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (deletePacket)
             delete packet;
 
-#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 200
+#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 100
         processedPackets++;
 
         //process only a max amout of packets in 1 Update() call.

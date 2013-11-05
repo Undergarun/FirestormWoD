@@ -860,18 +860,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         switch (cleanDamage->attackType)
         {
             case BASE_ATTACK:
-            {
                 weaponSpeedHitFactor = uint32(GetAttackTime(cleanDamage->attackType) / 1000.0f * 6.5f);
                 RewardRage(weaponSpeedHitFactor, true);
                 break;
-            }
             case OFF_ATTACK:
-            {
                 weaponSpeedHitFactor = uint32(GetAttackTime(cleanDamage->attackType) / 1000.0f * 3.25f);
                 RewardRage(weaponSpeedHitFactor, true);
-                break;
-            }
-            case RANGED_ATTACK:
                 break;
             default:
                 break;
@@ -900,9 +894,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         // Rage from absorbed damage
         if (cleanDamage && cleanDamage->absorbed_damage && victim->getPowerType() == POWER_RAGE)
-        {
             victim->RewardRage(cleanDamage->absorbed_damage, false);
-        }
 
         return 0;
     }
@@ -7428,14 +7420,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
         {
             switch (dummySpell->Id)
             {
-                // Lava Surge
-                case 77755:
-                case 77756:
-                {
-                    triggered_spell_id = 77762;
-                    target = this;
-                    break;
-                }
                 case 120676:// Stormlash Totem
                 {
                     // -- http://www.wowhead.com/spell=120668#comments:id=1707196
@@ -20376,35 +20360,16 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
 {
     float addRage = baseRage;
 
+    // talent who gave more rage on attack
     if (attacker)
-    {
-        // talent who gave more rage on attack
         addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
-
-        // Sentinel - Protection Warrior Mastery
-        if (AuraEffectPtr aurEff = GetAuraEffect(29144, 1))
-            if (getVictim() && (!getVictim()->getVictim() || (getVictim()->getVictim() && this != getVictim()->getVictim())))
-                addRage *= float((aurEff->GetAmount() + 100.0f) / 100.0f);
-    }
     else
     {
-        addRage /= (GetCreateHealth()/35);
+        addRage /= (GetMaxHealth() / 100);
 
         // Generate rage from damage taken only in Berserker Stance
         if (!HasAura(2458))
             return;
-
-        // Berserker Rage effect
-        if (HasAura(18499))
-        {
-            float mod = 2.0f;
-
-            // Unshackled Fury (Mastery Fury Warrior)
-            if (AuraPtr aura = GetAura(76856))
-                mod += float(aura->GetEffect(0)->GetAmount() / 100.0f);
-
-            addRage *= mod;
-        }
     }
 
     ModifyPower(POWER_RAGE, uint32(addRage * 10));

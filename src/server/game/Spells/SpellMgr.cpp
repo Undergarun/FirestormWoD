@@ -4226,14 +4226,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     break;
-                // Tree of Life
-                case 65139:
-                    spellInfo->Effects[1].Effect = 0;
-                    spellInfo->Effects[1].ApplyAuraName = 0;
-                    break;
-                case 60206: // Ram
-                    spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13); 
-                    break;
                 default:
                     break;
             }
@@ -4879,6 +4871,9 @@ void SpellMgr::LoadDbcDataCorrections()
     case 73530: // Shadow Trap (visual)
     spellInfo->DurationIndex = 28;          // 5 seconds
     break;
+    case 60206: // Ram
+       spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_10_YARDS;
+       break;
     case 73529: // Shadow Trap
     spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;   // 10yd
     break;

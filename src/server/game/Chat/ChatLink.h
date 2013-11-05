@@ -64,7 +64,7 @@ protected:
     std::string FormatName(uint8 index, ItemLocale const* locale, char* suffixStrings) const;
 
     ItemTemplate const* _item;
-    int32 _data[9];
+    int32 _data[8];
     ItemRandomSuffixEntry const* _suffix;
     ItemRandomPropertiesEntry const* _property;
 };

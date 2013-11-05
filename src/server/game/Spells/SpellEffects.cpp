@@ -857,15 +857,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Lava Surge
-                case 77762:
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->RemoveSpellCooldown(51505, true);
-                    return;
-                }
                 case 128997:// Spirit Beast Blessing
                 {
                     m_caster->CastSpell(m_caster, 127830, true);
@@ -2501,7 +2492,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
 
-    if (!damage)
+    if (damage < 0)
         return;
 
     if (unitTarget->GetMaxPower(power) == 0)
@@ -5103,7 +5094,16 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
 
     unitTarget->getHostileRefManager().UpdateVisibility();
 
-    unitTarget->CombatStop(false);
+    Unit::AttackerSet const& attackers = unitTarget->getAttackers();
+    for (Unit::AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+    {
+        if (!(*itr)->canSeeOrDetect(unitTarget))
+            (*(itr++))->AttackStop();
+        else
+            ++itr;
+    }
+
+    unitTarget->m_lastSanctuaryTime = getMSTime();
 
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131369)
@@ -5113,9 +5113,6 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         if (m_caster->ToPlayer()->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
     }
-    else if(!IsTriggered())
-        unitTarget->m_lastSanctuaryTime = getMSTime();
-
 }
 
 void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
