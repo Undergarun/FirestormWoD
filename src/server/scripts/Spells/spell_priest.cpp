@@ -2517,7 +2517,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 class spell_pri_renew : public SpellScriptLoader
 {
     public:
-        spell_pri_renew() : SpellScriptLoader("spell_priest_renew") { }
+        spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
 
         class spell_pri_renew_AuraScript : public AuraScript
         {
@@ -2541,7 +2541,7 @@ class spell_pri_renew : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_priest_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_pri_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
