@@ -125,7 +125,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Number of various item properties after item entry
-    const uint8 propsCount = 8;
+    const uint8 propsCount = 9;
     const uint8 randomPropertyPosition = 5;
     for (uint8 index = 0; index < propsCount; ++index)
     {
