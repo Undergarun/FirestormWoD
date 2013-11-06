@@ -344,12 +344,12 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
     uint8 bitOrder[8] = { 3, 4, 1, 0, 6, 2, 7, 5 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    recvData >> unk1;
+    unk1 = recvData.ReadBit();
 
     recvData.FlushBits();
 
     uint8 byteOrder[8] = { 6, 7, 4, 5, 3, 1, 0, 2 };
-    recvData.ReadBytesSeq(guid, bitOrder);
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, unk1 = %u", uint32(GUID_LOPART(guid)), questId, unk1);
 

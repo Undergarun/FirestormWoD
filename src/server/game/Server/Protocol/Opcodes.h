@@ -1303,7 +1303,7 @@ enum Opcodes
     SMSG_QUERY_PLAYER_NAME_RESPONSE                   = 0x0B7,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x000,  // 5.0.5 16048
     SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x000,  // 5.0.5 16048
-    SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x000,  // 5.0.5 16048
+    SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x142D, // 5.4.0 17399
     SMSG_QUESTGIVER_QUEST_FAILED                      = 0x000,  // 5.0.5 16048
     SMSG_QUESTGIVER_QUEST_INVALID                     = 0x000,  // 5.0.5 16048
     SMSG_QUESTGIVER_QUEST_LIST                        = 0x000,  // 5.0.5 16048
