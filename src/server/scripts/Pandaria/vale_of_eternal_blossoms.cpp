@@ -172,7 +172,7 @@ class mob_reanimated_jade_warrior : public CreatureScript
 
             void Reset()
             {
-                jadeFireTimer	  = urand(10000, 12000);
+                jadeFireTimer     = urand(10000, 12000);
                 jadeStrenghtTimer = urand(5000, 7000);
             }
 

@@ -1993,16 +1993,16 @@ public:
 
 enum eCollidusTheWarpWatcherSpells
 {
-    SPELL_BLINK				= 38932,
+    SPELL_BLINK             = 38932,
     SPELL_FOCUSED_BURSTS    = 36414,
-    SPELL_PSYCHIC_SCREAM    = 34322,
+    SPELL_PSYCHIC_SCREAM    = 34322
 };
 
 enum eCollidusTheWarpWatcherEvents
 {
-    EVENT_BLINK			    = 1,
+    EVENT_BLINK             = 1,
     EVENT_FOCUSED_BURSTS    = 2,
-    EVENT_PSYCHIC_SCREAM    = 3,
+    EVENT_PSYCHIC_SCREAM    = 3
 };
 
 class mob_collidus_the_warp_watcher : public CreatureScript

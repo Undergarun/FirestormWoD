@@ -5597,7 +5597,7 @@ void Spell::TakePower()
             }
         }
     }
-	
+
     if (powerType == POWER_RUNES)
     {
         TakeRunePower(hit);

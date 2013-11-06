@@ -23,12 +23,11 @@
 
 enum enchantmentRandomType
 {
-	ENCHANTMENT_RANDOM_SUFFIX,
-	ENCHANTMENT_RANDOM_PROPERTY,
+    ENCHANTMENT_RANDOM_SUFFIX,
+    ENCHANTMENT_RANDOM_PROPERTY,
 };
 
 void LoadRandomEnchantmentsTable();
 uint32 GetItemEnchantMod(int32 entry, uint32 type);
 uint32 GenerateEnchSuffixFactor(uint32 item_id);
 #endif
-
