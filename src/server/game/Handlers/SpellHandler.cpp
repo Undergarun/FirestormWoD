@@ -735,9 +735,16 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId;
+    bool unk, hasSpell;
+
+    unk = recvPacket.ReadBit();
+    hasSpell = recvPacket.ReadBit();
+    recvPacket.FlushBits();
+
+    if (hasSpell)
+        recvPacket >> spellId;
 
     recvPacket.read_skip<uint8>();                          // counter, increments with every CANCEL packet, don't use for now
-    recvPacket >> spellId;
 
     if (_player->IsNonMeleeSpellCasted(false))
         _player->InterruptNonMeleeSpells(false, spellId, false);
@@ -746,7 +753,20 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId;
+    ObjectGuid casterGuid;
+    bool unk;
+
     recvPacket >> spellId;
+
+    unk = recvPacket.ReadBit();
+
+    uint8 bitsOrder[8] = { 0, 2, 4, 1, 3, 7, 5, 6 };
+    recvPacket.ReadBitInOrder(casterGuid, bitsOrder);
+
+    recvPacket.FlushBits();
+
+    uint8 bytesOrder[8] = { 5, 1, 4, 6, 0, 7, 3, 2 };
+    recvPacket.ReadBytesSeq(casterGuid, bytesOrder);
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -771,8 +791,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (!spellInfo->IsPositive() || spellInfo->IsPassive())
         return;
 
-    // maybe should only remove one buff when there are multiple?
-    _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
+    _player->RemoveOwnedAura(spellId, casterGuid, 0, AURA_REMOVE_BY_CANCEL);
 }
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)

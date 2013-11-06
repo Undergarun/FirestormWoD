@@ -92,6 +92,7 @@ bool PlayerSocial::AddToSocialList(uint32 friendGuid, bool ignore)
         fi.Flags |= flag;
         m_playerSocialMap[friendGuid] = fi;
     }
+
     return true;
 }
 

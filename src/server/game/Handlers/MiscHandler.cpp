@@ -654,8 +654,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
     if (!normalizePlayerName(ignoreName))
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
-        GetPlayer()->GetName(), ignoreName.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'", GetPlayer()->GetName(), ignoreName.c_str());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
@@ -1958,8 +1957,15 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;
+
+    uint8 bitsOrder[8] = { 7, 4, 0, 5, 2, 1, 3, 6 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 3, 2, 4, 6, 1, 7, 5, 0 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)

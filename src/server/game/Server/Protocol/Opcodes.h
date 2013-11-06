@@ -39,8 +39,8 @@ enum Opcodes
     CMSG_ACTIVATETAXI                                 = 0x000,  // 5.0.5 16048
     CMSG_ACTIVATETAXIEXPRESS                          = 0x000,  // 5.0.5 16048
     CMSG_ADDON_REGISTERED_PREFIXES                    = 0x000,  // 5.0.5 16048
-    CMSG_ADD_FRIEND                                   = 0x000,  // 5.0.5 16048
-    CMSG_ADD_IGNORE                                   = 0x000,  // 5.0.5 16048
+    CMSG_ADD_FRIEND                                   = 0x16BD, // 5.4.0 17399
+    CMSG_ADD_IGNORE                                   = 0x1224, // 5.4.0 17399
     CMSG_ADD_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
     CMSG_ALTER_APPEARANCE                             = 0x000,  // 5.0.5 16048
     CMSG_AREATRIGGER                                  = 0x000,  // 5.0.5 16048
@@ -115,10 +115,10 @@ enum Opcodes
     CMSG_CALENDAR_GUILD_FILTER                        = 0x000,  // 5.0.5 16048
     CMSG_CALENDAR_REMOVE_EVENT                        = 0x000,  // 5.0.5 16048
     CMSG_CALENDAR_UPDATE_EVENT                        = 0x000,  // 5.0.5 16048
-    CMSG_CANCEL_AURA                                  = 0x000,  // 5.0.5 16048
+    CMSG_CANCEL_AURA                                  = 0x140E, // 5.4.0 17399
     CMSG_CANCEL_AUTO_REPEAT_SPELL                     = 0x12FB, // 5.4.0 17399
-    CMSG_CANCEL_CAST                                  = 0x000,  // 5.0.5 16048
-    CMSG_CANCEL_CHANNELLING                           = 0x000,  // 5.0.5 16048
+    CMSG_CANCEL_CAST                                  = 0x1524, // 5.4.0 17399
+    CMSG_CANCEL_CHANNELLING                           = 0x150E, // 5.4.0 17399
     CMSG_CANCEL_GROWTH_AURA                           = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_MOUNT_AURA                            = 0x000,  // 5.0.5 16048
     CMSG_CANCEL_QUEUED_SPELL                          = 0x000,  // 5.0.5 16048
@@ -178,9 +178,8 @@ enum Opcodes
     CMSG_CREATURE_QUERY                               = 0x1585, // 5.4.0 17399
     CMSG_DANCE_QUERY                                  = 0x000,  // 5.0.5 16048
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x000,  // 5.0.5 16048
-    CMSG_DELETEEQUIPMENT_SET                          = 0x000,  // 5.0.5 16048
-    CMSG_DEL_FRIEND                                   = 0x000,  // 5.0.5 16048
-    CMSG_DEL_IGNORE                                   = 0x000,  // 5.0.5 16048
+    CMSG_DEL_FRIEND                                   = 0x1AD8, // 5.4.0 17399
+    CMSG_DEL_IGNORE                                   = 0x1604, // 5.4.0 17399
     CMSG_DEL_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
     CMSG_DESTROY_ITEM                                 = 0x1401, // 5.4.0 17399
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x000,  // 5.0.5 16048
@@ -222,14 +221,15 @@ enum Opcodes
     CMSG_GOSSIP_HELLO                                 = 0x1A3F, // 5.4.0 17399
     CMSG_GOSSIP_SELECT_OPTION                         = 0x000,  // 5.0.5 16048
     CMSG_GRANT_LEVEL                                  = 0x000,  // 5.0.5 16048
-    CMSG_GROUP_ASSISTANT_LEADER                       = 0x000,  // 5.0.5 16048
+    CMSG_GROUP_ASSISTANT_LEADER                       = 0x12C2, // 5.4.0 17399
+    CMSG_GROUP_ASSIGNMENT                             = 0x1E03, // 5.4.0 17399
     CMSG_GROUP_CANCEL                                 = 0x000,  // 5.0.5 16048
-    CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x000,  // 5.0.5 16048
+    CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x1357, // 5.4.0 17399
     CMSG_GROUP_DISBAND                                = 0x165E, // 5.4.0 17399
     CMSG_GROUP_INVITE                                 = 0x121E, // 5.4.0 17399
     CMSG_GROUP_INVITE_RESPONSE                        = 0x1B0A, // 5.4.0 17399
     CMSG_GROUP_RAID_CONVERT                           = 0x161B, // 5.4.0 17399
-    CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x000,  // 5.0.5 16048
+    CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x139B, // 5.4.0 17399
     CMSG_GROUP_SET_LEADER                             = 0x17DF, // 5.4.0 17399
     CMSG_GROUP_SET_ROLES                              = 0x1AC7, // 5.4.0 17399
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x000,  // 5.0.5 16048
@@ -405,7 +405,7 @@ enum Opcodes
     CMSG_QUERY_GUILD_RECIPES                          = 0x000,  // 5.0.5 16048
     CMSG_QUERY_GUILD_REWARDS                          = 0x000,  // 5.0.5 16048
     CMSG_QUERY_GUILD_XP                               = 0x000,  // 5.0.5 16048
-    CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0x000,  // 5.0.5 16048
+    CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0x1B22, // 5.4.0 17399
     CMSG_QUERY_QUESTS_COMPLETED                       = 0x000,  // 5.0.5 16048 Deprecated, Sure ?
     CMSG_QUERY_TIME                                   = 0x000,  // 5.0.5 16048
     CMSG_QUESTGIVER_ACCEPT_QUEST                      = 0x000,  // 5.0.5 16048
@@ -483,7 +483,7 @@ enum Opcodes
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                    = 0x000,  // 5.0.5 16048
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                    = 0x000,  // 5.0.5 16048
     CMSG_SET_CHANNEL_WATCH                            = 0x000,  // 5.0.5 16048
-    CMSG_SET_CONTACT_NOTES                            = 0x000,  // 5.0.5 16048
+    CMSG_SET_CONTACT_NOTES                            = 0x1EA4, // 5.4.0 17399
     CMSG_SET_CURRENCY_FLAGS                           = 0x000,  // 5.0.5 16048
     CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0x1386, // 5.4.0 17399
     CMSG_SET_FACTION_ATWAR                            = 0x000,  // 5.0.5 16048
@@ -623,7 +623,6 @@ enum Opcodes
     MSG_MOVE_WATER_WALK                               = 0,      // Client patched
     MSG_MOVE_WORLDPORT_ACK                            = 0x1752, // 5.4.0 17399
     MSG_NOTIFY_PARTY_SQUELCH                          = 0x000,  // 5.0.5 16048
-    MSG_PARTY_ASSIGNMENT                              = 0x000,  // 5.0.5 16048
     MSG_PETITION_DECLINE                              = 0x000,  // 5.0.5 16048
     MSG_PETITION_RENAME                               = 0x000,  // 5.0.5 16048
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x000,  // 5.0.5 16048
@@ -642,7 +641,7 @@ enum Opcodes
     SMSG_ACCOUNT_PROFILE                              = 0x0B5,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x02D,  // 5.4.0 17399 (JamList)
     SMSG_ACHIEVEMENT_DELETED                          = 0x8BF,  // 5.4.0 17399 (JamList)
-    SMSG_ACHIEVEMENT_EARNED                           = 0x5B4,  // 5.4.0 17399 (JamList)
+    SMSG_ACHIEVEMENT_EARNED                           = 0x5B4,  // 5.4.0 17399
     SMSG_ACTIVATE_TAXI_REPLY                          = 0x119,  // 5.4.0 17399 (JamList)
     SMSG_ADJUST_SPLINE_DURATION                       = 0x82D,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ADDON_INFO                                   = 0x128,  // 5.4.0 17399
@@ -917,7 +916,7 @@ enum Opcodes
     SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0x000,  // 5.0.5 16048
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0x895,  // 5.4.0 17399 (JamList)
     SMSG_FORGE_MASTER_SET                             = 0x0B2,  // 5.4.0 17399 (JamList)
-    SMSG_FRIEND_STATUS                                = 0x000,  // 5.0.5 16048
+    SMSG_FRIEND_STATUS                                = 0x1B29, // 5.4.0 17399
     SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x19A,  // 5.4.0 17399 (JamList)
     SMSG_GAMEOBJECT_DESPAWN_ANIM                      = 0x000,  // 5.0.5 16048
     SMSG_GAMEOBJECT_PAGETEXT                          = 0x000,  // 5.0.5 16048
@@ -1106,7 +1105,7 @@ enum Opcodes
     SMSG_LF_GUILD_SEARCH_RESULT                       = 0x000,  // 5.0.5 16048
     SMSG_LIST_INVENTORY                               = 0x000,  // 5.0.5 16048
     SMSG_LIST_TARGETS                                 = 0x418,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_LOAD_CUF_PROFILES                            = 0x09D,  // 5.4.0 17399 (JamList)
+    SMSG_LOAD_CUF_PROFILES                            = 0x09D,  // 5.4.0 17399
     SMSG_LOGIN_SET_TIME_SPEED                         = 0x1AF,  // 5.4.0 17399
     SMSG_LOGIN_VERIFY_WORLD                           = 0x000,  // 5.0.5 16048
     SMSG_LOGOUT_CANCEL_ACK                            = 0x417,  // 5.4.0 17399 (JamList)
@@ -1216,7 +1215,7 @@ enum Opcodes
     SMSG_PAGE_TEXT                                    = 0x116,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PARTY_COMMAND_RESULT                         = 0x16A5, // 5.4.0 17399
     SMSG_PARTY_KILL_LOG                               = 0x091,  // 5.4.0 17399 (JamList)
-    SMSG_PARTY_MEMBER_STATS                           = 0x88C,  // 5.4.0 17399
+    SMSG_PARTY_MEMBER_STATS                           = 0x000,  // 5.0.5 16048
     SMSG_PARTY_MEMBER_STATS_FULL                      = 0x000,  // 5.0.5 16048
     SMSG_PARTY_UPDATE                                 = 0x13D,  // 5.4.0 17399
     SMSG_PAUSE_MIRROR_TIMER                           = 0x488,  // 5.4.0 17399 (JamList)
@@ -1361,7 +1360,7 @@ enum Opcodes
     SMSG_RESET_WEEKLY_CURRENCY                        = 0x0BF,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_RESISTLOG                                    = 0x000,  // 5.0.5 16048
     SMSG_RESPEC_WIPE_CONFIRM                          = 0x59B,  // 5.4.0 17399 (JamList)
-    SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x084,  // 5.4.0 17399 (JamList)
+    SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x084,  // 5.4.0 17399
     SMSG_RESURRECT_REQUEST                            = 0x511,  // 5.4.0 17399 (JamList)
     SMSG_RESUME_TOKEN                                 = 0x0AA,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_RESYNC_RUNES                                 = 0x52C,  // 5.4.0 17399 (JamList)
@@ -1477,7 +1476,7 @@ enum Opcodes
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x122A, // 5.4.0 17399
     SMSG_SPLINE_MOVE_WATER_WALK                       = 0x000,  // 5.0.5 16048
     SMSG_STABLE_RESULT                                = 0x000,  // 5.0.5 16048
-    SMSG_STANDSTATE_UPDATE                            = 0x00D,  // 5.4.0 17399 (JamList)
+    SMSG_STANDSTATE_UPDATE                            = 0x00D,  // 5.4.0 17399
     SMSG_START_ELAPSED_TIMER                          = 0x038,  // 5.4.0 17399 (JamList)
     SMSG_START_ELAPSED_TIMERS                         = 0x424,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_START_MIRROR_TIMER                           = 0x434,  // 5.4.0 17399 (JamList)
