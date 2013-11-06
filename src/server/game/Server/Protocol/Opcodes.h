@@ -444,7 +444,7 @@ enum Opcodes
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_CEMETERY_LIST                        = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_HOTFIX                               = 0x1A8B,	// 5.4.0 17399
+    CMSG_REQUEST_HOTFIX                               = 0x1A8B, // 5.4.0 17399
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x1757, // 5.4.0 17399
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
     CMSG_REQUEST_PET_INFO                             = 0x000,  // 5.0.5 16048
@@ -1521,7 +1521,7 @@ enum Opcodes
     SMSG_UI_TIME                                      = 0x911,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x000,  // 5.0.5 16048
     SMSG_UNIT_SPELLCAST_START                         = 0x000,  // 5.0.5 16048
-    SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,	// 5.4.0 17399
+    SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,  // 5.4.0 17399
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_ACTION_BUTTONS                        = 0x096,  // 5.4.0 17399
     SMSG_UPDATE_COMBO_POINTS                          = 0x036,  // 5.4.0 17399 (JamList)

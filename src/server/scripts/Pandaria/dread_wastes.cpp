@@ -1829,8 +1829,8 @@ class mob_dak_the_breaker : public CreatureScript
 
                 events.ScheduleEvent(EVENT_RUSHING_RAGE,         5000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM_19,   12000);
-                events.ScheduleEvent(EVENT_YAUNGOL_STOMP,		20000);
-                events.ScheduleEvent(EVENT_BELLOWING_RAGE,	    28000);
+                events.ScheduleEvent(EVENT_YAUNGOL_STOMP,       20000);
+                events.ScheduleEvent(EVENT_BELLOWING_RAGE,      28000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1923,10 +1923,10 @@ class mob_nalash_verdantis : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_RUSHING_RAGE,		 5000);
+                events.ScheduleEvent(EVENT_RUSHING_RAGE,         5000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM_20,   12000);
-                events.ScheduleEvent(EVENT_YAUNGOL_STOMP,		20000);
-                events.ScheduleEvent(EVENT_BELLOWING_RAGE,	    28000);
+                events.ScheduleEvent(EVENT_YAUNGOL_STOMP,       20000);
+                events.ScheduleEvent(EVENT_BELLOWING_RAGE,      28000);
             }
 
             void JustDied(Unit* /*killer*/)

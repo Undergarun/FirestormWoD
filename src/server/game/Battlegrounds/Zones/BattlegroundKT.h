@@ -22,7 +22,7 @@
 
 enum BG_KT_NPC
 {
-    BG_SM_NPC_POWERBALL					= 29265
+    BG_SM_NPC_POWERBALL         = 29265
 };
 
 #define BG_KT_MAX_TEAM_SCORE        1600

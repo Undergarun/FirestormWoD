@@ -1654,7 +1654,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             }
 
             if (!player->HasItemCount(newEntries[i], 1, false))
-            	return;
+                return;
         }
 
         Item* itemTransmogrifier = NULL;

@@ -196,14 +196,14 @@ enum eHavakSpells
 {
     SPELL_DEVASTATING_ARC      = 124946,
     SPELL_SUMMON_QUILEN        = 124980,
-    SPELL_TITANIC_STRENGH      = 124976,
+    SPELL_TITANIC_STRENGH      = 124976
 };
 
 enum eHavakEvents
 {
-    EVENT_DEVASTATING_ARC		= 1,
+    EVENT_DEVASTATING_ARC       = 1,
     EVENT_SUMMON_QUILEN         = 2,
-    EVENT_TITANIC_STRENGH       = 3,
+    EVENT_TITANIC_STRENGH       = 3
 };
 
 class mob_havak : public CreatureScript
@@ -279,14 +279,14 @@ enum eMogujiaSoulCallerSpells
 {
     SPELL_DRAIN_LIFE        =  84533,
     SPELL_SHADOW_BOLT       =   9613,
-    SPELL_SHADOW_CRASH      = 129132,
+    SPELL_SHADOW_CRASH      = 129132
 };
 
 enum eMogujiaSoulCallerEvents
 {
-    EVENT_DRAIN_LIFE		= 1,
+    EVENT_DRAIN_LIFE        = 1,
     EVENT_SHADOW_BOLT       = 2,
-    EVENT_SHADOW_CRASH      = 3,
+    EVENT_SHADOW_CRASH      = 3
 };
 
 class mob_mogujia_soul_caller : public CreatureScript
@@ -364,7 +364,7 @@ enum eQuilenStonemawSpells
 
 enum eQuilenStonemawEvents
 {
-    EVENT_UNSTABLE_SERUM		= 1,
+    EVENT_UNSTABLE_SERUM        = 1,
 };
 
 class mob_quilen_stonemaw : public CreatureScript

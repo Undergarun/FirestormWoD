@@ -173,8 +173,8 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_ENTRY
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
-    UF_FLAG_PUBLIC,         //	UNIT_FIELD_CHARM
-    UF_FLAG_PUBLIC,         //	UNIT_FIELD_CHARM+1
+    UF_FLAG_PUBLIC,         //  UNIT_FIELD_CHARM
+    UF_FLAG_PUBLIC,         //  UNIT_FIELD_CHARM+1
     UF_FLAG_PUBLIC,         //UNIT_FIELD_SUMMON
     UF_FLAG_PUBLIC,         //UNIT_FIELD_SUMMON+1
     UF_FLAG_PRIVATE,         //UNIT_FIELD_CRITTER

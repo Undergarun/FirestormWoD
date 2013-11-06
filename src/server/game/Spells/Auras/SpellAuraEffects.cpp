@@ -2270,17 +2270,17 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
     if (Player* player = target->ToPlayer())
     {
-        if (apply)	
-            player->GetPhaseMgr().RegisterPhasingAuraEffect(this);	
-        else	
+        if (apply)
+            player->GetPhaseMgr().RegisterPhasingAuraEffect(this);
+        else
             player->GetPhaseMgr().UnRegisterPhasingAuraEffect(this);
     }
     else
     {
         uint32 newPhase = 0;
-        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);	
-        if (!phases.empty())	
-            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)	
+        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
+        if (!phases.empty())
+            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
                 newPhase |= (*itr)->GetMiscValue();
 
         if (!newPhase)

@@ -26482,11 +26482,11 @@ uint32 rand_number(uint32 value1, uint32 value2, uint32 value3 = 0, uint32 value
 {
     switch (rand() % 4)
     {
-        case 0:		return value1;
-        case 1:		return value2;
-        case 2:		return value3;
-        case 3:		return value4;
-        default:	return 0;
+        case 0:     return value1;
+        case 1:     return value2;
+        case 2:     return value3;
+        case 3:     return value4;
+        default:    return 0;
     }
 }
 

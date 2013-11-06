@@ -176,12 +176,12 @@ enum TrinityStrings
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
     LANG_LIQUID_STATUS                  = 175,
 
-    LANG_PHASING_REPORT_STATUS          = 176,	
+    LANG_PHASING_REPORT_STATUS          = 176,
     LANG_PHASING_NO_DEFINITIONS         = 177,              // Phasing
     LANG_PHASING_SUCCESS                = 178,
-    LANG_PHASING_FAILED                 = 179,	
-    LANG_PHASING_LAST_PHASE             = 180,	
-    LANG_PHASING_LIST                   = 181,	
+    LANG_PHASING_FAILED                 = 179,
+    LANG_PHASING_LAST_PHASE             = 180,
+    LANG_PHASING_LIST                   = 181,
     LANG_PHASING_PHASEMASK              = 182,
     LANG_INVALID_GAMEOBJECT_TYPE        = 183,              // Damage on GO
     LANG_GAMEOBJECT_DAMAGED             = 184,
