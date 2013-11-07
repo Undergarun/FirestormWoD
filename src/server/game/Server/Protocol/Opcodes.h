@@ -576,8 +576,6 @@ enum Opcodes
     MSG_INSPECT_ARENA_TEAMS                           = 0x000,  // 5.0.5 16048
     MSG_AUCTION_HELLO                                 = 0x000,  // 5.0.5 16048
     MSG_BATTLEGROUND_PLAYER_POSITIONS                 = 0x000,  // 5.0.5 16048 deprecated
-    MSG_CHANNEL_START                                 = 0x000,  // 5.0.5 16048
-    MSG_CHANNEL_UPDATE                                = 0x000,  // 5.0.5 16048
     MSG_GM_BIND_OTHER                                 = 0x000,  // 5.0.5 16048
     MSG_GM_SHOWLABEL                                  = 0x000,  // 5.0.5 16048
     MSG_GM_SUMMON                                     = 0x000,  // 5.0.5 16048
@@ -1439,6 +1437,8 @@ enum Opcodes
     SMSG_SPELLORDAMAGE_IMMUNE                         = 0x000,  // 5.0.5 16048
     SMSG_SPELLSTEALLOG                                = 0x000,  // 5.0.5 16048
     SMSG_SPELL_CATEGORY_COOLDOWN                      = 0x000,  // 5.0.5 16048
+    SMSG_SPELL_CHANNEL_START                          = 0x1195, // 5.4.0 17399
+    SMSG_SPELL_CHANNEL_UPDATE                         = 0x1405, // 5.4.0 17399
     SMSG_SPELL_COOLDOWN                               = 0x000,  // 5.0.5 16048
     SMSG_SPELL_DELAYED                                = 0x000,  // 5.0.5 16048
     SMSG_SPELL_FAILED_OTHER                           = 0x1BA,  // 5.4.0 17399 (JamList)
