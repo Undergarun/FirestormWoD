@@ -264,7 +264,7 @@ namespace VMAP
 
         for (uint32 g=0; g<groups; ++g) // should be only one for M2 files...
         {
-        	ACE_Based::LockedVector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
+            ACE_Based::LockedVector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
 
             if (vertices.empty())
             {
@@ -314,7 +314,7 @@ namespace VMAP
         model.setRootWmoID(raw_model.RootWMOID);
         if (!raw_model.groupsArray.empty())
         {
-        	ACE_Based::LockedVector<GroupModel> groupsArray;
+            ACE_Based::LockedVector<GroupModel> groupsArray;
 
             uint32 groups = raw_model.groupsArray.size();
             for (uint32 g = 0; g < groups; ++g)
@@ -370,7 +370,7 @@ namespace VMAP
             bool boundEmpty = true;
             for (uint32 g = 0; g < raw_model.groupsArray.size(); ++g)
             {
-            	ACE_Based::LockedVector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
+                ACE_Based::LockedVector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
 
                 uint32 nvectors = vertices.size();
                 for (uint32 i = 0; i < nvectors; ++i)

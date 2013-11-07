@@ -2225,8 +2225,11 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
     if (quality > ITEM_QUALITY_ARTIFACT)
         return 0;
 
+    if (itemClass != ITEM_CLASS_ARMOR)
+        return 0;
+
     // all items but shields
-    if (itemClass != ITEM_CLASS_ARMOR || itemSubclass != ITEM_SUBCLASS_ARMOR_SHIELD)
+    if (itemSubclass != ITEM_SUBCLASS_ARMOR_SHIELD)
     {
         ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(itemlevel);
         ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(itemlevel);

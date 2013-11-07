@@ -575,10 +575,10 @@ void Pet::DeleteFromDB(uint32 guidlow)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    trans->PAppend("DELETE FROM character_pet WHERE id = '%u'", guidlow);	  	
-    trans->PAppend("DELETE FROM character_pet_declinedname WHERE id = '%u'", guidlow);	  	
-    trans->PAppend("DELETE FROM pet_aura WHERE guid = '%u'", guidlow);	  	
-    trans->PAppend("DELETE FROM pet_spell WHERE guid = '%u'", guidlow);	  	
+    trans->PAppend("DELETE FROM character_pet WHERE id = '%u'", guidlow);
+    trans->PAppend("DELETE FROM character_pet_declinedname WHERE id = '%u'", guidlow);
+    trans->PAppend("DELETE FROM pet_aura WHERE guid = '%u'", guidlow);
+    trans->PAppend("DELETE FROM pet_spell WHERE guid = '%u'", guidlow);
     trans->PAppend("DELETE FROM pet_spell_cooldown WHERE guid = '%u'", guidlow);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -1234,7 +1234,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.0f);
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.0f);
                     SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL)));
-
                     break;
                 }
                 case 19833: // Snake Trap - Venomous Snake
@@ -1314,6 +1313,19 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case 59764: // Healing Tide Totem
                 {
                     SetCreateHealth(m_owner->CountPctFromMaxHealth(10));
+                    break;
+                }
+                // Guardian of Ancient Kings
+                case 46506:
+                {
+                    if (Player* pOwner = m_owner->ToPlayer())
+                    {
+                        m_modMeleeHitChance = pOwner->GetFloatValue(PLAYER_FIELD_UI_HIT_MODIFIER) + pOwner->GetRatingBonusValue(CR_HIT_MELEE);
+                        m_baseSpellCritChance = pOwner->GetFloatValue(PLAYER_CRIT_PERCENTAGE) + pOwner->GetRatingBonusValue(CR_HIT_SPELL);
+                    }
+
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0.75f * m_owner->GetFloatValue(UNIT_FIELD_MINDAMAGE));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0.75f * m_owner->GetFloatValue(UNIT_FIELD_MAXDAMAGE));
                     break;
                 }
                 default:

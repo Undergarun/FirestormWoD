@@ -206,7 +206,7 @@ public:
                     command->characterName[1] = command->characterName[0];
                 }
 
-                CharacterDatabase.PExecute(	"INSERT INTO log_gm(`date`, "
+                CharacterDatabase.PExecute( "INSERT INTO log_gm(`date`, "
                     "`gm_account_id`, `gm_account_name`, `gm_character_id`, `gm_character_name`, `gm_last_ip`,"
                     "`sc_account_id`, `sc_account_name`, `sc_character_id`, `sc_character_name`,"
                     "`command`)"
@@ -288,7 +288,7 @@ public:
                     }
                 }
 
-                CharacterDatabase.PExecute(	"INSERT INTO log_gm_chat(`type`, `date`, "
+                CharacterDatabase.PExecute( "INSERT INTO log_gm_chat(`type`, `date`, "
                     "`from_account_id`, `from_account_name`, `from_character_id`, `from_character_name`,"
                     "`to_account_id`, `to_account_name`, `to_character_id`, `to_character_name`,"
                     "`message`)"
@@ -442,8 +442,8 @@ public:
                     }
                     else
                     {
-                    	LoginDatabase.PQuery("UPDATE transferts SET error = %u WHERE id = %u", dump, transaction);
-                    	continue;
+                        LoginDatabase.PQuery("UPDATE transferts SET error = %u WHERE id = %u", dump, transaction);
+                        continue;
                     }
 
                     /*std::string result = "";
@@ -509,7 +509,7 @@ public:
                         cmd.str("");
                         cmd.clear();
 
-                    	LoginDatabase.PQuery("DELETE FROM transferts WHERE id = %u", transaction);
+                        LoginDatabase.PQuery("DELETE FROM transferts WHERE id = %u", transaction);
                         PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_TRANSFERTS_LOGS);
                         if(stmt)
                         {
@@ -524,8 +524,8 @@ public:
                     }
                     else
                     {
-                    	LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", dump, transaction);
-                    	continue;
+                        LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", dump, transaction);
+                        continue;
                     }
 
 

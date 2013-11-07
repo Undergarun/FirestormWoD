@@ -38,13 +38,13 @@ void FormationMgr::AddCreatureToGroup(uint32 groupId, Creature* member)
 
     CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(groupId);
 
-    //Add member to an existing group
+    // Add member to an existing group
     if (itr != map->CreatureGroupHolder.end())
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUIDLow(), member->GetInstanceId());
         itr->second->AddMember(member);
     }
-    //Create new group
+    // Create new group
     else
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Group not found: %u. Creating new group.", groupId);
@@ -79,8 +79,8 @@ void FormationMgr::LoadCreatureFormations()
         delete itr->second;
     CreatureGroupMap.clear();
 
-    //Get group data
-    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI FROM creature_formations ORDER BY leaderGUID");
+    // Get group data
+    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
 
     if (!result)
     {
@@ -96,12 +96,14 @@ void FormationMgr::LoadCreatureFormations()
     {
         fields = result->Fetch();
 
-        //Load group member data
+        // Load group member data
         group_member                        = new FormationInfo();
         group_member->leaderGUID            = fields[0].GetUInt32();
         uint32 memberGUID                   = fields[1].GetUInt32();
         group_member->groupAI               = fields[4].GetUInt32();
-        //If creature is group leader we may skip loading of dist/angle
+        group_member->point_1               = fields[5].GetUInt16();
+        group_member->point_2               = fields[6].GetUInt16();
+        // If creature is group leader we may skip loading of dist/angle
         if (group_member->leaderGUID != memberGUID)
         {
             group_member->follow_dist       = fields[2].GetFloat();
@@ -113,7 +115,7 @@ void FormationMgr::LoadCreatureFormations()
             group_member->follow_angle      = 0;
         }
 
-        // check data correctness
+        // Check data correctness
         {
             if (!sObjectMgr->GetCreatureData(group_member->leaderGUID))
             {
@@ -142,7 +144,7 @@ void CreatureGroup::AddMember(Creature* member)
 {
     sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUIDLow());
 
-    //Check if it is a leader
+    // Check if it is a leader
     if (member->GetDBTableGUIDLow() == m_groupID)
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Unit GUID: %u is formation leader. Adding group.", member->GetGUIDLow());
@@ -173,10 +175,10 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
-        if (m_leader) // avoid crash if leader was killed and reset.
+        if (m_leader)                                   // Avoid crash if leader was killed and reset.
             sLog->outDebug(LOG_FILTER_UNITS, "GROUP ATTACK: group instance id %u calls member instid %u", m_leader->GetInstanceId(), member->GetInstanceId());
 
-        //Skip one check
+        // Skip one check
         if (itr->first == member)
             continue;
 
@@ -209,8 +211,8 @@ void CreatureGroup::FormationReset(bool dismiss)
 
 void CreatureGroup::LeaderMoveTo(float x, float y, float z)
 {
-    //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
-    //! If the leader's path is known, member's path can be plotted as well using formation offsets.
+    // @TODO : This should probably get its own movement generator or use WaypointMovementGenerator.
+    // If the leader's path is known, member's path can be plotted as well using formation offsets.
     if (!m_leader)
         return;
 
@@ -222,6 +224,13 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         if (member == m_leader || !member->isAlive() || member->getVictim())
             continue;
 
+        if (itr->second->point_1)
+        {
+            if (m_leader->GetCurrentWaypointID() == itr->second->point_1)
+                itr->second->follow_angle = itr->second->follow_angle + M_PI;
+            if (m_leader->GetCurrentWaypointID() == itr->second->point_2)
+                itr->second->follow_angle = itr->second->follow_angle - M_PI;
+        }
         float angle = itr->second->follow_angle;
         float dist = itr->second->follow_dist;
 

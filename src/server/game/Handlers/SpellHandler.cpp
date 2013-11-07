@@ -47,13 +47,185 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     if (pUser->m_mover != pUser)
         return;
 
-    uint8 bagIndex, slot, castFlags;
-    uint8 castCount;                                       // next cast if exists (single or not)
-    uint64 itemGUID;
-    uint32 glyphIndex;                                      // something to do with glyphs?
-    uint32 spellId;                                         // casted spell id
+    float speed = 0.00f, elevation = 0.00f;
+    std::string unkString;
+    uint8 unkStringLen = 0;
 
-    recvPacket >> bagIndex >> slot >> castCount >> spellId >> itemGUID >> glyphIndex >> castFlags;
+    uint8 bagIndex, slot, castFlags = 0;
+    uint8 castCount = 0;                                // next cast if exists (single or not)
+    uint32 glyphIndex = 0;                              // something to do with glyphs?
+    uint32 spellId = 0;                                 // casted spell id
+
+    recvPacket >> bagIndex >> slot;
+
+    ObjectGuid itemGuid, guid2, guid3, guid4, guid5, guid6, guid7;
+
+    bool bit28 = recvPacket.ReadBit();
+    bool bit64 = !recvPacket.ReadBit();
+    bool hasUnkString = !recvPacket.ReadBit();
+    bool bit56 = !recvPacket.ReadBit();
+    itemGuid[5] = recvPacket.ReadBit();
+    bool hasSpellID = !recvPacket.ReadBit();
+    uint8 archeologyCounter = recvPacket.ReadBits(2);
+
+    uint8* archeologyType;
+    uint32* entry;
+    uint32* usedCount;
+
+    archeologyType = new uint8[archeologyCounter];
+    entry = new uint32[archeologyCounter];
+    usedCount = new uint32[archeologyCounter];
+
+    bool hasGuid5 = recvPacket.ReadBit();
+    bool hasMovement = recvPacket.ReadBit();
+    bool hasSpeed = !recvPacket.ReadBit();
+    bool hasElevation = !recvPacket.ReadBit();
+    bool bit40 = !recvPacket.ReadBit();
+    itemGuid[0] = recvPacket.ReadBit();
+    bool bit52 = !recvPacket.ReadBit();
+    itemGuid[6] = recvPacket.ReadBit();
+    itemGuid[2] = recvPacket.ReadBit();
+    itemGuid[1] = recvPacket.ReadBit();
+    bool bit48 = !recvPacket.ReadBit();
+    bool hasGuid4 = recvPacket.ReadBit();
+    bool v9 = !recvPacket.ReadBit();
+
+    itemGuid[3] = recvPacket.ReadBit();
+
+    for (uint8 i = 0; i < archeologyCounter; i++)
+        archeologyType[i] = recvPacket.ReadBits(2);
+
+    itemGuid[7] = recvPacket.ReadBit();
+
+    if (hasGuid5)
+    {
+        uint8 bitsOrder[8] = { 6, 1, 5, 0, 3, 2, 7, 4 };
+        recvPacket.ReadBitInOrder(guid5, bitsOrder);
+    }
+
+    uint32 bits416 = 0;
+    bool bit404 = false;
+    bool bit400 = false;
+    bool bit368 = false;
+    bool bit356 = false;
+    bool bit364 = false;
+    bool bit296 = false;
+
+    if (hasMovement)
+    {
+        // Kebab client side
+    }
+
+    uint8 bitsOrder2[8] = { 0, 4, 7, 1, 2, 3, 6, 5 };
+    recvPacket.ReadBitInOrder(guid2, bitsOrder2);
+
+    if (bit56)
+        uint32 values = recvPacket.ReadBits(24);
+
+    if (hasGuid4)
+    {
+        uint8 bitsOrder[8] = { 2, 0, 1, 5, 7, 4, 3, 6 };
+        recvPacket.ReadBitInOrder(guid4, bitsOrder);
+    }
+
+    uint8 bitsOrder3[8] = { 0, 4, 3, 5, 1, 7, 6, 2 };
+    recvPacket.ReadBitInOrder(guid3, bitsOrder3);
+
+    if (bit52)
+        uint8 values = recvPacket.ReadBits(5);
+
+    if (hasUnkString)
+        unkStringLen = recvPacket.ReadBits(8);
+
+    recvPacket.FlushBits();
+
+    recvPacket.ReadByteSeq(itemGuid[7]);
+
+    for (uint8 i = 0; i < archeologyCounter; i++)
+    {
+        switch (archeologyType[i])
+        {
+            case 1: // Fragments
+                recvPacket >> entry[i];     // Currency ID
+                recvPacket >> usedCount[i]; // Currency count
+                break;
+            case 2: // Keystones
+                recvPacket >> entry[i];     // Item ID
+                recvPacket >> usedCount[i]; // ItemCount
+                break;
+            default:
+                break;
+        }
+    }
+
+    recvPacket.ReadByteSeq(itemGuid[3]);
+    recvPacket.ReadByteSeq(itemGuid[6]);
+    recvPacket.ReadByteSeq(itemGuid[5]);
+    recvPacket.ReadByteSeq(itemGuid[4]);
+    recvPacket.ReadByteSeq(itemGuid[1]);
+    recvPacket.ReadByteSeq(itemGuid[0]);
+    recvPacket.ReadByteSeq(itemGuid[2]);
+
+    uint8 bytesOrder3[8] = { 0, 4, 1, 7, 3, 6, 5, 2 };
+    recvPacket.ReadBytesSeq(guid3, bytesOrder3);
+
+    WorldLocation srcPos;
+    if (hasGuid4)
+    {
+        recvPacket.ReadByteSeq(guid4[7]);
+        recvPacket.ReadByteSeq(guid4[5]);
+        recvPacket.ReadByteSeq(guid4[6]);
+        recvPacket >> srcPos.m_positionX;
+        recvPacket.ReadByteSeq(guid4[3]);
+        recvPacket.ReadByteSeq(guid4[1]);
+        recvPacket >> srcPos.m_positionY;
+        recvPacket >> srcPos.m_positionZ;
+        recvPacket.ReadByteSeq(guid4[0]);
+        recvPacket.ReadByteSeq(guid4[2]);
+        recvPacket.ReadByteSeq(guid4[4]);
+    }
+
+    if (hasMovement)
+    {
+        // Kebab client side
+    }
+
+    if (bit40)
+        recvPacket >> castCount;
+
+    WorldLocation destPos;
+    if (hasGuid5)
+    {
+        recvPacket.ReadByteSeq(guid5[6]);
+        recvPacket.ReadByteSeq(guid5[1]);
+        recvPacket >> destPos.m_positionZ;
+        recvPacket.ReadByteSeq(guid5[0]);
+        recvPacket >> destPos.m_positionX;
+        recvPacket.ReadByteSeq(guid5[5]);
+        recvPacket >> destPos.m_positionY;
+        recvPacket.ReadByteSeq(guid5[7]);
+        recvPacket.ReadByteSeq(guid5[2]);
+        recvPacket.ReadByteSeq(guid5[4]);
+        recvPacket.ReadByteSeq(guid5[3]);
+    }
+
+    if (hasSpeed)
+        recvPacket >> speed;
+
+    uint8 bytesOrder[8] = { 1, 3, 7, 0, 4, 6, 2, 5 };
+    recvPacket.ReadBytesSeq(guid2, bytesOrder);
+
+    if (hasSpellID)
+        recvPacket >> spellId;
+
+    if (hasElevation)
+        recvPacket >> elevation;
+
+    if (hasUnkString)
+        unkString = recvPacket.ReadString(unkStringLen);
+
+    if (bit48)
+        recvPacket >> glyphIndex;
 
     if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
     {
@@ -68,7 +240,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pItem->GetGUID() != itemGUID)
+    if (pItem->GetGUID() != itemGuid)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
@@ -243,7 +415,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
 }
 
-void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
+void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
@@ -735,9 +907,16 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId;
+    bool unk, hasSpell;
+
+    unk = recvPacket.ReadBit();
+    hasSpell = !recvPacket.ReadBit();
+    recvPacket.FlushBits();
+
+    if (hasSpell)
+        recvPacket >> spellId;
 
     recvPacket.read_skip<uint8>();                          // counter, increments with every CANCEL packet, don't use for now
-    recvPacket >> spellId;
 
     if (_player->IsNonMeleeSpellCasted(false))
         _player->InterruptNonMeleeSpells(false, spellId, false);
@@ -746,7 +925,20 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId;
+    ObjectGuid casterGuid;
+    bool unk;
+
     recvPacket >> spellId;
+
+    unk = recvPacket.ReadBit();
+
+    uint8 bitsOrder[8] = { 0, 2, 4, 1, 3, 7, 5, 6 };
+    recvPacket.ReadBitInOrder(casterGuid, bitsOrder);
+
+    recvPacket.FlushBits();
+
+    uint8 bytesOrder[8] = { 5, 1, 4, 6, 0, 7, 3, 2 };
+    recvPacket.ReadBytesSeq(casterGuid, bytesOrder);
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -771,8 +963,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (!spellInfo->IsPositive() || spellInfo->IsPassive())
         return;
 
-    // maybe should only remove one buff when there are multiple?
-    _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
+    _player->RemoveOwnedAura(spellId, casterGuid, 0, AURA_REMOVE_BY_CANCEL);
 }
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)

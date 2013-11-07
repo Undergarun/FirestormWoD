@@ -173,8 +173,8 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_ENTRY
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
-    UF_FLAG_PUBLIC,         //	UNIT_FIELD_CHARM
-    UF_FLAG_PUBLIC,         //	UNIT_FIELD_CHARM+1
+    UF_FLAG_PUBLIC,         //  UNIT_FIELD_CHARM
+    UF_FLAG_PUBLIC,         //  UNIT_FIELD_CHARM+1
     UF_FLAG_PUBLIC,         //UNIT_FIELD_SUMMON
     UF_FLAG_PUBLIC,         //UNIT_FIELD_SUMMON+1
     UF_FLAG_PRIVATE,         //UNIT_FIELD_CRITTER
@@ -331,9 +331,9 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,         //PLAYER_GUILDRANK
     UF_FLAG_PUBLIC,         //PLAYER_FIELD_GUILD_DELETE_DATE
     UF_FLAG_PUBLIC,         //PLAYER_GUILDLEVEL
-	UF_FLAG_PUBLIC,         //PLAYER_BYTES
-	UF_FLAG_PUBLIC,         //PLAYER_BYTES_2
-	UF_FLAG_PUBLIC,         //PLAYER_BYTES_3
+    UF_FLAG_PUBLIC,         //PLAYER_BYTES
+    UF_FLAG_PUBLIC,         //PLAYER_BYTES_2
+    UF_FLAG_PUBLIC,         //PLAYER_BYTES_3
     UF_FLAG_PUBLIC,         //PLAYER_FIELD_DUEL_TEAM
     UF_FLAG_PUBLIC,         //PLAYER_FIELD_GUILD_TIME_STAMP
     UF_FLAG_PARTY_MEMBER,         //PLAYER_QUEST_LOG_1_1

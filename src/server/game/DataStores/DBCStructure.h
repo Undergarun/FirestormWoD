@@ -1836,14 +1836,14 @@ struct ScalingStatValuesEntry
 // @author Selenium: 5.4 valid
 struct SkillLineEntry
 {
-    uint32 id;                                              // 0	m_ID
-    int32 categoryId;                                       // 1	m_categoryID
-    char* name;                                             // 2	m_displayName_lang
-    //DBCString description;                                // 3	m_description_lang
-    uint32 spellIcon;                                       // 4	m_spellIconID
-    //DBCString alternateVerb;                              // 5	m_alternateVerb_lang
-    uint32 canLink;                                         // 6	m_canLink (prof. with recipes)
-    //uint32 skillId;                                       // 7	Only cooking skill id
+    uint32 id;                                              // 0    m_ID
+    int32 categoryId;                                       // 1    m_categoryID
+    char* name;                                             // 2    m_displayName_lang
+    //DBCString description;                                // 3    m_description_lang
+    uint32 spellIcon;                                       // 4    m_spellIconID
+    //DBCString alternateVerb;                              // 5    m_alternateVerb_lang
+    uint32 canLink;                                         // 6    m_canLink (prof. with recipes)
+    //uint32 skillId;                                       // 7    Only cooking skill id
     //uint32 unk_1                                          // 8    Unknow, maybe flag ?
 };
 
@@ -1922,7 +1922,7 @@ struct SpellEffectEntry
     uint32    EffectRadiusMaxIndex;                         // 17        4.0.0
     float     EffectRealPointsPerLevel;                     // 18        m_effectRealPointsPerLevel
     flag96    EffectSpellClassMask;                         // 19 20 21  m_effectSpellClassMask1(2/3), effect 0
-    //uint32  unk_flag_1                                    // 22		 5.0.5
+    //uint32  unk_flag_1                                    // 22        5.0.5
     uint32    EffectTriggerSpell;                           // 22        m_effectTriggerSpell
     //float   unk_1                                         // 24        5.0.5
     uint32    EffectImplicitTargetA;                        // 25        m_implicitTargetA

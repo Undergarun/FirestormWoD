@@ -200,9 +200,9 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(guidBytes1[2]);
 
             if (bg)
-            	*data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                         // unk, always 1
+                *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                         // unk, always 1
             else
-            	*data << uint32(1);
+                *data << uint32(1);
 
             data->WriteByteSeq(guidBytes1[5]);
             data->WriteByteSeq(guidBytes1[1]);
@@ -804,6 +804,7 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
     data->Initialize(SMSG_UPDATE_WORLD_STATE, 4+4);
     *data << uint32(field);
     *data << uint32(value);
+    data->WriteBit(0);
 }
 
 void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)

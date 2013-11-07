@@ -475,6 +475,7 @@ class WorldSession
 
         // new party stats
         void HandleInspectHonorStatsOpcode(WorldPacket& recvPacket);
+        void HandleInspectRatedBGStatsOpcode(WorldPacket& recvPacket);
 
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
         void HandleFeatherFallAck(WorldPacket& recvData);
@@ -599,6 +600,7 @@ class WorldSession
         void HandleGroupEveryoneIsAssistantOpcode(WorldPacket& recvData);
         void HandlePartyAssignmentOpcode(WorldPacket& recvData);
         void HandleRolePollBegin(WorldPacket& recvData);
+        void HandleRequestJoinUpdates(WorldPacket& recvData);
 
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);

@@ -5564,7 +5564,8 @@ void Spell::TakePower()
 {
     if (m_CastItem || m_triggeredByAuraSpell)
         return;
-    //Don't take power if the spell is cast while .cheat power is enabled.
+
+    // Don't take power if the spell is cast while .cheat power is enabled.
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_POWER))
@@ -5575,9 +5576,12 @@ void Spell::TakePower()
     bool hit = true;
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (powerType == POWER_RAGE || powerType == POWER_ENERGY || powerType == POWER_RUNES)
+        if (powerType == POWER_HOLY_POWER || powerType == POWER_ENERGY || powerType == POWER_RUNES)
+        {
             if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
+            {
                 for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                {
                     if (ihit->targetGUID == targetGUID)
                     {
                         if (ihit->missCondition != SPELL_MISS_NONE)
@@ -5589,6 +5593,9 @@ void Spell::TakePower()
                         }
                         break;
                     }
+                }
+            }
+        }
     }
 
     if (powerType == POWER_RUNES)
@@ -5625,7 +5632,7 @@ void Spell::TakePower()
     if (hit)
         m_caster->ModifyPower(powerType, -m_powerCost);
     else
-        m_caster->ModifyPower(powerType, -irand(0, m_powerCost/4));
+        m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost, 20)); // Refund 80% of power on fail 4.x
 }
 
 void Spell::TakeAmmo()
@@ -6816,6 +6823,18 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.GetUnitTarget()->getPowerType() != POWER_MANA)
                     return SPELL_FAILED_BAD_TARGETS;
 
+                break;
+            }
+            case SPELL_AURA_MOD_HEALTH_REGEN_PERCENT:
+            {
+                // Health Funnel
+                if (m_spellInfo->Id == 755)
+                {
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        if (Pet * pet = m_caster->ToPlayer()->GetPet())
+                            if (pet->IsFullHealth())
+                                return SPELL_FAILED_ALREADY_AT_FULL_HEALTH;
+                }
                 break;
             }
             default:
