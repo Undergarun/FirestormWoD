@@ -484,6 +484,11 @@ namespace OpcodeTools
             return (opcode & 0x1240) != 0 && (opcode & 0x1202) == 4610;
         }
 
+        public override bool IsSpecialQuestOpcode(uint opcode)
+        {
+            return (opcode & 0x1240) != 0 && (opcode & 0x1248) == 4104;
+        }
+
         protected override bool NormalCheck(uint opcode)
         {
             return (opcode & 0x90CC) == 4;
@@ -517,6 +522,11 @@ namespace OpcodeTools
         public override uint CalcMovementFromOpcode(uint opcode)
         {
             return opcode & 1 | ((opcode & 0x1FC | ((opcode & 0xC00 | (opcode >> 1) & 0x7000) >> 1)) >> 1);
+        }
+
+        public override uint CalcQuestFromOpcode(uint opcode)
+        {
+            return opcode & 7 | ((opcode & 0x30 | ((opcode & 0x180 | ((opcode & 0xC00 | (opcode >> 1) & 0x7000) >> 1)) >> 1)) >> 1);
         }
     }
 
