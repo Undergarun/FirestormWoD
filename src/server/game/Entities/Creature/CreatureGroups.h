@@ -32,6 +32,8 @@ struct FormationInfo
     float follow_dist;
     float follow_angle;
     uint8 groupAI;
+    uint16 point_1;
+    uint16 point_2;
 };
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
@@ -51,7 +53,7 @@ class FormationMgr
 class CreatureGroup
 {
     private:
-        Creature* m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+        Creature* m_leader;                             // Important do not forget sometimes to work with pointers instead synonims
         typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 
@@ -59,7 +61,7 @@ class CreatureGroup
         bool m_Formed;
 
     public:
-        //Group cannot be created empty
+        // Group cannot be created empty
         explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) {}
         ~CreatureGroup() {}
 
