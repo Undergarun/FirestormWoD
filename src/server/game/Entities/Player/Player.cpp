@@ -6144,8 +6144,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559))
         RemoveAurasDueToSpell(84559); // The Quick and the Dead
-	if (getClass() == CLASS_MONK && HasAura(131562))
-	    RemoveAurasDueToSpell(131562);
+    if (getClass() == CLASS_MONK && HasAura(131562))
+        RemoveAurasDueToSpell(131562);
 
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
