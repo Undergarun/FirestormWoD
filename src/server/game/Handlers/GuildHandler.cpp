@@ -177,7 +177,7 @@ void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
         guild->HandleRoster(this);
 }
 
-//Deprecated Handler
+// Deprecated Handler
 void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_PROMOTE");
@@ -265,7 +265,8 @@ void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_MOTD");
 
-    uint32 motdLength = recvPacket.ReadBits(11);
+    uint32 motdLength = recvPacket.ReadBits(10);
+    recvPacket.FlushBits();
     std::string motd = recvPacket.ReadString(motdLength);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
@@ -328,10 +329,12 @@ void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
 
     ObjectGuid guildGuid;
 
-    uint8 bitOrder[8] = {2, 1, 7, 3, 4, 6, 0, 5};
+    uint8 bitOrder[8] = { 4, 1, 6, 7, 5, 3, 0, 2 };
     recvData.ReadBitInOrder(guildGuid, bitOrder);
 
-    uint8 byteOrder[8] = {5, 3, 4, 1, 2, 0, 6, 7};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 0, 3, 4, 5, 6, 1, 2, 7 };
     recvData.ReadBytesSeq(guildGuid, byteOrder);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
@@ -413,7 +416,7 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
         guild->SendEventLog(this);
 }
 
-void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recvData */)
+void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket& /* recvData */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_MONEY_WITHDRAWN_QUERY)");
 
@@ -450,7 +453,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 }
 
 // Called when opening guild bank tab only (first one)
-void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
+void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
 
@@ -468,7 +471,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
             guild->SendBankList(this, tabId, true, false);
 }
 
-void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
+void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
@@ -484,7 +487,7 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
                 guild->HandleMemberDepositMoney(this, money);
 }
 
-void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
+void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_WITHDRAW_MONEY)");
 
@@ -500,7 +503,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
                 guild->HandleMemberWithdrawMoney(this, money);
 }
 
-void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
+void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
 
@@ -582,7 +585,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandleGuildBankBuyTab(WorldPacket & recvData)
+void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
 
@@ -597,7 +600,7 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket & recvData)
             guild->HandleBuyBankTab(this, tabId);
 }
 
-void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
+void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
 
@@ -619,7 +622,7 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
                 guild->HandleSetBankTabInfo(this, tabId, name, icon);
 }
 
-void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
+void WorldSession::HandleGuildBankLogQuery(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
 
@@ -630,7 +633,7 @@ void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
         guild->SendBankLog(this, tabId);
 }
 
-void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
+void WorldSession::HandleQueryGuildBankTabText(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_QUERY_TEXT");
 
