@@ -260,9 +260,9 @@ enum Opcodes
     CMSG_GUILD_EVENT_LOG_QUERY                        = 0x000,  // 5.0.5 16048
     CMSG_GUILD_INFO                                   = 0x000,  // 5.0.5 16048
     CMSG_GUILD_INFO_TEXT                              = 0x000,  // 5.0.5 16048
-    CMSG_GUILD_INVITE                                 = 0x000,  // 5.0.5 16048
+    CMSG_GUILD_INVITE                                 = 0x1B1A, // 5.4.0 17399
     CMSG_GUILD_LEADER                                 = 0x000,  // 5.0.5 16048
-    CMSG_GUILD_LEAVE                                  = 0x000,  // 5.0.5 16048
+    CMSG_GUILD_LEAVE                                  = 0x338,  // 5.4.0 17399
     CMSG_GUILD_MEMBER_SEND_SOR_REQUEST                = 0x000,  // 5.0.5 16048
     CMSG_GUILD_MOTD                                   = 0x24C,  // 5.4.0 17399
     CMSG_GUILD_NEWS_UPDATE_STICKY                     = 0x000,  // 5.0.5 16048
@@ -402,7 +402,7 @@ enum Opcodes
     CMSG_QUERY_BATTLEFIELD_STATE                      = 0x000,  // 5.0.5 16048
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE               = 0x000,  // 5.0.5 16048
     CMSG_QUERY_GUILD_MEMBER_RECIPES                   = 0x000,  // 5.0.5 16048
-    CMSG_QUERY_GUILD_RECIPES                          = 0x000,  // 5.0.5 16048
+    CMSG_QUERY_GUILD_RECIPES                          = 0xA6C,  // 5.4.0 17399
     CMSG_QUERY_GUILD_REWARDS                          = 0x000,  // 5.0.5 16048
     CMSG_QUERY_GUILD_XP                               = 0x000,  // 5.0.5 16048
     CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0x1B22, // 5.4.0 17399
