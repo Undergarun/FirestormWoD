@@ -4737,7 +4737,7 @@ void Spell::SendSpellGo()
     bool hasBit106 = false;
     bool hasBit336 = false;
     bool hasBit337 = false;
-    bool hasBit356 = false;
+    bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;
     bool hasBit384 = false;
@@ -4851,7 +4851,7 @@ void Spell::SendSpellGo()
     uint8 bitsOrder6[8] = { 4, 6, 7, 0, 1, 2, 3, 5 };
     data.WriteBitInOrder(guid6, bitsOrder6);
 
-    data.WriteBit(!hasBit356);                              // !hasBit356
+    data.WriteBit(!hasDelayMoment);                              // !hasDelayMoment
 
     if (hasGuid7)
     {
@@ -5016,7 +5016,7 @@ void Spell::SendSpellGo()
 
 
     if (hasBit90)
-        data << float(0.0f);
+        data << float(0.0f); // may be data << m_targets.GetElevation(); ? need to try
 
     uint8 bytesOrder1[8] = { 3, 1, 5, 0, 7, 6, 4, 2 };
     data.WriteBytesSeq(target, bytesOrder1);
@@ -5024,7 +5024,7 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(caster[3]);
 
     if (hasBit428)
-        data << float(0.0f);
+        data << uint8(0);
 
     data.WriteByteSeq(itemCaster[4]);
 
@@ -5132,8 +5132,8 @@ void Spell::SendSpellGo()
     if (hasBit368)
         data << uint8(0);
 
-    if (hasBit356)
-        data << uint32(0);
+    if (hasDelayMoment)
+        data << uint32(m_delayMoment);
 
     if (hasBit384)
         data << uint8(0);
