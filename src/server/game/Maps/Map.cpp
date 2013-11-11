@@ -2782,7 +2782,7 @@ void Map::LoadRespawnTimes()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field* fields      = result->Fetch();
             uint32 loguid      = fields[0].GetUInt32();
             uint32 respawnTime = fields[1].GetUInt32();
 
@@ -2798,7 +2798,7 @@ void Map::LoadRespawnTimes()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field* fields      = result->Fetch();
             uint32 loguid      = fields[0].GetUInt32();
             uint32 respawnTime = fields[1].GetUInt32();
 

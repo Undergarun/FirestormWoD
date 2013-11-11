@@ -85,10 +85,15 @@ void LoadWeatherData()
     uint32 count = 0;
 
     QueryResult result = WorldDatabase.Query("SELECT "
+        // 1        2                   3                       4
         "zone, spring_rain_chance, spring_snow_chance, spring_storm_chance,"
+        // 5                     6                   7
         "summer_rain_chance, summer_snow_chance, summer_storm_chance,"
+        // 8                     9                  10
         "fall_rain_chance, fall_snow_chance, fall_storm_chance,"
+        // 11                   12                  13
         "winter_rain_chance, winter_snow_chance, winter_storm_chance,"
+        // 14
         "ScriptName FROM game_weather");
 
     if (!result)

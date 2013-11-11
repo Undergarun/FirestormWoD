@@ -88,6 +88,11 @@ namespace OpcodeTools
                 uint nb = f.CalcMovementFromOpcode(opcode);
                 MovementBox.Text = String.Format("{0}", nb);
             }
+            else if (f.IsSpecialQuestOpcode(opcode))
+            {
+                uint nb = f.CalcQuestFromOpcode(opcode);
+                QuestBox.Text = String.Format("{0}", nb);
+            }
             IgnoreTextChanged = false;
 		}
 
@@ -164,6 +169,19 @@ namespace OpcodeTools
             try
             {
                 SetOpcode(f.CalcOpcodeFromMovement(Convert.ToUInt32(MovementBox.Text)));
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void QuestBox_TextChanged(object sender, EventArgs e)
+        {
+            if (IgnoreTextChanged)
+                return;
+            try
+            {
+                SetOpcode(f.CalcOpcodeFromQuest(Convert.ToUInt32(QuestBox.Text)));
             }
             catch (Exception)
             {

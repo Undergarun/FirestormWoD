@@ -4737,7 +4737,7 @@ void Spell::SendSpellGo()
     bool hasBit106 = false;
     bool hasBit336 = false;
     bool hasBit337 = false;
-    bool hasBit356 = false;
+    bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;
     bool hasBit384 = false;
@@ -4851,7 +4851,7 @@ void Spell::SendSpellGo()
     uint8 bitsOrder6[8] = { 4, 6, 7, 0, 1, 2, 3, 5 };
     data.WriteBitInOrder(guid6, bitsOrder6);
 
-    data.WriteBit(!hasBit356);                              // !hasBit356
+    data.WriteBit(!hasDelayMoment);                              // !hasDelayMoment
 
     if (hasGuid7)
     {
@@ -5016,7 +5016,7 @@ void Spell::SendSpellGo()
 
 
     if (hasBit90)
-        data << float(0.0f);
+        data << float(0.0f); // may be data << m_targets.GetElevation(); ? need to try
 
     uint8 bytesOrder1[8] = { 3, 1, 5, 0, 7, 6, 4, 2 };
     data.WriteBytesSeq(target, bytesOrder1);
@@ -5024,7 +5024,7 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(caster[3]);
 
     if (hasBit428)
-        data << float(0.0f);
+        data << uint8(0);
 
     data.WriteByteSeq(itemCaster[4]);
 
@@ -5132,8 +5132,8 @@ void Spell::SendSpellGo()
     if (hasBit368)
         data << uint8(0);
 
-    if (hasBit356)
-        data << uint32(0);
+    if (hasDelayMoment)
+        data << uint32(m_delayMoment);
 
     if (hasBit384)
         data << uint8(0);
@@ -5430,9 +5430,19 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket data(MSG_CHANNEL_UPDATE, 8+4);
-    data.append(m_caster->GetPackGUID());
+    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8+4);
+    ObjectGuid guid = m_caster->GetGUID();
+    uint8 bitOrder[8] = {2, 7, 0, 6, 5, 3, 1, 4};
+    data.WriteBitInOrder(guid, bitOrder);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
     data << uint32(time);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
 
     m_caster->SendMessageToSet(&data, true);
 }
@@ -5446,29 +5456,24 @@ void Spell::SendChannelStart(uint32 duration)
             if (!m_UniqueTargetInfo.empty())
                 channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
-    WorldPacket data(MSG_CHANNEL_START, (8+4+4));
-    data.append(m_caster->GetPackGUID());
+    WorldPacket data(SMSG_SPELL_CHANNEL_START, (8+4+4));
+    ObjectGuid guid = m_caster->GetGUID();
+    uint8 bitOrder[8] = {6, 0, 4, 1, 2, 3, 5, 7};
+
+    data.WriteBit(false); // hasHealPrediction
+    data.WriteBit(false); // hasCastFlagImmunity
+    data.WriteBitInOrder(guid, bitOrder);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[4]);
     data << uint32(m_spellInfo->Id);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
     data << uint32(duration);
-    data << uint8(0);                           // immunity (castflag & 0x04000000)
-    /*
-    if (immunity)
-    {
-        data << uint32();                       // CastSchoolImmunities
-        data << uint32();                       // CastImmunities
-    }
-    */
-    data << uint8(0);                           // healPrediction (castflag & 0x40000000)
-    /*
-    if (healPrediction)
-    {
-        data.appendPackGUID(channelTarget);     // target packguid
-        data << uint32();                       // spellid
-        data << uint8(0);                       // unk3
-        if (unk3 == 2)
-            data.append();                      // unk packed guid (unused ?)
-    }
-    */
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+
     m_caster->SendMessageToSet(&data, true);
 
     m_timer = duration;

@@ -38,7 +38,7 @@ namespace Movement
         static void WriteMonsterMove(const MoveSpline& mov, WorldPacket& data);
         static void WriteStopMovement(Vector3 const& loc, uint32 splineId, ByteBuffer& data);
         static void WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data);
-        static void WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data);
+        static void WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data, Unit* unit);
         static void WriteCreateGuid(MoveSpline const& moveSpline, ByteBuffer& data);
     };
 }

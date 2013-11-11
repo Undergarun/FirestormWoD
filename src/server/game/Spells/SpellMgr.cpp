@@ -132,6 +132,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             {
                 case 9005:  // Pounce
                 case 102456:// Pounce (Incarnation)
+                case 5211:  // Mighty Bash
                     return DIMINISHING_OPENING_STUN;
                 case 33786: // Cyclone
                 case 113506:// Cyclone (Symbiosis)
