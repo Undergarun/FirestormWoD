@@ -20734,7 +20734,7 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
 }
 void Unit::SendMovementWaterWalking()
 {
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER && (!GetMap()->IsBattlegroundOrArena() || !HasAura(143333)))
         ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
 
     WorldPacket data(MSG_MOVE_WATER_WALK, 64);
