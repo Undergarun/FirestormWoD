@@ -457,7 +457,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 {
-    uint32 spellId, glyphIndex;
+    uint32 spellId, glyphIndex = 0;
     uint8  castCount, unkStringLength;
     float speed = 0.00f, elevation = 0.00f;
     std::string unkString;

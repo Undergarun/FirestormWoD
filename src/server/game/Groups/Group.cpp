@@ -1329,15 +1329,15 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(creature->GetGUID());
-    //data << uint8(0); // unk1
+    WorldPacket data(SMSG_LOOT_LIST);
 
-    if (groupLooter)
-        data.append(groupLooter->GetPackGUID());
-    else
-        data << uint64(0);
-    data << uint64(0);
+    ObjectGuid creatureGuid = creature->GetGUID();
+
+    uint8 bitsOrder[8] = { 6, 7, 3, 5, 1, 2, 0, 4 };
+    data.WriteBitInOrder(creatureGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 5, 6, 2, 0, 1, 3, 4, 7 };
+    data.WriteBytesSeq(creatureGuid, bytesOrder);
 
     BroadcastPacket(&data, false);
 }
@@ -2476,13 +2476,13 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 {
     switch (GetLootMethod())
     {
-    case MASTER_LOOT:
-    case FREE_FOR_ALL:
-        return;
-    default:
-        // round robin style looting applies for all low
-        // quality items in each loot method except free for all and master loot
-        break;
+        case MASTER_LOOT:
+        case FREE_FOR_ALL:
+            return;
+        default:
+            // round robin style looting applies for all low
+            // quality items in each loot method except free for all and master loot
+            break;
     }
 
     uint64 oldLooterGUID = GetLooterGuid();

@@ -1428,7 +1428,7 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
 {
     m_MirrorTimer[Type] = DISABLED_MIRROR_TIMER;
     WorldPacket data(SMSG_STOP_MIRROR_TIMER, 4);
-    data << (uint32)Type;
+    data << uint32(Type);
     GetSession()->SendPacket(&data);
 }
 
@@ -6080,6 +6080,9 @@ void Player::BuildPlayerRepop()
 
     if (GetGuild() && GetGuild()->GetLevel() >= 15)
         CastSpell(this, 84559, true); // The Quick and the Dead
+      
+    if (HasAura(80353))
+        RemoveAurasDueToSpell(80353); // Time Warp
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
@@ -6112,8 +6115,6 @@ void Player::BuildPlayerRepop()
     // BG - remove insignia related
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-//    SendCorpseReclaimDelay();
-
     // to prevent cheating
     corpse->ResetGhostTime();
 
@@ -6128,9 +6129,9 @@ void Player::BuildPlayerRepop()
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
     WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);          // remove spirit healer position
+    data << float(0);
+    data << float(0);
     data << uint32(-1);
-    data << float(0);
-    data << float(0);
     data << float(0);
     GetSession()->SendPacket(&data);
 
@@ -6568,10 +6569,10 @@ void Player::RepopAtGraveyard()
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap
-            data << ClosestGrave->map_id;
-            data << ClosestGrave->x;
             data << ClosestGrave->y;
             data << ClosestGrave->z;
+            data << ClosestGrave->map_id;
+            data << ClosestGrave->x;
             GetSession()->SendPacket(&data);
         }
     }
@@ -11161,11 +11162,10 @@ void Player::SetSheath(SheathState sheathed)
             SetVirtualItemSlot(2, NULL);
             break;
         case SHEATH_STATE_MELEE:                            // prepared melee weapon
-        {
             SetVirtualItemSlot(0, GetWeaponForAttack(BASE_ATTACK, true));
             SetVirtualItemSlot(1, GetWeaponForAttack(OFF_ATTACK, true));
             SetVirtualItemSlot(2, NULL);
-        };  break;
+            break;
         case SHEATH_STATE_RANGED:                           // prepared ranged weapon
             SetVirtualItemSlot(0, NULL);
             SetVirtualItemSlot(1, NULL);
@@ -11177,6 +11177,7 @@ void Player::SetSheath(SheathState sheathed)
             SetVirtualItemSlot(2, NULL);
             break;
     }
+
     Unit::SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
 }
 
@@ -26000,6 +26001,7 @@ void Player::SendCorpseReclaimDelay(bool load)
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);
+    data.WriteBit(0);
     data << uint32(delay*IN_MILLISECONDS);
     GetSession()->SendPacket(&data);
 }
