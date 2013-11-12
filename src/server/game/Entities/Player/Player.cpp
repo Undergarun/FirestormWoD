@@ -1428,7 +1428,7 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
 {
     m_MirrorTimer[Type] = DISABLED_MIRROR_TIMER;
     WorldPacket data(SMSG_STOP_MIRROR_TIMER, 4);
-    data << (uint32)Type;
+    data << uint32(Type);
     GetSession()->SendPacket(&data);
 }
 
@@ -6112,8 +6112,6 @@ void Player::BuildPlayerRepop()
     // BG - remove insignia related
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-//    SendCorpseReclaimDelay();
-
     // to prevent cheating
     corpse->ResetGhostTime();
 
@@ -6128,9 +6126,9 @@ void Player::BuildPlayerRepop()
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
     WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);          // remove spirit healer position
+    data << float(0);
+    data << float(0);
     data << uint32(-1);
-    data << float(0);
-    data << float(0);
     data << float(0);
     GetSession()->SendPacket(&data);
 
@@ -6144,6 +6142,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559))
         RemoveAurasDueToSpell(84559); // The Quick and the Dead
+    if (getClass() == CLASS_MONK && HasAura(131562))
+        RemoveAurasDueToSpell(131562);
 
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
@@ -6566,10 +6566,10 @@ void Player::RepopAtGraveyard()
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap
-            data << ClosestGrave->map_id;
-            data << ClosestGrave->x;
             data << ClosestGrave->y;
             data << ClosestGrave->z;
+            data << ClosestGrave->map_id;
+            data << ClosestGrave->x;
             GetSession()->SendPacket(&data);
         }
     }
@@ -10421,7 +10421,7 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
     WorldPacket data(SMSG_UPDATE_WORLD_STATE, 4+4+1);
     data << Field;
     data << Value;
-    data << uint8(0);
+    data.WriteBit(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -11159,11 +11159,10 @@ void Player::SetSheath(SheathState sheathed)
             SetVirtualItemSlot(2, NULL);
             break;
         case SHEATH_STATE_MELEE:                            // prepared melee weapon
-        {
             SetVirtualItemSlot(0, GetWeaponForAttack(BASE_ATTACK, true));
             SetVirtualItemSlot(1, GetWeaponForAttack(OFF_ATTACK, true));
             SetVirtualItemSlot(2, NULL);
-        };  break;
+            break;
         case SHEATH_STATE_RANGED:                           // prepared ranged weapon
             SetVirtualItemSlot(0, NULL);
             SetVirtualItemSlot(1, NULL);
@@ -11175,6 +11174,7 @@ void Player::SetSheath(SheathState sheathed)
             SetVirtualItemSlot(2, NULL);
             break;
     }
+
     Unit::SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
 }
 
@@ -25998,6 +25998,7 @@ void Player::SendCorpseReclaimDelay(bool load)
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);
+    data.WriteBit(0);
     data << uint32(delay*IN_MILLISECONDS);
     GetSession()->SendPacket(&data);
 }
@@ -27665,7 +27666,7 @@ void Player::SetMap(Map* map)
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
 {
-    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6, glyph7, glyph8, glyph9 FROM character_glyphs WHERE guid = '%u'
+    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6 FROM character_glyphs WHERE guid = '%u'
     if (!result)
         return;
 

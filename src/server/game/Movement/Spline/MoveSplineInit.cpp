@@ -175,7 +175,7 @@ namespace Movement
         bool hasUnk3 = false;
         bool unk4 = false;
         uint32 unkCounter = 0;
-        uint32 packedWPcount = splineflags & MoveSplineFlag::UncompressedPath ? 0 : move_spline.spline.getPointCount() - 2;
+        uint32 packedWPcount = splineflags & MoveSplineFlag::UncompressedPath ? 0 : move_spline.spline.getPointCount() - 3;
         uint32 WPcount = !packedWPcount ? move_spline.spline.getPointCount() - 2 : 1;
         uint8 splineType = 0;
 
@@ -276,7 +276,7 @@ namespace Movement
 
         if ((splineflags & MoveSplineFlag::UncompressedPath) == 0)
         {
-            uint32 last_idx = move_spline.spline.getPointCount() - 2;
+            uint32 last_idx = move_spline.spline.getPointCount() - 3;
             const Vector3 * real_path = &move_spline.spline.getPoint(1);
             if (last_idx > 0)
             {

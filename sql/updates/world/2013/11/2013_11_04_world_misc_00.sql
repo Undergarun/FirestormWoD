@@ -9,6 +9,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (26218,'spell_winter_veil_mistletoe');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=15760;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 15760, 0, 0, 1, 0, 26218, 1, 0, 1, 0, '', 'execute sai only if player has not Mistletoe Debuff'),
 (22, 1, 15760, 0, 0, 12, 0, 2, 0, 0, 0, 0, '', 'execute sai only if Winter Veil');

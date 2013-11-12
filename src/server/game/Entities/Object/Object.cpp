@@ -496,7 +496,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
 
         if (self->IsSplineEnabled())
-            Movement::PacketBuilder::WriteCreateData(*self->movespline, *data);
+            Movement::PacketBuilder::WriteCreateData(*self->movespline, *data, (Unit*)self);
 
         if (self->m_movementInfo.t_guid)
         {
