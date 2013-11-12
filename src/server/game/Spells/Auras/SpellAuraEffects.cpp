@@ -2051,6 +2051,10 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
         //if (target->GetTypeId() == TYPEID_PLAYER)
             //target->SetByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW); // TODO : Check PLAYER_FIELD_AURA_VISION
 
+        if (GetBase()->GetId() == 32612) // invisible mage pet
+            if (Unit* pet = target->GetGuardianPet())
+                target->AddAura(32612,pet);
+
         target->m_invisibility.AddFlag(type);
         target->m_invisibility.AddValue(type, GetAmount());
     }
