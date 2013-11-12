@@ -1,6 +1,6 @@
 -- 1 = Battle Elixir
 
--- esprit 
+-- Spirit
 
 insert into `spell_group` values (1, 8112);
 insert into `spell_group` values (1, 8113);
@@ -12,7 +12,7 @@ insert into `spell_group` values (1, 43197);
 insert into `spell_group` values (1, 48103);
 insert into `spell_group` values (1, 48104);
 
--- agilité 
+-- Agility
 
 insert into `spell_group` values (1, 8115);
 insert into `spell_group` values (1, 8116);
@@ -24,7 +24,7 @@ insert into `spell_group` values (1, 58450);
 insert into `spell_group` values (1, 58451);
 insert into `spell_group` values (1, 89343);
 
--- intelligence
+-- Intellect
 
 insert into `spell_group` values (1, 8096);
 insert into `spell_group` values (1, 8097);
@@ -36,7 +36,7 @@ insert into `spell_group` values (1, 48099);
 insert into `spell_group` values (1, 48100);
 insert into `spell_group` values (1, 89347);
 
--- force
+-- Strength
 
 insert into `spell_group` values (1, 8118);
 insert into `spell_group` values (1, 8119);
@@ -50,7 +50,7 @@ insert into `spell_group` values (1, 89346);
 
 -- 2 = Guardian Elixir
 
--- endurance
+-- Stamina
 
 insert into `spell_group` values (2, 8099);
 insert into `spell_group` values (2, 8100);
@@ -62,7 +62,7 @@ insert into `spell_group` values (2, 43198);
 insert into `spell_group` values (2, 48101);
 insert into `spell_group` values (2, 48102);
 
--- protection
+-- Armor
 
 insert into `spell_group` values (2, 8091);
 insert into `spell_group` values (2, 8094);
