@@ -6080,6 +6080,9 @@ void Player::BuildPlayerRepop()
 
     if (GetGuild() && GetGuild()->GetLevel() >= 15)
         CastSpell(this, 84559, true); // The Quick and the Dead
+      
+    if (HasAura(80353))
+        RemoveAurasDueToSpell(80353); // Time Warp
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
