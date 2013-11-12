@@ -13327,8 +13327,16 @@ void Unit::Dismount()
     if (Player* thisPlayer = ToPlayer())
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
 
-    WorldPacket data(SMSG_DISMOUNT, 8);
-    data.appendPackGUID(GetGUID());
+    ObjectGuid guid = GetGUID();
+
+    WorldPacket data(SMSG_DISMOUNT);
+
+    uint8 bitsOrder[8] = { 6, 4, 3, 5, 1, 7, 0, 2 };
+    data.WriteBitInOrder(guid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 1, 7, 5, 4, 6, 2, 0, 3 };
+    data.WriteBytesSeq(guid, bytesOrder);
+
     SendMessageToSet(&data, true);
 
     // dismount as a vehicle
@@ -17689,9 +17697,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        WorldPacket data(SMSG_PARTY_KILL_LOG, (8+8)); // send event PARTY_KILL
-        data << uint64(player->GetGUID()); // player with killing blow
-        data << uint64(victim->GetGUID()); // victim
+        ObjectGuid guid = player->GetGUID();
+
+        WorldPacket data(SMSG_PARTY_KILL_LOG);
+
+        uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
+        data.WriteBitInOrder(guid, bitsOrder);
+
+        uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
+        data.WriteBytesSeq(guid, bytesOrder);
 
         Player* looter = player;
 
@@ -17725,10 +17739,16 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
 
             if (creature)
             {
-                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
-                data2 << uint64(creature->GetGUID());
-                data << uint64(0);
-                data << uint64(0);
+                WorldPacket data2(SMSG_LOOT_LIST);
+
+                ObjectGuid creatureGuid = creature->GetGUID();
+
+                uint8 bitsOrder[8] = { 6, 7, 3, 5, 1, 2, 0, 4 };
+                data.WriteBitInOrder(creatureGuid, bitsOrder);
+
+                uint8 bytesOrder[8] = { 5, 6, 2, 0, 1, 3, 4, 7 };
+                data.WriteBytesSeq(creatureGuid, bytesOrder);
+
                 player->SendMessageToSet(&data2, true);
             }
         }
