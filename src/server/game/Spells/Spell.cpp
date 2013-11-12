@@ -5138,7 +5138,7 @@ void Spell::SendSpellGo()
     if (hasBit384)
         data << uint8(0);
 
-    data << uint32(0x40310); // unk flags, sniffed from retail
+    data << uint32(0); // unk flags, sniffed from retail
     data.WriteByteSeq(caster[5]);
 
     if (hasBit101)
