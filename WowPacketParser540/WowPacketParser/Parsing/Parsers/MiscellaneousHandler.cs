@@ -583,18 +583,103 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_WHO)]
         public static void HandleWho(Packet packet)
         {
-            var counter = packet.ReadUInt32("List count");
-            packet.ReadUInt32("Online count");
+            var counter = packet.ReadBits("List count", 6);
+
+            var playerGuid = new byte[counter][];
+            var guildGuid = new byte[counter][];
+            var unkGuid = new byte[counter][];
+            var unkLens = new uint[counter][];
+            var guildsNameLen = new uint[counter];
+            var playersNameLen = new uint[counter];
 
             for (var i = 0; i < counter; ++i)
             {
-                packet.ReadCString("Name", i);
-                packet.ReadCString("Guild", i);
-                packet.ReadUInt32("Level", i);
-                packet.ReadEnum<Class>("Class", TypeCode.UInt32, i);
-                packet.ReadEnum<Race>("Race", TypeCode.UInt32, i);
-                packet.ReadEnum<Gender>("Gender", TypeCode.Byte, i);
+                playerGuid[i] = new byte[8];
+                guildGuid[i] = new byte[8];
+                unkGuid[i] = new byte[8];
+
+                guildGuid[i][4] = packet.ReadBit();
+
+                for (int j = 0; j < 5; j++)
+                {
+                    unkLens[i] = new uint[5];
+
+                    unkLens[i][j] = packet.ReadBits("unkLen", 7, i, j);
+                }
+
+                guildsNameLen[i] = packet.ReadBits("guildsNameLen", 7, i);
+                unkGuid[i][3] = packet.ReadBit();
+                playerGuid[i][1] = packet.ReadBit();
+                playersNameLen[i] = packet.ReadBits("playersNameLen", 6, i);
+                guildGuid[i][2] = packet.ReadBit();
+                playerGuid[i][7] = packet.ReadBit();
+                unkGuid[i][2] = packet.ReadBit();
+                guildGuid[i][6] = packet.ReadBit();
+                guildGuid[i][7] = packet.ReadBit();
+                unkGuid[i][7] = packet.ReadBit();
+                playerGuid[i][3] = packet.ReadBit();
+                unkGuid[i][4] = packet.ReadBit();
+                packet.ReadBit("Unk bit 1", i);
+                unkGuid[i][1] = packet.ReadBit();
+                unkGuid[i][0] = packet.ReadBit();
+                playerGuid[i][4] = packet.ReadBit();
+                packet.ReadBit("Unk bit 2", i);
+                guildGuid[i][1] = packet.ReadBit();
+                guildGuid[i][3] = packet.ReadBit();
+                unkGuid[i][6] = packet.ReadBit();
+                guildGuid[i][0] = packet.ReadBit();
+                playerGuid[i][2] = packet.ReadBit();
+                playerGuid[i][5] = packet.ReadBit();
+                playerGuid[i][6] = packet.ReadBit();
+                guildGuid[i][5] = packet.ReadBit();
+                unkGuid[i][5] = packet.ReadBit();
+                playerGuid[i][0] = packet.ReadBit();
+            }
+
+            for (var i = 0; i < counter; ++i)
+            {
+                packet.ReadXORByte(playerGuid[i], 7);
+                packet.ReadXORByte(guildGuid[i], 4);
+                packet.ReadXORByte(guildGuid[i], 1);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadXORByte(playerGuid[i], 0);
+                packet.ReadWoWString("Player Name", playersNameLen[i], i);
+                packet.ReadXORByte(unkGuid[i], 0);
+                packet.ReadXORByte(guildGuid[i], 6);
                 packet.ReadEntryWithName<UInt32>(StoreNameType.Zone, "Zone Id", i);
+                packet.ReadXORByte(unkGuid[i], 7);
+                packet.ReadXORByte(unkGuid[i], 5);
+                packet.ReadXORByte(playerGuid[i], 3);
+                packet.ReadXORByte(playerGuid[i], 6);
+                packet.ReadUInt32("Class Mask", i);
+                packet.ReadEnum<Race>("Race", TypeCode.Byte, i);
+                packet.ReadByte("Level", i);
+                packet.ReadXORByte(playerGuid[i], 2);
+                packet.ReadXORByte(playerGuid[i], 1);
+                packet.ReadEnum<Gender>("Gender", TypeCode.Byte, i);
+                packet.ReadUInt32("Race Mask", i);
+                packet.ReadXORByte(guildGuid[i], 0);
+                packet.ReadXORByte(guildGuid[i], 5);
+                packet.ReadXORByte(guildGuid[i], 7);
+
+                for (int j = 0; j < 5; j++)
+                    packet.ReadWoWString("unkString", unkLens[i][j], i, j);
+
+                packet.ReadXORByte(playerGuid[i], 5);
+                packet.ReadXORByte(guildGuid[i], 3);
+                packet.ReadXORByte(playerGuid[i], 4);
+                packet.ReadWoWString("Guild Name", guildsNameLen[i], i);
+                packet.ReadEnum<Class>("Class", TypeCode.Byte, i);
+                packet.ReadXORByte(unkGuid[i], 4);
+                packet.ReadXORByte(guildGuid[i], 2);
+                packet.ReadXORByte(unkGuid[i], 3);
+                packet.ReadXORByte(unkGuid[i], 6);
+                packet.ReadXORByte(unkGuid[i], 2);
+                packet.ReadXORByte(unkGuid[i], 1);
+
+                packet.WriteGuid("Player GUID", playerGuid[i], i);
+                packet.WriteGuid("Unk GUID", unkGuid[i], i);
+                packet.WriteGuid("Guild GUID", guildGuid[i], i);
             }
         }
 

@@ -104,59 +104,133 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_LOOT_RESPONSE)]
         public static void HandleLootResponse(Packet packet)
         {
-            var loot = new Loot();
+            var creature = new byte[8];
+            var loots = new byte[8];
 
-            var guid = packet.ReadGuid("GUID");
-            var lootType = packet.ReadEnum<LootType>("Loot Type", TypeCode.Byte);
-            if (lootType == LootType.Unk0)
+            var unkbit69 = packet.ReadBit("unkbit69");
+            creature[0] = packet.ReadBit();
+            creature[1] = packet.ReadBit();
+            var unkbit48 = !packet.ReadBit();
+            Console.WriteLine("unkbit48: " + unkbit48);
+            loots[7] = packet.ReadBit();
+            creature[3] = packet.ReadBit();
+            loots[2] = packet.ReadBit();
+            loots[0] = packet.ReadBit();
+            var permission = 4 - packet.ReadBit();
+            Console.WriteLine("Permission: " + permission);
+            loots[1] = packet.ReadBit();
+            var unkbit84 = packet.ReadBit("unkbit84");
+            creature[6] = packet.ReadBit();
+            var hasLootType = !packet.ReadBit();
+            Console.WriteLine("hasLootType: " + hasLootType);
+            loots[3] = packet.ReadBit();
+            var unkbit32 = !packet.ReadBit();
+            Console.WriteLine("unkbit32: " + unkbit32);
+
+            var currenciesShown = packet.ReadBits("currenciesShown", 20);
+
+            creature[7] = packet.ReadBit();
+            creature[4] = packet.ReadBit();
+            loots[6] = packet.ReadBit();
+
+            var unkBits = new uint[currenciesShown];
+
+            for (int i = 0; i < currenciesShown; i++)
+                unkBits[i] = packet.ReadBits("unkBits", 3, i); // 6
+
+            creature[2] = packet.ReadBit();
+            var hasGold = !packet.ReadBit();
+            Console.WriteLine("hasGold: " + hasGold);
+            loots[4] = packet.ReadBit();
+
+            var itemsShown = packet.ReadBits("itemsShown", 19);
+
+            var slot = new bool[itemsShown];
+            var slotType = new bool[itemsShown];
+            var bit32 = new bool[itemsShown];
+            var bits2 = new uint[itemsShown];
+            var bits3 = new uint[itemsShown];
+            for (int i = 0; i < itemsShown; i++)
             {
-                packet.ReadByte("Slot");
-                return;
+                slotType[i] = !packet.ReadBit();
+                Console.WriteLine("slotType[" + i + "]: " + slotType[i]);
+                slot[i] = !packet.ReadBit();
+                Console.WriteLine("slot[" + i + "]: " + slot[i]);
+                bits2[i] = packet.ReadBits("bits2", 2, i);
+                bit32[i] = packet.ReadBit("bit32", i);
+                bits3[i] = packet.ReadBits("bits3", 3, i);
             }
 
-            loot.Gold = packet.ReadUInt32("Gold");
+            creature[5] = packet.ReadBit();
+            var unk = packet.ReadBit("unk"); // 0
 
-            var count = packet.ReadByte("Drop Count");
+            if (permission != 3)
+                packet.ReadByte("Unk Byte"); // 0
 
-            byte currencyCount = 0;
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6a_13623))
-                currencyCount = packet.ReadByte("Currency Count");
-
-            loot.LootItems = new List<LootItem>(count);
-            for (var i = 0; i < count; ++i)
+            for (int i = 0; i < currenciesShown; i++)
             {
-                var lootItem = new LootItem();
-                packet.ReadByte("Slot", i);
-                lootItem.ItemId = (uint) packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Entry", i);
-                lootItem.Count = packet.ReadUInt32("Count", i);
+                packet.ReadByte("Slot", i); // 1
+                packet.ReadUInt32("Currency ID", i);
+                packet.ReadUInt32("Currency count", i);
+            }
+
+            packet.ReadXORByte(creature, 3);
+
+            for (int i = 0; i < itemsShown; i++)
+            {
+                if (slot[i])
+                    packet.ReadByte("Slot", i);
+
+                packet.ReadUInt32("Item Count", i);
+
+                if (slotType[i])
+                    packet.ReadEnum<LootSlotType>("Slot Type", TypeCode.Byte, i);
+
                 packet.ReadUInt32("Display ID", i);
-                packet.ReadInt32("Random Suffix", i);
-                packet.ReadInt32("Random Property Id", i);
-                packet.ReadEnum<LootSlotType>("Slot Type", TypeCode.Byte, i);
-                loot.LootItems.Add(lootItem);
+                packet.ReadUInt32("Random Suffix", i);
+                packet.ReadUInt32("Random Property ID", i);
+                var bytesCounter = packet.ReadUInt32("BytesCounter", i);
+
+                for (int j = 0; j < bytesCounter; j++)
+                    packet.ReadByte("ByteCount", i, j);
+
+                packet.ReadUInt32("Item ID", i);
             }
 
-            for (int i = 0; i < currencyCount; ++i)
-            {
-                packet.ReadByte("Slot", i);
-                packet.ReadInt32("Currency Id", i);
-                packet.ReadInt32("Count", i); // unconfirmed
-            }
+            packet.ReadXORByte(creature, 0);
 
-            // Items do not have item id in its guid, we need to query the wowobject store go
-            if (guid.GetObjectType() == ObjectType.Item)
-            {
-                WoWObject item;
-                UpdateField itemEntry;
-                if (Storage.Objects.TryGetValue(guid, out item))
-                    if (item.UpdateFields.TryGetValue(UpdateFields.GetUpdateField(ObjectField.OBJECT_FIELD_ENTRY), out itemEntry))
-                    {
-                        Storage.Loots.Add(new Tuple<uint, ObjectType>(itemEntry.UInt32Value, guid.GetObjectType()), loot, packet.TimeSpan);
-                        return;
-                    }
-            }
+            if (hasGold)
+                packet.ReadUInt32("Gold");
 
-            Storage.Loots.Add(new Tuple<uint, ObjectType>(guid.GetEntry(), guid.GetObjectType()), loot, packet.TimeSpan);
+            if (hasLootType)
+                packet.ReadEnum<LootType>("Loot Type", TypeCode.Byte);
+
+            packet.ReadXORByte(loots, 5);
+            packet.ReadXORByte(creature, 7);
+            packet.ReadXORByte(creature, 6);
+            packet.ReadXORByte(loots, 1);
+
+            // 2
+            if (unkbit48)
+                packet.ReadByte("Unk Byte 48");
+
+            // 17
+            if (unkbit32)
+                packet.ReadByte("Unk Byte 32");
+
+            packet.ReadXORByte(loots, 0);
+            packet.ReadXORByte(creature, 2);
+            packet.ReadXORByte(creature, 5);
+            packet.ReadXORByte(loots, 7);
+            packet.ReadXORByte(loots, 3);
+            packet.ReadXORByte(creature, 1);
+            packet.ReadXORByte(loots, 2);
+            packet.ReadXORByte(creature, 4);
+            packet.ReadXORByte(loots, 4);
+            packet.ReadXORByte(loots, 6);
+
+            packet.WriteGuid("Creature GUID", creature);
+            packet.WriteGuid("Loots GUID", loots);
         }
 
         [Parser(Opcode.CMSG_LOOT_ROLL)]

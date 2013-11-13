@@ -26,10 +26,51 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_ACHIEVEMENT_EARNED)]
         public static void HandleAchievementEarned(Packet packet)
         {
-            packet.ReadPackedGuid("Player GUID");
-            packet.ReadInt32("Achievement");
-            packet.ReadPackedTime("Time");
-            packet.ReadInt32("Unk Int32");
+            var playerGuid = new byte[8];
+            var firstOwnerGuid = new byte[8];
+
+            packet.ReadPackedTime("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Achievement ID");
+            packet.ReadUInt32("Unk UInt32");
+
+            playerGuid[6] = packet.ReadBit();
+            firstOwnerGuid[5] = packet.ReadBit();
+            firstOwnerGuid[3] = packet.ReadBit();
+            firstOwnerGuid[0] = packet.ReadBit();
+            firstOwnerGuid[1] = packet.ReadBit();
+            firstOwnerGuid[6] = packet.ReadBit();
+            playerGuid[2] = packet.ReadBit();
+            firstOwnerGuid[2] = packet.ReadBit();
+            playerGuid[1] = packet.ReadBit();
+            playerGuid[4] = packet.ReadBit();
+            playerGuid[5] = packet.ReadBit();
+            playerGuid[7] = packet.ReadBit();
+            firstOwnerGuid[7] = packet.ReadBit();
+            playerGuid[0] = packet.ReadBit();
+            firstOwnerGuid[4] = packet.ReadBit();
+            packet.ReadBit("unk Bit");
+            playerGuid[3] = packet.ReadBit();
+
+            packet.ReadXORByte(firstOwnerGuid, 4);
+            packet.ReadXORByte(playerGuid, 0);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 6);
+            packet.ReadXORByte(playerGuid, 1);
+            packet.ReadXORByte(firstOwnerGuid, 1);
+            packet.ReadXORByte(firstOwnerGuid, 5);
+            packet.ReadXORByte(firstOwnerGuid, 0);
+            packet.ReadXORByte(playerGuid, 7);
+            packet.ReadXORByte(playerGuid, 3);
+            packet.ReadXORByte(playerGuid, 5);
+            packet.ReadXORByte(firstOwnerGuid, 6);
+            packet.ReadXORByte(playerGuid, 4);
+            packet.ReadXORByte(firstOwnerGuid, 3);
+            packet.ReadXORByte(firstOwnerGuid, 7);
+            packet.ReadXORByte(firstOwnerGuid, 2);
+
+            packet.WriteGuid("Player GUID", playerGuid);
+            packet.WriteGuid("First Owner GUID", firstOwnerGuid);
         }
 
         [Parser(Opcode.SMSG_CRITERIA_UPDATE)]

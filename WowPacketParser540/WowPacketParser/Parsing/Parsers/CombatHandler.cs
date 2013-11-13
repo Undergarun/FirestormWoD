@@ -16,8 +16,13 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_DUEL_REQUESTED)]
         public static void HandleDuelRequested(Packet packet)
         {
-            packet.ReadGuid("Flag GUID");
-            packet.ReadGuid("Opponent GUID");
+            var guid = new byte[8];
+
+            packet.StartBitStream(guid, 6, 2, 4, 1, 5, 3, 0, 7);
+            packet.ResetBitReader();
+            packet.ParseBitStream(guid, 5, 2, 3, 6, 1, 0, 4, 7);
+
+            packet.WriteGuid("GUID", guid);
         }
 
         [Parser(Opcode.SMSG_DUEL_COMPLETE)]
