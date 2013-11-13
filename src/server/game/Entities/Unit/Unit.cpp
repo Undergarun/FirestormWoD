@@ -20474,11 +20474,6 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
         if (HasAura(18499))
         {
             float mod = 2.0f;
-
-            // Unshackled Fury (Mastery Fury Warrior)
-            if (AuraPtr aura = GetAura(76856))
-                mod += float(aura->GetEffect(0)->GetAmount() / 100.0f);
-
             addRage *= mod;
         }
     }
