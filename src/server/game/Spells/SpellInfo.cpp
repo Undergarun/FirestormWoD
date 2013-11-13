@@ -1821,6 +1821,9 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
 
 bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
 {
+    if (target->isTotem() && (Id == 114923 || Id == 114954 || Id == 114956))
+        return false;
+
     // Curse of Doom & Exorcism: not find another way to fix spell target check :/
     if (SpellFamilyName == SPELLFAMILY_WARLOCK && Category == 1179)
     {

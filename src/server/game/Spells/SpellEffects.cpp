@@ -3229,10 +3229,10 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                         return;
 
             break;
+        }
         case 475: // Remove Curse
             if (m_caster->HasAura(115700))
                 m_caster->AddAura(115701, m_caster);
-        }
         default:
             break;
     }
