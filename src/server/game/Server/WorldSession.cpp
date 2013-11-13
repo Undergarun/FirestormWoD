@@ -109,10 +109,8 @@ timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
 playerLoginCounter(0),
-sellItemOpcodeTimer(5000),
-sellItemOpcodeCounter(0),
 timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand(0),
-m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0)
+m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), timeLastSellItemOpcode(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -307,16 +305,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     uint32 nbPacket = 0;
     std::map<uint32, OpcodeInfo> pktHandle; // opcodeId / OpcodeInfo
 
-    if (sellItemOpcodeTimer < diff)
-    {
-        if (sellItemOpcodeCounter > 50)
-            KickPlayer();
-        sellItemOpcodeTimer = 5000;
-        sellItemOpcodeCounter = 0;
-    }
-    else
-        sellItemOpcodeTimer -= diff;
-
     /// Antispam Timer update
     if (sWorld->getBoolConfig(CONFIG_ANTISPAM_ENABLED))
         UpdateAntispamTimer(diff);
@@ -458,7 +446,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (deletePacket)
             delete packet;
 
-#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 200
+#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 500
         processedPackets++;
 
         //process only a max amout of packets in 1 Update() call.
