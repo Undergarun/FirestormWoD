@@ -1947,6 +1947,39 @@ class spell_q12919_gymers_throw : public SpellScriptLoader
         }
 };
 
+/*
+Many quest those require spell cast on trainng dummies. Starting quest class level 3
+*/
+
+class spell_quests_spell_hit : public SpellScriptLoader
+{
+    public:
+        spell_quests_spell_hit() : SpellScriptLoader("spell_quests_spell_hit") { }
+
+        class spell_quests_spell_hit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quests_spell_hit_SpellScript)
+
+            void HandleDummy()
+           {
+                if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER)
+                {
+                    GetCaster()->ToPlayer()->KilledMonsterCredit(44175, 0);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_quests_spell_hit_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_quests_spell_hit_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1995,4 +2028,5 @@ void AddSC_quest_spell_scripts()
     new spell_q24861_funeral_offering();
     new spell_q12919_gymers_grab();
     new spell_q12919_gymers_throw();
+    new spell_quests_spell_hit();
 }

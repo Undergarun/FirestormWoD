@@ -863,9 +863,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     PreventionType = _categorie ? _categorie->PreventionType : 0;
 
     if (SpellCategoryEntry const* categoryInfo = sSpellCategoryStores.LookupEntry(Category))
-    	CategoryFlags = categoryInfo->Flags;
+        CategoryFlags = categoryInfo->Flags;
     else
-    	CategoryFlags = 0;
+        CategoryFlags = 0;
 
     // SpellClassOptionsEntry
     SpellClassOptionsEntry const* _class = GetSpellClassOptions();
@@ -2882,7 +2882,6 @@ bool SpellInfo::IsBreakingCamouflage() const
         case 13813: // Explosive Trap
         case 19263: // Deterence
         case 19434: // Aimed Shot
-        case 23989: // Readiness
         case 26297: // Berserking
         case 34477: // Misdirection
         case 34600: // Snake Trap

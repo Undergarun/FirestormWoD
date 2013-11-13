@@ -116,7 +116,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_ITEM");
     uint8 dstbag, dstslot, srcbag, srcslot;
 
-    recvData >> srcslot >> dstslot >> srcbag >> dstbag;
+    recvData >> srcslot >> dstbag >> dstslot >> srcbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((srcbag << 8) | srcslot);
@@ -315,8 +315,8 @@ void WorldSession::SendItemDb2Reply(uint32 entry)
     data << uint32(buff.size());
     data.append(buff);
     
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_ITEM));
     data << uint32(DB2_REPLY_ITEM);
+    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_ITEM));
     data << uint32(entry);
 
     SendPacket(&data);
@@ -448,8 +448,8 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     data << uint32(buff.size());
     data.append(buff);
     
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_SPARSE));
     data << uint32(DB2_REPLY_SPARSE);
+    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_SPARSE));
     data << uint32(entry);
 
     SendPacket(&data);
@@ -949,11 +949,25 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
     uint8 srcbag, srcslot, dstbag;
 
-    recvData >> srcbag >> srcslot >> dstbag;
-    //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
+    recvData >> dstbag >> srcbag >> srcslot;
+
+    uint8 unkCounter = recvData.ReadBits(2);
+
+    for (uint8 i = 0; i < unkCounter; i++)
+    {
+        recvData.ReadBit();
+        recvData.ReadBit();
+    }
+
+    recvData.FlushBits();
+
+    for (uint8 i = 0; i < unkCounter; i++)
+    {
+        recvData.read_skip<uint8>();
+        recvData.read_skip<uint8>();
+    }
 
     Item* pItem = _player->GetItemByPos(srcbag, srcslot);
     if (!pItem)
@@ -1640,7 +1654,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             }
 
             if (!player->HasItemCount(newEntries[i], 1, false))
-            	return;
+                return;
         }
 
         Item* itemTransmogrifier = NULL;

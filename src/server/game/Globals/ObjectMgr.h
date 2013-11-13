@@ -1228,15 +1228,15 @@ class ObjectMgr
 
         bool IsSkipZone(uint32 zone)
         {
-        	if (skipData.find(zone) != skipData.end())
-        		return skipData[zone];
+            if (skipData.find(zone) != skipData.end())
+                return skipData[zone];
 
             return false;
         }
 
         uint32 GetSkipUpdateCount()
         {
-        	return _skipUpdateCount;
+            return _skipUpdateCount;
         }
 
 

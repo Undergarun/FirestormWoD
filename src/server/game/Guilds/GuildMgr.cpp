@@ -438,12 +438,12 @@ void GuildMgr::LoadGuilds()
     // 10. Loading Guild news
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
     {
-         for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-         {
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
             stmt->setInt32(0, itr->first);
             itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
-         }
+        }
     }
     
     // 11. Validate loaded guild data
@@ -486,7 +486,7 @@ void GuildMgr::LoadGuildXpForLevel()
     {
         Field* fields = result->Fetch();
 
-        uint32 level        = fields[0].GetUInt8();
+        uint32 level        = fields[0].GetUInt32();
         uint32 requiredXP   = fields[1].GetUInt64();
 
         if (level >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))

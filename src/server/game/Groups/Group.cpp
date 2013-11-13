@@ -570,43 +570,108 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
                 player->GetSession()->SendPacket(&data);
             }
 
-            // Do we really need to send this opcode?
-            ObjectGuid guid = GetGUID();
+            ObjectGuid groupGuid = GetGUID();
+            ObjectGuid leaderGuid = GetLeaderGUID();
+            ObjectGuid looterGuid = GetLooterGuid();
+
+            bool automaticDistrib = false;
+            bool sendDifficulty = true;
+
+            uint32 memberCount = 0;
+            ObjectGuid memberGuids = NULL;
+
+            uint32 memberNameLength = 0;
+
             data.Initialize(SMSG_PARTY_UPDATE);
-            data.WriteBit(0);
-            data.WriteBit(guid[2]);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(guid[0]);
-            data.WriteBit(0);
-            data.WriteBit(guid[5]);
-            data.WriteBit(guid[3]);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(guid[4]);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(guid[7]);
-            data.WriteBit(guid[1]);
-            data.WriteBits(0 , 22);
-            data.WriteBit(guid[6]);
-            data.FlushBits();
-            data << uint8(0); // unk
-            data << uint32(m_counter++);                        
-            data.WriteByteSeq(guid[7]);
-            data.WriteByteSeq(guid[2]);
-            data << uint8(1); //unk, always 1
-            data.WriteByteSeq(guid[4]);
-            data.WriteByteSeq(guid[6]);
-            data << uint32(0); // unk, sometime 32 in sniff (flags ?)
-            data.WriteByteSeq(guid[3]);
-            data.WriteByteSeq(guid[1]);
-            data.WriteByteSeq(guid[5]);
-            data << uint8(m_groupType);  // group type (flags in 3.3)
-            data.WriteByteSeq(guid[0]);
+
+            data.WriteBit(leaderGuid[1]);
+            data.WriteBit(groupGuid[7]);
+            data.WriteBits(memberCount, 21);
+
+            data.WriteBit(leaderGuid[2]);
+            data.WriteBit(groupGuid[0]);
+            data.WriteBit(automaticDistrib);    // unk, may be related to automatic loot distribution
+            data.WriteBit(1);                   // hasLooterData
+
+            uint8 bitsOrder[8] = { 2, 0, 3, 7, 4, 1, 6, 5 };
+            data.WriteBitInOrder(looterGuid, bitsOrder);
+
+            data.WriteBit(groupGuid[2]);
+            data.WriteBit(groupGuid[1]);
+            data.WriteBit(groupGuid[6]);
+            data.WriteBit(leaderGuid[7]);
+            data.WriteBit(groupGuid[4]);
+            data.WriteBit(leaderGuid[4]);
+            data.WriteBit(leaderGuid[3]);
+            data.WriteBit(groupGuid[3]);
+
+            // unk, may be related to automatic loot distribution
+            if (automaticDistrib)
+            {
+                data.WriteBit(0);
+                data.WriteBit(0);
+            }
+
+            data.WriteBit(leaderGuid[6]);
+            data.WriteBit(sendDifficulty);
+            data.WriteBit(leaderGuid[5]);
+            data.WriteBit(leaderGuid[0]);
+            data.WriteBit(groupGuid[5]);
+
+            // unk, may be related to automatic loot distribution
+            if (automaticDistrib)
+            {
+                data << uint32(0);
+                data << uint8(0);
+                data << float(0.0f);
+                data << uint8(0);
+                data << uint8(0);
+                data << uint8(0);
+                data << uint8(0);
+                data << uint32(0);
+            }
+
+            data << uint32(m_counter++);
+
+            data.WriteByteSeq(looterGuid[0]);
+            data.WriteByteSeq(looterGuid[1]);
+            data.WriteByteSeq(looterGuid[3]);
+            data.WriteByteSeq(looterGuid[7]);
+            data.WriteByteSeq(looterGuid[6]);
+            data.WriteByteSeq(looterGuid[2]);
+            data << uint8(m_lootMethod);
+            data.WriteByteSeq(looterGuid[5]);
+            data << uint8(m_lootThreshold);
+            data.WriteByteSeq(looterGuid[4]);
+
+            data.WriteByteSeq(groupGuid[3]);
+            data << uint8(0);               // unk byte
+            data.WriteByteSeq(leaderGuid[7]);
+
+            if (sendDifficulty)
+            {
+                data << uint32(GetRaidDifficulty());
+                data << uint32(GetDungeonDifficulty());
+            }
+
+            data.WriteByteSeq(groupGuid[0]);
+            data.WriteByteSeq(groupGuid[6]);
+            data.WriteByteSeq(leaderGuid[3]);
+            data << uint8(1);               // unk, always 1 ?
+            data.WriteByteSeq(leaderGuid[1]);
+            data.WriteByteSeq(leaderGuid[0]);
+            data.WriteByteSeq(leaderGuid[2]);
+            data.WriteByteSeq(leaderGuid[4]);
+            data.WriteByteSeq(leaderGuid[6]);
+            data << uint8(GetGroupType());
+            data << uint32(0);              // unk counter ?
+            data.WriteByteSeq(groupGuid[2]);
+            data.WriteByteSeq(groupGuid[1]);
+            data.WriteByteSeq(groupGuid[4]);
+            data.WriteByteSeq(groupGuid[7]);
+            data.WriteByteSeq(groupGuid[5]);
+            data.WriteByteSeq(leaderGuid[5]);
+
             player->GetSession()->SendPacket(&data);
 
             _homebindIfInstance(player);
@@ -755,9 +820,12 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
     WorldPacket data(SMSG_GROUP_SET_LEADER);
-    data.WriteBits(slot->name.size(), 7);
+
     data << uint8(0);
-    data << slot->name;
+    data.WriteBits(slot->name.size(), 6);
+    data.FlushBits();
+    data.append(slot->name.c_str(), slot->name.size());
+
     BroadcastPacket(&data, true);
 }
 
@@ -806,47 +874,114 @@ void Group::Disband(bool hideDestroy /* = false */)
         }
         else
         {
-            ObjectGuid guid = GetGUID();
+            ObjectGuid groupGuid = GetGUID();
+            ObjectGuid leaderGuid = GetLeaderGUID();
+            ObjectGuid looterGuid = GetLooterGuid();
+
+            bool automaticDistrib = false;
+            bool sendDifficulty = true;
+
+            uint32 memberCount = 0;
+            ObjectGuid memberGuids = NULL;
+
+            uint32 memberNameLength = 0;
+
             data.Initialize(SMSG_PARTY_UPDATE);
-            data.WriteBit(0);
-            data.WriteBit(guid[2]);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(guid[0]);
-            data.WriteBit(0);
-            data.WriteBit(guid[5]);
-            data.WriteBit(guid[3]);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(guid[4]);
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data.WriteBit(guid[7]);
-            data.WriteBit(guid[1]);
-            data.WriteBits(0 , 22);
-            data.WriteBit(guid[6]);
-            data.FlushBits();
-            data << uint8(0); // unk
-            data << uint32(m_counter++);                        
-            data.WriteByteSeq(guid[7]);
-            data.WriteByteSeq(guid[2]);
-            data << uint8(1); //unk, always 1
-            data.WriteByteSeq(guid[4]);
-            data.WriteByteSeq(guid[6]);
-            data << uint32(0); // unk, sometime 32 in sniff (flags ?)
-            data.WriteByteSeq(guid[3]);
-            data.WriteByteSeq(guid[1]);
-            data.WriteByteSeq(guid[5]);
-            data << uint8(m_groupType);  // group type (flags in 3.3)
-            data.WriteByteSeq(guid[0]);
+
+            data.WriteBit(leaderGuid[1]);
+            data.WriteBit(groupGuid[7]);
+            data.WriteBits(memberCount, 21);
+
+            data.WriteBit(leaderGuid[2]);
+            data.WriteBit(groupGuid[0]);
+            data.WriteBit(automaticDistrib);    // unk, may be related to automatic loot distribution
+            data.WriteBit(1);                   // hasLooterData
+
+            uint8 bitsOrder[8] = { 2, 0, 3, 7, 4, 1, 6, 5 };
+            data.WriteBitInOrder(looterGuid, bitsOrder);
+
+            data.WriteBit(groupGuid[2]);
+            data.WriteBit(groupGuid[1]);
+            data.WriteBit(groupGuid[6]);
+            data.WriteBit(leaderGuid[7]);
+            data.WriteBit(groupGuid[4]);
+            data.WriteBit(leaderGuid[4]);
+            data.WriteBit(leaderGuid[3]);
+            data.WriteBit(groupGuid[3]);
+
+            // unk, may be related to automatic loot distribution
+            if (automaticDistrib)
+            {
+                data.WriteBit(0);
+                data.WriteBit(0);
+            }
+
+            data.WriteBit(leaderGuid[6]);
+            data.WriteBit(sendDifficulty);
+            data.WriteBit(leaderGuid[5]);
+            data.WriteBit(leaderGuid[0]);
+            data.WriteBit(groupGuid[5]);
+
+            // unk, may be related to automatic loot distribution
+            if (automaticDistrib)
+            {
+                data << uint32(0);
+                data << uint8(0);
+                data << float(0.0f);
+                data << uint8(0);
+                data << uint8(0);
+                data << uint8(0);
+                data << uint8(0);
+                data << uint32(0);
+            }
+
+            data << uint32(m_counter++);
+
+            data.WriteByteSeq(looterGuid[0]);
+            data.WriteByteSeq(looterGuid[1]);
+            data.WriteByteSeq(looterGuid[3]);
+            data.WriteByteSeq(looterGuid[7]);
+            data.WriteByteSeq(looterGuid[6]);
+            data.WriteByteSeq(looterGuid[2]);
+            data << uint8(m_lootMethod);
+            data.WriteByteSeq(looterGuid[5]);
+            data << uint8(m_lootThreshold);
+            data.WriteByteSeq(looterGuid[4]);
+
+            data.WriteByteSeq(groupGuid[3]);
+            data << uint8(0);               // unk byte
+            data.WriteByteSeq(leaderGuid[7]);
+
+            if (sendDifficulty)
+            {
+                data << uint32(GetRaidDifficulty());
+                data << uint32(GetDungeonDifficulty());
+            }
+
+            data.WriteByteSeq(groupGuid[0]);
+            data.WriteByteSeq(groupGuid[6]);
+            data.WriteByteSeq(leaderGuid[3]);
+            data << uint8(1);               // unk, always 1 ?
+            data.WriteByteSeq(leaderGuid[1]);
+            data.WriteByteSeq(leaderGuid[0]);
+            data.WriteByteSeq(leaderGuid[2]);
+            data.WriteByteSeq(leaderGuid[4]);
+            data.WriteByteSeq(leaderGuid[6]);
+            data << uint8(GetGroupType());
+            data << uint32(0);              // unk counter ?
+            data.WriteByteSeq(groupGuid[2]);
+            data.WriteByteSeq(groupGuid[1]);
+            data.WriteByteSeq(groupGuid[4]);
+            data.WriteByteSeq(groupGuid[7]);
+            data.WriteByteSeq(groupGuid[5]);
+            data.WriteByteSeq(leaderGuid[5]);
+
             player->GetSession()->SendPacket(&data);
         }
 
         _homebindIfInstance(player);
     }
+
     RollId.clear();
     m_memberSlots.clear();
 
@@ -1194,15 +1329,15 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(creature->GetGUID());
-    //data << uint8(0); // unk1
+    WorldPacket data(SMSG_LOOT_LIST);
 
-    if (groupLooter)
-        data.append(groupLooter->GetPackGUID());
-    else
-        data << uint64(0);
-    data << uint64(0);
+    ObjectGuid creatureGuid = creature->GetGUID();
+
+    uint8 bitsOrder[8] = { 6, 7, 3, 5, 1, 2, 0, 4 };
+    data.WriteBitInOrder(creatureGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 5, 6, 2, 0, 1, 3, 4, 7 };
+    data.WriteBytesSeq(creatureGuid, bytesOrder);
 
     BroadcastPacket(&data, false);
 }
@@ -1829,56 +1964,55 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
     if (id >= TARGETICONCOUNT)
         return;
 
-    // clean other icons
+    // Clean other icons
     if (targetGuid != 0)
-        for (int i=0; i<TARGETICONCOUNT; ++i)
+        for (int i = 0; i < TARGETICONCOUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, 0, 0);
 
     m_targetIcons[id] = targetGuid;
 
     WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
-    data.WriteBit(whoGuid[5]);
-    data.WriteBit(whoGuid[3]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(whoGuid[7]);
-    data.WriteBit(whoGuid[6]);
-    data.WriteBit(targetGuid[4]);
-    
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(whoGuid[0]);
-    data.WriteBit(whoGuid[1]);
-    data.WriteBit(whoGuid[2]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(whoGuid[4]);
 
-    data.WriteByteSeq(whoGuid[0]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(whoGuid[6]);
-    data.WriteByteSeq(whoGuid[4]);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(whoGuid[2]);
+    data.WriteBit(whoGuid[1]);
+    data.WriteBit(whoGuid[4]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(whoGuid[0]);
+    data.WriteBit(whoGuid[5]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(whoGuid[3]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(whoGuid[1]);
+    data.WriteBit(whoGuid[6]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(whoGuid[7]);
+
     data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(whoGuid[2]);
+    data.WriteByteSeq(whoGuid[6]);
+    data.WriteByteSeq(whoGuid[1]);
+    data.WriteByteSeq(whoGuid[7]);
     data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(whoGuid[5]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(whoGuid[4]);
+
     data << uint8(id);
-    data << uint8(0);                                       // set targets
+
     data.WriteByteSeq(targetGuid[5]);
     data.WriteByteSeq(whoGuid[3]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(whoGuid[1]);
     data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(whoGuid[5]);
+    data.WriteByteSeq(whoGuid[0]);
+    data.WriteByteSeq(targetGuid[0]);
     data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(whoGuid[7]);
 
-    /*data << uint8(0);                                       // set targets
-    data << uint64(whoGuid);
-    data << uint8(id);
-    data << uint64(targetGuid);*/
+    data << uint8(0);                                       // set targets
+
     BroadcastPacket(&data, true);
 }
 
@@ -1944,159 +2078,186 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         slot = &(*witr);
     }
 
-    ObjectGuid leaderGuid = m_leaderGuid;
-    ObjectGuid guid = m_guid;
-    ObjectGuid looterGuid = m_looterGuid;
-    ObjectGuid plguid = playerGUID;
+    ObjectGuid groupGuid = GetGUID();
+    ObjectGuid leaderGuid = GetLeaderGUID();
+    ObjectGuid looterGuid = GetLooterGuid();
 
-    bool sendDifficultyInfo = true;
-    bool unk1 = false;
+    bool automaticDistrib = false;
+    bool sendDifficulty = true;
+    bool hasLooterData = true;
+
+    uint32 memberCount = GetMembersCount();
+    ObjectGuid* memberGuids = NULL;
+    memberGuids = new ObjectGuid[memberCount];
+
+    uint32* memberNameLength;
+    memberNameLength = new uint32[memberCount];
+
+    uint8 count = 0;
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    {
+        memberGuids[count] = citr->guid;
+        memberNameLength[count] = citr->name.size();
+        count++;
+    }
 
     WorldPacket data(SMSG_PARTY_UPDATE);
-    data.WriteBit(leaderGuid[2]);
-    data.WriteBit(guid[2]);
+
     data.WriteBit(leaderGuid[1]);
-    data.WriteBit(sendDifficultyInfo);
-    data.WriteBit(leaderGuid[0]);
-    data.WriteBit(unk1);
-    data.WriteBit(leaderGuid[5]);
-    data.WriteBit(guid[0]);
+    data.WriteBit(groupGuid[7]);
+    data.WriteBits(memberCount, 21);
+
+    // Send self first
+    data.WriteBits(strlen(player->GetName()), 6);
+    uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
+    data.WriteBitInOrder(playerGUID, bitsSelfOrder);
+
+    for (uint32 i = 0; i < memberCount; i++)
+    {
+        if (memberGuids[i] == playerGUID)
+            continue;
+
+        data.WriteBits(memberNameLength[i], 6);
+
+        uint8 bitsOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
+        data.WriteBitInOrder(memberGuids[i], bitsOrder);
+    }
+
+    data.WriteBit(leaderGuid[2]);
+    data.WriteBit(groupGuid[0]);
+    data.WriteBit(automaticDistrib);    // unk, may be related to automatic loot distribution
+    data.WriteBit(hasLooterData);       // hasLooterData
+
+    if (hasLooterData)
+    {
+        uint8 bitsOrder[8] = { 2, 0, 3, 7, 4, 1, 6, 5 };
+        data.WriteBitInOrder(looterGuid, bitsOrder);
+    }
+
+    data.WriteBit(groupGuid[2]);
+    data.WriteBit(groupGuid[1]);
+    data.WriteBit(groupGuid[6]);
     data.WriteBit(leaderGuid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(leaderGuid[6]);
-    data.WriteBit(leaderGuid[3]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(true);
-
-    if (true)
-    {
-        uint8 bitOrder[8] = {7, 0, 1, 5, 6, 2, 4, 3};
-        data.WriteBitInOrder(looterGuid, bitOrder);
-    }
-
+    data.WriteBit(groupGuid[4]);
     data.WriteBit(leaderGuid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBits(GetMembersCount() , 22);
+    data.WriteBit(leaderGuid[3]);
+    data.WriteBit(groupGuid[3]);
 
-    // Send self first
-    data.WriteBit(plguid[0]);
-    data.WriteBit(plguid[3]);
-    data.WriteBit(plguid[7]);
-    data.WriteBit(plguid[2]);
-    data.WriteBit(plguid[4]);
-    data.WriteBit(plguid[1]);
-    data.WriteBits(slot->name.size(), 7);
-    data.WriteBit(plguid[5]);
-    data.WriteBit(plguid[6]);
-
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    // unk, may be related to automatic loot distribution
+    if (automaticDistrib)
     {
-        if (citr->guid == slot->guid)
-            continue;
-
-        Player* member = ObjectAccessor::FindPlayer(citr->guid);
-
-        ObjectGuid memguid = citr->guid;
-
-        data.WriteBit(memguid[0]);
-        data.WriteBit(memguid[3]);
-        data.WriteBit(memguid[7]);
-        data.WriteBit(memguid[2]);
-        data.WriteBit(memguid[4]);
-        data.WriteBit(memguid[1]);
-        data.WriteBits(citr->name.size(), 7);
-        data.WriteBit(memguid[5]);
-        data.WriteBit(memguid[6]);
+        data.WriteBit(0);
+        data.WriteBit(0);
     }
 
-    data.WriteBit(guid[6]);
-    data.FlushBits();
+    data.WriteBit(leaderGuid[6]);
+    data.WriteBit(sendDifficulty);
+    data.WriteBit(leaderGuid[5]);
+    data.WriteBit(leaderGuid[0]);
+    data.WriteBit(groupGuid[5]);
 
-    if (true)
+    // unk, may be related to automatic loot distribution
+    if (automaticDistrib)
     {
-        data.WriteByteSeq(looterGuid[7]);
-        data.WriteByteSeq(looterGuid[5]);
-        data << uint8(m_lootThreshold);                 // loot threshold
-        data << uint8(m_lootMethod);                    // loot method
-        data.WriteByteSeq(looterGuid[0]);
-        data.WriteByteSeq(looterGuid[4]);
-        data.WriteByteSeq(looterGuid[3]);
-        data.WriteByteSeq(looterGuid[6]);
-        data.WriteByteSeq(looterGuid[1]);
-        data.WriteByteSeq(looterGuid[2]);
+        data << uint32(0);
+        data << uint8(0);
+        data << float(0.0f);
+        data << uint8(0);
+        data << uint8(0);
+        data << uint8(0);
+        data << uint8(0);
+        data << uint32(0);
     }
 
-    data << uint8(0); // unk
-    data << uint32(m_counter++);                        
-    data.WriteByteSeq(guid[7]);
-
     // Send self first
-    data.WriteByteSeq(plguid[0]);
-    data.WriteByteSeq(plguid[1]);
-    data.WriteString(slot->name);
-    data << uint8(1 | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0)); // online-state
-    data << uint8(slot->group);
-    data.WriteByteSeq(plguid[6]);
-    data << uint8(slot->roles);
-    data.WriteByteSeq(plguid[3]);
+    ObjectGuid plrGuid = playerGUID;
+    Player* plr = ObjectAccessor::FindPlayer(playerGUID);
+    uint8 onlineState = (plr) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+    onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
+
+    data.WriteByteSeq(plrGuid[5]);
     data << uint8(slot->flags);
-    data.WriteByteSeq(plguid[2]);
-    data.WriteByteSeq(plguid[7]);
-    data.WriteByteSeq(plguid[5]);
-    data.WriteByteSeq(plguid[4]);
+    data << uint8(slot->roles);
+    data.WriteByteSeq(plrGuid[3]);
+    data.WriteByteSeq(plrGuid[6]);
+    data << uint8(slot->group);
+    data.append(slot->name.c_str(), slot->name.size());
+    data.WriteByteSeq(plrGuid[0]);
+    data.WriteByteSeq(plrGuid[2]);
+    data << uint8(onlineState);
+    data.WriteByteSeq(plrGuid[7]);
+    data.WriteByteSeq(plrGuid[1]);
+    data.WriteByteSeq(plrGuid[4]);
 
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        if (citr->guid == slot->guid)
+        if (playerGUID == citr->guid)
             continue;
+
+        ObjectGuid guid = citr->guid;
 
         Player* member = ObjectAccessor::FindPlayer(citr->guid);
         uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
         onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
-        ObjectGuid memguid = citr->guid;
 
-        data.WriteByteSeq(memguid[0]);
-        data.WriteByteSeq(memguid[1]);
-        data.WriteString(citr->name);
-        data << uint8(onlineState);
-        data << uint8(citr->group);
-        data.WriteByteSeq(memguid[6]);
-        data << uint8(citr->roles);
-        data.WriteByteSeq(memguid[3]);
+        data.WriteByteSeq(guid[5]);
         data << uint8(citr->flags);
-        data.WriteByteSeq(memguid[2]);
-        data.WriteByteSeq(memguid[7]);
-        data.WriteByteSeq(memguid[5]);
-        data.WriteByteSeq(memguid[4]);
+        data << uint8(citr->roles);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[6]);
+        data << uint8(citr->group);
+        data.append(citr->name.c_str(), citr->name.size());
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[2]);
+        data << uint8(onlineState);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[4]);
     }
 
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(leaderGuid[6]);
-    data.WriteByteSeq(leaderGuid[4]);
-    data << uint8(1); //unk, always 1
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-    data << uint32(0); // unk, sometime 32 in sniff (flags ?)
+    data << uint32(m_counter++);
+
+    if (hasLooterData)
+    {
+        data.WriteByteSeq(looterGuid[0]);
+        data.WriteByteSeq(looterGuid[1]);
+        data.WriteByteSeq(looterGuid[3]);
+        data.WriteByteSeq(looterGuid[7]);
+        data.WriteByteSeq(looterGuid[6]);
+        data.WriteByteSeq(looterGuid[2]);
+        data << uint8(m_lootMethod);
+        data.WriteByteSeq(looterGuid[5]);
+        data << uint8(m_lootThreshold);
+        data.WriteByteSeq(looterGuid[4]);
+    }
+
+    data.WriteByteSeq(groupGuid[3]);
+    data << uint8(0);               // unk byte
+    data.WriteByteSeq(leaderGuid[7]);
+
+    if (sendDifficulty)
+    {
+        data << uint32(GetRaidDifficulty());
+        data << uint32(GetDungeonDifficulty());
+    }
+
+    data.WriteByteSeq(groupGuid[0]);
+    data.WriteByteSeq(groupGuid[6]);
+    data.WriteByteSeq(leaderGuid[3]);
+    data << uint8(1);               // unk, always 1 ?
     data.WriteByteSeq(leaderGuid[1]);
     data.WriteByteSeq(leaderGuid[0]);
     data.WriteByteSeq(leaderGuid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-
-    if (sendDifficultyInfo)
-    {
-        data << uint32(m_dungeonDifficulty);
-        data << uint32(m_raidDifficulty);
-    }
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(leaderGuid[7]);
-    data << uint8(m_groupType);  // group type (flags in 3.3)
+    data.WriteByteSeq(leaderGuid[4]);
+    data.WriteByteSeq(leaderGuid[6]);
+    data << uint8(GetGroupType());
+    data << uint32(0);              // unk counter ?
+    data.WriteByteSeq(groupGuid[2]);
+    data.WriteByteSeq(groupGuid[1]);
+    data.WriteByteSeq(groupGuid[4]);
+    data.WriteByteSeq(groupGuid[7]);
+    data.WriteByteSeq(groupGuid[5]);
     data.WriteByteSeq(leaderGuid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(leaderGuid[3]);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -2169,41 +2330,41 @@ void Group::OfflineReadyCheck()
             ObjectGuid grpGUID = GetGUID();
 
             WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
-            data.WriteBit(grpGUID[1]);
-            data.WriteBit(grpGUID[5]);
-            data.WriteBit(plGUID[2]);
-            data.WriteBit(plGUID[6]);
-            data.WriteBit(plGUID[7]);
+
+            data.WriteBit(plGUID[1]);
             data.WriteBit(plGUID[3]);
+            data.WriteBit(plGUID[7]);
+            data.WriteBit(plGUID[0]);
+            data.WriteBit(grpGUID[4]);
+            data.WriteBit(grpGUID[7]);
+            data.WriteBit(plGUID[2]);
             data.WriteBit(ready);
+            data.WriteBit(grpGUID[2]);
+            data.WriteBit(grpGUID[6]);
             data.WriteBit(plGUID[4]);
             data.WriteBit(plGUID[5]);
-            data.WriteBit(plGUID[1]);
-            data.WriteBit(grpGUID[6]);
-            data.WriteBit(grpGUID[4]);
-            data.WriteBit(grpGUID[3]);
+            data.WriteBit(grpGUID[1]);
             data.WriteBit(grpGUID[0]);
-            data.WriteBit(grpGUID[2]);
-            data.WriteBit(grpGUID[7]);
-            data.WriteBit(plGUID[0]);
-            data.FlushBits();
+            data.WriteBit(grpGUID[5]);
+            data.WriteBit(grpGUID[3]);
+            data.WriteBit(plGUID[6]);
 
-            data.WriteByteSeq(grpGUID[3]);
-            data.WriteByteSeq(plGUID[4]);
-            data.WriteByteSeq(plGUID[6]);
+            data.WriteByteSeq(plGUID[2]);
+            data.WriteByteSeq(plGUID[3]);
+            data.WriteByteSeq(plGUID[7]);
             data.WriteByteSeq(grpGUID[1]);
-            data.WriteByteSeq(plGUID[5]);
             data.WriteByteSeq(grpGUID[7]);
-            data.WriteByteSeq(grpGUID[4]);
             data.WriteByteSeq(plGUID[1]);
             data.WriteByteSeq(plGUID[0]);
-            data.WriteByteSeq(grpGUID[6]);
-            data.WriteByteSeq(grpGUID[5]);
-            data.WriteByteSeq(plGUID[7]);
-            data.WriteByteSeq(plGUID[2]);
-            data.WriteByteSeq(grpGUID[0]);
             data.WriteByteSeq(grpGUID[2]);
-            data.WriteByteSeq(plGUID[3]);
+            data.WriteByteSeq(grpGUID[3]);
+            data.WriteByteSeq(plGUID[6]);
+            data.WriteByteSeq(grpGUID[0]);
+            data.WriteByteSeq(plGUID[5]);
+            data.WriteByteSeq(plGUID[4]);
+            data.WriteByteSeq(grpGUID[4]);
+            data.WriteByteSeq(grpGUID[5]);
+            data.WriteByteSeq(grpGUID[6]);
 
             BroadcastReadyCheck(&data);
 
@@ -2315,13 +2476,13 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 {
     switch (GetLootMethod())
     {
-    case MASTER_LOOT:
-    case FREE_FOR_ALL:
-        return;
-    default:
-        // round robin style looting applies for all low
-        // quality items in each loot method except free for all and master loot
-        break;
+        case MASTER_LOOT:
+        case FREE_FOR_ALL:
+            return;
+        default:
+            // round robin style looting applies for all low
+            // quality items in each loot method except free for all and master loot
+            break;
     }
 
     uint64 oldLooterGUID = GetLooterGuid();
@@ -2877,7 +3038,6 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
 
-
 uint8 Group::GetMemberGroup(uint64 guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
@@ -2913,6 +3073,15 @@ void Group::setGroupMemberRole(uint64 guid, uint32 role)
         stmt->setUInt32(1, GUID_LOPART(guid));
         CharacterDatabase.Execute(stmt);
     }
+}
+
+uint32 Group::getGroupMemberRole(uint64 guid)
+{
+    for (auto member = m_memberSlots.begin(); member != m_memberSlots.end(); ++member)
+        if (member->guid == guid)
+            return member->roles;
+
+    return 0;
 }
 
 void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
@@ -3063,4 +3232,3 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
     else
         slot->flags &= ~flag;
 }
-

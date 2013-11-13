@@ -220,7 +220,7 @@ class Quest
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
-        int32 GetQuestLevel() const { return Level; }
+        int32  GetQuestLevel() const { return Level; }
         uint32 GetType() const { return Type; }
         int8   GetRequiredTeam() const { return RequiredTeam; }
         int32  GetRequiredClasses() const { return RequiredClasses; }
@@ -262,7 +262,7 @@ class Quest
         std::string GetQuestTurnTargetName() const { return QuestTurnTargetName; }
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
-        float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
+        float  GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
         uint32 GetRewMoneyMaxLevel() const { return RewardMoneyMaxLevel; } // use in XP calculation at client
         uint32 GetRewSpell() const { return RewardSpell; }
         int32  GetRewSpellCast() const { return RewardSpellCast; }
@@ -394,7 +394,7 @@ class Quest
         std::string EndText;
         std::string CompletedText;
         uint32 RewardHonor;
-        float RewardHonorMultiplier;
+        float  RewardHonorMultiplier;
         int32  RewardOrRequiredMoney;
         uint32 RewardMoneyMaxLevel;
         uint32 RewardSpell;

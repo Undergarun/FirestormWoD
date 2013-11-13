@@ -1611,50 +1611,6 @@ class npc_brewfest_reveler : public CreatureScript
 };
 
 /*####
-## npc_winter_reveler
-####*/
-
-enum WinterReveler
-{
-    SPELL_MISTLETOE_DEBUFF       = 26218,
-    SPELL_CREATE_MISTLETOE       = 26206,
-    SPELL_CREATE_HOLLY           = 26207,
-    SPELL_CREATE_SNOWFLAKES      = 45036,
-};
-
-class npc_winter_reveler : public CreatureScript
-{
-    public:
-        npc_winter_reveler() : CreatureScript("npc_winter_reveler") { }
-
-        struct npc_winter_revelerAI : public ScriptedAI
-        {
-            npc_winter_revelerAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void ReceiveEmote(Player* player, uint32 emote)
-            {
-                if (player->HasAura(SPELL_MISTLETOE_DEBUFF))
-                    return;
-
-                if (!IsHolidayActive(HOLIDAY_FEAST_OF_WINTER_VEIL))
-                    return;
-
-                if (emote == TEXT_EMOTE_KISS)
-                {
-                    uint32 spellId = RAND<uint32>(SPELL_CREATE_MISTLETOE, SPELL_CREATE_HOLLY, SPELL_CREATE_SNOWFLAKES);
-                    me->CastSpell(player, spellId, false);
-                    me->CastSpell(player, SPELL_MISTLETOE_DEBUFF, false);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_winter_revelerAI(creature);
-        }
-};
-
-/*####
 ## npc_snake_trap_serpents
 ####*/
 
@@ -3334,72 +3290,6 @@ class npc_spirit_link_totem : public CreatureScript
 };
 
 /*######
-# npc_shadowy_apparition
-######*/
-
-class npc_shadowy_apparition : public CreatureScript
-{
-    public:
-        npc_shadowy_apparition() : CreatureScript("npc_shadowy_apparition") { }
-
-        struct npc_shadowy_apparitionAI : public ScriptedAI
-        {
-            uint64 targetGUID;
-
-            npc_shadowy_apparitionAI(Creature* creature) : ScriptedAI(creature)
-            {
-                targetGUID = 0;
-                Unit* owner = creature->GetOwner();
-
-                if (owner)
-                {
-                    if (creature->GetEntry() == 61966)
-                    {
-                        owner->CastSpell(creature, 87213, true); // Clone player skin
-                        creature->CastSpell(creature, 87427, true); // Shadow aura
-                        creature->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID());
-                        creature->SetUInt32Value(UNIT_CREATED_BY_SPELL, 113724);
-                        creature->SetReactState(REACT_PASSIVE);
-                    }
-                }
-            }
-
-            void SetGUID(uint64 guid, int32)
-            {
-                targetGUID = guid;
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                Unit* owner = me->GetOwner();
-
-                if (!owner)
-                    return;
-
-                if (!me->HasAura(87213))
-                    owner->CastSpell(me, 87213, true); // Clone player skin
-                else if (!me->HasAura(87427))
-                    me->CastSpell(me, 87427, true); // Shadow aura
-
-                if (Unit* target = Unit::GetCreature(*me, targetGUID))
-                {
-                    if (target->GetDistance(me) < 2.0f)
-                    {
-                        me->CastSpell(target, 87532, true); // Death Damage
-                        me->CastSpell(me, 87529, true); // Death visual
-                        me->ForcedDespawn();
-                    }
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_shadowy_apparitionAI(creature);
-        }
-};
-
-/*######
 # npc_demoralizing_banner
 ######*/
 
@@ -3528,66 +3418,63 @@ enum GuardianSpellsAndEntries
 
 class npc_guardian_of_ancient_kings : public CreatureScript
 {
-    public:
-        npc_guardian_of_ancient_kings() : CreatureScript("npc_guardian_of_ancient_kings") { }
+public:
+    npc_guardian_of_ancient_kings() : CreatureScript("npc_guardian_of_ancient_kings") { }
 
-        struct npc_guardian_of_ancient_kingsAI : public ScriptedAI
+       CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_guardian_of_ancient_kingsAI(creature);
+    }
+
+    struct npc_guardian_of_ancient_kingsAI : public ScriptedAI
+    {
+        npc_guardian_of_ancient_kingsAI(Creature *c) : ScriptedAI(c)
         {
-            npc_guardian_of_ancient_kingsAI(Creature *creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                if (me->GetEntry() == NPC_RETRI_GUARDIAN || me->GetEntry() == NPC_HOLY_GUARDIAN)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-                else if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-
-                if (me->GetEntry() == NPC_RETRI_GUARDIAN)
-                    me->SetReactState(REACT_DEFENSIVE);
-                else
-                    me->SetReactState(REACT_PASSIVE);
-
-                if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
-                {
-                    if (me->GetOwner())
-                        DoCast(me->GetOwner(), SPELL_ANCIENT_GUARDIAN_VISUAL);
-                }
-                else if (me->GetEntry() == NPC_RETRI_GUARDIAN)
-                {
-                    if (me->GetOwner())
-                    {
-                        if (me->GetOwner()->getVictim())
-                            AttackStart(me->GetOwner()->getVictim());
-
-                        DoCast(me, 86703, true);
-                    }
-                }
-                else if (me->GetEntry() == NPC_HOLY_GUARDIAN)
-                    if (me->GetOwner())
-                        me->GetOwner()->CastSpell(me->GetOwner(), SPELL_ANCIENT_HEALER, true);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->GetOwner())
-                    if (Unit* newVictim = me->GetOwner()->getVictim())
-                        if (me->getVictim() != newVictim)
-                            AttackStart(newVictim);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_guardian_of_ancient_kingsAI(creature);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
         }
+
+        void Reset()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
+            
+            if (me->GetEntry() == NPC_RETRI_GUARDIAN)
+                me->SetReactState(REACT_AGGRESSIVE);
+            else
+                me->SetReactState(REACT_PASSIVE);
+
+            if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
+            {
+                if (me->GetOwner())
+                    DoCast(me->GetOwner(), SPELL_ANCIENT_GUARDIAN_VISUAL);
+            }
+            else if (me->GetEntry() == NPC_RETRI_GUARDIAN)
+            {
+                if (me->GetOwner())
+                {
+                    if (me->GetOwner()->getVictim())
+                        AttackStart(me->GetOwner()->getVictim());
+
+                    DoCast(me, 86703, true);
+                }
+             }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (me->GetOwner())
+                if (Unit* newVictim = me->GetOwner()->getVictim())
+                    if (me->getVictim() != newVictim)
+                        AttackStart(newVictim);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
 /*######
@@ -4845,6 +4732,66 @@ class npc_spectral_guise : public CreatureScript
         }
 };
 
+/*######
+## npc_shadowy_apparition
+######*/
+
+class npc_shadowy_apparition : public CreatureScript
+{
+    public:
+        npc_shadowy_apparition() : CreatureScript("npc_shadowy_apparition") { }
+
+        CreatureAI *GetAI(Creature* pCreature) const
+        {
+            return new npc_shadowy_apparitionAI(pCreature);
+        }
+
+        struct npc_shadowy_apparitionAI : public ScriptedAI
+        {
+            npc_shadowy_apparitionAI(Creature* pCreature) : ScriptedAI(pCreature)
+            {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                me->SetSpeed(MOVE_RUN, 0.3f);
+            }
+
+            bool bCast;
+
+            void Reset()
+            {
+                bCast = false;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (!me->getVictim() || me->getVictim()->isDead())
+                    me->DespawnOrUnsummon();
+
+                if (!bCast && me->GetDistance(me->getVictim()) < 1.0f)
+                {
+                    bCast = true;
+                    me->CastSpell(me->getVictim(), 87532, true, NULL, NULL, (me->GetOwner() ? me->GetOwner()->GetGUID() : 0));
+                    me->DespawnOrUnsummon();
+                }
+            }
+        };
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4860,7 +4807,6 @@ void AddSC_npcs_special()
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
-    new npc_winter_reveler();
     new npc_brewfest_reveler();
     new npc_snake_trap();
     new npc_mirror_image();
@@ -4877,12 +4823,11 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    new npc_choose_faction();
-    new npc_rate_xp_modifier();
+    //new npc_choose_faction();
+    //new npc_rate_xp_modifier();
     new npc_capacitor_totem();
     new npc_feral_spirit();
     new npc_spirit_link_totem();
-    new npc_shadowy_apparition();
     new npc_demoralizing_banner();
     new npc_frozen_orb();
     new npc_guardian_of_ancient_kings();
@@ -4906,4 +4851,5 @@ void AddSC_npcs_special()
     new npc_void_tendrils();
     new npc_psyfiend();
     new npc_spectral_guise();
+    new npc_shadowy_apparition();
 }

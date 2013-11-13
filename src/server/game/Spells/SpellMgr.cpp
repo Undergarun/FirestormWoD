@@ -132,6 +132,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             {
                 case 9005:  // Pounce
                 case 102456:// Pounce (Incarnation)
+                case 5211:  // Mighty Bash
                     return DIMINISHING_OPENING_STUN;
                 case 33786: // Cyclone
                 case 113506:// Cyclone (Symbiosis)
@@ -3445,6 +3446,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Dispel = DISPEL_MAGIC;
                     break;
                 case 113792:// Pyschic Horror - Psyfiend
+                case 42442: // Vengeance Landing Cannonfire (cause wow error)
                     spellInfo->MaxAffectedTargets = 1;
                     break;
                 case 125972:// Felin Grace
@@ -4225,6 +4227,14 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     break;
+                // Tree of Life
+                case 65139:
+                    spellInfo->Effects[1].Effect = 0;
+                    spellInfo->Effects[1].ApplyAuraName = 0;
+                    break;
+                case 60206: // Ram
+                    spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13); 
+                    break;
                 default:
                     break;
             }
@@ -4870,9 +4880,6 @@ void SpellMgr::LoadDbcDataCorrections()
     case 73530: // Shadow Trap (visual)
     spellInfo->DurationIndex = 28;          // 5 seconds
     break;
-    case 60206: // Ram
-       spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_10_YARDS;
-       break;
     case 73529: // Shadow Trap
     spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;   // 10yd
     break;

@@ -971,48 +971,35 @@ public:
 
         WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
         ObjectGuid guid = target->GetGUID();
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[7]);
+        uint8 bitOrder[8] = {6, 5, 0, 1, 2, 4, 3, 7};
+        data.WriteBitInOrder(guid, bitOrder);
 
-        data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[4]);
-        data << uint32(0);
         data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[3]);
+        data << float(speed);
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[6]);
-        data << float(speed);
-        data.WriteByteSeq(guid[3]);
+        data << uint32(0);
         target->SendMessageToSet(&data, true);
 
         data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        data << float(speed);
-        data << uint32(0);
+        uint8 bitOrder2[8] = {0, 5, 2, 6, 7, 4, 1, 3};
+        data.WriteBitInOrder(guid, bitOrder2);
 
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[5]);
-
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[3]);                           
+        data << uint32(0);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[2]);  
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[7]); 
+        data << float(speed);
         target->SendMessageToSet(&data, true);
 
         return true;
@@ -1311,15 +1298,15 @@ public:
 
         uint32 phasemask = (uint32)atoi((char*)args);
 
-        Unit* target = handler->getSelectedUnit();	
-        if (target)	
-        {	
-            if (target->GetTypeId() == TYPEID_PLAYER)	
-                target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);	
-            else	
-                target->SetPhaseMask(phasemask, true);	
-        }	
-        else	
+        Unit* target = handler->getSelectedUnit();
+        if (target)
+        {
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
+            else
+                target->SetPhaseMask(phasemask, true);
+        }
+        else
             handler->GetSession()->GetPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
 
         return true;

@@ -456,7 +456,7 @@ namespace OpcodeTools
     {
         public override string ToString()
         {
-            return "5.4.0 17371 Windows";
+            return "5.4.0 17399 Windows";
         }
 
         protected override bool AuthCheck(uint opcode)
@@ -477,6 +477,16 @@ namespace OpcodeTools
         public override bool IsSpecialGuildOpcode(uint opcode)
         {
             return (opcode & 0x1240) != 0 && (opcode & 0x16C2) == 1090;
+        }
+
+        public override bool IsSpecialMovementOpcode(uint opcode)
+        {
+            return (opcode & 0x1240) != 0 && (opcode & 0x1202) == 4610;
+        }
+
+        public override bool IsSpecialQuestOpcode(uint opcode)
+        {
+            return (opcode & 0x1240) != 0 && (opcode & 0x1248) == 4104;
         }
 
         protected override bool NormalCheck(uint opcode)
@@ -507,6 +517,16 @@ namespace OpcodeTools
         public override uint CalcGuildFromOpcode(uint opcode)
         {
             return opcode & 1 | ((opcode & 0x3C | ((opcode & 0x100 | ((opcode & 0x800 | (opcode >> 1) & 0x7000) >> 2)) >> 2)) >> 1);
+        }
+
+        public override uint CalcMovementFromOpcode(uint opcode)
+        {
+            return opcode & 1 | ((opcode & 0x1FC | ((opcode & 0xC00 | (opcode >> 1) & 0x7000) >> 1)) >> 1);
+        }
+
+        public override uint CalcQuestFromOpcode(uint opcode)
+        {
+            return opcode & 7 | ((opcode & 0x30 | ((opcode & 0x180 | ((opcode & 0xC00 | (opcode >> 1) & 0x7000) >> 1)) >> 1)) >> 1);
         }
     }
 

@@ -3113,7 +3113,7 @@ Server.Auto.RestartHour = 4
 #        Default:     0 - (Disabled, server restarted every day)
 #                     1 - (Enabled)
 
-DisableRestart = 0
+DisableRestart = 1
 
 ###################################################################################################
 # VIP CONFIG

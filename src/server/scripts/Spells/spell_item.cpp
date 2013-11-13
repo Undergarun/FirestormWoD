@@ -2193,6 +2193,59 @@ class spell_alchemist_rejuvenation : public SpellScriptLoader
         }
 };
 
+enum AmberPrison
+{
+    SPELL_AMBER_PRISON     = 127266,
+};
+
+
+class spell_item_amber_prison : public SpellScriptLoader
+{
+    public:
+        spell_item_amber_prison() : SpellScriptLoader("spell_item_amber_prison") { }
+
+        class spell_item_amber_prison_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_amber_prison_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_PRISON))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_TARGET_IS_PLAYER;
+                    if(target->GetTypeId() == TYPEID_UNIT && target->getLevel() > 94)
+                        return SPELL_FAILED_HIGHLEVEL;
+
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_amber_prison_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_amber_prison_SpellScript();
+        }
+};
+
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2246,4 +2299,5 @@ void AddSC_item_spell_scripts()
     new spell_item_bandage_q24944();
     new spell_item_gen_alchemy_mop();
     new spell_alchemist_rejuvenation();
+    new spell_item_amber_prison();
 }

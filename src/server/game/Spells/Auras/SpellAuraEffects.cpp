@@ -1174,6 +1174,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     m_fixed_periodic.SetFixedTotalDamage(temp_damage * (GetBase()->GetMaxDuration() / GetAmplitude()));
 
                 hasFixedPeriodic = true;
+                amount = temp_damage;
             }
         }
     }
@@ -1817,9 +1818,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 48629;
             spellId3 = 106840;
             break;
-        case FORM_TREE:
-            spellId = 34123;
-            break;
         case FORM_TRAVEL:
             spellId = 5419;
             break;
@@ -2053,6 +2051,10 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
         //if (target->GetTypeId() == TYPEID_PLAYER)
             //target->SetByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW); // TODO : Check PLAYER_FIELD_AURA_VISION
 
+        if (GetBase()->GetId() == 32612) // invisible mage pet
+            if (Unit* pet = target->GetGuardianPet())
+                target->AddAura(32612,pet);
+
         target->m_invisibility.AddFlag(type);
         target->m_invisibility.AddValue(type, GetAmount());
     }
@@ -2272,17 +2274,17 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
     if (Player* player = target->ToPlayer())
     {
-        if (apply)	
-            player->GetPhaseMgr().RegisterPhasingAuraEffect(this);	
-        else	
+        if (apply)
+            player->GetPhaseMgr().RegisterPhasingAuraEffect(this);
+        else
             player->GetPhaseMgr().UnRegisterPhasingAuraEffect(this);
     }
     else
     {
         uint32 newPhase = 0;
-        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);	
-        if (!phases.empty())	
-            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)	
+        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
+        if (!phases.empty())
+            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
                 newPhase |= (*itr)->GetMiscValue();
 
         if (!newPhase)

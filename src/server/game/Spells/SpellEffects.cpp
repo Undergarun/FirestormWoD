@@ -857,6 +857,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                // Lava Surge
+                case 77762:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    m_caster->ToPlayer()->RemoveSpellCooldown(51505, true);
+                    return;
+                }
                 case 128997:// Spirit Beast Blessing
                 {
                     m_caster->CastSpell(m_caster, 127830, true);
@@ -2492,7 +2501,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
 
-    if (damage < 0)
+    if (!damage)
         return;
 
     if (unitTarget->GetMaxPower(power) == 0)
@@ -3221,6 +3230,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
             break;
         }
+        case 475: // Remove Curse
+            if (m_caster->HasAura(115700))
+                m_caster->AddAura(115701, m_caster);
         default:
             break;
     }
@@ -5094,16 +5106,7 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
 
     unitTarget->getHostileRefManager().UpdateVisibility();
 
-    Unit::AttackerSet const& attackers = unitTarget->getAttackers();
-    for (Unit::AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
-    {
-        if (!(*itr)->canSeeOrDetect(unitTarget))
-            (*(itr++))->AttackStop();
-        else
-            ++itr;
-    }
-
-    unitTarget->m_lastSanctuaryTime = getMSTime();
+    unitTarget->CombatStop(false);
 
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131369)
@@ -5113,6 +5116,9 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         if (m_caster->ToPlayer()->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
     }
+    else if(!IsTriggered())
+        unitTarget->m_lastSanctuaryTime = getMSTime();
+
 }
 
 void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
@@ -5198,8 +5204,44 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED);
-    data << uint64(pGameObj->GetGUID());
-    data << uint64(caster->GetGUID());
+
+    ObjectGuid casterGuid = caster->GetGUID();
+    ObjectGuid targetGuid = target->GetGUID();
+
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(casterGuid[6]);
+
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(casterGuid[6]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(targetGuid[3]);
+
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);
 

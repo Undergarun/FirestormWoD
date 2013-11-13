@@ -1665,14 +1665,14 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
             if (!achievement)
             {
-                sLog->outError(LOG_FILTER_SQL, "Achivement condition has non existing achivement id (%u), skipped", cond->ConditionValue1);
+                sLog->outError(LOG_FILTER_SQL, "Achievement condition has non existing achievement id (%u), skipped", cond->ConditionValue1);
                 return false;
             }
 
             if (cond->ConditionValue2)
-                sLog->outError(LOG_FILTER_SQL, "Achivement condition has useless data in value2 (%u)!", cond->ConditionValue2);
+                sLog->outError(LOG_FILTER_SQL, "Achievement condition has useless data in value2 (%u)!", cond->ConditionValue2);
             if (cond->ConditionValue3)
-                sLog->outError(LOG_FILTER_SQL, "Achivement condition has useless data in value3 (%u)!", cond->ConditionValue3);
+                sLog->outError(LOG_FILTER_SQL, "Achievement condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_CLASS:

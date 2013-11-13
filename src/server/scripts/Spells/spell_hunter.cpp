@@ -31,7 +31,6 @@
 
 enum HunterSpells
 {
-    HUNTER_SPELL_READINESS                          = 23989,
     HUNTER_SPELL_BESTIAL_WRATH                      = 19574,
     HUNTER_PET_SPELL_LAST_STAND_TRIGGERED           = 53479,
     HUNTER_PET_HEART_OF_THE_PHOENIX                 = 55709,
@@ -1855,52 +1854,6 @@ class spell_hun_masters_call : public SpellScriptLoader
         }
 };
 
-// Readiness - 23989
-class spell_hun_readiness : public SpellScriptLoader
-{
-    public:
-        spell_hun_readiness() : SpellScriptLoader("spell_hun_readiness") { }
-
-        class spell_hun_readiness_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_readiness_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
-                const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
-                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-
-                    ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
-                    if (spellInfo &&
-                        spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
-                        spellInfo->Id != HUNTER_SPELL_READINESS &&
-                        spellInfo->GetRecoveryTime() > 0)
-                        caster->RemoveSpellCooldown((itr++)->first, true);
-                    else
-                        ++itr;
-                }
-
-                if (caster->HasSpellCooldown(HUNTER_SPELL_DIRE_BEAST))
-                    caster->RemoveSpellCooldown(HUNTER_SPELL_DIRE_BEAST, true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Readiness
-                OnEffectHitTarget += SpellEffectFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_readiness_SpellScript();
-        }
-};
-
 // Scatter Shot - 37506
 class spell_hun_scatter_shot : public SpellScriptLoader
 {
@@ -2347,7 +2300,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimera_shot();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
-    new spell_hun_readiness();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();

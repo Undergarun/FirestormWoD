@@ -134,10 +134,10 @@ namespace Movement
                 ObjectGuid targetGuid = moveSpline.facing.target;
                 data.WriteBits(0, 2);
                 data.WriteBit(targetGuid[4]);
-				data.WriteBit(targetGuid[5]);
-				data.WriteBit(targetGuid[0]);
-				data.WriteBit(targetGuid[7]);
-				data.WriteBit(targetGuid[1]);
+                data.WriteBit(targetGuid[5]);
+                data.WriteBit(targetGuid[0]);
+                data.WriteBit(targetGuid[7]);
+                data.WriteBit(targetGuid[1]);
                 data.WriteBit(targetGuid[3]);
                 data.WriteBit(targetGuid[2]);
                 data.WriteBit(targetGuid[6]);
@@ -155,7 +155,7 @@ namespace Movement
         }*/
     }
 
-    void PacketBuilder::WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data)
+    void PacketBuilder::WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data, Unit* unit)
     {
         if (!moveSpline.Finalized())
         {
@@ -166,6 +166,8 @@ namespace Movement
                 splineType = 2;
             else if (splineFlags.final_angle)
                 splineType = 4;
+            else if ((splineFlags & MoveSplineFlag::Mask_Final_Facing) == MoveSplineFlag::Final_Target)
+                splineType = MonsterMoveFacingTarget;
 
             data << uint8(splineType);
             data << float(1.f);                             // splineInfo.duration_mod; added in 3.1
@@ -194,12 +196,12 @@ namespace Movement
 
             data << moveSpline.timePassed();
             data << moveSpline.Duration();
-
-            data << uint32(moveSpline.GetId());
-            data << float(0.0f);
-            data << float(0.0f);
-            data << float(0.0f);
         }
+
+        data << uint32(moveSpline.GetId());
+        data << float(unit->GetPositionZ());
+        data << float(unit->GetPositionX());
+        data << float(unit->GetPositionY());
     }
 
     void PacketBuilder::WriteCreateGuid(MoveSpline const& moveSpline, ByteBuffer& data)

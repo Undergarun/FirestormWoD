@@ -363,21 +363,21 @@ enum SpellCategory
 
 enum SpellCategoryFlags
 {
-    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
+    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // Unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT        = 0x08
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
 {
-    0xff9d9d9d,        //GREY
-    0xffffffff,        //WHITE
-    0xff1eff00,        //GREEN
-    0xff0070dd,        //BLUE
-    0xffa335ee,        //PURPLE
-    0xffff8000,        //ORANGE
-    0xffe6cc80,        //LIGHT YELLOW
-    0xffe6cc80         //LIGHT YELLOW
+    0xff9d9d9d,        // GREY
+    0xffffffff,        // WHITE
+    0xff1eff00,        // GREEN
+    0xff0070dd,        // BLUE
+    0xffa335ee,        // PURPLE
+    0xffff8000,        // ORANGE
+    0xffe6cc80,        // LIGHT YELLOW
+    0xffe6cc80         // LIGHT YELLOW
 };
 
 // ***********************************
@@ -800,9 +800,9 @@ enum SpellClickUserTypes
 
 enum SpellClickCastFlags
 {
-    NPC_CLICK_CAST_CASTER_CLICKER       = 0x01,
-    NPC_CLICK_CAST_TARGET_CLICKER       = 0x02,
-    NPC_CLICK_CAST_ORIG_CASTER_OWNER    = 0x04,
+    NPC_CLICK_CAST_CASTER_CLICKER      = 0x01,
+    NPC_CLICK_CAST_TARGET_CLICKER      = 0x02,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04,
 };
 
 enum SheathTypes
@@ -845,31 +845,31 @@ enum CharacterSlot
 
 enum Language
 {
-    LANG_UNIVERSAL      = 0,
-    LANG_ORCISH         = 1,
-    LANG_DARNASSIAN     = 2,
-    LANG_TAURAHE        = 3,
-    LANG_DWARVISH       = 6,
-    LANG_COMMON         = 7,
-    LANG_DEMONIC        = 8,
-    LANG_TITAN          = 9,
-    LANG_THALASSIAN     = 10,
-    LANG_DRACONIC       = 11,
-    LANG_KALIMAG        = 12,
-    LANG_GNOMISH        = 13,
-    LANG_TROLL          = 14,
-    LANG_GUTTERSPEAK    = 33,
-    LANG_DRAENEI        = 35,
-    LANG_ZOMBIE         = 36,
-    LANG_GNOMISH_BINARY = 37,
-    LANG_GOBLIN_BINARY  = 38,
-    LANG_WORGEN         = 39,
-    LANG_GOBLIN         = 40,
-    LANG_PANDAREN_N     = 42,  //Pandaren neutral
-    LANG_PANDAREN_A     = 43,  //Pandaren Alliance
-    LANG_PANDAREN_H     = 44,  //Pandaren Horde
-    LANG_RIKKITUN       = 168,
-    LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
+    LANG_UNIVERSAL                     = 0,
+    LANG_ORCISH                        = 1,
+    LANG_DARNASSIAN                    = 2,
+    LANG_TAURAHE                       = 3,
+    LANG_DWARVISH                      = 6,
+    LANG_COMMON                        = 7,
+    LANG_DEMONIC                       = 8,
+    LANG_TITAN                         = 9,
+    LANG_THALASSIAN                    = 10,
+    LANG_DRACONIC                      = 11,
+    LANG_KALIMAG                       = 12,
+    LANG_GNOMISH                       = 13,
+    LANG_TROLL                         = 14,
+    LANG_GUTTERSPEAK                   = 33,
+    LANG_DRAENEI                       = 35,
+    LANG_ZOMBIE                        = 36,
+    LANG_GNOMISH_BINARY                = 37,
+    LANG_GOBLIN_BINARY                 = 38,
+    LANG_WORGEN                        = 39,
+    LANG_GOBLIN                        = 40,
+    LANG_PANDAREN_N                    = 42,           // Pandaren neutral
+    LANG_PANDAREN_A                    = 43,           // Pandaren Alliance
+    LANG_PANDAREN_H                    = 44,           // Pandaren Horde
+    LANG_RIKKITUN                      = 168,
+    LANG_ADDON                         = 0xFFFFFFFF    // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
 #define LANGUAGES_COUNT   25
@@ -1648,7 +1648,7 @@ enum SpellImmunity
 
 #define MAX_SPELL_IMMUNITY           7
 
-// target enum name consist of:
+// Target enum name consist of:
 // TARGET_[OBJECT_TYPE]_[REFERENCE_TYPE(skipped for caster)]_[SELECTION_TYPE(skipped for default)]_[additional specifiers(friendly, BACK_LEFT, etc.]
 enum Targets
 {
@@ -1678,7 +1678,7 @@ enum Targets
     TARGET_DEST_DYNOBJ_ALLY            = 29,
     TARGET_UNIT_SRC_AREA_ALLY          = 30,
     TARGET_UNIT_DEST_AREA_ALLY         = 31,
-    TARGET_DEST_CASTER_SUMMON          = 32, // front left, doesn't use radius
+    TARGET_DEST_CASTER_SUMMON          = 32, // Front left, doesn't use radius
     TARGET_UNIT_SRC_AREA_PARTY         = 33,
     TARGET_UNIT_DEST_AREA_PARTY        = 34,
     TARGET_UNIT_TARGET_PARTY           = 35,
@@ -1701,7 +1701,7 @@ enum Targets
     TARGET_GAMEOBJECT_DEST_AREA        = 52,
     TARGET_DEST_TARGET_ENEMY           = 53,
     TARGET_UNIT_CONE_ENEMY_54          = 54,
-    TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
+    TARGET_DEST_CASTER_FRONT_LEAP      = 55, // For a leap spell
     TARGET_UNIT_CASTER_AREA_RAID       = 56,
     TARGET_UNIT_TARGET_RAID            = 57,
     TARGET_UNIT_NEARBY_RAID            = 58,
@@ -3683,31 +3683,31 @@ enum SkillType
     SKILL_PET_BEETLE               = 818,
     SKILL_ALL_GUILD_PERKS          = 821,
     SKILL_PET_HYDRA                = 824,
-    SKILL_GENERAL_MONK			   = 829, // GENERAL? 5.0.5
-    SKILL_NEW_WARRIOR			   = 840, // New on MoP 5.0.5
-    SKILL_NEW_WARLOCK			   = 849, // New in MoP 5.0.5
-    SKILL_RACIAL_PANDAREN		   = 899, // 5.0.5
-    SKILL_NEW_MAGE				   = 904, // New in MoP 5.0.5
-    SKILL_LANG_PANDAREN_N		   = 905, // 5.0.5
-    SKILL_LANG_PANDAREN_A		   = 906, // 5.0.5
-    SKILL_LANG_PANDAREN_H		   = 907, // 5.0.5
-    SKILL_NEW_ROGUE				   = 921, // New in MoP 5.0.5
-    SKILL_NEW_SHAMAN			   = 924, // New in MoP 5.0.5
-    SKILL_NEW_PET_IMP			   = 927, // New in MoP 5.0.5
-    SKILL_NEW_PET_VOIDWALKER	   = 928, // New in MoP 5.0.5
-    SKILL_NEW_PET_OBSERVER		   = 930, // New in MoP 5.0.5
-    SKILL_NEW_PET_WRATHGUARD	   = 931, // New in MoP 5.0.5
-    SKILL_ALL					   = 934, // 5.0.5 Tous - Specialisations","Les sorts gerant une combinaison de specialisation se trouvent ici.
-    SKILL_NEW_RUNEFORGING		   = 960, // New in MoP 5.0.5
-    SKILL_WAY_OF_GRILL			   = 975, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_WOK			   = 976, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_POT			   = 977, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_STEAMER		   = 978, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_OVEN			   = 979, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_BREW			   = 980, // New in MoP 5.0.5 (cooking)
-    SKILL_APPRENTICE_COOKING	   = 981, // New in MoP 5.0.5 (cooking)
-    SKILL_JOURNEYMAN_COOKBOOK	   = 982, // New in MoP 5.0.5 (cooking)
-    SKILL_NO_PLAYER				   = 999  // Last on DBC
+    SKILL_GENERAL_MONK             = 829, // GENERAL? 5.0.5
+    SKILL_NEW_WARRIOR              = 840, // New on MoP 5.0.5
+    SKILL_NEW_WARLOCK              = 849, // New in MoP 5.0.5
+    SKILL_RACIAL_PANDAREN          = 899, // 5.0.5
+    SKILL_NEW_MAGE                 = 904, // New in MoP 5.0.5
+    SKILL_LANG_PANDAREN_N          = 905, // 5.0.5
+    SKILL_LANG_PANDAREN_A          = 906, // 5.0.5
+    SKILL_LANG_PANDAREN_H          = 907, // 5.0.5
+    SKILL_NEW_ROGUE                = 921, // New in MoP 5.0.5
+    SKILL_NEW_SHAMAN               = 924, // New in MoP 5.0.5
+    SKILL_NEW_PET_IMP              = 927, // New in MoP 5.0.5
+    SKILL_NEW_PET_VOIDWALKER       = 928, // New in MoP 5.0.5
+    SKILL_NEW_PET_OBSERVER         = 930, // New in MoP 5.0.5
+    SKILL_NEW_PET_WRATHGUARD       = 931, // New in MoP 5.0.5
+    SKILL_ALL                      = 934, // 5.0.5 Tous - Specialisations","Les sorts gerant une combinaison de specialisation se trouvent ici.
+    SKILL_NEW_RUNEFORGING          = 960, // New in MoP 5.0.5
+    SKILL_WAY_OF_GRILL             = 975, // New in MoP 5.0.5 (cooking)
+    SKILL_WAY_OF_WOK               = 976, // New in MoP 5.0.5 (cooking)
+    SKILL_WAY_OF_POT               = 977, // New in MoP 5.0.5 (cooking)
+    SKILL_WAY_OF_STEAMER           = 978, // New in MoP 5.0.5 (cooking)
+    SKILL_WAY_OF_OVEN              = 979, // New in MoP 5.0.5 (cooking)
+    SKILL_WAY_OF_BREW              = 980, // New in MoP 5.0.5 (cooking)
+    SKILL_APPRENTICE_COOKING       = 981, // New in MoP 5.0.5 (cooking)
+    SKILL_JOURNEYMAN_COOKBOOK      = 982, // New in MoP 5.0.5 (cooking)
+    SKILL_NO_PLAYER                = 999  // Last on DBC
 };
 
 #define MAX_SKILL_TYPE               1000
@@ -3802,14 +3802,15 @@ enum TotemCategory
 enum UnitDynFlags
 {
     UNIT_DYNFLAG_NONE                       = 0x0000,
-    UNIT_DYNFLAG_LOOTABLE                   = 0x0001,
-    UNIT_DYNFLAG_TRACK_UNIT                 = 0x0002,
-    UNIT_DYNFLAG_TAPPED                     = 0x0004,       // Lua_UnitIsTapped
-    UNIT_DYNFLAG_TAPPED_BY_PLAYER           = 0x0008,       // Lua_UnitIsTappedByPlayer
-    UNIT_DYNFLAG_SPECIALINFO                = 0x0010,
-    UNIT_DYNFLAG_DEAD                       = 0x0020,
-    UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0040,
-    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0080        // Lua_UnitIsTappedByAllThreatList
+    UNIT_DYNFLAG_DISABLE_CLIENT_SIDE        = 0x0001,
+    UNIT_DYNFLAG_LOOTABLE                   = 0x0002,
+    UNIT_DYNFLAG_TRACK_UNIT                 = 0x0004,
+    UNIT_DYNFLAG_TAPPED                     = 0x0008,       // Lua_UnitIsTapped
+    UNIT_DYNFLAG_TAPPED_BY_PLAYER           = 0x0010,       // Lua_UnitIsTappedByPlayer
+    UNIT_DYNFLAG_SPECIALINFO                = 0x0020,
+    UNIT_DYNFLAG_DEAD                       = 0x0040,
+    UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0080,
+    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0100        // Lua_UnitIsTappedByAllThreatList
 };
 
 enum CorpseDynFlags
@@ -4249,40 +4250,40 @@ enum PetSlot
 
 enum TradeStatus
 {
-    TRADE_STATUS_NO_TARGET      = 0,          //unk
-    // 1 - unk
+    // 0 - unk
+    TRADE_STATUS_WRONG_FACTION  = 1,
     TRADE_STATUS_NOT_ELIGIBLE   = 2,
-    TRADE_STATUS_WRONG_FACTION  = 3,
-    TRADE_STATUS_TARGET_DEAD    = 4,
-    TRADE_STATUS_TRIAL_ACCOUNT  = 5,
-    // 6 - unk
-    // 7 - unk
-    //TRADE_STATUS_CURRENCY_NOT_TRADABLE = 7,
-    TRADE_STATUS_YOU_STUNNED    = 8,
-    // 9 - trade finished
-    TRADE_STATUS_YOU_LOGOUT     = 10,
-    TRADE_STATUS_TRADE_CANCELED = 11,   // UNACCEPT
-    TRADE_STATUS_TARGET_TO_FAR  = 12,
-    TRADE_STATUS_YOU_DEAD       = 13,
-    TRADE_STATUS_TARGET_STUNNED = 14,
-    // 15 - trade completed, $S is busy
-    // 16 - nonexistent
-    TRADE_STATUS_OPEN_WINDOW    = 17,
-    TRADE_STATUS_BEGIN_TRADE    = 18,
-    TRADE_STATUS_IGNORE_YOU     = 19,   // new 4.x trade finished $S ignored you
-    TRADE_STATUS_TARGET_LOGOUT  = 20,
-    TRADE_STATUS_BUSY           = 21,
-    TRADE_STATUS_TRADE_ACCEPT   = 22,   // 22 - equivalent to 335 unk status 9
-    TRADE_STATUS_BACK_TO_TRADE  = 23,   // Transaction canceled
-    TRADE_STATUS_BUSY_2         = 24,   // $s is busy
-    TRADE_STATUS_TRADE_COMPLETE = 25,
-    TRADE_STATUS_CURRENCY       = 26,
-
-    // = 27,
-    // 28 - nonexistent
-    TRADE_STATUS_ONLY_CONJURED  = 29,
-    // 30 - you have no target
-    TRADE_STATUS_CLOSE_WINDOW   = 31
+    // 3 - nonexistent
+    TRADE_STATUS_TRADE_CANCELED = 4,
+    // 5 - nonexistent
+    TRADE_STATUS_TARGET_DEAD    = 6,
+    TRADE_STATUS_TRIAL_ACCOUNT  = 7,
+    TRADE_STATUS_CURRENCY       = 8,
+    TRADE_STATUS_YOU_STUNNED    = 9,
+    // 10 - unk
+    TRADE_STATUS_TRADE_COMPLETE = 11,
+    // 12 - nonexistent
+    TRADE_STATUS_OPEN_WINDOW    = 13,
+    TRADE_STATUS_NO_TARGET      = 14,
+    // 15 - nonexistent
+    // 16 - unk
+    TRADE_STATUS_BACK_TO_TRADE  = 17,
+    // 18 - nonexistent
+    // 19 - nonexistent
+    TRADE_STATUS_YOU_LOGOUT     = 20,
+    TRADE_STATUS_TARGET_TO_FAR  = 21,
+    TRADE_STATUS_TRADE_ACCEPT   = 22,
+    TRADE_STATUS_YOU_DEAD       = 23,
+    TRADE_STATUS_TARGET_STUNNED = 24,
+    // 25 - unk
+    TRADE_STATUS_IGNORE_YOU     = 26,
+    TRADE_STATUS_TARGET_LOGOUT  = 27,
+    TRADE_STATUS_BUSY_2         = 28,
+    TRADE_STATUS_BEGIN_TRADE    = 29,
+    // 30 - unk
+    TRADE_STATUS_ONLY_CONJURED  = 31
+    // TRADE_STATUS_CLOSE_WINDOW    = ??,
+    // TRADE_STATUS_BUSY            = ??,
 };
 
 enum XPColorChar

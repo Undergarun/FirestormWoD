@@ -630,7 +630,7 @@ void ArenaTeam::FinishGame(int32 mod)
     {
         Stats.Rating += mod;
 
-        // Check if rating related achivements are met
+        // Check if rating related achievements are met
         for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
             if (Player* member = ObjectAccessor::FindPlayer(itr->Guid))
                 member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);

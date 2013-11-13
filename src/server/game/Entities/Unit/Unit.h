@@ -2313,7 +2313,7 @@ class Unit : public WorldObject
         void ReleaseFocus(Spell const* focusSpell);
 
         int32 GetEclipsePower() { return _eclipsePower; };
-        void SetEclipsePower(int32 power);
+        void SetEclipsePower(int32 power, bool send = true);
 
         uint32 GetHealingDoneInPastSecs(uint32 secs);
         uint32 GetHealingTakenInPastSecs(uint32 secs);

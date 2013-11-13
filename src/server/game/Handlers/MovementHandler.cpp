@@ -208,10 +208,10 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     uint32 flags, time;
     recvPacket >> flags >> time;
 
-    uint8 bitOrder[8] = {0, 7, 2, 4, 5, 6, 1, 3};
+    uint8 bitOrder[8] = {3, 4, 7, 2, 5, 1, 6, 0};
     recvPacket.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {3, 6, 0, 1, 5, 7, 2, 4};
+    uint8 byteOrder[8] = {0, 6, 5, 3, 7, 1, 2, 4};
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(guid));

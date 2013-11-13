@@ -400,6 +400,13 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     if (!corpse)
     {
         WorldPacket data(SMSG_CORPSE_QUERY);
+
+        data << uint32(0);
+        data << float(0);
+        data << uint32(0);
+        data << float(0);
+        data << float(0);
+
         data.WriteBit(0);
         data.WriteBit(0);
         data.WriteBit(0);
@@ -410,11 +417,6 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
         data.WriteBit(0);
         data.WriteBit(0);
 
-        data << int32(0);
-        data << int32(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
         SendPacket(&data);
         return;
     }
@@ -445,57 +447,58 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
         }
     }
     ObjectGuid guid = corpse->GetGUID();
+
     WorldPacket data(SMSG_CORPSE_QUERY);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(1);
-    data.WriteBit(guid[1]);
+
+    data << uint32(mapid);
+    data << float(x);
+    data << uint32(corpsemapid);
+    data << float(y);
+    data << float(z);
+
     data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[4]);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[6]);
     data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(1);
 
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[4]);
-    data << int32(mapid);
-    data << int32(corpsemapid);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data << float(y);
-    data.WriteByteSeq(guid[0]);
-    data << float(x);
-    data << float(z);
+    data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
 
-    /*WorldPacket data(MSG_CORPSE_QUERY, 1+(6*4));
-    data << uint8(1);                                       // corpse found
-    data << int32(mapid);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    data << int32(corpsemapid);
-    data << uint32(0);                                      // unknown*/
     SendPacket(&data);
 }
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
 {
     uint32 textID;
-    uint64 guid;
+    ObjectGuid guid;
 
     recvData >> textID;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
-    recvData >> guid;
+    uint8 bitOrder[8] = {7, 3, 1, 5, 6, 4, 0, 2};
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = {1, 5, 2, 7, 3, 6, 4, 0};
+    recvData.ReadBytesSeq(guid, byteOrder);
+
     GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 
     WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
     data << textID;
+    data << uint32(0x40);       // size of packet
     data << uint32(0x3F800000); // unk flags 5.0.5
     data << uint32(0x00); // unk 5.0.5
     data << uint32(0x00); // unk 5.0.5
@@ -512,6 +515,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
     data << uint32(0x00); // unk 5.0.5
     data << uint32(0x00); // unk 5.0.5
     data << uint32(0x00); // unk 5.0.5
+    data.WriteBit(1);     // unk bit (true on retail sniff)
+    data.FlushBits();
 
     /*if (!pGossip)
     {
@@ -605,12 +610,15 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
     buff << uint16(size2);
     if(size2)
         buff << std::string(pGossip ? pGossip->Options[0].Text_1 : text);
+
     buff << uint32(0);
     buff << uint32(0);
     buff << uint32(0);
+
     buff << uint32(0);
     buff << uint32(0);
     buff << uint32(0);
+
     buff << uint32(0); // sound Id
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Delay : 0); // Delay
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Emote : 0); // Emote
@@ -618,8 +626,8 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
     data << uint32(buff.size());
     data.append(buff);
 
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
+    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
     data << uint32(entry);
 
     SendPacket(&data);

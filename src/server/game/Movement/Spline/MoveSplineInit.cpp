@@ -98,7 +98,7 @@ namespace Movement
     {
         uint32 count = spline.getPointCount() - 2;
 
-        for (int i = 0; i < count; i++)
+        for (uint32 i = 0; i < count; i++)
             data << spline.getPoint(i+2).y << spline.getPoint(i+2).x << spline.getPoint(i+2).z;
 
         //data.append<Vector3>(&spline.getPoint(2), count);
@@ -108,7 +108,7 @@ namespace Movement
     {
         uint32 count = spline.getPointCount() - 2;
         data << spline.getPoint(1).y << spline.getPoint(1).z << spline.getPoint(1).x ; // fake point, client will erase it from the spline after first cycle done
-        for (int i = 0; i < count; i++)
+        for (uint32 i = 0; i < count; i++)
             data << spline.getPoint(i+1).y << spline.getPoint(i+1).x << spline.getPoint(i+1).z;
         //data.append<Vector3>(&spline.getPoint(1), count);
     }
@@ -175,7 +175,7 @@ namespace Movement
         bool hasUnk3 = false;
         bool unk4 = false;
         uint32 unkCounter = 0;
-        uint32 packedWPcount = splineflags & MoveSplineFlag::UncompressedPath ? 0 : move_spline.spline.getPointCount() - 2;
+        uint32 packedWPcount = splineflags & MoveSplineFlag::UncompressedPath ? 0 : move_spline.spline.getPointCount() - 3;
         uint32 WPcount = !packedWPcount ? move_spline.spline.getPointCount() - 2 : 1;
         uint8 splineType = 0;
 
@@ -249,7 +249,7 @@ namespace Movement
             data << float(0.0f);
             data << uint16(0);
 
-            for (int i = 0; i < unkCounter; i++)
+            for (uint32 i = 0; i < unkCounter; i++)
             {
                 data << uint16(0);
                 data << uint16(0);
@@ -276,7 +276,7 @@ namespace Movement
 
         if ((splineflags & MoveSplineFlag::UncompressedPath) == 0)
         {
-            uint32 last_idx = move_spline.spline.getPointCount() - 2;
+            uint32 last_idx = move_spline.spline.getPointCount() - 3;
             const Vector3 * real_path = &move_spline.spline.getPoint(1);
             if (last_idx > 0)
             {
@@ -369,7 +369,7 @@ namespace Movement
             args.flags = MoveSplineFlag::Done;
             unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
             move_spline.Initialize(args);
-        	return;
+            return;
         }
 
         // No need to stop if we are not moving
@@ -444,7 +444,7 @@ namespace Movement
             data << float(0.0f);
             data << uint16(0);
 
-            for (int i = 0; i < unkCounter; i++)
+            for (uint32 i = 0; i < unkCounter; i++)
             {
                 data << uint16(0);
                 data << uint16(0);

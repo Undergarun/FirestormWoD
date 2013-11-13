@@ -347,23 +347,23 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(0);                                          // unk flags
     data->WriteBit(isSceneObject);                              // isScenario
     data->WriteBit(0);                                          // unk bit 676
-    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);	            // isTransport
+    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);               // isTransport
     data->WriteBit(0);                                          // unk bit 810
-    data->WriteBit(flags & UPDATEFLAG_ANIMKITS);	            // HasAnimKits
+    data->WriteBit(flags & UPDATEFLAG_ANIMKITS);                // HasAnimKits
     data->WriteBit(flags & UPDATEFLAG_SELF);                    // unk bit 680
     data->WriteBit(0);                                          // unk bit 1044
     data->WriteBits(unkLoopCounter, 22);
     data->WriteBit(0);                                          // unk bit
     data->WriteBit(0);                                          // unk bit
-    data->WriteBit(flags & UPDATEFLAG_LIVING);		            // isAlive
+    data->WriteBit(flags & UPDATEFLAG_LIVING);                  // isAlive
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);     // hasStationaryPosition
     data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);   // hasGameObjectData
-    data->WriteBit(flags & UPDATEFLAG_ROTATION);	            // hasRotation
+    data->WriteBit(flags & UPDATEFLAG_ROTATION);                // hasRotation
     data->WriteBit(flags & UPDATEFLAG_HAS_TARGET);              // hasTarget
     data->WriteBit(0);                                          // unk bit 1064
     data->WriteBit(0);                                          // unk bit
     data->WriteBit(0);                                          // unk bit
-    data->WriteBit(0);		            // isSelf
+    data->WriteBit(0);	                                        // isSelf
     data->WriteBit(flags & UPDATEFLAG_VEHICLE);                 // hasVehicleData
 
     if (flags & UPDATEFLAG_GO_TRANSPORT_POSITION)
@@ -374,11 +374,11 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(transGuid[5]);
         data->WriteBit(transGuid[0]);
         data->WriteBit(transGuid[6]);
-        data->WriteBit(0);				// HasTransportTime2
+        data->WriteBit(0);                                      // HasTransportTime2
         data->WriteBit(transGuid[7]);
         data->WriteBit(transGuid[3]);
         data->WriteBit(transGuid[2]);
-        data->WriteBit(0);				// HasTransportTime3
+        data->WriteBit(0);                                      // HasTransportTime3
         data->WriteBit(transGuid[4]);
         data->WriteBit(transGuid[1]);
     }
@@ -496,7 +496,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
 
         if (self->IsSplineEnabled())
-            Movement::PacketBuilder::WriteCreateData(*self->movespline, *data);
+            Movement::PacketBuilder::WriteCreateData(*self->movespline, *data, (Unit*)self);
 
         if (self->m_movementInfo.t_guid)
         {
@@ -664,14 +664,14 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     /*
-    data->WriteBits(bitCounter2, 21);				//BitCounter2
-    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);	//isTransport
-    data->WriteBit(hasAreaTriggerData);				//HasAreaTriggerInfo
-    data->WriteBit(0);								//Bit1
-    data->WriteBit(0);								//HasUnknown2
-    data->WriteBit(0);								//Bit2
-    data->WriteBit(0);								//Bit3
-    data->WriteBit(0);		                        //HasUnknown4
+    data->WriteBits(bitCounter2, 21);               //BitCounter2
+    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);   //isTransport
+    data->WriteBit(hasAreaTriggerData);             //HasAreaTriggerInfo
+    data->WriteBit(0);                              //Bit1
+    data->WriteBit(0);                              //HasUnknown2
+    data->WriteBit(0);                              //Bit2
+    data->WriteBit(0);                              //Bit3
+    data->WriteBit(0);                              //HasUnknown4
 
     // Transport time related
     if (bitCounter2)
@@ -2226,7 +2226,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!seer->CanDetectInvisibilityOf(obj))
+    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
         return false;
 
     if (!ignoreStealth && !seer->CanDetectStealthOf(obj))

@@ -7,10 +7,14 @@ namespace OpcodeTools
         public abstract uint CalcSpecialFromOpcode(uint opcode);
         public abstract uint CalcAuthFromOpcode(uint opcode);
         public abstract uint CalcGuildFromOpcode(uint opcode);
+        public abstract uint CalcMovementFromOpcode(uint opcode);
+        public abstract uint CalcQuestFromOpcode(uint opcode);
         protected abstract bool NormalCheck(uint opcode);
         protected abstract bool SpecialCheck(uint opcode);
         public abstract bool IsSpecialSpellOpcode(uint opcode);
         public abstract bool IsSpecialGuildOpcode(uint opcode);
+        public abstract bool IsSpecialMovementOpcode(uint opcode);
+        public abstract bool IsSpecialQuestOpcode(uint opcode);
         protected abstract bool AuthCheck(uint opcode);
         protected virtual uint BaseOffset { get { return 1376; } }
 
@@ -63,6 +67,46 @@ namespace OpcodeTools
 
             return 0;
         }
+
+        public uint CalcOpcodeFromMovement(uint mouvement)
+        {
+            for (uint i = 1; i < 0xFFFF; ++i)
+            {
+                if (IsSpecialMovementOpcode(i))
+                {
+                    if (CalcMovementFromOpcode(i) == mouvement)
+                        return i;
+                }
+            }
+            return 0;
+        }
+
+        public uint CalcOpcodeFromQuest(uint quest)
+        {
+            for (uint i = 1; i < 0xFFFF; ++i)
+            {
+                if (IsSpecialQuestOpcode(i))
+                {
+                    if (CalcQuestFromOpcode(i) == quest)
+                        return i;
+                }
+            }
+            return 0;
+        }
+
+        /*
+        public uint CalcOpcodeFromQuest(uint mouvement)
+        {
+            for (uint i = 1; i < 0xFFFF; ++i)
+            {
+                if (IsSpecialQuestOpcode(i))
+                {
+                    if (CalcQuestFromOpcode(i) == mouvement)
+                        return i;
+                }
+            }
+            return 0;
+        }*/
 
         public uint CalcOpcodeFromGuild(uint guild)
         {
