@@ -207,133 +207,16 @@ namespace WowPacketParser.Parsing.Parsers
             packet.WriteGuid("Guid2", guid2);
         }
 
-        [Parser(Opcode.SMSG_GUILD_ROSTER, ClientVersionBuild.Zero, ClientVersionBuild.V4_0_6_13596)]
-        public static void HandleGuildRosterResponse(Packet packet)
+        [Parser(Opcode.SMSG_GUILD_ROSTER)]
+        public static void HandleGuildRoster(Packet packet)
         {
-            var size = packet.ReadUInt32("Number Of Members");
-            packet.ReadCString("MOTD");
-            packet.ReadCString("Info");
+            packet.ReadPackedTime("Creation Date");
+            packet.ReadUInt32("Accounts Number");
+            packet.ReadUInt32("Unk UInt32"); // 0
+            packet.ReadUInt32("Weekly Reputation Cap"); // Not used since 5.0.4
 
-            var numFields = packet.ReadInt32("Number Of Ranks");
-            for (var i = 0; i < numFields; i++)
-            {
-                packet.ReadEnum<GuildRankRightsFlag>("Rights", TypeCode.UInt32, i);
-                packet.ReadInt32("Money Per Day", i);
-
-                for (var j = 0; j < 6; j++)
-                {
-                    packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.UInt32, i, j);
-                    packet.ReadInt32("Tab Slots", i, j);
-                }
-            }
-
-            for (var i = 0; i < size; i++)
-            {
-                var guid = packet.ReadGuid("GUID", i);
-                var online = packet.ReadBoolean("Online", i);
-                var name = packet.ReadCString("Name", i);
-                StoreGetters.AddName(guid, name);
-                packet.ReadUInt32("Rank Id", i);
-                packet.ReadByte("Level", i);
-                packet.ReadByte("Class", i);
-                packet.ReadByte("Unk", i);
-                packet.ReadEntryWithName<Int32>(StoreNameType.Zone, "Zone Id", i);
-
-                if (!online)
-                    packet.ReadUInt32("Last Online", i);
-
-                packet.ReadCString("Public Note", i);
-                packet.ReadCString("Officer Note", i);
-            }
-        }
-
-        [Parser(Opcode.SMSG_GUILD_ROSTER, ClientVersionBuild.V4_0_6_13596, ClientVersionBuild.V4_2_2_14545)]
-        public static void HandleGuildRoster406(Packet packet)
-        {
-            packet.ReadCString("Guild MOTD");
-            var size = packet.ReadUInt32("Members size");
-
-            var chars = new char[size];
-            for (var i = 0; i < size; ++i)
-                chars[i] = packet.ReadBit() ? '1' : '0';
-            var bits = new string(chars);
-
-            packet.WriteLine("Unk bits: {0}", bits);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadCString("Public Note", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadUInt64("Week activity", i);
-
-            packet.ReadCString("Guild Info");
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadEnum<GuildMemberFlag>("Member Flags", TypeCode.Byte, i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadEntryWithName<Int32>(StoreNameType.Zone, "Zone Id", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadUInt32("Member Achievement Points", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadCString("Officer Note", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadUInt64("Total activity", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadByte("Unk Byte", i); // Related to class (spec?)
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadGuid("Member GUID", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadEnum<Class>("Member Class", TypeCode.Byte, i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadCString("Member Name", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadInt32("Unk", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadUInt32("Member Rank", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadInt32("Guild reputation", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadByte("Member Level", i);
-
-            for (var i = 0; i < size; ++i)
-                for (var j = 0; j < 2; ++j)
-                {
-                    var value = packet.ReadUInt32();
-                    var id = packet.ReadUInt32();
-                    var rank = packet.ReadUInt32();
-                    packet.WriteLine("[{0}][{1}] Profession: Id {2} - Value {3} - Rank {4}", i, j, id, value, rank);
-                }
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadUInt32("Remaining guild Rep", i);
-
-            for (var i = 0; i < size; ++i)
-                packet.ReadSingle("Last online", i);
-        }
-
-        [Parser(Opcode.SMSG_GUILD_ROSTER, ClientVersionBuild.V4_2_2_14545, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleGuildRoster422(Packet packet)
-        {
-            // packet.AsHex(); // FIXME
-        }
-
-        [Parser(Opcode.SMSG_GUILD_ROSTER, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleGuildRoster434(Packet packet)
-        {
-            var motdLength = packet.ReadBits(11);
-            var size = packet.ReadBits(18);
+            var motdLength = packet.ReadBits("motdLen", 10);
+            var size = packet.ReadBits("memberCount", 17);
 
             var guid = new byte[size][];
             var nameLength = new uint[size];
@@ -343,32 +226,33 @@ namespace WowPacketParser.Parsing.Parsers
             for (var i = 0; i < size; ++i)
             {
                 guid[i] = new byte[8];
-                guid[i][3] = packet.ReadBit();
-                guid[i][4] = packet.ReadBit();
+
                 packet.ReadBit("Has Authenticator", i);
-                packet.ReadBit("Can SoR", i);
-                publicLength[i] = packet.ReadBits(8);
-                officerLength[i] = packet.ReadBits(8);
                 guid[i][0] = packet.ReadBit();
-                nameLength[i] = packet.ReadBits(7);
-                guid[i][1] = packet.ReadBit();
-                guid[i][2] = packet.ReadBit();
-                guid[i][6] = packet.ReadBit();
-                guid[i][5] = packet.ReadBit();
                 guid[i][7] = packet.ReadBit();
+                guid[i][2] = packet.ReadBit();
+                packet.ReadBit("Can SoR", i);
+                publicLength[i] = packet.ReadBits("publicNoteLen", 8, i);
+                guid[i][3] = packet.ReadBit();
+                nameLength[i] = packet.ReadBits("nameLen", 6, i);
+                guid[i][6] = packet.ReadBit();
+                guid[i][4] = packet.ReadBit();
+                guid[i][1] = packet.ReadBit();
+                guid[i][5] = packet.ReadBit();
+                officerLength[i] = packet.ReadBits("officerNoteLen", 8, i);
             }
-            var infoLength = packet.ReadBits(12);
+
+            var infoLength = packet.ReadBits("infoLen", 11);
 
             for (var i = 0; i < size; ++i)
             {
-                packet.ReadEnum<Class>("Member Class", TypeCode.Byte, i);
-                packet.ReadInt32("Guild Reputation", i);
-
+                packet.ReadSingle("Last online", i);
+                packet.ReadWoWString("Public note", publicLength[i], i);
+                packet.ReadXORByte(guid[i], 4);
+                packet.ReadByte("Unk Byte", i);
                 packet.ReadXORByte(guid[i], 0);
+                packet.ReadUInt32("Remaining guild week Rep", i);
 
-                packet.ReadUInt64("Week activity", i);
-                packet.ReadUInt32("Member Rank", i);
-                packet.ReadUInt32("Member Achievement Points", i);
                 for (var j = 0; j < 2; ++j)
                 {
                     var rank = packet.ReadUInt32();
@@ -377,47 +261,30 @@ namespace WowPacketParser.Parsing.Parsers
                     packet.WriteLine("[{0}][{1}] Profession: Id {2} - Value {3} - Rank {4}", i, j, id, value, rank);
                 }
 
-                packet.ReadXORByte(guid[i], 2);
-
-                packet.ReadEnum<GuildMemberFlag>("Member Flags", TypeCode.Byte, i);
-                packet.ReadEntryWithName<Int32>(StoreNameType.Zone, "Zone Id", i);
-                packet.ReadUInt64("Total activity", i);
-
-                packet.ReadXORByte(guid[i], 7);
-
-                packet.ReadUInt32("Remaining guild week Rep", i);
-                packet.ReadWoWString("Public note", publicLength[i], i);
-
-                if (guid[i][3] != 0)
-                    guid[i][3] ^= packet.ReadByte();
-
+                packet.ReadUInt32("Guild Reputation", i);
+                packet.ReadWoWString("Name", nameLength[i], i);
+                packet.ReadXORByte(guid[i], 6);
                 packet.ReadByte("Member Level", i);
-                packet.ReadInt32("Unk 2", i);
-
                 packet.ReadXORByte(guid[i], 5);
-                packet.ReadXORByte(guid[i], 4);
-
-                packet.ReadByte("Unk Byte", i);
-
                 packet.ReadXORByte(guid[i], 1);
-
-                packet.ReadSingle("Last online", i);
+                packet.ReadXORByte(guid[i], 3);
+                packet.ReadUInt32("Member Achievement Points", i);
+                packet.ReadXORByte(guid[i], 7);
+                packet.ReadEnum<GuildMemberFlag>("Member Flags", TypeCode.Byte, i);
+                packet.ReadUInt32("Member Rank", i);
+                packet.ReadEnum<Class>("Member Class", TypeCode.Byte, i);
+                packet.ReadXORByte(guid[i], 2);
+                packet.ReadUInt64("Total activity", i);
+                packet.ReadUInt64("Week activity", i);
+                packet.ReadEntryWithName<UInt32>(StoreNameType.Zone, "Zone Id", i);
+                packet.ReadUInt32("Unk UInt32", i);
                 packet.ReadWoWString("Officer note", officerLength[i], i);
 
-                if (guid[i][6] != 0)
-                    guid[i][6] ^= packet.ReadByte();
-
-                var name = packet.ReadWoWString("Name", nameLength[i], i);
                 packet.WriteGuid("Guid", guid[i], i);
-                StoreGetters.AddName(new Guid(BitConverter.ToUInt64(guid[i], 0)), name);
             }
 
             packet.ReadWoWString("Guild Info", infoLength);
             packet.ReadWoWString("MOTD", motdLength);
-            packet.ReadUInt32("Accounts In Guild");
-            packet.ReadUInt32("Weekly Reputation Cap");
-            packet.ReadPackedTime("CreationTime");
-            packet.ReadUInt32("Unk Uint32 4");
         }
 
         [Parser(Opcode.SMSG_COMPRESSED_GUILD_ROSTER)]
@@ -425,12 +292,7 @@ namespace WowPacketParser.Parsing.Parsers
         {
             using (var packet2 = packet.Inflate(packet.ReadInt32()))
             {
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_3_4_15595))
-                    HandleGuildRoster434(packet2);
-                else if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_2_2_14545))
-                    HandleGuildRoster422(packet2);
-                else
-                    HandleGuildRoster406(packet2);
+                HandleGuildRoster(packet2);
             }
         }
 
@@ -661,97 +523,30 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("Rank Id");
         }
 
-        [Parser(Opcode.SMSG_GUILD_RANK, ClientVersionBuild.Zero, ClientVersionBuild.V4_2_2_14545)]
-        public static void HandleGuildRankServer(Packet packet)
-        {
-            const int guildBankMaxTabs = 8;
-
-            var count = packet.ReadUInt32("Rank Count");
-            for (var i = 0; i < count; i++)
-            {
-                packet.ReadUInt32("Creation Order", i);
-                packet.ReadUInt32("Rights Order", i);
-                packet.ReadCString("Name", i);
-                packet.ReadEnum<GuildRankRightsFlag>("Rights", TypeCode.Int32, i);
-
-                for (int j = 0; j < guildBankMaxTabs; j++)
-                    packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.Int32, i, j);
-
-                for (int j = 0; j < guildBankMaxTabs; j++)
-                    packet.ReadInt32("Tab Slots", i, j);
-
-                packet.ReadInt32("Gold Per Day", i);
-            }
-        }
-
-        [Parser(Opcode.SMSG_GUILD_RANK, ClientVersionBuild.V4_3_0_15005, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleGuildRankServer430(Packet packet)
-        {
-            const int guildBankMaxTabs = 8;
-            var count = packet.ReadBits("Count", 18);
-            var length = new int[count];
-            for (var i = 0; i < count; ++i)
-                length[i] = (int)packet.ReadBits(7);
-
-            for (var i = 0; i < count; ++i)
-            {
-                packet.ReadWoWString("Name", length[i], i);
-                packet.ReadInt32("Creation Order", i);
-                for (var j = 0; j < guildBankMaxTabs; ++j)
-                {
-                    packet.ReadInt32("Tab Slots", i, j);
-                    packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.Int32, i, j);
-                }
-                packet.ReadInt32("Rights order", i);
-                packet.ReadEnum<GuildRankRightsFlag>("Rights", TypeCode.Int32, i);
-                packet.ReadInt32("Gold Per Day", i);
-            }
-        }
-
-        [Parser(Opcode.SMSG_GUILD_RANK, ClientVersionBuild.V4_2_2_14545, ClientVersionBuild.V4_3_0_15005)]
-        public static void HandleGuildRankServer422(Packet packet)
-        {
-            const int guildBankMaxTabs = 8;
-
-            var count = packet.ReadUInt32("Rank Count");
-            for (int i = 0; i < count; i++)
-            {
-                packet.ReadCString("Name", i);
-                packet.ReadInt32("Creation Order", i);
-
-                for (int j = 0; j < guildBankMaxTabs; j++)
-                    packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.Int32, i, j);
-
-                packet.ReadInt32("Gold Per Day", i);
-
-                for (int j = 0; j < guildBankMaxTabs; j++)
-                    packet.ReadInt32("Tab Slots", i, j);
-
-                packet.ReadInt32("Rights Order", i);
-                packet.ReadEnum<GuildRankRightsFlag>("Rights", TypeCode.Int32, i);
-            }
-        }
-
         [Parser(Opcode.SMSG_GUILD_RANK, ClientVersionBuild.V4_3_4_15595)]
         public static void HandleGuildRankServer434(Packet packet)
         {
             const int guildBankMaxTabs = 8;
-            var count = packet.ReadBits("Count", 18);
+            var count = packet.ReadBits("Count", 17);
+
             var length = new int[count];
+
             for (var i = 0; i < count; ++i)
                 length[i] = (int)packet.ReadBits(7);
 
             for (var i = 0; i < count; ++i)
             {
-                packet.ReadInt32("Creation Order", i);
+                packet.ReadInt32("Gold Per Day", i);
+
                 for (var j = 0; j < guildBankMaxTabs; ++j)
                 {
-                    packet.ReadInt32("Tab Slots", i, j);
                     packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.Int32, i, j);
+                    packet.ReadInt32("Tab Slots", i, j);
                 }
-                packet.ReadInt32("Gold Per Day", i);
+
                 packet.ReadEnum<GuildRankRightsFlag>("Rights", TypeCode.Int32, i);
                 packet.ReadWoWString("Name", length[i], i);
+                packet.ReadInt32("Creation Order", i);
                 packet.ReadInt32("Rights Order", i);
             }
         }

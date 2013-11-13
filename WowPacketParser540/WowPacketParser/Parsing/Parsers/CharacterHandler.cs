@@ -1079,9 +1079,42 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("Title Id");
         }
 
-        [Parser(Opcode.SMSG_INIT_CURRENCY, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleInitCurrency434(Packet packet)
+        [Parser(Opcode.SMSG_INIT_CURRENCY)]
+        public static void HandleInitCurrency(Packet packet)
         {
+            var count = packet.ReadBits("Count", 21);
+
+            var hasSeasonTotal = new bool[count];
+            var hasWeekCount = new bool[count];
+            var hasWeekCap = new bool[count];
+            var flags = new uint[count];
+
+            for (var i = 0; i < count; ++i)
+            {
+                hasWeekCount[i] = packet.ReadBit("hasWeekCount", i);
+                hasSeasonTotal[i] = packet.ReadBit("hasSeasonTotal", i);
+                hasWeekCap[i] = packet.ReadBit("hasWeekCap", i);
+                flags[i] = packet.ReadBits("flags", 5, i);
+            }
+
+            for (var i = 0; i < count; ++i)
+            {
+                packet.WriteLine("[{0}] Flags {1}", i, flags[i]);
+                packet.ReadUInt32("Currency count", i);
+
+                if (hasWeekCount[i])
+                    packet.ReadUInt32("Weekly count", i);
+
+                if (hasWeekCap[i])
+                    packet.ReadUInt32("Weekly cap", i);
+
+                if (hasSeasonTotal[i])
+                    packet.ReadUInt32("Season total earned", i);
+
+                packet.ReadUInt32("Currency id", i);
+            }
+
+            /*
             var count = packet.ReadBits("Count", 23);
             if (count == 0)
                 return;
@@ -1112,48 +1145,7 @@ namespace WowPacketParser.Parsing.Parsers
                 if (hasWeekCount[i])
                     packet.ReadUInt32("Weekly count", i);
             }
-        }
-
-        [Parser(Opcode.SMSG_INIT_CURRENCY, ClientVersionBuild.V4_2_2_14545, ClientVersionBuild.V4_3_0_15005)]
-        public static void HandleInitCurrency422(Packet packet)
-        {
-            var count = packet.ReadUInt32("Count");
-            var bits = new bool[count, 3];
-
-            for (var i = 0; i < count; ++i)
-                for (var j = 0; j < 3; ++j)
-                    bits[i, j] = packet.ReadBit();
-
-            for (var i = 0; i < count; ++i)
-            {
-                packet.ReadInt32("Currency Id", i);
-                if (bits[i, 0])
-                    packet.ReadInt32("Weekly Cap", i);
-
-                packet.ReadInt32("Total Count", i);
-                packet.ReadByte("Unk Byte1", i);
-
-                if (bits[i, 1])
-                    packet.ReadInt32("Season Total Earned?", i);
-
-                if (bits[i, 2])
-                    packet.ReadUInt32("Week Count", i);
-            }
-        }
-
-        [Parser(Opcode.SMSG_INIT_CURRENCY, ClientVersionBuild.Zero, ClientVersionBuild.V4_2_2_14545)]
-        public static void HandleInitCurrency(Packet packet)
-        {
-            var count = packet.ReadUInt32("Count");
-            for (var i = 0; i < count; ++i)
-            {
-                packet.ReadUInt32("Week Count", i);
-                packet.ReadByte("Unk Byte", i);
-                packet.ReadUInt32("Currency ID", i);
-                packet.ReadTime("Reset Time", i);
-                packet.ReadUInt32("Week Cap", i);
-                packet.ReadInt32("Total Count", i);
-            }
+            */
         }
 
         [Parser(Opcode.SMSG_UPDATE_CURRENCY, ClientVersionBuild.Zero, ClientVersionBuild.V4_3_0_15005)]

@@ -73,21 +73,149 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_INSPECT_TALENT)]
         public static void HandleInspectTalent(Packet packet)
         {
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6a_13623))
-                packet.ReadGuid("GUID");
-            else
-                packet.ReadPackedGuid("GUID");
+            var playerGuid = new byte[8];
+            var guildGuid = new byte[8];
 
-            ReadTalentInfo(ref packet);
-            ReadInspectPart(ref packet);
+            playerGuid[7] = packet.ReadBit();
+            playerGuid[3] = packet.ReadBit();
 
-            if (packet.CanRead()) // otherwise it would fail for players without a guild
+            var hasGuild = packet.ReadBit() != 0;
+            Console.WriteLine("hasGuild :" + hasGuild);
+
+            if (hasGuild)
             {
-                packet.ReadGuid("Guild GUID");
-                packet.ReadUInt32("Guild Level");
-                packet.ReadUInt64("Guild Xp");
-                packet.ReadUInt32("Guild Members");
+                guildGuid[6] = packet.ReadBit();
+                guildGuid[7] = packet.ReadBit();
+                guildGuid[4] = packet.ReadBit();
+                guildGuid[5] = packet.ReadBit();
+                guildGuid[2] = packet.ReadBit();
+                guildGuid[3] = packet.ReadBit();
+                guildGuid[1] = packet.ReadBit();
+                guildGuid[0] = packet.ReadBit();
             }
+
+            var talentCount = packet.ReadBits("talentCount", 23);
+            var glyphCount = packet.ReadBits("glyphCount", 23);
+
+            playerGuid[5] = packet.ReadBit();
+            playerGuid[2] = packet.ReadBit();
+            playerGuid[6] = packet.ReadBit();
+
+            var itemCount = packet.ReadBits("itemCount", 20);
+            var enchantmentCount = new uint[itemCount];
+
+            var unkBit = new bool[itemCount];
+            var unkBit2 = new bool[itemCount];
+            var itemCreator = new byte[itemCount][];
+            // EQUIPMENT_SLOT_END
+            for (int i = 0; i < itemCount; i++)
+            {
+                itemCreator[i] = new byte[8];
+
+                itemCreator[i][0] = packet.ReadBit();
+
+                unkBit[i] = packet.ReadBit();
+                Console.WriteLine("unkBit: " + unkBit[i]);
+
+                itemCreator[i][6] = packet.ReadBit();
+                itemCreator[i][7] = packet.ReadBit();
+
+                unkBit2[i] = packet.ReadBit();
+                Console.WriteLine("unkBit2: " + unkBit2[i]);
+
+                itemCreator[i][3] = packet.ReadBit();
+                itemCreator[i][2] = packet.ReadBit();
+                itemCreator[i][1] = packet.ReadBit();
+
+                enchantmentCount[i] = packet.ReadBits("enchantmentCount", 21, i);
+
+                var unkBit3 = packet.ReadBit() != 0;
+                Console.WriteLine("unkBit3: " + unkBit3);
+
+                itemCreator[i][5] = packet.ReadBit();
+                itemCreator[i][4] = packet.ReadBit();
+            }
+
+            playerGuid[4] = packet.ReadBit();
+            playerGuid[1] = packet.ReadBit();
+            playerGuid[0] = packet.ReadBit();
+
+            for (int i = 0; i < itemCount; i++)
+            {
+                if (unkBit2[i])
+                    packet.ReadUInt16("Unk UInt16", i);
+
+                packet.ReadXORByte(itemCreator[i], 3);
+                packet.ReadXORByte(itemCreator[i], 4);
+
+                // MAX_ENCHANTMENT_SLOT
+                for (int j = 0; j < enchantmentCount[i]; j++)
+                {
+                    packet.ReadByte("Unk byte", i, j);
+                    packet.ReadUInt32("Enchant ID", i, j);
+                }
+
+                if (unkBit[i])
+                    packet.ReadUInt32("Unk uint32", i);
+
+                packet.ReadXORByte(itemCreator[i], 0);
+                packet.ReadXORByte(itemCreator[i], 2);
+                packet.ReadXORByte(itemCreator[i], 6);
+
+                var byteCounter = packet.ReadUInt32("Unk uint32", i);
+                if (byteCounter > 0)
+                    packet.ReadBytes((int)byteCounter);
+
+                packet.ReadXORByte(itemCreator[i], 1);
+                packet.ReadXORByte(itemCreator[i], 7);
+                packet.ReadXORByte(itemCreator[i], 5);
+
+                packet.ReadByte("iterator", i); // i ?
+                packet.ReadUInt32("Item ID", i);
+
+                packet.WriteGuid("Creator GUID", itemCreator[i], i);
+            }
+
+            packet.ReadXORByte(playerGuid, 7);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 5);
+            packet.ReadXORByte(playerGuid, 0);
+
+            packet.ReadUInt32("Specialization ID");
+
+            if (hasGuild)
+            {
+                packet.ReadUInt32("Level");
+
+                packet.ReadXORByte(guildGuid, 1);
+                packet.ReadXORByte(guildGuid, 3);
+
+                packet.ReadUInt32("Member count");
+
+                packet.ReadXORByte(guildGuid, 6);
+                packet.ReadXORByte(guildGuid, 2);
+                packet.ReadXORByte(guildGuid, 5);
+                packet.ReadXORByte(guildGuid, 4);
+                packet.ReadXORByte(guildGuid, 0);
+                packet.ReadXORByte(guildGuid, 7);
+
+                packet.ReadUInt64("Experience");
+
+                packet.WriteGuid("Guild GUID", guildGuid);
+            }
+
+            packet.ReadXORByte(playerGuid, 6);
+            packet.ReadXORByte(playerGuid, 4);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 3);
+
+            packet.WriteGuid("Player GUID", playerGuid);
+
+            for (int i = 0; i < talentCount; i++)
+                packet.ReadUInt16("talent ID");
+
+            for (int i = 0; i < glyphCount; i++)
+                packet.ReadUInt16("glyph ID");
         }
 
         [Parser(Opcode.SMSG_INSPECT_RESULTS_UPDATE)]
