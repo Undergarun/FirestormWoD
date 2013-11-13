@@ -63,7 +63,7 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25
+#define PLAYER_MAX_DAILY_QUESTS     25  // @todo: remove me (removed since 5.0.4)
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
 // Note: SPELLMOD_* values is aura types in fact
