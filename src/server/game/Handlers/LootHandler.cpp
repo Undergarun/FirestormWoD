@@ -34,26 +34,34 @@
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+
     Player* player = GetPlayer();
     uint64 lguid = player->GetLootGUID();
     Loot* loot = NULL;
     uint8 lootSlot = 0;
 
-    uint32 count = recvData.ReadBits(25);
-    ObjectGuid guids[8];
+    uint32 count = recvData.ReadBits(23);
 
-    uint8 bitOrder[8] = {4, 0, 2, 1, 5, 6, 7, 3};
+    ObjectGuid* guids;
+    guids = new ObjectGuid[count];
+
+    uint8 bitOrder[8] = { 3, 7, 2, 4, 0, 5, 6, 1 };
     for (uint32 i = 0; i < count; i++)
         recvData.ReadBitInOrder(guids[i], bitOrder);
 
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {2, 0, 5, 4, 6, 1, 3, 7};
     for (uint32 i = 0; i < count; i++)
     {
+        recvData.ReadByteSeq(guids[i][4]);
+        recvData.ReadByteSeq(guids[i][7]);
+        recvData.ReadByteSeq(guids[i][6]);
+        recvData.ReadByteSeq(guids[i][5]);
         recvData >> lootSlot;
-
-        recvData.ReadBytesSeq(guids[i], byteOrder);
+        recvData.ReadByteSeq(guids[i][3]);
+        recvData.ReadByteSeq(guids[i][1]);
+        recvData.ReadByteSeq(guids[i][0]);
+        recvData.ReadByteSeq(guids[i][2]);
 
         if (IS_GAMEOBJECT_GUID(lguid))
         {
@@ -233,10 +241,12 @@ void WorldSession::HandleLootOpcode(WorldPacket & recvData)
 
     ObjectGuid guid;
     
-    uint8 bitOrder[8] = {0, 3, 1, 7, 6, 4, 2, 5};
+    uint8 bitOrder[8] = { 0, 6, 7, 3, 5, 1, 2, 4 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {0, 1, 4, 2, 3, 7, 6, 5};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 5, 1, 2, 6, 0, 7, 3, 4 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     // Check possible cheat
@@ -258,10 +268,12 @@ void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
     // use internal stored guid
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = {0, 4, 2, 5, 7, 3, 6, 1};
+    uint8 bitOrder[8] = { 3, 6, 1, 0, 7, 2, 5, 4 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {3, 5, 4, 2, 6, 1, 0, 7};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 0, 6, 4, 7, 1, 2, 5, 3 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     if (uint64 lguid = GetPlayer()->GetLootGUID())
