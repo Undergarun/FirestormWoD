@@ -3309,12 +3309,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 57934: // Tricks of the Trade
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                     break;
-                case 57723: // Exhaustion
-                case 57724: // Sated
-                case 80354: // Temporal Displacement
-                case 95809: // Insanity
-                    spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
-                    break;
                 case 2818:  // Deadly Poison (DoT)
                 case 31803: // Censure (DoT)
                 case 55078: // Blood Plague
