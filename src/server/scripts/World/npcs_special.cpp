@@ -1829,105 +1829,48 @@ class mob_mojo : public CreatureScript
 
 class npc_mirror_image : public CreatureScript
 {
-    public:
-        npc_mirror_image() : CreatureScript("npc_mirror_image") { }
+public:
+    npc_mirror_image() : CreatureScript("npc_mirror_image") { }
 
-        struct npc_mirror_imageAI : CasterAI
+    struct npc_mirror_imageAI : CasterAI
+    {
+        npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
+
+        void InitializeAI()
         {
-            npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
-
-            void InitializeAI()
-            {
-                CasterAI::InitializeAI();
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
-                me->SetReactState(REACT_DEFENSIVE);
-                // Inherit Master's Threat List (not yet implemented)
-                owner->CastSpell((Unit*)NULL, 58838, true);
-                // here mirror image casts on summoner spell (not present in client dbc) 49866
-                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
-                // Clone Me!
-                owner->CastSpell(me, 45204, false);
-                owner->AddAura(45204, me);
-
-                if (owner->getVictim())
-                    me->AI()->AttackStart(owner->getVictim());
-            }
-
-            void EnterCombat(Unit* who)
-            {
-                if (spells.empty())
-                    return;
-
-                for (auto itr : spells)
-                {
-                    if (AISpellInfo[itr].condition == AICOND_AGGRO)
-                        me->CastSpell(who, itr, false);
-                    else if (AISpellInfo[itr].condition == AICOND_COMBAT)
-                    {
-                        uint32 cooldown = GetAISpellInfo(itr)->realCooldown;
-                        events.ScheduleEvent(itr, cooldown);
-                    }
-                }
-
-                me->GetMotionMaster()->Clear(false);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                bool hasCC = me->HasCrowdControlAura();
-                if (hasCC)
-                {
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        me->CastStop();
-
-                    me->AI()->EnterEvadeMode();
-                    return;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (uint32 spellId = events.ExecuteEvent())
-                {
-                    if (hasCC)
-                    {
-                        events.ScheduleEvent(spellId, 500);
-                        return;
-                    }
-                    DoCast(spellId);
-                    uint32 casttime = me->GetCurrentSpellCastTime(spellId);
-                    events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
-                }
-            }
-
-            // Do not reload Creature templates on evade mode enter - prevent visual lost
-            void EnterEvadeMode()
-            {
-                if (me->IsInEvadeMode() || !me->isAlive())
-                    return;
-
-                Unit* owner = me->GetCharmerOrOwner();
-
-                me->CombatStop(true);
-                if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
-                {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_mirror_imageAI(creature);
+            CasterAI::InitializeAI();
+            Unit* owner = me->GetOwner();
+            if (!owner)
+                return;
+            // Inherit Master's Threat List (not yet implemented)
+            owner->CastSpell((Unit*)NULL, 58838, true);
+            // here mirror image casts on summoner spell (not present in client dbc) 49866
+            // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
+            // Clone Me!
+            owner->CastSpell(me, 45204, true);
         }
+
+        // Do not reload Creature templates on evade mode enter - prevent visual lost
+        void EnterEvadeMode()
+        {
+            if (me->IsInEvadeMode() || !me->isAlive())
+                return;
+
+            Unit* owner = me->GetCharmerOrOwner();
+
+            me->CombatStop(true);
+            if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+            {
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_mirror_imageAI(creature);
+    }
 };
 
 class npc_ebon_gargoyle : public CreatureScript
@@ -3418,63 +3361,66 @@ enum GuardianSpellsAndEntries
 
 class npc_guardian_of_ancient_kings : public CreatureScript
 {
-public:
-    npc_guardian_of_ancient_kings() : CreatureScript("npc_guardian_of_ancient_kings") { }
+    public:
+        npc_guardian_of_ancient_kings() : CreatureScript("npc_guardian_of_ancient_kings") { }
 
-       CreatureAI *GetAI(Creature *creature) const
-    {
-        return new npc_guardian_of_ancient_kingsAI(creature);
-    }
-
-    struct npc_guardian_of_ancient_kingsAI : public ScriptedAI
-    {
-        npc_guardian_of_ancient_kingsAI(Creature *c) : ScriptedAI(c)
+        struct npc_guardian_of_ancient_kingsAI : public ScriptedAI
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-        }
+            npc_guardian_of_ancient_kingsAI(Creature *creature) : ScriptedAI(creature) {}
 
-        void Reset()
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-            
-            if (me->GetEntry() == NPC_RETRI_GUARDIAN)
-                me->SetReactState(REACT_AGGRESSIVE);
-            else
-                me->SetReactState(REACT_PASSIVE);
+            void Reset()
+            {
+                if (me->GetEntry() == NPC_RETRI_GUARDIAN || me->GetEntry() == NPC_HOLY_GUARDIAN)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
+                else if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
 
-            if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
-            {
-                if (me->GetOwner())
-                    DoCast(me->GetOwner(), SPELL_ANCIENT_GUARDIAN_VISUAL);
-            }
-            else if (me->GetEntry() == NPC_RETRI_GUARDIAN)
-            {
-                if (me->GetOwner())
+                if (me->GetEntry() == NPC_RETRI_GUARDIAN)
+                    me->SetReactState(REACT_DEFENSIVE);
+                else
+                    me->SetReactState(REACT_PASSIVE);
+
+                if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
                 {
-                    if (me->GetOwner()->getVictim())
-                        AttackStart(me->GetOwner()->getVictim());
-
-                    DoCast(me, 86703, true);
+                    if (me->GetOwner())
+                        DoCast(me->GetOwner(), SPELL_ANCIENT_GUARDIAN_VISUAL);
                 }
-             }
-        }
+                else if (me->GetEntry() == NPC_RETRI_GUARDIAN)
+                {
+                    if (me->GetOwner())
+                    {
+                        if (me->GetOwner()->getVictim())
+                            AttackStart(me->GetOwner()->getVictim());
 
-        void UpdateAI(const uint32 diff)
+                        DoCast(me, 86703, true);
+                    }
+                }
+                else if (me->GetEntry() == NPC_HOLY_GUARDIAN)
+                    if (me->GetOwner())
+                        me->GetOwner()->CastSpell(me->GetOwner(), SPELL_ANCIENT_HEALER, true);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->GetOwner())
+                    if (Unit* newVictim = me->GetOwner()->getVictim())
+                        if (me->getVictim() != newVictim)
+                            AttackStart(newVictim);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            if (!UpdateVictim())
-                return;
-
-            if (me->GetOwner())
-                if (Unit* newVictim = me->GetOwner()->getVictim())
-                    if (me->getVictim() != newVictim)
-                        AttackStart(newVictim);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            DoMeleeAttackIfReady();
+            return new npc_guardian_of_ancient_kingsAI(creature);
         }
-    };
 };
 
 /*######

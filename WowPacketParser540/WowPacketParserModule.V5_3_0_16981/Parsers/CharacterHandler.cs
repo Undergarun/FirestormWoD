@@ -293,6 +293,53 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.WriteGuid("GUID", playerGuid);
         }
 
+        [Parser(Opcode.SMSG_SET_EQUIPMENT_LIST)]
+        public static void HandleLoadEquipmentList(Packet packet)
+        {
+            var count = packet.ReadBits("count", 19);
+            var setGuid = new byte[count][];
+            var itemGuid = new byte[count * 19][];
+            var setNameLen = new uint[count];
+            var setIconNameLen = new uint[count];
+            var ignoreMask = new bool[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    itemGuid[j + (i * j)] = new byte[8];
+                    packet.StartBitStream(itemGuid[j + (i * j)], 0, 6, 5, 4, 2, 7, 1, 3);
+                }
+
+                setGuid[i] = new byte[8];
+
+                packet.StartBitStream(setGuid[i], 6, 0, 2, 5);
+                setNameLen[i] = packet.ReadBits("setNameLen", 8, i);
+                setGuid[i][3] = packet.ReadBit();
+                uint len = (uint)packet.ReadBits(8) * 2;
+                setIconNameLen[i] = packet.ReadBit() | len;
+                Console.WriteLine("setIconNameLen: " + setIconNameLen[i], i);
+                packet.StartBitStream(setGuid[i], 4, 7, 1);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                for (int j = 0; j < 19; j++)
+                {
+                    packet.ParseBitStream(itemGuid[j + (i * j)], 4, 6, 3, 5, 0, 2, 1, 7);
+                    packet.WriteGuid("Item GUID", itemGuid[j + (i * j)], i, j);
+                }
+
+                packet.ReadWoWString("setName", setNameLen[i], i);
+                packet.ParseBitStream(setGuid[i], 5, 0, 3, 6, 1);
+                packet.ReadWoWString("iconName", setIconNameLen[i], i);
+                packet.ParseBitStream(setGuid[i], 7, 4, 2);
+                packet.ReadUInt32("set ID", i);
+
+                packet.WriteGuid("Set GUID", setGuid[i], i);
+            }
+        }
+
         [Parser(Opcode.SMSG_LOG_XPGAIN)]
         public static void HandleLogXPGain(Packet packet)
         {

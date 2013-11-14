@@ -127,7 +127,7 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.WriteGuid("member guid", membersGuid[i], i);
             }
 
-            packet.ReadUInt32("unk uint32 2");
+            packet.ReadUInt32("Counter");
 
             if (hasLooterdata)
             {
@@ -136,7 +136,7 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.ReadXORByte(looterGUID, 3);
                 packet.ReadXORByte(looterGUID, 7);
                 packet.ReadXORByte(looterGUID, 6);
-                packet.ReadXORByte(looterGUID, 6);
+                packet.ReadXORByte(looterGUID, 2);
                 packet.ReadByte("m_lootMethod"); // may swap with m_lootThreshold
                 packet.ReadXORByte(looterGUID, 5);
                 packet.ReadByte("m_lootThreshold"); // may swap with m_lootMethod
@@ -164,7 +164,7 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadXORByte(leaderGuid, 4);
             packet.ReadXORByte(leaderGuid, 6);
             packet.ReadByte("group type");
-            packet.ReadUInt32("counter");
+            packet.ReadUInt32("unk uint32");
             packet.ReadXORByte(groupdGuid, 2);
             packet.ReadXORByte(groupdGuid, 1);
             packet.ReadXORByte(groupdGuid, 4);
@@ -176,142 +176,91 @@ namespace WowPacketParser.Parsing.Parsers
             packet.WriteGuid("Leader guid", leaderGuid);
         }
 
-        [Parser(Opcode.SMSG_PARTY_MEMBER_STATS, ClientVersionBuild.V4_2_2_14545)]
-        [Parser(Opcode.SMSG_PARTY_MEMBER_STATS_FULL, ClientVersionBuild.V4_2_2_14545)]
-        public static void HandlePartyMemberStats422(Packet packet)
-        {
-            if (packet.Opcode == Opcodes.GetOpcode(Opcode.SMSG_PARTY_MEMBER_STATS_FULL))
-                packet.ReadBoolean("Add arena opponent");
-
-            packet.ReadPackedGuid("GUID");
-            var updateFlags = packet.ReadEnum<GroupUpdateFlag422>("Update Flags", TypeCode.Int32);
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Status))
-                packet.ReadEnum<GroupMemberStatusFlag>("Status", TypeCode.Int16);
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.CurrentHealth))
-            {
-                if (ClientVersion.AddedInVersion(ClientType.WrathOfTheLichKing))
-                    packet.ReadInt32("Current Health");
-                else
-                    packet.ReadUInt16("Current Health");
-            }
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.MaxHealth))
-            {
-                if (ClientVersion.AddedInVersion(ClientType.WrathOfTheLichKing))
-                    packet.ReadInt32("Max Health");
-                else
-                    packet.ReadUInt16("Max Health");
-            }
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PowerType))
-                packet.ReadEnum<PowerType>("Power type", TypeCode.Byte);
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.CurrentPower))
-                packet.ReadInt16("Current Power");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.MaxPower))
-                packet.ReadInt16("Max Power");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Level))
-                packet.ReadInt16("Level");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Zone))
-                packet.ReadEntryWithName<Int16>(StoreNameType.Zone, "Zone Id");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Unk100))
-                packet.ReadInt16("Unk");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Position))
-            {
-                packet.ReadInt16("X");
-                packet.ReadInt16("Y");
-                packet.ReadInt16("Z");
-            }
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Auras))
-            {
-                packet.ReadByte("Unk byte");
-                var mask = packet.ReadUInt64("Aura mask");
-                var cnt = packet.ReadUInt32("Aura count");
-                for (var i = 0; i < cnt; ++i)
-                {
-                    if (mask == 0) // bad packet
-                        break;
-
-                    if ((mask & (1ul << i)) == 0)
-                        continue;
-
-                    packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell Id", i);
-
-                    var aflags = packet.ReadEnum<AuraFlag>("Aura Flags", TypeCode.UInt16, i);
-                    if (aflags.HasFlag(AuraFlag.Scalable))
-                        for (var j = 0; j < 3; ++j)
-                            packet.ReadInt32("Effect BasePoints", i, j);
-                }
-            }
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetGuid))
-                packet.ReadUInt64("Pet GUID");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetName))
-                packet.ReadCString("Pet Name");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetModelId))
-                packet.ReadUInt16("Pet Model Id");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetCurrentHealth))
-                packet.ReadUInt32("Pet Current Health");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetMaxHealth))
-                packet.ReadUInt32("Pet Max Health");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetPowerType))
-                packet.ReadEnum<PowerType>("Pet Power type", TypeCode.Byte);
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetCurrentPower))
-                packet.ReadInt16("Pet Current Power");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetMaxPower))
-                packet.ReadInt16("Pet Max Power");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.PetAuras))
-            {
-                packet.ReadByte("Unk byte");
-                var mask = packet.ReadUInt64("Pet Aura mask");
-                var cnt = packet.ReadUInt32("Pet Aura count");
-                for (var i = 0; i < cnt; ++i)
-                {
-                    if ((mask & (1ul << i)) == 0)
-                        continue;
-
-                    packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell Id", i);
-
-                    var aflags = packet.ReadEnum<AuraFlag>("Aura Flags", TypeCode.UInt16, i);
-                    if (aflags.HasFlag(AuraFlag.Scalable))
-                        for (var j = 0; j < 3; ++j)
-                            packet.ReadInt32("Effect BasePoints", i, j);
-                }
-            }
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.VehicleSeat))
-                packet.ReadInt32("Vehicle Seat?");
-
-            if (updateFlags.HasFlag(GroupUpdateFlag422.Phase))
-            {
-                packet.ReadInt32("Unk Int32");
-
-                var count = packet.ReadInt32("Phase Count");
-                for (var i = 0; i < count; ++i)
-                    packet.ReadInt16("Phase Id");
-            }
-        }
-
-        [Parser(Opcode.SMSG_PARTY_MEMBER_STATS, ClientVersionBuild.Zero, ClientVersionBuild.V4_2_2_14545)]
-        [Parser(Opcode.SMSG_PARTY_MEMBER_STATS_FULL, ClientVersionBuild.Zero, ClientVersionBuild.V4_2_2_14545)]
+        [Parser(Opcode.SMSG_PARTY_MEMBER_STATS)]
+        [Parser(Opcode.SMSG_PARTY_MEMBER_STATS_FULL)]
         public static void HandlePartyMemberStats(Packet packet)
         {
+            /*
+            -- UNK PACKET
+            var count = packet.ReadBits("counter", 18);
+
+            var unkGuid = new byte[count][];
+            var unkLen = new uint[count];
+            var unkLen2 = new uint[count];
+            var count2 = new uint[count];
+            var bit28 = new bool[count];
+            var bit16 = new bool[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                unkGuid[i] = new byte[8];
+
+                count2[i] = packet.ReadBits("counter2", 17, i);
+                bit16[i] = packet.ReadBit("bit16", i);
+
+                if (bit16[i])
+                    packet.StartBitStream(unkGuid[i], 3, 6, 4, 2, 5, 1, 0, 7);
+
+                bit28[i] = packet.ReadBit("bit28", i);
+                unkLen[i] = packet.ReadBits("unkLen", 13, i);
+                unkLen2[i] = packet.ReadBits("unkLen2", 8, i);
+
+                for (int j = 0; j < count2[i]; j++)
+                    packet.ReadBit("unkBit", i, j);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                for (int j = 0; j < count2[i]; j++)
+                {
+                    packet.ReadUInt32("unk UInt32", i, j);
+                    packet.ReadUInt32("unk UInt32", i, j);
+
+                    for (int y = 0; y < 8; y++)
+                    {
+                        packet.ReadUInt32("unk UInt32", i, j, y);
+                        packet.ReadUInt32("unk UInt32", i, j, y);
+                        packet.ReadUInt32("unk UInt32", i, j, y);
+                    }
+
+                    packet.ReadUInt32("unk UInt32", i, j);
+                    packet.ReadByte("unk Byte", i, j);
+                    packet.ReadUInt32("unk UInt32", i, j);
+                    packet.ReadUInt32("unk UInt32", i, j);
+                    packet.ReadUInt32("unk UInt32", i, j);
+                    packet.ReadUInt32("unk UInt32", i, j);
+                    var bytesCounter = packet.ReadUInt32("unk UInt32", i, j);
+                    if (bytesCounter > 0)
+                        packet.ReadBytes((int)bytesCounter);
+                    packet.ReadUInt32("unk UInt32", i, j);
+                }
+
+                packet.ReadUInt32("unk UInt32", i);
+
+                if (bit16[i])
+                {
+                    packet.ParseBitStream(unkGuid[i], 2, 0, 4, 5, 3, 6, 1, 7);
+                    packet.WriteGuid("Unk GUID", unkGuid[i], i);
+                }
+
+                packet.ReadWoWString("unkString2", unkLen2[i], i);
+                packet.ReadUInt32("unk UInt32", i);
+                packet.ReadUInt32("unk UInt32", i);
+                packet.ReadUInt64("unk UInt64", i);
+                packet.ReadUInt32("unk UInt32", i);
+                packet.ReadUInt64("unk UInt64", i);
+                packet.ReadUInt32("unk UInt32", i);
+                packet.ReadWoWString("unkString", unkLen[i], i);
+
+                if (bit28[i])
+                    packet.ReadUInt32("unk UInt32", i);
+
+                packet.ReadByte("unk Byte", i);
+                packet.ReadUInt32("unk UInt32", i);
+            }
+
+            packet.ReadUInt32("unk UInt32");*/
+
             if (ClientVersion.AddedInVersion(ClientType.WrathOfTheLichKing) &&
                 packet.Opcode == Opcodes.GetOpcode(Opcode.SMSG_PARTY_MEMBER_STATS_FULL))
                 packet.ReadBoolean("Add arena opponent");

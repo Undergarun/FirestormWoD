@@ -2128,6 +2128,17 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
             effectMask &= ~(1 << effIndex);
 
+    if (m_spellInfo->Id == 44614 && effectIndex != 1)
+        if (m_caster->HasAura(61205) == (effectIndex == 0))
+            return;
+
+    // Quest item spell 'Kill Golden Stonefish'
+    if (m_spellInfo->Id == 80962)
+    {
+        if (!target->ToCreature() || target->ToCreature()->GetEntry() != 43331)
+            return;
+    }
+
     uint64 targetGUID = target->GetGUID();
 
     // Lookup target in already in list
@@ -2158,6 +2169,8 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     targetInfo.damage     = 0;
     targetInfo.crit       = false;
     targetInfo.scaleAura  = false;
+    targetInfo.timeDelay  = 0;
+
     if (m_auraScaleMask && targetInfo.effectMask == m_auraScaleMask && m_caster != target)
     {
         SpellInfo const* auraSpell = sSpellMgr->GetSpellInfo(sSpellMgr->GetFirstSpellInChain(m_spellInfo->Id));
@@ -2177,7 +2190,12 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
-    if (m_spellInfo->Speed > 0.0f && m_caster != target)
+    if (m_spellInfo->Effects[0].Effect == SPELL_EFFECT_KNOCK_BACK)
+    {
+        m_delayMoment = 1;
+        targetInfo.timeDelay = 0;
+    }
+    else if (m_spellInfo->Speed > 0.0f && m_caster != target)
     {
         // calculate spell incoming interval
         // TODO: this is a hack
@@ -2195,12 +2213,69 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
             m_delayMoment = targetInfo.timeDelay;
     }
+    else if ((m_caster->GetTypeId() == TYPEID_PLAYER || m_caster->ToCreature()->isPet()) && m_caster != target)
+    {
+        if (!IsTriggered() && m_spellInfo->_IsCrowdControl(0, false))
+        {
+            targetInfo.timeDelay = 200LL;
+            m_delayMoment = 200LL;
+        }
+        if (m_spellInfo->IsPositive() && (!IsTriggered() || m_spellInfo->SpellIconID == 156) && m_spellInfo->Targets != 0x40 && m_spellInfo->Id != 64382)
+        {
+            switch (m_spellInfo->Effects[0].Effect)
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_APPLY_AURA:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_DISPEL:
+                {
+                    targetInfo.timeDelay = 200LL;
+                    m_delayMoment = 200LL;
+                }
+                default:
+                    break;
+            }
+            // Shadowstep
+            if (m_spellInfo->Id == 36563)
+            {
+                targetInfo.timeDelay = 100LL;
+                m_delayMoment = 100LL;
+            }
+        }
+        else if (m_spellInfo->Id == 24259) // Spell Lock - Silenced
+        {
+            targetInfo.timeDelay = 100LL;
+            m_delayMoment = 100LL;
+        }
+    }
+    // Removing Death Grip cooldown
+    else if (m_spellInfo->Id == 90289)
+    {
+        targetInfo.timeDelay = 100LL;
+        m_delayMoment = 100LL;
+    }
+    // Misdirection
+    else if (m_spellInfo->Id == 35079 || m_spellInfo->Id == 57934)
+    {
+        targetInfo.timeDelay = 100LL;
+        m_delayMoment = 100LL;
+    }
     else
         targetInfo.timeDelay = 0LL;
 
     // If target reflect spell back to caster
     if (targetInfo.missCondition == SPELL_MISS_REFLECT)
     {
+        // process reflect removal (not delayed)
+        if (!targetInfo.timeDelay)
+        {
+            m_caster->ProcDamageAndSpell(target, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, BASE_ATTACK, m_spellInfo);
+            if (m_spellInfo->Id == 2136) // hack to trigger impact in reflect
+            {
+                m_caster->ProcDamageAndSpell(m_caster, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, 
+                    PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_NORMAL_HIT, 1, BASE_ATTACK, m_spellInfo);
+            }
+        }
         // Calculate reflected spell result on caster
         targetInfo.reflectResult = m_caster->SpellHitResult(m_caster, m_spellInfo, m_canReflect);
 
@@ -2560,6 +2635,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         m_damage = damageInfo.damage;
 
         caster->DealSpellDamage(&damageInfo, true);
+
+        // Used in spell scripts
+        m_final_damage = damageInfo.damage;
+        m_absorbed_damage = damageInfo.absorb;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
@@ -2580,7 +2659,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    if (missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+    if (!m_spellInfo->IsIgnoringCombat() && missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
 
@@ -2680,7 +2759,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     m_caster->ToPlayer()->UpdatePvP(true);
             }
-            if (unit->isInCombat() && !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO))
+            if (unit->isInCombat() && !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO) && !m_spellInfo->IsIgnoringCombat())
             {
                 m_caster->SetInCombatState(unit->GetCombatTimer() > 0, unit);
                 unit->getHostileRefManager().threatAssist(m_caster, 0.0f);
@@ -3391,7 +3470,8 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled() && m_spellInfo->Id != 114157) || m_spellInfo->Id == 14157)
+    if (((m_spellInfo->Speed > 0.0f || (m_delayMoment && (m_caster->GetTypeId() == TYPEID_PLAYER || m_caster->ToCreature()->isPet())))
+        && !m_spellInfo->IsChanneled()) || m_spellInfo->_IsNeedDelay())
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -4237,7 +4317,7 @@ void Spell::SendSpellStart()
     ObjectGuid unk4;
     ObjectGuid caster = m_caster->GetGUID();
     ObjectGuid powerUnit = caster;
-    ObjectGuid itemCaster = m_CastItem ? m_CastItem->GetGUID() : caster;
+    ObjectGuid itemCaster = m_CastItem ? m_CastItem->GetGUID() : uint64(caster);
     ObjectGuid sourceTransport = m_targets.GetSrc()->_transportGUID;
     ObjectGuid destTransport = m_targets.GetDst()->_transportGUID;
     ObjectGuid unitTargetGUID = m_targets.GetObjectTargetGUID();
@@ -4714,7 +4794,7 @@ void Spell::SendSpellGo()
     ObjectGuid caster = m_caster->GetGUID();
     ObjectGuid target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : NULL;
     ObjectGuid itemGuid = itemTarget ? itemTarget->GetGUID() : 0;
-    ObjectGuid itemCaster = m_castItemGUID ? m_castItemGUID : caster;
+    ObjectGuid itemCaster = m_castItemGUID ? m_castItemGUID : uint64(caster);
     ObjectGuid powerUnit = caster;
     ObjectGuid transportSrc = m_targets.GetSrc()->_transportGUID;
     ObjectGuid transportDst = m_targets.GetDst()->_transportGUID;
@@ -5138,7 +5218,7 @@ void Spell::SendSpellGo()
     if (hasBit384)
         data << uint8(0);
 
-    data << uint32(0x40310); // unk flags, sniffed from retail
+    data << uint32(0); // unk flags, sniffed from retail
     data.WriteByteSeq(caster[5]);
 
     if (hasBit101)

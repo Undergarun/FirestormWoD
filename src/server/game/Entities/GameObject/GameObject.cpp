@@ -317,8 +317,8 @@ void GameObject::Update(uint32 diff)
                             UpdateData udata(caster->GetMapId());
                             WorldPacket packet;
                             BuildValuesUpdateBlockForPlayer(&udata, caster->ToPlayer());
-                            udata.BuildPacket(&packet);
-                            caster->ToPlayer()->GetSession()->SendPacket(&packet);
+                            if (udata.BuildPacket(&packet))
+                                caster->ToPlayer()->GetSession()->SendPacket(&packet);
 
                             SendCustomAnim(GetGoAnimProgress());
                         }

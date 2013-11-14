@@ -5152,6 +5152,22 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 }
 
+void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
+{
+    int32 newCooldown = GetSpellCooldownDelay(spell_id) * 1000;
+    if (newCooldown < 0)
+        newCooldown = 0;
+    else
+        newCooldown -= modifyTime;
+
+    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + newCooldown / 1000));
+    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+    data << uint32(spell_id);
+    data << uint64(GetGUID());
+    data << int32(-modifyTime);
+    SendDirectMessage(&data);
+}
+
 void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
 {
     m_spellCooldowns.erase(spell_id);
@@ -24523,8 +24539,8 @@ void Player::UpdateTriggerVisibility()
         }
     }
 
-    udata.BuildPacket(&packet);
-    GetSession()->SendPacket(&packet);
+    if (udata.BuildPacket(&packet))
+        GetSession()->SendPacket(&packet);
 }
 
 void Player::SendInitialVisiblePackets(Unit* target)
@@ -25172,7 +25188,7 @@ void Player::SendAurasForTarget(Unit* target)
         target->SendMovementWaterWalking();
 
     if (target->HasAuraType(SPELL_AURA_HOVER))
-        target->SendMovementHover();
+        target->SendMovementHover(true);
 
     bool powerData = false;
     ObjectGuid targetGuid = target->GetGUID();
@@ -25475,8 +25491,9 @@ void Player::UpdateForQuestWorldObjects()
             }
         }
     }
-    udata.BuildPacket(&packet);
-    GetSession()->SendPacket(&packet);
+
+    if (udata.BuildPacket(&packet))
+        GetSession()->SendPacket(&packet);
 }
 
 void Player::SummonIfPossible(bool agree)

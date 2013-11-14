@@ -173,17 +173,60 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_ITEM_PUSH_RESULT)]
         public static void HandleItemPushResult(Packet packet)
         {
-            packet.ReadGuid("GUID");
-            packet.ReadUInt32("From NPC");
-            packet.ReadUInt32("Created");
-            packet.ReadUInt32("Unk Uint32");
-            packet.ReadByte("Slot");
-            packet.ReadInt32("Item Slot");
-            packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Entry");
-            packet.ReadInt32("Suffix Factor");
-            packet.ReadInt32("Random Property ID");
-            packet.ReadUInt32("Count");
+            var guid = new byte[8];
+            var unkGuid = new byte[8];
+
+            guid[0] = packet.ReadBit();
+            unkGuid[6] = packet.ReadBit();
+            guid[4] = packet.ReadBit();
+            guid[6] = packet.ReadBit();
+            packet.ReadBit("Unk bit");
+            guid[1] = packet.ReadBit();
+            guid[5] = packet.ReadBit();
+            packet.ReadBit("Unk bit");
+            unkGuid[3] = packet.ReadBit();
+            unkGuid[4] = packet.ReadBit();
+            unkGuid[5] = packet.ReadBit();
+            guid[3] = packet.ReadBit();
+            guid[7] = packet.ReadBit();
+            unkGuid[7] = packet.ReadBit();
+            unkGuid[2] = packet.ReadBit();
+            unkGuid[0] = packet.ReadBit();
+            unkGuid[1] = packet.ReadBit();
+            packet.ReadBit("Unk bit");
+            packet.ReadBit("Unk bit");
+            guid[2] = packet.ReadBit();
+
+            packet.ReadXORByte(guid, 0);
+            packet.ReadXORByte(guid, 7);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Item Count");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(guid, 3);
+            packet.ReadUInt32("Unk UInt32");
             packet.ReadUInt32("Count of Items in inventory");
+            packet.ReadXORByte(unkGuid, 7);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(unkGuid, 5);
+            packet.ReadXORByte(unkGuid, 3);
+            packet.ReadXORByte(unkGuid, 6);
+            packet.ReadXORByte(guid, 6);
+            packet.ReadByte("Bag Slot");
+            packet.ReadXORByte(unkGuid, 4);
+            packet.ReadXORByte(guid, 4);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(guid, 2);
+            packet.ReadXORByte(unkGuid, 0);
+            packet.ReadXORByte(unkGuid, 1);
+            packet.ReadXORByte(guid, 5);
+            packet.ReadXORByte(unkGuid, 2);
+            packet.ReadUInt32("Item ID");
+
+            packet.WriteGuid("Unk GUID", unkGuid);
+            packet.WriteGuid("Player GUID", guid);
         }
 
         [Parser(Opcode.SMSG_ITEM_ENCHANT_TIME_UPDATE)]
