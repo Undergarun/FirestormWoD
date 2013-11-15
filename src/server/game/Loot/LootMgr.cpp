@@ -791,31 +791,62 @@ bool Loot::hasOverThresholdItem() const
 
 ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
 {
-    b << uint32(li.itemid);
-    b << uint32(li.count);                                  // nr of items of this type
+    b << uint32(li.count);                                  // Item count
     b << uint32(sObjectMgr->GetItemTemplate(li.itemid)->DisplayInfoID);
     b << uint32(li.randomSuffix);
     b << uint32(li.randomPropertyId);
+    b << uint32(0);                                         // Unk bytes counter
+    b << uint32(li.itemid);
 
     return b;
 }
 
 ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 {
-    if (lv.permission == NONE_PERMISSION)//TODO
+    if (lv.permission == NONE_PERMISSION)
     {
-        b << uint32(0);                                     // gold
-        b << uint8(0);                                      // item count
-        b << uint8(0);                                      // currency count
+        b.WriteBit(0);      // Unk bit
+        b.WriteBit(0);      // Creature guid 0
+        b.WriteBit(0);      // Creature guid 1
+        b.WriteBit(1);      // !Unk bit
+        b.WriteBit(0);      // Loot guid 7
+        b.WriteBit(0);      // Creature guid 3
+        b.WriteBit(0);      // Loot guid 2
+        b.WriteBit(0);      // Loot guid 0
+        b.WriteBit(1);      // 4 - X = Permission != 3
+        b.WriteBit(0);      // Loot guid 1
+        b.WriteBit(0);      // Unk bit
+        b.WriteBit(0);      // Creature guid 6
+        b.WriteBit(1);      // !HasLootType
+        b.WriteBit(0);      // Loot guid 3
+        b.WriteBit(1);      // !Unk bit
+        b.WriteBits(0, 20); // Currency count
+        b.WriteBit(0);      // Creature guid 7
+        b.WriteBit(0);      // Creature guid 4
+        b.WriteBit(0);      // Loot guid 6
+        b.WriteBit(0);      // Creature guid 2
+        b.WriteBit(1);      // !hasGold
+        b.WriteBit(0);      // Loot guid 4
+        b.WriteBits(0, 19); // Items count
+        b.WriteBit(0);      // Creature guid 5
+        b.WriteBit(0);      // Unk bit
         return b;
     }
 
     Loot &l = lv.loot;
+    ByteBuffer bitsItemBuffer;
     ByteBuffer dataBuffer;
-    std::vector<uint8> bits;
 
+    ObjectGuid creatureGuid = lv._guid;
+    ObjectGuid lootViewGuid = NULL;
+
+    bool unkBit69 = false;
+    bool unkBit48 = true;
+    bool unkBit84 = true;
+    bool unkBit32 = true;
     uint8 itemsShown = 0;
     uint8 currenciesShown = 0;
+    uint32 index = 0;
 
     switch (lv.permission)
     {
@@ -841,18 +872,28 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     else
                         // item shall not be displayed.
                         continue;
-                    bits.push_back(!i);
-                    bits.push_back(!slot_type);
+
+                    bitsItemBuffer.WriteBit(!slot_type);
+                    bitsItemBuffer.WriteBit(!i);
+                    bitsItemBuffer.WriteBits(1, 2);
+                    bitsItemBuffer.WriteBit(0);
+                    bitsItemBuffer.WriteBits(2, 3);
+
+                    if (i)
+                        dataBuffer << uint8(i);
+
                     dataBuffer << uint32(l.items[i].count);
+
                     if (slot_type)
                         dataBuffer << uint8(slot_type);
-                    if(i)
-                        dataBuffer << uint8(i);
-                    dataBuffer << uint32(l.items[i].randomSuffix);
-                    dataBuffer << uint32(l.items[i].itemid);
+
                     dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
+                    dataBuffer << uint32(l.items[i].randomSuffix);
                     dataBuffer << uint32(l.items[i].randomPropertyId);
+                    dataBuffer << uint32(0);
+                    dataBuffer << uint32(l.items[i].itemid);
                     ++itemsShown;
+                    ++index;
                 }
             }
             break;
@@ -867,16 +908,23 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         // item shall not be displayed.
                         continue;
 
-                    bits.push_back(!i);
-                    bits.push_back(!LOOT_SLOT_TYPE_ALLOW_LOOT);
-                    dataBuffer << uint32(l.items[i].count);
-                    if(i)
+                    bitsItemBuffer.WriteBit(!LOOT_SLOT_TYPE_ALLOW_LOOT);
+                    bitsItemBuffer.WriteBit(!i);
+                    bitsItemBuffer.WriteBits(1, 2);
+                    bitsItemBuffer.WriteBit(0);
+                    bitsItemBuffer.WriteBits(2, 3);
+
+                    if (i)
                         dataBuffer << uint8(i);
-                    dataBuffer << uint32(l.items[i].randomSuffix);
-                    dataBuffer << uint32(l.items[i].itemid);
+
+                    dataBuffer << uint32(l.items[i].count);
                     dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
+                    dataBuffer << uint32(l.items[i].randomSuffix);
                     dataBuffer << uint32(l.items[i].randomPropertyId);
+                    dataBuffer << uint32(0);
+                    dataBuffer << uint32(l.items[i].itemid);
                     ++itemsShown;
+                    ++index;
                 }
             }
             break;
@@ -902,18 +950,27 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
                 {
-                    bits.push_back(!i);
-                    bits.push_back(!slot_type);
+                    bitsItemBuffer.WriteBit(!slot_type);
+                    bitsItemBuffer.WriteBit(!i);
+                    bitsItemBuffer.WriteBits(1, 2);
+                    bitsItemBuffer.WriteBit(0);
+                    bitsItemBuffer.WriteBits(2, 3);
+
+                    if (i)
+                        dataBuffer << uint8(i);
+
                     dataBuffer << uint32(l.items[i].count);
+
                     if (slot_type)
                         dataBuffer << uint8(slot_type);
-                    if(i)
-                        dataBuffer << uint8(i);
-                    dataBuffer << uint32(l.items[i].randomSuffix);
-                    dataBuffer << uint32(l.items[i].itemid);
+
                     dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
+                    dataBuffer << uint32(l.items[i].randomSuffix);
                     dataBuffer << uint32(l.items[i].randomPropertyId);
+                    dataBuffer << uint32(0);
+                    dataBuffer << uint32(l.items[i].itemid);
                     ++itemsShown;
+                    ++index;
                 }
             }
             break;
@@ -956,18 +1013,27 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 else
                    slottype = uint8(slotType);
 
-                bits.push_back(!(l.items.size() + (qi - q_list->begin())));
-                bits.push_back(!slottype);
+                bitsItemBuffer.WriteBit(!slottype);
+                bitsItemBuffer.WriteBit(!(l.items.size() + (qi - q_list->begin())));
+                bitsItemBuffer.WriteBits(1, 2);
+                bitsItemBuffer.WriteBit(0);
+                bitsItemBuffer.WriteBits(2, 3);
+
+                if (l.items.size() + (qi - q_list->begin()))
+                    dataBuffer << uint8(l.items.size() + (qi - q_list->begin()));
+
                 dataBuffer << uint32(item.count);
+
                 if (slottype)
                     dataBuffer << uint8(slottype);
-                if(l.items.size() + (qi - q_list->begin()))
-                    dataBuffer << uint8(l.items.size() + (qi - q_list->begin()));
-                dataBuffer << uint32(item.randomSuffix);
-                dataBuffer << uint32(item.itemid);
+
                 dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
+                dataBuffer << uint32(item.randomSuffix);
                 dataBuffer << uint32(item.randomPropertyId);
+                dataBuffer << uint32(0);
+                dataBuffer << uint32(item.itemid);
                 ++itemsShown;
+                ++index;
             }
         }
     }
@@ -982,18 +1048,27 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             LootItem &item = l.items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
-                bits.push_back(!fi->index);
-                bits.push_back(!slotType);
+                bitsItemBuffer.WriteBit(!slotType);
+                bitsItemBuffer.WriteBit(!fi->index);
+                bitsItemBuffer.WriteBits(1, 2);
+                bitsItemBuffer.WriteBit(0);
+                bitsItemBuffer.WriteBits(2, 3);
+
+                if (fi->index)
+                    dataBuffer << uint8(fi->index);
+
                 dataBuffer << uint32(item.count);
+
                 if (slotType)
                     dataBuffer << uint8(slotType);
-                if(fi->index)
-                    dataBuffer << uint8(fi->index);
-                dataBuffer << uint32(item.randomSuffix);
-                dataBuffer << uint32(item.itemid);
+
                 dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
+                dataBuffer << uint32(item.randomSuffix);
                 dataBuffer << uint32(item.randomPropertyId);
+                dataBuffer << uint32(0);
+                dataBuffer << uint32(item.itemid);
                 ++itemsShown;
+                ++index;
             }
         }
     }
@@ -1014,104 +1089,124 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 {
                     switch (lv.permission)
                     {
-                    case MASTER_PERMISSION:
-                        slottype = uint8(LOOT_SLOT_TYPE_MASTER);
-                        break;
-                    case GROUP_PERMISSION:
-                    case ROUND_ROBIN_PERMISSION:
-                        if (!item.is_blocked)
-                            slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
-                        else
-                            slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
-                        break;
-                    default:
-                        slottype = uint8(slotType);
-                        break;
+                        case MASTER_PERMISSION:
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            break;
+                        case GROUP_PERMISSION:
+                        case ROUND_ROBIN_PERMISSION:
+                            if (!item.is_blocked)
+                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                            else
+                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
+                            break;
+                        default:
+                            slottype = uint8(slotType);
+                            break;
                     }
                 }
                 else
                     slottype = uint8(slotType);
-                bits.push_back(!ci->index);
-                bits.push_back(!slottype);
+
+                bitsItemBuffer.WriteBit(!slottype);
+                bitsItemBuffer.WriteBit(!ci->index);
+                bitsItemBuffer.WriteBits(1, 2);
+                bitsItemBuffer.WriteBit(0);
+                bitsItemBuffer.WriteBits(2, 3);
+
+                if (ci->index)
+                    dataBuffer << uint8(ci->index);
+
                 dataBuffer << uint32(item.count);
+
                 if (slottype)
                     dataBuffer << uint8(slottype);
-                if(ci->index)
-                    dataBuffer << uint8(ci->index);
-                dataBuffer << uint32(item.randomSuffix);
-                dataBuffer << uint32(item.itemid);
+
                 dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
+                dataBuffer << uint32(item.randomSuffix);
                 dataBuffer << uint32(item.randomPropertyId);
+                dataBuffer << uint32(0);
+                dataBuffer << uint32(item.itemid);
                 ++itemsShown;
+                ++index;
             }
         }
     }
-    
-    bool hasUnk1 = false;
-    bool hasUnk2 = true;
-    bool hasUnk3 = true;
 
-    b.WriteBit(1); //unk
-    b.WriteBit(!hasUnk1); //unk
-    b.WriteBit(lv._guid[4]);
-
-    b.WriteBits(itemsShown, 21);
-
-    b.WriteBit(lv._guid[0]);
-    
-    for (size_t i = 0; i < bits.size(); ++i)
-        b.WriteBit(bits[i]);
-
-    b.WriteBits(currenciesShown, 22);
-
-    b.WriteBit(0); //unk
-    b.WriteBit(!hasUnk2); //unk
+    b.WriteBit(unkBit69);
+    b.WriteBit(creatureGuid[0]);
+    b.WriteBit(creatureGuid[1]);
+    b.WriteBit(!unkBit48);
+    b.WriteBit(lootViewGuid[7]);
+    b.WriteBit(creatureGuid[3]);
+    b.WriteBit(lootViewGuid[2]);
+    b.WriteBit(lootViewGuid[0]);
+    b.WriteBit(lv.permission == ROUND_ROBIN_PERMISSION);
+    b.WriteBit(lootViewGuid[1]);
+    b.WriteBit(unkBit84);
+    b.WriteBit(creatureGuid[6]);
     b.WriteBit(!lv._loot_type);
-    b.WriteBit(!hasUnk3); //unk
-    
-    b.WriteBit(lv._guid[5]);
-    b.WriteBit(lv._guid[7]);
-    b.WriteBit(lv._guid[6]);
-    b.WriteBit(lv._guid[3]);
-    b.WriteBit(lv._guid[1]);
+    b.WriteBit(lootViewGuid[3]);
+    b.WriteBit(!unkBit32);
+    b.WriteBits(currenciesShown, 20);                       // Currencies
+    b.WriteBit(creatureGuid[7]);
+    b.WriteBit(creatureGuid[4]);
+    b.WriteBit(lootViewGuid[6]);
 
-    b.WriteBit(!l.gold);
-    
-    b.WriteBit(lv._guid[2]);
+    for (uint8 i = 0; i < currenciesShown; i++)
+        b.WriteBits(2, 3);
 
-    b.FlushBits();
+    b.WriteBit(creatureGuid[2]);
+    b.WriteBit(!lv.loot.gold);
+    b.WriteBit(lootViewGuid[4]);
+    b.WriteBits(itemsShown, 19);
 
-    b.WriteByteSeq(lv._guid[4]);
+    for (uint32 i = 0; i < uint32(itemsShown * 8); i++)
+        b.WriteBit(bitsItemBuffer.ReadBit());
 
-    b.append(dataBuffer);
+    b.WriteBit(creatureGuid[5]);
+    b.WriteBit(0);
 
-    /*for (int i = 0; i < currenciesShown; ++i)
-    {
-        packet.ReadByte("Unk Byte", i); // only seen zero so far
-        packet.ReadInt32("Currency Id", i);
-        packet.ReadInt32("Count", i); // unconfirmed
-    }*/
-
-    if(hasUnk3)
-        b << uint8(2); // 2
-    b.WriteByteSeq(lv._guid[7]);
-    if(hasUnk2)
-        b << uint8(2);// unk 5
-    b.WriteByteSeq(lv._guid[1]);
-    b.WriteByteSeq(lv._guid[6]);
-    if(hasUnk1)
+    if (lv.permission != ROUND_ROBIN_PERMISSION)
         b << uint8(0);
-    b.WriteByteSeq(lv._guid[2]);
+
+    for (uint8 i = 0; i < currenciesShown; i++)
+    {
+        b << uint8(0 /*++index*/);
+        b << uint32(0 /*Currency ID*/);
+        b << uint32(0 /*Currency count*/);
+    }
+
+    b.WriteByteSeq(creatureGuid[3]);
+    b.append(dataBuffer);
+    b.WriteByteSeq(creatureGuid[0]);
+
+    if (lv.loot.gold)
+        b << uint32(lv.loot.gold);
 
     if (lv._loot_type)
         b << uint8(lv._loot_type);
 
-    b.WriteByteSeq(lv._guid[3]);
-    b.WriteByteSeq(lv._guid[0]);
-    b.WriteByteSeq(lv._guid[5]);
+    b.WriteByteSeq(lootViewGuid[5]);
+    b.WriteByteSeq(creatureGuid[7]);
+    b.WriteByteSeq(creatureGuid[6]);
+    b.WriteByteSeq(lootViewGuid[1]);
 
-    if (l.gold)
-        b << uint32(l.gold);
+    if (unkBit48)
+        b << uint8(2);
+
+    if (unkBit32)
+        b << uint8(17);
+
+    b.WriteByteSeq(lootViewGuid[0]);
+    b.WriteByteSeq(creatureGuid[2]);
+    b.WriteByteSeq(creatureGuid[5]);
+    b.WriteByteSeq(lootViewGuid[7]);
+    b.WriteByteSeq(lootViewGuid[3]);
+    b.WriteByteSeq(creatureGuid[1]);
+    b.WriteByteSeq(lootViewGuid[2]);
+    b.WriteByteSeq(creatureGuid[4]);
+    b.WriteByteSeq(lootViewGuid[4]);
+    b.WriteByteSeq(lootViewGuid[6]);
 
     return b;
 }

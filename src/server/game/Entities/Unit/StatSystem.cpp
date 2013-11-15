@@ -845,6 +845,9 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
+    if (getPowerType() != POWER_MANA)
+        return;
+
     // Mana regen from spirit
     float spirit_regen = OCTRegenMPPerSpirit();
     spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
@@ -900,12 +903,6 @@ void Player::UpdateManaRegen()
         combat_regen *= HastePct;
         base_regen = base_regen + (base_regen * 0.5f);
         base_regen *= HastePct;
-    }
-    // Invocation : Decrease your mana regen by 50%
-    if (HasAura(114003))
-    {
-        combat_regen *= 0.5f;
-        base_regen *= 0.5f;
     }
     
     // Not In Combat : 2% of base mana + spirit_regen

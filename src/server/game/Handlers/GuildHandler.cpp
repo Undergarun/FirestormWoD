@@ -104,6 +104,7 @@ void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INVITE");
 
     uint32 nameLength = recvPacket.ReadBits(8);
+    nameLength *= 2;
 
     bool pair = recvPacket.ReadBit();
 
@@ -357,6 +358,9 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
     recvPacket >> rankId;
 
     uint32 length = recvPacket.ReadBits(7);
+
+    recvPacket.FlushBits();
+
     std::string rankName = recvPacket.ReadString(length);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
@@ -379,7 +383,10 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INFO_TEXT");
 
     uint32 length = recvPacket.ReadBits(12);
-    std::string info = recvPacket.ReadString(length);
+
+    recvPacket.FlushBits();
+
+    std::string info = recvPacket.ReadString(length / 2);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleSetInfo(this, info);
@@ -444,11 +451,23 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
 
-    uint64 GoGuid;
-    recvData >> GoGuid;
+    ObjectGuid GoGuid;
+    bool fullSlotList;
 
-    uint8 fullSlotList;
-    recvData >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    GoGuid[1] = recvData.ReadBit();
+    GoGuid[7] = recvData.ReadBit();
+    GoGuid[6] = recvData.ReadBit();
+    GoGuid[3] = recvData.ReadBit();
+    GoGuid[5] = recvData.ReadBit();
+    GoGuid[0] = recvData.ReadBit();
+    fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    GoGuid[4] = recvData.ReadBit();
+    GoGuid[2] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 0, 2, 6, 5, 3, 7, 4, 1 };
+    recvData.ReadBytesSeq(GoGuid, bytesOrder);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -464,14 +483,24 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
 
-    uint64 GoGuid;
-    recvData >> GoGuid;
-
+    ObjectGuid GoGuid;
     uint8 tabId;
+    bool fullSlotList;
+
     recvData >> tabId;
 
-    uint8 fullSlotList;
-    recvData >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    GoGuid[3] = recvData.ReadBit();
+    GoGuid[1] = recvData.ReadBit();
+    GoGuid[4] = recvData.ReadBit();
+    GoGuid[0] = recvData.ReadBit();
+    GoGuid[6] = recvData.ReadBit();
+    GoGuid[5] = recvData.ReadBit();
+    GoGuid[7] = recvData.ReadBit();
+    fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    GoGuid[2] = recvData.ReadBit();
+
+    uint8 bytesOrder[8] = { 2, 5, 6, 0, 1, 4, 7, 3 };
+    recvData.ReadBytesSeq(GoGuid, bytesOrder);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
@@ -482,11 +511,18 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
-    uint64 goGuid;
-    recvData >> goGuid;
-
+    ObjectGuid goGuid;
     uint64 money;
+
     recvData >> money;
+
+    uint8 bitsOrder[8] = { 4, 3, 5, 6, 1, 0, 2, 7 };
+    recvData.ReadBitInOrder(goGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 1, 0, 4, 5, 2, 7, 3, 6 };
+    recvData.ReadBytesSeq(goGuid, bytesOrder);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -514,8 +550,71 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
 
-    uint64 GoGuid;
-    recvData >> GoGuid;
+    ObjectGuid GoGuid;
+    uint32 amountSplited = 0;
+    uint32 originalItemId = 0;
+    uint32 itemId = 0;
+    uint32 unk16 = 0;
+    uint8 srcTabSlot = 0;
+    uint8 toChar = 0;
+    uint8 srcTabId = 0;
+    uint8 dstTabId = 0;
+    uint8 dstTabSlot = 0;
+    uint8 plrSlot = 0;
+    uint8 plrBag = 0;
+    bool bit52 = false;
+    bool hasDstTab = false;
+    bool bankToBank = false;
+    bool hasSrcTabSlot = false;
+    bool hasPlrSlot = false;
+    bool hasItemId = false;
+    bool hasPlrBag = false;
+    bool bit16 = false;
+
+    recvData >> amountSplited;
+    recvData >> dstTabSlot >> toChar;
+    recvData >> originalItemId;
+    recvData >> srcTabId;
+
+    bit52 = recvData.ReadBit();
+    GoGuid[3] = recvData.ReadBit();
+    hasDstTab = !recvData.ReadBit();
+    bankToBank = recvData.ReadBit();
+    hasSrcTabSlot = !recvData.ReadBit();
+    GoGuid[1] = recvData.ReadBit();
+    hasPlrSlot = !recvData.ReadBit();
+    GoGuid[4] = recvData.ReadBit();
+    hasItemId = !recvData.ReadBit();
+    GoGuid[0] = recvData.ReadBit();
+    hasPlrBag = !recvData.ReadBit();
+    GoGuid[2] = recvData.ReadBit();
+    GoGuid[7] = recvData.ReadBit();
+    bit16 = !recvData.ReadBit();
+    GoGuid[6] = recvData.ReadBit();
+    GoGuid[5] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 7, 3, 1, 6, 5, 4, 2, 0 };
+    recvData.ReadBytesSeq(GoGuid, bytesOrder);
+
+    if (hasItemId)
+        recvData >> itemId;
+
+    if (hasPlrSlot)
+        recvData >> plrSlot;
+
+    if (bit16)
+        recvData >> unk16;
+
+    if (hasDstTab)
+        recvData >> dstTabId;
+
+    if (hasPlrBag)
+        recvData >> plrBag;
+
+    if (hasSrcTabSlot)
+        recvData >> srcTabSlot;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -530,65 +629,16 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
         return;
     }
 
-    uint8 bankToBank;
-    recvData >> bankToBank;
-
-    uint8 tabId;
-    uint8 slotId;
-    uint32 itemEntry;
-    uint32 splitedAmount = 0;
-
     if (bankToBank)
-    {
-        uint8 destTabId;
-        recvData >> destTabId;
-
-        uint8 destSlotId;
-        recvData >> destSlotId;
-
-        uint32 destItemEntry;
-        recvData >> destItemEntry;
-
-        recvData >> tabId;
-        recvData >> slotId;
-        recvData >> itemEntry;
-        recvData.read_skip<uint8>();                       // Always 0
-        recvData >> splitedAmount;
-
-        guild->SwapItems(GetPlayer(), tabId, slotId, destTabId, destSlotId, splitedAmount);
-    }
+        guild->SwapItems(GetPlayer(), dstTabId, srcTabSlot, srcTabId, dstTabSlot, amountSplited);
     else
     {
-        uint8 playerBag = NULL_BAG;
-        uint8 playerSlotId = NULL_SLOT;
-        uint8 toChar = 1;
-
-        recvData >> tabId;
-        recvData >> slotId;
-        recvData >> itemEntry;
-
-        uint8 autoStore;
-        recvData >> autoStore;
-        if (autoStore)
-        {
-            recvData.read_skip<uint32>();                  // autoStoreCount
-            recvData.read_skip<uint8>();                   // ToChar (?), always and expected to be 1 (autostore only triggered in Bank -> Char)
-            recvData.read_skip<uint32>();                  // Always 0
-        }
-        else
-        {
-            recvData >> playerBag;
-            recvData >> playerSlotId;
-            recvData >> toChar;
-            recvData >> splitedAmount;
-        }
-
         // Player <-> Bank
         // Allow to work with inventory only
-        if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
+        if (!Player::IsInventoryPos(plrBag, plrSlot) && !(plrBag == NULL_BAG && plrSlot == NULL_SLOT))
             GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, NULL);
         else
-            guild->SwapItemsWithInventory(GetPlayer(), toChar, tabId, slotId, playerBag, playerSlotId, splitedAmount);
+            guild->SwapItemsWithInventory(GetPlayer(), toChar, srcTabId, dstTabSlot, plrBag, plrSlot, amountSplited);
     }
 }
 
@@ -596,11 +646,17 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
 
-    uint64 GoGuid;
-    recvData >> GoGuid;
-
     uint8 tabId;
+    ObjectGuid GoGuid;
     recvData >> tabId;
+
+    uint8 bitsOrder[8] = { 1, 3, 7, 2, 4, 0, 5, 6 };
+    recvData.ReadBitInOrder(GoGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 3, 1, 6, 5, 4, 2, 7, 0 };
+    recvData.ReadBytesSeq(GoGuid, bytesOrder);
 
     if (!GoGuid || GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
@@ -762,36 +818,44 @@ void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
 
 void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
 {
-    uint8 enable;
-    recvPacket >> enable;
+    bool enable;
+    enable = recvPacket.ReadBit();
 
     GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, enable);
 }
 
 void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
 {
-    recvPacket.read_skip<uint32>(); // Unk
+    uint32 unk = 0;
+    recvPacket >> unk;
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket data(SMSG_GUILD_REWARDS_LIST, (3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4)));
+        WorldPacket data(SMSG_GUILD_REWARDS_LIST);
         ByteBuffer dataBuffer;
-        data.WriteBits(rewards.size(), 21);
-        data.FlushBits();
+
+        data << uint32(time(NULL));
+        data.WriteBits(rewards.size(), 19);
 
         for (uint32 i = 0; i < rewards.size(); i++)
         {
-            data.WriteBits(0, 24);
-            dataBuffer << uint32(rewards[i].Standing);
+            data.WriteBits(rewards[i].AchievementId > 0 ? 1 : 0, 22);
+
             dataBuffer << uint32(rewards[i].Entry);
-            dataBuffer << uint32(rewards[i].AchievementId);
             dataBuffer << uint64(rewards[i].Price);
-            dataBuffer << int32(rewards[i].Racemask);
+            dataBuffer << uint32(rewards[i].Racemask);
+
+            if (rewards[i].AchievementId)
+                dataBuffer << uint32(rewards[i].AchievementId);
+
+            dataBuffer << uint32(rewards[i].Standing);
+            dataBuffer << uint32(0);
         }
+
+        data.FlushBits();
         data.append(dataBuffer);
-        data << uint32(time(NULL));
         SendPacket(&data);
     }
 }

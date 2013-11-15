@@ -922,17 +922,31 @@ class spell_sha_fire_nova : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_fire_nova_SpellScript);
 
-            void HandleOnHit()
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                            _player->CastSpell(target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                    {
+                        caster->CastSpell(target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
+                    }
+                }
+            }
+            SpellCastResult HandleCheckCast()
+            {
+                UnitList targets;
+                JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(GetCaster(), GetCaster(), 100, SPELL_SHA_FLAME_SHOCK, false);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(GetCaster(), targets, u_check);
+                GetCaster()->VisitNearbyObject(100, searcher);
+                
+                return targets.size() == 0 ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_CAST_OK;
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_sha_fire_nova_SpellScript::HandleOnHit);
+                OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova_SpellScript::HandleCheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
