@@ -534,11 +534,18 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_WITHDRAW_MONEY)");
 
-    uint64 GoGuid;
-    recvData >> GoGuid;
+    uint64 money;
+    ObjectGuid GoGuid;
 
-    uint32 money;
     recvData >> money;
+
+    uint8 bitsOrder[8] = { 7, 6, 5, 0, 4, 3, 1, 2 };
+    recvData.ReadBitInOrder(GoGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 2, 4, 6, 7, 3, 1, 0, 5 };
+    recvData.ReadBytesSeq(GoGuid, bytesOrder);
 
     if (money)
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -658,6 +665,10 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
     uint8 bytesOrder[8] = { 3, 1, 6, 5, 4, 2, 7, 0 };
     recvData.ReadBytesSeq(GoGuid, bytesOrder);
 
+    // Only for SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB, this prevent cheating
+    if (tabId > 5)
+        return;
+
     if (!GoGuid || GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
             guild->HandleBuyBankTab(this, tabId);
@@ -667,17 +678,43 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
 
-    uint64 GoGuid;
-    recvData >> GoGuid;
-
+    bool pair;
     uint8 tabId;
+    ObjectGuid GoGuid;
+    uint32 nameLen, iconLen;
+    std::string name;
+    std::string icon;
+
     recvData >> tabId;
 
-    std::string name;
-    recvData >> name;
+    nameLen = recvData.ReadBits(7);
+    iconLen = recvData.ReadBits(8);
+    iconLen *= 2;
 
-    std::string icon;
-    recvData >> icon;
+    pair = recvData.ReadBit();
+
+    if (pair)
+        iconLen++;
+
+    uint8 bitsOrder[8] = { 0, 2, 6, 7, 3, 4, 5, 1 };
+    recvData.ReadBitInOrder(GoGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(GoGuid[6]);
+    recvData.ReadByteSeq(GoGuid[4]);
+
+    icon = recvData.ReadString(iconLen);
+
+    recvData.ReadByteSeq(GoGuid[5]);
+    recvData.ReadByteSeq(GoGuid[0]);
+    recvData.ReadByteSeq(GoGuid[7]);
+    recvData.ReadByteSeq(GoGuid[1]);
+
+    name = recvData.ReadString(nameLen);
+
+    recvData.ReadByteSeq(GoGuid[2]);
+    recvData.ReadByteSeq(GoGuid[3]);
 
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -700,7 +737,7 @@ void WorldSession::HandleQueryGuildBankTabText(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_QUERY_TEXT");
 
-    uint8 tabId;
+    uint32 tabId;
     recvData >> tabId;
 
     if (Guild* guild = _GetPlayerGuild(this))
@@ -715,6 +752,9 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
     recvData >> tabId;
 
     uint32 textLen = recvData.ReadBits(14);
+
+    recvData.FlushBits();
+
     std::string text = recvData.ReadString(textLen);
 
     if (Guild* guild = _GetPlayerGuild(this))
@@ -756,7 +796,8 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
     uint32 moneyPerDay;
 
     recvPacket >> rankId;
-    recvPacket >> oldRights;
+    recvPacket >> newRights;
+    recvPacket >> moneyPerDay;
 
     GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
@@ -769,11 +810,11 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
 
         rightsAndSlots[tabId] = GuildBankRightsAndSlots(uint8(bankRights), slots);
     }
-    
-    recvPacket >> newRights;
-    recvPacket >> moneyPerDay;
+
     recvPacket >> unk;
+    recvPacket >> oldRights;
     uint32 nameLength = recvPacket.ReadBits(7);
+    recvPacket.FlushBits();
     std::string rankName = recvPacket.ReadString(nameLength);
 
     guild->HandleSetRankInfo(this, rankId, rankName, newRights, moneyPerDay, rightsAndSlots);

@@ -23412,10 +23412,24 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << uint64(pVendor->GetGUID());
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+
+        ObjectGuid vendorGuid = pVendor->GetGUID();
+
+        uint8 bitsOrder[8] = { 6, 0, 5, 2, 4, 1, 7, 3 };
+        data.WriteBitInOrder(vendorGuid, bitsOrder);
+
+        data.WriteByteSeq(vendorGuid[7]);
         data << uint32(count);
+        data.WriteByteSeq(vendorGuid[6]);
+        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+        data.WriteByteSeq(vendorGuid[2]);
+        data.WriteByteSeq(vendorGuid[0]);
+        data.WriteByteSeq(vendorGuid[3]);
+        data << uint32(vendorslot + 1);                   // numbered from 1 at client
+        data.WriteByteSeq(vendorGuid[5]);
+        data.WriteByteSeq(vendorGuid[4]);
+        data.WriteByteSeq(vendorGuid[1]);
+
         GetSession()->SendPacket(&data);
         SendNewItem(it, count, true, false, false);
 
@@ -23567,7 +23581,8 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
 bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot)
 {
     // cheating attempt
-    if (count < 1) count = 1;
+    if (count < 1)
+        count = 1;
 
     // cheating attempt
     if (slot > MAX_BAG_SIZE && slot != NULL_SLOT)
