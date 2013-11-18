@@ -116,7 +116,7 @@ public:
         void Reset()
         {
             if (instance)
-                instance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
+                instance->SetData(DATA_MOTHER_SHAHRAZ_EVENT, NOT_STARTED);
 
             for (uint8 i = 0; i<3; ++i)
                 TargetGUID[i] = 0;
@@ -139,7 +139,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (instance)
-                instance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
+                instance->SetData(DATA_MOTHER_SHAHRAZ_EVENT, IN_PROGRESS);
 
             DoZoneInCombat();
             DoScriptText(SAY_AGGRO, me);
@@ -153,7 +153,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                instance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);
+                instance->SetData(DATA_MOTHER_SHAHRAZ_EVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }

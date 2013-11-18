@@ -278,7 +278,7 @@ public:
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
 
             if (instance)
-                instance->SetData(DATA_SHADEOFAKAMAEVENT, NOT_STARTED);
+                instance->SetData(DATA_SHADE_OF_AKAMA_EVENT, NOT_STARTED);
 
             reseting = false;
         }
@@ -586,7 +586,7 @@ public:
             StartCombat = false;
             instance = creature->GetInstanceScript();
             if (instance)
-                ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+                ShadeGUID = instance->GetData64(DATA_SHADE_OF_AKAMA);
             else
                 ShadeGUID = NOT_STARTED;
             me->setActive(true);
@@ -655,14 +655,14 @@ public:
             if (!instance)
                 return;
 
-            ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+            ShadeGUID = instance->GetData64(DATA_SHADE_OF_AKAMA);
             if (!ShadeGUID)
                 return;
 
             Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
             if (Shade)
             {
-                instance->SetData(DATA_SHADEOFAKAMAEVENT, IN_PROGRESS);
+                instance->SetData(DATA_SHADE_OF_AKAMA_EVENT, IN_PROGRESS);
                 // Prevent players from trying to restart event
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetAkamaGUID(me->GetGUID());
@@ -756,7 +756,7 @@ public:
             if (ShadeHasDied && (WayPointId == 1))
             {
                 if (instance)
-                    instance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
+                    instance->SetData(DATA_SHADE_OF_AKAMA_EVENT, DONE);
                 me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[1].x, AkamaWP[1].y, AkamaWP[1].z);
                 ++WayPointId;
             }
