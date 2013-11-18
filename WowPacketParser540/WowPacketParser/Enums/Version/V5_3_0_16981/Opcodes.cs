@@ -68,7 +68,12 @@ namespace WowPacketParser.Enums.Version.V5_3_0_16981
             {Opcode.SMSG_GUILD_ROSTER, 1102},
             {Opcode.SMSG_GUILD_RANK, 1094},
             {Opcode.SMSG_LOOT_RESPONSE, 1167},
-            {Opcode.SMSG_ITEM_PUSH_RESULT, 8}
+            {Opcode.SMSG_ITEM_PUSH_RESULT, 8},
+            {Opcode.SMSG_GUILD_REWARDS_LIST, 3162},
+            {Opcode.SMSG_GUILD_BANK_LIST, 3191},
+            {Opcode.SMSG_GUILD_CRITERIA_DATA, 1406},
+            {Opcode.SMSG_GUILD_XP, 1394},
+            {Opcode.CMSG_GUILD_BANK_SWAP_ITEMS, 5947}
             /*{Opcode.CMSG_ADDON_REGISTERED_PREFIXES, 0x0470},
             {Opcode.CMSG_AREATRIGGER, 0x04DB},
             {Opcode.CMSG_CAST_SPELL, 0x01CE},

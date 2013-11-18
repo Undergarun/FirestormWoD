@@ -201,13 +201,13 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadXORByte(guid, 7);
             packet.ReadUInt32("Unk UInt32");
             packet.ReadUInt32("Item Count");
-            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Random Property ID");
             packet.ReadUInt32("Unk UInt32");
             packet.ReadXORByte(guid, 3);
             packet.ReadUInt32("Unk UInt32");
             packet.ReadUInt32("Count of Items in inventory");
             packet.ReadXORByte(unkGuid, 7);
-            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Random Suffix");
             packet.ReadXORByte(guid, 1);
             packet.ReadXORByte(unkGuid, 5);
             packet.ReadXORByte(unkGuid, 3);
