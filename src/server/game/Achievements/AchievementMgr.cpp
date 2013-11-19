@@ -1237,19 +1237,19 @@ void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* achiev
 
     WorldPacket data(SMSG_GUILD_ACHIEVEMENT_EARNED, 8+4+8);
 
-    uint8 bitOrder[8] = {3, 1, 0, 7, 4, 6, 2, 5};
+    uint8 bitOrder[8] = { 6, 1, 5, 0, 3, 4, 2, 7 };
     data.WriteBitInOrder(guid, bitOrder);
 
-    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data << uint32(achievement->ID);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
     data << uint32(secsToTimeBitFields(time(NULL)));
     data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-    data << uint32(achievement->ID);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
 
     SendPacket(&data);
 }

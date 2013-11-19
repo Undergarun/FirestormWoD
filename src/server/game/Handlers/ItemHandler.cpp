@@ -63,7 +63,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
     _player->SplitItem(src, dst, count);
 }
 
-void WorldSession::HandleSwapInvItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
 {
     uint8 srcslot, dstslot;
 
@@ -141,7 +141,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOEQUIP_ITEM");
     uint8 srcbag, srcslot;
@@ -485,21 +485,51 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
 }
 
-void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SELL_ITEM");
 
-    time_t now = time(NULL);
-    if (now - timeLastSellItemOpcode < 5)
-        return;
-    else
-       timeLastSellItemOpcode = now;
-
-    uint64 vendorguid = 0;
-    uint64 itemguid = 0;
+    ObjectGuid vendorguid;
+    ObjectGuid itemguid;
     uint32 count = 0;
 
-    recvData >> vendorguid >> itemguid >> count;
+    recvData >> count;
+
+    itemguid[7] = recvData.ReadBit();
+    itemguid[5] = recvData.ReadBit();
+    itemguid[1] = recvData.ReadBit();
+    itemguid[3] = recvData.ReadBit();
+    vendorguid[2] = recvData.ReadBit();
+    vendorguid[3] = recvData.ReadBit();
+    itemguid[2] = recvData.ReadBit();
+    vendorguid[5] = recvData.ReadBit();
+    vendorguid[6] = recvData.ReadBit();
+    itemguid[6] = recvData.ReadBit();
+    vendorguid[1] = recvData.ReadBit();
+    itemguid[4] = recvData.ReadBit();
+    vendorguid[7] = recvData.ReadBit();
+    vendorguid[4] = recvData.ReadBit();
+    vendorguid[0] = recvData.ReadBit();
+    itemguid[0] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(itemguid[2]);
+    recvData.ReadByteSeq(itemguid[6]);
+    recvData.ReadByteSeq(vendorguid[1]);
+    recvData.ReadByteSeq(itemguid[5]);
+    recvData.ReadByteSeq(vendorguid[6]);
+    recvData.ReadByteSeq(itemguid[3]);
+    recvData.ReadByteSeq(itemguid[4]);
+    recvData.ReadByteSeq(itemguid[7]);
+    recvData.ReadByteSeq(itemguid[0]);
+    recvData.ReadByteSeq(vendorguid[5]);
+    recvData.ReadByteSeq(vendorguid[2]);
+    recvData.ReadByteSeq(vendorguid[3]);
+    recvData.ReadByteSeq(itemguid[1]);
+    recvData.ReadByteSeq(vendorguid[4]);
+    recvData.ReadByteSeq(vendorguid[0]);
+    recvData.ReadByteSeq(vendorguid[7]);
 
     if (!itemguid)
         return;
@@ -609,10 +639,18 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
 void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUYBACK_ITEM");
-    uint64 vendorguid;
+    ObjectGuid vendorguid;
     uint32 slot;
 
-    recvData >> vendorguid >> slot;
+    recvData >> slot;
+
+    uint8 bitsOrder[8] = { 6, 0, 5, 4, 7, 2, 1, 3 };
+    recvData.ReadBitInOrder(vendorguid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 0, 4, 3, 5, 6, 1, 7, 2 };
+    recvData.ReadBytesSeq(vendorguid, bytesOrder);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -654,7 +692,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
 }
 
-void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
+void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
     uint64 vendorguid, bagguid;
@@ -690,12 +728,48 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
 void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
-    uint64 vendorguid, bagGuid;
-    uint32 item, slot, count;
+    ObjectGuid vendorguid, bagGuid;
+    uint32 item, slot, count, bag;
     uint8 itemType; // 1 = item, 2 = currency
-    uint8 bagSlot;
 
-    recvData >> vendorguid >> itemType >> item >> slot >> count >> bagGuid >> bagSlot;
+    recvData >> bag >> count >> item >> slot;
+
+    vendorguid[4] = recvData.ReadBit();
+    vendorguid[2] = recvData.ReadBit();
+    vendorguid[7] = recvData.ReadBit();
+    vendorguid[1] = recvData.ReadBit();
+    vendorguid[6] = recvData.ReadBit();
+    bagGuid[2] = recvData.ReadBit();
+    bagGuid[5] = recvData.ReadBit();
+    bagGuid[6] = recvData.ReadBit();
+    bagGuid[7] = recvData.ReadBit();
+    vendorguid[5] = recvData.ReadBit();
+    bagGuid[0] = recvData.ReadBit();
+    bagGuid[3] = recvData.ReadBit();
+    bagGuid[1] = recvData.ReadBit();
+    vendorguid[3] = recvData.ReadBit();
+    itemType = recvData.ReadBits(2);
+    bagGuid[4] = recvData.ReadBit();
+    vendorguid[0] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(vendorguid[1]);
+    recvData.ReadByteSeq(bagGuid[1]);
+    recvData.ReadByteSeq(bagGuid[0]);
+    recvData.ReadByteSeq(bagGuid[2]);
+    recvData.ReadByteSeq(bagGuid[3]);
+    recvData.ReadByteSeq(bagGuid[7]);
+    recvData.ReadByteSeq(vendorguid[4]);
+    recvData.ReadByteSeq(bagGuid[5]);
+    recvData.ReadByteSeq(vendorguid[2]);
+    recvData.ReadByteSeq(vendorguid[3]);
+    recvData.ReadByteSeq(bagGuid[4]);
+    recvData.ReadByteSeq(vendorguid[0]);
+    recvData.ReadByteSeq(vendorguid[7]);
+    recvData.ReadByteSeq(vendorguid[6]);
+    recvData.ReadByteSeq(vendorguid[5]);
+    recvData.ReadByteSeq(bagGuid[6]);
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
     if (slot > 0)
@@ -704,26 +778,24 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         return; // cheating
 
     if (itemType == ITEM_VENDOR_TYPE_ITEM)
-    {
-        Item* bagItem = _player->GetItemByGuid(bagGuid);
-
-        uint8 bag = NULL_BAG;
-        if (bagItem && bagItem->IsBag())
-            bag = bagItem->GetSlot();
-
-        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
-    }
+        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, NULL_SLOT);
     else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
         GetPlayer()->BuyCurrencyFromVendorSlot(vendorguid, slot, item, count);
     else
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
 }
 
-void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
+void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
 
-    recvData >> guid;
+    uint8 bitsOrder[8] = { 3, 4, 0, 1, 6, 2, 5, 7 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 2, 6, 5, 1, 7, 0, 4, 3 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     if (!GetPlayer()->isAlive())
         return;
@@ -756,12 +828,9 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     VendorItemData const* vendorItems = vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    //if (rawItemCount > 300),
-    //    rawItemCount = 300; // client cap but uint8 max value is 255
-
-    ByteBuffer itemsData(32 * rawItemCount);
+    ByteBuffer itemsData;
     std::vector<bool> enablers;
-    enablers.reserve(2 * rawItemCount);
+    enablers.reserve(3 * rawItemCount);
 
     const float discountMod = _player->GetReputationPriceDiscount(vendor);
     uint32 count = 0;
@@ -771,7 +840,8 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         count++;
 
         VendorItem const* vendorItem = vendorItems->GetItem(slot);
-        if (!vendorItem) continue;
+        if (!vendorItem)
+            continue;
 
         if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
@@ -782,7 +852,6 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
             if (!_player->isGameMaster()) // ignore conditions if GM on
             {
-
                 ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), vendorItem->item);
                 if (!sConditionMgr->IsObjectMeetToConditions(_player, vendor, conditions))
                 {
@@ -866,14 +935,17 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                  price -= CalculatePct(price, priceMod);
 
-            itemsData << uint32(itemTemplate->MaxDurability);
-            // if (!unk "enabler") data << uint32(something);
-            itemsData << uint32(price);
-            itemsData << uint32(vendorItem->Type);     // 1 is items, 2 is currency
-            itemsData << uint32(itemTemplate->BuyCount);
-            itemsData << uint32(vendorItem->item);
-            itemsData << uint32(count);        // client expects counting to start at 1
             itemsData << int32(leftInStock);
+            itemsData << uint32(vendorItem->Type);              // 1 is items, 2 is currency
+            itemsData << uint32(itemTemplate->MaxDurability);
+            itemsData << uint32(465);                           // Unk UInt32
+            itemsData << uint32(price);
+            itemsData << uint32(itemTemplate->DisplayInfoID);
+            itemsData << uint32(vendorItem->item);
+            itemsData << uint32(count);                         // client expects counting to start at 1
+
+            enablers.push_back(0);                              // unk bit
+
             if (vendorItem->ExtendedCost != 0)
             {
                 enablers.push_back(0);
@@ -881,9 +953,11 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             }
             else
                 enablers.push_back(1);
-            enablers.push_back(1);                 // unk bit
-            enablers.push_back(1);                 // unk bit
-            itemsData << uint32(itemTemplate->DisplayInfoID);
+
+            enablers.push_back(1);                              // hasCondition, unk ?
+
+            itemsData << uint32(itemTemplate->BuyCount);
+
             realCount++;
         }
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
@@ -898,14 +972,17 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
             uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
 
-            itemsData << uint32(0);                  // max durability
-            // if (!unk "enabler") data << uint32(something);
-            itemsData << uint32(0);                   // price, only seen currency types that have Extended cost
-            itemsData << uint32(vendorItem->Type);    // 1 is items, 2 is currency
-            itemsData << uint32(vendorItem->maxcount * precision);
+            itemsData << int32(-1);                                 // leftInStock
+            itemsData << uint32(vendorItem->Type);                  // 1 is items, 2 is currency
+            itemsData << uint32(0);                                 // max durability
+            itemsData << uint32(0);                                 // unk UInt32
+            itemsData << uint32(0);                                 // price, only seen currency types that have Extended cost
+            itemsData << uint32(0);                                 // displayId
             itemsData << uint32(vendorItem->item);
-            itemsData << uint32(count);        // client expects counting to start at 1
-            itemsData << int32(-1);
+            itemsData << uint32(count);                             // client expects counting to start at 1
+
+            enablers.push_back(0);                                  // unk bit
+
             if (vendorItem->ExtendedCost != 0)
             {
                 enablers.push_back(0);
@@ -913,41 +990,45 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             }
             else
                 enablers.push_back(1);
-            enablers.push_back(1);                    // unk bit
-            enablers.push_back(1);                    // unk bit
-            itemsData << uint32(0);                   // displayId
+
+            enablers.push_back(1);                                  // hasCondition, unk bit
+
+            itemsData << uint32(vendorItem->maxcount * precision);
+
             realCount++;
         }
         // else error
     }
 
-   ObjectGuid guid = vendorGuid;
+    ObjectGuid guid = vendorGuid;
 
-    WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
-    
-    uint8 bitOrder[8] = {5, 4, 2, 1, 6, 7, 3, 0};
-    data.WriteBitInOrder(guid, bitOrder);
+    WorldPacket data(SMSG_LIST_INVENTORY);
 
-    data.WriteBits(realCount, 21); // item count
-
+    data.WriteBit(guid[5]);
+    data.WriteBits(realCount, 18); // item count
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[2]);
 
     for (std::vector<bool>::const_iterator itr = enablers.begin(); itr != enablers.end(); ++itr)
         data.WriteBit(*itr);
 
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
 
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
     data.FlushBits();
     data.append(itemsData);
-
-    data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[2]);
-
+    data.WriteByteSeq(guid[4]);
     data << uint8(realCount == 0); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[3]);
 
     SendPacket(&data);
 }
@@ -1525,7 +1606,7 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
     GetPlayer()->SendRefundInfo(item);
 }
 
-void WorldSession::HandleItemRefund(WorldPacket &recvData)
+void WorldSession::HandleItemRefund(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND");
     ObjectGuid guid;
@@ -1551,7 +1632,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
  *
  * This function is called when player clicks on item which has some flag set
  */
-void WorldSession::HandleItemTextQuery(WorldPacket & recvData )
+void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
 {
     uint64 itemGuid;
     recvData >> itemGuid;
