@@ -605,7 +605,6 @@ enum Opcodes
     MSG_MOVE_START_BACKWARD                           = 0,      // Client patched
     MSG_MOVE_START_DESCEND                            = 0,      // Client patched
     MSG_MOVE_STOP                                     = 0,      // Client patched
-    SMSG_MOVE_TELEPORT                                = 0x1342, // 5.4.0 17399
     MSG_MOVE_TELEPORT_ACK                             = 0xB2E,  // 5.4.0 17399
     MSG_MOVE_TELEPORT_CHEAT                           = 0,      // Client patched
     MSG_MOVE_TIME_SKIPPED                             = 0,      // Client patched
@@ -1172,6 +1171,7 @@ enum Opcodes
     SMSG_MOVE_SET_TURN_RATE                           = 0x176B, // 5.4.0 17371
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x000,  // 5.0.5 16048
     SMSG_MOVE_SET_WALK_SPEED                          = 0x161B, // 5.4.0 17371
+    SMSG_MOVE_TELEPORT                                = 0x1342, // 5.4.0 17399
     SMSG_MOVE_UNROOT                                  = 0x1259, // 5.4.0 17371
     SMSG_MOVE_UNSET_CAN_FLY                           = 0x16CE, // 5.4.0 17371
     SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x000,// 5.0.5 16048
