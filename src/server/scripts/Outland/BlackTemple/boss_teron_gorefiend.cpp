@@ -247,7 +247,7 @@ public:
         void Reset()
         {
             if (instance)
-                instance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
+                instance->SetData(DATA_TERON_GOREFIEND_EVENT, NOT_STARTED);
 
             IncinerateTimer = urand(20000, 31000);
             SummonDoomBlossomTimer = 12000;
@@ -275,7 +275,7 @@ public:
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
                     if (instance)
-                        instance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
+                        instance->SetData(DATA_TERON_GOREFIEND_EVENT, IN_PROGRESS);
 
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -297,7 +297,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
+                instance->SetData(DATA_TERON_GOREFIEND_EVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }

@@ -95,11 +95,20 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Frost Nova / Freeze (Water Elemental)
             else if (spellproto->SpellIconID == 193)
                 return DIMINISHING_CONTROLLED_ROOT;
+            // Freeze
+            else if (spellproto->Id == 33395)
+                return DIMINISHING_CONTROLLED_ROOT;
+            // Frost Nova
+            else if (spellproto->Id == 122)
+                return DIMINISHING_CONTROLLED_ROOT;
             // Dragon's Breath
             else if (spellproto->SpellFamilyFlags[0] & 0x800000)
                 return DIMINISHING_DRAGONS_BREATH;
             // Ring of Frost
             else if (spellproto->Id == 82691)
+                return DIMINISHING_DISORIENT;
+            // Polymorph
+            else if (spellproto->Id == 118)
                 return DIMINISHING_DISORIENT;
             // Slow
             else if (spellproto->Id == 31589)
@@ -133,7 +142,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 case 9005:  // Pounce
                 case 102456:// Pounce (Incarnation)
                 case 5211:  // Mighty Bash
-                    return DIMINISHING_OPENING_STUN;
+                    return DIMINISHING_CONTROLLED_STUN;
                 case 33786: // Cyclone
                 case 113506:// Cyclone (Symbiosis)
                     return DIMINISHING_CYCLONE;
@@ -161,7 +170,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_FEAR;
             // Cheap Shot
             else if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return DIMINISHING_OPENING_STUN;
+                return DIMINISHING_CONTROLLED_STUN;
             // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
             else if (spellproto->SpellIconID == 163)
                 return DIMINISHING_LIMITONLY;
@@ -3300,12 +3309,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 57934: // Tricks of the Trade
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                     break;
-                case 57723: // Exhaustion
-                case 57724: // Sated
-                case 80354: // Temporal Displacement
-                case 95809: // Insanity
-                    spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
-                    break;
                 case 2818:  // Deadly Poison (DoT)
                 case 31803: // Censure (DoT)
                 case 55078: // Blood Plague
@@ -3962,7 +3965,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 81292: // Glyph of Mind Spike
                 case 114250:// Selfless Healer
                 case 90174: // Divine Purpose
-                case 89485: // Inner Focus
                 case 131567:// Holy Spark
                 case 69369: // Predator Swiftness
                 case 108382:// Dream of Cenarius (second proc)
@@ -4235,6 +4237,41 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 60206: // Ram
                     spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13); 
                     break;
+                case 96172: // Hand of Light
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                    break;
+                case 20711: // Spirit of Redemption
+                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                    break;
+                case 89485: // Inner Focus
+                    spellInfo->ProcChance = 100;
+                    spellInfo->ProcCharges = 1;
+                    spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
+                    break;
+                case 54785: // Demonic Leap
+                    spellInfo->DmgClass = SPELL_DAMAGE_CLASS_NONE;
+                    spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                    spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(43);
+                    break;
+                case 5176:  // Wrath
+                case 2912:  // Starfire
+                case 78674: // Starsurge
+                    spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                    spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                    spellInfo->Effects[EFFECT_1].Mechanic = MECHANIC_NONE;
+                    break;
+                case 33891:  // Tree form
+                case 114282: // Tree form
+                    spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(18);
+                    break;
+                // Chain Lightning Elemental Overload proc
+                case 45297:
+                    spellInfo->MaxLevel = spellInfo->SpellLevel;
+                    break;
+                // Silencing Shot
+                case 34490:
+                    spellInfo->Speed = 0;
+                    break;
                 default:
                     break;
             }
@@ -4289,7 +4326,6 @@ void SpellMgr::LoadSpellCustomAttr()
             }
         }
     }
-
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

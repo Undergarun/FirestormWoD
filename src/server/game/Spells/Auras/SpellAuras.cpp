@@ -1669,10 +1669,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                         break;
                     }
-                    case 55342: // Mirror Image
-                        target->RemoveAurasDueToSpell(41054); // Copy Weapon
-                        target->RemoveAurasDueToSpell(45205); // Copy Offhand weapon
-                        break;
                     default:
                         break;
                 }
@@ -1996,21 +1992,30 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
             return false;
     }
 
-    if (m_spellInfo->SpellFamilyName != existingSpellInfo->SpellFamilyName)
-        return true;
+    bool casterIsPet = false;
+    if (GetCaster() && existingAura->GetCaster())
+    {
+        if (GetCaster()->isPet() || existingAura->GetCaster()->isPet())
+            casterIsPet = true;
+    }
 
     if (!sameCaster)
     {
-        // Channeled auras can stack if not forbidden by db or aura type
-        if (existingAura->GetSpellInfo()->IsChanneled())
-            return true;
-
         if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS)
             return true;
 
         // check same periodic auras
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
+            // area auras should not stack (shaman totem)
+            if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA
+                && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_PERSISTENT_AREA_AURA)
+                continue;
+
+            // not channeled AOE effects should not stack (blizzard should, but Consecration should not)
+            if (m_spellInfo->Effects[i].IsTargetingArea() && !m_spellInfo->IsChanneled())
+                continue;
+				
             switch (m_spellInfo->Effects[i].ApplyAuraName)
             {
                 // DOT or HOT from different casters will stack
@@ -2028,6 +2033,13 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
                     // periodic auras which target areas are not allowed to stack this way (replenishment for example)
                     if (m_spellInfo->Effects[i].IsTargetingArea() || existingSpellInfo->Effects[i].IsTargetingArea())
                         break;
+                    // Curse of Elements
+                    if (m_spellInfo->Id == 1490)
+                        break;
+                    return true;
+                case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:                // Vendetta-like auras
+                case SPELL_AURA_BYPASS_ARMOR_FOR_CASTER:               // Find Weakness-like auras
+                case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:    // Hunter's Mark-like auras
                     return true;
                 default:
                     break;
@@ -2035,6 +2047,88 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
         }
     }
 
+    // negative and positive spells
+    if (m_spellInfo->IsPositive() && !existingSpellInfo->IsPositive() ||
+        !m_spellInfo->IsPositive() && existingSpellInfo->IsPositive())
+        return true;
+
+    // same spell
+    if (m_spellInfo->Id == existingSpellInfo->Id)
+    {
+        // Hack for Incanter's Absorption
+        if (m_spellInfo->Id == 44413)
+            return true;
+
+        // Bandit's Guile
+        if (m_spellInfo->Id == 84748)
+            return true;
+
+        if (GetCastItemGUID() && existingAura->GetCastItemGUID())
+            if (GetCastItemGUID() != existingAura->GetCastItemGUID() && m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ENCHANT_PROC))
+                return true;
+
+        // same spell with same caster should not stack
+        if (!m_spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+            return false;
+    }
+
+    SpellSpecificType specificTypes[] = {SPELL_SPECIFIC_ASPECT, SPELL_SPECIFIC_WELL_FED};
+    for (uint8 i = 0; i < 2; ++i)
+    {
+        if (m_spellInfo->GetSpellSpecific() == specificTypes[i] || existingSpellInfo->GetSpellSpecific() == specificTypes[i])
+            return true;
+    }
+
+    if (m_spellInfo->SpellIconID == 0 || existingSpellInfo->SpellIconID == 0)
+    {
+        bool isModifier = false;
+        for (int i = 0; i < 3; ++i)
+        {
+            if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_FLAT_MODIFIER ||
+                m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER  ||
+                existingSpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_FLAT_MODIFIER ||
+                existingSpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_ADD_PCT_MODIFIER)
+                isModifier = true;
+        }
+        if (isModifier == true)
+            return true;
+    }
+
+    if (m_spellInfo->SpellIconID != existingSpellInfo->SpellIconID &&
+        ((m_spellInfo->GetMaxDuration() <= 60*IN_MILLISECONDS && m_spellInfo->GetMaxDuration() != -1) || 
+        (existingSpellInfo->GetMaxDuration() <= 60*IN_MILLISECONDS && existingSpellInfo->GetMaxDuration() != -1)))
+        return true;
+
+    if (m_spellInfo->IsAllwaysStackModifers() && !existingSpellInfo->IsAllwaysStackModifers())
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            if ((m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                m_spellInfo->Effects[i].ApplyAuraName == existingSpellInfo->Effects[i].ApplyAuraName)
+            {
+                switch (m_spellInfo->Effects[i].ApplyAuraName)
+                {
+                    case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
+                    case SPELL_AURA_MOD_STAT:
+                        if (m_spellInfo->Effects[i].MiscValue == existingSpellInfo->Effects[i].MiscValue || (m_spellInfo->Effects[i].MiscValueB != 0 && 
+                            m_spellInfo->Effects[i].MiscValueB == existingSpellInfo->Effects[i].MiscValueB))
+                            return false;
+                        break;
+                    case SPELL_AURA_MOD_RATING:
+                        if (m_spellInfo->SpellIconID == existingSpellInfo->SpellIconID && m_spellInfo->Effects[i].MiscValue == existingSpellInfo->Effects[i].MiscValue)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    if (m_spellInfo->SpellFamilyName != existingSpellInfo->SpellFamilyName)
+        return true;
+		
     bool isVehicleAura1 = false;
     bool isVehicleAura2 = false;
     uint8 i = 0;
@@ -2898,6 +2992,9 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
 
         for (UnitList::iterator itr = targetList.begin(); itr!= targetList.end();++itr)
         {
+            if (dynObjOwnerCaster->MagicSpellHitResult((*itr), m_spellInfo))
+                continue;
+
             std::map<Unit*, uint32>::iterator existing = targets.find(*itr);
             if (existing != targets.end())
                 existing->second |= 1<<effIndex;

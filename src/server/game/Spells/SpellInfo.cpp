@@ -1324,7 +1324,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
     // these spells (Cyclone for example) can pierce all...
     if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
         // ...but not these (Divine shield for example)
-        && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY)))
+        && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Id == 48707)))
         return true;
 
     return false;
@@ -2451,6 +2451,28 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
     return targetMask;
 }
 
+bool SpellInfo::IsAllwaysStackModifers() const
+{
+    if (IsPassive())
+        return true;
+
+    if (SpellFamilyName == SPELLFAMILY_POTION)
+        return true;
+
+    switch (Id)
+    {
+        // warsong flags
+        case 23333:
+        case 23335:
+
+        case 16191: // mana tide buff 
+            return true;
+       default:
+            break;
+    }
+    return false;
+}
+
 bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
 {
     // not found a single positive spell with this attribute
@@ -2736,6 +2758,75 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
     return true;
 }
 
+bool SpellInfo::_IsCrowdControl(uint8 effMask, bool nodamage) const
+{
+    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    {
+        if (effMask && !(effMask & (1 << effIndex)))
+            continue;
+
+        if (nodamage)
+        {
+            switch (Effects[effIndex].Effect)
+            {
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                    return false;
+            }
+        }
+
+        switch (Effects[effIndex].ApplyAuraName)
+        {
+            case SPELL_AURA_MOD_STUN:
+                switch (SpellIconID)
+                {
+                    case 15:
+                    case 457:
+                        return false;
+                        break;
+                    default:
+                        break;
+                }
+            case SPELL_AURA_MOD_CONFUSE:
+            case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_ROOT:
+            case SPELL_AURA_TRANSFORM:
+                if (!IsPositive())
+                    return true;
+                break;
+            default: break;
+        }
+    }
+    return false;
+}
+
+bool SpellInfo::_IsNeedDelay() const
+{
+    switch (Id)
+    {
+        case 379:   // Earth Shield (Shaman)
+        case 14157: // Ruthlessness (Rogue)
+        case 33110: // Prayer of Mending (Priest)
+        case 48503: // Living Seed (Druid)
+        case 52752: // Ancestral Awakening (Shaman)
+        case 62836: // Slag Imbued (Ignis, Ulduar)
+        case 63536: // Slag Imbued (Ignis, Ulduar)
+        case 70802: // Mayhem (Rogue)
+        case 70157: // Ice Tomb (Sindragosa, ICC)
+        case 79128: // Improved Expose Armor
+        case 36032: // Arcane Blast
+        case 109950: // Fury of Destroyer
+        case 114157: // Execution Sentence
+            return true;
+    }
+
+    // Flurry (Shaman)
+    if (SpellFamilyName == SPELLFAMILY_SHAMAN && SpellIconID == 108)
+        return true;
+
+    return false;
+}
+
 SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() const
 {
     return SpellTargetRestrictionsId ? sSpellTargetRestrictionsStore.LookupEntry(SpellTargetRestrictionsId) : NULL;
@@ -2909,6 +3000,66 @@ bool SpellInfo::IsBreakingCamouflage() const
     }
 
     return true;
+}
+
+bool SpellInfo::IsIgnoringCombat() const
+{
+    if (HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
+        return true;
+
+    switch (Id)
+    {
+        // Slice and Dice
+        case 5171:
+        case 6434:
+        case 6774:
+        // Honor Among Thieves
+        case 51698:
+        case 51699:
+        case 51700:
+        case 51701:
+        case 52916:
+        // Divine Hymn
+        case 64843:
+        case 64844:
+        case 70619:
+        // Shadowmeld
+        case 58984:
+        // Blackjack
+        case 79124:
+        case 79126:
+        // Redirect
+        case 73981:
+        // Venomous Wounds
+        case 79136:
+        // Master Poisoner
+        case 93068:
+        // Blind
+        case 2094:
+        // Ignite
+        case 12654:
+        // Resistance is Futile
+        case 83676:
+        // Vendeta
+        case 79140:
+        // Earth Shield
+        case 379:
+        // Earthliving Weapon proc
+        case 51730:
+        // Ancestral Vigor
+        case 105284:
+        // Ancestral Fortitude
+        case 16177:
+        case 16236:
+            return true;
+        default: break;
+    }
+    
+    // Dark Intent
+    if (SpellFamilyName == SPELLFAMILY_WARLOCK && (SpellFamilyFlags[2] & 0x00800000))
+        return true;
+    
+    return false;
 }
 
 bool SpellInfo::IsAfflictionPeriodicDamage() const

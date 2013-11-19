@@ -567,7 +567,7 @@ public:
             if (!instance)
                 return;
 
-            instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
+            instance->SetData(DATA_ILLIDAN_STORMRAGE_EVENT, DONE); // Completed
 
             for (uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
                 instance->HandleGameObject(instance->GetData64(i), true);
@@ -578,7 +578,7 @@ public:
             if (victim == me)
                 return;
 
-            // TODO: Find better way to handle emote
+            // @TODO: Find better way to handle emote
             switch (urand(0, 1))
             {
             case 0:
@@ -1416,9 +1416,9 @@ public:
             WalkCount = 0;
             if (instance)
             {
-                instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
+                instance->SetData(DATA_ILLIDAN_STORMRAGE_EVENT, NOT_STARTED);
 
-                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
+                IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
                 GateGUID = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
                 DoorGUID[0] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
                 DoorGUID[1] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
@@ -1509,7 +1509,7 @@ public:
             if (!instance)
                 return;
 
-            instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
+            instance->SetData(DATA_ILLIDAN_STORMRAGE_EVENT, IN_PROGRESS);
             for (uint8 i = 0; i < 2; ++i)
                 instance->HandleGameObject(DoorGUID[i], false);
             if (GETCRE(Illidan, IllidanGUID))
@@ -1739,7 +1739,7 @@ public:
             {
                 if (Check_Timer <= diff)
                 {
-                    if (instance && instance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
+                    if (instance && instance->GetData(DATA_ILLIDARI_COUNCIL_EVENT) == DONE)
                         me->SetVisible(true);
 
                     Check_Timer = 5000;
@@ -1847,7 +1847,7 @@ public:
 void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
 {
     if (instance)
-        instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
+        instance->SetData(DATA_ILLIDAN_STORMRAGE_EVENT, NOT_STARTED);
 
     if (AkamaGUID)
     {
@@ -2223,7 +2223,7 @@ public:
         void Reset()
         {
             if (instance)
-                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
+                IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
             else
                 IllidanGUID = 0;
 

@@ -5152,6 +5152,22 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 }
 
+void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
+{
+    int32 newCooldown = GetSpellCooldownDelay(spell_id) * 1000;
+    if (newCooldown < 0)
+        newCooldown = 0;
+    else
+        newCooldown -= modifyTime;
+
+    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + newCooldown / 1000));
+    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+    data << uint32(spell_id);
+    data << uint64(GetGUID());
+    data << int32(-modifyTime);
+    SendDirectMessage(&data);
+}
+
 void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
 {
     m_spellCooldowns.erase(spell_id);
@@ -6080,9 +6096,6 @@ void Player::BuildPlayerRepop()
 
     if (GetGuild() && GetGuild()->GetLevel() >= 15)
         CastSpell(this, 84559, true); // The Quick and the Dead
-      
-    if (HasAura(80353))
-        RemoveAurasDueToSpell(80353); // Time Warp
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
@@ -10362,9 +10375,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
     // need know merged fishing/corpse loot type for achievements
     loot->loot_type = loot_type;
 
-    WorldPacket data(SMSG_LOOT_RESPONSE);           // we guess size
+    WorldPacket data(SMSG_LOOT_RESPONSE);
     data << LootView(*loot, this, loot_type, guid, permission);
-
     SendDirectMessage(&data);
 
     // add 'this' player as one of the players that are looting 'loot'
@@ -10396,25 +10408,44 @@ void Player::SendNotifyLootMoneyRemoved(uint64 gold)
 void Player::SendNotifyLootItemRemoved(uint8 lootSlot)
 {
     WorldPacket data(SMSG_LOOT_REMOVED);
-    ObjectGuid guid = GetLootGUID();
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
 
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data << uint8(lootSlot);
+    ObjectGuid guid = GetLootGUID();
+    ObjectGuid unkGuid = NULL;
+
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(unkGuid[5]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(unkGuid[2]);
+    data.WriteBit(unkGuid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(unkGuid[1]);
+    data.WriteBit(unkGuid[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(unkGuid[4]);
+    data.WriteBit(unkGuid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(unkGuid[0]);
+
     data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(unkGuid[6]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(unkGuid[3]);
+    data.WriteByteSeq(unkGuid[0]);
+    data << uint8(lootSlot);
+    data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(unkGuid[5]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(unkGuid[2]);
+    data.WriteByteSeq(unkGuid[7]);
+    data.WriteByteSeq(unkGuid[1]);
+    data.WriteByteSeq(unkGuid[4]);
+    data.WriteByteSeq(guid[0]);
 
     GetSession()->SendPacket(&data);
 }
@@ -15788,68 +15819,67 @@ void Player::SendItemDurations()
 
 void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast)
 {
-    if (!item)                                               // prevent crash
+    if (!item)                                              // prevent crash
         return;
 
-                                                            // last check 2.0.10
     WorldPacket data(SMSG_ITEM_PUSH_RESULT);
-    ObjectGuid guid = GetGUID();
 
-    data << uint8(item->GetBagSlot());                      // bagslot
+    ObjectGuid guid = GetGUID();
+    ObjectGuid unkGuid = NULL;
+
+    data.WriteBit(guid[0]);
+    data.WriteBit(unkGuid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(0);                                       // Unk bit
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(1);                                       // Unk bit
+    data.WriteBit(unkGuid[3]);
+    data.WriteBit(unkGuid[4]);
+    data.WriteBit(unkGuid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(unkGuid[7]);
+    data.WriteBit(unkGuid[2]);
+    data.WriteBit(unkGuid[0]);
+    data.WriteBit(unkGuid[1]);
+    data.WriteBit(0);                                       // Unk bit
+    data.WriteBit(0);                                       // Unk bit
+    data.WriteBit(guid[2]);
+
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
     data << uint32(0);
+    data << uint32(count);                                  // count of items
+    data << uint32(item->GetItemRandomPropertyId());
     data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
+    data.WriteByteSeq(guid[3]);
     data << uint32(0);
     data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
-    data << uint32(count);                                  // count of items
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(item->GetEntry());                       // item id
-
-    data.WriteBit(1);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(1);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(0); //Sometimes 1
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(unkGuid[7]);
+    data << uint32(item->GetItemSuffixFactor());
     data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(unkGuid[5]);
+    data.WriteByteSeq(unkGuid[3]);
+    data.WriteByteSeq(unkGuid[6]);
     data.WriteByteSeq(guid[6]);
+    data << uint8(item->GetBagSlot());                      // bagslot
+    data.WriteByteSeq(unkGuid[4]);
+    data.WriteByteSeq(guid[4]);
+    data << uint32(0);
+    data << uint32(0);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(unkGuid[0]);
+    data.WriteByteSeq(unkGuid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(unkGuid[2]);
+    data << uint32(item->GetEntry());                       // item id
 
     if (broadcast && GetGroup())
         GetGroup()->BroadcastPacket(&data, true);
     else
         GetSession()->SendPacket(&data);
-
-    /*data << uint64(GetGUID());                              // player GUID
-    data << uint32(received);                               // 0=looted, 1=from npc
-    data << uint32(created);                                // 0=received, 1=created
-    data << uint32(1);                                      // bool print error to chat
-    data << uint8(item->GetBagSlot());                      // bagslot
-                                                            // item slot, but when added to stack: 0xFFFFFFFF
-    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
-    data << uint32(item->GetEntry());                       // item id
-    data << uint32(item->GetItemSuffixFactor());            // SuffixFactor
-    data << int32(item->GetItemRandomPropertyId());         // random item property id
-    data << uint32(count);                                  // count of items
-    data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
-
-    if (broadcast && GetGroup())
-        GetGroup()->BroadcastPacket(&data, true);
-    else
-        GetSession()->SendPacket(&data);*/
 }
 
 /*********************************************************/
@@ -23389,10 +23419,24 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << uint64(pVendor->GetGUID());
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+
+        ObjectGuid vendorGuid = pVendor->GetGUID();
+
+        uint8 bitsOrder[8] = { 6, 0, 5, 2, 4, 1, 7, 3 };
+        data.WriteBitInOrder(vendorGuid, bitsOrder);
+
+        data.WriteByteSeq(vendorGuid[7]);
         data << uint32(count);
+        data.WriteByteSeq(vendorGuid[6]);
+        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+        data.WriteByteSeq(vendorGuid[2]);
+        data.WriteByteSeq(vendorGuid[0]);
+        data.WriteByteSeq(vendorGuid[3]);
+        data << uint32(vendorslot + 1);                   // numbered from 1 at client
+        data.WriteByteSeq(vendorGuid[5]);
+        data.WriteByteSeq(vendorGuid[4]);
+        data.WriteByteSeq(vendorGuid[1]);
+
         GetSession()->SendPacket(&data);
         SendNewItem(it, count, true, false, false);
 
@@ -23544,7 +23588,8 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
 bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot)
 {
     // cheating attempt
-    if (count < 1) count = 1;
+    if (count < 1)
+        count = 1;
 
     // cheating attempt
     if (slot > MAX_BAG_SIZE && slot != NULL_SLOT)
@@ -24516,8 +24561,8 @@ void Player::UpdateTriggerVisibility()
         }
     }
 
-    udata.BuildPacket(&packet);
-    GetSession()->SendPacket(&packet);
+    if (udata.BuildPacket(&packet))
+        GetSession()->SendPacket(&packet);
 }
 
 void Player::SendInitialVisiblePackets(Unit* target)
@@ -25165,7 +25210,7 @@ void Player::SendAurasForTarget(Unit* target)
         target->SendMovementWaterWalking();
 
     if (target->HasAuraType(SPELL_AURA_HOVER))
-        target->SendMovementHover();
+        target->SendMovementHover(true);
 
     bool powerData = false;
     ObjectGuid targetGuid = target->GetGUID();
@@ -25468,8 +25513,9 @@ void Player::UpdateForQuestWorldObjects()
             }
         }
     }
-    udata.BuildPacket(&packet);
-    GetSession()->SendPacket(&packet);
+
+    if (udata.BuildPacket(&packet))
+        GetSession()->SendPacket(&packet);
 }
 
 void Player::SummonIfPossible(bool agree)

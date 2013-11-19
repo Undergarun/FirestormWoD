@@ -1544,5 +1544,22 @@ namespace JadeCore
             std::vector<WorldPacketList> i_data_cache;
                                                             // 0 = default, i => i-1 locale index
     };
+
+    class SummonTimerOrderPred
+    {
+        public:
+            SummonTimerOrderPred(bool ascending = true) : m_ascending(ascending) {}
+            bool operator() (const Unit* a, const Unit* b) const
+            {
+                if (!a->isSummon() || !b->isSummon())
+                    return (urand(0, 1) ? false : true);
+
+                uint32 rA = ((TempSummon*)a)->GetTimer();
+                uint32 rB = ((TempSummon*)b)->GetTimer();
+                return m_ascending ? rA < rB : rA > rB;
+            }
+        private:
+            const bool m_ascending;
+    };
 }
 #endif

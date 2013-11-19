@@ -192,9 +192,9 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
     SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER     = 0x00080000,  // Periodic auras with this flag keep old periodic timer when refreshing
+    SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000, // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
     // @todo: 4.3.4 core
     //SPELL_ATTR0_CU_CAN_STACK_FROM_DIFF_CASTERS   = 0x00100000,  // Collect auras with diff casters in one stackable aura
-    //SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000,  // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
     //SPELL_ATTR0_CU_BINARY                        = 0x00400000,  // Binary spells can be fully resisted
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
@@ -487,6 +487,19 @@ public:
     bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
     bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
 
+    inline bool HasAttribute(SpellAttr0 attribute) const { return Attributes & attribute; }
+    inline bool HasAttribute(SpellAttr1 attribute) const { return AttributesEx & attribute; }
+    inline bool HasAttribute(SpellAttr2 attribute) const { return AttributesEx2 & attribute; }
+    inline bool HasAttribute(SpellAttr3 attribute) const { return AttributesEx3 & attribute; }
+    inline bool HasAttribute(SpellAttr4 attribute) const { return AttributesEx4 & attribute; }
+    inline bool HasAttribute(SpellAttr5 attribute) const { return AttributesEx5 & attribute; }
+    inline bool HasAttribute(SpellAttr6 attribute) const { return AttributesEx6 & attribute; }
+    inline bool HasAttribute(SpellAttr7 attribute) const { return AttributesEx7 & attribute; }
+    inline bool HasAttribute(SpellAttr8 attribute) const { return AttributesEx8 & attribute; }
+    inline bool HasAttribute(SpellAttr9 attribute) const { return AttributesEx9 & attribute; }
+    inline bool HasAttribute(SpellAttr10 attribute) const { return AttributesEx10 & attribute; }
+    inline bool HasCustomAttribute(SpellCustomAttributes customAttribute) const { return AttributesCu & customAttribute; }
+
     SpellCastResult CheckShapeshift(uint32 form) const;
     SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
     SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
@@ -531,7 +544,9 @@ public:
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
     bool IsAfflictionPeriodicDamage() const;
     float GetGiftOfTheSerpentScaling(Unit* caster) const;
+    bool IsAllwaysStackModifers() const;
 
+    bool IsIgnoringCombat() const;
     bool IsCustomCheckedForHolyPower() const;
     bool IsRemoveLossControlEffects() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
@@ -555,6 +570,8 @@ public:
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+    bool _IsCrowdControl(uint8 effMask, bool nodamage) const;
+    bool _IsNeedDelay() const;
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();

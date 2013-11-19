@@ -20,20 +20,26 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             var SenderGUID = new byte[8];
 
             var bit5269 = packet.ReadBit("bit5269"); // unk
-            var hasText = !packet.ReadBit("hasText");
-            var bit5256 = !packet.ReadBit("bit5256");
+            var hasText = !packet.ReadBit();
+            System.Console.WriteLine("hasText: " + hasText);
+            var bit5256 = !packet.ReadBit();
+            System.Console.WriteLine("bit5256: " + bit5256);
 
-            var hasSender = !packet.ReadBit("hasSender");
+            var hasSender = !packet.ReadBit();
+            System.Console.WriteLine("hasSender: " + hasSender);
             var hasSenderGuid = packet.ReadBit("hasSenderGuid");
             packet.StartBitStream(SenderGUID, 2, 4, 0, 6, 1, 3, 5, 7);
 
             var hasGroupGuid = packet.ReadBit("hasGroupGuid");
             packet.StartBitStream(GroupGUID, 6, 0, 4, 1, 2, 3, 7, 5);
 
-            var hasPrefix = !packet.ReadBit("hasPrefix");
+            var hasPrefix = !packet.ReadBit();
+            System.Console.WriteLine("hasPrefix: " + hasPrefix);
             var bit5268 = packet.ReadBit("bit5268");
-            var unkBit = !packet.ReadBit("unkBit");
-            var hasBit5264 = !packet.ReadBit("hasBit5264");
+            var sendRealmId = !packet.ReadBit();
+            System.Console.WriteLine("sendRealmId: " + sendRealmId);
+            var hasBit5264 = !packet.ReadBit();
+            System.Console.WriteLine("hasBit5264: " + hasBit5264);
 
             int senderName = 0;
             if (hasSender)
@@ -46,14 +52,17 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             if (hasPrefix)
                 prefixLen = (int)packet.ReadBits("prefixLength", 5);
 
-            var hasReceiver = !packet.ReadBit("hasReceiver");
-            var hasChatTag = !packet.ReadBit("hasChatTag");
+            var hasReceiver = !packet.ReadBit();
+            System.Console.WriteLine("hasReceiver: " + hasReceiver);
+            var hasChatTag = !packet.ReadBit();
+            System.Console.WriteLine("hasChatTag: " + hasChatTag);
 
             int textLen = 0;
             if (hasText)
                 textLen = (int)packet.ReadBits("textLength", 12);
 
-            var hasLang = !packet.ReadBit("hasLanguage");
+            var hasLang = !packet.ReadBit();
+            System.Console.WriteLine("hasLang: " + hasLang);
 
             if (hasChatTag)
                 packet.ReadEnum<ChatTag>("Chat Tag", 9);
@@ -66,7 +75,8 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
             packet.StartBitStream(GuildGUID, 0, 2, 1, 4, 6, 7, 5, 3);
 
-            var hasChannel = !packet.ReadBit("hasChannel");
+            var hasChannel = !packet.ReadBit();
+            System.Console.WriteLine("hasChannel: " + hasChannel);
             int channelLen = 0;
             if (hasChannel)
                 channelLen = (int)packet.ReadBits("ChannelLength", 7);
@@ -87,8 +97,8 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             if (hasPrefix)
                 packet.ReadWoWString("Addon Message Prefix", prefixLen);
 
-            if (unkBit)
-                packet.ReadUInt32("unk Uint32");
+            if (sendRealmId)
+                packet.ReadUInt32("RealmID");
 
             packet.ParseBitStream(GuildGUID, 1, 0, 3, 7, 6, 5, 2, 4);
 

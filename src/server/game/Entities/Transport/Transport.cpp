@@ -618,8 +618,8 @@ void Transport::UpdateForMap(Map const* targetMap)
                 UpdateData transData(GetMapId());
                 BuildCreateUpdateBlockForPlayer(&transData, itr->getSource());
                 WorldPacket packet;
-                transData.BuildPacket(&packet);
-                itr->getSource()->SendDirectMessage(&packet);
+                if (transData.BuildPacket(&packet))
+                    itr->getSource()->SendDirectMessage(&packet);
             }
         }
     }
@@ -628,11 +628,11 @@ void Transport::UpdateForMap(Map const* targetMap)
         UpdateData transData(targetMap->GetId());
         BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket out_packet;
-        transData.BuildPacket(&out_packet);
 
-        for (Map::PlayerList::const_iterator itr = player.begin(); itr != player.end(); ++itr)
-            if (this != itr->getSource()->GetTransport())
-                itr->getSource()->SendDirectMessage(&out_packet);
+        if (transData.BuildPacket(&out_packet))
+            for (Map::PlayerList::const_iterator itr = player.begin(); itr != player.end(); ++itr)
+                if (this != itr->getSource()->GetTransport())
+                    itr->getSource()->SendDirectMessage(&out_packet);
     }
 }
 

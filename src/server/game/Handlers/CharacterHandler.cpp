@@ -1964,8 +1964,6 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (i < uint32(startSlot))
             continue;
 
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid[i], srcbag[i], srcslot[i]);
-
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
         if (itemGuid[i] == 1)
             continue;

@@ -30,6 +30,8 @@ class PassiveAI : public CreatureAI
         void AttackStart(Unit*) {}
         void UpdateAI(const uint32);
 
+        virtual bool IsPassived() { return true; }
+
         static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 

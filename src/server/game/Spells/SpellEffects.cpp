@@ -381,6 +381,11 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 switch (m_spellInfo->Id)                     // better way to check unknown
                 {
+                    // Mirror Image, Frost Bolt
+                    case 59638:
+                        if (m_caster->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+                            damage += int32(((Guardian*)m_caster)->GetBonusDamage() * 0.25f);
+                        break;
                     // Consumption
                     case 28865:
                         damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_DIFFICULTY ? 2750 : 4250);
@@ -711,15 +716,23 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_MAGE:
             {
-                // Frost Bomb
-                if (m_spellInfo->Id == 113092)
+                switch (m_spellInfo->Id)
                 {
-                    if (effIndex == 0)
-                        damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 2.462f;
-                    else if (effIndex == 1)
-                        damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 1.231f;
+                    // Mirror Image, Fire Blast
+                    case 59637:
+                        if (m_caster->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+                            damage += int32(((Guardian*)m_caster)->GetBonusDamage() * 0.15f);
+                        break;
+                    // Frost Bomb
+                    case 113092:
+                    {
+                        if (effIndex == 0)
+                            damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 2.462f;
+                        else if (effIndex == 1)
+                            damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 1.231f;
+                    }
+                    break;
                 }
-                break;
             }
             case SPELLFAMILY_MONK:
             {
@@ -864,6 +877,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         return;
 
                     m_caster->ToPlayer()->RemoveSpellCooldown(51505, true);
+
+                    // Item - Shaman T12 Elemental 4P Bonus
+                    if (m_caster->HasAura(99206))
+                        m_caster->CastSpell(m_caster, 99207, true);
+
                     return;
                 }
                 case 128997:// Spirit Beast Blessing
@@ -1147,13 +1165,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     break;
                 }
-                case 55342: // Mirror Image
-                    m_caster->CastSpell(m_caster, 58832, true); // Mirror Image summons
-                    break;
                 default:
                     break;
             }
-
             break;
         }
         default:
@@ -1333,9 +1347,9 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     // remove all harmful spells on you...
                     SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
                     if ((spell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC // only affect magic spells
-                        || ((spell->GetDispelMask()) & dispelMask))
+                        || (spell->GetDispelMask() & dispelMask) || (spell->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
                         // ignore positive and passive auras
-                        && !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive())
+                        && !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive() && m_spellInfo->CanDispelAura(spell))
                     {
                         m_caster->RemoveAura(iter);
                     }
@@ -2153,6 +2167,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             if (unitTarget->GetHealth() + addhealth >= unitTarget->GetMaxHealth())
                 unitTarget->CastSpell(unitTarget, 120717, true);  // Revitalized Spirit
         }
+
+        if (m_spellInfo->Id == 27827)
+            addhealth = m_caster->GetMaxHealth();
 
         m_damage -= addhealth;
     }
@@ -3230,6 +3247,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
             break;
         }
+        case 475: // Remove Curse
+            if (m_caster->HasAura(115700))
+                m_caster->AddAura(115701, m_caster);
         default:
             break;
     }
@@ -3298,6 +3318,23 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
+    // Custom effects
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        // Glyph of Dispel Magic
+        if (m_spellInfo->Id == 97690)
+        {
+            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(55677, 0))
+            {
+                if (m_caster->IsFriendlyTo(unitTarget))
+                {
+                    int32 bp = int32(unitTarget->CountPctFromMaxHealth(aurEff->GetAmount()));
+                    m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true); 
+                }
+            }
+        }
+    }
+	
     WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
@@ -4085,6 +4122,50 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             }
 
             break;
+        }
+        case SPELLFAMILY_HUNTER:
+        {
+            float shotMod = 0;
+            switch(m_spellInfo->Id)
+            {
+                case 53351: // Kill Shot
+                {
+                    // "You attempt to finish the wounded target off, firing a long range attack dealing % weapon damage plus RAP*0.30+543."
+                    shotMod = 0.45f;
+                    // Kill Shot - (100% weapon dmg + 45% RAP + 543) * 150% - EJ
+                    final_bonus = 1.5f;
+                    break;
+                }
+                case 19434: // Aimed Shot
+                case 82928: // Aimed Shot with Master Marksman
+                {
+                    // "A powerful aimed shot that deals % ranged weapon damage plus (RAP * 0.724)+776."
+                    shotMod = 0.724f;
+                    // Aimed Shot - (100% weapon dmg + 72.4% RAP + 776) * 160% + 100 - EJ
+                    final_bonus = 1.6f;
+                    break;
+                }
+                case 56641: // Steady Shot
+                {
+                    // "A steady shot that causes % weapon damage plus RAP*0.021+280. Generates 9 Focus."
+                    // focus effect done in dummy
+                    shotMod = 0.021f;
+                    break;
+                }
+                case 53209: // Chimera Shot
+                {
+                    shotMod = 0.732f;
+                    break;
+                }
+                case 3044: // Arcane Shot
+                {
+                    shotMod = 0.0483f;
+                    break;
+                }
+
+                default: break;
+            }
+            spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)));
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {

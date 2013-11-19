@@ -34,7 +34,8 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_SET_FORCED_REACTIONS)]
         public static void HandleForcedReactions(Packet packet)
         {
-            var counter = packet.ReadInt32("Factions");
+            var counter = packet.ReadBits("Factions", 6);
+
             for (var i = 0; i < counter; i++)
             {
                 packet.ReadUInt32("Faction Id");
