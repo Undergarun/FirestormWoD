@@ -626,7 +626,7 @@ enum Opcodes
     MSG_QUEST_PUSH_RESULT                             = 0x000,  // 5.0.5 16048
     MSG_SAVE_GUILD_EMBLEM                             = 0x000,  // 5.0.5 16048
     MSG_SET_DUNGEON_DIFFICULTY                        = 0x000,  // 5.0.5 16048
-    MSG_SET_RAID_DIFFICULTY                           = 0x000,  // 5.0.5 16048
+    MSG_SET_RAID_DIFFICULTY                           = 0x1F80, // 5.4.0 17399
     MSG_TABARDVENDOR_ACTIVATE                         = 0x000,  // 5.0.5 16048
     MSG_VERIFY_CONNECTIVITY                           = 0x4F57, // 5.4.0 17399
 
