@@ -985,7 +985,7 @@ enum Opcodes
     SMSG_GUILD_CHALLENGE_COMPLETED                    = 0x000,  // 5.0.5 16048
     SMSG_GUILD_CHALLENGE_UPDATED                      = 0x000,  // 5.0.5 16048
     SMSG_GUILD_CHANGE_NAME_RESULT                     = 0x000,  // 5.0.5 16048
-    SMSG_GUILD_COMMAND_RESULT                         = 0x000,  // 5.0.5 16048
+    SMSG_GUILD_COMMAND_RESULT                         = 0x462,  // 5.4.0 17399
     SMSG_GUILD_COMMAND_RESULT_2                       = 0x000,  // 5.0.5 16048
     SMSG_GUILD_CRITERIA_DATA                          = 0x57E,  // 5.4.0 17399
     SMSG_GUILD_CRITERIA_DELETED                       = 0x000,  // 5.0.5 16048
@@ -1021,7 +1021,7 @@ enum Opcodes
     SMSG_GUILD_SET_NOTE                               = 0x000,  // 5.0.5 16048
     SMSG_GUILD_TRADESKILL_UPDATE                      = 0x000,  // 5.0.5 16048
     SMSG_GUILD_UPDATE_ROSTER                          = 0x000,  // 5.0.5 16048
-    SMSG_GUILD_XP                                     = 0x000,  // 5.0.5 16048
+    SMSG_GUILD_XP                                     = 0x572,  // 5.4.0 17399
     SMSG_GUILD_XP_GAIN                                = 0x473,  // 5.4.0 17399
     SMSG_GUILD_XP_UPDATE                              = 0x000,  // 5.0.5 16048
     SMSG_HEALTH_UPDATE                                = 0x018,  // 5.4.0 17399 (JamList)
