@@ -46,9 +46,13 @@ inline uint32 _GetGuildBankTabPrice(uint8 tabId)
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, const std::string& param)
 {
-    WorldPacket data(SMSG_GUILD_COMMAND_RESULT, 8 + param.size() + 1);
+    WorldPacket data(SMSG_GUILD_COMMAND_RESULT);
+    data.WriteBits(param.size(), 8);
     data << uint32(type);
-    data << param;
+
+    if (param.size() > 0)
+        data.append(param.c_str(), param.size());
+
     data << uint32(errCode);
     session->SendPacket(&data);
 
@@ -3465,8 +3469,8 @@ void Guild::SendGuildXP(WorldSession* session) const
 
     WorldPacket data(SMSG_GUILD_XP, 40);
     data << uint64(0); // fucking unknow
-    data << uint64(GetTodayExperience());
     data << uint64(GetExperience());
+    data << uint64(GetTodayExperience());
     data << uint64(sGuildMgr->GetXPForGuildLevel(GetLevel()) - GetExperience());    // XP missing for next level
     session->SendPacket(&data);
 }
