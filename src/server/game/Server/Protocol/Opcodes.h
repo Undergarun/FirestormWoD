@@ -1295,9 +1295,9 @@ enum Opcodes
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x151F, // 5.4.0 17399 (sure about this)
     SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x10BD, // 5.4.0 17399
     SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x142D, // 5.4.0 17399
-    SMSG_QUESTGIVER_QUEST_FAILED                      = 0x000,  // 5.0.5 16048
+    SMSG_QUESTGIVER_QUEST_FAILED                      = 0x19AE, // 5.4.0 17399
     SMSG_QUESTGIVER_QUEST_INVALID                     = 0x000,  // 5.0.5 16048
-    SMSG_QUESTGIVER_QUEST_LIST                        = 0x000,  // 5.0.5 16048
+    SMSG_QUESTGIVER_QUEST_LIST                        = 0x158F, // 5.4.0 17399
     SMSG_QUESTGIVER_REQUEST_ITEMS                     = 0x199E, // 5.4.0 17399
     SMSG_QUESTGIVER_STATUS                            = 0x11AA, // 5.4.0 17399
     SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x188D, // 5.4.0 17399
