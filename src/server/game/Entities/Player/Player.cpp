@@ -8678,6 +8678,9 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             if (sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS) > 0)
                 cap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS);
             break;
+            /*
+             *   @TODO : add weekcap 1000
+             */
         case CURRENCY_TYPE_VALOR_POINTS:
             cap = 3000 * CURRENCY_PRECISION;
             break;
