@@ -241,23 +241,23 @@ public:
         {
             switch (identifier)
             {
-            case DATA_HIGHWARLORDNAJENTUS:         return Najentus;
-            case DATA_AKAMA:                       return Akama;
-            case DATA_AKAMA_SHADE:                 return Akama_Shade;
-            case DATA_SHADEOFAKAMA:                return ShadeOfAkama;
-            case DATA_SUPREMUS:                    return Supremus;
-            case DATA_ILLIDANSTORMRAGE:            return IllidanStormrage;
-            case DATA_GATHIOSTHESHATTERER:         return GathiosTheShatterer;
-            case DATA_HIGHNETHERMANCERZEREVOR:     return HighNethermancerZerevor;
-            case DATA_LADYMALANDE:                 return LadyMalande;
-            case DATA_VERASDARKSHADOW:             return VerasDarkshadow;
-            case DATA_ILLIDARICOUNCIL:             return IllidariCouncil;
-            case DATA_GAMEOBJECT_NAJENTUS_GATE:    return NajentusGate;
-            case DATA_GAMEOBJECT_ILLIDAN_GATE:     return IllidanGate;
-            case DATA_GAMEOBJECT_ILLIDAN_DOOR_R:   return IllidanDoor[0];
-            case DATA_GAMEOBJECT_ILLIDAN_DOOR_L:   return IllidanDoor[1];
-            case DATA_GAMEOBJECT_SUPREMUS_DOORS:   return MainTempleDoors;
-            case DATA_BLOOD_ELF_COUNCIL_VOICE:     return BloodElfCouncilVoice;
+            case DATA_HIGH_WARLORD_NAJENTUS:        return Najentus;
+            case DATA_AKAMA:                        return Akama;
+            case DATA_AKAMA_SHADE:                  return Akama_Shade;
+            case DATA_SHADE_OF_AKAMA:               return ShadeOfAkama;
+            case DATA_SUPREMUS:                     return Supremus;
+            case DATA_ILLIDAN_STORMRAGE:            return IllidanStormrage;
+            case DATA_GATHIOS_THE_SHATTERER:        return GathiosTheShatterer;
+            case DATA_HIGH_NETHERMANCER_ZEREVOR:    return HighNethermancerZerevor;
+            case DATA_LADY_MALANDE:                 return LadyMalande;
+            case DATA_VERAS_DARKSHADOW:             return VerasDarkshadow;
+            case DATA_ILLIDARI_COUNCIL:             return IllidariCouncil;
+            case DATA_GAMEOBJECT_NAJENTUS_GATE:     return NajentusGate;
+            case DATA_GAMEOBJECT_ILLIDAN_GATE:      return IllidanGate;
+            case DATA_GAMEOBJECT_ILLIDAN_DOOR_R:    return IllidanDoor[0];
+            case DATA_GAMEOBJECT_ILLIDAN_DOOR_L:    return IllidanDoor[1];
+            case DATA_GAMEOBJECT_SUPREMUS_DOORS:    return MainTempleDoors;
+            case DATA_BLOOD_ELF_COUNCIL_VOICE:      return BloodElfCouncilVoice;
             }
 
             return 0;
@@ -267,24 +267,24 @@ public:
         {
             switch (type)
             {
-            case DATA_HIGHWARLORDNAJENTUSEVENT:
+            case DATA_HIGH_WARLORD_NAJENTUS_EVENT:
                 if (data == DONE)
                     HandleGameObject(NajentusGate, true);
                 m_auiEncounter[0] = data;
                 break;
-            case DATA_SUPREMUSEVENT:
+            case DATA_SUPREMUS_EVENT:
                 if (data == DONE)
                     HandleGameObject(NajentusGate, true);
                 m_auiEncounter[1] = data;
                 break;
-            case DATA_SHADEOFAKAMAEVENT:
+            case DATA_SHADE_OF_AKAMA_EVENT:
                 if (data == IN_PROGRESS)
                     HandleGameObject(ShadeOfAkamaDoor, false);
                 else
                     HandleGameObject(ShadeOfAkamaDoor, true);
                 m_auiEncounter[2] = data;
                 break;
-            case DATA_TERONGOREFIENDEVENT:
+            case DATA_TERON_GOREFIEND_EVENT:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(TeronDoor, false);
@@ -297,22 +297,22 @@ public:
                 }
                 m_auiEncounter[3] = data;
                 break;
-            case DATA_GURTOGGBLOODBOILEVENT:
+            case DATA_GURTOGG_BLOOD_BOIL_EVENT:
                 if (data == DONE)
                     HandleGameObject(GuurtogDoor, true);
                 m_auiEncounter[4] = data;
                 break;
-            case DATA_RELIQUARYOFSOULSEVENT:
+            case DATA_RELIQUARY_OF_SOULS_EVENT:
                 if (data == DONE)
                     HandleGameObject(TempleDoor, true);
                 m_auiEncounter[5] = data;
                 break;
-            case DATA_MOTHERSHAHRAZEVENT:
+            case DATA_MOTHER_SHAHRAZ_EVENT:
                 if (data == DONE)
                     HandleGameObject(MotherDoor, true);
                 m_auiEncounter[6] = data;
                 break;
-            case DATA_ILLIDARICOUNCILEVENT:
+            case DATA_ILLIDARI_COUNCIL_EVENT:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(CouncilDoor, false);
@@ -325,7 +325,7 @@ public:
                 }
                 m_auiEncounter[7] = data;
                 break;
-            case DATA_ILLIDANSTORMRAGEEVENT:
+            case DATA_ILLIDAN_STORMRAGE_EVENT:
                 m_auiEncounter[8] = data;
                 break;
             }
@@ -351,15 +351,15 @@ public:
         {
             switch (type)
             {
-            case DATA_HIGHWARLORDNAJENTUSEVENT:         return m_auiEncounter[0];
-            case DATA_SUPREMUSEVENT:                    return m_auiEncounter[1];
-            case DATA_SHADEOFAKAMAEVENT:                return m_auiEncounter[2];
-            case DATA_TERONGOREFIENDEVENT:              return m_auiEncounter[3];
-            case DATA_GURTOGGBLOODBOILEVENT:            return m_auiEncounter[4];
-            case DATA_RELIQUARYOFSOULSEVENT:            return m_auiEncounter[5];
-            case DATA_MOTHERSHAHRAZEVENT:               return m_auiEncounter[6];
-            case DATA_ILLIDARICOUNCILEVENT:             return m_auiEncounter[7];
-            case DATA_ILLIDANSTORMRAGEEVENT:            return m_auiEncounter[8];
+            case DATA_HIGH_WARLORD_NAJENTUS_EVENT:       return m_auiEncounter[0];
+            case DATA_SUPREMUS_EVENT:                    return m_auiEncounter[1];
+            case DATA_SHADE_OF_AKAMA_EVENT:              return m_auiEncounter[2];
+            case DATA_TERON_GOREFIEND_EVENT:             return m_auiEncounter[3];
+            case DATA_GURTOGG_BLOOD_BOIL_EVENT:          return m_auiEncounter[4];
+            case DATA_RELIQUARY_OF_SOULS_EVENT:          return m_auiEncounter[5];
+            case DATA_MOTHER_SHAHRAZ_EVENT:              return m_auiEncounter[6];
+            case DATA_ILLIDARI_COUNCIL_EVENT:            return m_auiEncounter[7];
+            case DATA_ILLIDAN_STORMRAGE_EVENT:           return m_auiEncounter[8];
             }
 
             return 0;

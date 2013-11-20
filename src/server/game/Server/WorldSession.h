@@ -1125,7 +1125,7 @@ class WorldSession
         time_t timeLastCalendarInvCommand;
         time_t timeLastChangeSubGroupCommand;
         time_t timeLastSellItemOpcode;
-		
+
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
 

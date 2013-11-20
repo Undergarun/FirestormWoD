@@ -163,7 +163,7 @@ public:
         void Reset()
         {
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
+                instance->SetData(DATA_RELIQUARY_OF_SOULS_EVENT, NOT_STARTED);
 
             if (EssenceGUID)
             {
@@ -200,7 +200,7 @@ public:
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
+                instance->SetData(DATA_RELIQUARY_OF_SOULS_EVENT, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -247,7 +247,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
+                instance->SetData(DATA_RELIQUARY_OF_SOULS_EVENT, DONE);
         }
 
         void UpdateAI(const uint32 diff)

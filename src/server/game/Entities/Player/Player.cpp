@@ -18276,17 +18276,24 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     }
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
-    
-    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
-    data.WriteBit(1);
-
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
-    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data << uint32(moneyReward);
     data << uint32(xp);
     data << uint32(questId);
+    data << uint32(moneyReward);
+
+    // @TODO : try that, may be not correct order (test with quest give skill point to be sure, see sub_6AC41 in IDA for more informations)
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
-    data.FlushBits();
+    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
+    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
+
+    // May be this order is correct, need try
+    /*
+    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
+    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
+    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
+    */
+
+    data.WriteBit(1);                                      // FIXME: unknown bits, common values sent
+    data.WriteBit(1);
 
     GetSession()->SendPacket(&data);
 
