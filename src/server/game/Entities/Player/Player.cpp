@@ -1392,18 +1392,83 @@ void Player::RewardCurrencyAtKill(Unit* victim)
         return;
 
     CurrencyOnKillEntry const* Curr = sObjectMgr->GetCurrencyOnKillEntry(victim->ToCreature()->GetEntry());
-
     if (!Curr)
         return;
 
     if (Curr->currencyId1 && Curr->currencyCount1)
-        ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
+    {
+        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
+        {
+            if (Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS)
+            {
+                if ((GetCurrency(Curr->currencyId1, true) + Curr->currencyCount1) > GetCurrencyTotalCap(entry))
+                {
+                    uint32 max = GetCurrencyTotalCap(entry);
+                    uint32 lessPoint = max - GetCurrency(Curr->currencyId1, true);
+                    uint32 rest = Curr->currencyCount1 - lessPoint;
+
+                    ModifyCurrency(Curr->currencyId1, lessPoint);
+
+                    if (rest > 0)
+                        ModifyMoney(rest * 4750);
+                }
+                else
+                    ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
+            }
+            else
+                ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
+        }
+    }
 
     if (Curr->currencyId2 && Curr->currencyCount2)
-        ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
+    {
+        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId2))
+        {
+            if (Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS)
+            {
+                if ((GetCurrency(Curr->currencyId2, true) + Curr->currencyCount2) > GetCurrencyTotalCap(entry))
+                {
+                    uint32 max = GetCurrencyTotalCap(entry);
+                    uint32 lessPoint = max - GetCurrency(Curr->currencyId2, true);
+                    uint32 rest = Curr->currencyCount2 - lessPoint;
+
+                    ModifyCurrency(Curr->currencyId2, lessPoint);
+
+                    if (rest > 0)
+                        ModifyMoney(rest * 4750);
+                }
+                else
+                    ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
+            }
+            else
+                ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
+        }
+    }
 
     if (Curr->currencyId3 && Curr->currencyCount3)
-        ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+    {
+        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId3))
+        {
+            if (Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS)
+            {
+                if ((GetCurrency(Curr->currencyId3, true) + Curr->currencyCount3) > GetCurrencyTotalCap(entry))
+                {
+                    uint32 max = GetCurrencyTotalCap(entry);
+                    uint32 lessPoint = max - GetCurrency(Curr->currencyId3, true);
+                    uint32 rest = Curr->currencyCount3 - lessPoint;
+
+                    ModifyCurrency(Curr->currencyId3, lessPoint);
+
+                    if (rest > 0)
+                        ModifyMoney(rest * 4750);
+                }
+                else
+                    ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+            }
+            else
+                ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+        }
+    }
 }
 
 void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen)
@@ -8675,9 +8740,12 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             cap = JadeCore::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
             break;
         case CURRENCY_TYPE_JUSTICE_POINTS:
-            if (sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS) > 0)
-                cap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS);
+            // No more week cap of Justice Points !
+            cap = 0;
             break;
+            /*
+             *   @TODO : add weekcap 1000
+             */
         case CURRENCY_TYPE_VALOR_POINTS:
             cap = 3000 * CURRENCY_PRECISION;
             break;

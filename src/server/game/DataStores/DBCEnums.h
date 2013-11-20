@@ -610,8 +610,6 @@ enum CurrencyTypes
     CURRENCY_TYPE_WARFORGED_SEAL            = 776, // roll chance token for T16 boss
     CURRENCY_TYPE_TIMELESS_COIN             = 777, // timeless isle token
     CURRENCY_TYPE_BLOODY_COIN               = 789  // timeless isle token
-
-
 };
 
 #endif
