@@ -1301,10 +1301,9 @@ enum Opcodes
     SMSG_QUESTGIVER_REQUEST_ITEMS                     = 0x199E, // 5.4.0 17399
     SMSG_QUESTGIVER_STATUS                            = 0x11AA, // 5.4.0 17399
     SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x188D, // 5.4.0 17399
-    SMSG_QUESTLOG_FULL                                = 0x000,  // 5.0.5 16048
-    SMSG_QUESTUPDATE_ADD_ITEM                         = 0x000,  // 5.0.5 16048
-    SMSG_QUESTUPDATE_ADD_KILL                         = 0x000,  // 5.0.5 16048
-    SMSG_QUESTUPDATE_ADD_PVP_KILL                     = 0x000,  // 5.0.5 16048
+    SMSG_QUESTLOG_FULL                                = 0x152A, // 5.4.0 17399
+    SMSG_QUESTUPDATE_ADD_KILL                         = 0x1988, // 5.4.0 17399
+    SMSG_QUESTUPDATE_ADD_PVP_KILL                     = 0x15B9, // 5.4.0 17399
     SMSG_QUESTUPDATE_COMPLETE                         = 0x000,  // 5.0.5 16048
     SMSG_QUESTUPDATE_FAILED                           = 0x000,  // 5.0.5 16048
     SMSG_QUESTUPDATE_FAILEDTIMER                      = 0x000,  // 5.0.5 16048
