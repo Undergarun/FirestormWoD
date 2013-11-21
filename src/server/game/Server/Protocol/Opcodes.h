@@ -42,7 +42,7 @@ enum Opcodes
     CMSG_ADD_FRIEND                                   = 0x16BD, // 5.4.0 17399
     CMSG_ADD_IGNORE                                   = 0x1224, // 5.4.0 17399
     CMSG_ADD_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
-    CMSG_ALTER_APPEARANCE                             = 0x000,  // 5.0.5 16048
+    CMSG_ALTER_APPEARANCE                             = 0x1B2F, // check me
     CMSG_AREATRIGGER                                  = 0x1907, // 5.4.0 17399
     CMSG_AREA_SPIRIT_HEALER_QUERY                     = 0x000,  // 5.0.5 16048
     CMSG_AREA_SPIRIT_HEALER_QUEUE                     = 0x000,  // 5.0.5 16048
