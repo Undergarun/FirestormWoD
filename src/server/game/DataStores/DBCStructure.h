@@ -699,12 +699,12 @@ struct BarberShopStyleEntry
 {
     uint32  Id;                                             // 0
     uint32  type;                                           // 1 value 0 -> hair, value 2 -> facialhair
-    //char*   name;                                         // 2        m_DisplayName_lang
-    //uint32  unk_name;                                     // 3        m_Description_lang
-    //float   CostMultiplier;                               // 4        m_Cost_Modifier
-    uint32  race;                                           // 5        m_race
-    uint32  gender;                                         // 6        m_sex
-    uint32  hair_id;                                        // 7        m_data (real ID to hair/facial hair)
+    //char*   name;                                         // 2 m_DisplayName_lang
+    //uint32  unk_name;                                     // 3 m_Description_lang
+    //float   CostMultiplier;                               // 4 m_Cost_Modifier
+    uint32  race;                                           // 5 m_race
+    uint32  gender;                                         // 6 m_sex
+    uint32  hair_id;                                        // 7 m_data (real ID to hair/facial hair)
 };
 
 // @author Selenium: 5.4 valid
