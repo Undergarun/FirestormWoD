@@ -341,14 +341,13 @@ void QuestMenu::ClearMenu()
 
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, uint64 npcGUID)
 {
+    ObjectGuid guid = npcGUID;
     WorldPacket data(SMSG_QUESTGIVER_QUEST_LIST, 100);    // guess size
-    data << uint64(npcGUID);
-    data << Title;
-    data << uint32(eEmote._Delay);                         // player emote
-    data << uint32(eEmote._Emote);                         // NPC emote
+    data.WriteBits(Title.size(), 11);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
+    data.WriteBits(_questMenu.GetMenuItemCount(), 19);
 
-    size_t count_pos = data.wpos();
-    data << uint8 (_questMenu.GetMenuItemCount());
     uint32 count = 0;
     for (; count < _questMenu.GetMenuItemCount(); ++count)
     {
@@ -360,33 +359,80 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
         {
             std::string title = quest->GetTitle();
 
+            int loc_idx = _session->GetSessionDbLocaleIndex();
+            if (loc_idx >= 0)
+                if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(ql->Title, loc_idx, title);
+
+            uint8 wrongLen = title.size() % 2;
+            data.WriteBits((title.size() - wrongLen) / 2, 8);
+            data.WriteBit(wrongLen != 0);
+            data.WriteBit(quest->IsRepeatable());
+        }
+    }
+
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[4]);
+
+    count = 0;
+    for (; count < _questMenu.GetMenuItemCount(); ++count)
+    {
+        QuestMenuItem const& qmi = _questMenu.GetItem(count);
+
+        uint32 questID = qmi.QuestId;
+
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
+        {
             Player* plr = _session->GetPlayer();
+            std::string title = quest->GetTitle();
 
             int loc_idx = _session->GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(ql->Title, loc_idx, title);
 
+
             uint32 questStat = plr ? plr->GetQuestStatus(questID) : 0;
 
-            if(questStat == QUEST_STATUS_COMPLETE)
-                questStat = 3;
-            else if(questStat == QUEST_STATUS_NONE)
-                questStat = 1;
-            else if(questStat == QUEST_STATUS_INCOMPLETE)
+            if(questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
+            {
+                if (quest->IsRepeatable())
+                    questStat = 0;
+                else
+                    questStat = 4;
+            }
+            else if(questStat == QUEST_STATE_NONE)
                 questStat = 2;
 
+            data << uint32(questStat);                      // quest icon
+            data << uint32(quest->GetFlags());              // quest flags
             data << uint32(questID);
-            data << uint32(questStat);
-            data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());             // 3.3.3 quest flags
-            data << uint32(0); //unk
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-            data << title;
+            data << uint32(0);                              // quest flags 2
+            data << int32(quest->GetQuestLevel());          // quest level
+            if (title.size())
+                data.append(title.c_str(), title.size());       // quest title
         }
     }
 
-    data.put<uint8>(count_pos, count);
+    data << uint32(eEmote._Delay);                         // player emote
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
+
+    if (Title.size())
+        data.append(Title.c_str(), Title.size());
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+    data << uint32(eEmote._Emote);                         // NPC emote
+    data.WriteByteSeq(guid[0]);
+
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
 }

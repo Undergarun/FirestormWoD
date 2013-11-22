@@ -18447,7 +18447,7 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
     }
 }
 
-void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
+void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 objGuid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
 {
     ASSERT(old_count + add_count < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
 
@@ -18457,15 +18457,25 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uin
         entry = (-entry) | 0x80000000;
 
     uint8 unk1 = 0;
+    ObjectGuid guid = objGuid;
 
     WorldPacket data(SMSG_QUESTUPDATE_ADD_KILL, (4*4+8));
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
-    data << uint32(quest->GetQuestId());
-    data << uint32(entry);
-    data << uint16(old_count + add_count);
-    data << uint32(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
-    data << uint64(guid);
+    uint8 bitOrder[8] = {7, 3, 6, 5, 0, 1, 4, 2};
+    data.WriteBitInOrder(guid, bitOrder);
+    data << uint16(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
     data << uint8(unk1);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    data << uint32(entry);
+    data << uint32(quest->GetQuestId());
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data << uint16(old_count + add_count);
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
@@ -18479,9 +18489,9 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
 
     WorldPacket data(SMSG_QUESTUPDATE_ADD_PVP_KILL, (2*4) + 1);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_PVP_KILL");
-    data << uint32(quest->GetQuestId());
     data << uint8(old_count + add_count);
     data << uint32(quest->GetPlayersSlain());
+    data << uint32(quest->GetQuestId());
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
