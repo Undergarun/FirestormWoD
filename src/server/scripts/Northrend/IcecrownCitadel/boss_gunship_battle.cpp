@@ -285,7 +285,7 @@ public:
             if (instance->GetData(DATA_GUNSHIP_EVENT) == DONE)
                 return false;
 
-            if(pCreature->GetEntry() == NPC_MURADIN_GUNSHIP)
+            if (pCreature->GetEntry() == NPC_MURADIN_GUNSHIP)
                 pPlayer->ADD_GOSSIP_ITEM(0, "Mes compagnons sont en bon ordre, Muradin. Allons-y !", 631, ALLIANCE);
             else
                 pPlayer->ADD_GOSSIP_ITEM(0, "Mes compagnons sont en bon ordre, Saurcroc. Allons-y !", 631, HORDE);
@@ -305,7 +305,7 @@ public:
 
         pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-        if(InstanceScript* pInstance = pCreature->GetInstanceScript())
+        if (InstanceScript* pInstance = pCreature->GetInstanceScript())
         {
             pInstance->SetData(DATA_TEAM_IN_INSTANCE, action); // Pour s'assurer que le TeamInInstance correspond bien
             pInstance->SetData(DATA_GUNSHIP_EVENT, IN_PROGRESS); // Lance l'event cote instance
@@ -352,7 +352,7 @@ public:
 
         void DoStartFight()
         {
-            if(!pInstance)
+            if (!pInstance)
                 return;
 
             DoZoneInCombat();
@@ -423,10 +423,10 @@ public:
 
         void DamageTaken(Unit* pDone_by, uint32& uiDamage)
         {
-            if(!pInstance)
+            if (!pInstance)
                 return;
 
-            if(IsFriendlyCommander)
+            if (IsFriendlyCommander)
             {
                 if (Creature* FriendGunshipNpc = pInstance->instance->GetCreature(pInstance->GetData64(DATA_GUNSHIP_NPC_MAIN)))
                     me->DealDamage(FriendGunshipNpc, uiDamage);
@@ -437,7 +437,7 @@ public:
                     me->DealDamage(EnnemyGunshipNpc, uiDamage / 10);
             }
 
-            if(uiDamage >= me->GetHealth()) // Les commandants ne sont pas censés mourir
+            if (uiDamage >= me->GetHealth()) // Les commandants ne sont pas censés mourir
                 uiDamage = 0;
         }
 
@@ -459,7 +459,7 @@ public:
             std::set<Player*> pSet = pTransport->GetPassengers();
 
 
-            if(pSet.empty()) // Stop l'attaque si personne sur le transport
+            if (pSet.empty()) // Stop l'attaque si personne sur le transport
             {
                 if (me->isInCombat())
                     EnterEvadeMode();
@@ -507,7 +507,7 @@ public:
                     if (me->isInCombat())
                         EnterEvadeMode();
 
-                if(!pPassenger->IsHostileTo(me))
+                if (!pPassenger->IsHostileTo(me))
                     if (me->isInCombat())
                         EnterEvadeMode();
 
@@ -521,7 +521,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!pInstance)
+            if (!pInstance)
                 return;
 
             if (pInstance)
@@ -625,15 +625,15 @@ struct npc_gunship_adds_AI : ScriptedAI
 
     void DoTransportInCombat(Transport* pTransport)
     {
-        if(!pTransport)
+        if (!pTransport)
             return;
 
         std::set<Player*> pSet = pTransport->GetPassengers();
 
-        if(pSet.empty())
+        if (pSet.empty())
             return;
 
-        for(std::set<Player*>::iterator itr = pSet.begin(); itr != pSet.end(); ++itr)
+        for (std::set<Player*>::iterator itr = pSet.begin(); itr != pSet.end(); ++itr)
         {
             me->SetInCombatWith(*itr);
             (*itr)->SetInCombatWith(me);
@@ -643,7 +643,7 @@ struct npc_gunship_adds_AI : ScriptedAI
 
     void IsSummonedBy(Unit* summoner)
     {
-        if(summoner)
+        if (summoner)
             SummonerGUID = summoner->GetGUID();
     }
 
@@ -818,13 +818,13 @@ public:
                 {
                     case EVENT_TIR:
                     {
-                        if(!FriendlyTransport)
+                        if (!FriendlyTransport)
                             if (!(FriendlyTransport = GetTransportByGUID(me, pInstance->GetData64(DATA_GUNSHIP_TRANSPORT_MAIN))))
                                 break;
 
                         DoTransportInCombat(FriendlyTransport);
 
-                        if(Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             if (unit->GetTransport() == me->GetTransport())
                             {
@@ -912,7 +912,7 @@ public:
 
             npc_gunship_adds_AI::UpdateAI(diff);
 
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -1050,13 +1050,13 @@ public:
                 {
                     case EVENT_MISSILE:
                     {
-                        if(!FriendlyTransport)
+                        if (!FriendlyTransport)
                             if (!(FriendlyTransport = GetTransportByGUID(me, pInstance->GetData64(DATA_GUNSHIP_TRANSPORT_MAIN))))
                                 break;
 
                         DoTransportInCombat(FriendlyTransport);
 
-                        if(Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             if (unit->GetTransport() == me->GetTransport())
                             {

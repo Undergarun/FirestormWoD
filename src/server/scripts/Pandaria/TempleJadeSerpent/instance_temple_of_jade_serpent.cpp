@@ -301,7 +301,7 @@ public:
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         Player* plr = i->getSource();
-                        if(!plr)
+                        if (!plr)
                             continue;
 
                         Unit* wiseMari = Unit::GetUnit(*plr, wiseMariGUID);
@@ -752,7 +752,7 @@ public:
                             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             {
                                 Player* plr = i->getSource();
-                                if( !plr)
+                                if ( !plr)
                                     continue;
                                 plr->CastSpell(plr, SPELL_LOREWALKER_ALACRITY, false);
                             }
@@ -779,7 +779,7 @@ public:
                             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             {
                                 Player* plr = i->getSource();
-                                if( !plr)
+                                if ( !plr)
                                     continue;
                                 plr->CastSpell(plr, SPELL_LOREWALKER_ALACRITY, false);
                             }
@@ -802,7 +802,7 @@ public:
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         Player* plr = i->getSource();
-                        if( !plr)
+                        if ( !plr)
                             continue;
                         plr->CastSpell(plr, SPELL_LOREWALKER_ALACRITY, false);
                     }

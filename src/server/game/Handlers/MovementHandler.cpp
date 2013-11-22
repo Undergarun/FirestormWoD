@@ -669,7 +669,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 bitcounterLoop = data.ReadBits(22);
                 break;
             case MSEBitCounterLoop1:
-                for(uint32 i = 0; i < bitcounterLoop; i++)
+                for (uint32 i = 0; i < bitcounterLoop; i++)
                     data.read_skip<uint32>();
                 break;
             case MSEFlushBits:
@@ -811,7 +811,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 hasAlive32 = !data.ReadBit();
                 break;
             case MSEAlive32:
-                if(hasAlive32)
+                if (hasAlive32)
                     data >> mi->Alive32;
                 break;
             default:
@@ -925,7 +925,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
     ObjectGuid guid = mi->guid;
     ObjectGuid tguid = mi->t_guid;
 
-    for(uint32 i = 0; i < MSE_COUNT; ++i)
+    for (uint32 i = 0; i < MSE_COUNT; ++i)
     {
         MovementStatusElements element = sequence[i];
         if (element == MSEEnd)
@@ -1101,7 +1101,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
                 data.WriteBit(!mi->Alive32);
                 break;
             case MSEAlive32:
-                if(mi->Alive32)
+                if (mi->Alive32)
                     data << mi->Alive32;
                 break;
             default:

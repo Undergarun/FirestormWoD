@@ -405,7 +405,7 @@ bool InstanceScript::CheckRequiredBosses(uint32 /*bossId*/, Player const* player
     if (player && player->isGameMaster())
         return true;
 
-    if(instance->GetPlayersCountExceptGMs() > instance->ToInstanceMap()->GetMaxPlayers())
+    if (instance->GetPlayersCountExceptGMs() > instance->ToInstanceMap()->GetMaxPlayers())
         return false;
 
     return true;

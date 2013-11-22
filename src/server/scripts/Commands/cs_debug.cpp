@@ -1415,7 +1415,7 @@ class debug_commandscript : public CommandScript
         {
             Unit* unit = handler->getSelectedUnit();
             Player* player = handler->GetSession()->GetPlayer();
-            if(unit && unit->GetTypeId() == TYPEID_PLAYER)
+            if (unit && unit->GetTypeId() == TYPEID_PLAYER)
                 player = unit->ToPlayer();
 
             player->GetPhaseMgr().SendDebugReportToPlayer(handler->GetSession()->GetPlayer());

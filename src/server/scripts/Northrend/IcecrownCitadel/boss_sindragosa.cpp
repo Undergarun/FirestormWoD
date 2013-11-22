@@ -521,7 +521,7 @@ class boss_sindragosa : public CreatureScript
                             break;
                         case EVENT_FROST_BOMB:
                         {
-                            if(FrostBombsCount >= 3)
+                            if (FrostBombsCount >= 3)
                                 return;
 
                             float destX, destY, destZ;

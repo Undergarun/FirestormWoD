@@ -16444,7 +16444,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         for (auto itr : shadowylist)
         {
-            if(UnitAI* ai =  itr->GetAI())
+            if (UnitAI* ai =  itr->GetAI())
                 ai->SetGUID(target->GetGUID());
             itr->GetMotionMaster()->MovePoint(1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
         }

@@ -272,7 +272,7 @@ enum clodoEnum {
     KILL_CREDIT_WESTFALL_STEW           = 42617
 
 };
-
+//@todo rename variables
 class npc_westfall_stew : public CreatureScript
 {
 public:
@@ -294,12 +294,12 @@ public:
         {
             time = 30000;
             booltest = true;
-            if(Player* invocer = me->ToTempSummon()->GetSummoner()->ToPlayer())
+            if (Player* invocer = me->ToTempSummon()->GetSummoner()->ToPlayer())
             {
                 GetCreatureListWithEntryInGrid(clodoList, me, NPC_HOMELESS_STORMWIND_CITIZEN, 15.0f);
                 for (auto clodo: clodoList)
                 {
-                    if(clodo->getStandState() != UNIT_STAND_STATE_SIT)
+                    if (clodo->getStandState() != UNIT_STAND_STATE_SIT)
                     {
                         clodo->GetMotionMaster()->MoveFollow(me, 1, me->GetAngle(clodo));
                         clodo->SetStandState(UNIT_STAND_STATE_SIT);
@@ -310,7 +310,7 @@ public:
         }
         void UpdateAI(const uint32 diff)
         {
-            if(booltest)
+            if (booltest)
             {
                 if (time < diff)
                 {

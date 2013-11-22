@@ -2627,9 +2627,9 @@ struct SpellEffect
 {
     SpellEffect()
     {
-        for(int i = 0; i < MAX_DIFFICULTY; i++)
+        for (int i = 0; i < MAX_DIFFICULTY; i++)
         {
-            for(int y = 0; y < MAX_SPELL_EFFECTS; y++)
+            for (int y = 0; y < MAX_SPELL_EFFECTS; y++)
             {
                 effects[i][y] = 0;
             }
