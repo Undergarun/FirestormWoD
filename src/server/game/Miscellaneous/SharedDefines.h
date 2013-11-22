@@ -3331,7 +3331,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
     CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
-    CREATURE_TYPEFLAGS_QUEST_BOSS        = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
+    CREATURE_TYPEFLAGS_QUEST_BOSS       = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
 };
 
 enum CreatureTypeFlags2
@@ -4223,7 +4223,16 @@ enum SpellFamilyNames
     // 16 - unused
     SPELLFAMILY_PET         = 17,
     SPELLFAMILY_UNK3        = 50,
-    SPELLFAMILY_MONK        = 53
+    SPELLFAMILY_MONK        = 53,
+
+    // Found on SpellClassOptions.dbc
+    SPELLFAMILY_UNK4        = 54,
+    SPELLFAMILY_UNK5        = 56,                           // 2 Only
+    SPELLFAMILY_UNK6        = 57,
+    SPELLFAMILY_UNK7        = 66,                           // 2 Only
+    SPELLFAMILY_UNK8        = 71,                           // 2 Only
+    SPELLFAMILY_UNK9        = 78,
+    SPELLFAMILY_UNK10       = 97
 };
 
 // stored in character_pet.slot
