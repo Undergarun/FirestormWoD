@@ -88,10 +88,22 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+    uint8 byteOrder[8] = {4, 6, 0, 3, 5, 1, 2, 7};
+    guid[5] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    uint8 unk1 = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    recvData.FlushBits();
+    recvData.ReadBitInOrder(guid, byteOrder);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u, unk1 = %u", GUID_LOPART(guid), unk1);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!creature)
@@ -151,7 +163,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (object && object->GetTypeId() == TYPEID_PLAYER && !object->hasQuest(questId))
+    if (object && object->GetTypeId() == TYPEID_PLAYER && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         return;
 
     // some kind of WPE protection
@@ -525,8 +537,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
 {
     uint32 questId;
-    uint64 guid;
-    recvData >> guid >> questId;
+    ObjectGuid guid;
+
+    recvData >> questId;
+    
+    uint8 bitOrder[8] = {5, 0, 1, 2, 4, 3, 7, 6};
+    uint8 byteOrder[8] = {5, 7, 1, 3, 4, 6, 2, 0};
+    recvData.ReadBitInOrder(guid, bitOrder);
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_REQUEST_REWARD npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
 
@@ -546,26 +564,6 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
-}
-
-void WorldSession::HandleQuestgiverCancel(WorldPacket& /*recvData*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CANCEL");
-
-    _player->PlayerTalkClass->SendCloseGossip();
-}
-
-void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recvData)
-{
-    uint8 slot1, slot2;
-    recvData >> slot1 >> slot2;
-
-    if (slot1 == slot2 || slot1 >= MAX_QUEST_LOG_SIZE || slot2 >= MAX_QUEST_LOG_SIZE)
-        return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_SWAP_QUEST slot 1 = %u, slot 2 = %u", slot1, slot2);
-
-    GetPlayer()->SwapQuestSlot(slot1, slot2);
 }
 
 void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
@@ -710,11 +708,6 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         _player->SaveToDB();
 }
 
-void WorldSession::HandleQuestgiverQuestAutoLaunch(WorldPacket& /*recvPacket*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUEST_AUTOLAUNCH");
-}
-
 void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 {
     uint32 questId;
@@ -781,16 +774,20 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     uint8 msg;
     recvPacket >> guid >> msg;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_QUEST_PUSH_RESULT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_QUEST_PUSH_RESULT");
 
     if (_player->GetDivider() != 0)
     {
         Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
         if (player)
         {
-            WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
-            data << uint64(guid);
-            data << uint8(msg);                             // valid values: 0-8
+            WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
+            ObjectGuid guidObj = player->GetGUID();
+            uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
+            uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
+            data.WriteBitInOrder(guidObj, bitOrder);
+            data.WriteBytesSeq(guidObj, byteOrder);
+            data << uint8(msg); 
             player->GetSession()->SendPacket(&data);
             _player->SetDivider(0);
         }

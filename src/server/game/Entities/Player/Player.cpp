@@ -18411,10 +18411,31 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
+        ObjectGuid guid = GetGUID();
+
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(quest->GetQuestId());
-        data << strTitle;
-        data << uint64(GetGUID());
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(!strTitle.size());
+        if (strTitle.size())
+            data.WriteBits(strTitle.size(), 10);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[1]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[7]);
+        if (strTitle.size())
+            data.append(strTitle.c_str(), strTitle.size());
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
         pReceiver->GetSession()->SendPacket(&data);
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
@@ -18425,11 +18446,15 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
 {
     if (player)
     {
-        WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
-        data << uint64(player->GetGUID());
+        WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
+        ObjectGuid guid = player->GetGUID();
+        uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
+        uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
+        data.WriteBitInOrder(guid, bitOrder);
+        data.WriteBytesSeq(guid, byteOrder);
         data << uint8(msg);                                 // valid values: 0-8
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_QUEST_PUSH_RESULT");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
     }
 }
 
