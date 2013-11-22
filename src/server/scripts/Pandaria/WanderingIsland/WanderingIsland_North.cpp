@@ -179,7 +179,7 @@ class mob_tushui_trainee : public CreatureScript
             {
                 if (me->HealthBelowPctDamaged(5, damage))
                 {
-                    if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
+                    if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
                         attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
                     me->CombatStop();
                     me->SetFullHealth();
@@ -338,7 +338,7 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
-            if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
+            if (me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
                 uiDamage = 0;
         }
     };
@@ -367,7 +367,7 @@ public:
 
         mob_min_dimwindAI(Creature* creature) : ScriptedAI(creature)
         {
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
                 guidMob[i] = 0;
 
             ResetMobs();
@@ -376,20 +376,20 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
-            if(me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
+            if (me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
                 uiDamage = 0;
         }
 
         bool VerifyMobs()
         {
             bool HasRemainingAttacker = false;
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
-                if(guidMob[i])
+                if (guidMob[i])
                 {
                     if (Unit* unit = sObjectAccessor->FindUnit(guidMob[i]))
                     {
-                        if(unit->isAlive())
+                        if (unit->isAlive())
                             HasRemainingAttacker = true;
                     }
                     else
@@ -405,16 +405,16 @@ public:
             events.ScheduleEvent(EVENT_CHECK_MOBS, 1000);
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
 
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
-                if(guidMob[i])
+                if (guidMob[i])
                     if (Unit* unit = sObjectAccessor->FindUnit(guidMob[i]))
                         if (unit->ToCreature())
                             unit->ToCreature()->DespawnOrUnsummon();
 
                 guidMob[i] = 0;
 
-                if(TempSummon* temp = me->SummonCreature(54130, me->GetPositionX()-3+rand()%6, me->GetPositionY() + 4 + rand()%4, me->GetPositionZ()+2, 3.3f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                if (TempSummon* temp = me->SummonCreature(54130, me->GetPositionX()-3+rand()%6, me->GetPositionY() + 4 + rand()%4, me->GetPositionZ()+2, 3.3f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                 {
                     guidMob[i] = temp->GetGUID();
 
@@ -438,7 +438,7 @@ public:
                 {
                     case EVENT_CHECK_MOBS:
                     {
-                        if(VerifyMobs()) //plus de mobs, win!
+                        if (VerifyMobs()) //plus de mobs, win!
                         {
                             me->HandleEmoteCommand(EMOTE_STATE_STAND);
                             me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
@@ -583,9 +583,9 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
-            if(me->HealthBelowPctDamaged(5, uiDamage))
+            if (me->HealthBelowPctDamaged(5, uiDamage))
             {
-                if(lifei)
+                if (lifei)
                 {
                     lifei->UnSummon();
                     lifei = NULL;
@@ -616,7 +616,7 @@ public:
             GetPlayerListInGrid(PlayerList, me, 20.0f);
 
             for (auto player: PlayerList)
-                if(player->GetQuestStatus(29414) == QUEST_STATUS_INCOMPLETE)
+                if (player->GetQuestStatus(29414) == QUEST_STATUS_INCOMPLETE)
                     playersInvolved.push_back(player);
         }
 
@@ -630,7 +630,7 @@ public:
                     case EVENT_START: //Begin script if playersInvolved is not empty
                     {
                         updatePlayerList();
-                        if(playersInvolved.empty())
+                        if (playersInvolved.empty())
                             events.ScheduleEvent(1, 600);
                         else
                         {
@@ -646,9 +646,9 @@ public:
                     case EVENT_SPAWN_MOBS: //Spawn 3 mobs
                     {
                         updatePlayerList();
-                        for(int i = 0; i < std::max((int)playersInvolved.size()*3,3); i++)
+                        for (int i = 0; i < std::max((int)playersInvolved.size()*3,3); i++)
                         {
-                            if(TempSummon* temp = me->SummonCreature(59637, 1144.55f, 3435.65f, 104.97f, 3.3f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                            if (TempSummon* temp = me->SummonCreature(59637, 1144.55f, 3435.65f, 104.97f, 3.3f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
                             {
                                 if (temp->AI())
                                     temp->AI()->AttackStart(me);
@@ -665,33 +665,33 @@ public:
                     {
                         timer++;
 
-                        if(timer == 25 && !lifei)
+                        if (timer == 25 && !lifei)
                         {
                             if (lifei = me->SummonCreature(54856, 1130.162231f, 3435.905518f, 105.496597f, 0.0f,TEMPSUMMON_MANUAL_DESPAWN))
                                 lifei->MonsterSay("The way of the Tushui... enlightenment through patience and mediation... the principled life", LANG_UNIVERSAL, 0);
                         }
 
-                        if(timer == 30)
+                        if (timer == 30)
                             if (lifei)
                                 lifei->MonsterSay("It is good to see you again, Aysa. You've come with respect, and so I shall give you the answers you seek.", LANG_UNIVERSAL, 0);
 
-                        if(timer == 42)
+                        if (timer == 42)
                             if (lifei)
                                 lifei->MonsterSay("Huo, the spirit of fire, is known for his hunger. He wants for tinder to eat. He needs the caress of the wind to rouse him.", LANG_UNIVERSAL, 0);
 
-                        if(timer == 54)
+                        if (timer == 54)
                             if (lifei)
                                 lifei->MonsterSay("If you find these things and bring them to his cave, on the far side of Wu-Song Village, you will face a challenge within.", LANG_UNIVERSAL, 0);
 
-                        if(timer == 66)
+                        if (timer == 66)
                             if (lifei)
                                 lifei->MonsterSay("Overcome that challenge, and you shall be graced by Huo's presence. Rekindle his flame, and if your spirit is pure, he shall follow you.", LANG_UNIVERSAL, 0);
 
-                        if(timer == 78)
+                        if (timer == 78)
                             if (lifei)
                                 lifei->MonsterSay("Go, children. We shall meet again very soon.", LANG_UNIVERSAL, 0);
 
-                        if(timer == 85)
+                        if (timer == 85)
                         {
                             if (lifei)
                                 lifei->UnSummon();
@@ -702,7 +702,7 @@ public:
                         updatePlayerList();
                         for (auto player: playersInvolved)
                         {
-                            if(!player->HasAura(116421))
+                            if (!player->HasAura(116421))
                                 player->CastSpell(player, 116421);
 
                             player->ModifyPower(POWER_ALTERNATE_POWER, timer/25);
@@ -714,7 +714,7 @@ public:
                     }
                     case EVENT_END: //script end
                     {
-                        if(lifei)
+                        if (lifei)
                         {
                             lifei->UnSummon();
                             lifei = NULL;
@@ -725,7 +725,7 @@ public:
                         me->MonsterSay("And so our path lays before us. Speak to Master Shang Xi, he will tell you what comes next.", LANG_UNIVERSAL, 0);
                         updatePlayerList();
                         me->SetReactState(REACT_DEFENSIVE);
-                        for(auto player: playersInvolved)
+                        for (auto player: playersInvolved)
                         {
                             player->KilledMonsterCredit(54856, 0);
                             player->RemoveAura(116421);
@@ -923,20 +923,20 @@ public:
                         break;
                     }
                     case EVENT_FEET_OF_FURY:
-                        if(me->getVictim())
+                        if (me->getVictim())
                             me->CastSpell(me->getVictim(), 108958);
 
                         events.ScheduleEvent(EVENT_FEET_OF_FURY, 5000);
                         break;
                     case EVENT_SHADOW_KICK:
-                        if(me->getVictim())
+                        if (me->getVictim())
                             me->CastSpell(me->getVictim(), 108936);
 
                         events.ScheduleEvent(EVENT_SHADOW_KICK_STUN, 2500);
                         events.ScheduleEvent(EVENT_SHADOW_KICK, 30000);
                         break;
                     case 4:
-                        if(me->getVictim())
+                        if (me->getVictim())
                             me->CastSpell(me->getVictim(), 108944);
                         break;
                 }

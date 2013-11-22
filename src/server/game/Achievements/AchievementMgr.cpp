@@ -2419,13 +2419,13 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         data.WriteByteSeq(firstAccountGuid[6]);
         data.WriteByteSeq(firstAccountGuid[3]);
         data.WriteByteSeq(firstAccountGuid[0]);
-        data << uint32(50397223);                                   // Unk timer from 5.4.0 17399, sometimes 50724907
+        data << uint32(realmID);                                   // Unk timer from 5.4.0 17399, sometimes 50724907
         data.WriteByteSeq(firstAccountGuid[1]);
         data.WriteByteSeq(firstAccountGuid[2]);
         data << uint32(secsToTimeBitFields((*itr).second.date));
         data.WriteByteSeq(firstAccountGuid[7]);
         data.WriteByteSeq(firstAccountGuid[5]);
-        data << uint32(50397223);                                   // Unk timer from 5.4.0 17399, sometimes 50724907
+        data << uint32(realmID);                                   // Unk timer from 5.4.0 17399, sometimes 50724907
         data << uint32(itr->first);
     }
 

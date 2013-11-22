@@ -9300,3 +9300,44 @@ void ObjectMgr::LoadItemExtendedCost()
     
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item extended cost info.", counter);
 }
+
+void ObjectMgr::LoadGuildChallengeRewardInfo()
+{
+    uint32 oldMSTime = getMSTime();
+    QueryResult result = WorldDatabase.Query("SELECT Type, Experience, Gold, Gold2, Count FROM guild_challenge_reward");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild challenge reward data.");
+        return;
+    }
+
+    _challengeRewardData.reserve(result->GetRowCount());
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 type = fields[0].GetUInt32();
+        if (type >= CHALLENGE_MAX)
+        {
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> guild_challenge_reward has unknown challenge type %u, skip.", type);
+            continue;
+        }
+
+        GuildChallengeReward reward;
+        {
+            reward.Experience = fields[1].GetUInt32();
+            reward.Gold = fields[2].GetUInt32();
+            reward.Gold2 = fields[3].GetUInt32();
+            reward.ChallengeCount = fields[4].GetUInt32();
+        }
+
+        _challengeRewardData.push_back(reward);
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild challenge reward data in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}

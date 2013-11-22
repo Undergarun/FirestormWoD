@@ -16444,7 +16444,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         for (auto itr : shadowylist)
         {
-            if(UnitAI* ai =  itr->GetAI())
+            if (UnitAI* ai =  itr->GetAI())
                 ai->SetGUID(target->GetGUID());
             itr->GetMotionMaster()->MovePoint(1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
         }
@@ -17798,11 +17798,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
 
                 ObjectGuid creatureGuid = creature->GetGUID();
 
-                uint8 bitsOrder[8] = { 6, 7, 3, 5, 1, 2, 0, 4 };
-                data2.WriteBitInOrder(creatureGuid, bitsOrder);
+                uint8 bitsOrder2[8] = { 6, 7, 3, 5, 1, 2, 0, 4 };
+                data2.WriteBitInOrder(creatureGuid, bitsOrder2);
 
-                uint8 bytesOrder[8] = { 5, 6, 2, 0, 1, 3, 4, 7 };
-                data2.WriteBytesSeq(creatureGuid, bytesOrder);
+                uint8 bytesOrder2[8] = { 5, 6, 2, 0, 1, 3, 4, 7 };
+                data2.WriteBytesSeq(creatureGuid, bytesOrder2);
 
                 player->SendMessageToSet(&data2, true);
             }

@@ -742,7 +742,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_dynamicTab.resize(PLAYER_DYNAMIC_END);
     m_dynamicChange.resize(PLAYER_DYNAMIC_END);
-    for(int i = 0; i < PLAYER_DYNAMIC_END; i++)
+    for (int i = 0; i < PLAYER_DYNAMIC_END; i++)
     {
         m_dynamicTab[i] = new uint32[32];
         m_dynamicChange[i] = new bool[32];
@@ -1769,7 +1769,7 @@ void Player::Update(uint32 p_time)
 
     //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
 
-    if(!m_initializeCallback)
+    if (!m_initializeCallback)
     {
         PreparedStatement* stmt;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
@@ -2142,7 +2142,7 @@ void Player::Update(uint32 p_time)
 
     if (m_knockBackTimer)
     {
-        if( m_knockBackTimer + 2000 < getMSTime())
+        if ( m_knockBackTimer + 2000 < getMSTime())
             m_knockBackTimer = 0;
     }
 
@@ -3750,11 +3750,11 @@ void Player::GiveGatheringXP()
     else if (level > 79 && level < 85)
         gain = 750 * level - 58250;
     else if (level > 84 && level < 90)
-        gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, TODO : find blizzlike formula (7400 - 14280)
+        gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, @TODO : find blizzlike formula (7400 - 14280)
 
     float GatheringXpRate = 1;
 
-    if(GetPersonnalXpRate())
+    if (GetPersonnalXpRate())
         GatheringXpRate = GetPersonnalXpRate();
     else
         GatheringXpRate = sWorld->getRate(RATE_XP_GATHERING);
@@ -3803,7 +3803,7 @@ void Player::GiveLevel(uint8 level)
             break;
     }
 
-    data << uint32(talent);     // Has talent
+    data << uint32(talent);                                 // Has talent
     data << uint32(level);
 
     data << uint32(int32(basemana)   - int32(GetCreateMana()));
@@ -3836,7 +3836,7 @@ void Player::GiveLevel(uint8 level)
     InitGlyphsForLevel();
 
     UpdateAllStats();
-    _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
+    _ApplyAllLevelScaleItemMods(true);                      // Moved to above SetFullHealth so player will have full health from Heirlooms
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetFullHealth();
@@ -3852,7 +3852,7 @@ void Player::GiveLevel(uint8 level)
 
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
     {
-        //- TODO: Poor design of mail system
+        //- @TODO: Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
         CharacterDatabase.CommitTransaction(trans);
@@ -3876,21 +3876,21 @@ void Player::GiveLevel(uint8 level)
                     SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
             }
     
-    if(level == 85)
-    {
-        uint32 idQuest;
-        if(GetTeam() == TEAM_ALLIANCE)
-        {
-            idQuest = 29547;
-        }
-        else
-            idQuest = 29611;
+            if (level == 85)
+            {
+                uint32 idQuest;
+                if (GetTeam() == TEAM_ALLIANCE)
+                {
+                    idQuest = 29547;
+                }
+                else
+                    idQuest = 29611;
 
-        Quest const* quest = sObjectMgr->GetQuestTemplate(idQuest);
-        if(quest)
-            AddQuest(quest, NULL);
-    }
-    
+                Quest const* quest = sObjectMgr->GetQuestTemplate(idQuest);
+                if (quest)
+                    AddQuest(quest, NULL);
+            }
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -7911,7 +7911,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 uint32 XP = 0;
 
                 float ExploreXpRate = 1;
-                if(GetPersonnalXpRate())
+                if (GetPersonnalXpRate())
                    ExploreXpRate = GetPersonnalXpRate();
                 else
                    ExploreXpRate = sWorld->getRate(RATE_XP_EXPLORE);
@@ -8654,7 +8654,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             }
 
              // on new case just set init.
-            if(itr->second.state == PLAYERCURRENCY_NEW)
+            if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 SendNewCurrency(id);
                 return;
@@ -8926,7 +8926,7 @@ void Player::UpdateArea(uint32 newArea)
     UpdatePvPState(true);
 
     //Pandaria area update for monk level < 85
-    if(area && getLevel() < 85 && getClass() == CLASS_MONK && GetMapId() == 870 && area->mapid == 870 &&
+    if (area && getLevel() < 85 && getClass() == CLASS_MONK && GetMapId() == 870 && area->mapid == 870 &&
         newArea != 6081 && newArea != 6526 && newArea != 6527 
         && GetZoneId() == 5841 && !isGameMaster())
         TeleportTo(870, 3818.55f, 1793.18f, 950.35f, GetOrientation());
@@ -11198,7 +11198,7 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
     ObjectGuid Guid = guid;
     uint32 cost = 0;
 
-    if(!specialization)
+    if (!specialization)
         cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
     else
         cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetSpecializationCost();
@@ -12963,7 +12963,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         return EQUIP_ERR_NOT_OWNER;
 
     // Currency tokens are not supposed to be swapped out of their hidden bag
-    if(pItem->IsCurrencyToken())
+    if (pItem->IsCurrencyToken())
     {
         sLog->outError(LOG_FILTER_PLAYER, "Possible hacking attempt: Player %s [guid: %u] tried to move token [guid: %u, entry: %u] out of the currency bag!",
                 GetName(), GetGUIDLow(), pItem->GetGUIDLow(), pProto->ItemId);
@@ -14986,17 +14986,31 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
+
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
-    data << uint64(creature ? creature->GetGUID() : 0);
+    ObjectGuid guid = creature ? creature->GetGUID() : NULL;
+
+    uint8 bitsOrder[8] = { 7, 5, 4, 2, 6, 0, 3, 1 };
+    data.WriteBitInOrder(guid, bitsOrder);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
     data << uint32(item);
     data << uint8(msg);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[2]);
+
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));  // last check 4.3.4
+    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));
     data << uint64(creature ? creature->GetGUID() : 0);
     data << uint64(guid);
     data << uint8(msg);
@@ -16238,7 +16252,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_TABARDDESIGNER:
             PlayerTalkClass->SendCloseGossip();
-            GetSession()->SendTabardVendorActivate(guid);
+            GetSession()->SendTabardVendorActivate(GetSession()->GetPlayer()->GetGUID());
             break;
         case GOSSIP_OPTION_AUCTIONEER:
             GetSession()->SendAuctionHello(guid, source->ToCreature());
@@ -16853,9 +16867,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         if (int32 reqCurrencyId = quest->RequiredCurrencyId[i])
         {
             CurrencyTypesEntry const* reqCurrency = sCurrencyTypesStore.LookupEntry(reqCurrencyId);
-            if(int32 reqCountCurrency = quest->RequiredCurrencyCount[i])
+            if (int32 reqCountCurrency = quest->RequiredCurrencyCount[i])
             {
-                if(reqCurrency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                if (reqCurrency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
                     reqCountCurrency *= 100;
                 ModifyCurrency(reqCurrencyId, -reqCountCurrency);
             }
@@ -16899,11 +16913,11 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             if (uint32 currencyId = quest->RewardCurrencyId[i])
             {
                 CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
-                if(uint32 countCurrency = quest->RewardCurrencyCount[i])
+                if (uint32 countCurrency = quest->RewardCurrencyCount[i])
                 {
-                    if(currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                    if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
                         countCurrency *= 100;
-                    ModifyCurrency(currencyId,countCurrency);
+                    ModifyCurrency(currencyId, countCurrency);
                 }
             }
         }
@@ -16919,7 +16933,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     float QuestXpRate = 1;
-    if(GetPersonnalXpRate())
+    if (GetPersonnalXpRate())
         QuestXpRate = GetPersonnalXpRate();
     else
         QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
@@ -18874,7 +18888,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     m_atLoginFlags = fields[34].GetUInt16();
     bool mustResurrectFromUnlock = false;
 
-    if(m_atLoginFlags & AT_LOGIN_UNLOCK)
+    if (m_atLoginFlags & AT_LOGIN_UNLOCK)
     {
         bool BGdesert = false;
         bool DungeonDesert = false;
@@ -19409,7 +19423,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
     
-    /*if(QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
+    /*if (QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
         m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();*/
 
     if (mustResurrectFromUnlock)
@@ -19501,7 +19515,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Loading auras for player %u", GetGUIDLow());
 
     std::list<auraEffectData> auraEffectList;
-    if(resultEffect)
+    if (resultEffect)
     {
         do
         {
@@ -19568,7 +19582,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
 
             for(std::list<auraEffectData>::iterator itr = auraEffectList.begin(); itr != auraEffectList.end(); ++itr)
             {
-                if(itr->_slot == slot)
+                if (itr->_slot == slot)
                 {
                     damage[itr->_effect] = itr->_amount;
                     baseDamage[itr->_effect] = itr->_baseamount;
@@ -21254,7 +21268,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         AuraPtr aura = itr->second;
         AuraApplication * foundAura = GetAuraApplication(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID());
 
-        if(!foundAura)
+        if (!foundAura)
             continue;
 
 
@@ -22144,9 +22158,9 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
     // 1: There are players offline in your party.
     // 2>: There are players in your party attempting to zone into an instance.
     */
-    WorldPacket data(SMSG_INSTANCE_RESET_FAILED, 8);
-    data << uint32(reason);
+    WorldPacket data(SMSG_INSTANCE_RESET_FAILED);
     data << uint32(MapId);
+    data.WriteBits(reason, 2);
     GetSession()->SendPacket(&data);
 }
 
@@ -22418,12 +22432,12 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     /**data << uint8(msgtype);
     *data << uint32(language);
     *data << uint64(GetGUID());
-    *data << uint32(0);                                      // constant unknown time
+    *data << uint32(0);                                            // constant unknown time
     if (addonPrefix)
         *data << addonPrefix;
     *data << uint64(GetGUID());
 
-    if(msgtype == 2 || msgtype == 51 || msgtype == 3 || msgtype == 39 || msgtype == 40)
+    if (msgtype == 2 || msgtype == 51 || msgtype == 3 || msgtype == 39 || msgtype == 40)
         *data << uint64(GetGUID());
     *data << uint32(text.length() + 1);
     *data << text;
@@ -23842,7 +23856,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         if (reward.AchievementId)
             if (!guild->GetAchievementMgr().HasAchieved(reward.AchievementId))
             {
-                if(!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
+                if (!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
                 { 
                     SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                     return false;
@@ -28781,9 +28795,9 @@ void Player::ShowNeutralPlayerFactionSelectUI()
 
 void Player::SetPersonnalXpRate(float PersonnalXpRate)
 {
-    if(PersonnalXpRate != m_PersonnalXpRate)
+    if (PersonnalXpRate != m_PersonnalXpRate)
     {
-        if(PersonnalXpRate)
+        if (PersonnalXpRate)
         {
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUIDLow(), PersonnalXpRate);
@@ -28803,7 +28817,7 @@ void Player::SetPersonnalXpRate(float PersonnalXpRate)
 void Player::HandleStoreGoldCallback(PreparedQueryResult result)
 {
     // Load des golds
-    if(result)
+    if (result)
     {
         uint32 goldCount = 0;
         do
@@ -28812,10 +28826,10 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
             uint32 gold         = (fieldGold[0].GetUInt32()) * GOLD;
             uint32 transaction  = fieldGold[1].GetUInt32();
 
-            if((GetMoney() + gold) > MAX_MONEY_AMOUNT)
+            if ((GetMoney() + gold) > MAX_MONEY_AMOUNT)
             {
-                GetSession()->SendNotification("Vous avez commande des pieces d'ors a la boutique, mais vous disposez deja de la limite imposee par WoW");
-                GetSession()->SendNotification("Vos pieces d'or seront ajoutee lors d'une futur re-connexion.");
+                GetSession()->SendNotification("Vous avez commande des pieces d'ors a la boutique, mais vous disposez deja de la limite imposee par WoW");  // Translate me
+                GetSession()->SendNotification("Vos pieces d'or seront ajoutee lors d'une futur re-connexion.");                                            // Translate me
                 break;
             }
             goldCount+= gold;
@@ -28834,8 +28848,8 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
         }
         while(result->NextRow());
 
-        if(goldCount)
-            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));
+        if (goldCount)
+            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));             // Translate me
     }
 }
 
@@ -28854,28 +28868,28 @@ void Player::HandleStoreItemCallback(PreparedQueryResult result)
 
             uint32 noSpaceForCount = 0;
 
-            // Item special, ajout de po 200001 - 200006
+            // Special item, gold add 200001 - 200006
             if (ShopItemid > 200000)
             {
                 uint32 po = 0;
                 switch (ShopItemid)
                 {
-                    case 200001: // 150k po
+                    case 200001: // 150k gold
                         po = 1500000000;
                         break;
-                    case 200002: // 80k po
+                    case 200002: // 80k gold
                         po = 800000000;
                         break;
-                    case 200003: // 30k po
+                    case 200003: // 30k gold
                         po = 300000000;
                         break;
-                    case 200004: // 10k po
+                    case 200004: // 10k gold
                         po = 100000000;
                         break;
-                    case 200005: // 5k po
+                    case 200005: // 5k gold
                         po = 50000000;
                         break;
-                    case 200006: // 1k po
+                    case 200006: // 1k gold
                         po = 10000000;
                         break;
                     default:
@@ -28907,7 +28921,7 @@ void Player::HandleStoreItemCallback(PreparedQueryResult result)
             else
             {
                 // noSpaceForCount > 0 = il reste des items a ajouter
-                if(AddItem(ShopItemid, ShopCount, &noSpaceForCount) && !noSpaceForCount)
+                if (AddItem(ShopItemid, ShopCount, &noSpaceForCount) && !noSpaceForCount)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_ITEM);
                     stmt->setInt32(0, transaction);
@@ -28946,7 +28960,7 @@ void Player::HandleStoreItemCallback(PreparedQueryResult result)
         }
         while(result->NextRow());
 
-        if(ShopError)
+        if (ShopError)
             GetSession()->SendNotification(GetSession()->GetSessionDbcLocale() == LOCALE_frFR ? "Verifiez que vous avez assez de place dans votre inventaire." : "Check if you have free slot in your inventory");
     }
 }
@@ -28955,15 +28969,15 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
 {
     PreparedStatement* stmt;
 
-    // Load des powerlevels
-    if(result)
+    // Load powerlevels
+    if (result)
     {
         Field* fields = result->Fetch();
         uint32 level = fields[0].GetUInt32();
 
-        if(level < getLevel() || level > DEFAULT_MAX_LEVEL)
+        if (level < getLevel() || level > DEFAULT_MAX_LEVEL)
         {
-            GetSession()->SendNotification("Tentative de powerlevel vers un niveau inferieur ou vers un niveau plus eleve que le niveau maximum, veuillez contactez le support boutique si ce message apparait.");
+            GetSession()->SendNotification("Tentative de powerlevel vers un niveau inferieur ou vers un niveau plus eleve que le niveau maximum, veuillez contactez le support boutique si ce message apparait.");  // translate me
         }
         else
         {
@@ -28976,12 +28990,12 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
     }
 }
 
-    // Load des métiers
+    // Load skill
     /*stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_METIER);
     stmt->setInt32(0, GetGUIDLow());
     PreparedQueryResult metierList = CharacterDatabase.Query(stmt);
 
-    if(metierList)
+    if (metierList)
     {
         do
         {
@@ -28991,7 +29005,7 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
 
             uint32 learnId = 0;
 
-            for(SpellSkillingList::iterator itr = sSpellSkillingList.begin(); itr != sSpellSkillingList.end(); itr++)
+            for (SpellSkillingList::iterator itr = sSpellSkillingList.begin(); itr != sSpellSkillingList.end(); itr++)
             {
                 SpellEntry const* spell = (*itr);
 
@@ -29000,19 +29014,19 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
                 if (!spellEffect)
                     continue;
 
-                if((uint32)spellEffect->EffectMiscValue != skillId)
+                if ((uint32)spellEffect->EffectMiscValue != skillId)
                     continue;
 
-                if((uint32)(spellEffect->EffectBasePoints+1) != (value/75))
+                if ((uint32)(spellEffect->EffectBasePoints+1) != (value/75))
                     continue;
 
                 learnId = spell->Id;
                 break;
             }
 
-            if(learnId)
+            if (learnId)
             {
-                if(!HasSpell(learnId))
+                if (!HasSpell(learnId))
                     learnSpell(learnId, false);
 
                 SetSkill(skillId, GetSkillStep(skillId), value, value);
@@ -29023,7 +29037,7 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
                 stmt->setInt32(2, value);
                 CharacterDatabase.Execute(stmt);
 
-                GetSession()->SendNotification("Votre metier commande sur la boutique vous a ete ajoute avec succes !");
+                GetSession()->SendNotification("Votre metier commande sur la boutique vous a ete ajoute avec succes !");  // translate me
             }
 
         }

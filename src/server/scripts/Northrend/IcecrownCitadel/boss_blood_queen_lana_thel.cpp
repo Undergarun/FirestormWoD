@@ -150,9 +150,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 _creditBloodQuickening = false;
                 me->RemoveAurasDueToSpell(SPELL_PRESENCE_OF_THE_DARKFALLEN);
 
-                if(instance)
-                    for(uint8 i = 0; i < instance->GetData(DATA_BLOODQUEEN_TARGETS_COUNT); ++i)
-                        instance->GetData64(DATA_BLOODQUEEN_TARGETS); // Cela va automatiquement supprimer toutes les targets qui pourraient rester
+                if (instance)
+                    for (uint8 i = 0; i < instance->GetData(DATA_BLOODQUEEN_TARGETS_COUNT); ++i)
+                        instance->GetData64(DATA_BLOODQUEEN_TARGETS); // Delete all target
             }
 
             void EnterCombat(Unit* who)
@@ -618,10 +618,10 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if(targets.empty())
+                if (targets.empty())
                     return;
 
-                if(!GetCaster() || !GetCaster()->GetMap())
+                if (!GetCaster() || !GetCaster()->GetMap())
                     return;
 
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -632,9 +632,9 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
                     uint8 TargetsNumber = 0;
                     uint8 TargetsMax = 0;
 
-                    if(instance->GetData(DATA_BLOODQUEEN_TARGETS_PROC) == 1) // premier proc
+                    if (instance->GetData(DATA_BLOODQUEEN_TARGETS_PROC) == 1) // premier proc
                     {
-                        for(std::list<WorldObject*>::iterator Itr = targets.begin(); Itr != targets.end(); ++Itr)
+                        for (std::list<WorldObject*>::iterator Itr = targets.begin(); Itr != targets.end(); ++Itr)
                             instance->SetData64(DATA_BLOODQUEEN_TARGETS, (*Itr)->GetGUID());
 
                         instance->SetData64(DATA_BLOODQUEEN_TARGETS, 0); // Met les joueurs dans un ordre aléatoire
@@ -645,21 +645,21 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
                     targets.clear();
                     ListSize = instance->GetData(DATA_BLOODQUEEN_TARGETS_COUNT);
 
-                    if(GetCaster()->GetMap()->GetDifficulty() & 1)
+                    if (GetCaster()->GetMap()->GetDifficulty() & 1)
                        TargetsMax = 25;
                     else
                        TargetsMax = 10;
 
-                    if(FirstProc) // Perte de donnée normale : on arrondi à l'entier inférieur
+                    if (FirstProc) // Perte de donnée normale : on arrondi à l'entier inférieur
                         TargetsNumber = uint8(TargetsMax / 3) + 1;
                     else
                         TargetsNumber = uint8(TargetsMax / 3);
 
-                    if(TargetsNumber > ListSize)
+                    if (TargetsNumber > ListSize)
                         TargetsNumber = ListSize;
 
-                    for(uint8 i = 0; i < TargetsNumber; ++i)
-                        if(Player * pPlayer = ObjectAccessor::GetPlayer(*GetCaster(), instance->GetData64(DATA_BLOODQUEEN_TARGETS)))
+                    for (uint8 i = 0; i < TargetsNumber; ++i)
+                        if (Player * pPlayer = ObjectAccessor::GetPlayer(*GetCaster(), instance->GetData64(DATA_BLOODQUEEN_TARGETS)))
                             targets.push_back(pPlayer);
 
                     instance->SetData(DATA_BLOODQUEEN_TARGETS_PROC, 1); // Compte le nombre de proc (++ à chaque passage)

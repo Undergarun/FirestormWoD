@@ -226,19 +226,20 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 
         uint32 questStat = plr ? plr->GetQuestStatus(questID) : 0;
 
-        if(questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
+        if (questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
         {
             if (quest->IsRepeatable())
                 questStat = 0;
             else
                 questStat = 4;
         }
-        else if(questStat == QUEST_STATE_NONE)
+        else if (questStat == QUEST_STATE_NONE)
             questStat = 2;
 
         data << uint32(0);                              // quest flags 2
         data << uint32(questStat);                      // quest icon
-        data.append(title.c_str(), title.size());       // quest title
+        if (title.size() > 0)
+            data.append(title.c_str(), title.size());       // quest title
         data << uint32(quest->GetFlags());              // quest flags
         data << int32(quest->GetQuestLevel());          // quest level
         data << uint32(questID);
@@ -249,13 +250,15 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
         GossipMenuItem const& item = itr->second;
         data << uint32(item.BoxMoney);                                  // money required to open menu, 2.0.3
         data << uint32(itr->first);
-        data.append(item.BoxMessage.c_str(), item.BoxMessage.size());
+        if (item.BoxMessage.size() > 0)
+            data.append(item.BoxMessage.c_str(), item.BoxMessage.size());
         data << uint8(item.IsCoded);                                    // makes pop up box password
-        data.append(item.Message.c_str(), item.Message.size());
+        if (item.Message.size() > 0)
+            data.append(item.Message.c_str(), item.Message.size());
         data << uint8(item.MenuItemIcon);
     }
 
-    uint8 byteOrder[8] = {3, 4, 7, 2, 1, 6, 0, 5};
+    uint8 byteOrder[8] = { 3, 4, 7, 2, 1, 6, 0, 5 };
     data.WriteBytesSeq(guid, byteOrder);
 
     _session->SendPacket(&data);
@@ -395,14 +398,14 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
             uint32 questStat = plr ? plr->GetQuestStatus(questID) : 0;
 
-            if(questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
+            if (questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
             {
                 if (quest->IsRepeatable())
                     questStat = 0;
                 else
                     questStat = 4;
             }
-            else if(questStat == QUEST_STATE_NONE)
+            else if (questStat == QUEST_STATE_NONE)
                 questStat = 2;
 
             data << uint32(questStat);                      // quest icon
@@ -785,17 +788,17 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
             ++count;
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        if(quest->RequiredItemId[i] != 0)
+        if (quest->RequiredItemId[i] != 0)
             ++count;
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        if(quest->RequiredCurrencyId[i] != 0)
+        if (quest->RequiredCurrencyId[i] != 0)
             ++count;
 
-    if(quest->GetRepObjectiveFaction() != 0)
+    if (quest->GetRepObjectiveFaction() != 0)
         ++count;
 
-    if(quest->GetRepObjectiveFaction2() != 0)
+    if (quest->GetRepObjectiveFaction2() != 0)
         ++count;
 
     data.WriteBits(count, 19);
@@ -810,7 +813,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     }
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if(quest->RequiredItemId[i] != 0)
+        if (quest->RequiredItemId[i] != 0)
         {
             data.WriteBits(questObjectiveText[i].size(), 8);
             data.WriteBits(0, 22);
@@ -818,18 +821,18 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     }
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if(quest->RequiredCurrencyId[i] != 0)
+        if (quest->RequiredCurrencyId[i] != 0)
         {
             data.WriteBits(questObjectiveText[i].size(), 8);
             data.WriteBits(0, 22);
         }
     }
-    if(quest->GetRepObjectiveFaction() != 0)
+    if (quest->GetRepObjectiveFaction() != 0)
     {
         data.WriteBits(0, 8);
         data.WriteBits(0, 22);
     }
-    if(quest->GetRepObjectiveFaction2() != 0)
+    if (quest->GetRepObjectiveFaction2() != 0)
     {
         data.WriteBits(0, 8);
         data.WriteBits(0, 22);
@@ -885,7 +888,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if(quest->RequiredItemId[i] != 0)
+        if (quest->RequiredItemId[i] != 0)
         {
             data << uint32(0); //unk
             data << uint32(quest->RequiredItemId[i]);
@@ -900,7 +903,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if(quest->RequiredCurrencyId[i] != 0)
+        if (quest->RequiredCurrencyId[i] != 0)
         {
             data << uint32(0); //unk   
             data << uint32(quest->RequiredCurrencyId[i]);
@@ -913,7 +916,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         }
     }
 
-    if(quest->GetRepObjectiveFaction() != 0)
+    if (quest->GetRepObjectiveFaction() != 0)
     {
         data << uint32(0); //unk
         data << uint32(quest->GetRepObjectiveFaction());
@@ -923,7 +926,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         data << uint8(6);
     }
 
-    if(quest->GetRepObjectiveFaction2() != 0)
+    if (quest->GetRepObjectiveFaction2() != 0)
     {
         data << uint32(0); //unk
         data << uint32(quest->GetRepObjectiveFaction2());
@@ -1213,7 +1216,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(0); // 75
 
     float QuestXpRate = 1;
-    if(_session->GetPlayer()->GetPersonnalXpRate())
+    if (_session->GetPlayer()->GetPersonnalXpRate())
         QuestXpRate = _session->GetPlayer()->GetPersonnalXpRate();
     else
         QuestXpRate = sWorld->getRate(RATE_XP_QUEST);

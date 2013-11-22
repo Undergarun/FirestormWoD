@@ -906,7 +906,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                     if (reward.AchievementId)
                         if (!guild->GetAchievementMgr().HasAchieved(reward.AchievementId))
                         {
-                            if(!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
+                            if (!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
                             { 
                                 guildRewardCheckPassed = false;
                                 break;
@@ -1102,18 +1102,15 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BUY_BANK_SLOT");
 
-    uint64 guid;
-    recvPacket >> guid;
+    ObjectGuid guid;
 
-    // cheating protection
-    /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!creature)
-    {
-        sLog->outDebug("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
-        return;
-    }
-    */
+    uint8 bitsOrder[8] = { 2, 0, 3, 5, 1, 7, 6, 4 };
+    recvPacket.ReadBitInOrder(guid, bitsOrder);
+
+    recvPacket.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 3, 5, 7, 6, 0, 1, 2 };
+    recvPacket.ReadBytesSeq(guid, bytesOrder);
 
     uint32 slot = _player->GetBankBagSlotCount();
 
@@ -1187,7 +1184,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_BANK_ITEM");
     uint8 srcbag, srcslot;
 
-    recvPacket >> srcbag >> srcslot;
+    recvPacket >> srcslot >> srcbag;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
     Item* pItem = _player->GetItemByPos(srcbag, srcslot);

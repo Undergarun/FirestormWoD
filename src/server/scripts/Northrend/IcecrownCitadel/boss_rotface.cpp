@@ -332,7 +332,7 @@ class npc_big_ooze : public CreatureScript
 
                 if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
                 {
-                    if(!rotface->isAlive())
+                    if (!rotface->isAlive())
                         me->Kill(me); // Meurt si Rotface meurt
                 }
                 else

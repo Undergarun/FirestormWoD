@@ -155,7 +155,7 @@ class npc_galion : public CreatureScript
                 {
                     case EVENT_EMPALLING:
                     {
-                        if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             me->CastSpell(target,SPELL_EMPALLING_PULL,true);
                         events.ScheduleEvent(EVENT_EMPALLING, 60000);
                         break;

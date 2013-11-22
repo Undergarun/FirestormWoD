@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
+#include "Guild.h"
 
 enum StableResultCode
 {
@@ -68,18 +69,55 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 
 void WorldSession::SendTabardVendorActivate(uint64 guid)
 {
-    WorldPacket data(MSG_TABARDVENDOR_ACTIVATE, 8);
-    data << guid;
-    SendPacket(&data);
+    ObjectGuid playerGuid = guid;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+    {
+        if (guild->GetLeaderGUID() == guid)
+        {
+            WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_ACTIVATE);
+            SendPacket(&data);
+        }
+        else
+        {
+            WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_SHOW);
+
+            uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
+            data.WriteBitInOrder(playerGuid, bitsOrder);
+
+            uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
+            data.WriteBytesSeq(playerGuid, bytesOrder);
+
+            SendPacket(&data);
+        }
+    }
+    else
+    {
+        WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_SHOW);
+
+        uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
+        data.WriteBitInOrder(playerGuid, bitsOrder);
+
+        uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
+        data.WriteBytesSeq(playerGuid, bytesOrder);
+
+        SendPacket(&data);
+    }
 }
 
 void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    recvData >> guid;
+    uint8 bitsOrder[8] = { 0, 2, 1, 6, 7, 3, 4, 5 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 7, 4, 0, 3, 2, 1, 5, 6 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!unit)
@@ -97,8 +135,17 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 
 void WorldSession::SendShowBank(uint64 guid)
 {
-    WorldPacket data(SMSG_SHOW_BANK, 8);
-    data << guid;
+    WorldPacket data(SMSG_SHOW_BANK);
+    ObjectGuid npcGuid = guid;
+
+    uint8 bitsOrder[8] = { 1, 2, 0, 4, 6, 3, 5, 7 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    data.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 6, 0, 5, 7, 3, 2, 1 };
+    data.WriteBytesSeq(npcGuid, bytesOrder);
+
     SendPacket(&data);
 }
 
@@ -370,47 +417,6 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
     }
     unit->AI()->sGossipHello(_player);
 }
-
-/*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
-
-    uint32 option;
-    uint32 unk;
-    uint64 guid;
-    std::string code = "";
-
-    recvData >> guid >> unk >> option;
-
-    if (_player->PlayerTalkClass->GossipOptionCoded(option))
-    {
-        sLog->outDebug(LOG_FILTER_PACKETIO, "reading string");
-        recvData >> code;
-        sLog->outDebug(LOG_FILTER_PACKETIO, "string read: %s", code.c_str());
-    }
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
-    if (!unit)
-    {
-        sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (!code.empty())
-    {
-        if (!Script->GossipSelectWithCode(_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction(option), code.c_str()))
-            unit->OnGossipSelect (_player, option);
-    }
-    else
-    {
-        if (!Script->OnGossipSelect (_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction (option)))
-           unit->OnGossipSelect (_player, option);
-    }
-}*/
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
 {

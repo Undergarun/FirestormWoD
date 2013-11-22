@@ -240,7 +240,7 @@ class boss_ming_the_cunning : public CreatureScript
                             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             {
                                 Player* plr = i->getSource();
-                                if( !plr)
+                                if (!plr)
                                     continue;
                                 if (plr->GetDistance2d(me) <= 5.f)
                                     plr->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 25.0f, 10.f);

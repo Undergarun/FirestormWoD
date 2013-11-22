@@ -198,7 +198,7 @@ public:
             uint32 currency = quest->RequiredCurrencyId[y];
             uint32 currencyCount = quest->RequiredCurrencyCount[y];
 
-            if(!currency || !currencyCount)
+            if (!currency || !currencyCount)
                 continue;
 
             player->ModifyCurrency(currency, currencyCount);
@@ -213,7 +213,7 @@ public:
             if (uint32 spell_id = quest->RequiredSpellCast[i])
             {
                 for (uint16 z = 0; z < creaturecount; ++z)
-                    if(creature > 0)
+                    if (creature > 0)
                         player->CastedCreatureOrGOForQuest(creature, true, spell_id);
                     else
                         player->CastedCreatureOrGOForQuest(creature, false, spell_id);

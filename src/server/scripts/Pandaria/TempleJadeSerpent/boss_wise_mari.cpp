@@ -204,13 +204,13 @@ class boss_wase_mari : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if(who->GetTypeId() != TYPEID_PLAYER)
+                if (who->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if(intro)
+                if (intro)
                     return;
 
-                if(!ennemyInArea)
+                if (!ennemyInArea)
                 {
                     Talk(TEXT_INTRO);
                     ennemyInArea = true;
@@ -319,7 +319,7 @@ class boss_wase_mari : public CreatureScript
                                     break;
                             }
 
-                            if( hydrolancePhase == HYDROLANCE_RIGHT)
+                            if (hydrolancePhase == HYDROLANCE_RIGHT)
                                 hydrolancePhase = HYDROLANCE_BOTTOM;
                             else
                                 hydrolancePhase++;
@@ -340,7 +340,7 @@ class boss_wase_mari : public CreatureScript
                             float facing = me->GetOrientation();
                             facing += M_PI/48;
 
-                            if(facing > M_PI*2)
+                            if (facing > M_PI*2)
                                 facing -= M_PI*2;
 
                             //me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), facing);
@@ -359,7 +359,7 @@ class boss_wase_mari : public CreatureScript
                             float facing = me->GetOrientation();
                             facing += M_PI/48;
 
-                            if(facing > M_PI*2)
+                            if (facing > M_PI*2)
                                 facing -= M_PI*2;
 
                             me->SetOrientation(facing);
@@ -406,7 +406,7 @@ class mob_corrupt_living_water : public CreatureScript
                     if (!droplet)
                         continue;
 
-                    if(Unit* unit = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM))
                         droplet->Attack(unit, true);
                 }
 
