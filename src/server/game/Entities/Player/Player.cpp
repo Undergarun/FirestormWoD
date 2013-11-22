@@ -14986,10 +14986,24 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
+
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
-    data << uint64(creature ? creature->GetGUID() : 0);
+    ObjectGuid guid = creature ? creature->GetGUID() : NULL;
+
+    uint8 bitsOrder[8] = { 7, 5, 4, 2, 6, 0, 3, 1 };
+    data.WriteBitInOrder(guid, bitsOrder);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
     data << uint32(item);
     data << uint8(msg);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[2]);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -16238,7 +16252,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_TABARDDESIGNER:
             PlayerTalkClass->SendCloseGossip();
-            GetSession()->SendTabardVendorActivate(guid);
+            GetSession()->SendTabardVendorActivate(GetSession()->GetPlayer()->GetGUID());
             break;
         case GOSSIP_OPTION_AUCTIONEER:
             GetSession()->SendAuctionHello(guid, source->ToCreature());
@@ -22119,9 +22133,9 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
     // 1: There are players offline in your party.
     // 2>: There are players in your party attempting to zone into an instance.
     */
-    WorldPacket data(SMSG_INSTANCE_RESET_FAILED, 8);
-    data << uint32(reason);
+    WorldPacket data(SMSG_INSTANCE_RESET_FAILED);
     data << uint32(MapId);
+    data.WriteBits(reason, 2);
     GetSession()->SendPacket(&data);
 }
 

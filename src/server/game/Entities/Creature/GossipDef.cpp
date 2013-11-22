@@ -226,19 +226,20 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 
         uint32 questStat = plr ? plr->GetQuestStatus(questID) : 0;
 
-        if(questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
+        if (questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
         {
             if (quest->IsRepeatable())
                 questStat = 0;
             else
                 questStat = 4;
         }
-        else if(questStat == QUEST_STATE_NONE)
+        else if (questStat == QUEST_STATE_NONE)
             questStat = 2;
 
         data << uint32(0);                              // quest flags 2
         data << uint32(questStat);                      // quest icon
-        data.append(title.c_str(), title.size());       // quest title
+        if (title.size() > 0)
+            data.append(title.c_str(), title.size());       // quest title
         data << uint32(quest->GetFlags());              // quest flags
         data << int32(quest->GetQuestLevel());          // quest level
         data << uint32(questID);
@@ -249,13 +250,15 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
         GossipMenuItem const& item = itr->second;
         data << uint32(item.BoxMoney);                                  // money required to open menu, 2.0.3
         data << uint32(itr->first);
-        data.append(item.BoxMessage.c_str(), item.BoxMessage.size());
+        if (item.BoxMessage.size() > 0)
+            data.append(item.BoxMessage.c_str(), item.BoxMessage.size());
         data << uint8(item.IsCoded);                                    // makes pop up box password
-        data.append(item.Message.c_str(), item.Message.size());
+        if (item.Message.size() > 0)
+            data.append(item.Message.c_str(), item.Message.size());
         data << uint8(item.MenuItemIcon);
     }
 
-    uint8 byteOrder[8] = {3, 4, 7, 2, 1, 6, 0, 5};
+    uint8 byteOrder[8] = { 3, 4, 7, 2, 1, 6, 0, 5 };
     data.WriteBytesSeq(guid, byteOrder);
 
     _session->SendPacket(&data);

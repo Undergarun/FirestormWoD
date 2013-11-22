@@ -1950,6 +1950,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading item extended cost...");
     sObjectMgr->LoadItemExtendedCost();
 
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading guild challenge rewards...");
+    sObjectMgr->LoadGuildChallengeRewardInfo();
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm name...");
 
     m_realmName = "Mist of Pandaria servers";
