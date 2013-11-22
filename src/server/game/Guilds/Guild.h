@@ -124,8 +124,6 @@ enum GuildCommandError
 
 enum GuildEvents
 {
-    GE_PROMOTION                    = 1,
-    GE_DEMOTION                     = 2,
     GE_MOTD                         = 3,
     GE_JOINED                       = 4,
     GE_LEFT                         = 5,
@@ -139,8 +137,6 @@ enum GuildEvents
     GE_RANK_DELETED                 = 13,
     GE_RANK_ORDER_CHANGED           = 14,
     GE_FOUNDER                      = 15, // At guild creation - Set founder
-    GE_SIGNED_ON                    = 16,
-    GE_SIGNED_OFF                   = 17,
     GE_GUILDBANKBAGSLOTS_CHANGED    = 18,
     GE_BANK_TAB_PURCHASED           = 19,
     GE_BANK_TAB_UPDATED             = 20,
@@ -235,6 +231,18 @@ enum GuildNews
     GUILD_NEWS_ITEM_CRAFTED         = 4,
     GUILD_NEWS_ITEM_PURCHASED       = 5,
     GUILD_NEWS_LEVEL_UP             = 6
+};
+
+enum GuildChallengeType
+{
+    CHALLENGE_NONE              = 0,
+    CHALLENGE_DUNGEON           = 1,
+    CHALLENGE_SCENARIO          = 2,
+    CHALLENGE_DUNGEON_CHALLENGE = 3,
+    CHALLENGE_RAID              = 4,
+    CHALLENGE_RATED_BG          = 5,
+
+    CHALLENGE_MAX
 };
 
 struct GuildNewsEntry
@@ -727,7 +735,6 @@ class Guild
         void HandleAcceptMember(WorldSession* session);
         void HandleLeaveMember(WorldSession* session);
         void HandleRemoveMember(WorldSession* session, uint64 guid);
-        void HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, uint32 rank);
         void HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64 setterGuid, uint32 rank);
         void HandleAddNewRank(WorldSession* session, const std::string& name);
         void HandleRemoveRank(WorldSession* session, uint32 rankId);
@@ -749,6 +756,7 @@ class Guild
         void SendLoginInfo(WorldSession* session);
         void SendGuildReputationWeeklyCap(WorldSession* session) const;
         void SendGuildXP(WorldSession* session) const;
+        void SendGuildRecipes(WorldSession* session) const;
 
         // Load from DB
         bool LoadFromDB(Field* fields);
@@ -788,6 +796,7 @@ class Guild
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
         void SwapItemsWithInventory(Player* player, bool toChar, uint8 tabId, uint8 slotId, uint8 playerBag, uint8 playerSlotId, uint32 splitedAmount);
+        void AutoStoreItemInInventory(Player* player, uint8 tabId, uint8 slotId, uint32 amount);
 
         // Bank tabs
         void SetBankTabText(uint8 tabId, const std::string& text);

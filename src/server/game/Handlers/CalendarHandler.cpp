@@ -53,10 +53,106 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     time_t cur_time = time_t(time(NULL));
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR [" UI64FMTD "]", guid);
-    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR, 1000);   // Impossible to get the correct size without doing a double iteration of some elements
+
+    ByteBuffer eventsBuffer;
+    ByteBuffer invitesBuffer;
+    ByteBuffer holidaysBuffer;
+    ByteBuffer instancesBuffer;
+    ByteBuffer raidsBuffer;
+    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR);
+
+    CalendarEventIdList const& events = sCalendarMgr->GetPlayerEvents(guid);
+
+    data.WriteBits(events.size(), 19);
+
+    for (CalendarEventIdList::const_iterator it = events.begin(); it != events.end(); ++it)
+    {
+        if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*it))
+        {
+            ObjectGuid creatorGuid = calendarEvent->GetCreatorGUID();
+            ObjectGuid guildGuid = MAKE_NEW_GUID(calendarEvent->GetGuildId(), 0, calendarEvent->GetGuildId() ? uint32(HIGHGUID_GUILD) : 0);
+
+            data.WriteBits(calendarEvent->GetTitle().size(), 8);
+            data.WriteBit(creatorGuid[1]);
+            data.WriteBit(guildGuid[7]);
+            data.WriteBit(creatorGuid[0]);
+            data.WriteBit(guildGuid[3]);
+            data.WriteBit(guildGuid[6]);
+            data.WriteBit(guildGuid[5]);
+            data.WriteBit(creatorGuid[7]);
+            data.WriteBit(creatorGuid[2]);
+            data.WriteBit(creatorGuid[6]);
+            data.WriteBit(guildGuid[0]);
+            data.WriteBit(guildGuid[1]);
+            data.WriteBit(guildGuid[2]);
+            data.WriteBit(guildGuid[4]);
+            data.WriteBit(creatorGuid[4]);
+            data.WriteBit(creatorGuid[3]);
+            data.WriteBit(creatorGuid[5]);
+
+            eventsBuffer.WriteByteSeq(guildGuid[6]);
+            eventsBuffer.WriteByteSeq(guildGuid[7]);
+            eventsBuffer << uint32(calendarEvent->GetTime());
+            eventsBuffer.WriteByteSeq(creatorGuid[1]);
+            eventsBuffer.WriteByteSeq(guildGuid[2]);
+            eventsBuffer.WriteByteSeq(creatorGuid[6]);
+            eventsBuffer.WriteByteSeq(creatorGuid[4]);
+            eventsBuffer.WriteByteSeq(creatorGuid[7]);
+            eventsBuffer.WriteByteSeq(guildGuid[3]);
+            eventsBuffer.WriteByteSeq(guildGuid[5]);
+            eventsBuffer << uint32(calendarEvent->GetDungeonId());
+            eventsBuffer.WriteByteSeq(guildGuid[1]);
+            eventsBuffer.WriteByteSeq(guildGuid[0]);
+            eventsBuffer << uint64(calendarEvent->GetEventId());
+            eventsBuffer.WriteByteSeq(creatorGuid[5]);
+            eventsBuffer.WriteByteSeq(guildGuid[4]);
+            eventsBuffer.WriteByteSeq(creatorGuid[3]);
+            eventsBuffer.WriteByteSeq(creatorGuid[0]);
+
+            if (calendarEvent->GetTitle().size() > 0)
+                eventsBuffer.append(calendarEvent->GetTitle().c_str(), calendarEvent->GetTitle().size());
+
+            eventsBuffer.WriteByteSeq(creatorGuid[2]);
+            eventsBuffer << uint32(calendarEvent->GetFlags());
+            eventsBuffer << uint8(calendarEvent->GetType());
+        }
+        else
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Event found with id [" UI64FMTD "]", *it);
+
+            data.WriteBits(0, 8);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+            data.WriteBit(0);
+
+            eventsBuffer << uint32(calendarEvent->GetTime());
+            eventsBuffer << uint32(calendarEvent->GetDungeonId());
+            eventsBuffer << uint64(calendarEvent->GetEventId());
+            eventsBuffer << uint32(calendarEvent->GetFlags());
+            eventsBuffer << uint8(calendarEvent->GetType());
+        }
+    }
+
+    eventsBuffer << uint32(1135753200);                            // Unk Constant date (28.12.2005 07:00)
+    eventsBuffer << uint32(secsToTimeBitFields(cur_time));         // server time
 
     CalendarInviteIdList const& invites = sCalendarMgr->GetPlayerInvites(guid);
-    data << uint32(invites.size());
+
+    data.WriteBits(invites.size(), 19);
+
     for (CalendarInviteIdList::const_iterator it = invites.begin(); it != invites.end(); ++it)
     {
         CalendarInvite* invite = sCalendarMgr->GetInvite(*it);
@@ -64,126 +160,130 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
         if (calendarEvent)
         {
-            data << uint64(invite->GetEventId());
-            data << uint64(invite->GetInviteId());
-            data << uint8(invite->GetStatus());
-            data << uint8(invite->GetRank());
-            data << uint8(calendarEvent->GetGuildId() != 0);
-            data.appendPackGUID(calendarEvent->GetCreatorGUID());
+            ObjectGuid creatorGuid = invite->GetSenderGUID();
+
+            uint8 bitsOrder[8] = { 1, 6, 2, 3, 5, 7, 4, 0 };
+            data.WriteBitInOrder(creatorGuid, bitsOrder);
+
+            invitesBuffer.WriteByteSeq(creatorGuid[7]);
+            invitesBuffer << uint8(invite->GetStatus());
+            invitesBuffer << uint8(invite->GetRank());
+            invitesBuffer.WriteByteSeq(creatorGuid[6]);
+            invitesBuffer.WriteByteSeq(creatorGuid[3]);
+            invitesBuffer << uint64(invite->GetEventId());
+            invitesBuffer.WriteByteSeq(creatorGuid[2]);
+            invitesBuffer.WriteByteSeq(creatorGuid[5]);
+            invitesBuffer.WriteByteSeq(creatorGuid[1]);
+            invitesBuffer << uint8(calendarEvent ? calendarEvent->GetGuildId() : 0);
+            invitesBuffer.WriteByteSeq(creatorGuid[4]);
+            invitesBuffer.WriteByteSeq(creatorGuid[0]);
+            invitesBuffer << uint64(invite->GetInviteId());
         }
         else
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
-            data << uint64(0);
-            data << uint64(0);
-            data << uint8(0);
-            data << uint8(0);
-            data << uint8(0);
-            data.appendPackGUID(0);
+
+            ObjectGuid creatorGuid = invite->GetSenderGUID();
+
+            uint8 bitsOrder[8] = { 1, 6, 2, 3, 5, 7, 4, 0 };
+            data.WriteBitInOrder(creatorGuid, bitsOrder);
+
+            invitesBuffer << uint8(invite->GetStatus());
+            invitesBuffer << uint8(invite->GetRank());
+            invitesBuffer << uint64(invite->GetEventId());
+            invitesBuffer << uint8(0);
+            invitesBuffer << uint64(invite->GetInviteId());
         }
     }
 
-    CalendarEventIdList const& events = sCalendarMgr->GetPlayerEvents(guid);
-    data << uint32(events.size());
-    /*for (CalendarEventIdList::const_iterator it = events.begin(); it != events.end(); ++it)
-    {
-        if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*it))
-        {
-            data << uint64(*it);
-            data << calendarEvent->GetTitle().c_str();
-            data << uint32(calendarEvent->GetType());
-            data << uint32(calendarEvent->GetTime());
-            data << uint32(calendarEvent->GetFlags());
-            data << uint32(calendarEvent->GetDungeonId());
-            data.appendPackGUID(calendarEvent->GetCreatorGUID());
-        }
-        else
-        {
-            sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Event found with id [" UI64FMTD "]", *it);
-            data << uint64(0);
-            data << uint8(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data.appendPackGUID(0);
-        }
-    }*/
+    invitesBuffer << uint32(time(NULL));
 
-    data << uint32(cur_time);                              // server time
-    data << uint32(secsToTimeBitFields(cur_time));         // server time
+    uint16 raidCounter = 0;
 
-    uint32 counter = 0;
-    size_t p_counter = data.wpos();
-    data << uint32(counter);                               // instance save count
-
-    /*for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-        for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
-            if (itr->second.perm)
-            {
-                InstanceSave const* save = itr->second.save;
-                data << uint32(save->GetMapId());
-                data << uint32(save->GetDifficulty());
-                data << uint32(save->GetResetTime() - cur_time);
-                data << uint64(save->GetInstanceId());     // instance save id as unique instance copy id
-                ++counter;
-            }*/
-
-    data.put<uint32>(p_counter, counter);
-
-    data << uint32(1135753200);                            // unk (28.12.2005 07:00)
-
-    counter = 0;
-    p_counter = data.wpos();
-    data << uint32(counter);                               // raid reset count
-
-    std::set<uint32> sentMaps;
-
-    /*ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
-    for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
+    ResetTimeByMapDifficultyMap const& raidResets = sInstanceSaveMgr->GetResetTimeMap();
+    for (ResetTimeByMapDifficultyMap::const_iterator itr = raidResets.begin(); itr != raidResets.end(); ++itr)
     {
         uint32 mapId = PAIR32_LOPART(itr->first);
-
-        if (sentMaps.find(mapId) != sentMaps.end())
-            continue;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
         if (!mapEntry || !mapEntry->IsRaid())
             continue;
 
-        sentMaps.insert(mapId);
-
-        data << uint32(mapId);
-        data << uint32(itr->second - cur_time);
-        data << uint32(mapEntry->unk_time);
-        ++counter;
-    }*/
-    data.put<uint32>(p_counter, counter);
-
-    // TODO: Fix this, how we do know how many and what holidays to send?
-    uint32 holidayCount = 0;
-    data << uint32(holidayCount);
-    for (uint32 i = 0; i < holidayCount; ++i)
-    {
-        HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(666);
-
-        data << uint32(holiday->Id);                        // m_ID
-        data << uint32(holiday->Region);                    // m_region, might be looping
-        data << uint32(holiday->Looping);                   // m_looping, might be region
-        data << uint32(holiday->Priority);                  // m_priority
-        data << uint32(holiday->CalendarFilterType);        // m_calendarFilterType
-
-        for (uint8 j = 0; j < MAX_HOLIDAY_DATES; ++j)
-            data << uint32(holiday->Date[j]);               // 26 * m_date
-
-        for (uint8 j = 0; j < MAX_HOLIDAY_DURATIONS; ++j)
-            data << uint32(holiday->Duration[j]);           // 10 * m_duration
-
-        for (uint8 j = 0; j < MAX_HOLIDAY_FLAGS; ++j)
-            data << uint32(holiday->CalendarFlags[j]);      // 10 * m_calendarFlags
-
-        data << holiday->TextureFilename;                   // m_textureFilename (holiday name)
+        ++raidCounter;
     }
+
+    data.WriteBits(raidCounter, 20);
+    data.WriteBits(/*sHolidaysStore.GetNumRows()*/ 0, 16);
+
+    for (uint32 i = 0; i < sHolidaysStore.GetNumRows(); i++)
+    {
+        data.WriteBits(0, 6);   // Name length
+
+        for (uint8 j = 0; j < 51; j++)
+            holidaysBuffer << uint32(0);
+    }
+
+    uint32 instancesCounter = 0;
+
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
+            if (itr->second.perm)
+                ++instancesCounter;
+
+    data.WriteBits(instancesCounter, 20);
+
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    {
+        for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
+        {
+            if (itr->second.perm)
+            {
+                InstanceSave* save = itr->second.save;
+                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
+
+                uint8 bitsOrder[8] = { 2, 7, 1, 6, 3, 5, 4, 0 };
+                data.WriteBitInOrder(instanceGUID, bitsOrder);
+
+                instancesBuffer << uint32(save->GetMapId());
+                instancesBuffer.WriteByteSeq(instanceGUID[1]);
+                instancesBuffer << uint32(save->GetDifficulty());
+                instancesBuffer.WriteByteSeq(instanceGUID[4]);
+                instancesBuffer.WriteByteSeq(instanceGUID[3]);
+                instancesBuffer.WriteByteSeq(instanceGUID[7]);
+                instancesBuffer << uint32(save->GetResetTime());
+                instancesBuffer.WriteByteSeq(instanceGUID[6]);
+                instancesBuffer.WriteByteSeq(instanceGUID[5]);
+                instancesBuffer.WriteByteSeq(instanceGUID[0]);
+                instancesBuffer.WriteByteSeq(instanceGUID[2]);
+            }
+        }
+    }
+
+    for (ResetTimeByMapDifficultyMap::const_iterator itr = raidResets.begin(); itr != raidResets.end(); ++itr)
+    {
+        uint32 mapId = PAIR32_LOPART(itr->first);
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+        if (!mapEntry || !mapEntry->IsRaid())
+            continue;
+
+        raidsBuffer << uint32(mapId);
+        raidsBuffer << uint32(0);           // Unk Time
+        raidsBuffer << uint32(itr->second); // Time Left
+    }
+
+    data.FlushBits();
+
+    if (instancesBuffer.size() > 0)
+        data.append(instancesBuffer);
+    if (raidsBuffer.size() > 0)
+        data.append(raidsBuffer);
+    if (holidaysBuffer.size() > 0)
+        data.append(holidaysBuffer);
+    if (eventsBuffer.size() > 0)
+        data.append(eventsBuffer);
+    if (invitesBuffer.size() > 0)
+        data.append(invitesBuffer);
 
     SendPacket(&data);
 }

@@ -612,6 +612,14 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
+struct GuildChallengeReward
+{
+    uint32 Experience;
+    uint32 Gold;
+    uint32 ChallengeCount;
+    uint32 Gold2;
+};
+
 struct HotfixInfo
 {
     uint32 Type;
@@ -620,6 +628,7 @@ struct HotfixInfo
 };
 
 typedef std::vector<HotfixInfo> HotfixData;
+typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
 typedef std::map<uint32, bool> UpdateSkipData;
 
 class PlayerDumpReader;
@@ -957,6 +966,7 @@ class ObjectMgr
         void LoadSpellPhaseInfo();
     
         void LoadItemExtendedCost();
+        void LoadGuildChallengeRewardInfo();
 
         PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
         SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
@@ -1224,6 +1234,8 @@ class ObjectMgr
             return ret ? ret : time(NULL);
         }
 
+        GuildChallengeRewardData const& GetGuildChallengeRewardData() const { return _challengeRewardData; }
+
         void LoadSkipUpdateZone();
 
         bool IsSkipZone(uint32 zone)
@@ -1399,6 +1411,7 @@ class ObjectMgr
             GO_TO_CREATURE,         // GO is dependant on creature
         };
         HotfixData _hotfixData;
+        GuildChallengeRewardData _challengeRewardData;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

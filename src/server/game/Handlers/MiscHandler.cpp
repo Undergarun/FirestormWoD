@@ -90,14 +90,34 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
     uint32 gossipListId;
-    uint32 menuId;
-    uint64 guid;
+    uint32 textId;
+    ObjectGuid guid;
+    uint32 codeLen = 0;
     std::string code = "";
 
-    recvData >> guid >> menuId >> gossipListId;
+    recvData >> gossipListId >> textId;
 
-    if (_player->PlayerTalkClass->IsGossipOptionCoded(gossipListId))
-        recvData >> code;
+    guid[7] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    codeLen = recvData.ReadBits(8);
+    guid[5] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[2]);
+    code = recvData.ReadString(codeLen);
+    recvData.ReadByteSeq(guid[4]);
 
     Creature* unit = NULL;
     GameObject* go = NULL;
@@ -139,6 +159,9 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         _player->PlayerTalkClass->SendCloseGossip();
         return;
     }
+
+    uint32 menuId = _player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+
     if (!code.empty())
     {
         if (unit)
@@ -457,13 +480,13 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         bytesData.WriteByteSeq(unkGuid[5]);
         bytesData.WriteByteSeq(playerGuid[3]);
         bytesData.WriteByteSeq(playerGuid[6]);
-        bytesData << uint32(50659372);
+        bytesData << uint32(realmID);
         bytesData << uint8(race);
         bytesData << uint8(lvl);
         bytesData.WriteByteSeq(playerGuid[2]);
         bytesData.WriteByteSeq(playerGuid[1]);
         bytesData << uint8(gender);
-        bytesData << uint32(50659372);
+        bytesData << uint32(realmID);
         bytesData.WriteByteSeq(guildGuid[0]);
         bytesData.WriteByteSeq(guildGuid[5]);
         bytesData.WriteByteSeq(guildGuid[7]);
