@@ -1012,25 +1012,61 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     }
 
     // Crashfix, prevent use of bag with dynamic field
-    if (isType(TYPEMASK_CONTAINER))
+    if (GetTypeId() == TYPEID_ITEM && ((Item*)this)->ToBag())
     {
         *data << uint8(0);
         return;
     }
+
+    /*UpdateMask updateDynamicMask;
+    updateDynamicMask.SetCount(m_dynamicChange.size());
+    for (size_t i = 0; i < m_dynamicChange.size(); i++)
+    {
+        for (int index = 0; index < 32; index++)
+        {
+            if (m_dynamicChange[i][index])
+            {
+                updateDynamicMask.SetBit(i);
+                break;
+            }
+        }
+    }
+
+    *data << uint8(updateDynamicMask.GetBlockCount());
+    data->append(updateDynamicMask.GetMask(), updateDynamicMask.GetLength());
+
+    if (updateDynamicMask.GetBlockCount())
+    {
+        for (size_t i = 0; i < m_dynamicChange.size(); i++)
+        {
+            UpdateMask updateDynamicDataMask;
+            updateDynamicDataMask.SetCount(1);
+
+            for (int index = 0; index < 32; index++)
+                if (m_dynamicChange[i][index])
+                    updateDynamicDataMask.SetBit(index);
+
+            *data << uint8(1);
+
+            data->append(updateDynamicDataMask.GetMask(), updateDynamicDataMask.GetLength());
+
+
+        }
+    }*/
 
     // Dynamic Fields (5.0.5 MoP new fields)
     uint32 dynamicTabMask = 0;
     std::vector<uint32> dynamicFieldsMask;
     dynamicFieldsMask.resize(m_dynamicTab.size());
 
-    for(size_t i = 0; i < m_dynamicTab.size(); i++)
+    for (size_t i = 0; i < m_dynamicTab.size(); i++)
         dynamicFieldsMask[i] = 0;
 
-    for(size_t i = 0; i < m_dynamicChange.size(); i++)
+    for (size_t i = 0; i < m_dynamicChange.size(); i++)
     {
-        for(int index = 0; index < 32; index++)
+        for (int index = 0; index < 32; index++)
         {
-            if(m_dynamicChange[i][index])
+            if (m_dynamicChange[i][index])
             {
                 dynamicTabMask |= 1 << i;
                 dynamicFieldsMask[i] |= 1 << index;
@@ -1039,26 +1075,25 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     }
 
     *data << uint8(bool(dynamicTabMask));
-    if(dynamicTabMask)
+    if (dynamicTabMask)
     {
         *data << uint32(dynamicTabMask);
 
-        for(size_t i = 0; i < m_dynamicTab.size(); i++)
+        for (size_t i = 0; i < m_dynamicTab.size(); i++)
         {
-            if(dynamicTabMask & (1 << i))
+            if (dynamicTabMask & (1 << i))
             {
                 *data << uint8(1);
                 *data << uint32(dynamicFieldsMask[i]);
 
-                for(int index = 0; index < 32; index++)
+                for (int index = 0; index < 32; index++)
                 {
-                    if(dynamicFieldsMask[i] & (1 << index))
+                    if (dynamicFieldsMask[i] & (1 << index))
                         *data << uint32(m_dynamicTab[i][index]);
                 }
             }
         }
     }
-
 }
 
 void Object::ClearUpdateMask(bool remove)

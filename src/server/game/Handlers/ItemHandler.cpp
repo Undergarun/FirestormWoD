@@ -1655,12 +1655,15 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
 void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
-    Player* player = GetPlayer();
 
+    Player* player = GetPlayer();
     ObjectGuid npcGuid;
-    npcGuid[6] = recvData.ReadBit();
+
+    uint8 bitsNpcOrder[8] = { 2, 0, 5, 3, 7, 1, 6, 4 };
+    recvData.ReadBitInOrder(npcGuid, bitsNpcOrder);
+
     // Read data
-    uint32 count = recvData.ReadBits(22);
+    uint32 count = recvData.ReadBits(21);
 
     if (count < EQUIPMENT_SLOT_START || count >= EQUIPMENT_SLOT_END)
     {
@@ -1670,46 +1673,57 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     }
 
     std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0));
+    std::vector<ObjectGuid> unkGuids(count, ObjectGuid(0));
     std::vector<uint32> newEntries(count, 0);
     std::vector<uint32> slots(count, 0);
+    std::vector<bool> hasItemGuid(count, false);
+    std::vector<bool> hasUnkGuid(count, false);
 
-    uint8 bitOrder[8] = {3, 2, 4, 0, 1, 6, 7, 5};
     for (uint8 i = 0; i < count; ++i)
-        recvData.ReadBitInOrder(itemGuids[i], bitOrder);
-    
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[0] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
+    {
+        hasUnkGuid[i] = recvData.ReadBit();
+        hasItemGuid[i] = recvData.ReadBit();
+
+        if (hasItemGuid[i])
+        {
+            uint8 bitsOrder[8] = { 2, 3, 4, 1, 7, 6, 5, 0 };
+            recvData.ReadBitInOrder(itemGuids[i], bitsOrder);
+        }
+
+        if (hasUnkGuid[i])
+        {
+            uint8 bitsOrder[8] = { 3, 1, 5, 6, 2, 0, 4, 7 };
+            recvData.ReadBitInOrder(unkGuids[i], bitsOrder);
+        }
+    }
 
     recvData.FlushBits();
 
     for (uint32 i = 0; i < count; ++i)
     {
-        recvData.ReadByteSeq(itemGuids[i][2]);
-        recvData.ReadByteSeq(itemGuids[i][0]);
-        recvData.ReadByteSeq(itemGuids[i][1]);
-        recvData.ReadByteSeq(itemGuids[i][3]);
-        recvData.ReadByteSeq(itemGuids[i][5]);
-
-        recvData >> slots[i];
-
-        recvData.ReadByteSeq(itemGuids[i][7]);
-        recvData.ReadByteSeq(itemGuids[i][6]);
-
         recvData >> newEntries[i];
-
-        recvData.ReadByteSeq(itemGuids[i][4]);
+        recvData >> slots[i];
     }
 
-    uint8 byteOrder[8] = {4, 3, 5, 7, 0, 6, 1, 2};
-    recvData.ReadBytesSeq(npcGuid, byteOrder);
+    uint8 bytesNpcOrder[8] = { 3, 2, 6, 5, 0, 1, 4, 7 };
+    recvData.ReadBytesSeq(npcGuid, bytesNpcOrder);
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        if (hasUnkGuid[i])
+        {
+            uint8 bytesOrder[8] = { 0, 7, 5, 2, 4, 1, 3, 6 };
+            recvData.ReadBytesSeq(unkGuids[i], bytesOrder);
+        }
+
+        if (hasItemGuid[i])
+        {
+            uint8 bytesOrder[8] = { 5, 4, 0, 7, 6, 3, 1, 2 };
+            recvData.ReadBytesSeq(itemGuids[i], bytesOrder);
+        }
+    }
 
     // Validate
-
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
@@ -1760,24 +1774,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             return;
         }
 
-        // uint16 tempDest;
-        //// has to be able to equip item transmogrified item
-        //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrified, true, true))
-        //{
-        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUIDLow(), player->GetName(), slots[i], itemTransmogrified->GetEntry());
-        //    return;
-        //}
-        //
-        //// has to be able to equip item transmogrifier item
-        //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrifier, true, true))
-        //{
-        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUIDLow(), player->GetName(), slots[i], itemTransmogrifier->GetEntry());
-        //    return;
-        //}
-
         if (!newEntries[i]) // reset look
         {
             itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, 0);
+            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
             player->SetVisibleItemSlot(slots[i], itemTransmogrified);
         }
         else
@@ -1790,6 +1790,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
             // All okay, proceed
             itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, newEntries[i]);
+            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
             player->SetVisibleItemSlot(slots[i], itemTransmogrified);
 
             itemTransmogrified->UpdatePlayedTime(player);
@@ -1825,17 +1826,21 @@ void WorldSession::SendReforgeResult(bool success)
 
 void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
 {
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REFORGE_ITEM");
+
     uint32 slot, reforgeEntry;
     ObjectGuid guid;
     uint32 bag;
     Player* player = GetPlayer();
 
-    recvData >> slot >> reforgeEntry >> bag;
+    recvData >> reforgeEntry >> bag >> slot;
 
-    uint8 bitOrder[8] = {1, 5, 7, 4, 0, 3, 2, 6};
+    uint8 bitOrder[8] = { 3, 5, 6, 4, 1, 7, 2, 0 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {7, 0, 2, 3, 1, 4, 5, 6};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 2, 1, 7, 6, 5, 0, 3, 4 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
@@ -1846,19 +1851,12 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     }
 
     Item* item = player->GetItemByPos(bag, slot);
-
     if (!item)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUIDLow(), player->GetName());
         SendReforgeResult(false);
         return;
     }
-
-   /* if (item->GetEnchantmentId(slot) && reforgeEntry)
-    {
-        SendReforgeResult(false);
-        return;
-    }*/
 
     if (!reforgeEntry)
     {
@@ -1867,7 +1865,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
             player->ApplyReforgeEnchantment(item, false);
 
         item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, 0);
-        item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0);
+        item->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
         item->SetState(ITEM_CHANGED, player);
         SendReforgeResult(true);
         return;
