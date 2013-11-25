@@ -14,7 +14,7 @@ class PlayerScript_Event_April : public PlayerScript
     void OnCreatureKill(Player* Player, Creature* /*Creature*/)
     {
         int32 tabFish[14] = {32263,40855,32646,42160,42161,42162,42163,44563,42808,44562,33312,42836,39936,45246};
-        if(!sGameEventMgr->IsActiveEvent(EVENT_APRIL))
+        if (!sGameEventMgr->IsActiveEvent(EVENT_APRIL))
             return;
 
         if (!Player->GetMap())
@@ -32,7 +32,7 @@ class PlayerScript_Event_April : public PlayerScript
         if (Killer->GetMap()->IsBattlegroundOrArena() || Killer->GetMap()->IsRaid())
             return;
 
-        if(!sGameEventMgr->IsActiveEvent(EVENT_APRIL))
+        if (!sGameEventMgr->IsActiveEvent(EVENT_APRIL))
             return;
 
         uint8 idFish = urand(0,14);

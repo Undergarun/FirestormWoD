@@ -450,7 +450,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), inoculatedId, true);
                 ++currStack;
 
-                if(InstanceScript * instance = GetCaster()->GetInstanceScript())
+                if (InstanceScript * instance = GetCaster()->GetInstanceScript())
                     if (Creature* festergut = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_FESTERGUT)))
                         festergut->AI()->SetData(DATA_INOCULATED_STACK, currStack);
 

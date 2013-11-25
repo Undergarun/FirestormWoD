@@ -1086,7 +1086,7 @@ class spell_item_purify_helboar_meat : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                if(roll_chance_i(50))
+                if (roll_chance_i(50))
                     caster->CastSpell(caster, SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
                 else
                     if (caster->GetTypeId() == TYPEID_PLAYER)
@@ -2010,10 +2010,10 @@ class spell_item_holy_thurible : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 // GetHitCreature don't work
                 Creature* target  = caster->FindNearestCreature(NPC_WITHDRAWN_SOUL, 2.0f, true);
-                if(target && caster)
+                if (target && caster)
                 {
 
-                    if(roll_chance_i(50))
+                    if (roll_chance_i(50))
                     {
                         caster->KilledMonsterCredit(NPC_WITHDRAWN_SOUL, target->GetGUID());
                         target->DespawnOrUnsummon(0);
@@ -2053,7 +2053,7 @@ class spell_item_bandage_q24944 : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 Creature* target  = GetHitCreature();
-                if(target && caster && target->GetEntry() == NPC_WOUNDED_DEFENDER)
+                if (target && caster && target->GetEntry() == NPC_WOUNDED_DEFENDER)
                 {
                     target->SetFullHealth();
                     target->MonsterSay("Thank you my friend", LANG_UNIVERSAL, 0);
@@ -2127,9 +2127,9 @@ class spell_alchemist_rejuvenation : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if(Unit* caster = GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    if(caster->getPowerType() == POWER_MANA)
+                    if (caster->getPowerType() == POWER_MANA)
                     {
                         switch (caster->getLevel())
                         {
@@ -2226,7 +2226,7 @@ class spell_item_amber_prison : public SpellScriptLoader
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         return SPELL_FAILED_TARGET_IS_PLAYER;
-                    if(target->GetTypeId() == TYPEID_UNIT && target->getLevel() > 94)
+                    if (target->GetTypeId() == TYPEID_UNIT && target->getLevel() > 94)
                         return SPELL_FAILED_HIGHLEVEL;
 
                 }

@@ -87,7 +87,7 @@ public:
         }
         else
         {
-            if(player->GetLastTargetedGO())
+            if (player->GetLastTargetedGO())
                 return player->GetLastTargetedGO();
             else
                 return 0;

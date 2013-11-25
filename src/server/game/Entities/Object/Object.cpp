@@ -122,7 +122,7 @@ Object::~Object()
     delete [] m_uint32Values;
     delete [] _changedFields;
 
-    for(size_t i = 0; i < m_dynamicTab.size(); ++i)
+    for (size_t i = 0; i < m_dynamicTab.size(); ++i)
     {
         delete [] m_dynamicTab[i];
         delete [] m_dynamicChange[i];
@@ -138,7 +138,7 @@ void Object::_InitValues()
     _changedFields = new bool[m_valuesCount];
     memset(_changedFields, 0, m_valuesCount*sizeof(bool));
 
-    for(size_t i = 0; i < m_dynamicTab.size(); ++i)
+    for (size_t i = 0; i < m_dynamicTab.size(); ++i)
     {
         memset(m_dynamicTab[i], 0, 32*sizeof(uint32));
         memset(m_dynamicChange[i], 0, 32*sizeof(bool));
@@ -1102,7 +1102,7 @@ void Object::ClearUpdateMask(bool remove)
 
     if (m_objectUpdated)
     {
-        for(size_t i = 0; i < m_dynamicTab.size(); i++)
+        for (size_t i = 0; i < m_dynamicTab.size(); i++)
             memset(m_dynamicChange[i], 0, 32*sizeof(bool));
 
         if (remove)

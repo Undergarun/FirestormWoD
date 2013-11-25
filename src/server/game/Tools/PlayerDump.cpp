@@ -764,7 +764,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     //result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
 
-    //if(!result)
+    //if (!result)
         //return DUMP_FILE_BROKEN;
 
     ///////////////////////////////////////////

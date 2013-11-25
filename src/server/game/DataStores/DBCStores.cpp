@@ -540,9 +540,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectStore,            dbcPath,"SpellEffect.dbc");                                                   // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectScalingStore,     dbcPath,"SpellEffectScaling.dbc");                                            // 17399
 
-    for(uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
     {
-        if(SpellEffectEntry const *spellEffect = sSpellEffectStore.LookupEntry(i))
+        if (SpellEffectEntry const *spellEffect = sSpellEffectStore.LookupEntry(i))
         {
             sSpellEffectMap[spellEffect->EffectSpellId].effects[spellEffect->EffectDifficulty][spellEffect->EffectIndex] = spellEffect;
         }
@@ -726,10 +726,10 @@ char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
 SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint32 difficulty)
 {
     SpellEffectMap::const_iterator itr = sSpellEffectMap.find(spellId);
-    if(itr == sSpellEffectMap.end())
+    if (itr == sSpellEffectMap.end())
         return NULL;
 
-    if(itr->second.effects[difficulty][effect])
+    if (itr->second.effects[difficulty][effect])
         return itr->second.effects[difficulty][effect];
 
     return itr->second.effects[NONE_DIFFICULTY][effect];
@@ -743,7 +743,7 @@ SpellEffectScalingEntry const* GetSpellEffectScalingEntry(uint32 effectId)
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent)
 {
     SpellReagentMap::const_iterator itr = sSpellReagentMap.find(spellId);
-    if(itr == sSpellReagentMap.end())
+    if (itr == sSpellReagentMap.end())
         return NULL;
 
     return itr->second.reagents[reagent];
@@ -752,7 +752,7 @@ SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent)
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem)
 {
     SpellTotemMap::const_iterator itr = sSpellTotemMap.find(spellId);
-    if(itr == sSpellTotemMap.end())
+    if (itr == sSpellTotemMap.end())
         return NULL;
 
     return itr->second.totems[totem];
@@ -957,9 +957,9 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
-        if(tmpDiff == MAN25_HEROIC_DIFFICULTY)
+        if (tmpDiff == MAN25_HEROIC_DIFFICULTY)
             tmpDiff = MAN25_DIFFICULTY;
-        else if(tmpDiff == MAN10_HEROIC_DIFFICULTY)
+        else if (tmpDiff == MAN10_HEROIC_DIFFICULTY)
             tmpDiff = MAN10_DIFFICULTY;
         else
         {

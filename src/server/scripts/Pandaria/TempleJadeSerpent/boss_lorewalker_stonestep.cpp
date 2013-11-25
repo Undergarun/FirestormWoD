@@ -482,7 +482,7 @@ class mob_haunting_sha : public CreatureScript
                 if (guid != 0)
                 {
                     Creature* zao = me->GetMap()->GetCreature(guid);
-                    if(!zao)
+                    if (!zao)
                         return;
 
                     me->getThreatManager().addThreat(zao, 1000000.f);
@@ -501,7 +501,7 @@ class mob_haunting_sha : public CreatureScript
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
                             Player* plr = i->getSource();
-                            if( !plr)
+                            if (!plr)
                                 continue;
                             me->getThreatManager().addThreat(plr, 1.0f);
                         }

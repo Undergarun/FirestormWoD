@@ -56,7 +56,7 @@ public:
     {
         Player *plr = handler->GetSession()->GetPlayer();
 
-        if(!handler->GetSession()->IsPremium())
+        if (!handler->GetSession()->IsPremium())
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_VIP);
             handler->SetSentErrorMessage(true);

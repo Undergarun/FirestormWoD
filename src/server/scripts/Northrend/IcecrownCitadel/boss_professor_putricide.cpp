@@ -1214,7 +1214,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
             {
                 Creature* target = GetHitCreature();
                 if (!target)
-                    if(!(target = GetCaster()->FindNearestCreature(NPC_GROWING_OOZE_PUDDLE, 25.0f, true)))
+                    if (!(target = GetCaster()->FindNearestCreature(NPC_GROWING_OOZE_PUDDLE, 25.0f, true)))
                         return;
 
                 AuraPtr grow = target->GetAura(uint32(GetEffectValue()));

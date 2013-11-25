@@ -134,7 +134,7 @@ public:
                 //No sql injections. Strings are escaped.
 
                 //au cas ou on a pas les infos...
-                if(command->accountName[0] == "" && command->accountID[0] != 0)
+                if (command->accountName[0] == "" && command->accountID[0] != 0)
                 {
                     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", command->accountID[0]);
                     if (result)
@@ -145,7 +145,7 @@ public:
                     }
                 }
 
-                if(command->accountName[1] == "" && command->accountID[1] != 0)
+                if (command->accountName[1] == "" && command->accountID[1] != 0)
                 {
                     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", command->accountID[1]);
                     if (result)
@@ -156,7 +156,7 @@ public:
                     }
                 }
 
-                if(command->characterName[0] == "" && command->characterID[0] != 0)
+                if (command->characterName[0] == "" && command->characterID[0] != 0)
                 {
                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", command->characterID[0]);
                     if (result)
@@ -167,7 +167,7 @@ public:
                     }
                 }
 
-                if(command->characterName[0] == "" && command->characterID[0] != 0)
+                if (command->characterName[0] == "" && command->characterID[0] != 0)
                 {
                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", command->characterID[0]);
                     if (result)
@@ -178,7 +178,7 @@ public:
                     }
                 }
 
-                if(command->characterName[1] == "" && command->characterID[1] != 0)
+                if (command->characterName[1] == "" && command->characterID[1] != 0)
                 {
                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", command->characterID[1]);
                     if (result)
@@ -198,7 +198,7 @@ public:
                     last_ip = fields_ip[0].GetString();
                 }
 
-                if(command->accountID[1] == 0 && command->characterID == 0)
+                if (command->accountID[1] == 0 && command->characterID == 0)
                 {
                     command->accountID[1] = command->accountID[0];
                     command->characterID[1] = command->characterID[0];
@@ -244,7 +244,7 @@ public:
                 //No sql injections. Strings are escaped.
 
                 //au cas ou on a pas les infos...
-                if(ChatLog->accountName[0] == "" && ChatLog->accountID[0] != 0)
+                if (ChatLog->accountName[0] == "" && ChatLog->accountID[0] != 0)
                 {
                     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[0]);
                     if (result)
@@ -255,7 +255,7 @@ public:
                     }
                 }
 
-                if(ChatLog->accountName[1] == "" && ChatLog->accountID[1] != 0)
+                if (ChatLog->accountName[1] == "" && ChatLog->accountID[1] != 0)
                 {
                     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[1]);
                     if (result)
@@ -266,7 +266,7 @@ public:
                     }
                 }
 
-                if(ChatLog->characterName[0] == "" && ChatLog->characterID[0] != 0)
+                if (ChatLog->characterName[0] == "" && ChatLog->characterID[0] != 0)
                 {
                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[0]);
                     if (result)
@@ -277,7 +277,7 @@ public:
                     }
                 }
 
-                if(ChatLog->characterName[1] == "" && ChatLog->characterID[1] != 0)
+                if (ChatLog->characterName[1] == "" && ChatLog->characterID[1] != 0)
                 {
                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[1]);
                     if (result)
@@ -369,8 +369,8 @@ char* dumpTables[32] =
 
 char* ipTransfert[4] =
 {
-    "37.187.68.78",      // Rassharom
-    "37.187.68.57",    // Taran'Zhu
+    "37.187.68.78",     // Rassharom
+    "37.187.68.57",     // Taran'Zhu
     "37.187.68.57",     // Elegon
     "37.187.68.78"      // Hellscream
 };
@@ -385,19 +385,18 @@ public:
 
         std::string hash_transfert = "";
 
-        for(int i = 0; i < 32; i++)
+        for (int i = 0; i < 32; i++)
         {
             char* tableName = dumpTables[i];
             QueryResult tableInfo = CharacterDatabase.PQuery("select data_type from information_schema.columns where table_name = '%s' AND table_schema IN ('505_characters', '505_characters_us')", tableName);
-            if(tableInfo)
+            if (tableInfo)
             {
                 do
                 {
                     Field* fieldInfo = tableInfo->Fetch();
                     hash_transfert += fieldInfo[0].GetString().substr(0, 1);
                 }
-                while
-                    (tableInfo->NextRow());
+                while (tableInfo->NextRow());
             }
         }
 
@@ -411,7 +410,7 @@ public:
 
 
             //id account perso_guid from to revision dump last_error nb_attempt
-            if(toDump)
+            if (toDump)
             {
                 do
                 {
@@ -447,23 +446,23 @@ public:
                     }
 
                     /*std::string result = "";
-                    if(PlayerDumpWriter().GetDump(perso_guid, result))
+                    if (PlayerDumpWriter().GetDump(perso_guid, result))
                     {
                         std::string result2 = "";
                         PlayerDumpWriter().GetDump(perso_guid, result2);
-                        if(result != result2)
+                        if (result != result2)
                             continue;
 
                         std::string new_string = "";
-                        for(std::string::iterator i = result.begin(); i < result.end(); i++)
+                        for (std::string::iterator i = result.begin(); i < result.end(); i++)
                         {
-                            if((*i) == '\\')
+                            if ((*i) == '\\')
                                 new_string.push_back('\\');
                             new_string.push_back(*i);
                         }
 
                         PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_DUMP);
-                        if(stmt)
+                        if (stmt)
                         {
                             stmt->setString(0, new_string);
                             stmt->setString(1, hash_transfert.c_str());
@@ -478,7 +477,7 @@ public:
                 while(toDump->NextRow());
             }
 
-            if(toLoad)
+            if (toLoad)
             {
                 do
                 {
@@ -511,7 +510,7 @@ public:
 
                         LoginDatabase.PQuery("DELETE FROM transferts WHERE id = %u", transaction);
                         PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_TRANSFERTS_LOGS);
-                        if(stmt)
+                        if (stmt)
                         {
                             stmt->setUInt32(0, transaction);
                             stmt->setUInt32(1, account);
@@ -530,7 +529,7 @@ public:
 
 
                     /*FILE *fout = fopen("temp.dump", "w");
-                    if(!fout)
+                    if (!fout)
                         continue;
                     fprintf(fout, "%s\n", dump.c_str());
                     fclose(fout);
@@ -544,7 +543,7 @@ public:
                             LoginDatabase.EscapeString(dump);
 
                             PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_TRANSFERTS_LOGS);
-                            if(stmt)
+                            if (stmt)
                             {
                                 stmt->setUInt32(0, transaction);
                                 stmt->setUInt32(1, account);
