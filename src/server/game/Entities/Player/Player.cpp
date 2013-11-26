@@ -25445,6 +25445,10 @@ void Player::ResetDailyQuestStatus()
     // DB data deleted in caller
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
+
+    WorldPacket data(SMSG_RESET_DAILY_QUEST);
+    data << uint32(0);      // unk
+    GetSession()->SendPacket(&data);
 }
 
 void Player::ResetWeeklyQuestStatus()

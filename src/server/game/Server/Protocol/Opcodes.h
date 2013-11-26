@@ -434,7 +434,7 @@ enum Opcodes
     CMSG_REPLACE_ACCOUNT_DATA                         = 0x000,  // 5.0.5 16048
     CMSG_REPOP_REQUEST                                = 0x163A, // 5.4.0 17399
     CMSG_REPORT_PVP_AFK                               = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_ACCOUNT_DATA                         = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_CEMETERY_LIST                        = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_HOTFIX                               = 0x1A8B, // 5.4.0 17399
@@ -542,7 +542,7 @@ enum Opcodes
     CMSG_UNLEARN_SKILL                                = 0x177A, // 5.4.0 17399
     CMSG_UNLEARN_SPECIALIZATION                       = 0x000,  // 5.0.5 16048
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x000,  // 5.0.5 16048
-    CMSG_UPDATE_ACCOUNT_DATA                          = 0x000,  // 5.0.5 16048
+    CMSG_UPDATE_ACCOUNT_DATA                          = 0x12DF, // 5.4.0 17399
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x000,  // 5.0.5 16048
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x000,  // 5.0.5 16048
     CMSG_USED_FOLLOW                                  = 0x000,  // 5.0.5 16048
@@ -1300,12 +1300,9 @@ enum Opcodes
     SMSG_QUESTLOG_FULL                                = 0x152A, // 5.4.0 17399
     SMSG_QUESTUPDATE_ADD_KILL                         = 0x1988, // 5.4.0 17399
     SMSG_QUESTUPDATE_ADD_PVP_KILL                     = 0x15B9, // 5.4.0 17399
-    SMSG_QUESTUPDATE_COMPLETE                         = 0x000,  // 5.0.5 16048
-    SMSG_QUESTUPDATE_FAILED                           = 0x000,  // 5.0.5 16048
-    SMSG_QUESTUPDATE_FAILEDTIMER                      = 0x000,  // 5.0.5 16048
-    SMSG_QUEST_NPC_QUERY_RESPONSE                     = 0x000,  // 5.0.5 16048
+    SMSG_QUESTUPDATE_COMPLETE                         = 0x109F, // 5.4.0 17399
+    SMSG_QUESTUPDATE_FAILEDTIMER                      = 0x159C, // 5.4.0 17399
     SMSG_QUEST_CONFIRM_ACCEPT                         = 0x191A, // 5.4.0 17399
-    SMSG_QUEST_FORCE_REMOVE                           = 0x000,  // 5.0.5 16048
     SMSG_QUEST_POI_QUERY_RESPONSE                     = 0x183F, // 5.4.0 17399
     SMSG_QUEST_QUERY_RESPONSE                         = 0x19AB, // 5.4.0 17399
     SMSG_RAID_GROUP_ONLY                              = 0x000,  // 5.0.5 16048
@@ -1345,6 +1342,7 @@ enum Opcodes
     SMSG_RESET_FAILED_NOTIFY                          = 0x8AF,  // 5.4.0 17399 (JamList)
     SMSG_RESET_RANGED_COMBAT_TIMER                    = 0x520,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_RESET_WEEKLY_CURRENCY                        = 0x0BF,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_RESET_DAILY_QUEST                            = 0x1C0C, // 5.4.0 17399
     SMSG_RESISTLOG                                    = 0x000,  // 5.0.5 16048
     SMSG_RESPEC_WIPE_CONFIRM                          = 0x59B,  // 5.4.0 17399 (JamList)
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x084,  // 5.4.0 17399

@@ -1123,13 +1123,12 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
 
-    uint32 type, timestamp, decompressedSize;
-    recvData >> type >> timestamp >> decompressedSize;
+    uint32 type, timestamp, decompressedSize, compressedSize;
+    recvData >> decompressedSize >> timestamp >> compressedSize;
+
+    type = uint8(recvData.contents()[recvData.size()]) >> 5;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
-
-    if (type > NUM_ACCOUNT_DATA_TYPES)
-        return;
 
     if (decompressedSize == 0)                               // erase
     {
@@ -1163,8 +1162,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
 
     recvData.rfinish();                       // uncompress read (recvData.size() - recvData.rpos())
 
-    std::string adata;
-    dest >> adata;
+    std::string adata = dest.ReadString(decompressedSize);
 
     SetAccountData(AccountDataType(type), timestamp, adata);
 
@@ -1178,8 +1176,8 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
 
-    uint32 type;
-    recvData >> type;
+    uint32 type = recvData.ReadBits(3);
+    recvData.FlushBits();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", type);
 
@@ -1209,6 +1207,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     data << uint32(destSize);                               // compressed length
     data << uint32(adata->Time);                            // unix time
     data << uint32(size);                                   // decompressed length
+    data.append(dest);                                      // compressed data
 
     data.WriteBit(playerGuid[4]);
     data.WriteBit(playerGuid[2]);
@@ -1223,7 +1222,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     uint8 byteOrder[8] = { 4, 2, 7, 5, 3, 1, 6, 0 };
     data.WriteBytesSeq(playerGuid, byteOrder);
 
-    data.append(dest);                                      // compressed data
+    
     SendPacket(&data);
 }
 
