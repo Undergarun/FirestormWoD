@@ -1012,11 +1012,47 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     }
 
     // Crashfix, prevent use of bag with dynamic field
-    if (isType(TYPEMASK_CONTAINER))
+    if (GetTypeId() == TYPEID_ITEM && ((Item*)this)->ToBag())
     {
         *data << uint8(0);
         return;
     }
+
+    /*UpdateMask updateDynamicMask;
+    updateDynamicMask.SetCount(m_dynamicChange.size());
+    for (size_t i = 0; i < m_dynamicChange.size(); i++)
+    {
+        for (int index = 0; index < 32; index++)
+        {
+            if (m_dynamicChange[i][index])
+            {
+                updateDynamicMask.SetBit(i);
+                break;
+            }
+        }
+    }
+
+    *data << uint8(updateDynamicMask.GetBlockCount());
+    data->append(updateDynamicMask.GetMask(), updateDynamicMask.GetLength());
+
+    if (updateDynamicMask.GetBlockCount())
+    {
+        for (size_t i = 0; i < m_dynamicChange.size(); i++)
+        {
+            UpdateMask updateDynamicDataMask;
+            updateDynamicDataMask.SetCount(1);
+
+            for (int index = 0; index < 32; index++)
+                if (m_dynamicChange[i][index])
+                    updateDynamicDataMask.SetBit(index);
+
+            *data << uint8(1);
+
+            data->append(updateDynamicDataMask.GetMask(), updateDynamicDataMask.GetLength());
+
+
+        }
+    }*/
 
     // Dynamic Fields (5.0.5 MoP new fields)
     uint32 dynamicTabMask = 0;
@@ -1058,7 +1094,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
             }
         }
     }
-
 }
 
 void Object::ClearUpdateMask(bool remove)
