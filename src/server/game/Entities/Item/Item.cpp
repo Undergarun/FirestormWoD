@@ -259,9 +259,9 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
-    m_dynamicTab.resize(ITEM_DYNAMIC_END);
-    m_dynamicChange.resize(ITEM_DYNAMIC_END);
-    for (int i = 0; i < ITEM_DYNAMIC_END; i++)
+    m_dynamicTab.resize(32);
+    m_dynamicChange.resize(32);
+    for(int i = 0; i < 32; i++)
     {
         m_dynamicTab[i] = new uint32[32];
         m_dynamicChange[i] = new bool[32];

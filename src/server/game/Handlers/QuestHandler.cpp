@@ -923,14 +923,11 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
         }
     }
 
-
     ByteBuffer buff;
     WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE);
     data.WriteBits(count, 21);
 
     uint8 bitOrder[8] = {6, 3, 4, 2, 5, 1, 7, 0};
-
-
 
     for (Player::ClientGUIDs::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
@@ -961,7 +958,6 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
             buff.WriteByteSeq(guid[4]);
             buff.WriteByteSeq(guid[0]);
             buff.WriteByteSeq(guid[6]);
-
         }
         else if (IS_GAMEOBJECT_GUID(*itr))
         {
