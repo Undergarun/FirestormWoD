@@ -3168,9 +3168,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 void Player::SendBattlegroundTimer(uint32 currentTime, uint32 maxTime)
 {
     WorldPacket data(SMSG_START_TIMER, 12);
-    data << uint32(0);
-    data << uint32(currentTime);
     data << uint32(maxTime);
+    data << uint32(currentTime);
+    data << uint32(PVP_TIMER);
     SendDirectMessage(&data);
 }
 

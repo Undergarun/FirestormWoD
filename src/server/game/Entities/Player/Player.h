@@ -1220,6 +1220,12 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
+enum BattlegroundTimerTypes
+{
+    PVP_TIMER,
+    CHALLENGE_TIMER
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;

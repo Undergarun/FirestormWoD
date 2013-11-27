@@ -1480,12 +1480,12 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
         return;
     }
     WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
-    data << (uint32)Type;
-    data << CurrentValue;
+    data << uint32(Type);
+    data << uint32(Regen);
+    data << uint32(0);                                      // spell id
     data << MaxValue;
-    data << Regen;
-    data << (uint8)0;
-    data << (uint32)0;                                      // spell id
+    data << CurrentValue;
+    data.WriteBit(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -4342,13 +4342,15 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, uint32 item_guid, uint32 item_count)
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
-    data << uint32(equipError);
-    data << uint32(item_guid);                         // item guid low?
-    data << uint32(item_count);                        // item count?
-    data << uint32(mailError);
+    WorldPacket data(SMSG_SEND_MAIL_RESULT, 4 * 6);
+
     data << uint32(mailAction);
+    data << uint32(equipError);
+    data << uint32(mailError);
+    data << uint32(item_guid);
+    data << uint32(item_count);
     data << uint32(mailId);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -26479,10 +26481,18 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
-    WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
-    data << uint32(title->bit_index);
-    data << uint32(lost ? 0 : 1);                           // 1 - earned, 0 - lost
-    GetSession()->SendPacket(&data);
+    if (lost)
+    {
+        WorldPacket data(SMSG_TITLE_LOST, 4);
+        data << uint32(title->bit_index);
+        GetSession()->SendPacket(&data);
+    }
+    else
+    {
+        WorldPacket data(SMSG_TITLE_EARNED, 4);
+        data << uint32(title->bit_index);
+        GetSession()->SendPacket(&data);
+    }
 }
 
 bool Player::isTotalImmunity()
