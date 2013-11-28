@@ -109,7 +109,7 @@ public:
             {
                 if (me->isAlive())
                 {
-                    instance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
+                    instance->SetData(DATA_SUPREMUS_EVENT, NOT_STARTED);
                     //ToggleDoors(true);
                 }
                 //else ToggleDoors(false);
@@ -124,7 +124,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (instance)
-                instance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
+                instance->SetData(DATA_SUPREMUS_EVENT, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -162,7 +162,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData(DATA_SUPREMUSEVENT, DONE);
+                instance->SetData(DATA_SUPREMUS_EVENT, DONE);
                 instance->HandleGameObject(instance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
             }
             summons.DespawnAll();

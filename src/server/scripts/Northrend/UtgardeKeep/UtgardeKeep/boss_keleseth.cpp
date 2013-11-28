@@ -125,7 +125,7 @@ public:
 
         void Reset()
         {
-            if(instance)
+            if (instance)
                instance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
 
             events.Reset();
@@ -141,14 +141,14 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->SetInCombatWithZone();
-            if(instance)
+            if (instance)
                instance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
             Talk(SAY_START_COMBAT);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if(instance)
+            if (instance)
                instance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
             summons.DespawnAll();
             Talk(SAY_DEATH);

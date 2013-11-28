@@ -3331,7 +3331,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
     CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
-    CREATURE_TYPEFLAGS_QUEST_BOSS        = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
+    CREATURE_TYPEFLAGS_QUEST_BOSS       = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
 };
 
 enum CreatureTypeFlags2
@@ -4223,7 +4223,16 @@ enum SpellFamilyNames
     // 16 - unused
     SPELLFAMILY_PET         = 17,
     SPELLFAMILY_UNK3        = 50,
-    SPELLFAMILY_MONK        = 53
+    SPELLFAMILY_MONK        = 53,
+
+    // Found on SpellClassOptions.dbc
+    SPELLFAMILY_UNK4        = 54,
+    SPELLFAMILY_UNK5        = 56,                           // 2 Only
+    SPELLFAMILY_UNK6        = 57,
+    SPELLFAMILY_UNK7        = 66,                           // 2 Only
+    SPELLFAMILY_UNK8        = 71,                           // 2 Only
+    SPELLFAMILY_UNK9        = 78,
+    SPELLFAMILY_UNK10       = 97
 };
 
 // stored in character_pet.slot
@@ -4304,19 +4313,22 @@ enum RemoveMethod
 
 enum ActivateTaxiReply
 {
-    ERR_TAXIOK                      = 0,
-    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
-    ERR_TAXINOSUCHPATH              = 2,
-    ERR_TAXINOTENOUGHMONEY          = 3,
-    ERR_TAXITOOFARAWAY              = 4,
-    ERR_TAXINOVENDORNEARBY          = 5,
-    ERR_TAXINOTVISITED              = 6,
-    ERR_TAXIPLAYERBUSY              = 7,
-    ERR_TAXIPLAYERALREADYMOUNTED    = 8,
-    ERR_TAXIPLAYERSHAPESHIFTED      = 9,
-    ERR_TAXIPLAYERMOVING            = 10,
-    ERR_TAXISAMENODE                = 11,
-    ERR_TAXINOTSTANDING             = 12
+    ERR_TAXI_PLAYER_BUSY                = 0,
+    //                                  = 1,
+    ERR_TAXI_NO_VENDOR_NEARBY           = 2,
+    //                                  = 3,
+    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 4,
+    ERR_TAXI_NO_SUCH_PATH               = 5,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 6,
+    ERR_TAXI_SAME_NODE                  = 7,
+    //                                  = 8,
+    ERR_TAXI_PLAYER_MOVING              = 9,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 10,
+    ERR_TAXI_TOO_FAR_AWAY               = 11,
+    ERR_TAXI_NOT_STANDING               = 12,
+    ERR_TAXI_NOT_VISITED                = 13,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 14,
+    ERR_TAXI_OK                         = 15
 };
 
 enum ProfessionUI

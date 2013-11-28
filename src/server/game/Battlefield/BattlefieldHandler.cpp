@@ -248,7 +248,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
 
-    if(!accepted)
+    if (!accepted)
         return;
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
@@ -342,7 +342,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
 {
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest");
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId());
-    if(bf)
+    if (bf)
          bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 

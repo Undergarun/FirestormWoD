@@ -299,7 +299,11 @@ class spell_monk_chi_wave_bolt : public SpellScriptLoader
 
                                 for (auto itr : validTargets)
                                 {
-                                    if (_player->IsValidAttackTarget(sObjectAccessor->FindUnit(itr)))
+                                    Unit* allyTarget = sObjectAccessor->FindUnit(itr);
+                                    if (!allyTarget)
+                                        continue;
+
+                                    if (_player->IsValidAttackTarget(allyTarget))
                                         continue;
 
                                     alliesList.push_back(sObjectAccessor->FindUnit(itr));

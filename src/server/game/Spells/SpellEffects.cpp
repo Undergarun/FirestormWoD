@@ -4737,14 +4737,13 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     unitTarget->CastSpell(unitTarget, spellId, true);
                     break;
                 }
-                case 46642: // 5, 000 Gold
+                case 46642: // 5, 000 Gold, Banned spell
                 {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
+                    //if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    //    return;
 
-                    unitTarget->ToPlayer()->ModifyMoney(5000 * GOLD);
-
-                    break;
+                    //unitTarget->ToPlayer()->ModifyMoney(5000 * GOLD);
+                    //break;
                 }
                 case 47770: // Roll Dice - Decahedral Dwarven Dice
                 {
@@ -4784,27 +4783,68 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     uint32 iTmpSpellId = 0;
                     switch (unitTarget->GetDisplayId())
                     {
-                        case 25369: iTmpSpellId = 51552; break; // bloodelf female
-                        case 25373: iTmpSpellId = 51551; break; // bloodelf male
-                        case 25363: iTmpSpellId = 51542; break; // draenei female
-                        case 25357: iTmpSpellId = 51541; break; // draenei male
-                        case 25361: iTmpSpellId = 51537; break; // dwarf female
-                        case 25356: iTmpSpellId = 51538; break; // dwarf male
-                        case 25372: iTmpSpellId = 51550; break; // forsaken female
-                        case 25367: iTmpSpellId = 51549; break; // forsaken male
-                        case 25362: iTmpSpellId = 51540; break; // gnome female
-                        case 25359: iTmpSpellId = 51539; break; // gnome male
-                        case 25355: iTmpSpellId = 51534; break; // human female
-                        case 25354: iTmpSpellId = 51520; break; // human male
-                        case 25360: iTmpSpellId = 51536; break; // nightelf female
-                        case 25358: iTmpSpellId = 51535; break; // nightelf male
-                        case 25368: iTmpSpellId = 51544; break; // orc female
-                        case 25364: iTmpSpellId = 51543; break; // orc male
-                        case 25371: iTmpSpellId = 51548; break; // tauren female
-                        case 25366: iTmpSpellId = 51547; break; // tauren male
-                        case 25370: iTmpSpellId = 51545; break; // troll female
-                        case 25365: iTmpSpellId = 51546; break; // troll male
-                        default: return;
+                        case 25369:
+                            iTmpSpellId = 51552;
+                            break; // bloodelf female
+                        case 25373:
+                            iTmpSpellId = 51551;
+                            break; // bloodelf male
+                        case 25363:
+                            iTmpSpellId = 51542;
+                            break; // draenei female
+                        case 25357:
+                            iTmpSpellId = 51541;
+                            break; // draenei male
+                        case 25361:
+                            iTmpSpellId = 51537;
+                            break; // dwarf female
+                        case 25356:
+                            iTmpSpellId = 51538;
+                            break; // dwarf male
+                        case 25372:
+                            iTmpSpellId = 51550;
+                            break; // forsaken female
+                        case 25367:
+                            iTmpSpellId = 51549;
+                            break; // forsaken male
+                        case 25362:
+                            iTmpSpellId = 51540;
+                            break; // gnome female
+                        case 25359:
+                            iTmpSpellId = 51539;
+                            break; // gnome male
+                        case 25355:
+                            iTmpSpellId = 51534;
+                            break; // human female
+                        case 25354:
+                            iTmpSpellId = 51520;
+                            break; // human male
+                        case 25360:
+                            iTmpSpellId = 51536;
+                            break; // nightelf female
+                        case 25358:
+                            iTmpSpellId = 51535;
+                            break; // nightelf male
+                        case 25368:
+                            iTmpSpellId = 51544;
+                            break; // orc female
+                        case 25364:
+                            iTmpSpellId = 51543;
+                            break; // orc male
+                        case 25371:
+                            iTmpSpellId = 51548;
+                            break; // tauren female
+                        case 25366:
+                            iTmpSpellId = 51547;
+                            break; // tauren male
+                        case 25370:
+                            iTmpSpellId = 51545;
+                            break; // troll female
+                        case 25365:
+                            iTmpSpellId = 51546;
+                            break; // troll male
+                        default:
+                            return;
                     }
 
                     unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
@@ -5194,7 +5234,7 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         if (m_caster->ToPlayer()->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
     }
-    else if(!IsTriggered())
+    else if (!IsTriggered())
         unitTarget->m_lastSanctuaryTime = getMSTime();
 
 }
@@ -5393,9 +5433,21 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
 
     WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
-    data << uint64(m_caster->GetGUID());                    // summoner guid
-    data << uint32(m_caster->GetZoneId());                  // summoner zone
-    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
+    ObjectGuid summonerGuid = m_caster->GetGUID();
+
+    uint8 bitsOrder[8] = { 7, 2, 4, 0, 3, 6, 1, 5 };
+    data.WriteBitInOrder(summonerGuid, bitsOrder);
+
+    data.WriteByteSeq(summonerGuid[0]);
+    data.WriteByteSeq(summonerGuid[6]);
+    data.WriteByteSeq(summonerGuid[1]);
+    data << uint32(MAX_PLAYER_SUMMON_DELAY * IN_MILLISECONDS);  // auto decline after msecs
+    data.WriteByteSeq(summonerGuid[4]);
+    data.WriteByteSeq(summonerGuid[5]);
+    data.WriteByteSeq(summonerGuid[2]);
+    data.WriteByteSeq(summonerGuid[7]);
+    data.WriteByteSeq(summonerGuid[3]);
+    data << uint32(m_caster->GetZoneId());                      // summoner zone
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -5940,29 +5992,29 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
     int32 reqValue = 0;
-    
-    if(targetLevel < 10)
+
+    if (targetLevel < 10)
         reqValue = 0;
-    else if(targetLevel < 20)
-        reqValue = (targetLevel-10)*10;
-    else if(targetLevel < 74)
-        reqValue = targetLevel*5;
-    else if(targetLevel < 81)
-        reqValue = (targetLevel*5)+(targetLevel-73)*5;
-    else if(targetLevel < 85)
-        reqValue = (targetLevel*5)+35;
-    else if(targetLevel == 85) // @TODO find a generic formula
+    else if (targetLevel < 20)
+        reqValue = (targetLevel - 10) * 10;
+    else if (targetLevel < 74)
+        reqValue = targetLevel * 5;
+    else if (targetLevel < 81)
+        reqValue = (targetLevel * 5) + (targetLevel - 73) * 5;
+    else if (targetLevel < 85)
+        reqValue = (targetLevel * 5) + 35;
+    else if (targetLevel == 85) // @TODO find a generic formula
         reqValue = 470;
-    else if(targetLevel == 86)
+    else if (targetLevel == 86)
         reqValue = 485;
-    else if(targetLevel == 87)
+    else if (targetLevel == 87)
         reqValue = 495;
-    else if(targetLevel == 88)
+    else if (targetLevel == 88)
         reqValue = 520;
-    else if(targetLevel == 89)
+    else if (targetLevel == 89)
         reqValue = 540;
     else
-        reqValue = 560;   
+        reqValue = 560;
 
     int32 skillValue = m_caster->ToPlayer()->GetPureSkillValue(skill);
 

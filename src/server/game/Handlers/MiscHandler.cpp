@@ -90,14 +90,34 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
     uint32 gossipListId;
-    uint32 menuId;
-    uint64 guid;
+    uint32 textId;
+    ObjectGuid guid;
+    uint32 codeLen = 0;
     std::string code = "";
 
-    recvData >> guid >> menuId >> gossipListId;
+    recvData >> gossipListId >> textId;
 
-    if (_player->PlayerTalkClass->IsGossipOptionCoded(gossipListId))
-        recvData >> code;
+    guid[7] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    codeLen = recvData.ReadBits(8);
+    guid[5] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[2]);
+    code = recvData.ReadString(codeLen);
+    recvData.ReadByteSeq(guid[4]);
 
     Creature* unit = NULL;
     GameObject* go = NULL;
@@ -139,6 +159,9 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         _player->PlayerTalkClass->SendCloseGossip();
         return;
     }
+
+    uint32 menuId = _player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+
     if (!code.empty())
     {
         if (unit)
@@ -457,13 +480,13 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         bytesData.WriteByteSeq(unkGuid[5]);
         bytesData.WriteByteSeq(playerGuid[3]);
         bytesData.WriteByteSeq(playerGuid[6]);
-        bytesData << uint32(50659372);
+        bytesData << uint32(realmID);
         bytesData << uint8(race);
         bytesData << uint8(lvl);
         bytesData.WriteByteSeq(playerGuid[2]);
         bytesData.WriteByteSeq(playerGuid[1]);
         bytesData << uint8(gender);
-        bytesData << uint32(50659372);
+        bytesData << uint32(realmID);
         bytesData.WriteByteSeq(guildGuid[0]);
         bytesData.WriteByteSeq(guildGuid[5]);
         bytesData.WriteByteSeq(guildGuid[7]);
@@ -1100,13 +1123,12 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
 
-    uint32 type, timestamp, decompressedSize;
-    recvData >> type >> timestamp >> decompressedSize;
+    uint32 type, timestamp, decompressedSize, compressedSize;
+    recvData >> decompressedSize >> timestamp >> compressedSize;
+
+    type = uint8(recvData.contents()[recvData.size()]) >> 5;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
-
-    if (type > NUM_ACCOUNT_DATA_TYPES)
-        return;
 
     if (decompressedSize == 0)                               // erase
     {
@@ -1140,8 +1162,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
 
     recvData.rfinish();                       // uncompress read (recvData.size() - recvData.rpos())
 
-    std::string adata;
-    dest >> adata;
+    std::string adata = dest.ReadString(decompressedSize);
 
     SetAccountData(AccountDataType(type), timestamp, adata);
 
@@ -1155,8 +1176,8 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
 
-    uint32 type;
-    recvData >> type;
+    uint32 type = recvData.ReadBits(3);
+    recvData.FlushBits();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", type);
 
@@ -1186,6 +1207,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     data << uint32(destSize);                               // compressed length
     data << uint32(adata->Time);                            // unix time
     data << uint32(size);                                   // decompressed length
+    data.append(dest);                                      // compressed data
 
     data.WriteBit(playerGuid[4]);
     data.WriteBit(playerGuid[2]);
@@ -1200,7 +1222,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     uint8 byteOrder[8] = { 4, 2, 7, 5, 3, 1, 6, 0 };
     data.WriteBytesSeq(playerGuid, byteOrder);
 
-    data.append(dest);                                      // compressed data
+    
     SendPacket(&data);
 }
 
@@ -1767,7 +1789,12 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     std::string msg = charname + "'s " + "account is " + acc + ", e-mail: " + email + ", last ip: " + lastip;
 
     WorldPacket data(SMSG_WHOIS, msg.size()+1);
-    data << msg;
+    data.WriteBits(msg.size(), 11);
+
+    data.FlushBits();
+    if (msg.size())
+        data.append(msg.c_str(), msg.size());
+
     SendPacket(&data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received whois command from player %s for character %s", GetPlayer()->GetName(), charname.c_str());
@@ -1844,7 +1871,7 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 
     uint32 realmId = recvData.read<uint32>();
 
-    if(realmId != realmID)
+    if (realmId != realmID)
         return; // Cheater ?
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE);
@@ -2163,8 +2190,8 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
         data << uint16(*itr);
 
     data << uint32(unkValue);
-    // for(uint32 i = 0; i < unkValue; i++) 
-        //data << uint16(0); // WorldMapAreaId ?
+    //for (uint32 i = 0; i < unkValue; i++)
+    //    data << uint16(0); // WorldMapAreaId ?
     
     uint8 bitOrder[8] = {3, 7, 1, 6, 0, 4, 5, 2};
     data.WriteBitInOrder(guid, bitOrder);
@@ -2227,9 +2254,9 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
     if (_player->isInFlight())
         return;
 
-    if(/*Battlefield* bf =*/ sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+    if (/*Battlefield* bf =*/ sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
     {
-        // bf->PlayerAskToLeave(_player); FIXME
+        // bf->PlayerAskToLeave(_player);                   //@todo: FIXME
         return;
     }
 
@@ -2377,7 +2404,7 @@ void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket)
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
-    if(obj)
+    if (obj)
         obj->SendUpdateToPlayer(GetPlayer());
 
     sLog->outError(LOG_FILTER_NETWORKIO, "Object update failed for object " UI64FMTD " (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName() : "object-not-found", GetPlayerName().c_str(), GetGuidLow());

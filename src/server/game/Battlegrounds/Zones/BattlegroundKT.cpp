@@ -287,7 +287,7 @@ void BattlegroundKT::Reset()
     BgObjects.resize(BG_KT_OBJECT_MAX);
     BgCreatures.resize(BG_KT_CREATURE_MAX);
 
-    for(uint32 i = 0; i < MAX_ORBS; ++i)
+    for (uint32 i = 0; i < MAX_ORBS; ++i)
         m_OrbKeepers[i] = 0;
 
     bool isBGWeekend = BattlegroundMgr::IsBGWeekend(GetTypeID());
@@ -327,7 +327,7 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
 void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
     BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetObjectGuid());
-    if(itr == PlayerScores.end())                         // player not found
+    if (itr == PlayerScores.end())                         // player not found
         return;
 
     switch(type)

@@ -242,18 +242,19 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
     }
 }
 
-void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
+void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, ByteBuffer& dataBuffer, bool all)
 {
-    data << uint32(TaxiMaskSize);
+    data.WriteBits(TaxiMaskSize, 24);
+
     if (all)
     {
         for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data << uint8(sTaxiNodesMask[i]);              // all existed nodes
+            dataBuffer << uint8(sTaxiNodesMask[i]);              // all existed nodes
     }
     else
     {
         for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data << uint8(m_taximask[i]);                  // known nodes
+            dataBuffer << uint8(m_taximask[i]);                  // known nodes
     }
 }
 
@@ -742,7 +743,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_dynamicTab.resize(PLAYER_DYNAMIC_END);
     m_dynamicChange.resize(PLAYER_DYNAMIC_END);
-    for(int i = 0; i < PLAYER_DYNAMIC_END; i++)
+    for (int i = 0; i < PLAYER_DYNAMIC_END; i++)
     {
         m_dynamicTab[i] = new uint32[32];
         m_dynamicChange[i] = new bool[32];
@@ -1392,18 +1393,83 @@ void Player::RewardCurrencyAtKill(Unit* victim)
         return;
 
     CurrencyOnKillEntry const* Curr = sObjectMgr->GetCurrencyOnKillEntry(victim->ToCreature()->GetEntry());
-
     if (!Curr)
         return;
 
     if (Curr->currencyId1 && Curr->currencyCount1)
-        ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
+    {
+        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
+        {
+            if (Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS)
+            {
+                if ((GetCurrency(Curr->currencyId1, true) + Curr->currencyCount1) > GetCurrencyTotalCap(entry))
+                {
+                    uint32 max = GetCurrencyTotalCap(entry);
+                    uint32 lessPoint = max - GetCurrency(Curr->currencyId1, true);
+                    uint32 rest = Curr->currencyCount1 - lessPoint;
+
+                    ModifyCurrency(Curr->currencyId1, lessPoint);
+
+                    if (rest > 0)
+                        ModifyMoney(rest * 4750);
+                }
+                else
+                    ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
+            }
+            else
+                ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
+        }
+    }
 
     if (Curr->currencyId2 && Curr->currencyCount2)
-        ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
+    {
+        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId2))
+        {
+            if (Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS)
+            {
+                if ((GetCurrency(Curr->currencyId2, true) + Curr->currencyCount2) > GetCurrencyTotalCap(entry))
+                {
+                    uint32 max = GetCurrencyTotalCap(entry);
+                    uint32 lessPoint = max - GetCurrency(Curr->currencyId2, true);
+                    uint32 rest = Curr->currencyCount2 - lessPoint;
+
+                    ModifyCurrency(Curr->currencyId2, lessPoint);
+
+                    if (rest > 0)
+                        ModifyMoney(rest * 4750);
+                }
+                else
+                    ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
+            }
+            else
+                ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
+        }
+    }
 
     if (Curr->currencyId3 && Curr->currencyCount3)
-        ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+    {
+        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId3))
+        {
+            if (Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS)
+            {
+                if ((GetCurrency(Curr->currencyId3, true) + Curr->currencyCount3) > GetCurrencyTotalCap(entry))
+                {
+                    uint32 max = GetCurrencyTotalCap(entry);
+                    uint32 lessPoint = max - GetCurrency(Curr->currencyId3, true);
+                    uint32 rest = Curr->currencyCount3 - lessPoint;
+
+                    ModifyCurrency(Curr->currencyId3, lessPoint);
+
+                    if (rest > 0)
+                        ModifyMoney(rest * 4750);
+                }
+                else
+                    ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+            }
+            else
+                ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+        }
+    }
 }
 
 void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen)
@@ -1415,12 +1481,12 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
         return;
     }
     WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
-    data << (uint32)Type;
-    data << CurrentValue;
+    data << uint32(Type);
+    data << uint32(Regen);
+    data << uint32(0);                                      // spell id
     data << MaxValue;
-    data << Regen;
-    data << (uint8)0;
-    data << (uint32)0;                                      // spell id
+    data << CurrentValue;
+    data.WriteBit(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -1704,7 +1770,7 @@ void Player::Update(uint32 p_time)
 
     //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
 
-    if(!m_initializeCallback)
+    if (!m_initializeCallback)
     {
         PreparedStatement* stmt;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
@@ -2077,7 +2143,7 @@ void Player::Update(uint32 p_time)
 
     if (m_knockBackTimer)
     {
-        if( m_knockBackTimer + 2000 < getMSTime())
+        if ( m_knockBackTimer + 2000 < getMSTime())
             m_knockBackTimer = 0;
     }
 
@@ -3685,11 +3751,11 @@ void Player::GiveGatheringXP()
     else if (level > 79 && level < 85)
         gain = 750 * level - 58250;
     else if (level > 84 && level < 90)
-        gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, TODO : find blizzlike formula (7400 - 14280)
+        gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, @TODO : find blizzlike formula (7400 - 14280)
 
     float GatheringXpRate = 1;
 
-    if(GetPersonnalXpRate())
+    if (GetPersonnalXpRate())
         GatheringXpRate = GetPersonnalXpRate();
     else
         GatheringXpRate = sWorld->getRate(RATE_XP_GATHERING);
@@ -3738,7 +3804,7 @@ void Player::GiveLevel(uint8 level)
             break;
     }
 
-    data << uint32(talent);     // Has talent
+    data << uint32(talent);                                 // Has talent
     data << uint32(level);
 
     data << uint32(int32(basemana)   - int32(GetCreateMana()));
@@ -3771,7 +3837,7 @@ void Player::GiveLevel(uint8 level)
     InitGlyphsForLevel();
 
     UpdateAllStats();
-    _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
+    _ApplyAllLevelScaleItemMods(true);                      // Moved to above SetFullHealth so player will have full health from Heirlooms
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetFullHealth();
@@ -3787,7 +3853,7 @@ void Player::GiveLevel(uint8 level)
 
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
     {
-        //- TODO: Poor design of mail system
+        //- @TODO: Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
         CharacterDatabase.CommitTransaction(trans);
@@ -3811,21 +3877,21 @@ void Player::GiveLevel(uint8 level)
                     SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
             }
     
-    if(level == 85)
-    {
-        uint32 idQuest;
-        if(GetTeam() == TEAM_ALLIANCE)
-        {
-            idQuest = 29547;
-        }
-        else
-            idQuest = 29611;
+            if (level == 85)
+            {
+                uint32 idQuest;
+                if (GetTeam() == TEAM_ALLIANCE)
+                {
+                    idQuest = 29547;
+                }
+                else
+                    idQuest = 29611;
 
-        Quest const* quest = sObjectMgr->GetQuestTemplate(idQuest);
-        if(quest)
-            AddQuest(quest, NULL);
-    }
-    
+                Quest const* quest = sObjectMgr->GetQuestTemplate(idQuest);
+                if (quest)
+                    AddQuest(quest, NULL);
+            }
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -4277,13 +4343,15 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, uint32 item_guid, uint32 item_count)
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
-    data << uint32(equipError);
-    data << uint32(item_guid);                         // item guid low?
-    data << uint32(item_count);                        // item count?
-    data << uint32(mailError);
+    WorldPacket data(SMSG_SEND_MAIL_RESULT, 4 * 6);
+
     data << uint32(mailAction);
+    data << uint32(equipError);
+    data << uint32(mailError);
+    data << uint32(item_guid);
+    data << uint32(item_count);
     data << uint32(mailId);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -7846,7 +7914,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 uint32 XP = 0;
 
                 float ExploreXpRate = 1;
-                if(GetPersonnalXpRate())
+                if (GetPersonnalXpRate())
                    ExploreXpRate = GetPersonnalXpRate();
                 else
                    ExploreXpRate = sWorld->getRate(RATE_XP_EXPLORE);
@@ -8589,7 +8657,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             }
 
              // on new case just set init.
-            if(itr->second.state == PLAYERCURRENCY_NEW)
+            if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 SendNewCurrency(id);
                 return;
@@ -8675,9 +8743,12 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             cap = JadeCore::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
             break;
         case CURRENCY_TYPE_JUSTICE_POINTS:
-            if (sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS) > 0)
-                cap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS);
+            // No more week cap of Justice Points !
+            cap = 0;
             break;
+            /*
+             *   @TODO : add weekcap 1000
+             */
         case CURRENCY_TYPE_VALOR_POINTS:
             cap = 3000 * CURRENCY_PRECISION;
             break;
@@ -8858,7 +8929,7 @@ void Player::UpdateArea(uint32 newArea)
     UpdatePvPState(true);
 
     //Pandaria area update for monk level < 85
-    if(area && getLevel() < 85 && getClass() == CLASS_MONK && GetMapId() == 870 && area->mapid == 870 &&
+    if (area && getLevel() < 85 && getClass() == CLASS_MONK && GetMapId() == 870 && area->mapid == 870 &&
         newArea != 6081 && newArea != 6526 && newArea != 6527 
         && GetZoneId() == 5841 && !isGameMaster())
         TeleportTo(870, 3818.55f, 1793.18f, 950.35f, GetOrientation());
@@ -11121,7 +11192,14 @@ uint32 Player::GetXPRestBonus(uint32 xp)
 void Player::SetBindPoint(uint64 guid)
 {
     WorldPacket data(SMSG_BINDER_CONFIRM, 8);
-    data << uint64(guid);
+    ObjectGuid npcGuid = guid;
+
+    uint8 bitsOrder[8] = { 5, 0, 1, 6, 4, 2, 3, 7 };
+    data.WriteBitInOrder(guid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 6, 3, 7, 4, 5, 2, 0, 1 };
+    data.WriteBytesSeq(guid, bytesOrder);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -11130,31 +11208,28 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
     ObjectGuid Guid = guid;
     uint32 cost = 0;
 
-    if(!specialization)
+    if (!specialization)
         cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
     else
         cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetSpecializationCost();
 
     WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
 
-    uint8 bitOrder[8] = {6, 3, 5, 2, 0, 7, 1, 4};
+    uint8 bitOrder[8] = { 4, 0, 7, 5, 3, 1, 2, 6 };
     data.WriteBitInOrder(Guid, bitOrder);
-    data.FlushBits();
-
-    data.WriteByteSeq(Guid[3]);
-    data.WriteByteSeq(Guid[5]);
-    data.WriteByteSeq(Guid[1]);
-
-    data << uint8(specialization); // 0 : talent 1 : specialization
-
-    data.WriteByteSeq(Guid[0]);
-    data.WriteByteSeq(Guid[2]);
-    data.WriteByteSeq(Guid[4]);
-    data.WriteByteSeq(Guid[7]);
-
-    data << uint32(cost);
 
     data.WriteByteSeq(Guid[6]);
+    data.WriteByteSeq(Guid[4]);
+    data.WriteByteSeq(Guid[5]);
+
+    data << uint32(cost);
+    data << uint8(specialization); // 0 : talent 1 : specialization
+
+    data.WriteByteSeq(Guid[7]);
+    data.WriteByteSeq(Guid[1]);
+    data.WriteByteSeq(Guid[3]);
+    data.WriteByteSeq(Guid[0]);
+    data.WriteByteSeq(Guid[2]);
 
     GetSession()->SendPacket(&data);
 }
@@ -12895,7 +12970,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         return EQUIP_ERR_NOT_OWNER;
 
     // Currency tokens are not supposed to be swapped out of their hidden bag
-    if(pItem->IsCurrencyToken())
+    if (pItem->IsCurrencyToken())
     {
         sLog->outError(LOG_FILTER_PLAYER, "Possible hacking attempt: Player %s [guid: %u] tried to move token [guid: %u, entry: %u] out of the currency bag!",
                 GetName(), GetGUIDLow(), pItem->GetGUIDLow(), pProto->ItemId);
@@ -14918,17 +14993,31 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
+
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
-    data << uint64(creature ? creature->GetGUID() : 0);
+    ObjectGuid guid = creature ? creature->GetGUID() : NULL;
+
+    uint8 bitsOrder[8] = { 7, 5, 4, 2, 6, 0, 3, 1 };
+    data.WriteBitInOrder(guid, bitsOrder);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
     data << uint32(item);
     data << uint8(msg);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[2]);
+
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));  // last check 4.3.4
+    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));
     data << uint64(creature ? creature->GetGUID() : 0);
     data << uint64(guid);
     data << uint8(msg);
@@ -15140,51 +15229,16 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
     if (!reforge)
         return;
 
-    item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, apply ? reforge->Id : 0);
-    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, apply ? 1 : 0);
-
     float removeValue = item->GetReforgableStat(ItemModType(reforge->SourceStat)) * reforge->SourceMultiplier;
     float addValue = removeValue * reforge->FinalMultiplier;
 
     switch (reforge->SourceStat)
     {
-        case ITEM_MOD_MANA:
-            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, -removeValue, apply);
-            break;
-        case ITEM_MOD_HEALTH:
-            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, -removeValue, apply);
-            break;
-        case ITEM_MOD_AGILITY:
-            HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_AGILITY, -removeValue, apply);
-            break;
-        case ITEM_MOD_STRENGTH:
-            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_STRENGTH, -removeValue, apply);
-            break;
-        case ITEM_MOD_INTELLECT:
-            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_INTELLECT, -removeValue, apply);
-            break;
-        case ITEM_MOD_SPIRIT:
-            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
-            break;
-        case ITEM_MOD_STAMINA:
-            HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_STAMINA, -removeValue, apply);
-            break;
-        case ITEM_MOD_DEFENSE_SKILL_RATING:
-            ApplyRatingMod(CR_DEFENSE_SKILL, -int32(removeValue), apply);
-            break;
         case  ITEM_MOD_DODGE_RATING:
             ApplyRatingMod(CR_DODGE, -int32(removeValue), apply);
             break;
         case ITEM_MOD_PARRY_RATING:
             ApplyRatingMod(CR_PARRY, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_BLOCK_RATING:
-            ApplyRatingMod(CR_BLOCK, -int32(removeValue), apply);
             break;
         case ITEM_MOD_HIT_MELEE_RATING:
             ApplyRatingMod(CR_HIT_MELEE, -int32(removeValue), apply);
@@ -15231,73 +15285,20 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_EXPERTISE_RATING:
             ApplyRatingMod(CR_EXPERTISE, -int32(removeValue), apply);
             break;
-        case ITEM_MOD_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, -removeValue, apply);
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
-            break;
-        case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
-            break;
-        case ITEM_MOD_MANA_REGENERATION:
-            ApplyManaRegenBonus(-int32(removeValue), apply);
-            break;
-        case ITEM_MOD_SPELL_POWER:
-            ApplySpellPowerBonus(-int32(removeValue), apply);
-            break;
-        case ITEM_MOD_HEALTH_REGEN:
-            ApplyHealthRegenBonus(-int32(removeValue), apply);
-            break;
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, -int32(removeValue), apply);
             break;
-        case ITEM_MOD_SPELL_PENETRATION:
-            ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -int32(removeValue), apply);
-            m_spellPenetrationItemMod += apply ? -int32(removeValue) : int32(removeValue);
-            break;
-        case ITEM_MOD_BLOCK_VALUE:
-            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, -removeValue, apply);
+        default:
             break;
     }
 
     switch (reforge->FinalStat)
     {
-        case ITEM_MOD_MANA:
-            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, addValue, apply);
-            break;
-        case ITEM_MOD_HEALTH:
-            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, addValue, apply);
-            break;
-        case ITEM_MOD_AGILITY:
-            HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, addValue, apply);
-            ApplyStatBuffMod(STAT_AGILITY, addValue, apply);
-            break;
-        case ITEM_MOD_STRENGTH:
-            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, addValue, apply);
-            ApplyStatBuffMod(STAT_STRENGTH, addValue, apply);
-            break;
-        case ITEM_MOD_INTELLECT:
-            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, addValue, apply);
-            ApplyStatBuffMod(STAT_INTELLECT, addValue, apply);
-            break;
-        case ITEM_MOD_SPIRIT:
-            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, addValue, apply);
-            ApplyStatBuffMod(STAT_SPIRIT, addValue, apply);
-            break;
-        case ITEM_MOD_STAMINA:
-            HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, addValue, apply);
-            ApplyStatBuffMod(STAT_STAMINA, addValue, apply);
-            break;
-        case ITEM_MOD_DEFENSE_SKILL_RATING:
-            ApplyRatingMod(CR_DEFENSE_SKILL, int32(addValue), apply);
-            break;
         case  ITEM_MOD_DODGE_RATING:
             ApplyRatingMod(CR_DODGE, int32(addValue), apply);
             break;
         case ITEM_MOD_PARRY_RATING:
             ApplyRatingMod(CR_PARRY, int32(addValue), apply);
-            break;
-        case ITEM_MOD_BLOCK_RATING:
-            ApplyRatingMod(CR_BLOCK, int32(addValue), apply);
             break;
         case ITEM_MOD_HIT_MELEE_RATING:
             ApplyRatingMod(CR_HIT_MELEE, int32(addValue), apply);
@@ -15344,34 +15345,12 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_EXPERTISE_RATING:
             ApplyRatingMod(CR_EXPERTISE, int32(addValue), apply);
             break;
-        case ITEM_MOD_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, addValue, apply);
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
-            break;
-        case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
-            break;
-        case ITEM_MOD_MANA_REGENERATION:
-            ApplyManaRegenBonus(int32(addValue), apply);
-            break;
-        case ITEM_MOD_SPELL_POWER:
-            ApplySpellPowerBonus(int32(addValue), apply);
-            break;
-        case ITEM_MOD_HEALTH_REGEN:
-            ApplyHealthRegenBonus(int32(addValue), apply);
-            break;
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, int32(addValue), apply);
             break;
-        case ITEM_MOD_SPELL_PENETRATION:
-            ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, int32(addValue), apply);
-            m_spellPenetrationItemMod += apply ? int32(addValue) : -int32(addValue);
-            break;
-        case ITEM_MOD_BLOCK_VALUE:
-            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, addValue, apply);
+        default:
             break;
     }
-
 }
 
 void Player::ApplyEnchantment(Item* item, bool apply)
@@ -15954,6 +15933,10 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     if (!creature->isCanTrainingAndResetTalentsOf(this))
                         canTalk = false;
                     break;
+                case GOSSIP_OPTION_UNLEARNPETTALENTS:
+                    if (!GetPet() || GetPet()->getPetType() != HUNTER_PET || GetPet()->m_spells.size() <= 1 || creature->GetCreatureTemplate()->trainer_type != TRAINER_TYPE_PETS || creature->GetCreatureTemplate()->trainer_class != CLASS_HUNTER)
+                        canTalk = false;
+                    break;
                 case GOSSIP_OPTION_UNLEARNSPECIALIZATION:
                     if (!creature->isCanTrainingAndResetTalentsOf(this))
                         canTalk = false;
@@ -16150,6 +16133,10 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             PlayerTalkClass->SendCloseGossip();
             SendTalentWipeConfirm(guid, false);
             break;
+        case GOSSIP_OPTION_UNLEARNPETTALENTS:
+            PlayerTalkClass->SendCloseGossip();
+            //ResetPetTalents();
+            break;
          case GOSSIP_OPTION_UNLEARNSPECIALIZATION:
             PlayerTalkClass->SendCloseGossip();
             SendTalentWipeConfirm(guid, true);
@@ -16170,7 +16157,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_TABARDDESIGNER:
             PlayerTalkClass->SendCloseGossip();
-            GetSession()->SendTabardVendorActivate(guid);
+            GetSession()->SendTabardVendorActivate(GetSession()->GetPlayer()->GetGUID());
             break;
         case GOSSIP_OPTION_AUCTIONEER:
             GetSession()->SendAuctionHello(guid, source->ToCreature());
@@ -16785,9 +16772,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         if (int32 reqCurrencyId = quest->RequiredCurrencyId[i])
         {
             CurrencyTypesEntry const* reqCurrency = sCurrencyTypesStore.LookupEntry(reqCurrencyId);
-            if(int32 reqCountCurrency = quest->RequiredCurrencyCount[i])
+            if (int32 reqCountCurrency = quest->RequiredCurrencyCount[i])
             {
-                if(reqCurrency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                if (reqCurrency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
                     reqCountCurrency *= 100;
                 ModifyCurrency(reqCurrencyId, -reqCountCurrency);
             }
@@ -16831,11 +16818,11 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             if (uint32 currencyId = quest->RewardCurrencyId[i])
             {
                 CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
-                if(uint32 countCurrency = quest->RewardCurrencyCount[i])
+                if (uint32 countCurrency = quest->RewardCurrencyCount[i])
                 {
-                    if(currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                    if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
                         countCurrency *= 100;
-                    ModifyCurrency(currencyId,countCurrency);
+                    ModifyCurrency(currencyId, countCurrency);
                 }
             }
         }
@@ -16851,7 +16838,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     float QuestXpRate = 1;
-    if(GetPersonnalXpRate())
+    if (GetPersonnalXpRate())
         QuestXpRate = GetPersonnalXpRate();
     else
         QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
@@ -18276,17 +18263,24 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     }
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
-    
-    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
-    data.WriteBit(1);
-
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
-    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data << uint32(moneyReward);
     data << uint32(xp);
     data << uint32(questId);
+    data << uint32(moneyReward);
+
+    // @TODO : try that, may be not correct order (test with quest give skill point to be sure, see sub_6AC41 in IDA for more informations)
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
-    data.FlushBits();
+    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
+    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
+
+    // May be this order is correct, need try
+    /*
+    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
+    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
+    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
+    */
+
+    data.WriteBit(1);                                      // FIXME: unknown bits, common values sent
+    data.WriteBit(1);
 
     GetSession()->SendPacket(&data);
 
@@ -18336,10 +18330,31 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
+        ObjectGuid guid = GetGUID();
+
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(quest->GetQuestId());
-        data << strTitle;
-        data << uint64(GetGUID());
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(!strTitle.size());
+        if (strTitle.size())
+            data.WriteBits(strTitle.size(), 10);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[1]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[7]);
+        if (strTitle.size())
+            data.append(strTitle.c_str(), strTitle.size());
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
         pReceiver->GetSession()->SendPacket(&data);
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
@@ -18350,15 +18365,19 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
 {
     if (player)
     {
-        WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
-        data << uint64(player->GetGUID());
+        WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
+        ObjectGuid guid = player->GetGUID();
+        uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
+        uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
+        data.WriteBitInOrder(guid, bitOrder);
+        data.WriteBytesSeq(guid, byteOrder);
         data << uint8(msg);                                 // valid values: 0-8
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_QUEST_PUSH_RESULT");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
     }
 }
 
-void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
+void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 objGuid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
 {
     ASSERT(old_count + add_count < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
 
@@ -18368,15 +18387,25 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uin
         entry = (-entry) | 0x80000000;
 
     uint8 unk1 = 0;
+    ObjectGuid guid = objGuid;
 
     WorldPacket data(SMSG_QUESTUPDATE_ADD_KILL, (4*4+8));
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
-    data << uint32(quest->GetQuestId());
-    data << uint32(entry);
-    data << uint16(old_count + add_count);
-    data << uint32(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
-    data << uint64(guid);
+    uint8 bitOrder[8] = {7, 3, 6, 5, 0, 1, 4, 2};
+    data.WriteBitInOrder(guid, bitOrder);
+    data << uint16(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
     data << uint8(unk1);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    data << uint32(entry);
+    data << uint32(quest->GetQuestId());
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data << uint16(old_count + add_count);
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
@@ -18390,9 +18419,9 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
 
     WorldPacket data(SMSG_QUESTUPDATE_ADD_PVP_KILL, (2*4) + 1);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_PVP_KILL");
-    data << uint32(quest->GetQuestId());
     data << uint8(old_count + add_count);
     data << uint32(quest->GetPlayersSlain());
+    data << uint32(quest->GetQuestId());
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
@@ -18764,7 +18793,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     m_atLoginFlags = fields[34].GetUInt16();
     bool mustResurrectFromUnlock = false;
 
-    if(m_atLoginFlags & AT_LOGIN_UNLOCK)
+    if (m_atLoginFlags & AT_LOGIN_UNLOCK)
     {
         bool BGdesert = false;
         bool DungeonDesert = false;
@@ -19299,7 +19328,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
     
-    /*if(QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
+    /*if (QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
         m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();*/
 
     if (mustResurrectFromUnlock)
@@ -19391,7 +19420,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Loading auras for player %u", GetGUIDLow());
 
     std::list<auraEffectData> auraEffectList;
-    if(resultEffect)
+    if (resultEffect)
     {
         do
         {
@@ -19458,7 +19487,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
 
             for(std::list<auraEffectData>::iterator itr = auraEffectList.begin(); itr != auraEffectList.end(); ++itr)
             {
-                if(itr->_slot == slot)
+                if (itr->_slot == slot)
                 {
                     damage[itr->_effect] = itr->_amount;
                     baseDamage[itr->_effect] = itr->_baseamount;
@@ -21144,7 +21173,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         AuraPtr aura = itr->second;
         AuraApplication * foundAura = GetAuraApplication(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID());
 
-        if(!foundAura)
+        if (!foundAura)
             continue;
 
 
@@ -21966,8 +21995,7 @@ void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
 
 void Player::SendResetFailedNotify(uint32 mapid)
 {
-    WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 4);
-    data << uint32(mapid);
+    WorldPacket data(SMSG_RESET_FAILED_NOTIFY);
     GetSession()->SendPacket(&data);
 }
 
@@ -22034,9 +22062,9 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
     // 1: There are players offline in your party.
     // 2>: There are players in your party attempting to zone into an instance.
     */
-    WorldPacket data(SMSG_INSTANCE_RESET_FAILED, 8);
-    data << uint32(reason);
+    WorldPacket data(SMSG_INSTANCE_RESET_FAILED);
     data << uint32(MapId);
+    data.WriteBits(reason, 2);
     GetSession()->SendPacket(&data);
 }
 
@@ -22308,12 +22336,12 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     /**data << uint8(msgtype);
     *data << uint32(language);
     *data << uint64(GetGUID());
-    *data << uint32(0);                                      // constant unknown time
+    *data << uint32(0);                                            // constant unknown time
     if (addonPrefix)
         *data << addonPrefix;
     *data << uint64(GetGUID());
 
-    if(msgtype == 2 || msgtype == 51 || msgtype == 3 || msgtype == 39 || msgtype == 40)
+    if (msgtype == 2 || msgtype == 51 || msgtype == 3 || msgtype == 39 || msgtype == 40)
         *data << uint64(GetGUID());
     *data << uint32(text.length() + 1);
     *data << text;
@@ -23002,7 +23030,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
     if (GetSession()->isLogingOut() || isInCombat() || HasUnitState(UNIT_STATE_STUNNED) || HasUnitState(UNIT_STATE_ROOT))
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_BUSY);
         return false;
     }
 
@@ -23015,20 +23043,20 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         // not let cheating with start flight mounted
         if (IsMounted())
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERALREADYMOUNTED);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_ALREADY_MOUNTED);
             return false;
         }
 
         if (IsInDisallowedMountForm())
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERSHAPESHIFTED);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_SHAPESHIFTED);
             return false;
         }
 
         // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
         if (IsNonMeleeSpellCasted(false))
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_BUSY);
             return false;
         }
     }
@@ -23057,7 +23085,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(sourcenode);
     if (!node)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_NO_SUCH_PATH);
         return false;
     }
 
@@ -23070,14 +23098,14 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
             (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
             (2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE))
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_TOO_FAR_AWAY);
             return false;
         }
     }
     // node must have pos if taxi master case (npc != NULL)
     else if (npc)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_UNSPECIFIED_SERVER_ERROR);
         return false;
     }
 
@@ -23140,7 +23168,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // in spell case allow 0 model
     if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_UNSPECIFIED_SERVER_ERROR);
         m_taxi.ClearTaxiDestinations();
         return false;
     }
@@ -23152,7 +23180,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
 
     if (money < totalcost)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXINOTENOUGHMONEY);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_NOT_ENOUGH_MONEY);
         m_taxi.ClearTaxiDestinations();
         return false;
     }
@@ -23174,7 +23202,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
     else
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_OK);
         GetSession()->SendDoFlight(mount_display_id, sourcepath);
     }
     return true;
@@ -23412,10 +23440,24 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << uint64(pVendor->GetGUID());
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+
+        ObjectGuid vendorGuid = pVendor->GetGUID();
+
+        uint8 bitsOrder[8] = { 6, 0, 5, 2, 4, 1, 7, 3 };
+        data.WriteBitInOrder(vendorGuid, bitsOrder);
+
+        data.WriteByteSeq(vendorGuid[7]);
         data << uint32(count);
+        data.WriteByteSeq(vendorGuid[6]);
+        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+        data.WriteByteSeq(vendorGuid[2]);
+        data.WriteByteSeq(vendorGuid[0]);
+        data.WriteByteSeq(vendorGuid[3]);
+        data << uint32(vendorslot + 1);                   // numbered from 1 at client
+        data.WriteByteSeq(vendorGuid[5]);
+        data.WriteByteSeq(vendorGuid[4]);
+        data.WriteByteSeq(vendorGuid[1]);
+
         GetSession()->SendPacket(&data);
         SendNewItem(it, count, true, false, false);
 
@@ -23567,7 +23609,8 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
 bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot)
 {
     // cheating attempt
-    if (count < 1) count = 1;
+    if (count < 1)
+        count = 1;
 
     // cheating attempt
     if (slot > MAX_BAG_SIZE && slot != NULL_SLOT)
@@ -23717,7 +23760,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         if (reward.AchievementId)
             if (!guild->GetAchievementMgr().HasAchieved(reward.AchievementId))
             {
-                if(!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
+                if (!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
                 { 
                     SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                     return false;
@@ -24645,6 +24688,8 @@ Player* Player::GetSelectedPlayer() const
 void Player::SendComboPoints()
 {
     Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
+    ObjectGuid guid = combotarget->GetGUID();
+
     if (combotarget)
     {
         WorldPacket data;
@@ -24655,8 +24700,20 @@ void Player::SendComboPoints()
         }
         else
             data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
-        data.append(combotarget->GetPackGUID());
+
+        uint8 bitsOrder[8] = { 6, 2, 5, 4, 7, 0, 1, 3 };
+        data.WriteBitInOrder(guid, bitsOrder);
+
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
         data << uint8(m_comboPoints);
+        data.WriteByteSeq(guid[6]);
+
         GetSession()->SendPacket(&data);
     }
 }
@@ -24912,15 +24969,13 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
     WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                             // difficulty
     data << uint32(time);
-    if (type == RAID_INSTANCE_WELCOME)
-    {
-        data << uint8(0);                                   // is locked
-        data << uint8(0);                                   // is extended, ignored if prev field is 0
-    }
+    data << uint32(mapid);
+    data << uint32(difficulty);                         // difficulty
+    data << uint32(type);
+    data.WriteBit(0);                                   // is locked
+    data.WriteBit(0);                                   // is extended, ignored if prev field is 0
+    data.FlushBits();
     GetSession()->SendPacket(&data);
 }
 
@@ -25306,6 +25361,10 @@ void Player::ResetDailyQuestStatus()
     // DB data deleted in caller
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
+
+    WorldPacket data(SMSG_RESET_DAILY_QUEST);
+    data << uint32(0);      // unk
+    GetSession()->SendPacket(&data);
 }
 
 void Player::ResetWeeklyQuestStatus()
@@ -25898,10 +25957,19 @@ void Player::ResurectUsingRequestData()
 
 void Player::SetClientControl(Unit* target, uint8 allowMove)
 {
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
-    data.append(target->GetPackGUID());
-    data << uint8(allowMove);
+    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE);
+    ObjectGuid targetGuid = target->GetGUID();
+
+    data.WriteBit(allowMove);
+
+    uint8 bitsOrder[8] = { 2, 1, 4, 6, 5, 7, 0, 3 };
+    data.WriteBitInOrder(targetGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 5, 1, 2, 4, 0, 3, 7, 6 };
+    data.WriteBytesSeq(targetGuid, bytesOrder);
+
     GetSession()->SendPacket(&data);
+
     if (target == this)
         SetMover(this);
 }
@@ -26435,10 +26503,18 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
-    WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
-    data << uint32(title->bit_index);
-    data << uint32(lost ? 0 : 1);                           // 1 - earned, 0 - lost
-    GetSession()->SendPacket(&data);
+    if (lost)
+    {
+        WorldPacket data(SMSG_TITLE_LOST, 4);
+        data << uint32(title->bit_index);
+        GetSession()->SendPacket(&data);
+    }
+    else
+    {
+        WorldPacket data(SMSG_TITLE_EARNED, 4);
+        data << uint32(title->bit_index);
+        GetSession()->SendPacket(&data);
+    }
 }
 
 bool Player::isTotalImmunity()
@@ -26700,12 +26776,14 @@ void Player::ConvertRune(uint8 index, RuneType newType)
 void Player::ResyncRunes(uint8 count)
 {
     WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data << uint32(count);
+    data.WriteBits(count, 23);
+
     for (uint32 i = 0; i < count; ++i)
     {
-        data << uint8(GetCurrentRune(i));                   // rune type
         data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        data << uint8(GetCurrentRune(i));                   // rune type
     }
+
     GetSession()->SendPacket(&data);
 }
 
@@ -28650,15 +28728,15 @@ void Player::SetMover(Unit* target)
 
 void Player::ShowNeutralPlayerFactionSelectUI()
 {
-    WorldPacket data(SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI);
+    WorldPacket data(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI);
     GetSession()->SendPacket(&data);
 }
 
 void Player::SetPersonnalXpRate(float PersonnalXpRate)
 {
-    if(PersonnalXpRate != m_PersonnalXpRate)
+    if (PersonnalXpRate != m_PersonnalXpRate)
     {
-        if(PersonnalXpRate)
+        if (PersonnalXpRate)
         {
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUIDLow(), PersonnalXpRate);
@@ -28678,7 +28756,7 @@ void Player::SetPersonnalXpRate(float PersonnalXpRate)
 void Player::HandleStoreGoldCallback(PreparedQueryResult result)
 {
     // Load des golds
-    if(result)
+    if (result)
     {
         uint32 goldCount = 0;
         do
@@ -28687,10 +28765,10 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
             uint32 gold         = (fieldGold[0].GetUInt32()) * GOLD;
             uint32 transaction  = fieldGold[1].GetUInt32();
 
-            if((GetMoney() + gold) > MAX_MONEY_AMOUNT)
+            if ((GetMoney() + gold) > MAX_MONEY_AMOUNT)
             {
-                GetSession()->SendNotification("Vous avez commande des pieces d'ors a la boutique, mais vous disposez deja de la limite imposee par WoW");
-                GetSession()->SendNotification("Vos pieces d'or seront ajoutee lors d'une futur re-connexion.");
+                GetSession()->SendNotification("Vous avez commande des pieces d'ors a la boutique, mais vous disposez deja de la limite imposee par WoW");  // Translate me
+                GetSession()->SendNotification("Vos pieces d'or seront ajoutee lors d'une futur re-connexion.");                                            // Translate me
                 break;
             }
             goldCount+= gold;
@@ -28709,8 +28787,8 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
         }
         while(result->NextRow());
 
-        if(goldCount)
-            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));
+        if (goldCount)
+            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));             // Translate me
     }
 }
 
@@ -28729,28 +28807,28 @@ void Player::HandleStoreItemCallback(PreparedQueryResult result)
 
             uint32 noSpaceForCount = 0;
 
-            // Item special, ajout de po 200001 - 200006
+            // Special item, gold add 200001 - 200006
             if (ShopItemid > 200000)
             {
                 uint32 po = 0;
                 switch (ShopItemid)
                 {
-                    case 200001: // 150k po
+                    case 200001: // 150k gold
                         po = 1500000000;
                         break;
-                    case 200002: // 80k po
+                    case 200002: // 80k gold
                         po = 800000000;
                         break;
-                    case 200003: // 30k po
+                    case 200003: // 30k gold
                         po = 300000000;
                         break;
-                    case 200004: // 10k po
+                    case 200004: // 10k gold
                         po = 100000000;
                         break;
-                    case 200005: // 5k po
+                    case 200005: // 5k gold
                         po = 50000000;
                         break;
-                    case 200006: // 1k po
+                    case 200006: // 1k gold
                         po = 10000000;
                         break;
                     default:
@@ -28782,7 +28860,7 @@ void Player::HandleStoreItemCallback(PreparedQueryResult result)
             else
             {
                 // noSpaceForCount > 0 = il reste des items a ajouter
-                if(AddItem(ShopItemid, ShopCount, &noSpaceForCount) && !noSpaceForCount)
+                if (AddItem(ShopItemid, ShopCount, &noSpaceForCount) && !noSpaceForCount)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_ITEM);
                     stmt->setInt32(0, transaction);
@@ -28821,7 +28899,7 @@ void Player::HandleStoreItemCallback(PreparedQueryResult result)
         }
         while(result->NextRow());
 
-        if(ShopError)
+        if (ShopError)
             GetSession()->SendNotification(GetSession()->GetSessionDbcLocale() == LOCALE_frFR ? "Verifiez que vous avez assez de place dans votre inventaire." : "Check if you have free slot in your inventory");
     }
 }
@@ -28830,15 +28908,15 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
 {
     PreparedStatement* stmt;
 
-    // Load des powerlevels
-    if(result)
+    // Load powerlevels
+    if (result)
     {
         Field* fields = result->Fetch();
         uint32 level = fields[0].GetUInt32();
 
-        if(level < getLevel() || level > DEFAULT_MAX_LEVEL)
+        if (level < getLevel() || level > DEFAULT_MAX_LEVEL)
         {
-            GetSession()->SendNotification("Tentative de powerlevel vers un niveau inferieur ou vers un niveau plus eleve que le niveau maximum, veuillez contactez le support boutique si ce message apparait.");
+            GetSession()->SendNotification("Tentative de powerlevel vers un niveau inferieur ou vers un niveau plus eleve que le niveau maximum, veuillez contactez le support boutique si ce message apparait.");  // translate me
         }
         else
         {
@@ -28851,12 +28929,12 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
     }
 }
 
-    // Load des métiers
+    // Load skill
     /*stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_METIER);
     stmt->setInt32(0, GetGUIDLow());
     PreparedQueryResult metierList = CharacterDatabase.Query(stmt);
 
-    if(metierList)
+    if (metierList)
     {
         do
         {
@@ -28866,7 +28944,7 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
 
             uint32 learnId = 0;
 
-            for(SpellSkillingList::iterator itr = sSpellSkillingList.begin(); itr != sSpellSkillingList.end(); itr++)
+            for (SpellSkillingList::iterator itr = sSpellSkillingList.begin(); itr != sSpellSkillingList.end(); itr++)
             {
                 SpellEntry const* spell = (*itr);
 
@@ -28875,19 +28953,19 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
                 if (!spellEffect)
                     continue;
 
-                if((uint32)spellEffect->EffectMiscValue != skillId)
+                if ((uint32)spellEffect->EffectMiscValue != skillId)
                     continue;
 
-                if((uint32)(spellEffect->EffectBasePoints+1) != (value/75))
+                if ((uint32)(spellEffect->EffectBasePoints+1) != (value/75))
                     continue;
 
                 learnId = spell->Id;
                 break;
             }
 
-            if(learnId)
+            if (learnId)
             {
-                if(!HasSpell(learnId))
+                if (!HasSpell(learnId))
                     learnSpell(learnId, false);
 
                 SetSkill(skillId, GetSkillStep(skillId), value, value);
@@ -28898,7 +28976,7 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
                 stmt->setInt32(2, value);
                 CharacterDatabase.Execute(stmt);
 
-                GetSession()->SendNotification("Votre metier commande sur la boutique vous a ete ajoute avec succes !");
+                GetSession()->SendNotification("Votre metier commande sur la boutique vous a ete ajoute avec succes !");  // translate me
             }
 
         }

@@ -756,12 +756,12 @@ class boss_sister_svalna : public CreatureScript
                     }
                 }
 
-                if(instance)
+                if (instance)
                 {
                     Map::PlayerList const &players = instance->instance->GetPlayers();
                     if (!players.isEmpty())
-                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            if((*itr).getSource())
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            if ((*itr).getSource())
                                 (*itr).getSource()->RemoveAurasDueToSpell(SPELL_IMPALING_SPEAR_KILL);
                 }
             }
@@ -1223,7 +1223,7 @@ struct npc_argent_captainAI : public ScriptedAI
             }
             else
             {
-                if(Instance)
+                if (Instance)
                     Instance->SetData(DATA_CAPTAIN_NUMBER, ACTION_KILL_CAPTAIN);
                 Talk(SAY_CAPTAIN_SECOND_DEATH);
             }
@@ -1315,7 +1315,7 @@ struct npc_argent_captainAI : public ScriptedAI
                         return;
                 }
 
-                if(Instance)
+                if (Instance)
                     if (Creature* crok = ObjectAccessor::GetCreature(*me, Instance->GetData64(DATA_CROK_SCOURGEBANE)))
                         me->AI()->AttackStart(crok);
 

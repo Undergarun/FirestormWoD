@@ -439,8 +439,15 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 {
-    uint64 guid;
-    recvPacket >> guid;
+    ObjectGuid guid;
+
+    uint8 bitsOrder[8] = { 5, 3, 1, 4, 6, 7, 2, 0 };
+    recvPacket.ReadBitInOrder(guid, bitsOrder);
+
+    recvPacket.FlushBits();
+
+    uint8 bytesOrder[8] = { 6, 1, 5, 3, 4, 0, 2, 7 };
+    recvPacket.ReadBytesSeq(guid, bytesOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
 

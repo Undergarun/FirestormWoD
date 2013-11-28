@@ -439,7 +439,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     else
         FillNotNormalLootFor(lootOwner, true);
 
-    if((lootId == 90406 || lootId == 90399 || lootId == 90397 || lootId == 90400 ||  lootId == 90398 || lootId == 90395 || lootId == 90401) && lootMode == LOOT_MODE_DEFAULT)
+    if ((lootId == 90406 || lootId == 90399 || lootId == 90397 || lootId == 90400 ||  lootId == 90398 || lootId == 90395 || lootId == 90401) && lootMode == LOOT_MODE_DEFAULT)
     {
         for (auto itemCurrent: items)
             for (auto spellId: sSpellMgr->mSpellCreateItemList)

@@ -235,7 +235,7 @@ class boss_lord_marrowgar : public CreatureScript
                         case EVENT_BONE_STORM_END:
                             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                                 me->GetMotionMaster()->MovementExpired();
-                            if(Unit* unit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0.0f, true))
+                            if (Unit* unit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0.0f, true))
                             {
                                 me->getThreatManager().resetAllAggro();
                                 me->AddThreat(unit, 1.0f);

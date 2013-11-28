@@ -1760,7 +1760,7 @@ public:
 
         void GotStinged(uint64 casterGUID)
         {
-            if(Player* caster = Player::GetPlayer(*me, casterGUID))
+            if (Player* caster = Player::GetPlayer(*me, casterGUID))
             {
                 uint32 step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE) + 1;
                 switch (step)

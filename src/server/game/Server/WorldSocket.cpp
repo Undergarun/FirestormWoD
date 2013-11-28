@@ -497,7 +497,7 @@ int WorldSocket::handle_input_header (void)
     uint16 cmd = 0;
     uint16 size = 0;
 
-    if(m_Crypt.IsInitialized())
+    if (m_Crypt.IsInitialized())
     {
         ClientCryptPktHeader& header = *((ClientCryptPktHeader*)m_Header.rd_ptr());
         size = (uint16)(header.header >> 13);
@@ -524,7 +524,7 @@ int WorldSocket::handle_input_header (void)
     }
 
 
-    if(!m_Crypt.IsInitialized())
+    if (!m_Crypt.IsInitialized())
         size -= 2;
 
     ACE_NEW_RETURN(m_RecvWPct, WorldPacket (PacketFilter::DropHighBytes(Opcodes(cmd)), size), -1);

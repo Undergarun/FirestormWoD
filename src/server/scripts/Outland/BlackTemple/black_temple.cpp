@@ -59,7 +59,7 @@ public:
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
-        if (instance && (instance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (instance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
+        if (instance && (instance->GetData(DATA_SUPREMUS_EVENT) >= DONE) && (instance->GetData(DATA_HIGH_WARLORD_NAJENTUS_EVENT) >= DONE))
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());

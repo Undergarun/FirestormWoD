@@ -259,9 +259,9 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
-    m_dynamicTab.resize(ITEM_DYNAMIC_END);
-    m_dynamicChange.resize(ITEM_DYNAMIC_END);
-    for(int i = 0; i < ITEM_DYNAMIC_END; i++)
+    m_dynamicTab.resize(32);
+    m_dynamicChange.resize(32);
+    for (int i = 0; i < 32; i++)
     {
         m_dynamicTab[i] = new uint32[32];
         m_dynamicChange[i] = new bool[32];
@@ -465,13 +465,13 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     std::string enchants = fields[6].GetString();
     _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
 
-    if(uint32 reforgeEntry = fields[8].GetInt32())
+    if (uint32 reforgeEntry = fields[8].GetInt32())
     {
         SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, reforgeEntry);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
     }
 
-    if(uint32 transmogId = fields[9].GetInt32())
+    if (uint32 transmogId = fields[9].GetInt32())
     {
         SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, transmogId);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);

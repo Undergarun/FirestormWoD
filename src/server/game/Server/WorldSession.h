@@ -620,8 +620,6 @@ class WorldSession
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildRosterOpcode(WorldPacket& recvPacket);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
         void HandleGuildAssignRankOpcode(WorldPacket& recvPacket);
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
         void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
@@ -640,6 +638,8 @@ class WorldSession
         void HandleGuildRequestPartyState(WorldPacket& recvPacket);
         void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
+        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
+        void HandleGuildRequestGuildRecipes(WorldPacket& recvPacket);
 
         void HandleGuildFinderAddRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderBrowse(WorldPacket& recvPacket);
@@ -760,8 +760,6 @@ class WorldSession
         void HandleQuestgiverChooseRewardOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverRequestRewardOpcode(WorldPacket& recvPacket);
         void HandleQuestQueryOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverCancel(WorldPacket& recvData);
-        void HandleQuestLogSwapQuest(WorldPacket& recvData);
         void HandleQuestLogRemoveQuest(WorldPacket& recvData);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
         void HandleQuestgiverCompleteQuest(WorldPacket& recvData);
@@ -1125,7 +1123,7 @@ class WorldSession
         time_t timeLastCalendarInvCommand;
         time_t timeLastChangeSubGroupCommand;
         time_t timeLastSellItemOpcode;
-		
+
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
 

@@ -999,7 +999,7 @@ class PlayerTaxi
             else
                 return false;
         }
-        void AppendTaximaskTo(ByteBuffer& data, bool all);
+        void AppendTaximaskTo(ByteBuffer& data, ByteBuffer& dataBuffer, bool all);
 
         // Destinations
         bool LoadTaxiDestinationsFromString(const std::string& values, uint32 team);
@@ -1218,6 +1218,12 @@ struct PlayerTalentInfo
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
+};
+
+enum BattlegroundTimerTypes
+{
+    PVP_TIMER,
+    CHALLENGE_TIMER
 };
 
 class Player : public Unit, public GridObject<Player>

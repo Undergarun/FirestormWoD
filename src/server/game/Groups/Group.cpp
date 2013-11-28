@@ -1033,13 +1033,13 @@ void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll& r)
     data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);
 
-    data << uint32(0);                     // randomSuffix
+    data << uint32(0);                                      // randomSuffix
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[4]);
-    if(r.itemSlot)
+    if (r.itemSlot)
         data << uint8(r.itemSlot);
     data.WriteByteSeq(guid[6]);
-    data << uint32(r.itemRandomPropId);                              // the countdown time to choose "need" or "greed"
+    data << uint32(r.itemRandomPropId);                     // the countdown time to choose "need" or "greed"
     data.WriteByteSeq(guid[5]);
     data << uint32(countDown);                              // the countdown time to choose "need" or "greed"
     data << uint8(r.rollVoteMask);                          // roll type mask
@@ -1097,7 +1097,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     data << uint32(0);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[4]);
-    if(r.itemSlot)
+    if (r.itemSlot)
         data << uint8(r.itemSlot);
     data.WriteByteSeq(guid[6]);
     data << uint32(r.itemRandomPropId);
@@ -2020,35 +2020,38 @@ void Group::SendTargetIconList(WorldSession* session)
         return;
 
     WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (1+TARGETICONCOUNT*9));
-    data << uint8(1);                                       // list targets
-    size_t count = 0;
-    size_t pos = data.wpos();
-    data.WriteBits(0, 25);
     ByteBuffer dataBuffer;
+    uint32 count = 0;
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
     {
         if (m_targetIcons[i] == 0)
             continue;
-        ObjectGuid guid = m_targetIcons[i];
-    
-        uint8 bitOrder[8] = {3, 0, 7, 2, 4, 5, 1, 6};
-        data.WriteBitInOrder(guid, bitOrder);
 
-        dataBuffer.WriteByteSeq(guid[1]);
-        dataBuffer.WriteByteSeq(guid[7]);
-        dataBuffer.WriteByteSeq(guid[0]);
-        dataBuffer.WriteByteSeq(guid[2]);
-        dataBuffer << uint8(i);
-        dataBuffer.WriteByteSeq(guid[3]);
-        dataBuffer.WriteByteSeq(guid[5]);
-        dataBuffer.WriteByteSeq(guid[4]);
-        dataBuffer.WriteByteSeq(guid[6]);
         ++count;
     }
-    data.PutBits<uint32>(pos, count, 25);
+
+    data.WriteBits(0, 23);
+
+    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    {
+        if (m_targetIcons[i] == 0)
+            continue;
+
+        ObjectGuid guid = m_targetIcons[i];
+
+        uint8 bitOrder[8] = { 7, 6, 3, 1, 0, 4, 5, 2 };
+        data.WriteBitInOrder(guid, bitOrder);
+
+        dataBuffer << uint8(i);
+
+        uint8 bytesOrder[8] = { 3, 7, 5, 1, 6, 0, 4, 2 };
+        dataBuffer.WriteBytesSeq(guid, bytesOrder);
+    }
+
     data.FlushBits();
     data.append(dataBuffer);
+    data << uint8(1);                                       // list targets
     session->SendPacket(&data);
 }
 

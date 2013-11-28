@@ -95,7 +95,7 @@ public:
         void Reset()
         {
             if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
+                instance->SetData(DATA_GURTOGG_BLOOD_BOIL_EVENT, NOT_STARTED);
 
             TargetGUID = 0;
 
@@ -123,7 +123,7 @@ public:
             DoZoneInCombat();
             DoScriptText(SAY_AGGRO, me);
             if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
+                instance->SetData(DATA_GURTOGG_BLOOD_BOIL_EVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -134,7 +134,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
+                instance->SetData(DATA_GURTOGG_BLOOD_BOIL_EVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }

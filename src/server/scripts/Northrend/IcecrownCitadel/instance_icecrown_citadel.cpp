@@ -288,11 +288,11 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 bool mustBeSpawned = false;
 
-                if(!npc_entry)
+                if (!npc_entry)
                 {
                     QueryResult npc_transport = WorldDatabase.PQuery("SELECT npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote, guid FROM creature_transport WHERE transport_entry = '%u' ORDER BY guid", pTransport->GetEntry());
 
-                    if(!npc_transport)
+                    if (!npc_transport)
                         return NULL;
 
                     do
@@ -305,7 +305,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         mustBeSpawned = true;
 
                         // EVENT ALLIANCE
-                        /*if(pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
+                        /*if (pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
                         {
                             switch(npc_entry)
                             {
@@ -318,7 +318,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             }
                         }
                         else */
-                        if(pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
+                        if (pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
                         {
                             switch(npc_entry)
                             {
@@ -337,7 +337,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             }
                         }
                         // EVENT HORDE
-                        /*else if(pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
+                        /*else if (pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
                         {
                             switch(npc_entry)
                             {
@@ -350,7 +350,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             }
                         }
                         else */
-                        if(pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
+                        if (pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
                         {
                             switch(npc_entry)
                             {
@@ -376,7 +376,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (Creature * Passenger = pTransport->AddNPCPassengerCreature(fields[6].GetUInt32(), fields[0].GetFloat(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(),fields[4].GetUInt32(),fields[5].GetUInt32()))
                         {
                             // EVENT ALLIANCE
-                            if(pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
+                            if (pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
                             {
                                 switch(npc_entry)
                                 {
@@ -403,7 +403,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         }
                                         Passenger->setFaction(35);
                                         Passenger->AI()->DoAction(ACTION_SET_MAIN_GUNSHIP);
-                                        if(Passenger->GetInstanceScript())
+                                        if (Passenger->GetInstanceScript())
                                             Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_MAIN, Passenger->GetGUID());
                                         break;
                                     }
@@ -416,7 +416,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         break;*/
                                 }
                             }
-                            else if(pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
+                            else if (pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
                             {
                                 switch(npc_entry)
                                 {
@@ -443,7 +443,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         }
                                         Passenger->setFaction(14);
                                         Passenger->AI()->DoAction(ACTION_SET_SECOND_GUNSHIP);
-                                        if(Passenger->GetInstanceScript())
+                                        if (Passenger->GetInstanceScript())
                                             Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_SECOND, Passenger->GetGUID());
                                         break;
                                     }
@@ -467,7 +467,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 }
                             }
                             // EVENT HORDE
-                            else if(pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
+                            else if (pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
                             {
                                 switch(npc_entry)
                                 {
@@ -494,7 +494,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         }
                                         Passenger->setFaction(35);
                                         Passenger->AI()->DoAction(ACTION_SET_MAIN_GUNSHIP);
-                                        if(Passenger->GetInstanceScript())
+                                        if (Passenger->GetInstanceScript())
                                             Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_MAIN, Passenger->GetGUID());
                                         break;
                                     }
@@ -507,7 +507,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         break;*/
                                 }
                             }
-                            else if(pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
+                            else if (pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
                             {
                                 switch(npc_entry)
                                 {
@@ -534,7 +534,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         }
                                         Passenger->setFaction(14);
                                         Passenger->AI()->DoAction(ACTION_SET_SECOND_GUNSHIP);
-                                        if(Passenger->GetInstanceScript())
+                                        if (Passenger->GetInstanceScript())
                                             Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_SECOND, Passenger->GetGUID());
                                         break;
                                     }
@@ -578,7 +578,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (!AreGunshipsSpawned && TeamInInstance)
                 {
-                    if(TeamInInstance == ALLIANCE)
+                    if (TeamInInstance == ALLIANCE)
                     {
                         m_GunshipMain   = MakeTransport(TRANSPORT_A_THE_SKYBREAKER, 77527,  "ICC - Skybreaker alliance", "transport_icc_gunship");
                         m_GunshipSecond = MakeTransport(TRANSPORT_A_ORGRIM_HAMMER,  115661, "ICC - Orgrim's Hammer alliance", "transport_icc_gunship");
@@ -605,7 +605,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void SendTransportInit(Player *player)
             {
-                if(!m_GunshipMain || !m_GunshipSecond)
+                if (!m_GunshipMain || !m_GunshipSecond)
                     return;
 
                 UpdateData transData(player->GetMapId());
@@ -726,7 +726,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         ValithriaDreamwalkerGUID = creature->GetGUID();
                         break;
                     case NPC_THE_LICH_KING_VALITHRIA:
-                        if(creature->GetDBTableGUIDLow()) // Seul le vrai spawn doit donner son GUID
+                        if (creature->GetDBTableGUIDLow()) // Seul le vrai spawn doit donner son GUID
                             ValithriaLichKingGUID = creature->GetGUID();
                         break;
 
@@ -1091,7 +1091,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_BLOODQUEEN_TARGETS:
-                        if(data)
+                        if (data)
                             BloodQueen_BloodBolt_TargetsList.push_back(data);
                         //else
                             //JadeCore::Containers::RandomListOrder<uint64>(BloodQueen_BloodBolt_TargetsList);
@@ -1147,7 +1147,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return BloodQueenLanaThelGUID;
                     case DATA_BLOODQUEEN_TARGETS:
                     {
-                        if(BloodQueen_BloodBolt_TargetsList.empty())
+                        if (BloodQueen_BloodBolt_TargetsList.empty())
                             return 0;
 
                         uint64 RandomTarget = BloodQueen_BloodBolt_TargetsList.front();
@@ -1196,7 +1196,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
-                if(state == IN_PROGRESS)
+                if (state == IN_PROGRESS)
                     CheckPlayersNumber();
 
                 switch (type)
@@ -1409,14 +1409,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                             case (uint32)ACTION_KILL_CAPTAIN:
                                 CaptainCount--;
-                                if(!CaptainCount)
+                                if (!CaptainCount)
                                     if (Creature* Svalna = instance->GetCreature(GetData64(DATA_SISTER_SVALNA)))
                                         Svalna->AI()->DoAction(0);
                                 break;
                         }
                         break;
                     case DATA_BLOODQUEEN_TARGETS_PROC:
-                        if(++BloodBolt_proc_count > 3)
+                        if (++BloodBolt_proc_count > 3)
                             BloodBolt_proc_count = 1;
                         break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
@@ -1591,7 +1591,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 if (player && player->isGameMaster())
                     return true;
 
-                if((instance->GetPlayersCountExceptGMs()) > instance->ToInstanceMap()->GetMaxPlayers())
+                if ((instance->GetPlayersCountExceptGMs()) > instance->ToInstanceMap()->GetMaxPlayers())
                     return false;
 
                 switch (bossId)
@@ -1726,7 +1726,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                 }
 
-                if(instance->GetPlayersCountExceptGMs() > max_players_number)
+                if (instance->GetPlayersCountExceptGMs() > max_players_number)
                     DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             }
 
@@ -1933,7 +1933,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         GunshipResetBool = false;
                         break;
                     case 2:
-                        if(m_GunshipMain)
+                        if (m_GunshipMain)
                             m_GunshipMain->BuildStartMovePacket(instance);
 
                         if (TeamInInstance == ALLIANCE)
@@ -1958,7 +1958,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             DoScriptText(SAY_EVENT_03_H_H, FriendCommander);
 
                         // Lancement du deuxième bateau
-                        if(m_GunshipSecond)
+                        if (m_GunshipSecond)
                             m_GunshipSecond->BuildStartMovePacket(instance);
                         GunshipIntroTimer = 5000;
                         GunshipIntroPhase++;
@@ -1993,10 +1993,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         else
                             DoScriptText(SAY_EVENT_05_H_H, EnnemyCommander);
 
-                        if(m_GunshipMain)
+                        if (m_GunshipMain)
                             m_GunshipMain->BuildStopMovePacket(instance);
 
-                        if(m_GunshipSecond)
+                        if (m_GunshipSecond)
                         {
                             m_GunshipSecond->BuildStopMovePacket(instance);
                             // Aucun joueur ne sera monter dessus entre temps donc pas de maj des coordonnees
@@ -2214,7 +2214,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     case 1:
                     {
-                        if(m_GunshipSecond)
+                        if (m_GunshipSecond)
                             m_GunshipSecond->BuildStartMovePacket(instance);
 
                         if (Creature* EnnemyCommander = instance->GetCreature(GunshipennemycommanderGUID))
@@ -2326,16 +2326,16 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 DoScriptText(SAY_EVENT_VICTORY_H_H, Commander);
                         }
 
-                        if(m_GunshipMain)
+                        if (m_GunshipMain)
                             m_GunshipMain->BuildStartMovePacket(instance);
 
                         GunshipExtroPhase++;
                         GunshipExtroTimer = 10000;
                         break;
                     case 3:
-                        if(m_GunshipMain)
+                        if (m_GunshipMain)
                             m_GunshipMain->BuildStopMovePacket(instance);
-                        if(m_GunshipSecond)
+                        if (m_GunshipSecond)
                         {
                             m_GunshipSecond->BuildStopMovePacket(instance);
                             m_GunshipSecond->SetPhaseMask(1024, true); // Le fait disparaitre
@@ -2789,7 +2789,7 @@ void UnsummonSpecificCreaturesNearby(Creature* ref, uint32 entry, float radius)
     std::list<Creature*> allCreaturesWithEntry;
     GetCreatureListWithEntryInGrid(allCreaturesWithEntry, ref, entry, radius);
 
-    for(std::list<Creature*>::iterator itr = allCreaturesWithEntry.begin(); itr != allCreaturesWithEntry.end(); ++itr)
+    for (std::list<Creature*>::iterator itr = allCreaturesWithEntry.begin(); itr != allCreaturesWithEntry.end(); ++itr)
     {
         Creature* candidate = *itr;
 

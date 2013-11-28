@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
+#include "Guild.h"
 
 enum StableResultCode
 {
@@ -47,7 +48,7 @@ enum StableResultCode
     STABLE_ERR_EXOTIC       = 0x0C,                         // "you are unable to control exotic creatures"
 };
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -68,18 +69,55 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 
 void WorldSession::SendTabardVendorActivate(uint64 guid)
 {
-    WorldPacket data(MSG_TABARDVENDOR_ACTIVATE, 8);
-    data << guid;
-    SendPacket(&data);
+    ObjectGuid playerGuid = guid;
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+    {
+        if (guild->GetLeaderGUID() == guid)
+        {
+            WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_ACTIVATE);
+            SendPacket(&data);
+        }
+        else
+        {
+            WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_SHOW);
+
+            uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
+            data.WriteBitInOrder(playerGuid, bitsOrder);
+
+            uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
+            data.WriteBytesSeq(playerGuid, bytesOrder);
+
+            SendPacket(&data);
+        }
+    }
+    else
+    {
+        WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_SHOW);
+
+        uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
+        data.WriteBitInOrder(playerGuid, bitsOrder);
+
+        uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
+        data.WriteBytesSeq(playerGuid, bytesOrder);
+
+        SendPacket(&data);
+    }
 }
 
 void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    recvData >> guid;
+    uint8 bitsOrder[8] = { 0, 2, 1, 6, 7, 3, 4, 5 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 7, 4, 0, 3, 2, 1, 5, 6 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!unit)
@@ -97,12 +135,21 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 
 void WorldSession::SendShowBank(uint64 guid)
 {
-    WorldPacket data(SMSG_SHOW_BANK, 8);
-    data << guid;
+    WorldPacket data(SMSG_SHOW_BANK);
+    ObjectGuid npcGuid = guid;
+
+    uint8 bitsOrder[8] = { 1, 2, 0, 4, 6, 3, 5, 7 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    data.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 6, 0, 5, 7, 3, 2, 1 };
+    data.WriteBytesSeq(npcGuid, bytesOrder);
+
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
+void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
@@ -151,13 +198,19 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         return;
     }
 
-    WorldPacket data(SMSG_TRAINER_LIST, 8+4+4+trainer_spells->spellList.size()*38 + strTitle.size()+1);
-    data << guid;
-    data << uint32(trainer_spells->trainerType);
-    data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
+    ByteBuffer dataBuffer;
+    WorldPacket data(SMSG_TRAINER_LIST);
+    ObjectGuid npcGuid = guid;
 
-    size_t count_pos = data.wpos();
-    data << uint32(trainer_spells->spellList.size());
+    data.WriteBit(npcGuid[0]);
+    data.WriteBits(strTitle.size(), 11);
+    data.WriteBit(npcGuid[5]);
+    data.WriteBit(npcGuid[6]);
+    data.WriteBit(npcGuid[1]);
+    data.WriteBit(npcGuid[2]);
+    data.WriteBit(npcGuid[7]);
+    data.WriteBit(npcGuid[4]);
+    data.WriteBit(npcGuid[3]);
 
     // reputation discount
     float fDiscountMod = _player->GetReputationPriceDiscount(unit);
@@ -188,13 +241,10 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
 
         TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
 
-        data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
-        data << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
-        data << uint32(floor(tSpell->spellCost * fDiscountMod));
+        dataBuffer << uint32(tSpell->reqSkillValue);
+        dataBuffer << uint32(floor(tSpell->spellCost * fDiscountMod));
+        dataBuffer << uint8(tSpell->reqLevel);
 
-        data << uint8(tSpell->reqLevel);
-        data << uint32(tSpell->reqSkill);
-        data << uint32(tSpell->reqSkillValue);
         //prev + req or req + 0
         uint8 maxReq = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -203,7 +253,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
                 continue;
             if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
             {
-                data << uint32(prevSpellId);
+                dataBuffer << uint32(prevSpellId);
                 ++maxReq;
             }
             if (maxReq == 1)
@@ -211,7 +261,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
             SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
             for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 2; ++itr2)
             {
-                data << uint32(itr2->second);
+                dataBuffer << uint32(itr2->second);
                 ++maxReq;
             }
             if (maxReq == 1)
@@ -219,30 +269,59 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         }
         while (maxReq < 1)
         {
-            data << uint32(0);
+            dataBuffer << uint32(0);
             ++maxReq;
         }
 
-        data << uint32(/*primary_prof_first_rank && can_learn_primary_prof ? 1 : 0*/0);
-        // primary prof. learn confirmation dialog
-        data << uint32(/*primary_prof_first_rank ? 1 : 0*/0);    // must be equal prev. field to have learn button in enabled state
+        dataBuffer << uint32(0); // Profession Dialog or Profession Button
+        dataBuffer << uint32(0); // Profession Dialog or Profession Button
+        dataBuffer << uint32(tSpell->spell);
+        dataBuffer << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
+        dataBuffer << uint32(tSpell->reqSkill);
 
         ++count;
     }
 
-    data << strTitle;
+    data.WriteBits(count, 19);
+    data.FlushBits();
 
-    data.put<uint32>(count_pos, count);
+    if (dataBuffer.size() > 0)
+        data.append(dataBuffer);
+
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(npcGuid[7]);
+    data.WriteByteSeq(npcGuid[6]);
+
+    if (strTitle.size() > 0)
+        data.append(strTitle.c_str(), strTitle.size());
+
+    data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[3]);
+    data.WriteByteSeq(npcGuid[1]);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(npcGuid[4]);
+    data << uint32(unit->GetCreatureTemplate()->trainer_type);
+
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
+void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint32 spellId;
     int32 trainerId;
 
-    recvData >> guid >> trainerId >> spellId;
+    recvData >> trainerId >> spellId;
+
+    uint8 bitsOrder[8] = { 0, 5, 4, 6, 1, 2, 7, 3 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 3, 7, 2, 0, 5, 6, 1, 4 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
@@ -313,13 +392,21 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
 void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
 { 
     WorldPacket data(SMSG_TRAINER_SERVICE, 16);
-    data << uint64(guid);
-    data << uint32(spellId);        // should be same as in packet from client
+    ObjectGuid npcGuid = guid;
+
     data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
+    data << uint32(spellId);        // should be same as in packet from client
+
+    uint8 bitsOrder[8] = { 0, 3, 6, 1, 2, 5, 7, 4 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 6, 2, 3, 5, 7, 4, 1, 0 };
+    data.WriteBytesSeq(npcGuid, bytesOrder);
+
     SendPacket(&data);
 }
 
-void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
+void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
 
@@ -371,54 +458,19 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
     unit->AI()->sGossipHello(_player);
 }
 
-/*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
-
-    uint32 option;
-    uint32 unk;
-    uint64 guid;
-    std::string code = "";
-
-    recvData >> guid >> unk >> option;
-
-    if (_player->PlayerTalkClass->GossipOptionCoded(option))
-    {
-        sLog->outDebug(LOG_FILTER_PACKETIO, "reading string");
-        recvData >> code;
-        sLog->outDebug(LOG_FILTER_PACKETIO, "string read: %s", code.c_str());
-    }
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
-    if (!unit)
-    {
-        sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (!code.empty())
-    {
-        if (!Script->GossipSelectWithCode(_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction(option), code.c_str()))
-            unit->OnGossipSelect (_player, option);
-    }
-    else
-    {
-        if (!Script->OnGossipSelect (_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction (option)))
-           unit->OnGossipSelect (_player, option);
-    }
-}*/
-
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
+void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
-    uint64 guid;
+    ObjectGuid guid;
 
-    recvData >> guid;
+    uint8 bitsOrder[8] = { 7, 2, 1, 5, 6, 0, 3, 4 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 1, 7, 6, 0, 5, 2, 4, 3 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
@@ -469,8 +521,15 @@ void WorldSession::SendSpiritResurrect()
 
 void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
 {
-    uint64 npcGUID;
-    recvData >> npcGUID;
+    ObjectGuid npcGUID;
+
+    uint8 bitsOrder[8] = { 6, 4, 2, 0, 3, 7, 5, 1 };
+    recvData.ReadBitInOrder(npcGUID, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 2, 6, 0, 5, 3, 1, 7, 4 };
+    recvData.ReadBytesSeq(npcGUID, bytesOrder);
 
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->isAlive())
         return;
@@ -520,7 +579,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
+void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv MSG_LIST_STABLED_PETS");
     uint64 npcGUID;
@@ -558,47 +617,63 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     if (!GetPlayer())
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv MSG_LIST_STABLED_PETS Send.");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv SMSG_PET_STABLE_LIST Send.");
 
-    WorldPacket data(MSG_LIST_STABLED_PETS, 200);           // guess size
+    WorldPacket data(SMSG_PET_STABLE_LIST, 200);           // guessed size
+    ObjectGuid npcGuid = guid;
+    ByteBuffer dataBuffer;
 
-    data << uint64 (guid);
-
-    Pet* pet = _player->GetPet();
-
-    size_t wpos = data.wpos();
-    data << uint8(0);                                       // place holder for slot show number
-
-    data << uint8(20);                                      // Max stable count for MoP 5.0.5 retail
-
-    uint8 num = 0;                                          // counter for place holder
+    data.WriteBit(npcGuid[6]);
+    data.WriteBit(npcGuid[1]);
+    data.WriteBit(npcGuid[5]);
+    data.WriteBit(npcGuid[4]);
+    data.WriteBit(npcGuid[2]);
+    data.WriteBits(result->GetRowCount(), 19);
+    data.WriteBit(npcGuid[7]);
 
     if (result)
     {
         do
         {
             Field* fields = result->Fetch();
-            
-            data << uint32(fields[1].GetUInt8());           // slot
-            data << uint32(fields[2].GetUInt32());          // petnumber
-            data << uint32(fields[3].GetUInt32());          // creature entry
+
+            data.WriteBits(fields[5].GetString().size(), 8);
+
+            dataBuffer << uint32(fields[3].GetUInt32());          // creature entry
+            dataBuffer << uint32(fields[2].GetUInt32());          // petnumber
+            dataBuffer << uint32(fields[4].GetUInt16());          // level
+            dataBuffer << uint8(fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 2);       // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
 
             uint32 modelId = 0;
 
             if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(fields[3].GetUInt32()))
                 modelId = cInfo->Modelid1 ? cInfo->Modelid1 : cInfo->Modelid2;
 
-            data << uint32(modelId);                        // creature modelid
-            data << uint32(fields[4].GetUInt16());          // level
-            data << fields[5].GetString();                  // name
-            data << uint8(fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 2);       // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
+            dataBuffer << uint32(fields[1].GetUInt8());           // slot
+            dataBuffer << uint32(modelId);                        // creature modelid
 
-            ++num;
+            if (fields[5].GetString().size() > 0)
+                dataBuffer.append(fields[5].GetString().c_str(), fields[5].GetString().size());
         }
         while (result->NextRow());
     }
 
-    data.put<uint8>(wpos, num);                             // set real data to placeholder
+    data.WriteBit(npcGuid[3]);
+    data.WriteBit(npcGuid[0]);
+    data.FlushBits();
+
+    if (dataBuffer.size() > 0)
+        data.append(dataBuffer);
+
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(npcGuid[6]);
+    data.WriteByteSeq(npcGuid[1]);
+    data.WriteByteSeq(npcGuid[7]);
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(npcGuid[3]);
+    data.WriteByteSeq(npcGuid[4]);
+
     SendPacket(&data);
 }
 
@@ -609,7 +684,7 @@ void WorldSession::SendStableResult(uint8 res)
     SendPacket(&data);
 }
 
-void WorldSession::HandleStablePet(WorldPacket & recvData)
+void WorldSession::HandleStablePet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_STABLE_PET");
     uint64 npcGUID;
@@ -684,7 +759,7 @@ void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
         SendStableResult(STABLE_ERR_STABLE);
 }
 
-void WorldSession::HandleUnstablePet(WorldPacket & recvData)
+void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_UNSTABLE_PET.");
     uint64 npcGUID;
@@ -765,7 +840,7 @@ void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 
     SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
-void WorldSession::HandleBuyStableSlot(WorldPacket & recvData)
+void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     /*uint64 npcGUID;
@@ -798,20 +873,29 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recvData)
         SendStableResult(STABLE_ERR_STABLE);*/
 }
 
-void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
+void WorldSession::HandleStableRevivePet(WorldPacket& /* recvData */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleStableRevivePet: Not implemented");
 }
 
-void WorldSession::HandleStableSwapPet(WorldPacket & recvData)
+void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_STABLE_SWAP_PET.");
-    uint64 npcGUID;
+    ObjectGuid npcGuid;
     uint32 pet_number;
     uint8 new_slot;
-    recvData >> new_slot >> pet_number >> npcGUID;
 
-    if (!CheckStableMaster(npcGUID))
+    recvData >> pet_number >> new_slot;
+
+    uint8 bitsOrder[8] = { 3, 2, 4, 6, 0, 1, 7, 5 };
+    recvData.ReadBitInOrder(npcGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 5, 3, 2, 0, 1, 4, 7, 6 };
+    recvData.ReadBytesSeq(npcGuid, bytesOrder);
+
+    if (!CheckStableMaster(npcGuid))
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
@@ -899,10 +983,47 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REPAIR_ITEM");
 
-    uint64 npcGUID, itemGUID;
-    uint8 guildBank;                                        // new in 2.3.2, bool that means from guild bank money
+    ObjectGuid npcGUID, itemGUID;
+    bool guildBank;                                        // new in 2.3.2, bool that means from guild bank money
 
-    recvData >> npcGUID >> itemGUID >> guildBank;
+    npcGUID[1] = recvData.ReadBit();
+    npcGUID[7] = recvData.ReadBit();
+    itemGUID[7] = recvData.ReadBit();
+    itemGUID[6] = recvData.ReadBit();
+    npcGUID[2] = recvData.ReadBit();
+    itemGUID[5] = recvData.ReadBit();
+    npcGUID[6] = recvData.ReadBit();
+    itemGUID[4] = recvData.ReadBit();
+    itemGUID[0] = recvData.ReadBit();
+
+    guildBank = recvData.ReadBit();
+
+    npcGUID[3] = recvData.ReadBit();
+    npcGUID[0] = recvData.ReadBit();
+    itemGUID[1] = recvData.ReadBit();
+    itemGUID[2] = recvData.ReadBit();
+    npcGUID[5] = recvData.ReadBit();
+    itemGUID[3] = recvData.ReadBit();
+    npcGUID[4] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(npcGUID[1]);
+    recvData.ReadByteSeq(itemGUID[1]);
+    recvData.ReadByteSeq(itemGUID[3]);
+    recvData.ReadByteSeq(npcGUID[7]);
+    recvData.ReadByteSeq(itemGUID[4]);
+    recvData.ReadByteSeq(npcGUID[4]);
+    recvData.ReadByteSeq(npcGUID[6]);
+    recvData.ReadByteSeq(itemGUID[6]);
+    recvData.ReadByteSeq(npcGUID[2]);
+    recvData.ReadByteSeq(itemGUID[7]);
+    recvData.ReadByteSeq(itemGUID[0]);
+    recvData.ReadByteSeq(npcGUID[0]);
+    recvData.ReadByteSeq(itemGUID[2]);
+    recvData.ReadByteSeq(npcGUID[5]);
+    recvData.ReadByteSeq(npcGUID[3]);
+    recvData.ReadByteSeq(itemGUID[5]);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
@@ -932,4 +1053,3 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
         _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }
-

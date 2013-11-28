@@ -289,10 +289,10 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
             data << uint32(reward->reward[done].variableMoney);
             data << uint32(reward->reward[done].variableXP);
             // Unk 4.2.2 Part
-            for(int i = 0; i < 9; i++)
+            for (int i = 0; i < 9; i++)
                 data << uint32(0);
             data << uint8(0);
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
                 data << uint32(0);
             data << uint32(0);
             data << uint32(0);
@@ -340,10 +340,10 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
             data << uint32(0);
             data << uint32(0);
             // Unk 4.2.2 Part
-            for(int i = 0; i < 9; i++)
+            for (int i = 0; i < 9; i++)
                 data << uint32(0);
             data << uint8(0);
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
                 data << uint32(0);
             data << uint32(0);
             data << uint32(0);

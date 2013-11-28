@@ -2059,7 +2059,7 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (_player->HasAura(WARLOCK_PYROCLASM))
-                        if(AuraPtr backdraft = _player->GetAura(WARLOCK_BACKDRAFT))
+                        if (AuraPtr backdraft = _player->GetAura(WARLOCK_BACKDRAFT))
                             backdraft->ModCharges(-3);
             }
 
