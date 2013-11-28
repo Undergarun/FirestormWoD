@@ -6,6 +6,14 @@ namespace WowPacketParser.Parsing.Parsers
 {
     public static class AchievementHandler
     {
+        [Parser(Opcode.SMSG_MOVE_SET_COLLISION_HEIGHT)]
+        public static void HandleSetCollisionHeight434(Packet packet)
+        {
+            packet.ReadUInt32("Time");
+            packet.ReadPackedGuid("Guid");
+            packet.ReadSingle("Collision height");
+        }
+
         [Parser(Opcode.SMSG_ACHIEVEMENT_DELETED)]
         [Parser(Opcode.SMSG_CRITERIA_DELETED)]
         public static void HandleDeleted(Packet packet)
@@ -71,19 +79,6 @@ namespace WowPacketParser.Parsing.Parsers
 
             packet.WriteGuid("Player GUID", playerGuid);
             packet.WriteGuid("First Owner GUID", firstOwnerGuid);
-        }
-
-        [Parser(Opcode.SMSG_CRITERIA_UPDATE)]
-        public static void HandleCriteriaUpdate(Packet packet)
-        {
-            packet.ReadInt32("Criteria ID");
-            packet.ReadPackedGuid("Criteria Counter");
-            packet.ReadPackedGuid("Player GUID");
-            packet.ReadInt32("Unk Int32"); // some flag... & 1 -> delete
-            packet.ReadPackedTime("Time");
-
-            for (var i = 0; i < 2; i++)
-                packet.ReadInt32("Timer " + i);
         }
 
         public static void ReadAllAchievementData(ref Packet packet)

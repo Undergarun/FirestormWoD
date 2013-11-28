@@ -67,15 +67,22 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_ACTIVATETAXIEXPRESS)]
         public static void HandleActivateTaxiExpress(Packet packet)
         {
-            packet.ReadGuid("GUID");
+            var guid = new byte[8];
 
-            if (ClientVersion.RemovedInVersion(ClientVersionBuild.V3_2_0_10192))
-                packet.ReadUInt32("Cost");
+            packet.StartBitStream(guid, 4, 6, 3, 7, 2, 5);
+            var count = packet.ReadBits("Count", 22);
+            packet.StartBitStream(guid, 0, 1);
 
-            var count = packet.ReadUInt32("Node Count");
-            for (var i = 0; i < count; ++i)
-                packet.ReadUInt32("Node ID", i);
+            packet.ResetBitReader();
 
+            packet.ParseBitStream(guid, 2, 0, 1, 6, 3, 5);
+
+            for (int i = 0; i < count; i++)
+                packet.ReadUInt32("Node", i);
+
+            packet.ParseBitStream(guid, 4, 7);
+
+            packet.WriteGuid("Guid", guid);
         }
 
         [Parser(Opcode.CMSG_SET_TAXI_BENCHMARK_MODE)]
@@ -84,9 +91,10 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadBoolean("Activate");
         }
 
-        [Parser(Opcode.SMSG_NEW_TAXI_PATH)]
-        public static void HandleTaxiNull(Packet packet)
+        [Parser(Opcode.SMSG_ACTIVATE_TAXI_REPLY)]
+        public static void HandleTaxiReply(Packet packet)
         {
+            var result = packet.ReadBits("Result", 4);
         }
 
         //Missing Feedback

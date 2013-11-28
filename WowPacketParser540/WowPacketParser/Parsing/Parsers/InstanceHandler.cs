@@ -162,15 +162,12 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_RAID_INSTANCE_MESSAGE)]
         public static void HandleRaidInstanceMessage(Packet packet)
         {
-            var type = packet.ReadEnum<RaidInstanceResetWarning>("Warning Type", TypeCode.Int32);
-            packet.ReadEntryWithName<Int32>(StoreNameType.Map, "Map Id");
-            packet.ReadEnum<MapDifficulty>("Difficulty", TypeCode.Int32);
-            packet.ReadInt32("Reset time");
-            if (type == RaidInstanceResetWarning.Welcome)
-            {
-                packet.ReadBoolean("Locked");
-                packet.ReadBoolean("Extended");
-            }
+            packet.ReadUInt32("Reset Time");
+            packet.ReadEntryWithName<UInt32>(StoreNameType.Map, "Map Id");
+            packet.ReadEnum<MapDifficulty>("Difficulty", TypeCode.UInt32);
+            packet.ReadEnum<RaidInstanceResetWarning>("Warning Type", TypeCode.Byte);
+            packet.ReadBit("Locked");
+            packet.ReadBit("Is Extended");
         }
 
         [Parser(Opcode.CMSG_SET_SAVED_INSTANCE_EXTEND)]
