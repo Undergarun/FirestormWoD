@@ -181,8 +181,9 @@ class boss_akilzon : public CreatureScript
                     return;
 
                 WorldPacket data(SMSG_WEATHER, (4+4+4));
-                data << uint32(weather) << float(grade) << uint8(0);
-
+                data.WriteBit(0);
+                data << float(grade);
+                data << uint32(weather);
                 map->SendToPlayers(&data);
             }
 
