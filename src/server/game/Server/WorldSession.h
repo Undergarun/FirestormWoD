@@ -679,8 +679,7 @@ class WorldSession
         void HandleStableSwapPetCallback(PreparedQueryResult result, uint32 petId);
         void SendTrainerService(uint64 guid, uint32 spellId, uint32 trainState);
 
-        void HandleDuelAcceptedOpcode(WorldPacket& recvPacket);
-        void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
+        void HandleDuelResponseOpcode(WorldPacket& recvPacket);
 
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);

@@ -5323,42 +5323,43 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED);
 
-    ObjectGuid casterGuid = caster->GetGUID();
-    ObjectGuid targetGuid = target->GetGUID();
+    ObjectGuid gameobjectGUID = pGameObj->GetGUID();
+    ObjectGuid casterGUID = caster->GetGUID();
 
-    data.WriteBit(casterGuid[1]);
-    data.WriteBit(casterGuid[4]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(casterGuid[3]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(casterGuid[5]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(casterGuid[0]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(casterGuid[2]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(casterGuid[7]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(casterGuid[6]);
+    data.WriteBit(gameobjectGUID[1]);
+    data.WriteBit(gameobjectGUID[4]);
+    data.WriteBit(casterGUID[5]);
+    data.WriteBit(casterGUID[0]);
+    data.WriteBit(gameobjectGUID[3]);
+    data.WriteBit(casterGUID[2]);
+    data.WriteBit(gameobjectGUID[5]);
+    data.WriteBit(casterGUID[7]);
+    data.WriteBit(gameobjectGUID[0]);
+    data.WriteBit(casterGUID[1]);
+    data.WriteBit(gameobjectGUID[2]);
+    data.WriteBit(casterGUID[3]);
+    data.WriteBit(gameobjectGUID[7]);
+    data.WriteBit(casterGUID[4]);
+    data.WriteBit(casterGUID[6]);
+    data.WriteBit(gameobjectGUID[6]);
 
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(casterGuid[3]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(casterGuid[5]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(casterGuid[6]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(casterGuid[4]);
-    data.WriteByteSeq(casterGuid[2]);
-    data.WriteByteSeq(casterGuid[7]);
-    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGUID[6]);
+    data.WriteByteSeq(gameobjectGUID[3]);
+    data.WriteByteSeq(casterGUID[7]);
+    data.WriteByteSeq(casterGUID[4]);
+    data.WriteByteSeq(casterGUID[0]);
+    data.WriteByteSeq(gameobjectGUID[0]);
+    data.WriteByteSeq(gameobjectGUID[5]);
+    data.WriteByteSeq(gameobjectGUID[1]);
+    data.WriteByteSeq(casterGUID[2]);
+    data.WriteByteSeq(gameobjectGUID[6]);
+    data.WriteByteSeq(casterGUID[5]);
+    data.WriteByteSeq(casterGUID[1]);
+    data.WriteByteSeq(gameobjectGUID[4]);
+    data.WriteByteSeq(gameobjectGUID[2]);
+    data.WriteByteSeq(gameobjectGUID[7]);
+    data.WriteByteSeq(casterGUID[3]);
+
 
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);

@@ -9119,20 +9119,32 @@ void Player::DuelComplete(DuelCompleteType type)
 
     sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
-    WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
-    GetSession()->SendPacket(&data);
+    // Say "duel has been cancel"
+    //WorldPacket data(SMSG_DUEL_COMPLETE, (1));
+    //data.WriteBit((type != DUEL_INTERRUPTED) ? 0 : 1);
+    //data.FlushBits();
+    //GetSession()->SendPacket(&data);
 
-    if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(&data);
+ //   if (duel->opponent->GetSession())
+   //     duel->opponent->GetSession()->SendPacket(&data);
 
     if (type != DUEL_INTERRUPTED)
     {
-        data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data << duel->opponent->GetName();
-        data << GetName();
-        SendMessageToSet(&data, true);
+        std::string name = GetName();
+        std::string opponentName = duel->opponent->GetName();
+        WorldPacket data2(SMSG_DUEL_WINNER);
+        data2 << uint32(realmID);                            // winner realm ID
+        data2 << uint32(realmID);                            // opponent realm ID
+        data2.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
+        data2.WriteBits(opponentName.size(), 6);
+        data2.WriteBits(name.size(), 6);
+        data2.FlushBits();
+        if (name.size())
+            data2.append(name.c_str(), name.size());
+        if (opponentName.size())
+            data2.append(opponentName.c_str(), opponentName.size());
+
+        SendMessageToSet(&data2, true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);

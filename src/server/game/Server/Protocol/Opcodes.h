@@ -184,8 +184,7 @@ enum Opcodes
     CMSG_DESTROY_ITEM                                 = 0x1401, // 5.4.0 17399
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x000,  // 5.0.5 16048
     CMSG_DISMISS_CRITTER                              = 0x000,  // 5.0.5 16048
-    CMSG_DUEL_ACCEPTED                                = 0x000,  // 5.0.5 16048
-    CMSG_DUEL_CANCELLED                               = 0x000,  // 5.0.5 16048
+    CMSG_DUEL_RESPONSE                                = 0x13FE, // 5.4.0 17399
     CMSG_DUEL_PROPOSED                                = 0x129B, // 5.4.0 17399
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0x000,  // 5.0.5 16048
     CMSG_EJECT_PASSENGER                              = 0x000,  // 5.0.5 16048
@@ -408,7 +407,7 @@ enum Opcodes
     CMSG_QUESTGIVER_ACCEPT_QUEST                      = 0x12B6, // 5.4.0 17399
     CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0x1A37, // 5.4.0 17399
     CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0x1AB3, // 5.4.0 17399
-    CMSG_QUESTGIVER_HELLO                             = 0x13FE, // 5.4.0 17399
+    CMSG_QUESTGIVER_HELLO                             = 0x0000, // unk opcode
     CMSG_QUESTGIVER_QUERY_QUEST                       = 0x1377, // 5.4.0 17399
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0x1223, // 5.4.0 17399
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY             = 0x132F, // 5.4.0 17399
@@ -864,12 +863,12 @@ enum Opcodes
     SMSG_DISPLAY_PLAYER_CHOICE                        = 0x829,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x181,  // 5.4.0 17399
     SMSG_DROP_NEW_CONNECTION                          = 0x000,  // 5.0.5 16048
-    SMSG_DUEL_COMPLETE                                = 0x18C,  // 5.4.0 17399 (JamList)
-    SMSG_DUEL_COUNTDOWN                               = 0x805,  // 5.4.0 17399 (JamList)
-    SMSG_DUEL_INBOUNDS                                = 0x40E,  // 5.4.0 17399 (JamList)
-    SMSG_DUEL_OUT_OF_BOUNDS                           = 0x83E,  // 5.4.0 17399 (JamList)
-    SMSG_DUEL_REQUESTED                               = 0x129B, // 5.4.0 17399
-    SMSG_DUEL_WINNER                                  = 0x599,  // 5.4.0 17399 (JamList)
+    SMSG_DUEL_COMPLETE                                = 0x18C,  // 5.4.0 17399
+    SMSG_DUEL_COUNTDOWN                               = 0x805,  // 5.4.0 17399
+    SMSG_DUEL_INBOUNDS                                = 0x40E,  // 5.4.0 17399
+    SMSG_DUEL_OUT_OF_BOUNDS                           = 0x83E,  // 5.4.0 17399
+    SMSG_DUEL_REQUESTED                               = 0x080C, // 5.4.0 17399
+    SMSG_DUEL_WINNER                                  = 0x599,  // 5.4.0 17399
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x000,  // 5.0.5 16048
     SMSG_DUMP_OBJECTS_DATA                            = 0x58E,  // 5.4.0 17399
     SMSG_DURABILITY_DAMAGE_DEATH                      = 0x1B3,  // 5.4.0 17399 (JamList)
