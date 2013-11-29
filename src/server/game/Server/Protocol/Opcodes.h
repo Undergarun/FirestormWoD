@@ -431,7 +431,6 @@ enum Opcodes
     CMSG_REFORGE_ITEM                                 = 0x1809, // 5.4.0 17399
     CMSG_REORDER_CHARACTERS                           = 0x171F, // 5.4.0 17399
     CMSG_REPAIR_ITEM                                  = 0x1B7B, // 5.4.0 17399
-    CMSG_REPLACE_ACCOUNT_DATA                         = 0x000,  // 5.0.5 16048
     CMSG_REPOP_REQUEST                                = 0x163A, // 5.4.0 17399
     CMSG_REPORT_PVP_AFK                               = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
