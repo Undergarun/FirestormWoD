@@ -9119,14 +9119,18 @@ void Player::DuelComplete(DuelCompleteType type)
 
     sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
-    // Say "duel has been cancel"
-    //WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    //data.WriteBit((type != DUEL_INTERRUPTED) ? 0 : 1);
-    //data.FlushBits();
-    //GetSession()->SendPacket(&data);
+    // Say "duel has been canceled"
+    if (type == DUEL_INTERRUPTED)
+    {
+        WorldPacket data(SMSG_DUEL_COMPLETE, (1));
+        data.WriteBit(0); // work with 0, msg change with 1 ?
+        data.FlushBits();
+        GetSession()->SendPacket(&data);
 
- //   if (duel->opponent->GetSession())
-   //     duel->opponent->GetSession()->SendPacket(&data);
+        if (duel->opponent->GetSession())
+            duel->opponent->GetSession()->SendPacket(&data);
+    }
+
 
     if (type != DUEL_INTERRUPTED)
     {
