@@ -1778,9 +1778,46 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
         return;
     }
 
-    WorldPacket data(SMSG_EMOTE, 4 + 8);
+    WorldPacket data(SMSG_TEXT_EMOTE);
+    ObjectGuid targetGuid = NULL;
+    ObjectGuid unitGuid = GetGUID();
+
+    data.WriteBit(unitGuid[0]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(unitGuid[6]);
+    data.WriteBit(unitGuid[7]);
+    data.WriteBit(unitGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(unitGuid[5]);
+    data.WriteBit(unitGuid[2]);
+    data.WriteBit(unitGuid[1]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(unitGuid[4]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(targetGuid[2]);
+
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[5]);
+    data.WriteByteSeq(unitGuid[1]);
+    data.WriteByteSeq(targetGuid[6]);
+    data << int32(-1);              // Text ID
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(targetGuid[4]);
     data << uint32(anim_id);
-    data << uint64(GetGUID());
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(unitGuid[7]);
+    data.WriteByteSeq(unitGuid[3]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(unitGuid[6]);
+    data.WriteByteSeq(unitGuid[2]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(unitGuid[0]);
+    data.WriteByteSeq(targetGuid[3]);
+
     SendMessageToSet(&data, true);
 }
 
@@ -20361,29 +20398,19 @@ void Unit::SendThreatListUpdate()
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             ObjectGuid unitGuid = (*itr)->getUnitGuid();
-            data.WriteBit(unitGuid[7]);
-            data.WriteBit(unitGuid[4]);
-            data.WriteBit(unitGuid[3]);
-            data.WriteBit(unitGuid[2]);
-            data.WriteBit(unitGuid[6]);
-            data.WriteBit(unitGuid[1]);
-            data.WriteBit(unitGuid[0]);
-            data.WriteBit(unitGuid[5]);
+
+            uint8 bitsOrder[8] = { 7, 4, 3, 2, 6, 1, 0, 5 };
+            data.WriteBitInOrder(unitGuid, bitsOrder);
         }
 
         ObjectGuid thisGuid = GetGUID();
-        data.WriteBit(thisGuid[2]);
-        data.WriteBit(thisGuid[7]);
-        data.WriteBit(thisGuid[4]);
-        data.WriteBit(thisGuid[0]);
-        data.WriteBit(thisGuid[1]);
-        data.WriteBit(thisGuid[6]);
-        data.WriteBit(thisGuid[3]);
-        data.WriteBit(thisGuid[5]);
+        uint8 bitsOrder[8] = { 2, 7, 4, 0, 1, 6, 3, 5 };
+        data.WriteBitInOrder(thisGuid, bitsOrder);
 
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             ObjectGuid unitGuid = (*itr)->getUnitGuid();
+
             data.WriteByteSeq(unitGuid[2]);
             data.WriteByteSeq(unitGuid[5]);
             data.WriteByteSeq(unitGuid[6]);
@@ -20442,8 +20469,43 @@ void Unit::SendClearThreatListOpcode()
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 {
     WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    data.append(GetPackGUID());
-    data.appendPackGUID(pHostileReference->getUnitGuid());
+    ObjectGuid thisGuid = GetGUID();
+    ObjectGuid hostileGuid = pHostileReference->getUnitGuid();
+
+    data.WriteBit(thisGuid[6]);
+    data.WriteBit(thisGuid[2]);
+    data.WriteBit(hostileGuid[5]);
+    data.WriteBit(hostileGuid[6]);
+    data.WriteBit(hostileGuid[7]);
+    data.WriteBit(hostileGuid[4]);
+    data.WriteBit(hostileGuid[3]);
+    data.WriteBit(hostileGuid[2]);
+    data.WriteBit(hostileGuid[1]);
+    data.WriteBit(thisGuid[1]);
+    data.WriteBit(thisGuid[5]);
+    data.WriteBit(thisGuid[7]);
+    data.WriteBit(thisGuid[4]);
+    data.WriteBit(thisGuid[3]);
+    data.WriteBit(hostileGuid[0]);
+    data.WriteBit(thisGuid[0]);
+
+    data.WriteByteSeq(hostileGuid[6]);
+    data.WriteByteSeq(hostileGuid[1]);
+    data.WriteByteSeq(hostileGuid[4]);
+    data.WriteByteSeq(hostileGuid[2]);
+    data.WriteByteSeq(thisGuid[5]);
+    data.WriteByteSeq(thisGuid[0]);
+    data.WriteByteSeq(thisGuid[2]);
+    data.WriteByteSeq(hostileGuid[3]);
+    data.WriteByteSeq(hostileGuid[0]);
+    data.WriteByteSeq(thisGuid[3]);
+    data.WriteByteSeq(thisGuid[7]);
+    data.WriteByteSeq(thisGuid[1]);
+    data.WriteByteSeq(hostileGuid[7]);
+    data.WriteByteSeq(thisGuid[4]);
+    data.WriteByteSeq(thisGuid[6]);
+    data.WriteByteSeq(hostileGuid[5]);
+
     SendMessageToSet(&data, false);
 }
 

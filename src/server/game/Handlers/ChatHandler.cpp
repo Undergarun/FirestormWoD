@@ -701,18 +701,45 @@ namespace JadeCore
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                char const* nam = i_target ? i_target->GetNameForLocaleIdx(loc_idx) : NULL;
-                uint32 namlen = (nam ? strlen(nam) : 0) + 1;
+                ObjectGuid playerGuid = i_player.GetGUID();
+                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : NULL;
 
-                data.Initialize(SMSG_TEXT_EMOTE, (20+namlen));
-                data << i_player.GetGUID();
-                data << (uint32)i_text_emote;
-                data << i_emote_num;
-                data << (uint32)namlen;
-                if (namlen > 1)
-                    data.append(nam, namlen);
-                else
-                    data << (uint8)0x00;
+                data.Initialize(SMSG_TEXT_EMOTE);
+                data.WriteBit(playerGuid[0]);
+                data.WriteBit(targetGuid[3]);
+                data.WriteBit(targetGuid[4]);
+                data.WriteBit(playerGuid[6]);
+                data.WriteBit(playerGuid[7]);
+                data.WriteBit(playerGuid[3]);
+                data.WriteBit(targetGuid[6]);
+                data.WriteBit(targetGuid[7]);
+                data.WriteBit(playerGuid[5]);
+                data.WriteBit(playerGuid[2]);
+                data.WriteBit(playerGuid[1]);
+                data.WriteBit(targetGuid[0]);
+                data.WriteBit(playerGuid[4]);
+                data.WriteBit(targetGuid[1]);
+                data.WriteBit(targetGuid[5]);
+                data.WriteBit(targetGuid[2]);
+
+                data.WriteByteSeq(playerGuid[4]);
+                data.WriteByteSeq(playerGuid[5]);
+                data.WriteByteSeq(playerGuid[1]);
+                data.WriteByteSeq(targetGuid[6]);
+                data << int32(i_text_emote);
+                data.WriteByteSeq(targetGuid[7]);
+                data.WriteByteSeq(targetGuid[1]);
+                data.WriteByteSeq(targetGuid[4]);
+                data << uint32(i_emote_num);
+                data.WriteByteSeq(targetGuid[0]);
+                data.WriteByteSeq(playerGuid[7]);
+                data.WriteByteSeq(playerGuid[3]);
+                data.WriteByteSeq(targetGuid[2]);
+                data.WriteByteSeq(playerGuid[6]);
+                data.WriteByteSeq(playerGuid[2]);
+                data.WriteByteSeq(targetGuid[5]);
+                data.WriteByteSeq(playerGuid[0]);
+                data.WriteByteSeq(targetGuid[3]);
             }
 
         private:
@@ -736,11 +763,18 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     }
 
     uint32 text_emote, emoteNum;
-    uint64 guid;
+    ObjectGuid guid;
 
-    recvData >> text_emote;
     recvData >> emoteNum;
-    recvData >> guid;
+    recvData >> text_emote;
+
+    uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 1, 5, 2, 3, 0, 6, 7 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
@@ -748,7 +782,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     if (!em)
         return;
 
-    uint32 emote_anim = em->textid;
+    uint32 emote_anim = em->Id;
 
     switch (emote_anim)
     {

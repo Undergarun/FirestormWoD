@@ -457,11 +457,13 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
 
 void WorldSession::HandleReadItem(WorldPacket& recvData)
 {
-    uint8 bag, slot;
-    recvData >> slot >> bag;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_READ_ITEM");
 
-    Item* pItem = _player->GetItemByPos(bag, slot);
+    uint64 itemGuid;
 
+    recvData >> itemGuid;
+
+    Item* pItem = _player->GetItemByGuid(itemGuid);
     if (pItem && pItem->GetTemplate()->PageText)
     {
         WorldPacket data;

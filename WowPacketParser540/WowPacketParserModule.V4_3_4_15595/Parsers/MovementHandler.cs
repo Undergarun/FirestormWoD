@@ -3062,6 +3062,9 @@ namespace WowPacketParserModule.V4_3_4_15595.Parsers
         [Parser(Opcode.SMSG_MOVE_SET_COLLISION_HEIGHT)]
         public static void HandleSetCollisionHeight434(Packet packet)
         {
+            packet.ReadSingle("Collision height");
+            packet.ReadUInt32("Time");
+
             packet.ReadBits("Unknown bits", 2);
             var guid = packet.StartBitStream(6, 1, 4, 7, 5, 2, 0, 3);
 
@@ -3070,11 +3073,9 @@ namespace WowPacketParserModule.V4_3_4_15595.Parsers
             packet.ReadXORByte(guid, 4);
             packet.ReadXORByte(guid, 3);
             packet.ReadXORByte(guid, 5);
-            packet.ReadUInt32("Time");
             packet.ReadXORByte(guid, 1);
             packet.ReadXORByte(guid, 2);
             packet.ReadXORByte(guid, 7);
-            packet.ReadSingle("Collision height");
             packet.WriteGuid("Guid", guid);
         }
 

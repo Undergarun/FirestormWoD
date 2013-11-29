@@ -409,10 +409,23 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_BUY_ITEM)]
         public static void HandleBuyItemResponse(Packet packet)
         {
-            packet.ReadGuid("Vendor GUID");
-            packet.ReadUInt32("Slot");
-            packet.ReadInt32("New Count");
-            packet.ReadUInt32("Count");
+            var vendor = new byte[8];
+
+            packet.StartBitStream(vendor, 6, 0, 5, 2, 4, 1, 7, 3);
+
+            packet.ReadXORByte(vendor, 7);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(vendor, 6);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(vendor, 2);
+            packet.ReadXORByte(vendor, 0);
+            packet.ReadXORByte(vendor, 3);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(vendor, 5);
+            packet.ReadXORByte(vendor, 4);
+            packet.ReadXORByte(vendor, 1);
+
+            packet.WriteGuid("Vendor GUID", vendor);
         }
 
         [Parser(Opcode.SMSG_BUY_FAILED)]
@@ -428,13 +441,45 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_BUY_ITEM_IN_SLOT)]
         public static void HandleBuyItemInSlot(Packet packet)
         {
-            packet.ReadGuid("Vendor GUID");
-            packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Entry");
-            packet.ReadUInt32("Slot");
-            packet.ReadUInt32("Count");
-            packet.ReadGuid("Bag GUID");
-            packet.ReadByte("Bag Slot");
-            packet.ReadByte("Count");
+            var vendorguid = new byte[8];
+            var bagguid = new byte[8];
+
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+
+            packet.StartBitStream(vendorguid, 4, 2, 7, 1, 6);
+            packet.StartBitStream(bagguid, 2, 5, 6, 7);
+            vendorguid[5] = packet.ReadBit();
+            packet.StartBitStream(bagguid, 0, 3, 1);
+            vendorguid[3] = packet.ReadBit();
+
+            var unkLen = packet.ReadBits("unkLen", 2);
+            bagguid[4] = packet.ReadBit();
+            vendorguid[0] = packet.ReadBit();
+
+            packet.ResetBitReader();
+
+            packet.ReadXORByte(vendorguid, 1);
+            packet.ReadXORByte(bagguid, 1);
+            packet.ReadXORByte(bagguid, 0);
+            packet.ReadXORByte(bagguid, 2);
+            packet.ReadXORByte(bagguid, 3);
+            packet.ReadXORByte(bagguid, 7);
+            packet.ReadXORByte(vendorguid, 4);
+            packet.ReadXORByte(bagguid, 5);
+            packet.ReadXORByte(vendorguid, 2);
+            packet.ReadXORByte(vendorguid, 3);
+            packet.ReadXORByte(bagguid, 4);
+            packet.ReadXORByte(vendorguid, 0);
+            packet.ReadXORByte(vendorguid, 7);
+            packet.ReadXORByte(vendorguid, 6);
+            packet.ReadXORByte(vendorguid, 5);
+            packet.ReadXORByte(bagguid, 6);
+
+            packet.WriteGuid("Vendor GUID", vendorguid);
+            packet.WriteGuid("Bag GUID", bagguid);
         }
 
         [Parser(Opcode.CMSG_AUTOSTORE_BANK_ITEM)]
@@ -1255,10 +1300,10 @@ namespace WowPacketParser.Parsing.Parsers
 
         }
 
-        [Parser(Opcode.SMSG_REFORGE_RESULT, ClientVersionBuild.V4_3_4_15595)]
+        [Parser(Opcode.SMSG_REFORGE_RESULT)]
         public static void HandleItemReforgeResult(Packet packet)
         {
-            packet.ReadBit("Successful");
+            packet.ReadBoolean("Successful");
         }
 
         [Parser(Opcode.SMSG_ITEM_TEXT_QUERY_RESPONSE)]

@@ -168,16 +168,19 @@ void ReputationMgr::SendState(FactionState const* faction)
 {
     uint32 count = 1;
 
+    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
+        if (itr->second.needSend)
+            if (itr->second.ReputationListID != faction->ReputationListID)
+                ++count;
+
     WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
-    data << float(0);
-    data << uint8(_sendFactionIncreased);
+    data << uint32(0);
+    data << uint32(0);
+
+    data.WriteBit(_sendFactionIncreased);
+    data.WriteBits(count, 21);
+
     _sendFactionIncreased = false; // Reset
-
-    size_t p_count = data.wpos();
-    data << uint32(count);
-
-    data << uint32(faction->ReputationListID);
-    data << uint32(faction->Standing);
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
@@ -186,14 +189,13 @@ void ReputationMgr::SendState(FactionState const* faction)
             itr->second.needSend = false;
             if (itr->second.ReputationListID != faction->ReputationListID)
             {
-                data << uint32(itr->second.ReputationListID);
                 data << uint32(itr->second.Standing);
+                data << uint32(itr->second.ReputationListID);
                 ++count;
             }
         }
     }
 
-    data.put<uint32>(p_count, count);
     _player->SendDirectMessage(&data);
 }
 

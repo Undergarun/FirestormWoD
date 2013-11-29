@@ -263,7 +263,7 @@ struct GuildReward
     uint8 Standing;
 };
 
-uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 }; /*@todo: update me for 5.0.5 ?*/
+uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
 
 typedef std::map<uint32, GuildNewsEntry> GuildNewsLogMap;
 

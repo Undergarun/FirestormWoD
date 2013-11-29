@@ -239,7 +239,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recvData)
                 itemCount++;                                // itemId[6], quest drop
 
         data.WriteBits(itemCount, 22);
-        data.WriteBits(ci->IconName.size() ? (ci->IconName.size() + 1) ^1 : 1, 6);
+        data.WriteBits(ci->IconName.size() ? ci->IconName.size() + 1 : 0, 6);
         data.WriteBits(SubName.size() ? SubName.size() + 1 : 0, 11);
         data.WriteBits(Unk505.size() ? Unk505.size() + 1 : 0, 11);
         data.WriteBit(ci->RacialLeader);                    // isRacialLeader

@@ -100,8 +100,8 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         {
             WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8+4);    //you have not any talent
             data << uint8(0); // 0 guid bit
-            data << uint8(0);
             data << uint32(0);
+            data << uint8(0);
             SendPacket(&data);
             return;
         }

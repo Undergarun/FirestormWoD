@@ -1262,20 +1262,28 @@ void AchievementMgr<T>::SendCriteriaUpdate(AchievementCriteriaEntry const* /*ent
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
-    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 8);
+    WorldPacket data(SMSG_CRITERIA_UPDATE, 4 + 4 + 4 + 4 + 8 + 4);
+    ObjectGuid playerGuid = GetOwner()->GetGUID();
+
     data << uint32(entry->ID);
 
-    // The counter is packed like a packed Guid
-    data.appendPackGUID(progress->counter);
-
-    data.appendPackGUID(GetOwner()->GetGUID());
+    // This are some flags, 1 is for keeping the counter at 0 in client
     if (!entry->timeLimit)
         data << uint32(0);
     else
-        data << uint32(timedCompleted ? 0 : 1);     // This are some flags, 1 is for keeping the counter at 0 in client
+        data << uint32(timedCompleted ? 0 : 1);
+
+    data << uint32(timeElapsed);                        // Time elapsed in seconds
     data << uint32(secsToTimeBitFields(progress->date));
-    data << uint32(timeElapsed);                    // Time elapsed in seconds
-    data << uint32(0);                              // Unk
+    data << uint64(progress->counter);
+    data << uint32(0);                                  // Unk
+
+    uint8 bitsOrder[8] = { 2, 4, 1, 5, 3, 6, 7, 0 };
+    data.WriteBitInOrder(playerGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 7, 0, 6, 5, 2, 1, 4, 3 };
+    data.WriteBytesSeq(playerGuid, bytesOrder);
+
     SendPacket(&data);
 }
 

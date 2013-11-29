@@ -242,18 +242,19 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
     }
 }
 
-void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
+void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, ByteBuffer& dataBuffer, bool all)
 {
-    data << uint32(TaxiMaskSize);
+    data.WriteBits(TaxiMaskSize, 24);
+
     if (all)
     {
         for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data << uint8(sTaxiNodesMask[i]);              // all existed nodes
+            dataBuffer << uint8(sTaxiNodesMask[i]);              // all existed nodes
     }
     else
     {
         for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data << uint8(m_taximask[i]);                  // known nodes
+            dataBuffer << uint8(m_taximask[i]);                  // known nodes
     }
 }
 
@@ -1480,12 +1481,12 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
         return;
     }
     WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
-    data << (uint32)Type;
-    data << CurrentValue;
+    data << uint32(Type);
+    data << uint32(Regen);
+    data << uint32(0);                                      // spell id
     data << MaxValue;
-    data << Regen;
-    data << (uint8)0;
-    data << (uint32)0;                                      // spell id
+    data << CurrentValue;
+    data.WriteBit(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -4342,13 +4343,15 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, uint32 item_guid, uint32 item_count)
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
-    data << uint32(equipError);
-    data << uint32(item_guid);                         // item guid low?
-    data << uint32(item_count);                        // item count?
-    data << uint32(mailError);
+    WorldPacket data(SMSG_SEND_MAIL_RESULT, 4 * 6);
+
     data << uint32(mailAction);
+    data << uint32(equipError);
+    data << uint32(mailError);
+    data << uint32(item_guid);
+    data << uint32(item_count);
     data << uint32(mailId);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -11212,24 +11215,21 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 
     WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
 
-    uint8 bitOrder[8] = {6, 3, 5, 2, 0, 7, 1, 4};
+    uint8 bitOrder[8] = { 4, 0, 7, 5, 3, 1, 2, 6 };
     data.WriteBitInOrder(Guid, bitOrder);
-    data.FlushBits();
-
-    data.WriteByteSeq(Guid[3]);
-    data.WriteByteSeq(Guid[5]);
-    data.WriteByteSeq(Guid[1]);
-
-    data << uint8(specialization); // 0 : talent 1 : specialization
-
-    data.WriteByteSeq(Guid[0]);
-    data.WriteByteSeq(Guid[2]);
-    data.WriteByteSeq(Guid[4]);
-    data.WriteByteSeq(Guid[7]);
-
-    data << uint32(cost);
 
     data.WriteByteSeq(Guid[6]);
+    data.WriteByteSeq(Guid[4]);
+    data.WriteByteSeq(Guid[5]);
+
+    data << uint32(cost);
+    data << uint8(specialization); // 0 : talent 1 : specialization
+
+    data.WriteByteSeq(Guid[7]);
+    data.WriteByteSeq(Guid[1]);
+    data.WriteByteSeq(Guid[3]);
+    data.WriteByteSeq(Guid[0]);
+    data.WriteByteSeq(Guid[2]);
 
     GetSession()->SendPacket(&data);
 }
@@ -21995,8 +21995,7 @@ void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
 
 void Player::SendResetFailedNotify(uint32 mapid)
 {
-    WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 4);
-    data << uint32(mapid);
+    WorldPacket data(SMSG_RESET_FAILED_NOTIFY);
     GetSession()->SendPacket(&data);
 }
 
@@ -23031,7 +23030,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
     if (GetSession()->isLogingOut() || isInCombat() || HasUnitState(UNIT_STATE_STUNNED) || HasUnitState(UNIT_STATE_ROOT))
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_BUSY);
         return false;
     }
 
@@ -23044,20 +23043,20 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         // not let cheating with start flight mounted
         if (IsMounted())
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERALREADYMOUNTED);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_ALREADY_MOUNTED);
             return false;
         }
 
         if (IsInDisallowedMountForm())
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERSHAPESHIFTED);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_SHAPESHIFTED);
             return false;
         }
 
         // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
         if (IsNonMeleeSpellCasted(false))
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_BUSY);
             return false;
         }
     }
@@ -23086,7 +23085,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(sourcenode);
     if (!node)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_NO_SUCH_PATH);
         return false;
     }
 
@@ -23099,14 +23098,14 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
             (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
             (2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE))
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_TOO_FAR_AWAY);
             return false;
         }
     }
     // node must have pos if taxi master case (npc != NULL)
     else if (npc)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_UNSPECIFIED_SERVER_ERROR);
         return false;
     }
 
@@ -23169,7 +23168,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // in spell case allow 0 model
     if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_UNSPECIFIED_SERVER_ERROR);
         m_taxi.ClearTaxiDestinations();
         return false;
     }
@@ -23181,7 +23180,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
 
     if (money < totalcost)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXINOTENOUGHMONEY);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_NOT_ENOUGH_MONEY);
         m_taxi.ClearTaxiDestinations();
         return false;
     }
@@ -23203,7 +23202,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
     else
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
+        GetSession()->SendActivateTaxiReply(ERR_TAXI_OK);
         GetSession()->SendDoFlight(mount_display_id, sourcepath);
     }
     return true;
@@ -24689,6 +24688,8 @@ Player* Player::GetSelectedPlayer() const
 void Player::SendComboPoints()
 {
     Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
+    ObjectGuid guid = combotarget->GetGUID();
+
     if (combotarget)
     {
         WorldPacket data;
@@ -24699,8 +24700,20 @@ void Player::SendComboPoints()
         }
         else
             data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
-        data.append(combotarget->GetPackGUID());
+
+        uint8 bitsOrder[8] = { 6, 2, 5, 4, 7, 0, 1, 3 };
+        data.WriteBitInOrder(guid, bitsOrder);
+
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
         data << uint8(m_comboPoints);
+        data.WriteByteSeq(guid[6]);
+
         GetSession()->SendPacket(&data);
     }
 }
@@ -24956,15 +24969,13 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
     WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                             // difficulty
     data << uint32(time);
-    if (type == RAID_INSTANCE_WELCOME)
-    {
-        data << uint8(0);                                   // is locked
-        data << uint8(0);                                   // is extended, ignored if prev field is 0
-    }
+    data << uint32(mapid);
+    data << uint32(difficulty);                         // difficulty
+    data << uint32(type);
+    data.WriteBit(0);                                   // is locked
+    data.WriteBit(0);                                   // is extended, ignored if prev field is 0
+    data.FlushBits();
     GetSession()->SendPacket(&data);
 }
 
@@ -25946,10 +25957,19 @@ void Player::ResurectUsingRequestData()
 
 void Player::SetClientControl(Unit* target, uint8 allowMove)
 {
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
-    data.append(target->GetPackGUID());
-    data << uint8(allowMove);
+    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE);
+    ObjectGuid targetGuid = target->GetGUID();
+
+    data.WriteBit(allowMove);
+
+    uint8 bitsOrder[8] = { 2, 1, 4, 6, 5, 7, 0, 3 };
+    data.WriteBitInOrder(targetGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 5, 1, 2, 4, 0, 3, 7, 6 };
+    data.WriteBytesSeq(targetGuid, bytesOrder);
+
     GetSession()->SendPacket(&data);
+
     if (target == this)
         SetMover(this);
 }
@@ -26483,10 +26503,18 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
-    WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
-    data << uint32(title->bit_index);
-    data << uint32(lost ? 0 : 1);                           // 1 - earned, 0 - lost
-    GetSession()->SendPacket(&data);
+    if (lost)
+    {
+        WorldPacket data(SMSG_TITLE_LOST, 4);
+        data << uint32(title->bit_index);
+        GetSession()->SendPacket(&data);
+    }
+    else
+    {
+        WorldPacket data(SMSG_TITLE_EARNED, 4);
+        data << uint32(title->bit_index);
+        GetSession()->SendPacket(&data);
+    }
 }
 
 bool Player::isTotalImmunity()
@@ -26748,12 +26776,14 @@ void Player::ConvertRune(uint8 index, RuneType newType)
 void Player::ResyncRunes(uint8 count)
 {
     WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data << uint32(count);
+    data.WriteBits(count, 23);
+
     for (uint32 i = 0; i < count; ++i)
     {
-        data << uint8(GetCurrentRune(i));                   // rune type
         data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        data << uint8(GetCurrentRune(i));                   // rune type
     }
+
     GetSession()->SendPacket(&data);
 }
 
@@ -28698,7 +28728,7 @@ void Player::SetMover(Unit* target)
 
 void Player::ShowNeutralPlayerFactionSelectUI()
 {
-    WorldPacket data(SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI);
+    WorldPacket data(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI);
     GetSession()->SendPacket(&data);
 }
 

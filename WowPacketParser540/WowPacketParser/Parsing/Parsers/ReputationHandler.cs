@@ -46,17 +46,17 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_SET_FACTION_STANDING)]
         public static void HandleSetFactionStanding(Packet packet)
         {
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V2_4_0_8089))
-                packet.ReadSingle("Reputation loss");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
 
-            if (ClientVersion.AddedInVersion(ClientType.WrathOfTheLichKing))
-                packet.ReadBoolean("Play Visual");
+            packet.ReadBit("Increased");
 
-            var count = packet.ReadInt32("Count");
-            for (var i = 0; i < count; i++)
+            var count = packet.ReadBits("Counter", 21);
+
+            for (int i = 0; i < count; ++i)
             {
-                packet.ReadInt32("Faction List Id");
-                packet.ReadInt32("Standing");
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
             }
         }
 

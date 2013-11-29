@@ -9,76 +9,199 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_CALENDAR_SEND_CALENDAR)]
         public static void HandleSendCalendar(Packet packet)
         {
-            var invCount = packet.ReadInt32("Invite Count");
+            var eventCount = packet.ReadBits("Event count", 19);
 
-            for (var i = 0; i < invCount; i++)
+            var titleLengths = new uint[eventCount];
+            var eventGuildGuids = new byte[eventCount][];
+            var eventCreatorGuids = new byte[eventCount][];
+            for (int i = 0; i < eventCount; i++)
             {
-                packet.ReadInt64("Event ID", i);
-                packet.ReadInt64("Invite ID", i);
-                packet.ReadEnum<CalendarEventStatus>("Status", TypeCode.Byte, i);
-                packet.ReadEnum<CalendarModerationRank>("Moderation Rank", TypeCode.Byte, i);
-                packet.ReadBoolean("Guild Event", i);
-                packet.ReadPackedGuid("Creator GUID", i);
+                eventGuildGuids[i] = new byte[8];
+                eventCreatorGuids[i] = new byte[8];
+
+                titleLengths[i] = packet.ReadBits("titleLength", 8, i);
+
+                eventCreatorGuids[i][1] = packet.ReadBit();
+                eventGuildGuids[i][7] = packet.ReadBit();
+                eventCreatorGuids[i][0] = packet.ReadBit();
+                eventGuildGuids[i][3] = packet.ReadBit();
+                eventGuildGuids[i][6] = packet.ReadBit();
+                eventGuildGuids[i][5] = packet.ReadBit();
+                eventCreatorGuids[i][7] = packet.ReadBit();
+                eventCreatorGuids[i][2] = packet.ReadBit();
+                eventCreatorGuids[i][6] = packet.ReadBit();
+                eventGuildGuids[i][0] = packet.ReadBit();
+                eventGuildGuids[i][1] = packet.ReadBit();
+                eventGuildGuids[i][2] = packet.ReadBit();
+                eventGuildGuids[i][4] = packet.ReadBit();
+                eventCreatorGuids[i][4] = packet.ReadBit();
+                eventCreatorGuids[i][3] = packet.ReadBit();
+                eventCreatorGuids[i][5] = packet.ReadBit();
             }
 
-            var eventCount = packet.ReadInt32("Event Count");
+            var invCount = packet.ReadBits("Invite Count", 19);
 
-            for (var i = 0; i < eventCount; i++)
+            var invCreatorGuids = new byte[invCount][];
+            for (int i = 0; i < invCount; i++)
             {
-                packet.ReadInt64("Event ID", i);
-                packet.ReadCString("Event Title", i);
-                packet.ReadEnum<CalendarEventType>("Event Type", TypeCode.Int32, i);
-                packet.ReadPackedTime("Event Time", i);
-                packet.ReadEnum<CalendarFlag>("Event Flags", TypeCode.Int32, i);
-                packet.ReadEntryWithName<Int32>(StoreNameType.LFGDungeon, "Dungeon ID", i);
+                invCreatorGuids[i] = new byte[8];
 
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_2_2_14545))
-                    packet.ReadGuid("Guild GUID", i);
+                packet.StartBitStream(invCreatorGuids[i], 1, 6, 2, 3, 5, 7, 4, 0);
+            }
 
-                packet.ReadPackedGuid("Creator GUID", i);
+            var raidResetCount = packet.ReadBits("Raid Reset Count", 20);
+            var holidayCount = packet.ReadBits("Holiday Count", 16);
+
+            var holidayLengths = new uint[holidayCount];
+            for (int i = 0; i < holidayCount; i++)
+                holidayLengths[i] = packet.ReadBits("holidayLength", 6, i);
+
+            var instanceResetCount = packet.ReadBits("instanceResetCount", 20);
+
+            var unkGuids = new byte[instanceResetCount][];
+            for (int i = 0; i < instanceResetCount; i++)
+            {
+                unkGuids[i] = new byte[8];
+
+                packet.StartBitStream(unkGuids[i], 2, 7, 1, 6, 3, 5, 4, 0);
+            }
+
+            for (int i = 0; i < instanceResetCount; i++)
+            {
+                packet.ReadUInt32("Unk UInt32", i); // Map ID, Difficulty or Time Left
+                packet.ReadXORByte(unkGuids[i], 1);
+                packet.ReadUInt32("Unk UInt32", i); // Map ID, Difficulty or Time Left
+                packet.ReadXORByte(unkGuids[i], 4);
+                packet.ReadXORByte(unkGuids[i], 3);
+                packet.ReadXORByte(unkGuids[i], 7);
+                packet.ReadUInt32("Unk UInt32", i); // Map ID, Difficulty or Time Left
+                packet.ReadXORByte(unkGuids[i], 6);
+                packet.ReadXORByte(unkGuids[i], 5);
+                packet.ReadXORByte(unkGuids[i], 0);
+                packet.ReadXORByte(unkGuids[i], 2);
+
+                packet.WriteGuid("Instance GUID", unkGuids[i], i);
+            }
+
+            for (int i = 0; i < raidResetCount; i++)
+            {
+                packet.ReadEntryWithName<UInt32>(StoreNameType.Map, "Map Id");
+                packet.ReadUInt32("Unk Time", i);
+                packet.ReadUInt32("Time Left", i);
+            }
+
+            for (int i = 0; i < holidayCount; i++)
+            {
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+
+                packet.ReadWoWString("holidayName", holidayLengths[i], i);
+
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+                packet.ReadUInt32("Unk UInt32", i);
+            }
+
+            for (int i = 0; i < eventCount; i++)
+            {
+                packet.ReadXORByte(eventGuildGuids[i], 6);
+                packet.ReadXORByte(eventGuildGuids[i], 7);
+                packet.ReadUInt32("Unk UInt32", i); // Time, Flags or Dungeon ID
+                packet.ReadXORByte(eventCreatorGuids[i], 1);
+                packet.ReadXORByte(eventGuildGuids[i], 2);
+                packet.ReadXORByte(eventCreatorGuids[i], 6);
+                packet.ReadXORByte(eventCreatorGuids[i], 4);
+                packet.ReadXORByte(eventCreatorGuids[i], 7);
+                packet.ReadXORByte(eventGuildGuids[i], 3);
+                packet.ReadXORByte(eventGuildGuids[i], 5);
+                packet.ReadUInt32("Unk UInt32", i); // Time, Flags or Dungeon ID
+                packet.ReadXORByte(eventGuildGuids[i], 1);
+                packet.ReadXORByte(eventGuildGuids[i], 0);
+                packet.ReadUInt64("Event ID", i);
+                packet.ReadXORByte(eventCreatorGuids[i], 5);
+                packet.ReadXORByte(eventGuildGuids[i], 4);
+                packet.ReadXORByte(eventCreatorGuids[i], 3);
+                packet.ReadXORByte(eventCreatorGuids[i], 0);
+
+                packet.ReadWoWString("Event Title", titleLengths[i], i);
+
+                packet.ReadXORByte(eventCreatorGuids[i], 2);
+                packet.ReadUInt32("Unk UInt32", i); // Time, Flags or Dungeon ID
+                packet.ReadEnum<CalendarEventType>("Event Type", TypeCode.Byte, i);
+
+                packet.WriteGuid("Creator GUID", eventCreatorGuids[i], i);
+                packet.WriteGuid("Guild GUID", eventGuildGuids[i], i);
+            }
+
+            packet.ReadUInt32("Unk UInt32"); // Zone Time ? or Constant Date
+            packet.ReadUInt32("Unk UInt32"); // Zone Time ? or Constant Date
+
+            for (int i = 0; i < invCount; i++)
+            {
+                packet.ReadXORByte(invCreatorGuids[i], 7);
+                packet.ReadByte("Unk Byte", i); // Status, Rank or Guild ID
+                packet.ReadByte("Unk Byte", i); // Status, Rank or Guild ID
+                packet.ReadXORByte(invCreatorGuids[i], 6);
+                packet.ReadXORByte(invCreatorGuids[i], 3);
+                packet.ReadUInt64("Unk UInt64"); // Event ID or Invite ID
+                packet.ReadXORByte(invCreatorGuids[i], 2);
+                packet.ReadXORByte(invCreatorGuids[i], 5);
+                packet.ReadXORByte(invCreatorGuids[i], 1);
+                packet.ReadByte("Unk Byte", i); // Status, Rank or Guild ID
+                packet.ReadXORByte(invCreatorGuids[i], 4);
+                packet.ReadXORByte(invCreatorGuids[i], 0);
+                packet.ReadUInt64("Unk UInt64"); // Event ID or Invite ID
+
+                packet.WriteGuid("InvCreator GUID", invCreatorGuids[i], i);
             }
 
             packet.ReadTime("Current Time");
-            packet.ReadPackedTime("Zone Time?");
-
-            var instanceResetCount = packet.ReadInt32("Instance Reset Count");
-
-            for (var i = 0; i < instanceResetCount; i++)
-            {
-                packet.ReadEntryWithName<Int32>(StoreNameType.Map, "Map ID", i);
-                packet.ReadEnum<MapDifficulty>("Difficulty", TypeCode.Int32, i);
-                packet.ReadInt32("Time left", i);
-                packet.ReadGuid("Instance ID", i);
-            }
-
-            packet.ReadTime("Constant Date");
-
-            var raidResetCount = packet.ReadInt32("Raid Reset Count");
-
-            for (var i = 0; i < raidResetCount; i++)
-            {
-                packet.ReadEntryWithName<Int32>(StoreNameType.Map, "Map ID", i);
-                packet.ReadInt32("Time left", i);
-                packet.ReadInt32("Unk Time", i);
-            }
-
-            var holidayCount = packet.ReadInt32("Holiday Count");
-
-            for (var i = 0; i < holidayCount; i++)
-            {
-                packet.ReadInt32("ID", i);
-                packet.ReadInt32("Region (Looping?)", i);
-                packet.ReadInt32("Looping (Region?)", i);
-                packet.ReadInt32("Priority", i);
-                packet.ReadInt32("Calendar FilterType", i);
-                for (var j = 0; j < 26; j++)
-                    packet.ReadPackedTime("Start Date", i, j);
-                for (var j = 0; j < 10; j++)
-                    packet.ReadInt32("Duration", i, j);
-                for (var j = 0; j < 10; j++)
-                    packet.ReadEnum<CalendarFlag>("Calendar Flags", TypeCode.Int32, i, j);
-                packet.ReadCString("Holiday Name", i);
-            }
         }
 
         [Parser(Opcode.CMSG_CALENDAR_GET_EVENT)]
