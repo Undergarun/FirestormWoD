@@ -85,11 +85,12 @@ void WorldSession::HandleLearnTalents(WorldPacket& recvData)
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_TALENT_WIPE_CONFIRM");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CONFIRM_RESPEC_WIPE");
 
     uint8 specializationReset = recvData.read<uint8>();
 
     recvData.rfinish();
+
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
@@ -107,9 +108,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         }
     }
     else
-    {
         _player->ResetSpec();
-    }
 
     _player->SendTalentsInfoData(false);
 

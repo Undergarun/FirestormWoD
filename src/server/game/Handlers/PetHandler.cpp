@@ -922,17 +922,33 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
 {
-    WorldPacket data(SMSG_PET_NAME_INVALID, 4 + name.size() + 1 + 1);
-    data << uint32(error);
-    data << name;
+    WorldPacket data(SMSG_PET_NAME_INVALID);
+
+    data.WriteBit(bool(declinedName));
+
     if (declinedName)
     {
-        data << uint8(1);
         for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << declinedName->name[i];
+            data.WriteBits(declinedName->name[i].size(), 7);
     }
-    else
-        data << uint8(0);
+
+    data.WriteBit(0);
+    data.WriteBits(name.size(), 8);
+    data.FlushBits();
+
+    if (name.size())
+        data.append(name.c_str(), name.size());
+
+    if (declinedName)
+    {
+        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            if (declinedName->name[i].size())
+                data.append(declinedName->name[i].c_str(), declinedName->name[i].size());
+    }
+
+    data << uint8(1);
+    data << uint32(error);
+
     SendPacket(&data);
 }
 

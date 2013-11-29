@@ -1402,13 +1402,13 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 {
-    uint8 unk1;
-    recvData >> unk1;                                      // 0 or 1 expected
+    bool unk1 = recvData.ReadBit();                 // 0 or 1 expected
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(_player->GetTotalPlayedTime());
     data << uint32(_player->GetLevelPlayedTime());
-    data << uint8(unk1);                                    // 0 - will not show in chat frame
+    data << uint32(_player->GetTotalPlayedTime());
+    data.WriteBit(unk1);                            // 0 - will not show in chat frame
+    data.FlushBits();
     SendPacket(&data);
 }
 
@@ -1804,41 +1804,15 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_COMPLAIN");
 
-    uint8 spam_type;                                        // 0 - mail, 1 - chat
-    uint64 spammer_guid;
-    uint32 unk1 = 0;
-    uint32 unk2 = 0;
-    uint32 unk3 = 0;
-    uint32 unk4 = 0;
-    std::string description = "";
-    recvData >> spam_type;                                 // unk 0x01 const, may be spam type (mail/chat)
-    recvData >> spammer_guid;                              // player guid
-    switch (spam_type)
-    {
-    case 0:
-        recvData >> unk1;                              // const 0
-        recvData >> unk2;                              // probably mail id
-        recvData >> unk3;                              // const 0
-        break;
-    case 1:
-        recvData >> unk1;                              // probably language
-        recvData >> unk2;                              // message type?
-        recvData >> unk3;                              // probably channel id
-        recvData >> unk4;                              // time
-        recvData >> description;                       // spam description string (messagetype, channel name, player name, message)
-        break;
-    }
-
+    // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
     WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
-    data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
-    data << uint8(0); // value 0xC generates a "CalendarError" in client.
+    data << uint8(0);   // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
+    data << uint32(0);  // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, GUID_LOPART(spammer_guid), unk1, unk2, unk3, unk4, description.c_str());
 }
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
