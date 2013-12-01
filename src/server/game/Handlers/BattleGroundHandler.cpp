@@ -76,22 +76,37 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     uint32 bgTypeId_ = 0;
     uint32 instanceId = 0;
     uint8 joinAsGroup = 0;
+    uint8 role;
     bool isPremade = false;
     Group* grp = NULL;
+    uint32 disabledBgs[2];
 
-    recvData >> instanceId;                                 // battleground type id (DBC id)
-    recvData.read_skip<uint32>();
-    recvData.read_skip<uint32>();
+    for (int i = 0; i < 2; i++)
+        recvData >> disabledBgs[i];
 
-    uint8 bitOrder[8] = {2, 5, 3, 7, 6, 0, 1, 4};
-    recvData.ReadBitInOrder(guid, bitOrder);
-
+    guid[5] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
     joinAsGroup = recvData.ReadBit();
-
+    guid[0] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    role = recvData.ReadBit(); // byte11
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {6, 1, 3, 5, 7, 0, 4, 2};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[6]);
+
+    if (!role)
+        recvData >> role;
 
     bgTypeId_ = GUID_LOPART(guid);
 
@@ -120,12 +135,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
         return;
 
     // get bg instance or bg template if instance not found
-    Battleground* bg = NULL;
-    if (instanceId)
-        bg = sBattlegroundMgr->GetBattlegroundThroughClientInstance(instanceId, bgTypeId);
+    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
 
-    if (!bg)
-        bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
     if (!bg)
         return;
 
@@ -398,24 +409,26 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
     ObjectGuid guid;
     
-    recvData >> unk;
+    action = recvData.ReadBit();
+    recvData.FlushBits();
     recvData >> queueSlot;
     recvData >> time;
+    recvData >> unk;
 
+    guid[7] = recvData.ReadBit();
     guid[0] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    action = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {0, 3, 4, 7, 1, 5, 6, 2};
+    uint8 byteOrder[8] = {0, 7, 2, 6, 3, 5, 1, 4};
     recvData.ReadBytesSeq(guid, byteOrder);
+
+    queueSlot--;
 
     if (!_player->InBattlegroundQueue())
     {
@@ -579,11 +592,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
-
-    /*recvData.read_skip<uint8>();                           // unk1
-    recvData.read_skip<uint8>();                           // unk2
-    recvData.read_skip<uint32>();                          // BattlegroundTypeId
-    recvData.read_skip<uint16>();                          // unk3*/
 
     // not allow leave battleground in combat
     if (_player->isInCombat())
