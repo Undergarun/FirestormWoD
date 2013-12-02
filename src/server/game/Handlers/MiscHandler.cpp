@@ -992,7 +992,11 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 {
     uint32 triggerId;
+    uint8 unkbit1, unkbit2;
+
     recvData >> triggerId;
+    unkbit1 = recvData.ReadBit();
+    unkbit2 = recvData.ReadBit();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
