@@ -22241,21 +22241,20 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const
+inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
-    uint32 messageLength = text.length() ? text.length() : 0;
-    uint32 speakerNameLength = strlen(GetName()) + 1;
+    uint32 messageLength = text.length();
+    uint32 speakerNameLength = strlen(GetName());
     uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
     uint32 receiverLength = 0;
-    uint32 channelLength = 0;
-    std::string channel = ""; // no channel
+    uint32 channelLength = channel.length();
 
     ObjectGuid senderGuid = GetGUID();
     ObjectGuid groupGuid = NULL;
     ObjectGuid receiverGuid = NULL;
     ObjectGuid guildGuid = NULL;
 
-    bool unkBit = false;
+    bool sendRealmID = false;
     bool bit5256 = false;
     bool bit5264 = false;
 
@@ -22275,7 +22274,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     data->WriteBit(addonPrefix ? 0 : 1);                        // has prefix
     data->WriteBit(0);                                          // Unk bit 5268
-    data->WriteBit(!unkBit);                                    // !unk bit
+    data->WriteBit(!sendRealmID);                               // !unk bit
     data->WriteBit(!bit5264);                                   // unk bit 5264
 
     data->WriteBits(speakerNameLength, 11);
@@ -22289,13 +22288,16 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
         data->WriteBits(prefixeLength, 5);
 
     data->WriteBit(1);                                          // has receiver
-    data->WriteBit(0);                                          // has chat tag
+    data->WriteBit(!(GetChatTag() > 0));                         // !hasChatTag
 
     if (messageLength)
         data->WriteBits(messageLength, 12);
 
     data->WriteBit(0);                                          // !hasLanguage
-    data->WriteBits(GetChatTag(), 9);
+
+    if (GetChatTag() > 0)
+        data->WriteBits(GetChatTag(), 9);
+
     data->WriteBit(0);                                          // has guild GUID
 
     if (receiverLength)
@@ -22304,14 +22306,20 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     uint8 bitsOrder4[8] = { 0, 2, 1, 4, 6, 7, 5, 3 };
     data->WriteBitInOrder(guildGuid, bitsOrder4);
 
-    data->WriteBit(1);                                          // !has channel
-    data->WriteBits(channelLength, 7);
+    data->WriteBit(channelLength == 0);                         // !has channel
 
     if (channelLength)
+    {
+        data->WriteBits(channelLength, 7);
+        data->FlushBits();
         data->WriteString(channel);
+    }
 
     if (speakerNameLength)
+    {
+        data->FlushBits();
         data->WriteString(GetName());
+    }
 
     uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
     data->WriteBytesSeq(groupGuid, byteOrder);
@@ -22327,8 +22335,8 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     if (prefixeLength)
         data->WriteString(addonPrefix);
 
-    if (unkBit)
-        *data << uint32(0);                                         // unk uint32
+    if (sendRealmID)
+        *data << uint32(realmID);
 
     uint8 byteOrder3[8] = { 1, 0, 3, 7, 6, 5, 2, 4 };
     data->WriteBytesSeq(guildGuid, byteOrder3);
@@ -22349,22 +22357,6 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     if (bit5264)
         *data << uint32(0);                                         // unk uint32
-
-    // Old datas
-
-    /**data << uint8(msgtype);
-    *data << uint32(language);
-    *data << uint64(GetGUID());
-    *data << uint32(0);                                            // constant unknown time
-    if (addonPrefix)
-        *data << addonPrefix;
-    *data << uint64(GetGUID());
-
-    if (msgtype == 2 || msgtype == 51 || msgtype == 3 || msgtype == 39 || msgtype == 40)
-        *data << uint64(GetGUID());
-    *data << uint32(text.length() + 1);
-    *data << text;
-    *data << uint16(GetChatTag());*/
 }
 
 void Player::Say(const std::string& text, const uint32 language)

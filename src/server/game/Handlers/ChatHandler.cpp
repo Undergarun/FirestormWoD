@@ -271,10 +271,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             msg = recvData.ReadString(textLength);
             break;
         case CHAT_MSG_CHANNEL:
-            receiverLength = recvData.ReadBits(9);
             textLength = recvData.ReadBits(8);
-            channel = recvData.ReadString(receiverLength);
+            receiverLength = 2 * recvData.ReadBits(8);
+            receiverLength += recvData.ReadBit();
+            recvData.FlushBits();
             msg = recvData.ReadString(textLength);
+            channel = recvData.ReadString(receiverLength);
             break;
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
@@ -485,7 +487,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
             {
-
                 if (Channel* chn = cMgr->GetChannel(channel, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
