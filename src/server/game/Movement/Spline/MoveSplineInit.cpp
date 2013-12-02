@@ -490,7 +490,6 @@ namespace Movement
         data.WriteByteSeq(moverGUID[3]);
         data.WriteByteSeq(moverGUID[1]);
 
-
         //PacketBuilder::WriteStopMovement(loc, args.splineId, data);
         unit.SendMessageToSet(&data, true);
     }

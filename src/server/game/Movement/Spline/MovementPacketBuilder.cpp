@@ -198,10 +198,21 @@ namespace Movement
             data << moveSpline.Duration();
         }
 
-        data << uint32(moveSpline.GetId());
-        data << float(unit->GetPositionZ());
-        data << float(unit->GetPositionX());
-        data << float(unit->GetPositionY());
+        if (!moveSpline.isCyclic())
+        {
+            Vector3 dest = moveSpline.FinalDestination();
+            data << moveSpline.GetId();
+            data << float(dest.z);
+            data << float(dest.x);
+            data << float(dest.y);
+        }
+        else
+        {
+            data << moveSpline.GetId();
+            data << float(0.0f);
+            data << float(0.0f);
+            data << float(0.0f);
+        }
     }
 
     void PacketBuilder::WriteCreateGuid(MoveSpline const& moveSpline, ByteBuffer& data)
