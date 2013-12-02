@@ -530,7 +530,7 @@ enum Opcodes
     CMSG_TOGGLE_PVP                                   = 0x000,  // 5.0.5 16048
     CMSG_TOTEM_DESTROYED                              = 0x000,  // 5.0.5 16048
     CMSG_TRAINER_BUY_SPELL                            = 0x12EF, // 5.4.0 17399
-    CMSG_TRAINER_LIST                                 = 0x000,  // 5.0.5 16048
+    CMSG_TRAINER_LIST                                 = 0x1AFA, // 5.4.0 17399
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x1928, // 5.4.0 17399
     CMSG_TRIGGER_CINEMATIC_CHEAT                      = 0x000,  // 5.0.5 16048
     CMSG_TURN_IN_PETITION                             = 0x000,  // 5.0.5 16048
