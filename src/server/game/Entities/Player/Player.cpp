@@ -156,7 +156,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     }
 
     // race specific initial known nodes: capital and taxi hub masks
-    // TODO MISSING PANDAREN HORDE/ALLIANCE WORGEN and GOBLIN
+    // @TODO MISSING PANDAREN HORDE/ALLIANCE WORGEN and GOBLIN
     switch (race)
     {
         case RACE_HUMAN:    SetTaximaskNode(2);  break;     // Human
@@ -172,13 +172,13 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         case RACE_DRAENEI:  SetTaximaskNode(94); break;     // Draenei
     }
 
-    // new continent starting masks (It will be accessible only at new map)
+    // New continent starting masks (It will be accessible only at new map)
     switch (Player::TeamForRace(race))
     {
         case ALLIANCE: SetTaximaskNode(100); break;
         case HORDE:    SetTaximaskNode(99);  break;
     }
-    // level dependent taxi hubs
+    // Level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
 
@@ -193,8 +193,8 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         if (!sMapStore.LookupEntry(node->map_id))
             continue;
 
-        int gx=(int)(32-node->x/SIZE_OF_GRIDS);                       //grid x
-        int gy=(int)(32-node->y/SIZE_OF_GRIDS);                       //grid y
+        int gx=(int)(32-node->x/SIZE_OF_GRIDS);             //grid x
+        int gy=(int)(32-node->y/SIZE_OF_GRIDS);             //grid y
 
         // Bad positions
         if (gx < 0 || gy < 0)
@@ -249,12 +249,12 @@ void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, ByteBuffer& dataBuffer, bool
     if (all)
     {
         for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            dataBuffer << uint8(sTaxiNodesMask[i]);              // all existed nodes
+            dataBuffer << uint8(sTaxiNodesMask[i]);         // all existed nodes
     }
     else
     {
         for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            dataBuffer << uint8(m_taximask[i]);                  // known nodes
+            dataBuffer << uint8(m_taximask[i]);             // known nodes
     }
 }
 
@@ -7287,7 +7287,7 @@ bool Player::UpdateFishingSkill()
 // levels sync. with spell requirement for skill levels to learn
 // bonus abilities in sSkillLineAbilityStore
 // Used only to avoid scan DBC at each skill grow
-static uint32 bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
+static uint32 bonusSkillLevels[] = {75, 150, 225, 300, 375, 450, 525, 600};
 static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
 
 bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
@@ -8629,7 +8629,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     {
         //ASSERT(weekCap >= oldWeekCount);
 
-        // TODO: fix conquest points
+        // @TODO: fix conquest points
         // if we get more then weekCap just set to limit
         if (int32(weekCap) < newWeekCount)
         {
@@ -9131,20 +9131,36 @@ void Player::DuelComplete(DuelCompleteType type)
 
     sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
-    WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-    data << (uint8)((type != DUEL_INTERRUPTED) ? 1 : 0);
-    GetSession()->SendPacket(&data);
+    // Say "duel has been canceled"
+    if (type == DUEL_INTERRUPTED)
+    {
+        WorldPacket data(SMSG_DUEL_COMPLETE, (1));
+        data.WriteBit(0); // work with 0, msg change with 1 ?
+        data.FlushBits();
+        GetSession()->SendPacket(&data);
 
-    if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(&data);
+        if (duel->opponent->GetSession())
+            duel->opponent->GetSession()->SendPacket(&data);
+    }
+
 
     if (type != DUEL_INTERRUPTED)
     {
-        data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data << duel->opponent->GetName();
-        data << GetName();
-        SendMessageToSet(&data, true);
+        std::string name = GetName();
+        std::string opponentName = duel->opponent->GetName();
+        WorldPacket data2(SMSG_DUEL_WINNER);
+        data2 << uint32(realmID);                            // winner realm ID
+        data2 << uint32(realmID);                            // opponent realm ID
+        data2.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
+        data2.WriteBits(opponentName.size(), 6);
+        data2.WriteBits(name.size(), 6);
+        data2.FlushBits();
+        if (name.size())
+            data2.append(name.c_str(), name.size());
+        if (opponentName.size())
+            data2.append(opponentName.c_str(), opponentName.size());
+
+        SendMessageToSet(&data2, true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
@@ -10629,10 +10645,10 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     }
 
     WorldPacket data(SMSG_INIT_WORLD_STATES, (4+4+4+2+(NumberOfFields*8)));
-    data << uint32(mapid);                                  // mapid
     data << uint32(zoneid);                                 // zone id
     data << uint32(areaid);                                 // area id, new 2.1.0
-    data << uint16(NumberOfFields);                         // count of uint64 blocks
+    data << uint32(mapid);                                  // mapid
+    data.WriteBits(NumberOfFields, 21);                     // count of uint64 blocks
     data << uint32(0x8d8) << uint32(0x0);                   // 1
     data << uint32(0x8d7) << uint32(0x0);                   // 2
     data << uint32(0x8d6) << uint32(0x0);                   // 3

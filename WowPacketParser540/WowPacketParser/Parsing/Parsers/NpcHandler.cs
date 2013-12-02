@@ -404,10 +404,45 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_THREAT_REMOVE)]
         public static void HandleRemoveThreatlist(Packet packet)
         {
-            packet.ReadPackedGuid("GUID");
+            var guid1 = new byte[8];
+            var guid2 = new byte[8];
 
-            if (packet.Opcode == Opcodes.GetOpcode(Opcode.SMSG_THREAT_REMOVE))
-                packet.ReadPackedGuid("Victim GUID");
+            guid1[6] = packet.ReadBit();
+            guid1[2] = packet.ReadBit();
+            guid2[5] = packet.ReadBit();
+            guid2[6] = packet.ReadBit();
+            guid2[7] = packet.ReadBit();
+            guid2[4] = packet.ReadBit();
+            guid2[3] = packet.ReadBit();
+            guid2[2] = packet.ReadBit();
+            guid2[1] = packet.ReadBit();
+            guid1[1] = packet.ReadBit();
+            guid1[5] = packet.ReadBit();
+            guid1[7] = packet.ReadBit();
+            guid1[4] = packet.ReadBit();
+            guid1[3] = packet.ReadBit();
+            guid2[0] = packet.ReadBit();
+            guid1[0] = packet.ReadBit();
+
+            packet.ReadXORByte(guid2, 6);
+            packet.ReadXORByte(guid2, 1);
+            packet.ReadXORByte(guid2, 4);
+            packet.ReadXORByte(guid2, 2);
+            packet.ReadXORByte(guid1, 5);
+            packet.ReadXORByte(guid1, 0);
+            packet.ReadXORByte(guid1, 2);
+            packet.ReadXORByte(guid2, 3);
+            packet.ReadXORByte(guid2, 0);
+            packet.ReadXORByte(guid1, 3);
+            packet.ReadXORByte(guid1, 7);
+            packet.ReadXORByte(guid1, 1);
+            packet.ReadXORByte(guid2, 7);
+            packet.ReadXORByte(guid1, 4);
+            packet.ReadXORByte(guid1, 6);
+            packet.ReadXORByte(guid2, 5);
+
+            packet.WriteGuid("Guid1", guid1);
+            packet.WriteGuid("Guid2", guid2);
         }
     }
 }

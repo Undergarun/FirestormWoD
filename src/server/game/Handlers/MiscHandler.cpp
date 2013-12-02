@@ -992,7 +992,11 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 {
     uint32 triggerId;
+    uint8 unkbit1, unkbit2;
+
     recvData >> triggerId;
+    unkbit1 = recvData.ReadBit();
+    unkbit2 = recvData.ReadBit();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
@@ -1126,19 +1130,13 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     uint32 type, timestamp, decompressedSize, compressedSize;
     recvData >> decompressedSize >> timestamp >> compressedSize;
 
-    type = uint8(recvData.contents()[recvData.size()]) >> 5;
+    type = uint8(recvData.contents()[recvData.size()-1]) >> 5;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
 
     if (decompressedSize == 0)                               // erase
     {
         SetAccountData(AccountDataType(type), 0, "");
-
-        WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
-        data << uint32(type);
-        data << uint32(0);
-        SendPacket(&data);
-
         return;
     }
 
@@ -1165,11 +1163,6 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     std::string adata = dest.ReadString(decompressedSize);
 
     SetAccountData(AccountDataType(type), timestamp, adata);
-
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
-    data << uint32(type);
-    data << uint32(0);
-    SendPacket(&data);
 }
 
 void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
@@ -1204,9 +1197,9 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+destSize);
     ObjectGuid playerGuid = _player ? _player->GetGUID() : 0;
 
-    data << uint32(destSize);                               // compressed length
-    data << uint32(adata->Time);                            // unix time
     data << uint32(size);                                   // decompressed length
+    data << uint32(adata->Time);                            // unix time
+    data << uint32(destSize);                               // compressed length
     data.append(dest);                                      // compressed data
 
     data.WriteBit(playerGuid[4]);

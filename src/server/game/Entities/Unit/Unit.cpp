@@ -2549,45 +2549,45 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid attackerGuid = GetGUID();
-    ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
+    ObjectGuid victimGUID = victim ? victim->GetGUID() : NULL;
+    ObjectGuid attackerGUID = GetGUID();
 
-    data.WriteBit(attackerGuid[0]);
-    data.WriteBit(victimGuid[4]);
-    data.WriteBit(attackerGuid[1]);
-    data.WriteBit(victimGuid[7]);
-    data.WriteBit(attackerGuid[6]);
-    data.WriteBit(attackerGuid[3]);
+    data.WriteBit(victimGUID[0]);
+    data.WriteBit(attackerGUID[4]);
+    data.WriteBit(victimGUID[1]);
+    data.WriteBit(attackerGUID[7]);
+    data.WriteBit(victimGUID[6]);
+    data.WriteBit(victimGUID[3]);
 
     data.WriteBit(0);                   // Unk bit - updating rotation ?
 
-    data.WriteBit(attackerGuid[5]);
-    data.WriteBit(victimGuid[1]);
-    data.WriteBit(victimGuid[0]);
-    data.WriteBit(attackerGuid[7]);
-    data.WriteBit(victimGuid[6]);
-    data.WriteBit(attackerGuid[4]);
-    data.WriteBit(attackerGuid[2]);
-    data.WriteBit(victimGuid[3]);
-    data.WriteBit(victimGuid[2]);
-    data.WriteBit(victimGuid[5]);
+    data.WriteBit(victimGUID[5]);
+    data.WriteBit(attackerGUID[1]);
+    data.WriteBit(attackerGUID[0]);
+    data.WriteBit(victimGUID[7]);
+    data.WriteBit(attackerGUID[6]);
+    data.WriteBit(victimGUID[4]);
+    data.WriteBit(victimGUID[2]);
+    data.WriteBit(attackerGUID[3]);
+    data.WriteBit(attackerGUID[2]);
+    data.WriteBit(attackerGUID[5]);
 
-    data.WriteByteSeq(victimGuid[2]);
-    data.WriteByteSeq(victimGuid[7]);
-    data.WriteByteSeq(attackerGuid[0]);
-    data.WriteByteSeq(victimGuid[5]);
-    data.WriteByteSeq(attackerGuid[5]);
-    data.WriteByteSeq(victimGuid[3]);
-    data.WriteByteSeq(attackerGuid[7]);
-    data.WriteByteSeq(attackerGuid[1]);
-    data.WriteByteSeq(attackerGuid[3]);
-    data.WriteByteSeq(victimGuid[0]);
-    data.WriteByteSeq(attackerGuid[4]);
-    data.WriteByteSeq(attackerGuid[6]);
-    data.WriteByteSeq(victimGuid[1]);
-    data.WriteByteSeq(victimGuid[6]);
-    data.WriteByteSeq(attackerGuid[2]);
-    data.WriteByteSeq(victimGuid[4]);
+    data.WriteByteSeq(attackerGUID[2]);
+    data.WriteByteSeq(attackerGUID[7]);
+    data.WriteByteSeq(victimGUID[0]);
+    data.WriteByteSeq(attackerGUID[5]);
+    data.WriteByteSeq(victimGUID[5]);
+    data.WriteByteSeq(attackerGUID[3]);
+    data.WriteByteSeq(victimGUID[7]);
+    data.WriteByteSeq(victimGUID[1]);
+    data.WriteByteSeq(victimGUID[3]);
+    data.WriteByteSeq(attackerGUID[0]);
+    data.WriteByteSeq(victimGUID[4]);
+    data.WriteByteSeq(victimGUID[6]);
+    data.WriteByteSeq(attackerGUID[1]);
+    data.WriteByteSeq(attackerGUID[6]);
+    data.WriteByteSeq(victimGUID[2]);
+    data.WriteByteSeq(attackerGUID[4]);
 
     SendMessageToSet(&data, true);
 }

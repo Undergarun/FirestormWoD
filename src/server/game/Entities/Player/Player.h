@@ -197,9 +197,9 @@ typedef ACE_Based::LockedMap<uint32 /*instanceId*/, time_t/*releaseTime*/> Insta
 
 enum TrainerSpellState
 {
-    TRAINER_SPELL_GRAY  = 0,
-    TRAINER_SPELL_GREEN = 1,
-    TRAINER_SPELL_RED   = 2,
+    TRAINER_SPELL_GRAY           = 0,
+    TRAINER_SPELL_GREEN          = 1,
+    TRAINER_SPELL_RED            = 2,
     TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
 };
 
@@ -717,14 +717,14 @@ enum TransferAbortReason
     TRANSFER_ABORT_DIFFICULTY                   = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
     TRANSFER_ABORT_UNIQUE_MESSAGE               = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
     TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES     = 0x0A,         // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // 3.1
+    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // Transfer Aborted: you must be in a raid group to enter this instance
     TRANSFER_ABORT_NOT_FOUND1                   = 0x0C,         // 3.1
     TRANSFER_ABORT_NOT_FOUND2                   = 0x0D,         // 3.1
     TRANSFER_ABORT_NOT_FOUND3                   = 0x0E,         // 3.2
     TRANSFER_ABORT_REALM_ONLY                   = 0x0F,         // All players on party must be from the same realm.
     TRANSFER_ABORT_MAP_NOT_ALLOWED              = 0x10,         // Map can't be entered at this time.
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // 4.2.2
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // 4.2.2
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // You are already locked to %s.
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
 };
 
 enum InstanceResetWarningType
@@ -792,7 +792,7 @@ enum PlayerChatTag
     CHAT_TAG_AFK        = 0x01,
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_COM        = 0x08, // Commentator
+    CHAT_TAG_COM        = 0x08,                             // Commentator
     CHAT_TAG_DEV        = 0x10,
 };
 
@@ -885,7 +885,7 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) // TODO: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
+#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) // @TODO: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
 
 struct InstancePlayerBind
 {
@@ -2296,7 +2296,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
-        // TODO: Properly implement correncies as of Cataclysm
+        // @TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
         bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;

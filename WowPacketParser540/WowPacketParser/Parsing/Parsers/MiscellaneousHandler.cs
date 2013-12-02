@@ -269,13 +269,34 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_RESURRECT_REQUEST)]
         public static void HandleResurrectRequest(Packet packet)
         {
-            packet.ReadGuid("GUID");
-            packet.ReadUInt32("Name length");
-            packet.ReadCString("Resurrector Name");
-            packet.ReadBoolean("Resurrection Sickness");
-            packet.ReadBoolean("Use Timer");
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6a_13623))
-                packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Spell ID");   // Used only for: <if (Spell ID == 83968 && Unit_HasAura(95223) return 1;>
+            var length = packet.ReadBits("nameLen", 6);
+            var casterGuid = new byte[8];
+
+            casterGuid[0] = packet.ReadBit();
+            casterGuid[5] = packet.ReadBit();
+            var unkBit16 = packet.ReadBit("unkBit16");
+            casterGuid[7] = packet.ReadBit();
+            var unkBit96 = packet.ReadBit("unkBit96");
+            casterGuid[2] = packet.ReadBit();
+            casterGuid[1] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
+            casterGuid[6] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+
+            packet.ReadXORByte(casterGuid, 2);
+            packet.ReadXORByte(casterGuid, 4);
+            packet.ReadXORByte(casterGuid, 1);
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadUInt32("Spell ID");
+            packet.ReadXORByte(casterGuid, 3);
+            packet.ReadXORByte(casterGuid, 0);
+            packet.ReadWoWString("Caster Name", length);
+            packet.ReadXORByte(casterGuid, 7);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(casterGuid, 6);
+
+            packet.WriteGuid("Caster GUID", casterGuid);
         }
 
         [Parser(Opcode.CMSG_RESURRECT_RESPONSE)]
@@ -487,9 +508,9 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadEnum<MirrorTimerType>("Timer Type", TypeCode.UInt32);
             packet.ReadUInt32("Current Value");
             packet.ReadUInt32("Max Value");
-            packet.ReadInt32("Regen");
-            packet.ReadBoolean("Paused");
+            packet.ReadUInt32("Regen");
             packet.ReadUInt32("Spell Id");
+            packet.ReadBit("Paused");
         }
 
         [Parser(Opcode.SMSG_PAUSE_MIRROR_TIMER)]
@@ -917,9 +938,9 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_START_TIMER)]
         public static void HandleStartTimer(Packet packet)
         {
-            packet.ReadEnum<TimerType>("Timer type", TypeCode.UInt32);
-            packet.ReadInt32("Time left (secs)");
             packet.ReadInt32("Total time (secs)");
+            packet.ReadInt32("Time left (secs)");
+            packet.ReadEnum<TimerType>("Timer type", TypeCode.UInt32);
         }
 
         [Parser(Opcode.CMSG_SET_PREFERED_CEMETERY)] // 4.3.4

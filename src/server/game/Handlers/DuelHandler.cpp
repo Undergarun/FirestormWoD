@@ -124,56 +124,59 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     sScriptMgr->OnPlayerDuelRequest(target, caster);*/
 }
 
-void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
 {
-    uint64 guid;
     Player* player;
     Player* plTarget;
 
-    recvPacket >> guid;
+    ObjectGuid guid;
+    uint8 byteOrder[8] = {4, 6, 0, 3, 5, 1, 2, 7};
+    guid[5] = recvPacket.ReadBit();
+    guid[0] = recvPacket.ReadBit();
+    guid[1] = recvPacket.ReadBit();
+    guid[7] = recvPacket.ReadBit();
+    guid[6] = recvPacket.ReadBit();
+    bool accept = recvPacket.ReadBit();
+    guid[3] = recvPacket.ReadBit();
+    guid[2] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
+    recvPacket.FlushBits();
+    recvPacket.ReadBitInOrder(guid, byteOrder);
 
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;
 
-    player       = GetPlayer();
-    plTarget = player->duel->opponent;
-
-    if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
-        return;
-
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName());
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
-
-    time_t now = time(NULL);
-    player->duel->startTimer = now;
-    plTarget->duel->startTimer = now;
-
-    player->SendDuelCountdown(3000);
-    plTarget->SendDuelCountdown(3000);
-}
-
-void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DUEL_CANCELLED");
-    uint64 guid;
-    recvPacket >> guid;
-
-    // no duel requested
-    if (!GetPlayer()->duel)
-        return;
-
-    // player surrendered in a duel using /forfeit
-    if (GetPlayer()->duel->startTime != 0)
+    if (accept)
     {
-        GetPlayer()->CombatStopWithPets(true);
-        if (GetPlayer()->duel->opponent)
-            GetPlayer()->duel->opponent->CombatStopWithPets(true);
+        player       = GetPlayer();
+        plTarget = player->duel->opponent;
 
-        GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
-        GetPlayer()->DuelComplete(DUEL_WON);
-        return;
+        if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
+            return;
+
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
+
+        time_t now = time(NULL);
+        player->duel->startTimer = now;
+        plTarget->duel->startTimer = now;
+
+        player->SendDuelCountdown(3000);
+        plTarget->SendDuelCountdown(3000);
     }
+    else
+    {
+        // player surrendered in a duel using /forfeit
+        if (GetPlayer()->duel->startTime != 0)
+        {
+            GetPlayer()->CombatStopWithPets(true);
+            if (GetPlayer()->duel->opponent)
+                GetPlayer()->duel->opponent->CombatStopWithPets(true);
 
-    GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
+            GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
+            GetPlayer()->DuelComplete(DUEL_WON);
+            return;
+        }
+        GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
+    }
 }

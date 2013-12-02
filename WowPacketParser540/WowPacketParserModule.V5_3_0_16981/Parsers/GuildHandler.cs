@@ -45,12 +45,12 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
                 packet.ReadXORByte(guid2, 1);
 
-                packet.ReadUInt32("unk 32 emblem color ?");
-                packet.ReadUInt32("unk 32 2");
-                packet.ReadUInt32("unk 32 3");
-                packet.ReadUInt32("unk 32 4");
+                packet.ReadUInt32("unk flags ?");
+                packet.ReadUInt32("Emblem Color ?");
+                packet.ReadUInt32("BackGround Color ?");
+                packet.ReadUInt32("Border Style ?");
                 packet.ReadXORByte(guid2, 0);
-                packet.ReadUInt32("unk 32 5");
+                packet.ReadUInt32("Border Color ?");
                 packet.ReadXORByte(guid2, 6);
                 packet.ReadWoWString("Guild Name", nameLen);
                 packet.ReadXORByte(guid2, 5);
@@ -66,56 +66,44 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
                 packet.ReadXORBytes(guid1, 7);
                 packet.ReadXORBytes(guid1, 6);
                 packet.ReadXORBytes(guid1, 2);
+
+                packet.WriteGuid("Guild GUID", guid2);
+                packet.WriteGuid("Player GUID", guid1);
             }
         }
 
-        /*[Parser(Opcode.SMSG_GUILD_QUERY_RESPONSE)]
-        public static void HandleGuildQueryResponse(Packet packet)
+        [Parser(Opcode.SMSG_PLAYER_TABAR_VENDOR_ACTIVATE)]
+        public static void HandlePlayerTabarVendorActivate(Packet packet)
         {
-            var guid1 = new byte[8];
-            var guid2 = new byte[8];
+            packet.ReadUInt32("Realm ID");
+            var bytesCount = packet.ReadUInt32("bytes Count");
 
-            var hasData = packet.ReadBit();
+            for (int i = 0; i < bytesCount; i++)
+                packet.ReadByte("Unk Byte", i);
 
-            int nameLen = 0;
-            int rankCount = 0;
-            int[] rankName = null;
-            if (hasData)
-            {
-                packet.StartBitStream(guid2, 1, 7);
-                nameLen = (int)packet.ReadBits(7);
-                packet.StartBitStream(guid2, 5, 0, 6, 3, 4, 2);
-                rankCount = (int)packet.ReadBits(21);
-                rankName = new int[rankCount];
-                for (var i = 0; i < rankCount; ++i)
-                    rankName[i] = (int)packet.ReadBits(7);
-            }
+            var guid = new byte[8];
 
-            packet.StartBitStream(guid1, 2, 6, 7, 5, 4, 3, 0, 1);
-            if (hasData)
-            {
-                packet.ReadWoWString("Guild Name", nameLen);
-                packet.ReadXORByte(guid2, 5);
-                for (var i = 0; i < rankCount; ++i)
-                {
-                    packet.ReadUInt32("Rights Order", i);
-                    packet.ReadUInt32("Creation Order", i);
-                    packet.ReadWoWString("Rank Name", rankName[i], i);
-                }
+            guid[1] = packet.ReadBit();
+            var bit32 = packet.ReadBit("Bit 32");
+            guid[7] = packet.ReadBit();
+            guid[2] = packet.ReadBit();
+            guid[6] = packet.ReadBit();
+            guid[3] = packet.ReadBit();
+            guid[4] = packet.ReadBit();
+            guid[5] = packet.ReadBit();
+            guid[0] = packet.ReadBit();
+            var bit33 = packet.ReadBit("Bit 33");
 
-                packet.ReadInt32("Emblem Border Color");
-                packet.ReadXORBytes(guid2, 6, 0);
-                packet.ReadInt32("Emblem Border Style");
-                packet.ReadInt32("Emblem Style");
-                packet.ReadXORByte(guid2, 4);
-                packet.ReadInt32("Emblem Color");
-                packet.ReadXORBytes(guid2, 7, 2, 3, 1);
-                packet.ReadInt32("Emblem Background Color");
-                packet.WriteGuid("Guid2", guid2);
-            }
+            packet.ReadXORByte(guid, 6);
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(guid, 4);
+            packet.ReadXORByte(guid, 2);
+            packet.ReadXORByte(guid, 5);
+            packet.ReadXORByte(guid, 0);
+            packet.ReadXORByte(guid, 3);
+            packet.ReadXORByte(guid, 7);
 
-            packet.ParseBitStream(guid1, 1, 6, 3, 5, 4, 0, 2, 7);
-            packet.WriteGuid("Guid1", guid1);
-        }*/
+            packet.WriteGuid("Player GUID", guid);
+        }
     }
 }

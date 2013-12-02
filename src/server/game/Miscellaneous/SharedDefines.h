@@ -1806,12 +1806,12 @@ enum SpellMissInfo
 
 enum SpellHitType
 {
-    SPELL_HIT_TYPE_UNK1 = 0x00001,
-    SPELL_HIT_TYPE_CRIT = 0x00002,
-    SPELL_HIT_TYPE_UNK3 = 0x00004,
-    SPELL_HIT_TYPE_UNK4 = 0x00008,
-    SPELL_HIT_TYPE_UNK5 = 0x00010,                          // replace caster?
-    SPELL_HIT_TYPE_UNK6 = 0x00020
+    SPELL_HIT_TYPE_UNK1                = 0x00001,
+    SPELL_HIT_TYPE_CRIT                = 0x00002,
+    SPELL_HIT_TYPE_UNK3                = 0x00004,
+    SPELL_HIT_TYPE_UNK4                = 0x00008,
+    SPELL_HIT_TYPE_UNK5                = 0x00010,   // replace caster?
+    SPELL_HIT_TYPE_UNK6                = 0x00020
 };
 
 enum SpellDmgClass
@@ -4144,44 +4144,46 @@ enum BanReturn
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId
 {
-    BATTLEGROUND_TYPE_NONE          = 0, // None
-    BATTLEGROUND_AV                 = 1, // Alterac Valley
-    BATTLEGROUND_WS                 = 2, // Warsong Gulch
-    BATTLEGROUND_AB                 = 3, // Arathi Basin
-    BATTLEGROUND_NA                 = 4, // Nagrand Arena
-    BATTLEGROUND_BE                 = 5, // Blade's Edge Arena
-    BATTLEGROUND_AA                 = 6, // All Arenas
-    BATTLEGROUND_EY                 = 7, // Eye of the Storm
-    BATTLEGROUND_RL                 = 8, // Ruins of Lordaernon
-    BATTLEGROUND_SA                 = 9, // Strand of the Ancients
-    BATTLEGROUND_DS                 = 10, // Dalaran Sewers
-    BATTLEGROUND_RV                 = 11, // Ring of Valor
-    BATTLEGROUND_IC                 = 30, // Isle of Conquest
-    BATTLEGROUND_RB                 = 32, // Random Battleground
-    BATTLEGROUND_RATED_10_VS_10     = 100, // Rated BG 10 vs 10
-    BATTLEGROUND_RATED_15_VS_15     = 101, // Rated BG 15 vs 15
-    BATTLEGROUND_RATED_25_VS_25     = 102, // Rated BG 25 vs 25
-    BATTLEGROUND_TP                 = 108, // Twin Peaks
-    BATTLEGROUND_BFG                = 120, // Battle For Gilneas
+    BATTLEGROUND_TYPE_NONE          = 0,    // None
+    BATTLEGROUND_AV                 = 1,    // Alterac Valley
+    BATTLEGROUND_WS                 = 2,    // Warsong Gulch
+    BATTLEGROUND_AB                 = 3,    // Arathi Basin
+    BATTLEGROUND_NA                 = 4,    // Nagrand Arena
+    BATTLEGROUND_BE                 = 5,    // Blade's Edge Arena
+    BATTLEGROUND_AA                 = 6,    // All Arenas
+    BATTLEGROUND_EY                 = 7,    // Eye of the Storm
+    BATTLEGROUND_RL                 = 8,    // Ruins of Lordaernon
+    BATTLEGROUND_SA                 = 9,    // Strand of the Ancients
+    BATTLEGROUND_DS                 = 10,   // Dalaran Sewers
+    BATTLEGROUND_RV                 = 11,   // Ring of Valor
+    BATTLEGROUND_IC                 = 30,   // Isle of Conquest
+    BATTLEGROUND_RB                 = 32,   // Random Battleground
+    BATTLEGROUND_RATED_10_VS_10     = 100,  // Rated BG 10 vs 10
+    BATTLEGROUND_RATED_15_VS_15     = 101,  // Rated BG 15 vs 15
+    BATTLEGROUND_RATED_25_VS_25     = 102,  // Rated BG 25 vs 25
+    BATTLEGROUND_TP                 = 108,  // Twin Peaks
+    BATTLEGROUND_BFG                = 120,  // Battle For Gilneas
     // 441 = "Icecrown Citadel"
     // 443 = "The Ruby Sanctum"
     // 656 = "Rated Eye of the Storm"
-    BATTLEGROUND_KT                 = 699, // Valley of Power
-    BATTLEGROUND_CTF3               = 706, // CTF3 not implemented on MoP
-    BATTLEGROUND_SSM                = 708, // Silver shard Mine
-    BATTLEGROUND_TV                 = 719  // Tol'viron Arena
+    BATTLEGROUND_KT                 = 699,  // Valley of Power
+    BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
+    BATTLEGROUND_SSM                = 708,  // Silver shard Mine
+    BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
+    BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
+    BATTLEGROUND_TTP                = 757   // The Tiger's Peak @todo NYI
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 720
+#define MAX_BATTLEGROUND_TYPE_ID 758
 
 enum MailResponseType
 {
-    MAIL_SEND               = 0,
-    MAIL_MONEY_TAKEN        = 1,
-    MAIL_ITEM_TAKEN         = 2,
-    MAIL_RETURNED_TO_SENDER = 3,
-    MAIL_DELETED            = 4,
-    MAIL_MADE_PERMANENT     = 5
+    MAIL_SEND                          = 0,
+    MAIL_MONEY_TAKEN                   = 1,
+    MAIL_ITEM_TAKEN                    = 2,
+    MAIL_RETURNED_TO_SENDER            = 3,
+    MAIL_DELETED                       = 4,
+    MAIL_MADE_PERMANENT                = 5
 };
 
 enum MailResponseResult

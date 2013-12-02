@@ -863,10 +863,10 @@ WorldPacket BattlefieldWG::BuildInitWorldStates()
 {
     WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (WorkshopsList.size() * 8)));
 
-    data << uint32(m_MapId);
     data << uint32(m_ZoneId);
     data << uint32(0);
-    data << uint16(4 + 2 + 4 + BuildingsInZone.size() + WorkshopsList.size());
+    data << uint32(m_MapId);
+    data.WriteBits(4 + 2 + 4 + BuildingsInZone.size() + WorkshopsList.size(), 21);
 
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
