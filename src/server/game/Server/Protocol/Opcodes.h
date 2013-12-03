@@ -359,7 +359,7 @@ enum Opcodes
     CMSG_MOVE_NOT_ACTIVE_MOVER                        = 0x000,  // 5.0.5 16048
     CMSG_MOVE_SET_RELATIVE_POSITION                   = 0x000,  // 5.0.5 16048
     CMSG_MOVE_SET_VEHICLE_REC_ID_ACK                  = 0x000,  // 5.0.5 16048
-    CMSG_MOVE_SPLINE_DONE                             = 0x000,  // 5.0.5 16048
+    CMSG_MOVE_SPLINE_DONE                             = 0x23A,  // 5.4.0 17399
     CMSG_MOVE_TIME_SKIPPED                            = 0x000,  // 5.0.5 16048
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x000,  // 5.0.5 16048
     CMSG_NAME_QUERY                                   = 0x16DB, // 5.4.0 17399
