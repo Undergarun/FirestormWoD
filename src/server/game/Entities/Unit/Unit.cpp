@@ -16954,6 +16954,8 @@ void Unit::SendPetActionFeedback(uint8 msg)
 
     WorldPacket data(SMSG_PET_ACTION_FEEDBACK, 1);
     data << uint8(msg);
+    data.WriteBit(1);
+    data.FlushBits();
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -16964,8 +16966,20 @@ void Unit::SendPetTalk(uint32 pettalk)
         return;
 
     WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    data << uint64(GetGUID());
+    ObjectGuid unitGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 1, 4, 3, 6, 0, 5, 7, 2 };
+    data.WriteBitInOrder(unitGuid, bitsOrder);
+
+    data.WriteByteSeq(unitGuid[5]);
+    data.WriteByteSeq(unitGuid[6]);
+    data.WriteByteSeq(unitGuid[0]);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[7]);
+    data.WriteByteSeq(unitGuid[3]);
     data << uint32(pettalk);
+    data.WriteByteSeq(unitGuid[2]);
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -16975,9 +16989,22 @@ void Unit::SendPetAIReaction(uint64 guid)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data << uint64(guid);
+    WorldPacket data(SMSG_AI_REACTION, 12);
+    ObjectGuid npcGuid = guid;
+
+    uint8 bitsOrder[8] = { 5, 2, 3, 6, 7, 1, 0, 4 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    data.WriteByteSeq(npcGuid[1]);
+    data.WriteByteSeq(npcGuid[3]);
     data << uint32(AI_REACTION_HOSTILE);
+    data.WriteByteSeq(npcGuid[7]);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(npcGuid[4]);
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[5]);
+
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -17749,12 +17776,24 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(&data);
 }
 
-//Check for 5.0.5
 void Unit::PlayOneShotAnimKit(uint32 id)
 {
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
-    data.appendPackGUID(GetGUID());
+    ObjectGuid unitGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 4, 5, 7, 2, 1, 6, 0, 3 };
+    data.WriteBitInOrder(unitGuid, bitsOrder);
+
+    data.WriteByteSeq(unitGuid[3]);
+    data.WriteByteSeq(unitGuid[1]);
+    data.WriteByteSeq(unitGuid[7]);
     data << uint16(id);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[2]);
+    data.WriteByteSeq(unitGuid[5]);
+    data.WriteByteSeq(unitGuid[6]);
+    data.WriteByteSeq(unitGuid[0]);
+
     SendMessageToSet(&data, true);
 }
 
@@ -18812,24 +18851,23 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    //I am not sure for the uint32 values, we may have to swap them.
     
-    uint8 bitOrder[8] = {0, 1, 5, 3, 7, 2, 4, 6};
+    uint8 bitOrder[8] = { 3, 0, 6, 7, 4, 1, 5, 2 };
     data.WriteBitInOrder(guid, bitOrder);
 
     data.FlushBits();
 
-    data << uint32(0);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(unkParam);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[5]);
     data << uint32(id); // SpellVisualKit.dbc index
     data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data << uint32(unkParam);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
+    data << uint32(0);
     SendMessageToSet(&data, false);
 }
 
@@ -20636,7 +20674,15 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
 
 void Unit::SendClearTarget()
 {
-    WorldPacket data(SMSG_BREAK_TARGET, GetPackGUID().size());
+    WorldPacket data(SMSG_BREAK_TARGET);
+    ObjectGuid unitGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 2, 7, 6, 0, 5, 3, 4, 1 };
+    data.WriteBitInOrder(unitGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 3, 7, 1, 0, 4, 2, 6, 5 };
+    data.WriteBytesSeq(unitGuid, bytesOrder);
+
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
 }

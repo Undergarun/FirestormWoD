@@ -151,9 +151,16 @@ void WorldSession::SendShowBank(uint64 guid)
 
 void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
 
-    recvData >> guid;
+    uint8 bitsOrder[8] = { 5, 7, 6, 3, 1, 4, 0, 2 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 7, 5, 2, 1, 3, 0, 6 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
+
     SendTrainerList(guid);
 }
 

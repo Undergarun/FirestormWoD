@@ -5920,7 +5920,14 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
         return;
 
     WorldPacket data(SMSG_CLEAR_TARGET, 8);
-    data << uint64(m_caster->GetGUID());
+    ObjectGuid casterGuid = m_caster->GetGUID();
+
+    uint8 bitsOrder[8] = { 2, 1, 3, 4, 5, 6, 7, 0 };
+    data.WriteBitInOrder(casterGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 1, 7, 5, 2, 3, 0, 4, 6 };
+    data.WriteBytesSeq(casterGuid, bytesOrder);
+
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -7282,8 +7289,16 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     // zone update
     data.Initialize(SMSG_PLAYER_BOUND, 8 + 4);
-    data << uint64(player->GetGUID());
+    ObjectGuid playerGuid = player->GetGUID();
+
+    uint8 bitsOrder[8] = { 0, 7, 2, 4, 5, 3, 1, 6 };
+    data.WriteBitInOrder(playerGuid, bitsOrder);
+
     data << uint32(area_id);
+
+    uint8 bytesOrder[8] = { 7, 5, 3, 0, 4, 1, 6, 2 };
+    data.WriteBytesSeq(playerGuid, bytesOrder);
+
     player->SendDirectMessage(&data);
 }
 

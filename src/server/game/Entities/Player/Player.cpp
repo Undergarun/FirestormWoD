@@ -1757,9 +1757,21 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
         return;
 
     WorldPacket data(SMSG_CROSSED_INEBRIATION_THRESHOLD, (8+4+4));
-    data << uint64(GetGUID());
-    data << uint32(newDrunkenState);
+    ObjectGuid playerGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 6, 0, 1, 3, 2, 7, 4, 5 };
+    data.WriteBitInOrder(playerGuid, bitsOrder);
+
     data << uint32(itemId);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[2]);
+    data << uint32(newDrunkenState);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[4]);
     SendMessageToSet(&data, true);
 }
 
@@ -10483,10 +10495,10 @@ void Player::SendNotifyLootMoneyRemoved(uint64 gold)
     data.Initialize(SMSG_COIN_REMOVED);
     ObjectGuid guid = GetLootGUID();
 
-    uint8 bitOrder[8] = {5, 4, 6, 3, 1, 0, 2, 7};
+    uint8 bitOrder[8] = { 1, 3, 4, 0, 5, 6, 2, 7 };
     data.WriteBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {1, 0, 4, 2, 6, 5, 7, 3};
+    uint8 byteOrder[8] = { 1, 4, 0, 6, 3, 7, 5, 2 };
     data.WriteBytesSeq(guid, byteOrder);
     
     GetSession()->SendPacket(&data);
@@ -21975,8 +21987,15 @@ void Player::SendAttackSwingBadFacingAttack()
 
 void Player::SendAutoRepeatCancel(Unit* target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
-    data.append(target->GetPackGUID());                     // may be it's target guid
+    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT);
+    ObjectGuid targetGuid = target->GetGUID();
+
+    uint8 bitsOrder[8] = { 3, 7, 2, 5, 4, 1, 0, 6 };
+    data.WriteBitInOrder(targetGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 4, 1, 0, 7, 2, 3, 6, 5 };
+    data.WriteBytesSeq(targetGuid, bytesOrder);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -22238,21 +22257,20 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const
+inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
-    uint32 messageLength = text.length() ? text.length() : 0;
-    uint32 speakerNameLength = strlen(GetName()) + 1;
+    uint32 messageLength = text.length();
+    uint32 speakerNameLength = strlen(GetName());
     uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
     uint32 receiverLength = 0;
-    uint32 channelLength = 0;
-    std::string channel = ""; // no channel
+    uint32 channelLength = channel.length();
 
     ObjectGuid senderGuid = GetGUID();
     ObjectGuid groupGuid = NULL;
     ObjectGuid receiverGuid = NULL;
     ObjectGuid guildGuid = NULL;
 
-    bool unkBit = false;
+    bool sendRealmID = false;
     bool bit5256 = false;
     bool bit5264 = false;
 
@@ -22272,7 +22290,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     data->WriteBit(addonPrefix ? 0 : 1);                        // has prefix
     data->WriteBit(0);                                          // Unk bit 5268
-    data->WriteBit(!unkBit);                                    // !unk bit
+    data->WriteBit(!sendRealmID);                               // !unk bit
     data->WriteBit(!bit5264);                                   // unk bit 5264
 
     data->WriteBits(speakerNameLength, 11);
@@ -22286,13 +22304,16 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
         data->WriteBits(prefixeLength, 5);
 
     data->WriteBit(1);                                          // has receiver
-    data->WriteBit(0);                                          // has chat tag
+    data->WriteBit(!(GetChatTag() > 0));                         // !hasChatTag
 
     if (messageLength)
         data->WriteBits(messageLength, 12);
 
     data->WriteBit(0);                                          // !hasLanguage
-    data->WriteBits(GetChatTag(), 9);
+
+    if (GetChatTag() > 0)
+        data->WriteBits(GetChatTag(), 9);
+
     data->WriteBit(0);                                          // has guild GUID
 
     if (receiverLength)
@@ -22301,14 +22322,20 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     uint8 bitsOrder4[8] = { 0, 2, 1, 4, 6, 7, 5, 3 };
     data->WriteBitInOrder(guildGuid, bitsOrder4);
 
-    data->WriteBit(1);                                          // !has channel
-    data->WriteBits(channelLength, 7);
+    data->WriteBit(channelLength == 0);                         // !has channel
 
     if (channelLength)
+    {
+        data->WriteBits(channelLength, 7);
+        data->FlushBits();
         data->WriteString(channel);
+    }
 
     if (speakerNameLength)
+    {
+        data->FlushBits();
         data->WriteString(GetName());
+    }
 
     uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
     data->WriteBytesSeq(groupGuid, byteOrder);
@@ -22324,8 +22351,8 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     if (prefixeLength)
         data->WriteString(addonPrefix);
 
-    if (unkBit)
-        *data << uint32(0);                                         // unk uint32
+    if (sendRealmID)
+        *data << uint32(realmID);
 
     uint8 byteOrder3[8] = { 1, 0, 3, 7, 6, 5, 2, 4 };
     data->WriteBytesSeq(guildGuid, byteOrder3);
@@ -22346,22 +22373,6 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     if (bit5264)
         *data << uint32(0);                                         // unk uint32
-
-    // Old datas
-
-    /**data << uint8(msgtype);
-    *data << uint32(language);
-    *data << uint64(GetGUID());
-    *data << uint32(0);                                            // constant unknown time
-    if (addonPrefix)
-        *data << addonPrefix;
-    *data << uint64(GetGUID());
-
-    if (msgtype == 2 || msgtype == 51 || msgtype == 3 || msgtype == 39 || msgtype == 40)
-        *data << uint64(GetGUID());
-    *data << uint32(text.length() + 1);
-    *data << text;
-    *data << uint16(GetChatTag());*/
 }
 
 void Player::Say(const std::string& text, const uint32 language)
@@ -24131,8 +24142,15 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
 
     // Send activate cooldown timer (possible 0) at client side
     WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
+    ObjectGuid playerGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 5, 1, 4, 2, 3, 0, 6, 7 };
+    data.WriteBitInOrder(playerGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 5, 2, 0, 6, 3, 1, 4, 7 };
+    data.WriteBytesSeq(playerGuid, bytesOrder);
+
     data << uint32(spellInfo->Id);
-    data << uint64(GetGUID());
     SendDirectMessage(&data);
 }
 
@@ -24708,14 +24726,7 @@ void Player::SendComboPoints()
 
     if (combotarget)
     {
-        WorldPacket data;
-        if (m_mover != this)
-        {
-            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
-            data.append(m_mover->GetPackGUID());
-        }
-        else
-            data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
+        WorldPacket data(SMSG_UPDATE_COMBO_POINTS);
 
         uint8 bitsOrder[8] = { 6, 2, 5, 4, 7, 0, 1, 3 };
         data.WriteBitInOrder(guid, bitsOrder);
@@ -27748,28 +27759,22 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
 void Player::SendClearCooldown(uint32 spell_id, Unit* target)
 {
-    WorldPacket data(SMSG_CLEAR_COOLDOWNS);
+    WorldPacket data(SMSG_CLEAR_COOLDOWN);
     ObjectGuid guid = target->GetGUID();
-    uint32 count = 1;
 
-    uint8 bitOrder[8] = {0, 3, 7, 1, 5, 2, 4, 6};
-    data.WriteBitInOrder(guid, bitOrder);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(0);
+    data.WriteBit(guid[1]);
 
-    data.WriteBits(count, 24); // count
-    data.FlushBits();
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-
-    for (uint32 i = 0; i < count; ++i)
-        data << spell_id;
-
-    data.WriteByteSeq(guid[7]);
+    uint8 bytesOrder[8] = { 5, 2, 6, 3, 1, 0, 4, 7 };
+    data.WriteBytesSeq(guid, bytesOrder);
+    data << spell_id;
 
     SendDirectMessage(&data);
 }
@@ -28385,7 +28390,7 @@ bool Player::IsInWhisperWhiteList(uint64 guid)
 void Player::SendPetTameResult(PetTameResult result)
 {
     WorldPacket data(SMSG_PET_TAME_FAILURE, 4);
-    data << uint32(result); // The result
+    data << uint8(result);
     GetSession()->SendPacket(&data);
 }
 

@@ -210,8 +210,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                         guild->HandleMemberDepositMoney(this, guildGold, true);
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data.WriteBit(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
                 data << uint32(goldPerPlayer);
+                data.WriteBit(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
+                data.FlushBits();
                 (*i)->GetSession()->SendPacket(&data);
             }
         }
@@ -226,8 +227,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
             loot->NotifyMoneyRemoved(loot->gold);
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-            data.WriteBit(1);   // "You loot..."
             data << uint32(loot->gold);
+            data.WriteBit(1);   // "You loot..."
+            data.FlushBits();
             SendPacket(&data);
         }
 

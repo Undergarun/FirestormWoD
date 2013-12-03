@@ -2042,9 +2042,20 @@ Player* Creature::SelectNearestPlayerNotGM(float distance) const
 void Creature::SendAIReaction(AiReaction reactionType)
 {
     WorldPacket data(SMSG_AI_REACTION, 12);
+    ObjectGuid npcGuid = GetGUID();
 
-    data << uint64(GetGUID());
+    uint8 bitsOrder[8] = { 5, 2, 3, 6, 7, 1, 0, 4 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    data.WriteByteSeq(npcGuid[1]);
+    data.WriteByteSeq(npcGuid[3]);
     data << uint32(reactionType);
+    data.WriteByteSeq(npcGuid[7]);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(npcGuid[4]);
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[5]);
 
     ((WorldObject*)this)->SendMessageToSet(&data, true);
 
