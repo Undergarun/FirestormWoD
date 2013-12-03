@@ -626,8 +626,8 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (recvData.size() == 1)
     {
-        bool newPvPStatus;
-        recvData >> newPvPStatus;
+        bool newPvPStatus = recvData.ReadBit();
+
         GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
         GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
     }
@@ -1857,25 +1857,20 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
 
-    uint8 apply;
-    recvData >> apply;
+    bool apply = recvData.ReadBit();
 
-    switch (apply)
+    if (apply)
     {
-    case 0:
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Player %u set vision to self", _player->GetGUIDLow());
         _player->SetSeer(_player);
-        break;
-    case 1:
+    }
+    else
+    {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", _player->GetUInt64Value(PLAYER_FARSIGHT), _player->GetGUIDLow());
         if (WorldObject* target = _player->GetViewpoint())
             _player->SetSeer(target);
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
-        break;
-    default:
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
-        return;
     }
 
     GetPlayer()->UpdateVisibilityForPlayer();
@@ -1885,7 +1880,7 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
 
-    int32 title;
+    uint32 title;
     recvData >> title;
 
     // -1 at none
@@ -1940,7 +1935,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
     uint32 mode;
     recvData >> mode;
 
-    if (mode >= MAX_DUNGEON_DIFFICULTY)
+    if (mode != CHALLENGE_MODE_DIFFICULTY && mode >= MAX_DUNGEON_DIFFICULTY)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
         return;
@@ -2417,20 +2412,20 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     _player->SendMovieStart(116);
 }
 
-void WorldSession::HandlerCategoryCooldownOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
 {
     Unit::AuraEffectList const& list = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
 
     WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 4 + (int(list.size()) * 8));
-    data.WriteBits<int>(list.size(), 23);
+    data.WriteBits<int>(list.size(), 21);
     for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
     {
         AuraEffectPtr effect = *itr;
         if (!effect)
             continue;
 
-        data << int32(-effect->GetAmount());
         data << uint32(effect->GetMiscValue());
+        data << int32(-effect->GetAmount());
     }
 
     SendPacket(&data);
