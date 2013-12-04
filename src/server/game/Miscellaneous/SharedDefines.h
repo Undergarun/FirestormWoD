@@ -4251,21 +4251,21 @@ enum SpellFamilyNames
 // stored in character_pet.slot
 enum PetSlot
 {
-    //Some not-in-db slots
-    PET_SLOT_FULL_LIST       =  -4,        //Used when there is no slot free for tameing
-    PET_SLOT_UNK_SLOT        =  -3,        // Used in some scripts.
+    // Some not-in-db slots
+    PET_SLOT_FULL_LIST       =  -4,         //Used when there is no slot free for tameing
+    PET_SLOT_UNK_SLOT        =  -3,         // Used in some scripts.
 
-    PET_SLOT_ACTUAL_PET_SLOT =  -2,        // Save the pet in his actual slot.
-    PET_SLOT_DELETED         =  -1,        // Delete the pet
+    PET_SLOT_ACTUAL_PET_SLOT =  -2,         // Save the pet in his actual slot.
+    PET_SLOT_DELETED         =  -1,         // Delete the pet
 
-    //Hunter pet slots, sended to client at stable.
-    PET_SLOT_HUNTER_FIRST    =   0,        // PetType == HUNTER_PET
-    PET_SLOT_HUNTER_LAST     =   4,        // PetType == HUNTER_PET
+    // Hunter pet slots, sended to client at stable.
+    PET_SLOT_HUNTER_FIRST    =   0,         // PetType == HUNTER_PET
+    PET_SLOT_HUNTER_LAST     =   4,         // PetType == HUNTER_PET
     PET_SLOT_STABLE_FIRST    =   5,
-    PET_SLOT_STABLE_LAST     =  24,
+    PET_SLOT_STABLE_LAST     =  54,         // Patch 5.3.0 (21-May-2013): Hunters now have 50 pet stable slots, up from 20.
 
-    //Non-hunter pet slot
-    PET_SLOT_OTHER_PET       = 100,        // PetType != HUNTER_PET
+    // Non-hunter pet slot
+    PET_SLOT_OTHER_PET       = 100,         // PetType != HUNTER_PET
 };
 
 #define MAX_PET_STABLES         PET_SLOT_STABLE_LAST

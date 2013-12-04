@@ -369,8 +369,8 @@ class WorldSession
         void SendAuctionOwnerNotification(AuctionEntry* auction);
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
-        //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
+        // Item Enchantment
+        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 enchantID, uint8 slotID);
         void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
@@ -671,14 +671,8 @@ class WorldSession
         void HandleNpcTextQueryOpcode(WorldPacket& recvPacket);
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
         void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
-        void HandleStablePet(WorldPacket& recvPacket);
-        void HandleStablePetCallback(PreparedQueryResult result);
-        void HandleUnstablePet(WorldPacket& recvPacket);
-        void HandleUnstablePetCallback(PreparedQueryResult result, uint32 petId);
-        void HandleBuyStableSlot(WorldPacket& recvPacket);
-        void HandleStableRevivePet(WorldPacket& recvPacket);
-        void HandleStableSwapPet(WorldPacket& recvPacket);
-        void HandleStableSwapPetCallback(PreparedQueryResult result, uint32 petId);
+        void HandleStableSetPetSlot(WorldPacket& recvPacket);
+        void HandleStableSetPetSlotCallback(PreparedQueryResult result, uint32 petId);
         void SendTrainerService(uint64 guid, uint32 spellId, uint32 trainState);
 
         void HandleDuelResponseOpcode(WorldPacket& recvPacket);
@@ -1042,13 +1036,11 @@ class WorldSession
 
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture _stablePetCallback;
         PreparedQueryResultFuture _accountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
-        QueryCallback<PreparedQueryResult, uint32> _unstablePetCallback;
-        QueryCallback<PreparedQueryResult, uint32> _stableSwapCallback;
+        QueryCallback<PreparedQueryResult, uint32> _setPetSlotCallback;
         QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture _charLoginCallback;
