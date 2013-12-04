@@ -22211,8 +22211,27 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
 
     if (pet->isControlled() && !stampeded)
     {
-        WorldPacket data(SMSG_PET_SPELLS, 8);
-        data << uint64(0);
+        WorldPacket data(SMSG_PET_SPELLS);
+        data.WriteBit(0);
+        data.WriteBit(0);
+        data.WriteBit(0);
+        data.WriteBit(0);
+        data.WriteBits(0, 20);
+        data.WriteBit(0);
+        data.WriteBit(0);
+        data.WriteBit(0);
+        data.WriteBits(0, 21);              // spell charge history, maybe auras/buff related ?
+        data.WriteBit(0);
+        data.WriteBits(0, 22);
+
+        data << uint32(0);
+        data << uint16(0);
+        data << uint16(0);
+        data << uint32(0);
+
+        for (int i = 0; i < 10; i++)
+            data << uint32(0);
+
         GetSession()->SendPacket(&data);
 
         if (GetGroup())
@@ -22464,8 +22483,101 @@ void Player::PetSpellInitialize()
     sLog->outDebug(LOG_FILTER_PETS, "Pet Spells Groups");
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
+    uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size();
+    ObjectGuid guid = pet->GetGUID();
+    uint8 addlist = 0;
+    if (pet->IsPermanentPetFor(this))
+        for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
+            if (itr->second.state != PETSPELL_REMOVED)
+                ++addlist;
 
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_SPELLS);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBits(cooldownsCount, 20);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBits(0, 21);              // spell charge history, maybe auras/buff related ?
+    data.WriteBit(guid[0]);
+    data.WriteBits(addlist, 22);
+
+    //for (auto itr : spellChargeHistory)
+    //{
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20) + 4) = v15;
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20)) = v15;
+        //data << uint8(0); // *(_BYTE *)(v7 + *(_DWORD *)(v3 + 20) + 8) = v18;
+    //}
+
+    data.WriteByteSeq(guid[6]);
+    time_t curTime = time(NULL);
+
+    for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+        if (!spellInfo)
+        {
+            data << uint32(0);
+            data << uint32(0);
+            data << uint16(0);
+            data << uint32(0);
+            continue;
+        }
+
+        time_t cooldown = (itr->second > curTime) ? (itr->second - curTime) * IN_MILLISECONDS : 0;
+        data << uint32(itr->first);                 // spell ID
+
+        CreatureSpellCooldowns::const_iterator categoryitr = pet->m_CreatureCategoryCooldowns.find(spellInfo->Category);
+        if (categoryitr != pet->m_CreatureCategoryCooldowns.end())
+        {
+            time_t categoryCooldown = (categoryitr->second > curTime) ? (categoryitr->second - curTime) * IN_MILLISECONDS : 0;
+            data << uint32(categoryCooldown);       // category cooldown
+            data << uint16(spellInfo->Category);    // spell category
+            data << uint32(cooldown);               // spell cooldown
+            
+        }
+        else
+        {
+            data << uint16(0);
+            data << uint32(0);
+            data << uint32(cooldown);
+        }
+    }
+
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data << uint32(pet->GetDuration());
+    data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
+    data << uint16(pet->GetSpecializationId());
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+
+    if (pet->IsPermanentPetFor(this))
+    {
+        // spells loop
+        for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
+        {
+            if (itr->second.state == PETSPELL_REMOVED)
+                continue;
+
+            data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
+        }
+    }
+
+    data.WriteByteSeq(guid[5]);
+    data << uint8(pet->GetReactState());
+    data << uint8(charmInfo->GetCommandState());
+    data << uint16(0); // Flags, mostly unknown
+    data.WriteByteSeq(guid[1]);
+
+    // action bar loop
+    charmInfo->BuildActionBar(&data);
+
+    // 5.0.5 packet data
+    /*
     data << uint64(pet->GetGUID());
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
     data << uint16(0); // unknown
@@ -22534,7 +22646,7 @@ void Player::PetSpellInitialize()
         }
     }
 
-    data << uint8(0); //unknown
+    data << uint8(0); //unknown*/
 
     GetSession()->SendPacket(&data);
 }
@@ -22553,18 +22665,41 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
-    data << uint64(charm->GetGUID());
-    data << uint16(0);
-    data << uint16(0);
-    data << uint32(0);
-    data << uint32(0);
+    ObjectGuid guid = charm->GetGUID();
 
+    WorldPacket data(SMSG_PET_SPELLS);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBits(0, 20);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBits(0, 21);              // spell charge history, maybe auras/buff related ?
+    data.WriteBit(guid[0]);
+    data.WriteBits(0, 22);
+
+    //for (auto itr : spellChargeHistory)
+    //{
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20) + 4) = v15;
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20)) = v15;
+        //data << uint8(0); // *(_BYTE *)(v7 + *(_DWORD *)(v3 + 20) + 8) = v18;
+    //}
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data << uint32(0);
+    data << uint16(0);         // creature family (required for pet talents)
+    data << uint16(0);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+    data << uint32(0);
+    data.WriteByteSeq(guid[1]);
     charmInfo->BuildActionBar(&data);
-
-    data << uint8(0);                                       // spells count
-    data << uint8(0);                                       // cooldowns count
-    data << uint8(0);
 
     GetSession()->SendPacket(&data);
 }
@@ -22576,16 +22711,75 @@ void Player::VehicleSpellInitialize()
         return;
 
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
+    ObjectGuid guid = vehicle->GetGUID();
 
-    WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
-    data << uint64(vehicle->GetGUID());                     // Guid
-    data << uint16(0);                                      // Pet Family (0 for all vehicles)
+    WorldPacket data(SMSG_PET_SPELLS);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBits(cooldownCount, 20);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBits(0, 21);              // spell charge history, maybe auras/buff related ?
+    data.WriteBit(guid[0]);
+    data.WriteBits(0, 22);
+
+    //for (auto itr : spellChargeHistory)
+    //{
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20) + 4) = v15;
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20)) = v15;
+        //data << uint8(0); // *(_BYTE *)(v7 + *(_DWORD *)(v3 + 20) + 8) = v18;
+    //}
+
+    data.WriteByteSeq(guid[6]);
+    
+    time_t now = sWorld->GetGameTime();
+    for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+        if (!spellInfo)
+        {
+            data << uint32(0);
+            data << uint32(0);
+            data << uint16(0);
+            data << uint32(0);
+            continue;
+        }
+
+        time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
+        data << uint32(itr->first);                 // spell ID
+
+        CreatureSpellCooldowns::const_iterator categoryitr = vehicle->m_CreatureCategoryCooldowns.find(spellInfo->Category);
+        if (categoryitr != vehicle->m_CreatureCategoryCooldowns.end())
+        {
+            time_t categoryCooldown = (categoryitr->second > now) ? (categoryitr->second - now) * IN_MILLISECONDS : 0;
+            data << uint32(categoryCooldown);       // category cooldown
+            data << uint16(spellInfo->Category);    // spell category
+            data << uint32(cooldown);               // spell cooldown
+        }
+        else
+        {          
+            data << uint32(0);
+            data << uint16(0);
+            data << uint32(cooldown);
+        }
+    }
+
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data << uint32(vehicle->isSummon() ? vehicle->ToTempSummon()->GetTimer() : 0);
     data << uint16(0);
-    data << uint32(vehicle->isSummon() ? vehicle->ToTempSummon()->GetTimer() : 0); // Duration
-    // The following three segments are read by the client as one uint32
+    data << uint16(0);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
     data << uint8(vehicle->GetReactState());                // React State
     data << uint8(0);                                       // Command State
     data << uint16(0x800);                                  // DisableActions (set for all vehicles)
+    data.WriteByteSeq(guid[1]);
 
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
@@ -22614,44 +22808,8 @@ void Player::VehicleSpellInitialize()
     for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
         data << uint32(0);
 
-    data << uint8(0); // Auras?
 
-    // Cooldowns
-    data << uint8(cooldownCount);
 
-    time_t now = sWorld->GetGameTime();
-
-    for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
-    {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-        if (!spellInfo)
-        {
-            data << uint32(0);
-            data << uint16(0);
-            data << uint32(0);
-            data << uint32(0);
-            continue;
-        }
-
-        time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
-        data << uint32(itr->first);                 // spell ID
-
-        CreatureSpellCooldowns::const_iterator categoryitr = vehicle->m_CreatureCategoryCooldowns.find(spellInfo->Category);
-        if (categoryitr != vehicle->m_CreatureCategoryCooldowns.end())
-        {
-            time_t categoryCooldown = (categoryitr->second > now) ? (categoryitr->second - now) * IN_MILLISECONDS : 0;
-            data << uint16(spellInfo->Category);    // spell category
-            data << uint32(cooldown);               // spell cooldown
-            data << uint32(categoryCooldown);       // category cooldown
-        }
-        else
-        {
-            data << uint16(0);
-            data << uint32(cooldown);
-            data << uint32(0);
-        }
-    }
-    data << uint8(0);
 
     GetSession()->SendPacket(&data);
 }
@@ -22681,20 +22839,37 @@ void Player::CharmSpellInitialize()
         }
     }
 
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+4*addlist+1);
-    data << uint64(charm->GetGUID());
-    data << uint16(0);
-    data << uint16(0);
+    ObjectGuid guid = charm->GetGUID();
+
+    WorldPacket data(SMSG_PET_SPELLS);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBits(0, 20);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBits(0, 21);              // spell charge history, maybe auras/buff related ?
+    data.WriteBit(guid[0]);
+    data.WriteBits(addlist, 22);
+
+    //for (auto itr : spellChargeHistory)
+    //{
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20) + 4) = v15;
+        //data << uint32(0); // *(_DWORD *)(v7 + *(_DWORD *)(v3 + 20)) = v15;
+        //data << uint8(0); // *(_BYTE *)(v7 + *(_DWORD *)(v3 + 20) + 8) = v18;
+    //}
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
     data << uint32(0);
-
-    if (charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(charm->ToCreature()->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
-    else
-        data << uint32(0);
-
-    charmInfo->BuildActionBar(&data);
-
-    data << uint8(addlist);
+    data << uint16(0);
+    data << uint16(0);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
 
     if (addlist)
     {
@@ -22706,16 +22881,42 @@ void Player::CharmSpellInitialize()
         }
     }
 
-    data << uint8(0);                                       // cooldowns count
-    data << uint8(0);
+    data.WriteByteSeq(guid[5]);
+    if (charm->GetTypeId() != TYPEID_PLAYER)
+        data << uint8(charm->ToCreature()->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
+    else
+        data << uint32(0);
+    data.WriteByteSeq(guid[1]);
+
+    // action bar loop
+    charmInfo->BuildActionBar(&data);
 
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendRemoveControlBar()
 {
-    WorldPacket data(SMSG_PET_SPELLS, 8);
-    data << uint64(0);
+    WorldPacket data(SMSG_PET_SPELLS);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBits(0, 20);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBits(0, 21);              // spell charge history, maybe auras/buff related ?
+    data.WriteBit(0);
+    data.WriteBits(0, 22);
+
+    data << uint32(0);
+    data << uint16(0);
+    data << uint16(0);
+    data << uint32(0);
+
+    for (int i = 0; i < 10; i++)
+        data << uint32(0);
+
     GetSession()->SendPacket(&data);
 }
 

@@ -981,11 +981,14 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint32 spellId;
 
-    recvPacket >> guid;
     recvPacket >> spellId;
+    uint8 bitOrder[8] = {4, 6, 5, 2, 3, 1, 0, 7};
+    recvPacket.ReadBitInOrder(guid, bitOrder);
+    uint8 byteOrder[8] = {1, 3, 2, 5, 0, 6, 7, 4};
+    recvPacket.ReadBytesSeq(guid, byteOrder);
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
