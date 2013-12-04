@@ -588,10 +588,16 @@ void WorldSession::SendBindPoint(Creature* npc)
 
 void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv MSG_LIST_STABLED_PETS");
-    uint64 npcGUID;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_LIST_STABLED_PETS");
+    ObjectGuid npcGUID;
 
-    recvData >> npcGUID;
+    uint8 bitsOrder[8] = { 0, 7, 2, 4, 5, 3, 1, 6 };
+    recvData.ReadBitInOrder(npcGUID, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 0, 2, 3, 1, 7, 5, 6, 4 };
+    recvData.ReadBytesSeq(npcGUID, bytesOrder);
 
     if (!CheckStableMaster(npcGUID))
         return;
@@ -635,7 +641,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     data.WriteBit(npcGuid[5]);
     data.WriteBit(npcGuid[4]);
     data.WriteBit(npcGuid[2]);
-    data.WriteBits(result->GetRowCount(), 19);
+    data.WriteBits(result ? result->GetRowCount() : 0, 19);
     data.WriteBit(npcGuid[7]);
 
     if (result)
@@ -644,12 +650,14 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
         {
             Field* fields = result->Fetch();
 
-            data.WriteBits(fields[5].GetString().size(), 8);
+            std::string name = fields[5].GetString();
+
+            data.WriteBits(name.size(), 8);
 
             dataBuffer << uint32(fields[3].GetUInt32());          // creature entry
             dataBuffer << uint32(fields[2].GetUInt32());          // petnumber
             dataBuffer << uint32(fields[4].GetUInt16());          // level
-            dataBuffer << uint8(fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 2);       // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
+            dataBuffer << uint8(fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 3);       // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
 
             uint32 modelId = 0;
 
@@ -659,8 +667,8 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
             dataBuffer << uint32(fields[1].GetUInt8());           // slot
             dataBuffer << uint32(modelId);                        // creature modelid
 
-            if (fields[5].GetString().size() > 0)
-                dataBuffer.append(fields[5].GetString().c_str(), fields[5].GetString().size());
+            if (name.size())
+                dataBuffer.append(name.c_str(), name.size());
         }
         while (result->NextRow());
     }
@@ -669,7 +677,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     data.WriteBit(npcGuid[0]);
     data.FlushBits();
 
-    if (dataBuffer.size() > 0)
+    if (dataBuffer.size())
         data.append(dataBuffer);
 
     data.WriteByteSeq(npcGuid[2]);

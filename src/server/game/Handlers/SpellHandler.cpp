@@ -419,12 +419,12 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    uint8 bitsOrder[8] = { 5, 3, 1, 4, 6, 7, 2, 0 };
+    uint8 bitsOrder[8] = { 5, 2, 7, 3, 0, 6, 4, 1 };
     recvData.ReadBitInOrder(guid, bitsOrder);
 
     recvData.FlushBits();
 
-    uint8 bytesOrder[8] = { 6, 1, 5, 3, 4, 0, 2, 7 };
+    uint8 bytesOrder[8] = { 6, 0, 5, 3, 4, 1, 7, 2 };
     recvData.ReadBytesSeq(guid, bytesOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(guid));
@@ -441,12 +441,12 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    uint8 bitsOrder[8] = { 5, 2, 7, 3, 0, 6, 4, 1 };
+    uint8 bitsOrder[8] = { 5, 3, 1, 4, 6, 7, 2, 0 };
     recvPacket.ReadBitInOrder(guid, bitsOrder);
 
     recvPacket.FlushBits();
 
-    uint8 bytesOrder[8] = { 6, 0, 5, 3, 4, 1, 7, 2 };
+    uint8 bytesOrder[8] = { 6, 1, 5, 3, 4, 0, 2, 7 };
     recvPacket.ReadBytesSeq(guid, bytesOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));

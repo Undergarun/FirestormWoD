@@ -1910,3 +1910,13 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     if (item->IsEquipped())
         player->ApplyReforgeEnchantment(item, true);
 }
+
+void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
+{
+    uint32 currencyId, flags;
+
+    recvPacket >> flags >> currencyId;
+
+    if (GetPlayer())
+        GetPlayer()->ModifyCurrencyFlags(currencyId, uint8(flags));
+}
