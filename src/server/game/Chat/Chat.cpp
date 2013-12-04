@@ -693,8 +693,8 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         case CHAT_MSG_BG_SYSTEM_NEUTRAL:
         case CHAT_MSG_BG_SYSTEM_ALLIANCE:
         case CHAT_MSG_BG_SYSTEM_HORDE:
-        case CHAT_MSG_BATTLEGROUND:
-        case CHAT_MSG_BATTLEGROUND_LEADER:
+        case CHAT_MSG_INSTANCE_CHAT:
+        case CHAT_MSG_INSTANCE_CHAT_LEADER:
             target_guid = speakerPlayer ? speakerPlayer->GetGUID() : 0;
             break;
         default:

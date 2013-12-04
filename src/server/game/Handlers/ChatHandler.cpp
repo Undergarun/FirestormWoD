@@ -100,15 +100,15 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        /*case CMSG_MESSAGECHAT_RAID:
+        case CMSG_MESSAGECHAT_RAID:
             type = CHAT_MSG_RAID;
             break;
         case CMSG_MESSAGECHAT_BATTLEGROUND:
-            type = CHAT_MSG_BATTLEGROUND;
+            type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_MESSAGECHAT_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
-            break;*/
+            break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
@@ -260,7 +260,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_OFFICER:
         case CHAT_MSG_RAID:
         case CHAT_MSG_RAID_WARNING:
-        case CHAT_MSG_BATTLEGROUND:
+        case CHAT_MSG_INSTANCE_CHAT:
             textLength = recvData.ReadBits(8);
             msg = recvData.ReadString(textLength);
             break;
@@ -455,16 +455,23 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             break;
         }
-        case CHAT_MSG_BATTLEGROUND:
-        case CHAT_MSG_BATTLEGROUND_LEADER:
+        case CHAT_MSG_INSTANCE_CHAT:
+        case CHAT_MSG_INSTANCE_CHAT_LEADER:
         {
             // battleground raid is always in Player->GetGroup(), never in GetOriginalGroup()
             Group* group = GetPlayer()->GetGroup();
-            if (!group || !group->isBGGroup())
+            if (!group)
                 return;
 
-            if (group->IsLeader(GetPlayer()->GetGUID()))
-                type = CHAT_MSG_BATTLEGROUND_LEADER;
+            if (!group->isBGGroup())
+            {
+                type = CHAT_MSG_RAID;
+
+                if (group->IsLeader(GetPlayer()->GetGUID()))
+                    type = CHAT_MSG_RAID_LEADER;
+            }
+            else if (group->IsLeader(GetPlayer()->GetGUID()))
+                type = CHAT_MSG_INSTANCE_CHAT_LEADER;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
@@ -601,7 +608,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             break;
         }
         case CHAT_MSG_GUILD:
-        case CHAT_MSG_BATTLEGROUND:
+        case CHAT_MSG_INSTANCE_CHAT:
         {
             uint32 msgLen = recvData.ReadBits(9);
             uint32 prefixLen = recvData.ReadBits(5);
@@ -629,7 +636,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
 
     switch (type)
     {
-        case CHAT_MSG_BATTLEGROUND:
+        case CHAT_MSG_INSTANCE_CHAT:
         {
             Group* group = sender->GetGroup();
             if (!group || !group->isBGGroup())

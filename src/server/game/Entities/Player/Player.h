@@ -177,6 +177,7 @@ struct PlayerCurrency
    uint32 totalCount;
    uint32 weekCount;
    uint32 seasonTotal;
+   uint8 flags;
 };
 
 typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
@@ -1456,6 +1457,7 @@ class Player : public Unit, public GridObject<Player>
         /// send initialization of new currency for client
         void SendNewCurrency(uint32 id) const;
         /// send full data about all currencies to client
+        void ModifyCurrencyFlags(uint32 currencyId, uint8 flags);
         void SendCurrencies() const;
         void SendPvpRewards() const;
         /// return count of currency witch has plr

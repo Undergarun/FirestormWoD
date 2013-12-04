@@ -8392,6 +8392,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
         cur.weekCount = fields[1].GetUInt32();
         cur.totalCount = fields[2].GetUInt32();
         cur.seasonTotal = fields[3].GetUInt32();
+        cur.flags = fields[4].GetUInt32();
 
         _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
@@ -8408,28 +8409,30 @@ void Player::_SaveCurrency(SQLTransaction& trans)
         if (!entry) // should never happen
             continue;
 
-        switch(itr->second.state)
+        switch (itr->second.state)
         {
-        case PLAYERCURRENCY_NEW:
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
-            stmt->setUInt32(0, GetGUIDLow());
-            stmt->setUInt16(1, itr->first);
-            stmt->setUInt32(2, itr->second.weekCount);
-            stmt->setUInt32(3, itr->second.totalCount);
-            stmt->setUInt32(4, itr->second.seasonTotal);
-            trans->Append(stmt);
-            break;
-        case PLAYERCURRENCY_CHANGED:
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_CURRENCY);
-            stmt->setUInt32(0, itr->second.weekCount);
-            stmt->setUInt32(1, itr->second.totalCount);
-            stmt->setUInt32(2, itr->second.seasonTotal);
-            stmt->setUInt32(3, GetGUIDLow());
-            stmt->setUInt16(4, itr->first);
-            trans->Append(stmt);
-            break;
-        default:
-            break;
+            case PLAYERCURRENCY_NEW:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
+                stmt->setUInt32(0, GetGUIDLow());
+                stmt->setUInt16(1, itr->first);
+                stmt->setUInt32(2, itr->second.weekCount);
+                stmt->setUInt32(3, itr->second.totalCount);
+                stmt->setUInt32(4, itr->second.seasonTotal);
+                stmt->setUInt32(5, itr->second.flags);
+                trans->Append(stmt);
+                break;
+            case PLAYERCURRENCY_CHANGED:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_CURRENCY);
+                stmt->setUInt32(0, itr->second.weekCount);
+                stmt->setUInt32(1, itr->second.totalCount);
+                stmt->setUInt32(2, itr->second.seasonTotal);
+                stmt->setUInt32(3, GetGUIDLow());
+                stmt->setUInt16(4, itr->first);
+                stmt->setUInt32(5, itr->second.flags);
+                trans->Append(stmt);
+                break;
+            default:
+                break;
         }
 
         itr->second.state = PLAYERCURRENCY_UNCHANGED;
@@ -8459,7 +8462,7 @@ void Player::SendNewCurrency(uint32 id) const
     packet.WriteBit(weekCount);
     packet.WriteBit(seasonTotal);
     packet.WriteBit(weekCap);
-    packet.WriteBits(0, 5);           // Unk flags
+    packet.WriteBits(itr->second.flags, 5);
 
     currencyData << uint32(itr->second.totalCount / precision);
 
@@ -8499,7 +8502,7 @@ void Player::SendCurrencies() const
         packet.WriteBit(weekCount);
         packet.WriteBit(seasonTotal);
         packet.WriteBit(weekCap);
-        packet.WriteBits(0, 5);         // Unk flags
+        packet.WriteBits(itr->second.flags, 5);
 
         currencyData << uint32(itr->second.totalCount / precision);
         
@@ -8574,6 +8577,20 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
+void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
+{
+    if (!currencyId)
+        return;
+
+    if (_currencyStorage.find(currencyId) == _currencyStorage.end())
+        return;
+
+    _currencyStorage[currencyId].flags = flags;
+
+    if (_currencyStorage[currencyId].state != PLAYERCURRENCY_NEW)
+        _currencyStorage[currencyId].state = PLAYERCURRENCY_CHANGED;
+}
+
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
 {
     if (!count)
@@ -8598,6 +8615,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         cur.totalCount = 0;
         cur.weekCount = 0;
         cur.seasonTotal = 0;
+        cur.flags = 0;
         _currencyStorage[id] = cur;
         itr = _currencyStorage.find(id);
     }
@@ -8611,9 +8629,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     // count can't be more then weekCap.
     uint32 weekCap = GetCurrencyWeekCap(currency);
     if (weekCap && count > int32(weekCap))
-    {
         count = weekCap;
-    }
 
     int32 newTotalCount = int32(oldTotalCount) + count;
     if (newTotalCount < 0)
@@ -22009,12 +22025,8 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 
 void Player::SendDungeonDifficulty(bool IsInGroup)
 {
-    uint8 val = 0x00000001;
-    WorldPacket data(MSG_SET_DUNGEON_DIFFICULTY, 12);
-    data << (uint32)GetDungeonDifficulty();
-    //Seems there is just the GetDungeonDifficulty now ...
-    //data << uint32(val);
-    //data << uint32(IsInGroup);
+    WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
+    data << uint32(GetDungeonDifficulty());
     GetSession()->SendPacket(&data);
 }
 
@@ -24329,9 +24341,9 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
 void Player::SendCategoryCooldown(uint32 categoryId, int32 cooldown)
 {
     WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 12);
-    data.WriteBits(1, 23);
-    data << uint32(cooldown);
+    data.WriteBits(1, 21);
     data << uint32(categoryId);
+    data << uint32(cooldown);
     SendDirectMessage(&data);
 }
 
@@ -28900,29 +28912,37 @@ void Player::SendMovementSetFeatherFall(bool apply)
 
 void Player::SendMovementSetCollisionHeight(float height)
 {
+    CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID));
+
     ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[2]);
+
+    data.WriteBits(3, 2);                   // Unk, 3 on retail sniff
+    data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBits(0, 5);
-    data.WriteBit(guid[6]);
     data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.FlushBits();
-    
-    data << uint32(sWorld->GetGameTime());   // Packet counter
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
+    data.WriteBit(mountDisplayInfo ? 0 : 1);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+
     data.WriteByteSeq(guid[7]);
-    data << float(height);
-    data.WriteByteSeq(guid[4]);
+
+    if (mountDisplayInfo)
+        data << uint32(mountDisplayInfo->Displayid);
+
     data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
+    data << float(height);
+    data << uint32(sWorld->GetGameTime());  // Packet counter
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+    data << float(mountDisplayInfo ? mountDisplayInfo->scale : 1.0f);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
 
     SendDirectMessage(&data);
 }
