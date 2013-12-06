@@ -120,9 +120,9 @@ enum Opcodes
     CMSG_CANCEL_CAST                                  = 0x1524, // 5.4.0 17399
     CMSG_CANCEL_CHANNELLING                           = 0x150E, // 5.4.0 17399
     CMSG_CANCEL_GROWTH_AURA                           = 0x000,  // 5.0.5 16048
-    CMSG_CANCEL_MOUNT_AURA                            = 0x000,  // 5.0.5 16048
+    CMSG_CANCEL_MOUNT_AURA                            = 0x14AA, // 5.4.0 17399
     CMSG_CANCEL_QUEUED_SPELL                          = 0x000,  // 5.0.5 16048
-    CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x000,  // 5.0.5 16048
+    CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x1333, // 5.4.0 17399
     CMSG_CANCEL_TRADE                                 = 0x1807, // 5.4.0 17399
     CMSG_CAST_SPELL                                   = 0x1429, // 5.4.0 17399
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0x000,  // 5.0.5 16048
@@ -484,7 +484,7 @@ enum Opcodes
     CMSG_SET_FACTION_INACTIVE                         = 0x1ABF, // 5.4.0 17399
     CMSG_SET_GUILD_BANK_TEXT                          = 0x231,  // 5.4.0 17399
     CMSG_SET_LFG_COMMENT                              = 0x000,  // 5.0.5 16048
-    CMSG_SET_PET_SLOT                                 = 0x000,  // 5.0.5 16048
+    CMSG_SET_PET_SLOT                                 = 0x140F, // 5.4.0 17399
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0x000,  // 5.0.5 16048
     CMSG_SET_PREFERED_CEMETERY                        = 0x000,  // 5.0.5 16048
     CMSG_SET_RELATIVE_POSITION                        = 0x000,  // 5.0.5 16048
@@ -502,11 +502,10 @@ enum Opcodes
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x15AE, // 5.4.0 17399
     CMSG_SHOWING_CLOAK                                = 0x16EA, // 5.4.0 17399
     CMSG_SHOWING_HELM                                 = 0x1A7B, // 5.4.0 17399
-    CMSG_SOCKET_GEMS                                  = 0x000,  // 5.0.5 16048
     CMSG_SPELLCLICK                                   = 0x1676, // 5.4.0 17399
+    CMSG_SOCKET_GEMS                                  = 0x1B77, // 5.4.0 17399
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x1B6F, // 5.4.0 17399
     CMSG_SPLIT_ITEM                                   = 0x161,  // 5.4.0 17399
-    CMSG_STABLE_SWAP_PET                              = 0x140F, // 5.4.0 17399
     CMSG_STANDSTATECHANGE                             = 0x1181, // 5.4.0 17399
     CMSG_START_QUEST                                  = 0x000,  // 5.0.5 16048
     CMSG_STOP_DANCE                                   = 0x000,  // 5.0.5 16048
@@ -531,7 +530,7 @@ enum Opcodes
     CMSG_TIME_SYNC_RESP                               = 0x203,  // 5.4.0 17399
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x000,  // 5.0.5 16048
     CMSG_TOGGLE_PVP                                   = 0x182C, // 5.4.0 17399
-    CMSG_TOTEM_DESTROYED                              = 0x000,  // 5.0.5 16048
+    CMSG_TOTEM_DESTROYED                              = 0x13E3, // 5.4.0 17399
     CMSG_TRAINER_BUY_SPELL                            = 0x12EF, // 5.4.0 17399
     CMSG_TRAINER_LIST                                 = 0x1AFA, // 5.4.0 17399
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x1928, // 5.4.0 17399
@@ -878,7 +877,7 @@ enum Opcodes
     SMSG_EMOTE                                        = 0x000,  // 5.0.5 16048
     SMSG_ENABLE_BARBER_SHOP                           = 0x89E,  // 5.4.0 17399
     SMSG_ENABLE_HONOR_BUDDY_DETECTION                 = 0x125,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_ENCHANTMENT_LOG                              = 0x922,  // 5.4.0 17399 (JamList)
+    SMSG_ENCHANTMENT_LOG                              = 0x922,  // 5.4.0 17399
     SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x000,  // 5.0.5 16048
     SMSG_EQUIPMENT_SET_LIST                           = 0x938,  // 5.4.0 17399
     SMSG_EQUIPMENT_SET_SAVED                          = 0x5AD,  // 5.4.0 17399
@@ -1044,7 +1043,7 @@ enum Opcodes
     SMSG_INVENTORY_CHANGE_FAILURE                     = 0x813,  // 5.4.0 17399
     SMSG_ITEM_ADD_PASSIVE                             = 0x92D,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_COOLDOWN                                = 0x000,  // 5.0.5 16048
-    SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x483,  // 5.4.0 17399 (JamList)
+    SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x437,  // 5.4.0 17399
     SMSG_ITEM_EXPIRE_PURCHASE_REFUND                  = 0x83C,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_PUSH_RESULT                             = 0x008,  // 5.4.0 17399
     SMSG_ITEM_REFUND_INFO_RESPONSE                    = 0x000,  // 5.0.5 16048
@@ -1405,7 +1404,7 @@ enum Opcodes
     SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI        = 0x420,  // 5.4.0 17399
     SMSG_SHOW_RATINGS                                 = 0x508,  // 5.4.0 17399 (JamList)
     SMSG_SHOW_ZONES_CHEAT_RESULT                      = 0x893,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_SOCKET_GEMS                                  = 0x11D,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_SOCKET_GEMS                                  = 0x11D,  // 5.4.0 17399
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0x81D,  // 5.4.0 17399 (JamList)
     SMSG_SPELLBREAKLOG                                = 0x000,  // 5.0.5 16048
     SMSG_SPELLDAMAGESHIELD                            = 0x000,  // 5.0.5 16048

@@ -1173,30 +1173,13 @@ void WorldSession::ProcessQueryCallbacks()
         _sendStabledPetCallback.FreeResult();
     }
 
-    //- HandleStablePet
-    if (_stablePetCallback.ready())
-    {
-        _stablePetCallback.get(result);
-        HandleStablePetCallback(result);
-        _stablePetCallback.cancel();
-    }
-
-    //- HandleUnstablePet
-    if (_unstablePetCallback.IsReady())
-    {
-        uint32 param = _unstablePetCallback.GetParam();
-        _unstablePetCallback.GetResult(result);
-        HandleUnstablePetCallback(result, param);
-        _unstablePetCallback.FreeResult();
-    }
-
     //- HandleStableSwapPet
-    if (_stableSwapCallback.IsReady())
+    if (_setPetSlotCallback.IsReady())
     {
-        uint32 param = _stableSwapCallback.GetParam();
-        _stableSwapCallback.GetResult(result);
-        HandleStableSwapPetCallback(result, param);
-        _stableSwapCallback.FreeResult();
+        uint32 param = _setPetSlotCallback.GetParam();
+        _setPetSlotCallback.GetResult(result);
+        HandleStableSetPetSlotCallback(result, param);
+        _setPetSlotCallback.FreeResult();
     }
 }
 

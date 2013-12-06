@@ -1052,10 +1052,17 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         return;
 
     uint8 slotId;
-    uint64 unkSkip;
+    ObjectGuid totemGuid;
 
     recvPacket >> slotId;
-    recvPacket >> unkSkip;
+
+    uint8 bitsOrder[8] = { 5, 3, 0, 7, 5, 6, 2, 1 };
+    recvPacket.ReadBitInOrder(totemGuid, bitsOrder);
+
+    recvPacket.FlushBits();
+
+    uint8 bytesOrder[8] = { 7, 2, 0, 6, 5, 3, 4, 1 };
+    recvPacket.ReadBytesSeq(totemGuid, bytesOrder);
 
     ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)

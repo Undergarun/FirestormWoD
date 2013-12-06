@@ -1222,26 +1222,143 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)
+void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 enchantID, uint8 slotID)
 {
-    WorldPacket data(SMSG_ENCHANTMENT_LOG, (8 + 8 + 8 + 4 + 4 + 4 + 1));     // last check 4.3.4
-    data.appendPackGUID(Target);
-    data.appendPackGUID(Caster);
-    data.appendPackGUID(0);
+    WorldPacket data(SMSG_ENCHANTMENT_LOG);
+    ObjectGuid targetGuid = Target;
+    ObjectGuid playerGuid = GetPlayer()->GetGUID(); // Sent twice
+    ObjectGuid casterGuid = Caster;
+
+    data.WriteBit(1);               // Unk but always sent, sniffed from retail
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(casterGuid[0]);
+
+    {
+        data.WriteBit(playerGuid[1]);
+        data.WriteBit(playerGuid[4]);
+        data.WriteBit(playerGuid[5]);
+        data.WriteBit(playerGuid[2]);
+        data.WriteBit(playerGuid[6]);
+        data.WriteBits(1, 21);          // Unk but always sent, sniffed from retail
+        data.WriteBit(playerGuid[3]);
+        data.WriteBit(playerGuid[0]);
+        data.WriteBit(playerGuid[7]);
+    }
+
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(casterGuid[2]);
+
+    {
+        data.WriteByteSeq(playerGuid[3]);
+        data.WriteByteSeq(playerGuid[2]);
+        data.WriteByteSeq(playerGuid[6]);
+        data << uint32(522093);         // Unk but always sent, sniffed from retail
+
+        data << uint32(0);              // Unk but always sent, sniffed from retail
+        data << uint32(60000);          // Unk but always sent, sniffed from retail
+
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[4]);
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data << uint32(107);            // Unk but always sent, sniffed from retail
+        data.WriteByteSeq(playerGuid[5]);
+        data << uint32(24528);          // Unk but always sent, sniffed from retail
+    }
+
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(targetGuid[4]);
+    data << uint32(slotID);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(playerGuid[6]);
     data << uint32(ItemID);
-    data << uint32(SpellID);
-    data << uint32(0); // TODO:Check this packet.
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[6]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(casterGuid[7]);
+    data << uint32(enchantID);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(casterGuid[3]);
+
     SendPacket(&data);
 }
 
 void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration)
 {
-                                                            // last check 2.0.10
-    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, (8+4+4+8));
-    data << uint64(Itemguid);
-    data << uint32(slot);
+    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE);
+    ObjectGuid itemGuid = Itemguid;
+    ObjectGuid playerGuid = Playerguid;
+
+    data.WriteBit(itemGuid[3]);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(itemGuid[0]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(itemGuid[2]);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(itemGuid[6]);
+    data.WriteBit(itemGuid[1]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(itemGuid[7]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(itemGuid[5]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(itemGuid[4]);
+
     data << uint32(Duration);
-    data << uint64(Playerguid);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(itemGuid[7]);
+    data.WriteByteSeq(playerGuid[0]);
+    data << uint32(slot);
+    data.WriteByteSeq(itemGuid[3]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(itemGuid[6]);
+    data.WriteByteSeq(itemGuid[4]);
+    data.WriteByteSeq(itemGuid[2]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(itemGuid[5]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(itemGuid[0]);
+    data.WriteByteSeq(itemGuid[1]);
+
     SendPacket(&data);
 }
 
@@ -1360,99 +1477,164 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SOCKET_GEMS");
 
-    uint64 item_guid;
-    uint64 gem_guids[MAX_GEM_SOCKETS];
+    ObjectGuid item_guid;
+    ObjectGuid gem_guids[MAX_GEM_SOCKETS];
 
-    recvData >> item_guid;
+    item_guid[3] = recvData.ReadBit();
+
+    // The next is totally fucked up ... Thanks blizzard !
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][1] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][5] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][6] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][4] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][7] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][0] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][3] = recvData.ReadBit();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        gem_guids[i][2] = recvData.ReadBit();
+
+    item_guid[0] = recvData.ReadBit();
+    item_guid[7] = recvData.ReadBit();
+    item_guid[5] = recvData.ReadBit();
+    item_guid[2] = recvData.ReadBit();
+    item_guid[6] = recvData.ReadBit();
+    item_guid[4] = recvData.ReadBit();
+    item_guid[1] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][6]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][7]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][4]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][3]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][2]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][1]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][5]);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData.ReadByteSeq(gem_guids[i][0]);
+
+    uint8 bytesOrder[8] = { 7, 2, 6, 0, 5, 4, 1, 3 };
+    recvData.ReadBytesSeq(item_guid, bytesOrder);
+
     if (!item_guid)
         return;
 
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData >> gem_guids[i];
-
-    //cheat -> tried to socket same gem multiple times
+    // Cheat -> tried to socket same gem multiple times
     if ((gem_guids[0] && (gem_guids[0] == gem_guids[1] || gem_guids[0] == gem_guids[2])) ||
         (gem_guids[1] && (gem_guids[1] == gem_guids[2])))
         return;
 
+    // Missing item to socket
     Item* itemTarget = _player->GetItemByGuid(item_guid);
-    if (!itemTarget)                                         //missing item to socket
+    if (!itemTarget)
         return;
 
     ItemTemplate const* itemProto = itemTarget->GetTemplate();
     if (!itemProto)
         return;
 
-    //this slot is excepted when applying / removing meta gem bonus
+    // This slot is excepted when applying / removing meta gem bonus
     uint8 slot = itemTarget->IsEquipped() ? itemTarget->GetSlot() : uint8(NULL_SLOT);
 
     Item* Gems[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
         Gems[i] = gem_guids[i] ? _player->GetItemByGuid(gem_guids[i]) : NULL;
 
+    // Get geminfo from dbc storage
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
         GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
 
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
+    // Check for hack maybe
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
         if (!GemProps[i])
             continue;
 
-        // tried to put gem in socket where no socket exists (take care about prismatic sockets)
+        // Tried to put gem in socket where no socket exists (take care about prismatic sockets)
         if (!itemProto->Socket[i].Color)
         {
-            // no prismatic socket
+            // No prismatic socket
             if (!itemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
                 return;
 
-            // not first not-colored (not normaly used) socket
+            // Not first not-colored (not normaly used) socket
             if (i != 0 && !itemProto->Socket[i-1].Color && (i+1 >= MAX_GEM_SOCKETS || itemProto->Socket[i+1].Color))
                 return;
 
-            // ok, this is first not colored socket for item with prismatic socket
+            // Ok, this is first not colored socket for item with prismatic socket
         }
 
-        // tried to put normal gem in meta socket
+        // Tried to put normal gem in meta socket
         if (itemProto->Socket[i].Color == SOCKET_COLOR_META && GemProps[i]->color != SOCKET_COLOR_META)
             return;
 
-        // tried to put meta gem in normal socket
+        // Tried to put meta gem in normal socket
         if (itemProto->Socket[i].Color != SOCKET_COLOR_META && GemProps[i]->color == SOCKET_COLOR_META)
             return;
 
-        // tried to put normal gem in cogwheel socket
+        // Tried to put normal gem in cogwheel socket
         if (itemProto->Socket[i].Color == SOCKET_COLOR_COGWHEEL && GemProps[i]->color != SOCKET_COLOR_COGWHEEL)
             return;
 
-        // tried to put cogwheel gem in normal socket
+        // Tried to put cogwheel gem in normal socket
         if (itemProto->Socket[i].Color != SOCKET_COLOR_COGWHEEL && GemProps[i]->color == SOCKET_COLOR_COGWHEEL)
             return;
     }
 
+    // Get new and old enchantments
     uint32 GemEnchants[MAX_GEM_SOCKETS];
     uint32 OldEnchants[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get new and old enchantments
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
         GemEnchants[i] = (GemProps[i]) ? GemProps[i]->spellitemenchantement : 0;
         OldEnchants[i] = itemTarget->GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i));
     }
 
-    // check unique-equipped conditions
+    // Check unique-equipped conditions
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
         if (!Gems[i])
             continue;
 
-        // continue check for case when attempt add 2 similar unique equipped gems in one item.
+        // Continue check for case when attempt add 2 similar unique equipped gems in one item.
         ItemTemplate const* iGemProto = Gems[i]->GetTemplate();
 
-        // unique item (for new and already placed bit removed enchantments
+        // Unique item (for new and already placed bit removed enchantments
         if (iGemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
         {
             for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
-                if (i == j)                                    // skip self
+                // Skip self
+                if (i == j)
                     continue;
 
                 if (Gems[j])
@@ -1477,7 +1659,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
             }
         }
 
-        // unique limit type item
+        // Unique limit type item
         int32 limit_newcount = 0;
         if (iGemProto->ItemLimitCategory)
         {
@@ -1488,13 +1670,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                 {
                     if (Gems[j])
                     {
-                        // new gem
+                        // New gem
                         if (iGemProto->ItemLimitCategory == Gems[j]->GetTemplate()->ItemLimitCategory)
                             ++limit_newcount;
                     }
                     else if (OldEnchants[j])
                     {
-                        // existing gem
+                        // Existing gem
                         if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
                             if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(enchantEntry->GemID))
                                 if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
@@ -1510,7 +1692,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
             }
         }
 
-        // for equipped item check all equipment for duplicate equipped gems
+        // For equipped item check all equipment for duplicate equipped gems
         if (itemTarget->IsEquipped())
         {
             if (InventoryResult res = _player->CanEquipUniqueItem(Gems[i], slot, std::max(limit_newcount, 0)))
@@ -1521,12 +1703,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         }
     }
 
-    bool SocketBonusActivated = itemTarget->GemsFitSockets();    //save state of socketbonus
-    _player->ToggleMetaGemsActive(slot, false);             //turn off all metagems (except for the target item)
+    // Save state of socketbonus
+    bool SocketBonusActivated = itemTarget->GemsFitSockets();
+    // Turn off all metagems (except for the target item)
+    _player->ToggleMetaGemsActive(slot, false);
 
-    //if a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
-
-    //remove ALL enchants
+    // If a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
+    // Remove ALL enchants
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
         _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), false);
 
@@ -1544,19 +1727,53 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
         _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), true);
 
-    bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
-    if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
+    // Current socketbonus state
+    bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();
+    uint32 socketBonus = 0;
+
+    // If there was a change...
+    if (SocketBonusActivated ^ SocketBonusToBeActivated)
     {
+        socketBonus = SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0;
+
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, false);
-        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0), 0, 0);
+        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, socketBonus, 0, 0);
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, true);
-        //it is not displayed, client has an inbuilt system to determine if the bonus is activated
+        // It is not displayed, client has an inbuilt system to determine if the bonus is activated
     }
 
-    _player->ToggleMetaGemsActive(slot, true);              //turn on all metagems (except for target item)
-
+    // Turn on all metagems (except for target item)
+    _player->ToggleMetaGemsActive(slot, true);
     _player->RemoveTradeableItem(itemTarget);
-    itemTarget->ClearSoulboundTradeable(_player);           // clear tradeable flag
+    // Clear tradeable flag
+    itemTarget->ClearSoulboundTradeable(_player);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        if (GemEnchants[i])
+            _player->GetSession()->SendEnchantmentLog(itemTarget->GetGUID(), _player->GetGUID(), itemTarget->GetEntry(), GemEnchants[i], SOCK_ENCHANTMENT_SLOT+i);
+
+    if (socketBonus)
+        _player->GetSession()->SendEnchantmentLog(itemTarget->GetGUID(), _player->GetGUID(), itemTarget->GetEntry(), socketBonus, BONUS_ENCHANTMENT_SLOT);
+
+    WorldPacket data(SMSG_SOCKET_GEMS, 4 * 4 + 8);
+
+    data << uint32(socketBonus);
+
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+    {
+        if (GemEnchants[i])
+            data << uint32(GemEnchants[i]);
+        else
+            data << uint32(0);
+    }
+
+    uint8 bitsOrder[8] = { 1, 7, 5, 6, 0, 2, 4, 3 };
+    data.WriteBitInOrder(item_guid, bitsOrder);
+
+    uint8 bytesSendedOrder[8] = { 0, 5, 2, 6, 7, 4, 3, 1 };
+    data.WriteBytesSeq(item_guid, bytesSendedOrder);
+
+    GetPlayer()->GetSession()->SendPacket(&data);
 }
 
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)

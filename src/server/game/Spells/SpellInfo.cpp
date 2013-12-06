@@ -20,6 +20,7 @@
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "ConditionMgr.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
@@ -923,6 +924,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     AttributesEx9 = _misc ? _misc->AttributesEx9 : 0;
     AttributesEx10 = _misc ? _misc->AttributesEx10 : 0;
     AttributesEx11 = _misc ? _misc->AttributesEx11 : 0;
+    AttributesEx12 = _misc ? _misc->AttributesEx12 : 0;     // new 5.4.0
 
     uint32 castingTimeIndex = _misc ? _misc->CastingTimeIndex : 0;
     uint32 durationIndex = _misc ? _misc->DurationIndex : 0;

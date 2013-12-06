@@ -15278,7 +15278,11 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
 
     switch (reforge->SourceStat)
     {
-        case  ITEM_MOD_DODGE_RATING:
+        case ITEM_MOD_SPIRIT:
+            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
+            break;
+        case ITEM_MOD_DODGE_RATING:
             ApplyRatingMod(CR_DODGE, -int32(removeValue), apply);
             break;
         case ITEM_MOD_PARRY_RATING:
@@ -15338,7 +15342,11 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
 
     switch (reforge->FinalStat)
     {
-        case  ITEM_MOD_DODGE_RATING:
+        case ITEM_MOD_SPIRIT:
+            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
+            break;
+        case ITEM_MOD_DODGE_RATING:
             ApplyRatingMod(CR_DODGE, int32(addValue), apply);
             break;
         case ITEM_MOD_PARRY_RATING:
