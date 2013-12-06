@@ -419,12 +419,12 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    uint8 bitsOrder[8] = { 5, 2, 7, 3, 0, 6, 4, 1 };
+    uint8 bitsOrder[8] = { 5, 3, 1, 4, 6, 7, 2, 0 };
     recvData.ReadBitInOrder(guid, bitsOrder);
 
     recvData.FlushBits();
 
-    uint8 bytesOrder[8] = { 6, 0, 5, 3, 4, 1, 7, 2 };
+    uint8 bytesOrder[8] = { 6, 1, 5, 3, 4, 0, 2, 7 };
     recvData.ReadBytesSeq(guid, bytesOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(guid));
@@ -441,12 +441,12 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    uint8 bitsOrder[8] = { 5, 3, 1, 4, 6, 7, 2, 0 };
+    uint8 bitsOrder[8] = { 5, 2, 7, 3, 0, 6, 4, 1 };
     recvPacket.ReadBitInOrder(guid, bitsOrder);
 
     recvPacket.FlushBits();
 
-    uint8 bytesOrder[8] = { 6, 1, 5, 3, 4, 0, 2, 7 };
+    uint8 bytesOrder[8] = { 6, 0, 5, 3, 4, 1, 7, 2 };
     recvPacket.ReadBytesSeq(guid, bytesOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
@@ -1088,8 +1088,20 @@ void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleSpellClick(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    // Read guid
+    ObjectGuid guid;
+    guid[1] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    bool unk = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+
+    uint8 byteOrder[8] = {0, 2, 3, 1, 4, 6, 5, 7};
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     // this will get something not in world. crash
     Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
