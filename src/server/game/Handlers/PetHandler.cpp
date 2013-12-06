@@ -802,47 +802,206 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL");
 
-    uint64 guid;
-    uint8  castCount;
-    uint32 spellId;
-    uint8  castFlags;
+    ObjectGuid casterGUID;
+    ObjectGuid unkGUID1;
+    ObjectGuid transportDstGUID;
+    ObjectGuid transportSrcGUID;
+    ObjectGuid targetGUID;
+    ObjectGuid unkGUID2;
+    bool hasDestPos;
+    bool hasSrcPos;
+    bool hasSpeed;
+    bool hasSpell;
+    bool hasGlyphIndex;
+    bool hasTargetFlags;
+    bool hasElevation;
+    bool hasString;
+    bool hasCastCount;
+    bool hasUnk5bits;
+    uint32 archeologyCounter = 0;
+    WorldLocation dstLoc, srcLoc;
+    float speed, elevation;
+    uint32 targetFlags = 0;
+    uint32 spellID = 0;
+    uint32 stringLenght = 0;
+    uint8 castCount = 0;
 
-    recvPacket >> guid >> castCount >> spellId >> castFlags;
+    casterGUID[3] = recvPacket.ReadBit();
+    casterGUID[5] = recvPacket.ReadBit();
+    hasDestPos = recvPacket.ReadBit();
+    recvPacket.ReadBit();                   // unk bit
+    hasSpeed = !recvPacket.ReadBit();
+    hasSrcPos = recvPacket.ReadBit();
+    hasSpell = !recvPacket.ReadBit();
+    casterGUID[0] = recvPacket.ReadBit();
+    hasGlyphIndex = !recvPacket.ReadBit();
+    casterGUID[7] = recvPacket.ReadBit();
+    hasTargetFlags = !recvPacket.ReadBit();
+    hasElevation = !recvPacket.ReadBit();
+    recvPacket.ReadBit();                   // has movement info
+    hasString = !recvPacket.ReadBit();
+    recvPacket.ReadBit();                   // !inverse bit, unk
+    hasCastCount = !recvPacket.ReadBit();
+    casterGUID[2] = recvPacket.ReadBit();
+    casterGUID[4] = recvPacket.ReadBit();
+    archeologyCounter = recvPacket.ReadBits(2);
+    casterGUID[1] = recvPacket.ReadBit();
+    hasUnk5bits = !recvPacket.ReadBit();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", guid, castCount, spellId, castFlags);
+    for (uint32 i = 0; i < archeologyCounter; i++)
+        recvPacket.ReadBits(2);             // archeology type
+
+    casterGUID[6] = recvPacket.ReadBit();
+
+    if (hasDestPos)
+    {
+        uint8 bitOrder[8] = {2, 7, 4, 0, 1, 6, 5, 3};
+        recvPacket.ReadBitInOrder(transportDstGUID, bitOrder);
+    }
+
+    // movement block (disabled by patch client-side)
+
+    if (hasSrcPos)
+    {
+        uint8 bitOrder[8] = {6, 2, 3, 1, 5, 4, 0, 7};
+        recvPacket.ReadBitInOrder(transportSrcGUID, bitOrder);
+    }
+
+    if (hasUnk5bits)
+        recvPacket.ReadBits(5);             // unk 5 bits
+
+    // Target GUID
+    {
+        uint8 bitOrder[8] = {3, 5, 6, 2, 4, 1, 7, 0};
+        recvPacket.ReadBitInOrder(targetGUID, bitOrder);
+    }
+
+    // unkGUID1
+    {
+        uint8 bitOrder[8] = {3, 1, 5, 2, 4, 7, 0, 6};
+        recvPacket.ReadBitInOrder(unkGUID1, bitOrder);
+    }
+
+    if (hasTargetFlags)
+        targetFlags = recvPacket.ReadBits(20);
+
+    if (hasString)
+        stringLenght = recvPacket.ReadBits(7);
+
+    recvPacket.ReadByteSeq(casterGUID[0]);
+    recvPacket.ReadByteSeq(casterGUID[4]);
+    recvPacket.ReadByteSeq(casterGUID[5]);
+    recvPacket.ReadByteSeq(casterGUID[1]);
+    recvPacket.ReadByteSeq(casterGUID[2]);
+    recvPacket.ReadByteSeq(casterGUID[3]);
+    recvPacket.ReadByteSeq(casterGUID[7]);
+    
+    for (uint32 i = 0; i < archeologyCounter; i++)
+    {
+        recvPacket.read_skip<uint32>(); // entry
+        recvPacket.read_skip<uint32>(); // counter
+    }
+
+    recvPacket.ReadByteSeq(casterGUID[6]);
+    recvPacket.ReadByteSeq(unkGUID1[1]);
+    recvPacket.ReadByteSeq(unkGUID1[5]);
+    recvPacket.ReadByteSeq(unkGUID1[4]);
+    recvPacket.ReadByteSeq(unkGUID1[2]);
+    recvPacket.ReadByteSeq(unkGUID1[7]);
+    recvPacket.ReadByteSeq(unkGUID1[3]);
+    recvPacket.ReadByteSeq(unkGUID1[0]);
+
+    if (hasSrcPos)
+    {
+        recvPacket.ReadByteSeq(transportSrcGUID[4]);
+        srcLoc.m_positionY = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportSrcGUID[2]);
+        recvPacket.ReadByteSeq(transportSrcGUID[6]);
+        srcLoc.m_positionZ = recvPacket.read<float>();
+        srcLoc.m_positionX = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportSrcGUID[1]);
+        recvPacket.ReadByteSeq(transportSrcGUID[3]);
+        recvPacket.ReadByteSeq(transportSrcGUID[5]);
+        recvPacket.ReadByteSeq(transportSrcGUID[7]);
+        recvPacket.ReadByteSeq(transportSrcGUID[0]);
+    }
+
+    // Target GUID
+    {
+        uint8 byteOrder[8] = {7, 4, 2, 6, 3, 0, 5, 1};
+        recvPacket.ReadBytesSeq(targetGUID, byteOrder);
+    }
+
+    if (hasDestPos)
+    {
+        dstLoc.m_positionX = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportDstGUID[5]);
+        recvPacket.ReadByteSeq(transportDstGUID[7]);
+        recvPacket.ReadByteSeq(transportDstGUID[2]);
+        recvPacket.ReadByteSeq(transportDstGUID[0]);
+        recvPacket.ReadByteSeq(transportDstGUID[1]);
+        recvPacket.ReadByteSeq(transportDstGUID[3]);
+        recvPacket.ReadByteSeq(transportDstGUID[6]);
+        dstLoc.m_positionZ = recvPacket.read<float>();
+        dstLoc.m_positionY = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportDstGUID[4]);
+    }
+
+    if (hasGlyphIndex)
+        recvPacket.read_skip<uint32>();     // glyph index
+
+    if (hasSpeed)
+        speed = recvPacket.read<float>();
+
+    if (hasSpell)
+        spellID = recvPacket.read<uint32>();
+
+    if (hasCastCount)
+        castCount = recvPacket.read<uint8>();
+
+    if (hasString)
+        recvPacket.ReadString(stringLenght);
+
+    if (hasElevation)
+        elevation = recvPacket.read<float>();
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, targetFlags %u", casterGUID, castCount, spellID, targetFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
 
-    Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* caster = ObjectAccessor::GetUnit(*_player, casterGUID);
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(casterGUID)), GetPlayer()->GetName());
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %i", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %i", spellID);
         return;
     }
 
     if (spellInfo->StartRecoveryCategory > 0) // Check if spell is affected by GCD
         if (caster->GetTypeId() == TYPEID_UNIT && caster->GetCharmInfo() && caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
         {
-            caster->SendPetCastFail(spellId, SPELL_FAILED_NOT_READY);
+            caster->SendPetCastFail(spellID, SPELL_FAILED_NOT_READY);
             return;
         }
 
     // do not cast not learned spells
-    if (!caster->HasSpell(spellId) || spellInfo->IsPassive())
+    if (!caster->HasSpell(spellID) || spellInfo->IsPassive())
         return;
 
     SpellCastTargets targets;
-    HandleClientCastFlags(recvPacket, castFlags, targets);
+    targets.Initialize(targetFlags, targetGUID, unkGUID1, transportDstGUID, dstLoc, transportSrcGUID, srcLoc);
+    targets.SetElevation(elevation);
+    targets.SetSpeed(speed);
+    targets.Update(caster);
 
     caster->ClearUnitState(UNIT_STATE_FOLLOW);
 
@@ -861,7 +1020,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         if (caster->GetTypeId() == TYPEID_UNIT)
         {
             Creature* pet = caster->ToCreature();
-            pet->AddCreatureSpellCooldown(spellId);
+            pet->AddCreatureSpellCooldown(spellID);
             if (pet->isPet())
             {
                 Pet* p = (Pet*)pet;
@@ -870,7 +1029,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
                 if (p->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
                     pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
                 else
-                    pet->SendPetAIReaction(guid);
+                    pet->SendPetAIReaction(spellID);
             }
         }
 
@@ -878,16 +1037,16 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
     else
     {
-        caster->SendPetCastFail(spellId, result);
+        caster->SendPetCastFail(spellID, result);
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if (!caster->ToPlayer()->HasSpellCooldown(spellId))
-                GetPlayer()->SendClearCooldown(spellId, caster);
+            if (!caster->ToPlayer()->HasSpellCooldown(spellID))
+                GetPlayer()->SendClearCooldown(spellID, caster);
         }
         else
         {
-            if (!caster->ToCreature()->HasSpellCooldown(spellId))
-                GetPlayer()->SendClearCooldown(spellId, caster);
+            if (!caster->ToCreature()->HasSpellCooldown(spellID))
+                GetPlayer()->SendClearCooldown(spellID, caster);
         }
 
         spell->finish(false);

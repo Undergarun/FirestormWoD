@@ -126,7 +126,7 @@ enum Opcodes
     CMSG_CANCEL_TRADE                                 = 0x1807, // 5.4.0 17399
     CMSG_CAST_SPELL                                   = 0x1429, // 5.4.0 17399
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0x000,  // 5.0.5 16048
-    CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0x000,  // 5.0.5 16048
+    CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0x23E,  // 5.4.0 17399
     CMSG_CHANNEL_ANNOUNCEMENTS                        = 0x1517, // 5.4.0 17399
     CMSG_CHANNEL_BAN                                  = 0x183F, // 5.4.0 17399
     CMSG_CHANNEL_DISPLAY_LIST                         = 0x15BA, // 5.4.0 17399
@@ -182,7 +182,7 @@ enum Opcodes
     CMSG_DEL_IGNORE                                   = 0x1604, // 5.4.0 17399
     CMSG_DEL_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
     CMSG_DESTROY_ITEM                                 = 0x1401, // 5.4.0 17399
-    CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x000,  // 5.0.5 16048
+    CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x72A,  // 5.4.0 17399
     CMSG_DISMISS_CRITTER                              = 0x000,  // 5.0.5 16048
     CMSG_DUEL_RESPONSE                                = 0x13FE, // 5.4.0 17399
     CMSG_DUEL_PROPOSED                                = 0x129B, // 5.4.0 17399
@@ -382,7 +382,7 @@ enum Opcodes
     CMSG_PET_ABANDON                                  = 0x1222, // 5.4.0 17399
     CMSG_PET_ACTION                                   = 0x1722, // 5.4.0 17399
     CMSG_PET_CANCEL_AURA                              = 0x17FA, // 5.4.0 17399
-    CMSG_PET_CAST_SPELL                               = 0x000,  // 5.0.5 16048
+    CMSG_PET_CAST_SPELL                               = 0x1006, // 5.4.0 17399
     CMSG_PET_NAME_QUERY                               = 0x1428, // 5.4.0 17399
     CMSG_PET_RENAME                                   = 0x1B0F, // 5.4.0 17399
     CMSG_PET_SET_ACTION                               = 0x166B, // 5.4.0 17399
@@ -392,7 +392,7 @@ enum Opcodes
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_LOGIN                                 = 0x1BC7, // 5.4.0 17399
     CMSG_PLAYER_LOGOUT                                = 0x000,  // 5.0.5 16048
-    CMSG_PLAYER_VEHICLE_ENTER                         = 0x000,  // 5.0.5 16048
+    CMSG_PLAYER_VEHICLE_ENTER                         = 0x15A1, // 5.4.0 17399
     CMSG_PLAY_DANCE                                   = 0x000,  // 5.0.5 16048
     CMSG_PUSHQUESTTOPARTY                             = 0x12AA, // 5.4.0 17399
     CMSG_PVP_LOG_DATA                                 = 0x15AD, // 5.4.0 17399
@@ -446,10 +446,10 @@ enum Opcodes
     CMSG_REQUEST_RATED_BG_INFO                        = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RATED_BG_STATS                       = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RESEARCH_HISTORY                     = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_VEHICLE_EXIT                         = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_VEHICLE_EXIT                         = 0x1528, // 5.4.0 17399
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_VEHICLE_PREV_SEAT                    = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x14AB, // 5.4.0 17399
     CMSG_RESET_FACTION_CHEAT                          = 0x000,  // 5.0.5 16048
     CMSG_RESET_INSTANCES                              = 0x1383, // 5.4.0 17399
     CMSG_RESURRECT_RESPONSE                           = 0x000,  // 5.0.5 16048
@@ -503,8 +503,8 @@ enum Opcodes
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x15AE, // 5.4.0 17399
     CMSG_SHOWING_CLOAK                                = 0x16EA, // 5.4.0 17399
     CMSG_SHOWING_HELM                                 = 0x1A7B, // 5.4.0 17399
+    CMSG_SPELLCLICK                                   = 0x1676, // 5.4.0 17399
     CMSG_SOCKET_GEMS                                  = 0x1B77, // 5.4.0 17399
-    CMSG_SPELLCLICK                                   = 0x000,  // 5.0.5 16048
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x1B6F, // 5.4.0 17399
     CMSG_SPLIT_ITEM                                   = 0x161,  // 5.4.0 17399
     CMSG_STANDSTATECHANGE                             = 0x1181, // 5.4.0 17399
