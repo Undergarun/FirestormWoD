@@ -819,10 +819,12 @@ void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)
 
     ObjectGuid guildGuid;
 
-    uint8 bitOrder[8] = {4, 3, 6, 7, 2, 5, 0, 1};
+    uint8 bitOrder[8] = { 0, 1, 2, 6, 5, 7, 3, 4 };
     recvData.ReadBitInOrder(guildGuid, bitOrder);
 
-    uint8 byteOrder[8] = {5, 0, 2, 6, 3, 1, 4, 7};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 4, 1, 6, 7, 2, 3, 5, 0 };
     recvData.ReadBytesSeq(guildGuid, byteOrder);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))

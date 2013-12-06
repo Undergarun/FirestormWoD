@@ -1158,11 +1158,19 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     _CreateDefaultGuildRanks(pLeaderSession->GetSessionDbLocaleIndex());
     // Add guildmaster
     bool ret = AddMember(m_leaderGuid, GR_GUILDMASTER);
+    // Call scripts on successful create
     if (ret)
-        // Call scripts on successful create
         sScriptMgr->OnGuildCreate(this, pLeader, name);
 
-    _BroadcastEvent(GE_FOUNDER, m_leaderGuid);
+    WorldPacket data(SMSG_GUILD_SEND_MOTD);
+
+    data.WriteBits(m_motd.size(), 10);
+    data.FlushBits();
+
+    if (m_motd.size() > 0)
+        data.append(m_motd.c_str(), m_motd.size());
+
+    BroadcastPacket(&data);
 
     return ret;
 }
@@ -2140,11 +2148,12 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
         return;
 
     WorldPacket data(SMSG_GUILD_PARTY_STATE_RESPONSE, 13);
+
+    data << float(0.f);                                                                 // Guild XP multiplier
+    data << uint32(0);                                                                  // Current guild members
+    data << uint32(0);                                                                  // Needed guild members
     data.WriteBit(player->GetMap()->GetOwnerGuildId(player->GetTeam()) == GetId());     // Is guild group
     data.FlushBits();
-    data << uint32(0);                                                                  // Current guild members
-    data << float(0.f);                                                                 // Guild XP multiplier
-    data << uint32(0);                                                                  // Needed guild members
 
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");

@@ -243,7 +243,7 @@ enum Opcodes
     CMSG_GUILD_BANK_BUY_TAB                           = 0x1A67, // 5.4.0 17399
     CMSG_GUILD_BANK_DEPOSIT_MONEY                     = 0x1726, // 5.4.0 17399
     CMSG_GUILD_BANK_LOG_QUERY                         = 0x32C,  // 5.4.0 17399
-    CMSG_GUILD_BANK_MONEY_WITHDRAWN_QUERY             = 0x000,  // 5.0.5 16048
+    CMSG_GUILD_BANK_MONEY_WITHDRAWN_QUERY             = 0x264,  // 5.4.0 17399
     CMSG_GUILD_BANK_NOTE                              = 0x000,  // 5.0.5 16048
     CMSG_GUILD_BANK_QUERY_TAB                         = 0x17BB, // 5.4.0 17399
     CMSG_GUILD_BANK_QUERY_TEXT                        = 0x251,  // 5.4.0 17399
@@ -253,7 +253,7 @@ enum Opcodes
     CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0x000,  // 5.0.5 16048
     CMSG_GUILD_DECLINE                                = 0xA20,  // 5.4.0 17399
     CMSG_GUILD_DEL_RANK                               = 0xA35,  // 5.4.0 17399
-    CMSG_GUILD_DISBAND                                = 0x000,  // 5.0.5 16048
+    CMSG_GUILD_DISBAND                                = 0x334,  // 5.4.0 17399
     CMSG_GUILD_EVENT_LOG_QUERY                        = 0x238,  // 5.4.0 17399
     CMSG_GUILD_INFO                                   = 0x000,  // 5.0.5 16048
     CMSG_GUILD_INFO_TEXT                              = 0x248,  // 5.4.0 17399
@@ -271,7 +271,7 @@ enum Opcodes
     CMSG_GUILD_REPLACE_GUILD_MASTER                   = 0x000,  // 5.0.5 16048
     CMSG_GUILD_REQUEST_CHALLENGE_UPDATE               = 0xA78,  // 5.4.0 17399
     CMSG_GUILD_REQUEST_MAX_DAILY_XP                   = 0x000,  // 5.0.5 16048
-    CMSG_GUILD_REQUEST_PARTY_STATE                    = 0x000,  // 5.0.5 16048
+    CMSG_GUILD_REQUEST_PARTY_STATE                    = 0x1885, // 5.4.0 17399
     CMSG_GUILD_ROSTER                                 = 0x315,  // 5.4.0 17399
     CMSG_GUILD_SET_ACHIEVEMENT_TRACKING               = 0x000,  // 5.0.5 16048
     CMSG_GUILD_SET_GUILD_MASTER                       = 0x000,  // 5.0.5 16048
@@ -994,7 +994,7 @@ enum Opcodes
     SMSG_GUILD_MOVE_STARTING                          = 0x000,  // 5.0.5 16048
     SMSG_GUILD_NEWS_DELETED                           = 0x000,  // 5.0.5 16048
     SMSG_GUILD_NEWS_UPDATE                            = 0x54E,  // 5.4.0 17399
-    SMSG_GUILD_PARTY_STATE_RESPONSE                   = 0x000,  // 5.0.5 16048
+    SMSG_GUILD_PARTY_STATE_RESPONSE                   = 0xC73,  // 5.4.0 17399
     SMSG_GUILD_PERMISSIONS_QUERY_RESULTS              = 0x442,  // 5.4.0 17399
     SMSG_GUILD_QUERY_RESPONSE                         = 0xD42,  // 5.4.0 17399
     SMSG_GUILD_RANK                                   = 0x446,  // 5.4.0 17399
