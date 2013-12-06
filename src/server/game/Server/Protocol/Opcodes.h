@@ -1016,7 +1016,7 @@ enum Opcodes
     SMSG_GUILD_XP_GAIN                                = 0x473,  // 5.4.0 17399
     SMSG_GUILD_XP_UPDATE                              = 0x000,  // 5.0.5 16048
     SMSG_HEALTH_UPDATE                                = 0x018,  // 5.4.0 17399 (JamList)
-    SMSG_HIGHEST_THREAT_UPDATE                        = 0x00B,  // 5.4.0 17399 (JamList)
+    SMSG_HIGHEST_THREAT_UPDATE                        = 0x00B,  // 5.4.0 17399
     SMSG_HOTFIX_INFO                                  = 0x000,  // 5.0.5 16048
     SMSG_HOTFIX_NOTIFY                                = 0x432,  // 5.4.0 17399 (JamList)
     SMSG_HOTFIX_NOTIFY_BLOB                           = 0x416,  // 5.4.0 17399 (JamList) (NYI)
