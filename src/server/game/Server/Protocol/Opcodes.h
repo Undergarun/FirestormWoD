@@ -210,8 +210,9 @@ enum Opcodes
     CMSG_GMSURVEY_SUBMIT                              = 0x000,  // 5.0.5 16048
     CMSG_GMTICKET_CREATE                              = 0x000,  // 5.0.5 16048
     CMSG_GMTICKET_DELETETICKET                        = 0x000,  // 5.0.5 16048
-    CMSG_GMTICKET_GETTICKET                           = 0x000,  // 5.0.5 16048
-    CMSG_GMTICKET_SYSTEMSTATUS                        = 0x000,  // 5.0.5 16048
+    CMSG_GMTICKET_GETTICKET                           = 0x134F, // 5.4.0 17399
+    CMSG_GMTICKET_GETWEBTICKET                        = 0x1ACA, // 5.4.0 17399
+    CMSG_GMTICKET_SYSTEMSTATUS                        = 0x1612, // 5.4.0 17399
     CMSG_GMTICKET_UPDATETEXT                          = 0x000,  // 5.0.5 16048
     CMSG_GM_INVIS                                     = 0x000,  // 5.0.5 16048
     CMSG_GM_NUKE                                      = 0x000,  // 5.0.5 16048
@@ -549,7 +550,7 @@ enum Opcodes
     CMSG_USED_FOLLOW                                  = 0x000,  // 5.0.5 16048
     CMSG_USE_ITEM                                     = 0x14A8, // 5.4.0 17399
     CMSG_VIOLENCE_LEVEL                               = 0x1927, // 5.4.0 17399
-    CMSG_VOICE_SESSION_ENABLE                         = 0x000,  // 5.0.5 16048
+    CMSG_VOICE_SESSION_ENABLE                         = 0x171B, // 5.4.0 17399
     CMSG_VOID_STORAGE_QUERY                           = 0x100A, // 5.4.0 17399
     CMSG_VOID_STORAGE_TRANSFER                        = 0x158C, // 5.4.0 17399
     CMSG_VOID_STORAGE_UNLOCK                          = 0x11A7, // 5.4.0 17399
@@ -941,11 +942,11 @@ enum Opcodes
     SMSG_GM_SUMMON                                    = 0x88F,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_CREATE                             = 0x000,  // 5.0.5 16048
     SMSG_GM_TICKET_DELETE_TICKET                      = 0x000,  // 5.0.5 16048
-    SMSG_GM_TICKET_GET_TICKET_RESPONSE                = 0x820,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_GM_TICKET_GET_TICKET_RESPONSE                = 0x820,  // 5.4.0 17399
     SMSG_GM_TICKET_RESPONSE                           = 0x817,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_RESPONSE_ERROR                     = 0x1AB,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_RESOLVE_RESPONSE                   = 0x111,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_GM_TICKET_SYSTEM_STATUS                      = 0x803,  // 5.4.0 17399 (JamList)
+    SMSG_GM_TICKET_SYSTEM_STATUS                      = 0x803,  // 5.4.0 17399
     SMSG_GM_TICKET_STATUS_UPDATE                      = 0x426,  // 5.4.0 17399 (JamList)
     SMSG_GM_TICKET_UPDATE                             = 0x12E,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_UPDATE_TEXT                        = 0x000,  // 5.0.5 16048

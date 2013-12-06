@@ -125,24 +125,25 @@ void GmTicket::DeleteFromDB()
 
 void GmTicket::WritePacket(WorldPacket& data) const
 {
+    data << uint32(GetId());
+
+    if (GetMessage().size())
+        data.append(GetMessage().c_str(), GetMessage().size());
+
+    data << uint8(_viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED); // whether or not it has been viewed
+
+    if (GetMessage().size())
+        data.append(GetMessage().c_str(), GetMessage().size());
+
+    data << uint8(std::min(_escalatedStatus, TICKET_IN_ESCALATION_QUEUE));                              // escalated data
     data << uint32(GetAge(_lastModifiedTime));
-    
     if (GmTicket* ticket = sTicketMgr->GetOldestOpenTicket())
         data << uint32(GetAge(ticket->GetLastModifiedTime()));
     else
         data << uint32(float(0));
-       
     // I am not sure how blizzlike this is, and we don't really have a way to find out
     data << uint32(GetAge(sTicketMgr->GetLastChange()));
-    data << uint32(GetId());
-
-    data.WriteString(GetMessage());
     data << uint8(0);
-    data.WriteString(GetMessage());
-
-    data << uint8(std::min(_escalatedStatus, TICKET_IN_ESCALATION_QUEUE));                              // escalated data
-    data << uint8(_viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED); // whether or not it has been viewed
-
     data << uint32(GetId());
 }
 
@@ -389,8 +390,8 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 
     if (ticket)
     {
+        data.WriteBits(message.size(), 10);
         data.WriteBits(message.size(), 11);
-        data.WriteBits(message.size(), 7);
         //data << uint32(ticket->GetId());            // ticketID
         //data << message.c_str();                    // ticket text
         //data << uint8(0x7);                         // ticket category; why is this hardcoded? does it make a diff re: client?
@@ -399,6 +400,8 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
         // Now we need to go through the client logic for displaying various levels of ticket load
         ticket->WritePacket(data);
     }
+
     data << uint32(status);
+
     session->SendPacket(&data);
 }

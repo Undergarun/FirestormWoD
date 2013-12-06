@@ -26,7 +26,7 @@
 #include "WorldSession.h"
 #include "Util.h"
 
-void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
+void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
     // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
@@ -56,7 +56,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recvData)
+void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 {
     std::string message;
     recvData >> message;
@@ -78,7 +78,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket& /*recvData*/)
 {
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
@@ -93,7 +93,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket& /*recvData*/)
 {
     SendQueryTimeResponse();
 
@@ -108,7 +108,11 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
         sTicketMgr->SendTicket(this, NULL);
 }
 
-void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGMTicketGetWebTicketOpcode(WorldPacket& /*recvPacket*/)
+{
+}
+
+void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket& /*recvData*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
     // are we sure this is a uint32? Should ask Zor
