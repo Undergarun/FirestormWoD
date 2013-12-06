@@ -52,6 +52,7 @@ bool ADT_file::prepareLoadedData()
     uint8* ptr = (uint8*)a_grid + a_grid->size + 8;
     uint32 mcnk_count = 0;
     memset(cells, 0, ADT_CELLS_PER_GRID * ADT_CELLS_PER_GRID * sizeof(adt_MCNK*));
+    memset(cellsMcvt, 0, ADT_CELLS_PER_GRID * ADT_CELLS_PER_GRID * sizeof(adt_MCVT*));
     while (ptr < GetData() + GetDataSize())
     {
         uint32 header = *(uint32*)ptr;
@@ -59,6 +60,25 @@ bool ADT_file::prepareLoadedData()
         if (header == 'MCNK')
         {
             cells[mcnk_count / ADT_CELLS_PER_GRID][mcnk_count % ADT_CELLS_PER_GRID] = (adt_MCNK*)ptr;
+            size_t chunkSize = sizeof(adt_MCNK);
+
+            // Fill sub chunk
+            while(chunkSize != size)
+            {
+                uint32 subHeader = *(uint32*)(ptr + chunkSize);
+                uint32 subSize = *(uint32*)(ptr + chunkSize + 4);
+
+                if (subHeader == 'MCVT')
+                {
+                    cellsMcvt[(mcnk_count) / ADT_CELLS_PER_GRID][(mcnk_count) % ADT_CELLS_PER_GRID] = (adt_MCVT*)ptr;
+                    break;
+                }
+
+                chunkSize += subSize + 8;
+                if (chunkSize > size) // hack fix
+                    break;
+            }
+
             ++mcnk_count;
         }
 
@@ -122,9 +142,6 @@ bool adt_MCNK::prepareLoadedData()
     if (fcc != 'MCNK')
         return false;
 
-    // Check height map
-    if (offsMCVT && !getMCVT()->prepareLoadedData())
-        return false;
     // Check liquid data
     if (offsMCLQ && !getMCLQ()->prepareLoadedData())
         return false;

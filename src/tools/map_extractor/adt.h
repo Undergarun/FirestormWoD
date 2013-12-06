@@ -112,12 +112,7 @@ public:
     uint32 effectId;
 
     bool   prepareLoadedData();
-    adt_MCVT *getMCVT()
-    {
-        if (offsMCVT)
-            return (adt_MCVT *)((uint8 *)this + offsMCVT);
-        return 0;
-    }
+
     adt_MCLQ *getMCLQ()
     {
         if (offsMCLQ)
@@ -287,6 +282,7 @@ public:
 
     adt_MHDR* a_grid;
     adt_MCNK* cells[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+    adt_MCVT* cellsMcvt[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 };
 
 #endif
