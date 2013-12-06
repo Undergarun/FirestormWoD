@@ -82,50 +82,77 @@ void BattlePetMgr::GetBattlePetList(PetBattleDataList &battlePetList) const
 void BattlePetMgr::BuildBattlePetJournal(WorldPacket *data)
 {
     PetBattleDataList petList;
+    GetBattlePetList(petList);
+
+    ByteBuffer dataBuffer;
 
     data->Initialize(SMSG_BATTLEPET_JOURNAL);
-    *data << uint16(0); // unk
-    data->WriteBit(1); // unk
-    data->WriteBits(0, 20); // unk counter, may be related to battle pet slot
-
-    GetBattlePetList(petList);
     data->WriteBits(petList.size(), 19);
 
     // bits part
     for (auto pet : petList)
     {
-        data->WriteBit(true); // hasBreed, inverse
-        data->WriteBit(true); // hasQuality, inverse
-        data->WriteBit(true); // hasUnk, inverse
-        data->WriteBits(0, 7); // name lenght
-        data->WriteBit(false); // unk bit
-        data->WriteBit(false); // has guid
+        // Not sent for the moment, pig pig
+        ObjectGuid petGuid = uint64(pet.m_summonSpellID);
+
+        data->WriteBit(petGuid[7]);
+        data->WriteBit(true);                   // hasQuality, inverse
+        data->WriteBit(petGuid[3]);
+        data->WriteBit(petGuid[5]);
+        data->WriteBit(petGuid[1]);
+        data->WriteBit(petGuid[6]);
+        data->WriteBit(false);                  // unk bit
+        data->WriteBit(true);                   // hasBreed, inverse
+        data->WriteBit(true);                   // hasUnk, inverse
+        data->WriteBit(false);                  // hasFirstOwnerGuid
+        data->WriteBits(0, 7);                  // name lenght
+        data->WriteBit(petGuid[0]);
+        data->WriteBit(petGuid[2]);
+        data->WriteBit(petGuid[4]);
+
+        dataBuffer << uint16(1);                // Level
+        dataBuffer.WriteByteSeq(petGuid[7]);
+        dataBuffer << uint32(1);                // Health or MaxHealth
+        dataBuffer << uint32(pet.m_speciesID);  // Species
+        dataBuffer << uint32(1);                // Speed
+        dataBuffer << uint32(1);                // Attack
+        dataBuffer << uint32(1);                // MaxHealth or Health
+        dataBuffer.WriteByteSeq(petGuid[6]);
+        dataBuffer << uint32(pet.m_entry);      // PetEntry
+        dataBuffer.WriteByteSeq(petGuid[4]);
+        dataBuffer.WriteByteSeq(petGuid[2]);
+        dataBuffer.WriteByteSeq(petGuid[3]);
+        dataBuffer.WriteByteSeq(petGuid[0]);
+        dataBuffer << uint32(0);                // Power ?
+        dataBuffer << uint16(0);                // Experience
+        dataBuffer.WriteByteSeq(petGuid[1]);
+        dataBuffer.WriteByteSeq(petGuid[5]);
     }
 
-    // data part
-    for (auto pet : petList)
-    {
-        *data << uint32(pet.m_displayID);
-        *data << uint32(pet.m_summonSpellID); // Pet Entry
-        *data << uint16(0); // xp
-        *data << uint32(1); // health
-        *data << uint16(1); // level
-        // name
-        *data << uint32(1); // speed
-        *data << uint32(1); // max health
-        *data << uint32(pet.m_entry); // Creature ID
-        *data << uint32(1); // power
-        *data << uint32(pet.m_speciesID); // species
-    }
+    data->WriteBit(1);                          // Unk
+    data->WriteBits(0, 25);                     // Battle Team
+    data->FlushBits();
+
+    if (dataBuffer.size())
+        data->append(dataBuffer);
+
+    *data << uint16(0);                         // Unk
 }
 
 void WorldSession::HandleSummonBattlePet(WorldPacket& recvData)
 {
-    uint32 spellID = 0;
-    recvData >> spellID;
+    ObjectGuid battlePetGuid;
 
-    if (!_player->HasSpell(spellID))
+    uint8 bitsOrder[8] = { 7, 5, 0, 2, 4, 6, 3, 1 };
+    recvData.ReadBitInOrder(battlePetGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 1, 0, 2, 6, 3, 7, 5 };
+    recvData.ReadBytesSeq(battlePetGuid, bytesOrder);
+
+    if (!_player->HasSpell(uint32(battlePetGuid)))
         return;
 
-    _player->CastSpell(_player, spellID, true);
+    _player->CastSpell(_player, uint32(battlePetGuid), true);
 }

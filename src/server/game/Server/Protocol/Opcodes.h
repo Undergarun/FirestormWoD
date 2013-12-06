@@ -514,7 +514,7 @@ enum Opcodes
     CMSG_SUBMIT_BUG                                   = 0x000,  // 5.0.5 16048
     CMSG_SUBMIT_COMPLAIN                              = 0x000,  // 5.0.5 16048 Deprecated ? 0x2512 4.3.4
     CMSG_SUGGESTION_SUBMIT                            = 0x000,  // 5.0.5 16048
-    CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x000,  // 5.0.5 16048
+    CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x1A1F, // 5.4.0 17399
     CMSG_SUMMON_RESPONSE                              = 0x000,  // 5.0.5 16048
     CMSG_SUSPEND_TOKEN                                = 0x000,  // 5.0.5 16048 Unused
     CMSG_SWAP_INV_ITEM                                = 0x445,  // 5.4.0 17399
@@ -714,7 +714,7 @@ enum Opcodes
     SMSG_BATTLEPET_DELETE                             = 0x8AC,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_ERROR                              = 0x491,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_HEALED                             = 0x108,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
-    SMSG_BATTLEPET_JOURNAL                            = 0x5B5,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
+    SMSG_BATTLEPET_JOURNAL                            = 0x5B5,  // 5.4.0 17399
     SMSG_BATTLEPET_JOURNAL_LOCK_ACQUIRED              = 0x1B1,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_JOURNAL_LOCK_DENIED                = 0x107,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_LICENSE_CHANGED                    = 0x103,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)

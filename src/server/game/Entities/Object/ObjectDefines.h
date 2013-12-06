@@ -33,22 +33,22 @@
 
 enum HighGuid
 {
-    HIGHGUID_ITEM               = 0x400,                       // blizz 4000
-    HIGHGUID_CONTAINER          = 0x400,                       // blizz 4000
-    HIGHGUID_PLAYER             = 0x018,                       // blizz 0018
-    HIGHGUID_GAMEOBJECT         = 0xF11,                       // blizz F110
-    HIGHGUID_TRANSPORT          = 0xF12,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
-    HIGHGUID_UNIT               = 0xF13,                       // blizz F130
-    HIGHGUID_PET                = 0xF14,                       // blizz F140
-    HIGHGUID_VEHICLE            = 0xF15,                       // blizz F550
-    HIGHGUID_DYNAMICOBJECT      = 0xF10,                       // blizz F100
-    HIGHGUID_CORPSE             = 0xF101,                      // blizz F100
-    HIGHGUID_AREATRIGGER        = 0xF102,                      // blizz F100
-    HIGHGUID_TYPE_BATTLEGROUND  = 0x1F1,                       // new 4.x
-    HIGHGUID_MO_TRANSPORT       = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    HIGHGUID_ITEM               = 0x400,                        // blizz 4000
+    HIGHGUID_CONTAINER          = 0x400,                        // blizz 4000
+    HIGHGUID_PLAYER             = 0x018,                        // blizz 0018
+    HIGHGUID_GAMEOBJECT         = 0xF11,                        // blizz F110
+    HIGHGUID_TRANSPORT          = 0xF12,                        // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
+    HIGHGUID_UNIT               = 0xF13,                        // blizz F130
+    HIGHGUID_PET                = 0xF14,                        // blizz F140
+    HIGHGUID_VEHICLE            = 0xF15,                        // blizz F550
+    HIGHGUID_DYNAMICOBJECT      = 0xF10,                        // blizz F100
+    HIGHGUID_CORPSE             = 0xF101,                       // blizz F100
+    HIGHGUID_AREATRIGGER        = 0xF102,                       // blizz F100
+    HIGHGUID_TYPE_BATTLEGROUND  = 0x1F1,                        // new 4.x
+    HIGHGUID_MO_TRANSPORT       = 0x1FC,                        // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
     HIGHGUID_GROUP              = 0x1F5,
-    HIGHGUID_GUILD              = 0x1FF,                       // new 4.x
-    HIGHGUID_INSTANCE_SAVE      = 0x104,                      // new 5.x
+    HIGHGUID_GUILD              = 0x1FF,                        // new 4.x
+    HIGHGUID_INSTANCE_SAVE      = 0x104                         // new 5.x
 };
 
 #define IS_EMPTY_GUID(Guid)          (Guid == 0)
