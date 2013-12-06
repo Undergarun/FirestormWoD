@@ -60,24 +60,22 @@
 HANDLE WorldMpq = NULL;
 HANDLE LocaleMpq = NULL;
 
-uint32 CONF_TargetBuild = 16135;              // 5.0.5 16135
+uint32 CONF_TargetBuild = 17399;              // 5.4.0 17399
 
 // List MPQ for extract maps from
 char const* CONF_mpq_list[]=
 {
     "world.MPQ",
-    //"art.MPQ",
-    //"world2.MPQ",
     "expansion1.MPQ",
     "expansion2.MPQ",
     "expansion3.MPQ",
     "expansion4.MPQ",
     "texture.MPQ",
     "model.MPQ",
-    "misc.MPQ"  //LiquiType.dbc
+    "misc.MPQ",  //LiquiType.dbc
 };
 
-uint32 const Builds[] = {13164, 13205, 13287, 13329, 13596, 13623, 13914, 14007, 14333, 14480, 14545, 15005, 15050, 15211, 15354, 15595, 16016, 16048, 16057, 16135, 0};
+uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516,  16650, 16844, 16965, 17116, 17266, 17325, 17345, 0};
 #define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
 
 char* const Locales[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU"};
