@@ -53,17 +53,19 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     uint8 bagIndex, slot, castFlags = 0;
     uint8 castCount = 0;                                // next cast if exists (single or not)
+    uint8 unkValues = 0;
     uint32 glyphIndex = 0;                              // something to do with glyphs?
     uint32 spellId = 0;                                 // casted spell id
+    uint32 unkBits = 0;
 
     recvPacket >> bagIndex >> slot;
 
-    ObjectGuid itemGuid, guid2, guid3, guid4, guid5, guid6, guid7;
+    ObjectGuid itemGuid, targetGuid, itemTarget, srcTransport, dstTransport, guid6, guid7;
 
-    bool bit28 = recvPacket.ReadBit();
+    itemGuid[4] = recvPacket.ReadBit();
     bool bit64 = !recvPacket.ReadBit();
     bool hasUnkString = !recvPacket.ReadBit();
-    bool bit56 = !recvPacket.ReadBit();
+    bool hasCastFlags = !recvPacket.ReadBit();
     itemGuid[5] = recvPacket.ReadBit();
     bool hasSpellID = !recvPacket.ReadBit();
     uint8 archeologyCounter = recvPacket.ReadBits(2);
@@ -76,19 +78,19 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     entry = new uint32[archeologyCounter];
     usedCount = new uint32[archeologyCounter];
 
-    bool hasGuid5 = recvPacket.ReadBit();
+    bool hasDstTransport = recvPacket.ReadBit();
     bool hasMovement = recvPacket.ReadBit();
-    bool hasSpeed = !recvPacket.ReadBit();
+    bool unkBit72 = !recvPacket.ReadBit(); // ??
     bool hasElevation = !recvPacket.ReadBit();
-    bool bit40 = !recvPacket.ReadBit();
+    bool hasCastCount = !recvPacket.ReadBit();
     itemGuid[0] = recvPacket.ReadBit();
-    bool bit52 = !recvPacket.ReadBit();
+    bool hasUnkValues = !recvPacket.ReadBit();
     itemGuid[6] = recvPacket.ReadBit();
     itemGuid[2] = recvPacket.ReadBit();
     itemGuid[1] = recvPacket.ReadBit();
-    bool bit48 = !recvPacket.ReadBit();
-    bool hasGuid4 = recvPacket.ReadBit();
-    bool v9 = !recvPacket.ReadBit();
+    bool hasGlyph = !recvPacket.ReadBit();
+    bool hasTransport = recvPacket.ReadBit();
+    bool hasSpeed = !recvPacket.ReadBit(); // ??
 
     itemGuid[3] = recvPacket.ReadBit();
 
@@ -97,19 +99,11 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     itemGuid[7] = recvPacket.ReadBit();
 
-    if (hasGuid5)
+    if (hasDstTransport)
     {
         uint8 bitsOrder[8] = { 6, 1, 5, 0, 3, 2, 7, 4 };
-        recvPacket.ReadBitInOrder(guid5, bitsOrder);
+        recvPacket.ReadBitInOrder(dstTransport, bitsOrder);
     }
-
-    uint32 bits416 = 0;
-    bool bit404 = false;
-    bool bit400 = false;
-    bool bit368 = false;
-    bool bit356 = false;
-    bool bit364 = false;
-    bool bit296 = false;
 
     if (hasMovement)
     {
@@ -117,25 +111,25 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     uint8 bitsOrder2[8] = { 0, 4, 7, 1, 2, 3, 6, 5 };
-    recvPacket.ReadBitInOrder(guid2, bitsOrder2);
+    recvPacket.ReadBitInOrder(targetGuid, bitsOrder2);
 
-    if (bit56)
-        uint32 values = recvPacket.ReadBits(24);
+    if (hasCastFlags)
+        castFlags = recvPacket.ReadBits(20);
 
-    if (hasGuid4)
+    if (hasTransport)
     {
         uint8 bitsOrder[8] = { 2, 0, 1, 5, 7, 4, 3, 6 };
-        recvPacket.ReadBitInOrder(guid4, bitsOrder);
+        recvPacket.ReadBitInOrder(srcTransport, bitsOrder);
     }
 
     uint8 bitsOrder3[8] = { 0, 4, 3, 5, 1, 7, 6, 2 };
-    recvPacket.ReadBitInOrder(guid3, bitsOrder3);
+    recvPacket.ReadBitInOrder(itemTarget, bitsOrder3);
 
-    if (bit52)
-        uint8 values = recvPacket.ReadBits(5);
+    if (hasUnkValues)
+        unkValues = recvPacket.ReadBits(5);
 
     if (hasUnkString)
-        unkStringLen = recvPacket.ReadBits(8);
+        unkStringLen = recvPacket.ReadBits(7);
 
     recvPacket.FlushBits();
 
@@ -167,22 +161,22 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(itemGuid[2]);
 
     uint8 bytesOrder3[8] = { 0, 4, 1, 7, 3, 6, 5, 2 };
-    recvPacket.ReadBytesSeq(guid3, bytesOrder3);
+    recvPacket.ReadBytesSeq(itemTarget, bytesOrder3);
 
     WorldLocation srcPos;
-    if (hasGuid4)
+    if (hasTransport)
     {
-        recvPacket.ReadByteSeq(guid4[7]);
-        recvPacket.ReadByteSeq(guid4[5]);
-        recvPacket.ReadByteSeq(guid4[6]);
+        recvPacket.ReadByteSeq(srcTransport[7]);
+        recvPacket.ReadByteSeq(srcTransport[5]);
+        recvPacket.ReadByteSeq(srcTransport[6]);
         recvPacket >> srcPos.m_positionX;
-        recvPacket.ReadByteSeq(guid4[3]);
-        recvPacket.ReadByteSeq(guid4[1]);
+        recvPacket.ReadByteSeq(srcTransport[3]);
+        recvPacket.ReadByteSeq(srcTransport[1]);
         recvPacket >> srcPos.m_positionY;
         recvPacket >> srcPos.m_positionZ;
-        recvPacket.ReadByteSeq(guid4[0]);
-        recvPacket.ReadByteSeq(guid4[2]);
-        recvPacket.ReadByteSeq(guid4[4]);
+        recvPacket.ReadByteSeq(srcTransport[0]);
+        recvPacket.ReadByteSeq(srcTransport[2]);
+        recvPacket.ReadByteSeq(srcTransport[4]);
     }
 
     if (hasMovement)
@@ -190,30 +184,30 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         // Kebab client side
     }
 
-    if (bit40)
+    if (hasCastCount)
         recvPacket >> castCount;
 
     WorldLocation destPos;
-    if (hasGuid5)
+    if (hasDstTransport)
     {
-        recvPacket.ReadByteSeq(guid5[6]);
-        recvPacket.ReadByteSeq(guid5[1]);
+        recvPacket.ReadByteSeq(dstTransport[6]);
+        recvPacket.ReadByteSeq(dstTransport[1]);
         recvPacket >> destPos.m_positionZ;
-        recvPacket.ReadByteSeq(guid5[0]);
+        recvPacket.ReadByteSeq(dstTransport[0]);
         recvPacket >> destPos.m_positionX;
-        recvPacket.ReadByteSeq(guid5[5]);
+        recvPacket.ReadByteSeq(dstTransport[5]);
         recvPacket >> destPos.m_positionY;
-        recvPacket.ReadByteSeq(guid5[7]);
-        recvPacket.ReadByteSeq(guid5[2]);
-        recvPacket.ReadByteSeq(guid5[4]);
-        recvPacket.ReadByteSeq(guid5[3]);
+        recvPacket.ReadByteSeq(dstTransport[7]);
+        recvPacket.ReadByteSeq(dstTransport[2]);
+        recvPacket.ReadByteSeq(dstTransport[4]);
+        recvPacket.ReadByteSeq(dstTransport[3]);
     }
 
     if (hasSpeed)
         recvPacket >> speed;
 
     uint8 bytesOrder[8] = { 1, 3, 7, 0, 4, 6, 2, 5 };
-    recvPacket.ReadBytesSeq(guid2, bytesOrder);
+    recvPacket.ReadBytesSeq(targetGuid, bytesOrder);
 
     if (hasSpellID)
         recvPacket >> spellId;
@@ -224,7 +218,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     if (hasUnkString)
         unkString = recvPacket.ReadString(unkStringLen);
 
-    if (bit48)
+    if (hasGlyph)
         recvPacket >> glyphIndex;
 
     if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
@@ -308,8 +302,20 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         }
     }
 
+    Unit* mover = pUser->m_mover;
+    if (mover != pUser && mover->GetTypeId() == TYPEID_PLAYER)
+    {
+        recvPacket.rfinish(); // prevent spam at ignore packet
+        return;
+    }
+
     SpellCastTargets targets;
     HandleClientCastFlags(recvPacket, castFlags, targets);
+
+    targets.Initialize(castFlags, targetGuid, itemTarget, guid6, destPos, guid7, srcPos);
+    targets.SetElevation(elevation);
+    targets.SetSpeed(speed);
+    targets.Update(mover);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
