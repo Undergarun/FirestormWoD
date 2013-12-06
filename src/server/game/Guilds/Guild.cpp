@@ -1853,8 +1853,8 @@ void Guild::HandleAcceptMember(WorldSession* session)
         data.WriteBits(strlen(session->GetPlayer()->GetName()), 6);
         data.WriteBit(1);
 
-        uint8 bitsOrder[8] = { 0, 2, 6, 7, 3, 4, 5, 1 };
-        data.WriteBitInOrder(playerGuid, bitsOrder);
+        uint8 bitsLoginOrder[8] = { 0, 2, 6, 7, 3, 4, 5, 1 };
+        data.WriteBitInOrder(playerGuid, bitsLoginOrder);
 
         data.WriteByteSeq(playerGuid[6]);
         data.WriteByteSeq(playerGuid[4]);
