@@ -1614,9 +1614,10 @@ class spell_hun_rapid_fire : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_rapid_fire_SpellScript);
 
+            // CRASHFIX: crash in 5.4.0 due to GetEffect), effect 1 doesn't exist in DBC in 5.4
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                /*if (Player* _player = GetCaster()->ToPlayer())
                 {
                     // Item - Bonus season 12 PvP
                     if (_player->HasAura(HUNTER_SPELL_RAPID_INTENSITY))
@@ -1637,7 +1638,7 @@ class spell_hun_rapid_fire : public SpellScriptLoader
                             rapidFire->GetEffect(1)->ChangeAmount(0);
                         }
                     }
-                }
+                }*/
             }
 
             void Register()
