@@ -24943,10 +24943,10 @@ Player* Player::GetSelectedPlayer() const
 void Player::SendComboPoints()
 {
     Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
-    ObjectGuid guid = combotarget->GetGUID();
 
     if (combotarget)
     {
+        ObjectGuid guid = combotarget->GetGUID();
         WorldPacket data(SMSG_UPDATE_COMBO_POINTS);
 
         uint8 bitsOrder[8] = { 6, 2, 5, 4, 7, 0, 1, 3 };
