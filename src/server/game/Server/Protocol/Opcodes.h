@@ -1203,7 +1203,7 @@ enum Opcodes
     SMSG_PARTY_MEMBER_STATS_FULL                      = 0x000,  // 5.0.5 16048
     SMSG_PARTY_UPDATE                                 = 0x13D,  // 5.4.0 17399
     SMSG_PAUSE_MIRROR_TIMER                           = 0x488,  // 5.4.0 17399 (JamList)
-    SMSG_PERIODICAURALOG                              = 0x000,  // 5.0.5 16048
+    SMSG_PERIODIC_AURA_LOG                            = 0x1097, // 5.4.0 17399
     SMSG_PENDING_RAID_LOCK                            = 0x59E,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PETITION_ALREADY_SIGNED                      = 0x00C,  // 5.4.0 17399 (JamList)
     SMSG_PETITION_QUERY_RESPONSE                      = 0x419,  // 5.4.0 17399 (JamList)
@@ -1411,8 +1411,8 @@ enum Opcodes
     SMSG_SPELLBREAKLOG                                = 0x000,  // 5.0.5 16048
     SMSG_SPELLDAMAGESHIELD                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLDISPELLOG                               = 0x000,  // 5.0.5 16048
-    SMSG_SPELLENERGIZELOG                             = 0x000,  // 5.0.5 16048
-    SMSG_SPELLHEALLOG                                 = 0x000,  // 5.0.5 16048
+    SMSG_SPELL_ENERGIZE_LOG                           = 0x1492, // 5.4.0 17399
+    SMSG_SPELL_HEAL_LOG                               = 0x1594, // 5.4.0 17399
     SMSG_SPELLINSTAKILLLOG                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLINTERRUPTLOG                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048
