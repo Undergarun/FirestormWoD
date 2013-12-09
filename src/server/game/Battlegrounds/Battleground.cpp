@@ -2118,7 +2118,9 @@ void Battleground::RelocateDeadPlayers(uint64 queueIndex)
 
 uint32 Battleground::GetArenaMatchmakerRating(uint32 Team, uint8 slot)
 {
-    uint32 MMR, count;
+    uint32 MMR = 0;
+    uint32 count = 0;
+
     if (Group* group = GetBgRaid(Team))
     {
         for (GroupReference* ref = group->GetFirstMember(); ref != NULL; ref = ref->next())
