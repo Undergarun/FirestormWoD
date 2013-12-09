@@ -476,7 +476,26 @@ enum AuraType
     SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,  // SPELL_AURA_SANCTITY_OF_BATTLE
     SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
     SPELL_AURA_418                                          = 418,  // 5.0.5 unk aura
-    TOTAL_AURAS                                             = 419   // 5.0.5
+    SPELL_AURA_419                                          = 419,  // 5.4.0 unk aura
+    SPELL_AURA_420                                          = 420,  // 5.4.0 unk aura
+    SPELL_AURA_421                                          = 421,  // 5.4.0 unk aura
+    SPELL_AURA_422                                          = 422,  // 5.4.0 unk aura
+    SPELL_AURA_423                                          = 423,  // 5.4.0 unk aura
+    SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura
+    SPELL_AURA_425                                          = 425,  // 5.4.0 unk aura
+    SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura
+    SPELL_AURA_427                                          = 427,  // 5.4.0 unk aura
+    SPELL_AURA_428                                          = 428,  // 5.4.0 unk aura
+    SPELL_AURA_429                                          = 429,  // 5.4.0 unk aura
+    SPELL_AURA_430                                          = 430,  // 5.4.0 unk aura
+    SPELL_AURA_431                                          = 431,  // 5.4.0 unk aura
+    SPELL_AURA_432                                          = 432,  // 5.4.0 unk aura
+    SPELL_AURA_433                                          = 433,  // 5.4.0 unk aura
+    SPELL_AURA_434                                          = 434,  // 5.4.0 unk aura
+    SPELL_AURA_435                                          = 435,  // 5.4.0 unk aura
+    SPELL_AURA_436                                          = 436,  // 5.4.0 unk aura
+    SPELL_AURA_437                                          = 437,  // 5.4.0 unk aura
+    TOTAL_AURAS                                             = 438   // 5.4.0
 };
 
 enum AuraObjectType
