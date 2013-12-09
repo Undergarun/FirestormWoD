@@ -3315,9 +3315,8 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                 else
                     chaosBolt = true;
             }
-            // CRASH IN 5.4.2
             // Fix don't apply Molten Core multiple times for Soul Fire
-            /*else if (mod->spellId == 122355 && (spellInfo->Id == 6353 || spellInfo->Id == 104027))
+            else if (mod->spellId == 122355 && (spellInfo->Id == 6353 || spellInfo->Id == 104027))
             {
                 if (soulFire)
                     continue;
@@ -3330,7 +3329,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                     m_isMoltenCored = true;
 
                 value = mod->value / mod->charges;
-            }*/
+            }
 
             totalmul += CalculatePct(1.0f, value);
         }
