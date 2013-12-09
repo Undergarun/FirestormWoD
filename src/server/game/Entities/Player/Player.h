@@ -20,7 +20,7 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
-#include "Arena.h"
+//#include "Arena.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "Bag.h"
