@@ -1654,6 +1654,8 @@ void ObjectMgr::LoadCreatures()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
+
+            // Update creature table
             //WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 

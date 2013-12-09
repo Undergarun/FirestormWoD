@@ -1556,7 +1556,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureClassLevelStats();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
-    sObjectMgr->RestructCreatureGUID(10000);
+    sObjectMgr->RestructCreatureGUID(10000);                     // Select amount
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
