@@ -341,8 +341,6 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
 {
     SpellEffectEntry const* _effect = spellEntry->GetSpellEffect(effIndex, difficulty);
     SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->Id : 0);
-    SpellScalingEntry const* scaling = spellInfo->GetSpellScaling();
-
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
