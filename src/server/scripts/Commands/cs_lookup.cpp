@@ -1032,6 +1032,7 @@ public:
     {
         if (!*args)
             return false;
+        /* @todo FIX ME */
         /*
         std::string namePart = args;
         std::wstring wNamePart;
@@ -1088,9 +1089,18 @@ public:
 
                     switch (MapInfo->map_type)
                     {
-                        case MAP_INSTANCE:      ss << handler->GetTrinityString(LANG_INSTANCE);      break;
-                        case MAP_BATTLEGROUND:  ss << handler->GetTrinityString(LANG_BATTLEGROUND);  break;
-                        case MAP_ARENA:         ss << handler->GetTrinityString(LANG_ARENA);         break;
+                        case MAP_INSTANCE:
+                        ss << handler->GetTrinityString(LANG_INSTANCE);
+                        break;
+                        case MAP_BATTLEGROUND:
+                        ss << handler->GetTrinityString(LANG_BATTLEGROUND);
+                        break;
+                        case MAP_ARENA:
+                        ss << handler->GetTrinityString(LANG_ARENA);
+                        break;
+                        case MAP_SCENARIO:
+                        ss << handler->GetTrinityString(LANG_ARENA);
+                        break;
                     }
 
                     if (MapInfo->IsRaid())
