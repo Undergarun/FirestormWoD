@@ -462,8 +462,8 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
     size_t count_pos = buff.bitwpos();
     buff.WriteBits(count, 19);                                  // Placeholder
-
-    Battleground::BattlegroundScoreMap::const_iterator itr2 = bg->GetPlayerScoresBegin();
+    
+    itr2 = bg->GetPlayerScoresBegin();
     for (Battleground::BattlegroundScoreMap::const_iterator itr = itr2; itr != bg->GetPlayerScoresEnd();)
     {
         itr2 = itr++;
