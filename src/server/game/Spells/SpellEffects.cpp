@@ -270,7 +270,14 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
     &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
-    &Spell::EffectNULL                                      //201 SPELL_EFFECT_201
+    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_201
+    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
+    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
+    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204
+    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205
+    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206
+    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207
+    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {

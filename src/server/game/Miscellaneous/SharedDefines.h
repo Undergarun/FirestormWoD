@@ -1098,7 +1098,14 @@ enum SpellEffects
     SPELL_EFFECT_199                                = 199, // 129857
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
     SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
-    TOTAL_SPELL_EFFECTS                             = 202
+    SPELL_EFFECT_202                                = 202, // Unk 5.4.0
+    SPELL_EFFECT_203                                = 203, // Unk 5.4.0
+    SPELL_EFFECT_204                                = 204, // Unk 5.4.0
+    SPELL_EFFECT_205                                = 205, // Unk 5.4.0
+    SPELL_EFFECT_206                                = 206, // Unk 5.4.0
+    SPELL_EFFECT_207                                = 207, // Unk 5.4.0
+    SPELL_EFFECT_208                                = 208, // Unk 5.4.0
+    TOTAL_SPELL_EFFECTS                             = 209
 };
 
 enum PetTameResult
