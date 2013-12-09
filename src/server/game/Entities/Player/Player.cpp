@@ -28674,7 +28674,7 @@ void Player::SendMovementSetCanFly(bool apply)
         data << uint32(0);          //! movement counter
 
         data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[1]);

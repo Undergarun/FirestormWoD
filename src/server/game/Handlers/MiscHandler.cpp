@@ -1570,7 +1570,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     }
 
     data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[1]);
     data.WriteByteSeq(playerGuid[5]);
     data.WriteByteSeq(playerGuid[0]);
 
