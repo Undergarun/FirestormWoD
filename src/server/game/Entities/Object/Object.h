@@ -70,10 +70,11 @@ enum TypeID
     TYPEID_GAMEOBJECT    = 5,
     TYPEID_DYNAMICOBJECT = 6,
     TYPEID_CORPSE        = 7,
-    TYPEID_AREATRIGGER   = 8
+    TYPEID_AREATRIGGER   = 8,
+    TYPEID_SCENEOBJECT   = 9
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             9
+#define NUM_CLIENT_OBJECT_TYPES             10
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
