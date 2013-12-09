@@ -1412,7 +1412,7 @@ enum Opcodes
     SMSG_SPELLDAMAGESHIELD                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLDISPELLOG                               = 0x000,  // 5.0.5 16048
     SMSG_SPELLENERGIZELOG                             = 0x000,  // 5.0.5 16048
-    SMSG_SPELLHEALLOG                                 = 0x000,  // 5.0.5 16048
+    SMSG_SPELL_HEAL_LOG                               = 0x1594, // 5.4.0 17399
     SMSG_SPELLINSTAKILLLOG                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLINTERRUPTLOG                            = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048

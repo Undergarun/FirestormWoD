@@ -11277,15 +11277,53 @@ void Unit::UnsummonAllTotems()
 void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
 {
     // we guess size
-    WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+4+4+1+1));
-    data.append(victim->GetPackGUID());
-    data.append(GetPackGUID());
-    data << uint32(SpellID);
+    WorldPacket data(SMSG_SPELL_HEAL_LOG, 60);
+    ObjectGuid targetGuid = victim->GetGUID();
+    ObjectGuid casterGuid = GetGUID();
+
+    data.WriteBit(critical);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(false);                               // IsDebug
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(false);                               // HasPowerData
+    data.WriteBit(false);                               // IsDebug 2
+
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(targetGuid[1]);
+
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(casterGuid[6]);
+    data << uint32(Absorb);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(targetGuid[7]);
     data << uint32(Damage);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGuid[4]);
+    data << uint32(SpellID);
+    data.WriteByteSeq(targetGuid[1]);
     data << uint32(OverHeal);
-    data << uint32(Absorb); // Absorb amount
-    data << uint8(critical ? 1 : 0);
-    data << uint8(0); // unused
+
     SendMessageToSet(&data, true);
 }
 
