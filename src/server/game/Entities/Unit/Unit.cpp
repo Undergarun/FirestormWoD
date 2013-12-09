@@ -5434,8 +5434,11 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 
     data << uint32(aura->GetAuraType());
 
-    if (pInfo->overDamage)
+    if (pInfo->overDamage && aura->GetAuraType() == SPELL_AURA_PERIODIC_HEAL || aura->GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
         data << uint32(pInfo->overDamage);
+    else
+        data << uint32(0);
+
     if (pInfo->absorb)
         data << uint32(pInfo->absorb);
 

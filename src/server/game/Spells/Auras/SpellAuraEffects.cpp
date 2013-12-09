@@ -475,7 +475,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
-    &AuraEffect::HandleNULL,                                      //419 SPELL_AURA_419
+    &AuraEffect::HandleAuraModIncreaseEnergyPercent,              //419 SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
     &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_421
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422

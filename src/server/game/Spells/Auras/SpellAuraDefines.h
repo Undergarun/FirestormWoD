@@ -476,7 +476,7 @@ enum AuraType
     SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,  // SPELL_AURA_SANCTITY_OF_BATTLE
     SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
     SPELL_AURA_418                                          = 418,  // 5.0.5 unk aura
-    SPELL_AURA_419                                          = 419,  // 5.4.0 unk aura
+    SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2                = 419,  // SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     SPELL_AURA_420                                          = 420,  // 5.4.0 unk aura
     SPELL_AURA_421                                          = 421,  // 5.4.0 unk aura
     SPELL_AURA_422                                          = 422,  // 5.4.0 unk aura
