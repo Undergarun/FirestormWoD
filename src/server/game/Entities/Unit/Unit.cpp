@@ -11340,12 +11340,48 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELLENERGIZELOG, (8+8+4+4+4+1));
-    data.append(victim->GetPackGUID());
-    data.append(GetPackGUID());
-    data << uint32(spellID);
-    data << uint32(powerType);
+    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, 60);
+    ObjectGuid targetGuid = victim->GetGUID();
+    ObjectGuid casterGuid = GetGUID();
+
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(false);                       // HasPowerData
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(casterGuid[7]);
+
+    data.WriteByteSeq(targetGuid[3]);
     data << uint32(damage);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(casterGuid[6]);
+    data << uint32(spellID);
+    data.WriteByteSeq(casterGuid[3]);
+    data << uint32(powerType);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[0]);
+
     SendMessageToSet(&data, true);
 }
 
