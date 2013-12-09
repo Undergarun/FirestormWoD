@@ -905,10 +905,11 @@ bool AuthSocket::_HandleRealmList()
         pkt << lock;                                    // if 1, then realm locked
         pkt << uint8(i->second.flag);                       // RealmFlags
         pkt << i->first;
-        std::string ip = sRealmList->firewallSize() ? sRealmList->GetRandomFirewall() : "localhost";
-        ip += ":";
-        ip += i->second.address;
-        pkt << ip;
+        //std::string ip = sRealmList->firewallSize() ? sRealmList->GetRandomFirewall() : "localhost";
+        //ip += ":";
+        //ip += i->second.address;
+        //pkt << ip;
+        pkt << i->second.address;
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category

@@ -229,13 +229,6 @@ enum ScoreType
     SCORE_ORB_SCORE             = 22
 };
 
-enum ArenaType
-{
-    ARENA_TYPE_2v2          = 2,
-    ARENA_TYPE_3v3          = 3,
-    ARENA_TYPE_5v5          = 5
-};
-
 enum BattlegroundType
 {
     TYPE_BATTLEGROUND     = 3,
@@ -534,15 +527,7 @@ class Battleground
         }
 
         // used for rated arena battles
-        void SetArenaTeamIdForTeam(uint32 Team, uint32 ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(Team)] = ArenaTeamId; }
-        uint32 GetArenaTeamIdForTeam(uint32 Team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(Team)]; }
-        uint32 GetArenaTeamIdByIndex(uint32 index) const { return m_ArenaTeamIds[index]; }
-        void SetArenaTeamRatingChangeForTeam(uint32 Team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)] = RatingChange; }
-        int32 GetArenaTeamRatingChangeForTeam(uint32 Team) const    { return m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)]; }
-        int32 GetArenaTeamRatingChangeByIndex(uint32 index) const   { return m_ArenaTeamRatingChanges[index]; }
-        void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
-        uint32 GetArenaMatchmakerRating(uint32 Team) const          { return m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)]; }
-        uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const  { return m_ArenaTeamMMR[index]; }
+        uint32 GetArenaMatchmakerRating(uint32 Team, uint8 slot);
         void CheckArenaAfterTimerConditions();
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();

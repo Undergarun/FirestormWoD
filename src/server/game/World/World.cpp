@@ -38,7 +38,6 @@
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "GuildFinderMgr.h"
 #include "TicketMgr.h"
@@ -1725,9 +1724,6 @@ void World::SetInitialWorldSettings()
     sGuildMgr->LoadGuilds();
 
     sGuildFinderMgr->LoadFromDB();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading ArenaTeams...");
-    sArenaTeamMgr->LoadArenaTeams();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Groups...");
     sGroupMgr->LoadGroups();

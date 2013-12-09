@@ -363,7 +363,7 @@ class WorldSession
         //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
-        void SendAuctionHello(uint64 guid, Creature* unit);
+        void SendAuctionHello(ObjectGuid guid, Creature* unit);
         void SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry* auction);
@@ -381,7 +381,6 @@ class WorldSession
         void SendDiscoverNewTaxiNode(uint32 nodeid);
 
         // Guild/Arena Team
-        void SendArenaTeamCommandResult(uint32 team_action, const std::string& team, const std::string& player, uint32 error_id);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
 

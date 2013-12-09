@@ -19,14 +19,13 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "SystemConfig.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
-#include "ArenaTeam.h"
+#include "Arena.h"
 #include "Chat.h"
 #include "Group.h"
 #include "Guild.h"
@@ -827,15 +826,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         return;
     }
 
-    // is arena team captain
-    if (sArenaTeamMgr->GetArenaTeamByCaptain(charGuid))
-    {
-        WorldPacket data(SMSG_CHAR_DELETE, 1);
-        data << uint8(CHAR_DELETE_FAILED_ARENA_CAPTAIN);
-        SendPacket(&data);
-        return;
-    }
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_NAME_BY_GUID);
     stmt->setUInt32(0, GUID_LOPART(charGuid));
 
@@ -1063,6 +1053,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
             chH.PSendSysMessage(_FULLVERSION);
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
+    }
+
+    if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
+    {
+        data.Initialize(SMSG_SET_ARENA_SEASON, 8);
+        data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1);
+        data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+        SendPacket(&data);
     }
 
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
@@ -2382,9 +2380,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             trans->Append(stmt);
 
         }
-
-        // Leave Arena Teams
-        Player::LeaveAllArenaTeams(guid);
 
         // Reset homebind and position
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);

@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
+#include "Arena.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "Bag.h"
@@ -2096,13 +2097,25 @@ class Player : public Unit, public GridObject<Player>
                 UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
             }
         }
+        
+        // Arena
         static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
-        static void LeaveAllArenaTeams(uint64 guid);
         uint32 GetArenaTeamId(uint8 slot) const { /*return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID);**/ return 0;}
-        uint32 GetArenaPersonalRating(uint8 slot) const { return 0; }
+        uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_ArenaPersonalRating[slot]; }
+        uint32 GetArenaMatchMakerRating(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_ArenaMatchMakerRating[slot]; }
+        void SetArenaPersonalRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaPersonalRating[slot] = value; }
+        void SetArenaMatchMakerRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaMatchMakerRating[slot] = value; }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
         uint32 GetRBGPersonalRating() const { return 0; }
+        uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_WeekGames[slot]; }
+        uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_WeekWins[slot]; }
+        uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_SeasonGames[slot]; }
+        void IncrementWeekGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekGames[slot]; }
+        void IncrementWeekWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekWins[slot]; }
+        void IncrementSeasonGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonGames[slot]; }
+        void IncrementSeasonWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonWins[slot]; }
+        void FinishWeek();
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
 
@@ -3240,6 +3253,14 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        // Arena
+        uint32 m_ArenaPersonalRating[MAX_ARENA_SLOT];
+        uint32 m_ArenaMatchMakerRating[MAX_ARENA_SLOT];
+        uint32 m_WeekGames[MAX_ARENA_SLOT];
+        uint32 m_WeekWins[MAX_ARENA_SLOT];
+        uint32 m_SeasonGames[MAX_ARENA_SLOT];
+        uint32 m_SeasonWins[MAX_ARENA_SLOT];
 };
 
 void AddItemsSetItem(Player*player, Item* item);

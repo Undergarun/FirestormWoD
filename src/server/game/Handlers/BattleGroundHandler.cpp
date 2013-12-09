@@ -19,11 +19,10 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-#include "ArenaTeam.h"
+#include "Arena.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
@@ -561,16 +560,14 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             if (bg->isArena() && bg->GetStatus() > STATUS_WAIT_QUEUE)
                 return;
             // if player leaves rated arena match before match start, it is counted as he played but he lost
-            if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
+            /*if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
             {
-                ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ginfo.Team);
-                if (at)
+                if (ginfo.group)
                 {
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "UPDATING memberLost's personal arena rating for %u by opponents rating: %u, because he has left queue!", GUID_LOPART(_player->GetGUID()), ginfo.OpponentsTeamRating);
-                    at->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
-                    at->SaveToDB();
+                    ginfo.group->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
                 }
-            }
+            }*/
 
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueSlot, STATUS_NONE, _player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0);
             SendPacket(&data);
@@ -682,7 +679,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     uint32 arenaRating = 0;
     uint32 matchmakerRating = 0;
 
-    uint8 arenatype = ArenaTeam::GetTypeBySlot(arenaslot);
+    uint8 arenatype = Arena::GetTypeBySlot(arenaslot);
 
     //check existance
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
@@ -707,26 +704,31 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 
     GroupJoinBattlegroundResult err = ERR_BATTLEGROUND_NONE;
 
-     Group* grp = _player->GetGroup();
-     // no group found, error
-     if (!grp)
-         return;
-     if (grp->GetLeaderGUID() != _player->GetGUID())
-         return;
+    Group* grp = _player->GetGroup();
 
-     uint32 ateamId = _player->GetArenaTeamId(arenaslot);
-     // check real arenateam existence only here (if it was moved to group->CanJoin .. () then we would ahve to get it twice)
-     ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ateamId);
-     if (!at)
-     {
-         _player->GetSession()->SendNotInArenaTeamPacket(arenatype);
-         return;
-     }
+    // no group found, error
+    if (!grp)
+        return;
 
-    // get the team rating for queueing
-     arenaRating = at->GetRating();
-     matchmakerRating = at->GetAverageMMR(grp);
-     // the arenateam id must match for everyone in the group
+    if (grp->GetLeaderGUID() != _player->GetGUID())
+        return;
+
+    uint32 playerDivider = 0;
+    for (GroupReference const* ref = grp->GetFirstMember(); ref != NULL; ref = ref->next())
+    {
+        if (Player const* groupMember = ref->getSource())
+        {
+            arenaRating += groupMember->GetArenaPersonalRating(arenaslot);
+            matchmakerRating += groupMember->GetArenaMatchMakerRating(arenaslot);
+            ++playerDivider;
+        }
+    }
+
+    if (!playerDivider)
+        return;
+
+    arenaRating /= playerDivider;
+    matchmakerRating /= playerDivider;
 
     if (arenaRating <= 0)
         arenaRating = 1;
@@ -741,7 +743,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: arena team id %u, leader %s queued with matchmaker rating %u for type %u", _player->GetArenaTeamId(arenaslot), _player->GetName(), matchmakerRating, arenatype);
 
-        ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, true, false, arenaRating, matchmakerRating, ateamId);
+        ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, true, false, arenaRating, matchmakerRating);
         avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
     }
 

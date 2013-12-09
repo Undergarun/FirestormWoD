@@ -42,7 +42,6 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "GroupMgr.h"
 #include "ObjectAccessor.h"
@@ -59,7 +58,7 @@
 #include "BattlegroundMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
-#include "ArenaTeam.h"
+#include "Arena.h"
 #include "Chat.h"
 #include "Spell.h"
 #include "SocialMgr.h"
@@ -5815,9 +5814,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(guid, false, false, true);
 
-    // remove from arena teams
-    LeaveAllArenaTeams(playerguid);
-
     // the player was uninvited already on logout so just remove from group
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
     stmt->setUInt32(0, guid);
@@ -8729,18 +8725,7 @@ uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
 
 void Player::ResetCurrencyWeekCap()
 {
-    for (uint32 arenaSlot = 0; arenaSlot < MAX_ARENA_SLOT; arenaSlot++)
-    {
-        if (uint32 arenaTeamId = GetArenaTeamId(arenaSlot))
-        {
-            if (ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId))
-            {
-                arenaTeam->FinishWeek();                              // set played this week etc values to 0 in memory, too
-                arenaTeam->SaveToDB();                                // save changes
-                arenaTeam->NotifyStatsChanged();                      // notify the players of the changes
-            }
-        }
-    }
+    FinishWeek();                              // set played this week etc values to 0 in memory, too
 
     for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
@@ -10605,58 +10590,58 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 1537:
         case 2257:
         case 2918:
-            NumberOfFields = 8;
+            NumberOfFields = 6;
             break;
         case 1377:
-            NumberOfFields = 15;
+            NumberOfFields = 13;
             break;
         case 2597:
-            NumberOfFields = 83;
+            NumberOfFields = 81;
             break;
         case 3277:
-            NumberOfFields = 16;
+            NumberOfFields = 14;
             break;
         case 3358:
         case 3820:
-            NumberOfFields = 40;
-            break;
-        case 3483:
-            NumberOfFields = 27;
-            break;
-        case 3518:
-            NumberOfFields = 39;
-            break;
-        case 3519:
             NumberOfFields = 38;
             break;
-        case 3521:
+        case 3483:
+            NumberOfFields = 25;
+            break;
+        case 3518:
             NumberOfFields = 37;
+            break;
+        case 3519:
+            NumberOfFields = 36;
+            break;
+        case 3521:
+            NumberOfFields = 35;
             break;
         case 3698:
         case 3702:
         case 3968:
         case 4378:
         case 3703:
-            NumberOfFields = 11;
+            NumberOfFields = 9;
             break;
         case 4384:
-            NumberOfFields = 30;
+            NumberOfFields = 28;
             break;
         case 4710:
-            NumberOfFields = 28;
+            NumberOfFields = 26;
             break;
         case 4812:  // Icecrown Citadel
         case 4100:  // The Culling of Stratholme
-            NumberOfFields = 13;
+            NumberOfFields = 11;
             break;
         case 4273:  // Ulduar
-            NumberOfFields = 10;
+            NumberOfFields = 8;
             break;
         case 5833:
-            NumberOfFields = 9;
+            NumberOfFields = 7;
             break;
         default:
-            NumberOfFields = 12;
+            NumberOfFields = 10;
             break;
     }
 
@@ -10671,10 +10656,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     data << uint32(0x8d5) << uint32(0x0);                   // 4
     data << uint32(0x8d4) << uint32(0x0);                   // 5
     data << uint32(0x8d3) << uint32(0x0);                   // 6
-                                                            // 7 1 - Arena season in progress, 0 - end of season
-    data << uint32(0xC77) << uint32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS));
-                                                            // 8 Arena season id
-    data << uint32(0xF3D) << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
 
     if (mapid == 530)                                       // Outland
     {
@@ -18814,22 +18795,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadArenaTeamInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENAINFO));
 
-    // check arena teams integrity
-    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
-    {
-        uint32 arena_team_id = GetArenaTeamId(arena_slot);
-        if (!arena_team_id)
-            continue;
-
-        if (ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(arena_team_id))
-            if (at->IsMember(GetGUID()))
-                continue;
-
-        // arena team not exist or not member, cleanup fields
-        for (int j = 0; j < 6; ++j)
-            SetArenaTeamInfoField(arena_slot, ArenaTeamInfoType(j), 0);
-    }
-
     _LoadCurrency(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADCURRENCY));
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[40].GetUInt32());
     SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[41].GetUInt16());
@@ -23219,29 +23184,6 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Player::LeaveAllArenaTeams(uint64 guid)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ARENA_TEAMS);
-    stmt->setUInt32(0, GUID_LOPART(guid));
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 arenaTeamId = fields[0].GetUInt32();
-        if (arenaTeamId != 0)
-        {
-            ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);
-            if (arenaTeam)
-                arenaTeam->DelMember(guid, true);
-        }
-    }
-    while (result->NextRow());
-}
-
 void Player::SetRestBonus (float rest_bonus_new)
 {
     // Prevent resting on max level
@@ -24086,14 +24028,8 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
     uint32 max_personal_rating = 0;
     for (uint8 i = minarenaslot; i < MAX_ARENA_SLOT; ++i)
     {
-        if (ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamId(i)))
-        {
-            uint32 p_rating = GetArenaPersonalRating(i);
-            uint32 t_rating = at->GetRating();
-            p_rating = p_rating < t_rating ? p_rating : t_rating;
-            if (max_personal_rating < p_rating)
-                max_personal_rating = p_rating;
-        }
+        if (max_personal_rating < GetArenaPersonalRating(i))
+            max_personal_rating = GetArenaPersonalRating(i);
     }
     return max_personal_rating;
 }
@@ -29376,4 +29312,13 @@ Guild* Player::GetGuild()
 {
     uint32 guildId = GetGuildId();
     return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
+}
+
+void Player::FinishWeek()
+{
+    for (int slot = 0; slot < MAX_ARENA_SLOT; ++slot)
+    {
+        m_WeekGames[slot] = 0;
+        m_WeekWins[slot] = 0;
+    }
 }

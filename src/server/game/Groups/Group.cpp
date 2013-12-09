@@ -3233,3 +3233,110 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
     else
         slot->flags &= ~flag;
 }
+
+void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
+{
+    // Called for offline player after ending rated arena match!
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == guid)
+        {
+            if (Player* p = ObjectAccessor::FindPlayer(guid))
+            {
+                // update personal rating
+                int32 mod = Arena::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
+                p->SetArenaPersonalRating(mod, slot);
+
+                // update matchmaker rating
+                p->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
+
+                // update personal played stats
+                p->IncrementWeekWins(slot);
+                p->IncrementSeasonGames(slot);
+                return;
+            }
+        }
+    }
+}
+
+void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
+{
+    // Called for each participant of a match after losing
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == player->GetGUID())
+        {
+            // Update personal rating
+            int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
+            player->SetArenaPersonalRating(mod, slot);
+
+            // Update matchmaker rating
+            player->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
+
+            // Update personal played stats
+            player->IncrementWeekWins(slot);
+            player->IncrementSeasonGames(slot);
+            return;
+        }
+    }
+}
+
+uint32 Group::GetRating(uint8 slot)
+{
+    uint32 rating = 0;
+    uint32 count = 0;
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            rating += player->GetArenaPersonalRating(slot);
+            ++count;
+        }
+    }
+
+    if (!count)
+        count = 1;
+
+    rating /= count;
+    return rating;
+}
+
+void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
+{
+    // Called when the team has won
+    // Change in Matchmaker rating
+    int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
+
+    // Change in Team Rating
+    rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
+
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            player->IncrementWeekWins(slot);
+            player->IncrementSeasonWins(slot);
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+        }
+    }
+}
+
+void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
+{
+    // Called when the team has lost
+    // Change in Matchmaker Rating
+    int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
+
+    // Change in Team Rating
+    rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
+
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+        }
+    }
+}
