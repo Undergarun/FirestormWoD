@@ -3884,8 +3884,8 @@ void Player::GiveLevel(uint8 level)
             {
                 ++m_grantableLevels;
 
-                if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
-                    SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
+                if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
+                    SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
             }
     
             if (level == 85)
@@ -6324,7 +6324,7 @@ void Player::KillPlayer()
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_IN_PVP);
 
     SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-    ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION));
+    ApplyModFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION));
 
     // 6 minutes until repop at graveyard
     m_deathTimer = 6 * MINUTE * IN_MILLISECONDS;
@@ -7654,7 +7654,7 @@ void Player::SendActionButtons(uint32 state) const
         }
 
         buttonsTab[i].id = ab->GetAction();
-        buttonsTab[i].type = uint32(ab->GetType());
+        buttonsTab[i].type = uint32(ab->GetType()) << 24;
     }
 
     if (state != 2)
@@ -18740,7 +18740,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
 
-    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[60].GetUInt8());
+    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, fields[60].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
     m_petSlotUsed = fields[62].GetUInt32();
@@ -19337,7 +19337,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
 
     if (m_grantableLevels > 0)
-        SetByteValue(PLAYER_FIELD_BYTES, 1, 0x01);
+        SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES));
 
@@ -19566,7 +19566,7 @@ void Player::LoadCorpse()
     else
     {
         if (Corpse* corpse = GetCorpse())
-            ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_RELEASE_TIMER, corpse && !sMapStore.LookupEntry(corpse->GetMapId())->Instanceable());
+            ApplyModFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTE_RELEASE_TIMER, corpse && !sMapStore.LookupEntry(corpse->GetMapId())->Instanceable());
         else
             //Prevent Dead Player login without corpse
             ResurrectPlayer(0.5f);
@@ -20920,7 +20920,7 @@ void Player::SaveToDB(bool create /*=false*/)
             ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
         stmt->setString(index++, ss.str());
 
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
+        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt8(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
@@ -21046,7 +21046,7 @@ void Player::SaveToDB(bool create /*=false*/)
             ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
+        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt8(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
