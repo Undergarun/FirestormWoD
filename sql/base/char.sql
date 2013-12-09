@@ -131,7 +131,7 @@ CREATE TABLE `autobroadcast` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `text` longtext NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Table structure for table `bugreport` */
 
@@ -172,6 +172,14 @@ CREATE TABLE `character_achievement` (
   `achievement` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`achievement`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+
+/*Table structure for table `character_achievement_count` */
+
+CREATE TABLE `character_achievement_count` (
+  `guid` bigint(11) NOT NULL DEFAULT '0',
+  `count` int(11) DEFAULT '0',
+  PRIMARY KEY (`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `character_achievement_progress` */
 
@@ -271,10 +279,11 @@ CREATE TABLE `character_battleground_random` (
 
 CREATE TABLE `character_currency` (
   `guid` int(11) unsigned NOT NULL,
-  `currency` smallint(5) unsigned NOT NULL,
+  `currency` mediumint(5) unsigned NOT NULL,
   `total_count` int(11) unsigned NOT NULL,
   `week_count` int(11) unsigned NOT NULL,
   `season_total` int(11) DEFAULT '0',
+  `flags` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`guid`,`currency`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
@@ -345,9 +354,6 @@ CREATE TABLE `character_glyphs` (
   `glyph4` smallint(5) unsigned DEFAULT '0',
   `glyph5` smallint(5) unsigned DEFAULT '0',
   `glyph6` smallint(5) unsigned DEFAULT '0',
-  `glyph7` smallint(5) unsigned DEFAULT '0',
-  `glyph8` smallint(5) unsigned DEFAULT '0',
-  `glyph9` smallint(5) unsigned DEFAULT '0',
   PRIMARY KEY (`guid`,`spec`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
@@ -1307,7 +1313,7 @@ CREATE TABLE `log_faction_change` (
   `NewRace` int(11) NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4905 DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
 
 /*Table structure for table `log_gm` */
 
@@ -1325,7 +1331,7 @@ CREATE TABLE `log_gm` (
   `sc_character_name` blob NOT NULL,
   `command` blob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `log_gm_chat` */
 
@@ -1343,7 +1349,7 @@ CREATE TABLE `log_gm_chat` (
   `to_character_name` blob NOT NULL,
   `message` blob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `log_mail` */
 
@@ -1597,7 +1603,7 @@ CREATE TABLE `time_diff_log` (
   `max` int(10) unsigned DEFAULT '0',
   `players` int(10) unsigned DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=322536 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
 /*Table structure for table `warden_action` */
 
