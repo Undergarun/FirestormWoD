@@ -123,8 +123,8 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSEHasPitch,      //_AH & 0x44
     MSEHasTransportData,    //isTransport
     MSEZeroBit,      //isAlive_unk1
+    MSEHasAlive32,
     MSEHasTimestamp,     // not sure, maybe Unk
-    MSEHasAlive32,       // not sure, maybe timestamp
     MSEHasMovementFlags2,//MoveFlags2
     MSEHasGuidByte6,    //guid6
 
@@ -180,8 +180,8 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSEFallVerticalSpeed,
 
     MSESplineElevation,
-    MSEAlive32,
     MSETimestamp,
+    MSEAlive32,
     MSEOrientation,
     MSEEnd,
 };
@@ -199,7 +199,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEBitCounter1,         //unk bit counter
     MSEHasGuidByte5,        //guid5
     MSEHasGuidByte3,        //guid3
-    MSEHasTimestamp,        //timestamp
+    MSEHasAlive32,          //isAlive32
 
     MSEHasTransportData,    //isTransport
     MSEHasTransportGuidByte1,//TransGuid1
@@ -216,7 +216,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEHasMovementFlags,    //!MoveFlags
     MSEMovementFlags,       //MoveFlags 30bits
     MSEHasOrientation,      //MSEHasOrientation
-    MSEHasAlive32,          //isAlive32
+    MSEHasTimestamp,        //timestamp
     MSEHasFallDirection,    //isFalling
     MSEHasMovementFlags2,    //MoveFlags2
     MSEHasGuidByte6,        //guid6
@@ -259,9 +259,9 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEPositionY,
     MSEPositionZ,
     MSEGuidByte4,
-    MSEAlive32,
-    MSEPitch,
     MSETimestamp,
+    MSEPitch,
+    MSEAlive32,
     MSEGuidByte0,
     MSEGuidByte5,
     MSEGuidByte7,
