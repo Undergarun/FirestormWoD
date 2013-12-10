@@ -1,5 +1,6 @@
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
 

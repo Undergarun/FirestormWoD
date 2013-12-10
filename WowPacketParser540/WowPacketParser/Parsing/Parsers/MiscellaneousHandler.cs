@@ -66,7 +66,7 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_SUSPEND_TOKEN_RESPONSE)]
         public static void HandleSuspendTokenResponse(Packet packet)
         {
-            packet.ReadBit("Unk");
+            packet.ReadBits("Unk", 2);
             packet.ReadUInt32("Count");
         }
 

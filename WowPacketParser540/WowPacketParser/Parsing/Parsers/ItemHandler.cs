@@ -8,6 +8,22 @@ namespace WowPacketParser.Parsing.Parsers
 {
     public static class ItemHandler
     {
+        [Parser(Opcode.SMSG_SOCKET_GEMS)]
+        public static void HandleSocketGems(Packet packet)
+        {
+            var playerGuid = new byte[8];
+
+            packet.ReadUInt32("Sockets Enchant ID");
+
+            for (int i = 0; i < 3; ++i)
+                packet.ReadUInt32("Gem Enchant ID", i);
+
+            packet.StartBitStream(playerGuid, 1, 7, 5, 6, 0, 2, 4, 3);
+            packet.ParseBitStream(playerGuid, 0, 5, 2, 6, 7, 4, 3, 1);
+
+            packet.WriteGuid("Player GUID", playerGuid);
+        }
+
         [Parser(Opcode.SMSG_ITEM_TIME_UPDATE)]
         public static void HandleItemTimeUpdate(Packet packet)
         {
@@ -38,7 +54,7 @@ namespace WowPacketParser.Parsing.Parsers
         }
 
         [Parser(Opcode.CMSG_SOCKET_GEMS)]
-        public static void HandleSocketGems(Packet packet)
+        public static void HandleCSocketGems(Packet packet)
         {
             packet.ReadGuid("GUID");
             for (var i = 0; i < 3; ++i)
@@ -527,10 +543,98 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_ENCHANTMENTLOG)]
         public static void HandleEnchantmentLog(Packet packet)
         {
-            packet.ReadPackedGuid("Target");
-            packet.ReadPackedGuid("Caster");
-            packet.ReadEntryWithName<Int32>(StoreNameType.Item, "Item Entry");
-            packet.ReadUInt32("Enchantment ID?");
+            var casterGuid = new byte[8];
+            var targetGuid = new byte[8];
+            var unkGuid = new byte[8];
+
+            var unkBit = packet.ReadBit("UnkBit");
+            unkGuid[6] = packet.ReadBit();
+            casterGuid[6] = packet.ReadBit();
+            unkGuid[5] = packet.ReadBit();
+            casterGuid[0] = packet.ReadBit();
+
+            var Guid56 = new byte[8];
+            uint Counter56 = 0;
+            if (unkBit)
+            {
+                packet.StartBitStream(Guid56, 1, 4, 5, 2, 6);
+
+                Counter56 = (uint)packet.ReadBits("Unk Counter", 21);
+
+                packet.StartBitStream(Guid56, 3, 0, 7);
+            }
+
+            unkGuid[4] = packet.ReadBit();
+            targetGuid[1] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            targetGuid[3] = packet.ReadBit();
+            targetGuid[7] = packet.ReadBit();
+            casterGuid[7] = packet.ReadBit();
+            casterGuid[1] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            casterGuid[5] = packet.ReadBit();
+            unkGuid[0] = packet.ReadBit();
+            targetGuid[0] = packet.ReadBit();
+            unkGuid[3] = packet.ReadBit();
+            unkGuid[1] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+            unkGuid[7] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
+            targetGuid[2] = packet.ReadBit();
+            unkGuid[2] = packet.ReadBit();
+            casterGuid[2] = packet.ReadBit();
+
+            if (unkBit)
+            {
+                packet.ParseBitStream(Guid56, 3, 2, 6);
+                packet.ReadUInt32("Unk UInt32");
+
+                for (int i = 0; i < Counter56; i++)
+                {
+                    packet.ReadUInt32("Unk UInt32", i);
+                    packet.ReadUInt32("Unk UInt32", i);
+                }
+
+                packet.ParseBitStream(Guid56, 0, 4, 7, 1);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(Guid56, 5);
+                packet.ReadUInt32("Unk UInt32");
+
+                packet.WriteGuid("Unk GUID 56", Guid56);
+            }
+
+            packet.ReadXORByte(casterGuid, 4);
+            packet.ReadXORByte(casterGuid, 2);
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(targetGuid, 4);
+            packet.ReadUInt32("Enchant Slot");
+            packet.ReadXORByte(targetGuid, 2);
+            packet.ReadXORByte(unkGuid, 2);
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadXORByte(unkGuid, 0);
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadXORByte(unkGuid, 6);
+            packet.ReadUInt32("Item ID");
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadXORByte(unkGuid, 7);
+            packet.ReadXORByte(unkGuid, 1);
+            packet.ReadXORByte(casterGuid, 1);
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadXORByte(casterGuid, 6);
+            packet.ReadXORByte(unkGuid, 4);
+            packet.ReadXORByte(casterGuid, 0);
+            packet.ReadXORByte(unkGuid, 5);
+            packet.ReadXORByte(unkGuid, 3);
+            packet.ReadXORByte(casterGuid, 7);
+            packet.ReadUInt32("Enchant ID");
+            packet.ReadXORByte(targetGuid, 6);
+            packet.ReadXORByte(casterGuid, 3);
+
+            packet.WriteGuid("Caster GUID", casterGuid);
+            packet.WriteGuid("Target GUID", targetGuid);
+            packet.WriteGuid("Unk GUID", unkGuid);
         }
 
         [Parser(Opcode.CMSG_ITEM_QUERY_SINGLE)]

@@ -926,7 +926,6 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
         }
 
-        [Parser(Opcode.SMSG_PLAY_SPELL_VISUAL, ClientVersionBuild.Zero, ClientVersionBuild.V4_3_4_15595)]
         [Parser(Opcode.SMSG_PLAY_SPELL_IMPACT)]
         public static void HandleCastVisual(Packet packet)
         {
@@ -934,83 +933,78 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("SpellVisualKit ID");
         }
 
-        [Parser(Opcode.SMSG_PLAY_SPELL_VISUAL, ClientVersionBuild.V4_3_4_15595)]
+        [Parser(Opcode.SMSG_PLAY_SPELL_VISUAL)]
         public static void HandleCastVisual434(Packet packet)
         {
-            packet.ReadSingle("Z");
-            packet.ReadInt32("SpellVisualKit ID"); // not confirmed
-            packet.ReadInt16("Unk Int16 1"); // usually 0
-            packet.ReadSingle("O");
-            packet.ReadSingle("X");
-            packet.ReadInt16("Unk Int16 2"); // usually 0
-            packet.ReadSingle("Y");
-
-            var guid1 = new byte[8];
+            var casterGuid = new byte[8];
             var guid2 = new byte[8];
 
-            guid2[1] = packet.ReadBit();
-            guid1[3] = packet.ReadBit();
-            guid1[0] = packet.ReadBit();
-            guid2[2] = packet.ReadBit();
-            guid2[5] = packet.ReadBit();
-            guid1[2] = packet.ReadBit();
-            guid1[4] = packet.ReadBit();
+            casterGuid[7] = packet.ReadBit();
             guid2[6] = packet.ReadBit();
-
-            guid2[0] = packet.ReadBit();
+            guid2[5] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+            casterGuid[0] = packet.ReadBit();
+            casterGuid[6] = packet.ReadBit();
+            guid2[2] = packet.ReadBit();
             packet.ReadBit("Unk Bit"); // usually 1
-            guid1[6] = packet.ReadBit();
-            guid2[7] = packet.ReadBit();
-            guid1[5] = packet.ReadBit();
-            guid1[1] = packet.ReadBit();
-            guid1[7] = packet.ReadBit();
-            guid2[3] = packet.ReadBit();
-
+            casterGuid[5] = packet.ReadBit();
+            guid2[1] = packet.ReadBit();
+            guid2[0] = packet.ReadBit();
+            casterGuid[1] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
             guid2[4] = packet.ReadBit();
+            guid2[7] = packet.ReadBit();
+            guid2[3] = packet.ReadBit();
+            casterGuid[2] = packet.ReadBit();
 
-            packet.ReadXORByte(guid1, 7);
-            packet.ReadXORByte(guid1, 4);
-            packet.ReadXORByte(guid2, 7);
-            packet.ReadXORByte(guid1, 1);
-            packet.ReadXORByte(guid1, 3);
-            packet.ReadXORByte(guid1, 0);
-            packet.ReadXORByte(guid1, 6);
+            packet.ReadXORByte(casterGuid, 4);
             packet.ReadXORByte(guid2, 0);
-            packet.ReadXORByte(guid2, 4);
-            packet.ReadXORByte(guid1, 5);
-            packet.ReadXORByte(guid2, 1);
-            packet.ReadXORByte(guid2, 5);
+            packet.ReadSingle("Y");
             packet.ReadXORByte(guid2, 6);
-            packet.ReadXORByte(guid2, 2);
-            packet.ReadXORByte(guid1, 2);
+            packet.ReadSingle("Z");
+            packet.ReadSingle("O");
+            packet.ReadXORByte(casterGuid, 0);
+            packet.ReadInt32("SpellVisualKit ID"); // not confirmed
+            packet.ReadXORByte(casterGuid, 3);
             packet.ReadXORByte(guid2, 3);
+            packet.ReadInt16("Unk Int16 1"); // usually 0
+            packet.ReadXORByte(casterGuid, 7);
+            packet.ReadInt16("Unk Int16 2"); // usually 0
+            packet.ReadXORByte(guid2, 5);
+            packet.ReadXORByte(guid2, 2);
+            packet.ReadSingle("X");
+            packet.ReadXORByte(guid2, 4);
+            packet.ReadXORByte(guid2, 1);
+            packet.ReadXORByte(casterGuid, 2);
+            packet.ReadXORByte(guid2, 7);
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadXORByte(casterGuid, 6);
+            packet.ReadXORByte(casterGuid, 1);
 
-            packet.WriteGuid("Caster Guid", guid1);
-            packet.WriteGuid("Unk Guid", guid2);
+            packet.WriteGuid("Caster GUID", casterGuid);
+            packet.WriteGuid("Unk GUID", guid2);
         }
 
-        [Parser(Opcode.SMSG_PLAY_SPELL_VISUAL_KIT, ClientVersionBuild.V4_3_0_15005, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleCastVisualKit430(Packet packet)
+        [Parser(Opcode.SMSG_PLAY_SPELL_VISUAL_KIT)]
+        public static void HandleCastVisualKit(Packet packet)
         {
-            packet.ReadUInt32("SpellVisualKit ID");
-            packet.ReadUInt32("Unk");
-            packet.ReadUInt32("Unk");
+            var thisGuid = new byte[8];
 
-            var guid = packet.StartBitStream(0, 4, 3, 6, 5, 7, 2, 1);
-            packet.ParseBitStream(guid, 5, 7, 6, 1, 4, 3, 2, 0);
-            packet.WriteGuid("Caster Guid", guid);
-        }
+            thisGuid = packet.StartBitStream(3, 0, 6, 7, 4, 1, 5, 2);
 
-        [Parser(Opcode.SMSG_PLAY_SPELL_VISUAL_KIT, ClientVersionBuild.V4_3_4_15595)] // 4.3.4
-        public static void HandleCastVisualKit434(Packet packet)
-        {
-            packet.ReadUInt32("Unk");
-            packet.ReadUInt32("SpellVisualKit ID");
-            packet.ReadUInt32("Unk");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(thisGuid, 4);
+            packet.ReadXORByte(thisGuid, 7);
+            packet.ReadXORByte(thisGuid, 0);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(thisGuid, 2);
+            packet.ReadXORByte(thisGuid, 1);
+            packet.ReadXORByte(thisGuid, 5);
+            packet.ReadXORByte(thisGuid, 6);
+            packet.ReadXORByte(thisGuid, 3);
+            packet.ReadUInt32("Unk UInt32");
 
-            var guid = packet.StartBitStream(4, 7, 5, 3, 1, 2, 0, 6);
-            packet.ParseBitStream(guid, 0, 4, 1, 6, 7, 2, 3, 5);
-            packet.WriteGuid("Caster Guid", guid);
+            packet.WriteGuid("Unit GUID", thisGuid);
         }
 
         [Parser(Opcode.SMSG_PET_CAST_FAILED)]
@@ -1252,37 +1246,16 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_CLEAR_COOLDOWN)]
         public static void HandleClearCooldown(Packet packet)
         {
-            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
-            packet.ReadGuid("GUID");
-        }
+            var playerGuid = new byte[8];
 
-        [Parser(Opcode.SMSG_CLEAR_COOLDOWNS)] // 4.3.4
-        public static void HandleClearCooldowns(Packet packet)
-        {
-            var guid = new byte[8];
-            guid[1] = packet.ReadBit();
-            guid[3] = packet.ReadBit();
-            guid[6] = packet.ReadBit();
-            var count = packet.ReadBits("Spell Count", 24);
-            guid[7] = packet.ReadBit();
-            guid[5] = packet.ReadBit();
-            guid[2] = packet.ReadBit();
-            guid[4] = packet.ReadBit();
-            guid[0] = packet.ReadBit();
+            packet.StartBitStream(playerGuid, 6, 5, 2, 4, 0, 7, 3);
+            var unkBit = packet.ReadBit("unkBit");
+            playerGuid[1] = packet.ReadBit();
 
-            packet.ReadXORByte(guid, 7);
-            packet.ReadXORByte(guid, 2);
-            packet.ReadXORByte(guid, 4);
-            packet.ReadXORByte(guid, 5);
-            packet.ReadXORByte(guid, 1);
-            packet.ReadXORByte(guid, 3);
-            for (var i = 0; i < count; i++)
-                packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID", i);
+            packet.ParseBitStream(playerGuid, 5, 2, 6, 3, 1, 0, 4, 7);
+            packet.ReadUInt32("Spell ID");
 
-            packet.ReadXORByte(guid, 0);
-            packet.ReadXORByte(guid, 6);
-
-            packet.WriteGuid("Guid", guid);
+            packet.WriteGuid("Player GUID", playerGuid);
         }
 
         [Parser(Opcode.SMSG_SPELL_COOLDOWN)]

@@ -1,4 +1,5 @@
 
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"

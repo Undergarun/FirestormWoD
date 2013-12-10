@@ -19,4 +19,12 @@ namespace WowPacketParser.Enums
         WildPet = 14,
         Aberration = 15
     }
+
+    public enum BattlePetQualities
+    {
+        Poor        = 0,
+        Common      = 1,
+        Uncommon    = 2,
+        Rare        = 3,
+    }
 }
