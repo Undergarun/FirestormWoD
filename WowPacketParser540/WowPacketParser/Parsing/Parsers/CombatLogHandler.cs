@@ -79,7 +79,127 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_PERIODICAURALOG)]
         public static void HandlePeriodicAuraLog(Packet packet)
         {
-            ReadPeriodicAuraLog(ref packet);
+            var targetGuid = new byte[8];
+            var playerGuid = new byte[8];
+            var playerPowerGuid = new byte[8];
+            var powerCount = 0;
+
+            playerGuid[7] = packet.ReadBit();
+            var hasPowerValue = packet.ReadBit("hasPowerValue");
+            playerGuid[3] = packet.ReadBit();
+            playerGuid[5] = packet.ReadBit();
+
+            if (hasPowerValue)
+            {
+                playerPowerGuid[4] = packet.ReadBit();
+                playerPowerGuid[6] = packet.ReadBit();
+                playerPowerGuid[7] = packet.ReadBit();
+                playerPowerGuid[1] = packet.ReadBit();
+                playerPowerGuid[0] = packet.ReadBit();
+                playerPowerGuid[2] = packet.ReadBit();
+                powerCount = (int)packet.ReadBits("powerCount", 21);
+                playerPowerGuid[5] = packet.ReadBit();
+                playerPowerGuid[3] = packet.ReadBit();
+            }
+
+            playerGuid[6] = packet.ReadBit();
+            targetGuid[1] = packet.ReadBit();
+            var count = packet.ReadBits("count", 21);
+            playerGuid[2] = packet.ReadBit();
+            playerGuid[1] = packet.ReadBit();
+            targetGuid[2] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            playerGuid[4] = packet.ReadBit();
+
+            var isCrit = new bool[count];
+            var hasOverkill = new bool[count];
+            var hasAbsorb = new bool[count];
+            var hasSchoolMask = new bool[count];
+            var hasOverHeal = new bool[count];
+            for (int i = 0; i < count; ++i)
+            {
+                isCrit[i] = packet.ReadBit("isCrit", i);
+                hasOverkill[i] = !packet.ReadBit();
+                Console.WriteLine("[" + i + "] hasOverkill: " + hasOverkill[i]);
+                hasAbsorb[i] = !packet.ReadBit();
+                Console.WriteLine("[" + i + "] hasAbsorb: " + hasAbsorb[i]);
+                hasSchoolMask[i] = !packet.ReadBit();
+                Console.WriteLine("[" + i + "] hasSchoolMask: " + hasSchoolMask[i]);
+                hasOverHeal[i] = !packet.ReadBit();
+                Console.WriteLine("[" + i + "] hasOverHeal: " + hasOverHeal[i]);
+            }
+
+            playerGuid[0] = packet.ReadBit();
+            targetGuid[0] = packet.ReadBit();
+            targetGuid[7] = packet.ReadBit();
+            targetGuid[3] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(playerGuid, 7);
+
+            for (int i = 0; i < count; ++i)
+            {
+                if (hasOverHeal[i])
+                    packet.ReadUInt32("OverHeal", i);
+
+                packet.ReadUInt32("AuraType", i);
+
+                if (hasOverkill[i])
+                    packet.ReadUInt32("Overkill", i);
+                if (hasAbsorb[i])
+                    packet.ReadUInt32("Absorb", i);
+
+                packet.ReadUInt32("Amount", i);
+
+                if (hasSchoolMask[i])
+                    packet.ReadEnum<SpellSchoolMask>("SpellSchoolMask", TypeCode.UInt32);
+            }
+
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(targetGuid, 4);
+            packet.ReadXORByte(targetGuid, 2);
+
+            if (hasPowerValue)
+            {
+                packet.ReadXORByte(playerPowerGuid, 0);
+                packet.ReadXORByte(playerPowerGuid, 3);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(playerPowerGuid, 4);
+                packet.ReadXORByte(playerPowerGuid, 1);
+                packet.ReadXORByte(playerPowerGuid, 5);
+                packet.ReadXORByte(playerPowerGuid, 2);
+                packet.ReadUInt32("Current Health");
+
+                for (int i = 0; i < powerCount; ++i)
+                {
+                    packet.ReadUInt32("Power Amount", i);
+                    packet.ReadEnum<PowerType>("Power type", TypeCode.Int32);
+                }
+
+                packet.ReadXORByte(playerPowerGuid, 6);
+                packet.ReadXORByte(playerPowerGuid, 7);
+
+                packet.WriteGuid("Power Player GUID", playerPowerGuid);
+            }
+
+            packet.ReadXORByte(playerGuid, 4);
+            packet.ReadXORByte(playerGuid, 3);
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadXORByte(playerGuid, 0);
+            packet.ReadXORByte(playerGuid, 5);
+            packet.ReadUInt32("Spell ID");
+            packet.ReadXORByte(playerGuid, 1);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(targetGuid, 6);
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadXORByte(playerGuid, 6);
+
+            packet.WriteGuid("Target GUID", targetGuid);
+            packet.WriteGuid("Player GUID", playerGuid);
         }
 
         [Parser(Opcode.SMSG_SPELLNONMELEEDAMAGELOG)]
@@ -91,13 +211,190 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_SPELLHEALLOG)]
         public static void HandleSpellHealLog(Packet packet)
         {
-            ReadSpellHealLog(ref packet);
+            var targetGuid = new byte[8];
+            var casterGuid = new byte[8];
+            var playerPowerGuid = new byte[8];
+
+            var isCrit = packet.ReadBit("isCrit");
+            casterGuid[5] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            targetGuid[2] = packet.ReadBit();
+            targetGuid[7] = packet.ReadBit();
+            targetGuid[0] = packet.ReadBit();
+            var isDebug = packet.ReadBit("isDebug");
+            casterGuid[1] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+            casterGuid[7] = packet.ReadBit();
+            targetGuid[3] = packet.ReadBit();
+            casterGuid[0] = packet.ReadBit();
+            casterGuid[2] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+            var hasPowerData = packet.ReadBit("hasPowerData");
+            var isDebug2 = packet.ReadBit("isDebug2");
+
+            var powerCount = 0;
+            if (hasPowerData)
+            {
+                playerPowerGuid[0] = packet.ReadBit();
+                playerPowerGuid[4] = packet.ReadBit();
+                playerPowerGuid[6] = packet.ReadBit();
+                playerPowerGuid[2] = packet.ReadBit();
+                playerPowerGuid[5] = packet.ReadBit();
+                powerCount = (int)packet.ReadBits("powerCount", 21);
+                playerPowerGuid[1] = packet.ReadBit();
+                playerPowerGuid[7] = packet.ReadBit();
+                playerPowerGuid[3] = packet.ReadBit();
+            }
+
+            casterGuid[6] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
+            targetGuid[1] = packet.ReadBit();
+
+            packet.ReadXORByte(targetGuid, 4);
+
+            if (isDebug2)
+                packet.ReadSingle("Unk Float [DEBUG2]");
+
+            packet.ReadXORByte(casterGuid, 6);
+            packet.ReadUInt32("Absorb");
+
+            if (hasPowerData)
+            {
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Current Health");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(playerPowerGuid, 3);
+
+                for (int i = 0; i < powerCount; ++i)
+                {
+                    packet.ReadEnum<PowerType>("Power type", TypeCode.UInt32, i);
+                    packet.ReadUInt32("Power Amount", i);
+                }
+
+                packet.ReadXORByte(playerPowerGuid, 0);
+                packet.ReadXORByte(playerPowerGuid, 1);
+                packet.ReadXORByte(playerPowerGuid, 7);
+                packet.ReadXORByte(playerPowerGuid, 2);
+                packet.ReadXORByte(playerPowerGuid, 4);
+                packet.ReadXORByte(playerPowerGuid, 6);
+                packet.ReadXORByte(playerPowerGuid, 5);
+
+                packet.WriteGuid("Player Power GUID", playerPowerGuid);
+            }
+
+            packet.ReadXORByte(targetGuid, 6);
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(casterGuid, 1);
+            packet.ReadXORByte(casterGuid, 3);
+            packet.ReadXORByte(casterGuid, 6);
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(casterGuid, 0);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadUInt32("HealAmount");
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadXORByte(targetGuid, 2);
+            packet.ReadXORByte(casterGuid, 2);
+
+            if (isDebug)
+                packet.ReadSingle("Unk Float [DEBUG]");
+
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadXORByte(casterGuid, 4);
+            packet.ReadUInt32("Spell ID");
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadUInt32("OverHeal");
+
+            packet.WriteGuid("Target GUID", targetGuid);
+            packet.WriteGuid("Caster GUID", casterGuid);
         }
 
         [Parser(Opcode.SMSG_SPELLENERGIZELOG)]
         public static void HandleSpellEnergizeLog(Packet packet)
         {
-            ReadSpellEnergizeLog(ref packet);
+            var targetGuid = new byte[8];
+            var casterGuid = new byte[8];
+            var playerPowerGuid = new byte[8];
+
+            casterGuid[2] = packet.ReadBit();
+            casterGuid[5] = packet.ReadBit();
+            casterGuid[0] = packet.ReadBit();
+            casterGuid[1] = packet.ReadBit();
+            targetGuid[1] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
+            var hasPowerData = packet.ReadBit("hasPowerData");
+            targetGuid[0] = packet.ReadBit();
+
+            var powerCount = 0;
+            if (hasPowerData)
+            {
+                playerPowerGuid[1] = packet.ReadBit();
+                playerPowerGuid[0] = packet.ReadBit();
+                playerPowerGuid[2] = packet.ReadBit();
+                playerPowerGuid[5] = packet.ReadBit();
+                powerCount = (int)packet.ReadBits("powerCount", 21);
+                playerPowerGuid[7] = packet.ReadBit();
+                playerPowerGuid[3] = packet.ReadBit();
+                playerPowerGuid[4] = packet.ReadBit();
+                playerPowerGuid[6] = packet.ReadBit();
+            }
+
+            targetGuid[3] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+            casterGuid[6] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            targetGuid[2] = packet.ReadBit();
+            targetGuid[7] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            casterGuid[7] = packet.ReadBit();
+
+            if (hasPowerData)
+            {
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Current Health");
+                packet.ReadXORByte(playerPowerGuid, 6);
+                packet.ReadXORByte(playerPowerGuid, 0);
+                packet.ReadXORByte(playerPowerGuid, 1);
+                packet.ReadXORByte(playerPowerGuid, 2);
+                packet.ReadXORByte(playerPowerGuid, 7);
+                packet.ReadXORByte(playerPowerGuid, 5);
+                packet.ReadXORByte(playerPowerGuid, 3);
+
+                for (int i = 0; i < powerCount; ++i)
+                {
+                    packet.ReadUInt32("Power Amount", i);
+                    packet.ReadEnum<PowerType>("Power type", TypeCode.UInt32, i);
+                }
+
+                packet.ReadXORByte(playerPowerGuid, 4);
+                packet.ReadUInt32("Unk UInt32");
+
+                packet.WriteGuid("Player Power GUID", playerPowerGuid);
+            }
+
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadUInt32("Amount");
+            packet.ReadXORByte(casterGuid, 4);
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadXORByte(casterGuid, 2);
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(targetGuid, 6);
+            packet.ReadXORByte(casterGuid, 7);
+            packet.ReadXORByte(casterGuid, 6);
+            packet.ReadUInt32("Spell ID");
+            packet.ReadXORByte(casterGuid, 3);
+            packet.ReadEnum<PowerType>("Power type", TypeCode.UInt32);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadXORByte(targetGuid, 2);
+            packet.ReadXORByte(targetGuid, 4);
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadXORByte(casterGuid, 1);
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(casterGuid, 0);
+
+            packet.WriteGuid("Target GUID", targetGuid);
+            packet.WriteGuid("Caster GUID", casterGuid);
         }
 
         [Parser(Opcode.SMSG_SPELLLOGMISS)]
@@ -302,14 +599,13 @@ namespace WowPacketParser.Parsing.Parsers
             var target = new byte[8];
             var caster2 = new byte[8];
 
-            // Missed abosrb, resist, blocked
             packet.ReadUInt32("Damage");
-            packet.ReadUInt32("Unk uint32");
+            packet.ReadUInt32("Resist");
             packet.ReadEnum<SpellHitType>("HitType", TypeCode.Int32, index);
-            packet.ReadUInt32("Unk uint32");
+            packet.ReadUInt32("Blocked");
             packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID", index);
             packet.ReadUInt32("Overkill");
-            packet.ReadUInt32("Unk uint32");
+            packet.ReadUInt32("Absorb");
             packet.ReadEnum<SpellSchoolMask>("SpellSchoolMask", TypeCode.Byte, index);
 
             // Must send 0 ?
@@ -547,6 +843,196 @@ namespace WowPacketParser.Parsing.Parsers
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6_13596))
                 packet.ReadInt32("Resisted Damage");
+        }
+
+        [Parser(Opcode.SMSG_SPELL_BATTLE_PET_REVIVE)]
+        public static void ReadSpellUnknow(Packet packet)
+        {
+            var guid = new byte[8];
+
+            var count = packet.ReadBits("count", 21);
+            var bit40 = !packet.ReadBit();
+            Console.WriteLine("bit40: " + bit40);
+            packet.StartBitStream(guid, 4, 2, 5, 6, 0, 3, 7, 1);
+
+            for (int i = 0; i < count; ++i)
+            {
+                packet.ReadUInt32("Spell ID", i);   // 125439 - Revive Battle Pets
+                packet.ReadUInt32("Unk UInt32", i); // 180000
+            }
+
+            packet.ReadXORByte(guid, 4);
+            if (bit40)
+                packet.ReadByte("Unk Byte");
+
+            packet.ParseBitStream(guid, 1, 5, 7, 6, 0, 2, 3);
+
+            packet.WriteGuid("Guid", guid);
+        }
+
+        [Parser(Opcode.SMSG_SPELL_UNK_LOG)]
+        public static void ReadSpellUnkLog(Packet packet)
+        {
+            var targetGuid = new byte[8];
+            var casterGuid = new byte[8];
+            var playerPowerGuid = new byte[8];
+
+            casterGuid[2] = packet.ReadBit();
+            targetGuid[2] = packet.ReadBit();
+            targetGuid[1] = packet.ReadBit();
+            var bit32 = packet.ReadBit("bit32");
+            casterGuid[0] = packet.ReadBit();
+            casterGuid[5] = packet.ReadBit();
+            var bit108 = packet.ReadBit("bit108");
+            targetGuid[7] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+            casterGuid[7] = packet.ReadBit();
+            targetGuid[0] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            casterGuid[1] = packet.ReadBit();
+            targetGuid[3] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            var hasPowerData = packet.ReadBit("hasPowerData");
+            var counter = packet.ReadBits("counter", 22);
+
+            var powerCount = 0;
+            if (hasPowerData)
+            {
+                playerPowerGuid[2] = packet.ReadBit();
+                playerPowerGuid[5] = packet.ReadBit();
+                playerPowerGuid[7] = packet.ReadBit();
+                playerPowerGuid[6] = packet.ReadBit();
+                powerCount = (int)packet.ReadBits("powerCount", 21);
+                playerPowerGuid[4] = packet.ReadBit();
+                playerPowerGuid[3] = packet.ReadBit();
+                playerPowerGuid[0] = packet.ReadBit();
+                playerPowerGuid[1] = packet.ReadBit();
+            }
+
+            casterGuid[6] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
+
+            var bit4 = new bool[counter];
+            var bit12 = new bool[counter];
+            var bit20 = new bool[counter];
+            for (int i = 0; i < counter; ++i)
+            {
+                bit12[i] = packet.ReadBit("bit12", i);
+                bit20[i] = packet.ReadBit("bit20", i);
+                bit4[i] = packet.ReadBit("bit4", i);
+            }
+
+            for (int i = 0; i < counter; ++i)
+            {
+                if (bit12[i])
+                    packet.ReadUInt32("Unk UInt32 [12]", i);
+
+                if (bit20[i])
+                    packet.ReadUInt32("Unk UInt32 [20]", i);
+
+                packet.ReadUInt32("Spell ID");
+            }
+
+            if (hasPowerData)
+            {
+                packet.ReadXORByte(playerPowerGuid, 3);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Current Health");
+                packet.ReadXORByte(playerPowerGuid, 6);
+                packet.ReadXORByte(playerPowerGuid, 7);
+
+                for (int i = 0; i < powerCount; ++i)
+                {
+                    packet.ReadUInt32("Power Amount", i);
+                    packet.ReadEnum<PowerType>("Power type", TypeCode.UInt32, i);
+                }
+
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(playerPowerGuid, 2);
+                packet.ReadXORByte(playerPowerGuid, 4);
+                packet.ReadXORByte(playerPowerGuid, 1);
+                packet.ReadXORByte(playerPowerGuid, 5);
+                packet.ReadXORByte(playerPowerGuid, 0);
+
+                packet.WriteGuid("Player Power GUID", playerPowerGuid);
+            }
+
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadXORByte(casterGuid, 6);
+            packet.ReadXORByte(casterGuid, 4);
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadXORByte(casterGuid, 3);
+            packet.ReadXORByte(targetGuid, 4);
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadXORByte(casterGuid, 2);
+            packet.ReadXORByte(targetGuid, 2);
+            packet.ReadXORByte(casterGuid, 0);
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadXORByte(targetGuid, 6);
+            packet.ReadXORByte(casterGuid, 1);
+            packet.ReadXORByte(casterGuid, 7);
+
+            packet.WriteGuid("Caster GUID", casterGuid);
+            packet.WriteGuid("Target GUID", targetGuid);
+        }
+
+        [Parser(Opcode.SMSG_SPELL_UNK_LOG2)]
+        public static void ReadSpellUnkLog2(Packet packet)
+        {
+            var targetGuid = new byte[8];
+            var casterGuid = new byte[8];
+
+            targetGuid[2] = packet.ReadBit();
+            casterGuid[1] = packet.ReadBit();
+            var bit40 = packet.ReadBit("bit40");
+            targetGuid[1] = packet.ReadBit();
+            casterGuid[4] = packet.ReadBit();
+            casterGuid[0] = packet.ReadBit();
+            targetGuid[3] = packet.ReadBit();
+            casterGuid[2] = packet.ReadBit();
+            casterGuid[3] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+            targetGuid[7] = packet.ReadBit();
+            casterGuid[6] = packet.ReadBit();
+            targetGuid[0] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            casterGuid[5] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            casterGuid[7] = packet.ReadBit();
+
+            packet.ReadXORByte(casterGuid, 0);
+            packet.ReadXORByte(casterGuid, 5);
+            packet.ReadXORByte(casterGuid, 1);
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(casterGuid, 6);
+
+            if (bit40)
+            {
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+            }
+
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(targetGuid, 2);
+            packet.ReadXORByte(casterGuid, 2);
+            packet.ReadXORByte(casterGuid, 3);
+            packet.ReadXORByte(casterGuid, 7);
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadXORByte(targetGuid, 4);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(casterGuid, 4);
+            packet.ReadXORByte(targetGuid, 6);
+
+            packet.WriteGuid("Caster GUID", casterGuid);
+            packet.WriteGuid("Target GUID", targetGuid);
         }
     }
 }
