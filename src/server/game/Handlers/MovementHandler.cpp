@@ -392,6 +392,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     /* process position-change */
     WorldPacket data(SMSG_MOVE_UPDATE, recvPacket.size());
+    movementInfo.Alive32 = movementInfo.time; // hack, but it's work in 505 in this way ...
     movementInfo.time = getMSTime();
     movementInfo.guid = mover->GetGUID();
     WorldSession::WriteMovementInfo(data, &movementInfo);

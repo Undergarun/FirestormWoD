@@ -112,7 +112,7 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSEHasGuidByte0,//guid0
     MSEHasOrientation,     //_AH & 0x44
     MSEHasGuidByte4,//guid4
-    MSEHasSplineElevation,      //_AH & 0x44
+    MSEHasPitch,      //_AH & 0x44
     MSEHasGuidByte2,//guid2
     MSEZeroBit,
     MSEZeroBit,
@@ -120,7 +120,7 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSEHasFallData,     //IsInterpolated
     MSEHasGuidByte5,    //guid5
     MSEHasGuidByte7,    //guid7
-    MSEHasPitch,      //_AH & 0x44
+    MSEHasSplineElevation,      //_AH & 0x44
     MSEHasTransportData,    //isTransport
     MSEZeroBit,      //isAlive_unk1
     MSEHasAlive32,
@@ -172,14 +172,14 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSETransportTime2,
     MSETransportSeat,
 
-    MSEPitch,
+    MSESplineElevation,
     MSEFallTime,
     MSEFallHorizontalSpeed,
     MSEFallSinAngle,
     MSEFallCosAngle,
     MSEFallVerticalSpeed,
 
-    MSESplineElevation,
+    MSEPitch,
     MSETimestamp,
     MSEAlive32,
     MSEOrientation,
@@ -190,7 +190,7 @@ MovementStatusElements MovementStartForwardSequence[] =
 MovementStatusElements PlayerMoveSequence[] =
 {
     MSEZeroBit,             //isAlive_unk1
-    MSEHasSplineElevation,  //SplineElevation inverse
+    MSEHasPitch,            //Pitch
     MSEHasGuidByte4,        //guid4
     MSEHasGuidByte2,        //guid2
     MSEZeroBit,             //unk
@@ -224,7 +224,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEHasGuidByte1,        //guid1
     MSEZeroBit,             //unk
     MSEMovementFlags2,      //MoveFlags2
-    MSEHasPitch,            //Pitch
+    MSEHasSplineElevation,  //SplineElevation inverse
     MSEFlushBits,
 
     MSEPositionX,
@@ -234,7 +234,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEFallTime,
     MSEFallVerticalSpeed,
     MSEGuidByte3,    //guid3
-
+    
     MSETransportGuidByte2,  //transguid2
     MSETransportGuidByte0,  //transguid0
     MSETransportGuidByte5,  //transguid5
@@ -255,12 +255,13 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEGuidByte6,
     // Unk counter
     MSEGuidByte1,
-    MSESplineElevation,     //SplineElevation
+    MSEPitch,
+
     MSEPositionY,
     MSEPositionZ,
     MSEGuidByte4,
     MSETimestamp,
-    MSEPitch,
+    MSESplineElevation,     //SplineElevation
     MSEAlive32,
     MSEGuidByte0,
     MSEGuidByte5,

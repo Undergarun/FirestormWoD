@@ -544,7 +544,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (!G3D::fuzzyEq(self->GetOrientation(), 0.0f))
             *data << float(self->GetOrientation());
 
-        *data << self->GetSpeed(MOVE_FLIGHT);
+        *data << self->GetSpeed(MOVE_FLIGHT_BACK);
         *data << self->GetSpeed(MOVE_SWIM);
 
         data->WriteByteSeq(guid[1]);
@@ -557,11 +557,11 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         data->WriteByteSeq(guid[4]);
 
-        *data << self->GetSpeed(MOVE_TURN_RATE);
+        *data << self->GetSpeed(MOVE_FLIGHT);
         *data << self->GetSpeed(MOVE_RUN);
-        *data << self->GetSpeed(MOVE_SWIM_BACK);
-        *data << self->GetSpeed(MOVE_FLIGHT_BACK);
         *data << self->GetSpeed(MOVE_RUN_BACK);
+        *data << self->GetSpeed(MOVE_TURN_RATE);
+        *data << self->GetSpeed(MOVE_SWIM_BACK);
 
         *data << float(self->GetPositionX());
 
