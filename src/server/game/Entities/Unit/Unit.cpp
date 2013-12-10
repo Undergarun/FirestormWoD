@@ -2549,45 +2549,45 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid attackerGuid = GetGUID();
-    ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
+    ObjectGuid victimGUID = victim ? victim->GetGUID() : NULL;
+    ObjectGuid attackerGUID = GetGUID();
 
-    data.WriteBit(attackerGuid[0]);
-    data.WriteBit(victimGuid[4]);
-    data.WriteBit(attackerGuid[1]);
-    data.WriteBit(victimGuid[7]);
-    data.WriteBit(attackerGuid[6]);
-    data.WriteBit(attackerGuid[3]);
+    data.WriteBit(victimGUID[0]);
+    data.WriteBit(attackerGUID[4]);
+    data.WriteBit(victimGUID[1]);
+    data.WriteBit(attackerGUID[7]);
+    data.WriteBit(victimGUID[6]);
+    data.WriteBit(victimGUID[3]);
 
     data.WriteBit(0);                   // Unk bit - updating rotation ?
 
-    data.WriteBit(attackerGuid[5]);
-    data.WriteBit(victimGuid[1]);
-    data.WriteBit(victimGuid[0]);
-    data.WriteBit(attackerGuid[7]);
-    data.WriteBit(victimGuid[6]);
-    data.WriteBit(attackerGuid[4]);
-    data.WriteBit(attackerGuid[2]);
-    data.WriteBit(victimGuid[3]);
-    data.WriteBit(victimGuid[2]);
-    data.WriteBit(victimGuid[5]);
+    data.WriteBit(victimGUID[5]);
+    data.WriteBit(attackerGUID[1]);
+    data.WriteBit(attackerGUID[0]);
+    data.WriteBit(victimGUID[7]);
+    data.WriteBit(attackerGUID[6]);
+    data.WriteBit(victimGUID[4]);
+    data.WriteBit(victimGUID[2]);
+    data.WriteBit(attackerGUID[3]);
+    data.WriteBit(attackerGUID[2]);
+    data.WriteBit(attackerGUID[5]);
 
-    data.WriteByteSeq(victimGuid[2]);
-    data.WriteByteSeq(victimGuid[7]);
-    data.WriteByteSeq(attackerGuid[0]);
-    data.WriteByteSeq(victimGuid[5]);
-    data.WriteByteSeq(attackerGuid[5]);
-    data.WriteByteSeq(victimGuid[3]);
-    data.WriteByteSeq(attackerGuid[7]);
-    data.WriteByteSeq(attackerGuid[1]);
-    data.WriteByteSeq(attackerGuid[3]);
-    data.WriteByteSeq(victimGuid[0]);
-    data.WriteByteSeq(attackerGuid[4]);
-    data.WriteByteSeq(attackerGuid[6]);
-    data.WriteByteSeq(victimGuid[1]);
-    data.WriteByteSeq(victimGuid[6]);
-    data.WriteByteSeq(attackerGuid[2]);
-    data.WriteByteSeq(victimGuid[4]);
+    data.WriteByteSeq(attackerGUID[2]);
+    data.WriteByteSeq(attackerGUID[7]);
+    data.WriteByteSeq(victimGUID[0]);
+    data.WriteByteSeq(attackerGUID[5]);
+    data.WriteByteSeq(victimGUID[5]);
+    data.WriteByteSeq(attackerGUID[3]);
+    data.WriteByteSeq(victimGUID[7]);
+    data.WriteByteSeq(victimGUID[1]);
+    data.WriteByteSeq(victimGUID[3]);
+    data.WriteByteSeq(attackerGUID[0]);
+    data.WriteByteSeq(victimGUID[4]);
+    data.WriteByteSeq(victimGUID[6]);
+    data.WriteByteSeq(attackerGUID[1]);
+    data.WriteByteSeq(attackerGUID[6]);
+    data.WriteByteSeq(victimGUID[2]);
+    data.WriteByteSeq(attackerGUID[4]);
 
     SendMessageToSet(&data, true);
 }
@@ -4146,7 +4146,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         AuraPtr aura = *iter;
-        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
         {
             aura->Remove();
             iter = scAuras.begin();
@@ -5395,43 +5395,74 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 {
     constAuraEffectPtr aura = pInfo->auraEff;
 
-    WorldPacket data(SMSG_PERIODICAURALOG, 30);
-    data.append(GetPackGUID());
-    data.appendPackGUID(aura->GetCasterGUID());
-    data << uint32(aura->GetId());                          // spellId
-    data << uint32(1);                                      // count
-    data << uint32(aura->GetAuraType());                    // auraId
-    switch (aura->GetAuraType())
-    {
-        case SPELL_AURA_PERIODIC_DAMAGE:
-        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(pInfo->overDamage);              // overkill?
-            data << uint32(aura->GetSpellInfo()->GetSchoolMask());
-            data << uint32(pInfo->absorb);                  // absorb
-            data << uint32(pInfo->resist);                  // resist
-            data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
-            break;
-        case SPELL_AURA_PERIODIC_HEAL:
-        case SPELL_AURA_OBS_MOD_HEALTH:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(pInfo->overDamage);              // overheal
-            data << uint32(pInfo->absorb);                  // absorb
-            data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
-            break;
-        case SPELL_AURA_OBS_MOD_POWER:
-        case SPELL_AURA_PERIODIC_ENERGIZE:
-            data << uint32(aura->GetMiscValue());           // power type
-            data << uint32(pInfo->damage);                  // damage
-            break;
-        case SPELL_AURA_PERIODIC_MANA_LEECH:
-            data << uint32(aura->GetMiscValue());           // power type
-            data << uint32(pInfo->damage);                  // amount
-            data << float(pInfo->multiplier);               // gain multiplier
-            break;
-        default:
-            return;
-    }
+    WorldPacket data(SMSG_PERIODIC_AURA_LOG, 60);
+    ObjectGuid targetGuid = GetGUID();
+    ObjectGuid casterGuid = aura->GetCasterGUID();
+
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(false);                                   // HasPowerData
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBits(1, 21);                                  // Count
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(pInfo->critical);                         // IsCrit
+    data.WriteBit(!(pInfo->overDamage > 0));                // Inversed, HasOverkill
+    data.WriteBit(!(pInfo->absorb > 0));                    // Inversed, HasAbsorb
+    data.WriteBit(!aura->GetSpellInfo()->GetSchoolMask());  // Inversed, HasSchoolMask
+    data.WriteBit(false);                                   // Inversed, HasOverHeal
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[5]);
+
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[7]);
+
+    // OverHeal, send -1 if any
+    if (pInfo->overDamage)
+        data << uint32(pInfo->overDamage);
+    else
+        data << uint32(-1);
+
+    data << uint32(aura->GetAuraType());
+
+    if (pInfo->overDamage && aura->GetAuraType() == SPELL_AURA_PERIODIC_HEAL || aura->GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
+        data << uint32(pInfo->overDamage);
+    else
+        data << uint32(0);
+
+    if (pInfo->absorb)
+        data << uint32(pInfo->absorb);
+
+    data << uint32(pInfo->damage);
+
+    if (aura->GetSpellInfo()->GetSchoolMask())
+        data << uint32(aura->GetSpellInfo()->GetSchoolMask());
+
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[2]);
+
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(casterGuid[5]);
+    data << uint32(aura->GetSpellInfo()->Id);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGuid[6]);
 
     SendMessageToSet(&data, true);
 }
@@ -10119,7 +10150,7 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, Au
 
 void Unit::setPowerType(Powers new_powertype)
 {
-    SetByteValue(UNIT_FIELD_BYTES_0, 2, new_powertype);
+    SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, new_powertype);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -11249,15 +11280,53 @@ void Unit::UnsummonAllTotems()
 void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
 {
     // we guess size
-    WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+4+4+1+1));
-    data.append(victim->GetPackGUID());
-    data.append(GetPackGUID());
-    data << uint32(SpellID);
+    WorldPacket data(SMSG_SPELL_HEAL_LOG, 60);
+    ObjectGuid targetGuid = victim->GetGUID();
+    ObjectGuid casterGuid = GetGUID();
+
+    data.WriteBit(critical);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(false);                               // IsDebug
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(false);                               // HasPowerData
+    data.WriteBit(false);                               // IsDebug 2
+
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(targetGuid[1]);
+
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(casterGuid[6]);
+    data << uint32(Absorb);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(targetGuid[7]);
     data << uint32(Damage);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGuid[4]);
+    data << uint32(SpellID);
+    data.WriteByteSeq(targetGuid[1]);
     data << uint32(OverHeal);
-    data << uint32(Absorb); // Absorb amount
-    data << uint8(critical ? 1 : 0);
-    data << uint8(0); // unused
+
     SendMessageToSet(&data, true);
 }
 
@@ -11274,12 +11343,48 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELLENERGIZELOG, (8+8+4+4+4+1));
-    data.append(victim->GetPackGUID());
-    data.append(GetPackGUID());
-    data << uint32(spellID);
-    data << uint32(powerType);
+    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, 60);
+    ObjectGuid targetGuid = victim->GetGUID();
+    ObjectGuid casterGuid = GetGUID();
+
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(false);                       // HasPowerData
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(casterGuid[7]);
+
+    data.WriteByteSeq(targetGuid[3]);
     data << uint32(damage);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(casterGuid[6]);
+    data << uint32(spellID);
+    data.WriteByteSeq(casterGuid[3]);
+    data << uint32(powerType);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[0]);
+
     SendMessageToSet(&data, true);
 }
 
@@ -16954,6 +17059,8 @@ void Unit::SendPetActionFeedback(uint8 msg)
 
     WorldPacket data(SMSG_PET_ACTION_FEEDBACK, 1);
     data << uint8(msg);
+    data.WriteBit(1);
+    data.FlushBits();
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -16964,8 +17071,20 @@ void Unit::SendPetTalk(uint32 pettalk)
         return;
 
     WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    data << uint64(GetGUID());
+    ObjectGuid unitGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 1, 4, 3, 6, 0, 5, 7, 2 };
+    data.WriteBitInOrder(unitGuid, bitsOrder);
+
+    data.WriteByteSeq(unitGuid[5]);
+    data.WriteByteSeq(unitGuid[6]);
+    data.WriteByteSeq(unitGuid[0]);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[7]);
+    data.WriteByteSeq(unitGuid[3]);
     data << uint32(pettalk);
+    data.WriteByteSeq(unitGuid[2]);
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -16975,9 +17094,22 @@ void Unit::SendPetAIReaction(uint64 guid)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data << uint64(guid);
+    WorldPacket data(SMSG_AI_REACTION, 12);
+    ObjectGuid npcGuid = guid;
+
+    uint8 bitsOrder[8] = { 5, 2, 3, 6, 7, 1, 0, 4 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    data.WriteByteSeq(npcGuid[1]);
+    data.WriteByteSeq(npcGuid[3]);
     data << uint32(AI_REACTION_HOSTILE);
+    data.WriteByteSeq(npcGuid[7]);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(npcGuid[4]);
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[5]);
+
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -17749,12 +17881,24 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(&data);
 }
 
-//Check for 5.0.5
 void Unit::PlayOneShotAnimKit(uint32 id)
 {
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
-    data.appendPackGUID(GetGUID());
+    ObjectGuid unitGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 4, 5, 7, 2, 1, 6, 0, 3 };
+    data.WriteBitInOrder(unitGuid, bitsOrder);
+
+    data.WriteByteSeq(unitGuid[3]);
+    data.WriteByteSeq(unitGuid[1]);
+    data.WriteByteSeq(unitGuid[7]);
     data << uint16(id);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(unitGuid[2]);
+    data.WriteByteSeq(unitGuid[5]);
+    data.WriteByteSeq(unitGuid[6]);
+    data.WriteByteSeq(unitGuid[0]);
+
     SendMessageToSet(&data, true);
 }
 
@@ -18812,24 +18956,23 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    //I am not sure for the uint32 values, we may have to swap them.
     
-    uint8 bitOrder[8] = {0, 1, 5, 3, 7, 2, 4, 6};
+    uint8 bitOrder[8] = { 3, 0, 6, 7, 4, 1, 5, 2 };
     data.WriteBitInOrder(guid, bitOrder);
 
     data.FlushBits();
 
-    data << uint32(0);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(unkParam);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[5]);
     data << uint32(id); // SpellVisualKit.dbc index
     data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data << uint32(unkParam);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
+    data << uint32(0);
     SendMessageToSet(&data, false);
 }
 
@@ -20438,15 +20581,70 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
         uint32 count = getThreatManager().getThreatList().size();
 
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE);
-        data.append(GetPackGUID());
-        data.appendPackGUID(pHostileReference->getUnitGuid());
-        data << uint32(count);
+        ObjectGuid thisGuid = GetGUID();
+        ObjectGuid hostileGuid = pHostileReference->getUnitGuid();
+
+        data.WriteBit(hostileGuid[5]);
+        data.WriteBit(thisGuid[0]);
+        data.WriteBit(hostileGuid[4]);
+        data.WriteBit(thisGuid[5]);
+        data.WriteBit(thisGuid[3]);
+        data.WriteBit(hostileGuid[1]);
+        data.WriteBit(thisGuid[1]);
+        data.WriteBit(hostileGuid[7]);
+        data.WriteBit(thisGuid[6]);
+        data.WriteBit(hostileGuid[2]);
+        data.WriteBit(hostileGuid[0]);
+        data.WriteBit(hostileGuid[6]);
+        data.WriteBit(thisGuid[7]);
+        data.WriteBits(count, 21);
+
         std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            data.appendPackGUID((*itr)->getUnitGuid());
-            data << uint32((*itr)->getThreat());
+            ObjectGuid iterGuid = (*itr)->getUnitGuid();
+
+            uint8 bitsOrder[8] = { 5, 0, 6, 2, 7, 3, 4, 1 };
+            data.WriteBitInOrder(iterGuid, bitsOrder);
         }
+
+        data.WriteBit(thisGuid[4]);
+        data.WriteBit(thisGuid[2]);
+        data.WriteBit(hostileGuid[3]);
+
+        data.WriteByteSeq(thisGuid[5]);
+        data.WriteByteSeq(thisGuid[3]);
+        data.WriteByteSeq(thisGuid[4]);
+        data.WriteByteSeq(thisGuid[7]);
+        data.WriteByteSeq(hostileGuid[0]);
+        data.WriteByteSeq(hostileGuid[4]);
+
+        for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        {
+            ObjectGuid iterGuid = (*itr)->getUnitGuid();
+
+            data.WriteByteSeq(iterGuid[6]);
+            data.WriteByteSeq(iterGuid[3]);
+            data.WriteByteSeq(iterGuid[2]);
+            data.WriteByteSeq(iterGuid[0]);
+            data.WriteByteSeq(iterGuid[5]);
+            data << uint32((*itr)->getThreat());
+            data.WriteByteSeq(iterGuid[1]);
+            data.WriteByteSeq(iterGuid[7]);
+            data.WriteByteSeq(iterGuid[4]);
+        }
+
+        data.WriteByteSeq(hostileGuid[5]);
+        data.WriteByteSeq(hostileGuid[1]);
+        data.WriteByteSeq(hostileGuid[7]);
+        data.WriteByteSeq(hostileGuid[2]);
+        data.WriteByteSeq(hostileGuid[6]);
+        data.WriteByteSeq(thisGuid[0]);
+        data.WriteByteSeq(thisGuid[2]);
+        data.WriteByteSeq(hostileGuid[3]);
+        data.WriteByteSeq(thisGuid[6]);
+        data.WriteByteSeq(thisGuid[1]);
+
         SendMessageToSet(&data, false);
     }
 }
@@ -20636,7 +20834,15 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
 
 void Unit::SendClearTarget()
 {
-    WorldPacket data(SMSG_BREAK_TARGET, GetPackGUID().size());
+    WorldPacket data(SMSG_BREAK_TARGET);
+    ObjectGuid unitGuid = GetGUID();
+
+    uint8 bitsOrder[8] = { 2, 7, 6, 0, 5, 3, 4, 1 };
+    data.WriteBitInOrder(unitGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 3, 7, 1, 0, 4, 2, 6, 5 };
+    data.WriteBytesSeq(unitGuid, bytesOrder);
+
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
 }

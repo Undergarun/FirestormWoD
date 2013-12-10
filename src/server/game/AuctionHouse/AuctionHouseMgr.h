@@ -34,7 +34,7 @@ class WorldPacket;
 
 enum AuctionError
 {
-    ERR_AUCTION_OK                  = 0,
+    ERR_AUCTION_OK                  = 40,
     ERR_AUCTION_INVENTORY           = 1,
     ERR_AUCTION_DATABASE_ERROR      = 2,
     ERR_AUCTION_NOT_ENOUGHT_MONEY   = 3,

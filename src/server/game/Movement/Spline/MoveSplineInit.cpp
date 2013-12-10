@@ -99,7 +99,7 @@ namespace Movement
         uint32 count = spline.getPointCount() - 2;
 
         for (uint32 i = 0; i < count; i++)
-            data << spline.getPoint(i+2).y << spline.getPoint(i+2).x << spline.getPoint(i+2).z;
+            data << spline.getPoint(i+2).y << spline.getPoint(i+2).z << spline.getPoint(i+2).x;
 
         //data.append<Vector3>(&spline.getPoint(2), count);
     }
@@ -109,7 +109,7 @@ namespace Movement
         uint32 count = spline.getPointCount() - 2;
         data << spline.getPoint(1).y << spline.getPoint(1).z << spline.getPoint(1).x ; // fake point, client will erase it from the spline after first cycle done
         for (uint32 i = 0; i < count; i++)
-            data << spline.getPoint(i+1).y << spline.getPoint(i+1).x << spline.getPoint(i+1).z;
+            data << spline.getPoint(i+1).y << spline.getPoint(i+1).z << spline.getPoint(i+1).x;
         //data.append<Vector3>(&spline.getPoint(1), count);
     }
 
@@ -381,11 +381,10 @@ namespace Movement
         unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
+            WorldPacket data(SMSG_MONSTER_MOVE, 64);
         ObjectGuid moverGUID = unit.GetGUID();
         ObjectGuid transportGUID = unit.GetTransGUID();
-        MoveSplineFlag splineflags =  move_spline.splineflags;
-        uint32 sendSplineFlags = 0;
+
         int8 seat = unit.GetTransSeat();
 
         bool hasUnk1 = false;
@@ -400,14 +399,14 @@ namespace Movement
         // Writes bits
         data.WriteBit(hasUnk1);                     // unk, has counter + 2 bits & somes uint16/float
         data.WriteBit(moverGUID[5]);
-        data.WriteBit(!splineflags.animation);      // !hasAnimationTime
+        data.WriteBit(true);      					// !hasAnimationTime
         data.WriteBit(true);                        // has duration
         data.WriteBit(moverGUID[4]);
         data.WriteBit(moverGUID[3]);
         data.WriteBit(true);                        // !unk, send uint32
         data.WriteBit(seat == -1);                  // !has seat
         data.WriteBit(moverGUID[2]);
-        data.WriteBit(sendSplineFlags == 0);        // !hasFlags
+        data.WriteBit(true);        // !hasFlags
         data.WriteBit(moverGUID[0]);
 
         if (hasUnk1)
@@ -424,9 +423,9 @@ namespace Movement
         uint8 transportBitsOrder[8] = {5, 3, 4, 6, 2, 1, 7, 0};
         data.WriteBitInOrder(transportGUID, transportBitsOrder);
 
-        data.WriteBit(!splineflags.animation);      // animation state
-        data.WriteBit(!splineflags.parabolic);      // !hasParabolicTime
-        data.WriteBit(!splineflags.parabolic);      // !hasParabolicSpeed
+        data.WriteBit(true);      // animation state
+        data.WriteBit(true);      // !hasParabolicTime
+        data.WriteBit(true);      // !hasParabolicSpeed
         data.WriteBit(moverGUID[6]);
         data.WriteBits(WPcount, 20);
         data.WriteBit(moverGUID[1]);
@@ -456,11 +455,11 @@ namespace Movement
         uint8 transportByteOrder[8] = {0, 1, 2, 7, 3, 4, 6, 5};
         data.WriteBytesSeq(transportGUID, transportByteOrder);
 
-        data << float(loc.y);
+        data << float(unit.GetPositionY());
         data.WriteByteSeq(moverGUID[7]);
 
         data << float(0.0f);                    // unk float
-        data << float(loc.z);
+        data << float(unit.GetPositionZ());
         data << float(0.0f);                    // unk float
 
         data.WriteByteSeq(moverGUID[5]);
@@ -471,7 +470,7 @@ namespace Movement
         if (hasUnk2)
             data << uint8(0);                   // unk byte
 
-        data << float(loc.x);
+        data << float(unit.GetPositionX());
 
         data.WriteByteSeq(moverGUID[4]);
 
@@ -485,6 +484,11 @@ namespace Movement
 
         if (false)
             data << uint32(0);                  // unk uint32
+
+        data.WriteByteSeq(moverGUID[6]);
+        data.WriteByteSeq(moverGUID[2]);
+        data.WriteByteSeq(moverGUID[3]);
+        data.WriteByteSeq(moverGUID[1]);
 
         //PacketBuilder::WriteStopMovement(loc, args.splineId, data);
         unit.SendMessageToSet(&data, true);

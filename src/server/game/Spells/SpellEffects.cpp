@@ -270,7 +270,14 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
     &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
-    &Spell::EffectNULL                                      //201 SPELL_EFFECT_201
+    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_201
+    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
+    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
+    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204
+    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205
+    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206
+    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207
+    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
@@ -5323,42 +5330,43 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED);
 
-    ObjectGuid casterGuid = caster->GetGUID();
-    ObjectGuid targetGuid = target->GetGUID();
+    ObjectGuid gameobjectGUID = pGameObj->GetGUID();
+    ObjectGuid casterGUID = caster->GetGUID();
 
-    data.WriteBit(casterGuid[1]);
-    data.WriteBit(casterGuid[4]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(casterGuid[3]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(casterGuid[5]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(casterGuid[0]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(casterGuid[2]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(casterGuid[7]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(casterGuid[6]);
+    data.WriteBit(gameobjectGUID[1]);
+    data.WriteBit(gameobjectGUID[4]);
+    data.WriteBit(casterGUID[5]);
+    data.WriteBit(casterGUID[0]);
+    data.WriteBit(gameobjectGUID[3]);
+    data.WriteBit(casterGUID[2]);
+    data.WriteBit(gameobjectGUID[5]);
+    data.WriteBit(casterGUID[7]);
+    data.WriteBit(gameobjectGUID[0]);
+    data.WriteBit(casterGUID[1]);
+    data.WriteBit(gameobjectGUID[2]);
+    data.WriteBit(casterGUID[3]);
+    data.WriteBit(gameobjectGUID[7]);
+    data.WriteBit(casterGUID[4]);
+    data.WriteBit(casterGUID[6]);
+    data.WriteBit(gameobjectGUID[6]);
 
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(casterGuid[3]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(casterGuid[5]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(casterGuid[6]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(casterGuid[4]);
-    data.WriteByteSeq(casterGuid[2]);
-    data.WriteByteSeq(casterGuid[7]);
-    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGUID[6]);
+    data.WriteByteSeq(gameobjectGUID[3]);
+    data.WriteByteSeq(casterGUID[7]);
+    data.WriteByteSeq(casterGUID[4]);
+    data.WriteByteSeq(casterGUID[0]);
+    data.WriteByteSeq(gameobjectGUID[0]);
+    data.WriteByteSeq(gameobjectGUID[5]);
+    data.WriteByteSeq(gameobjectGUID[1]);
+    data.WriteByteSeq(casterGUID[2]);
+    data.WriteByteSeq(gameobjectGUID[6]);
+    data.WriteByteSeq(casterGUID[5]);
+    data.WriteByteSeq(casterGUID[1]);
+    data.WriteByteSeq(gameobjectGUID[4]);
+    data.WriteByteSeq(gameobjectGUID[2]);
+    data.WriteByteSeq(gameobjectGUID[7]);
+    data.WriteByteSeq(casterGUID[3]);
+
 
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);
@@ -5919,7 +5927,14 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
         return;
 
     WorldPacket data(SMSG_CLEAR_TARGET, 8);
-    data << uint64(m_caster->GetGUID());
+    ObjectGuid casterGuid = m_caster->GetGUID();
+
+    uint8 bitsOrder[8] = { 2, 1, 3, 4, 5, 6, 7, 0 };
+    data.WriteBitInOrder(casterGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 1, 7, 5, 2, 3, 0, 4, 6 };
+    data.WriteBytesSeq(casterGuid, bytesOrder);
+
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -7247,7 +7262,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     WorldLocation loc;
     if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_DB || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DB)
     {
-        SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id);
+        SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id, effIndex);
         if (!st)
         {
             sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id);
@@ -7281,8 +7296,16 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     // zone update
     data.Initialize(SMSG_PLAYER_BOUND, 8 + 4);
-    data << uint64(player->GetGUID());
+    ObjectGuid playerGuid = player->GetGUID();
+
+    uint8 bitsOrder[8] = { 0, 7, 2, 4, 5, 3, 1, 6 };
+    data.WriteBitInOrder(playerGuid, bitsOrder);
+
     data << uint32(area_id);
+
+    uint8 bytesOrder[8] = { 7, 5, 3, 0, 4, 1, 6, 2 };
+    data.WriteBytesSeq(playerGuid, bytesOrder);
+
     player->SendDirectMessage(&data);
 }
 

@@ -21,13 +21,12 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "GroupMgr.h"
 #include "SpellMgr.h"
 #include "UpdateMask.h"
 #include "World.h"
-#include "ArenaTeam.h"
+#include "Arena.h"
 #include "Transport.h"
 #include "Language.h"
 #include "GameEventMgr.h"
@@ -1655,6 +1654,8 @@ void ObjectMgr::LoadCreatures()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
+
+            // Update creature table
             //WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
@@ -6222,10 +6223,6 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
     if (result)
         _hiCorpseGuid = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
-    if (result)
-        sArenaTeamMgr->SetNextArenaTeamId((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(setguid) FROM character_equipmentsets");
     if (result)

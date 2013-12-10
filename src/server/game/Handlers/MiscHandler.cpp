@@ -626,8 +626,8 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (recvData.size() == 1)
     {
-        bool newPvPStatus;
-        recvData >> newPvPStatus;
+        bool newPvPStatus = recvData.ReadBit();
+
         GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
         GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
     }
@@ -992,7 +992,11 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 {
     uint32 triggerId;
+    uint8 unkbit1, unkbit2;
+
     recvData >> triggerId;
+    unkbit1 = recvData.ReadBit();
+    unkbit2 = recvData.ReadBit();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
@@ -1126,19 +1130,13 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     uint32 type, timestamp, decompressedSize, compressedSize;
     recvData >> decompressedSize >> timestamp >> compressedSize;
 
-    type = uint8(recvData.contents()[recvData.size()]) >> 5;
+    type = uint8(recvData.contents()[recvData.size()-1]) >> 5;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
 
     if (decompressedSize == 0)                               // erase
     {
         SetAccountData(AccountDataType(type), 0, "");
-
-        WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
-        data << uint32(type);
-        data << uint32(0);
-        SendPacket(&data);
-
         return;
     }
 
@@ -1165,11 +1163,6 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     std::string adata = dest.ReadString(decompressedSize);
 
     SetAccountData(AccountDataType(type), timestamp, adata);
-
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
-    data << uint32(type);
-    data << uint32(0);
-    SendPacket(&data);
 }
 
 void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
@@ -1204,9 +1197,9 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+destSize);
     ObjectGuid playerGuid = _player ? _player->GetGUID() : 0;
 
-    data << uint32(destSize);                               // compressed length
-    data << uint32(adata->Time);                            // unix time
     data << uint32(size);                                   // decompressed length
+    data << uint32(adata->Time);                            // unix time
+    data << uint32(destSize);                               // compressed length
     data.append(dest);                                      // compressed data
 
     data.WriteBit(playerGuid[4]);
@@ -1240,19 +1233,19 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
 
     recvData >> button;
 
-    ObjectGuid guid;
+    ObjectGuid packetData;
 
     uint8 bitsOrder[8] = { 1, 7, 6, 5, 2, 4, 0, 3 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    recvData.ReadBitInOrder(packetData, bitsOrder);
 
     uint8 bytesOrder[8] = { 2, 7, 1, 4, 0, 5, 3, 6 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
+    recvData.ReadBytesSeq(packetData, bytesOrder);
 
-    uint32 action = ACTION_BUTTON_ACTION(guid);
-    uint8  type   = ACTION_BUTTON_TYPE(guid);
+    uint32 action = uint64(packetData) & 0xFFFFFFFF;
+    uint8  type   = (uint64(packetData) & 0xFF00000000000000) >> 56;
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
-    if (!guid)
+    if (!packetData)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
         GetPlayer()->removeActionButton(button);
@@ -1397,18 +1390,18 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
         return;
     }
 
-    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, actionBar);
+    GetPlayer()->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, actionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 {
-    uint8 unk1;
-    recvData >> unk1;                                      // 0 or 1 expected
+    bool unk1 = recvData.ReadBit();                 // 0 or 1 expected
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(_player->GetTotalPlayedTime());
     data << uint32(_player->GetLevelPlayedTime());
-    data << uint8(unk1);                                    // 0 - will not show in chat frame
+    data << uint32(_player->GetTotalPlayedTime());
+    data.WriteBit(unk1);                            // 0 - will not show in chat frame
+    data.FlushBits();
     SendPacket(&data);
 }
 
@@ -1577,7 +1570,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     }
 
     data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[1]);
     data.WriteByteSeq(playerGuid[5]);
     data.WriteByteSeq(playerGuid[0]);
 
@@ -1804,41 +1797,15 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_COMPLAIN");
 
-    uint8 spam_type;                                        // 0 - mail, 1 - chat
-    uint64 spammer_guid;
-    uint32 unk1 = 0;
-    uint32 unk2 = 0;
-    uint32 unk3 = 0;
-    uint32 unk4 = 0;
-    std::string description = "";
-    recvData >> spam_type;                                 // unk 0x01 const, may be spam type (mail/chat)
-    recvData >> spammer_guid;                              // player guid
-    switch (spam_type)
-    {
-    case 0:
-        recvData >> unk1;                              // const 0
-        recvData >> unk2;                              // probably mail id
-        recvData >> unk3;                              // const 0
-        break;
-    case 1:
-        recvData >> unk1;                              // probably language
-        recvData >> unk2;                              // message type?
-        recvData >> unk3;                              // probably channel id
-        recvData >> unk4;                              // time
-        recvData >> description;                       // spam description string (messagetype, channel name, player name, message)
-        break;
-    }
-
+    // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
     WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
-    data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
-    data << uint8(0); // value 0xC generates a "CalendarError" in client.
+    data << uint8(0);   // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
+    data << uint32(0);  // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, GUID_LOPART(spammer_guid), unk1, unk2, unk3, unk4, description.c_str());
 }
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
@@ -1890,25 +1857,20 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
 
-    uint8 apply;
-    recvData >> apply;
+    bool apply = recvData.ReadBit();
 
-    switch (apply)
+    if (apply)
     {
-    case 0:
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Player %u set vision to self", _player->GetGUIDLow());
         _player->SetSeer(_player);
-        break;
-    case 1:
+    }
+    else
+    {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", _player->GetUInt64Value(PLAYER_FARSIGHT), _player->GetGUIDLow());
         if (WorldObject* target = _player->GetViewpoint())
             _player->SetSeer(target);
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
-        break;
-    default:
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
-        return;
     }
 
     GetPlayer()->UpdateVisibilityForPlayer();
@@ -1918,7 +1880,7 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
 
-    int32 title;
+    uint32 title;
     recvData >> title;
 
     // -1 at none
@@ -1973,7 +1935,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
     uint32 mode;
     recvData >> mode;
 
-    if (mode >= MAX_DUNGEON_DIFFICULTY)
+    if (mode != CHALLENGE_MODE_DIFFICULTY && mode >= MAX_DUNGEON_DIFFICULTY)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
         return;
@@ -2450,20 +2412,20 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     _player->SendMovieStart(116);
 }
 
-void WorldSession::HandlerCategoryCooldownOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
 {
     Unit::AuraEffectList const& list = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
 
     WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 4 + (int(list.size()) * 8));
-    data.WriteBits<int>(list.size(), 23);
+    data.WriteBits<int>(list.size(), 21);
     for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
     {
         AuraEffectPtr effect = *itr;
         if (!effect)
             continue;
 
-        data << int32(-effect->GetAmount());
         data << uint32(effect->GetMiscValue());
+        data << int32(-effect->GetAmount());
     }
 
     SendPacket(&data);

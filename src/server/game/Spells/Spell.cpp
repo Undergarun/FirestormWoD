@@ -1398,9 +1398,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 m_targets.SetDst(playerCaster->m_homebindX, playerCaster->m_homebindY, playerCaster->m_homebindZ, playerCaster->GetOrientation(), playerCaster->m_homebindMapId);
             return;
         case TARGET_DEST_DB:
-            if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+            if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id, effIndex))
             {
-                // TODO: fix this check
+                // @TODO: fix this check
                 if (m_spellInfo->HasEffect(SPELL_EFFECT_TELEPORT_UNITS))
                     m_targets.SetDst(st->target_X, st->target_Y, st->target_Z, st->target_Orientation, (int32)st->target_mapId);
                 else if (st->target_mapId == m_caster->GetMapId())
@@ -4429,7 +4429,7 @@ void Spell::SendSpellStart()
     uint8 runeCooldownCount = 0;
     for (uint8 i = 0; i < MAX_RUNES; ++i)
         if (Player* player = m_caster->ToPlayer())
-            if (player->GetRuneCooldown(i) != 0)
+            if (player->getClass() == CLASS_DEATH_KNIGHT && player->GetRuneCooldown(i) != 0)
                 runeCooldownCount++;
 
     data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
@@ -4790,7 +4790,7 @@ void Spell::SendSpellGo()
 
     WorldPacket data(SMSG_SPELL_GO);
 
-    ObjectGuid guid1, guid2, guid6, guid7;
+    ObjectGuid guid1, guid2, guid6;
     ObjectGuid caster = m_caster->GetGUID();
     ObjectGuid target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : NULL;
     ObjectGuid itemGuid = itemTarget ? itemTarget->GetGUID() : 0;
@@ -4808,7 +4808,7 @@ void Spell::SendSpellGo()
     uint32 counter84 = 0;
 
     bool hasSrc = m_targets.HasSrc();
-    bool hasGuid7 = false;
+    bool hasDest = m_targets.HasDst();
     bool hasBit48 = false;
     bool hasBit90 = false;
     bool hasBit91 = false;
@@ -4917,7 +4917,7 @@ void Spell::SendSpellGo()
         }
     }
 
-    data.WriteBit(hasGuid7);                                // hasGuid7
+    data.WriteBit(hasDest);                                 // hasDest
     data.WriteBit(1);                                       // !hasBit416
 
     ObjectGuid* Guids2;
@@ -4933,10 +4933,10 @@ void Spell::SendSpellGo()
 
     data.WriteBit(!hasDelayMoment);                              // !hasDelayMoment
 
-    if (hasGuid7)
+    if (hasDest)
     {
         uint8 bitsOrder[8] = { 4, 1, 7, 3, 0, 5, 6, 2 };
-        data.WriteBitInOrder(guid7, bitsOrder);
+        data.WriteBitInOrder(transportDst, bitsOrder);
     }
 
     data.WriteBit(powerUnit != NULL);                       // hasPowerUnitGuid
@@ -4976,6 +4976,11 @@ void Spell::SendSpellGo()
             data.WriteBitInOrder(hitGuid, bitsOrder);
         }
     }
+
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+        if (Player* player = m_caster->ToPlayer())
+            if (player->getClass() == CLASS_DEATH_KNIGHT && player->GetRuneCooldown(i) != 0)
+                runeCooldownCount++;
 
     data.WriteBit(itemCaster[0]);
     data.WriteBit(itemCaster[4]);
@@ -5117,7 +5122,7 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(itemCaster[0]);
     data.WriteByteSeq(caster[4]);
 
-    if (m_targets.HasDst())
+    if (hasDest)
     {
         float x, y, z;
 
@@ -5196,10 +5201,10 @@ void Spell::SendSpellGo()
         data << int32((Powers)m_spellPowerData->powerType); //Power
     }
 
-    if (Player* player = m_caster->ToPlayer())
-        for (uint8 i = 0; i < MAX_RUNES && runeCooldownCount > 0; ++i)
-            if (player->GetRuneCooldown(i) > 0)
-                data << float(player->GetRuneCooldown(i));
+    for (uint8 i = 0; i < runeCooldownCount; i++)
+        if (Player* player = m_caster->ToPlayer())
+            if (player->GetRuneCooldown(i) != 0)
+                data << uint8(player->GetRuneCooldown(i));
 
     if (unkStringLength > 0)
     {

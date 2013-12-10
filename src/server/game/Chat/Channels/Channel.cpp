@@ -655,6 +655,8 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         lang = LANG_UNIVERSAL;
 
     Player* player = ObjectAccessor::FindPlayer(p);
+    if (!player)
+        return;
 
     if (!IsOn(p))
     {
@@ -672,16 +674,8 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
     {
         uint32 messageLength = strlen(what) + 1;
 
-        WorldPacket data(SMSG_MESSAGE_CHAT, 1 + 4 + 8 + 4 + m_name.size() + 1 + 8 + 4 + messageLength + 1);
-        data << (uint8)CHAT_MSG_CHANNEL;
-        data << (uint32)lang;
-        data << p;                                          // 2.1.0
-        data << uint32(0);                                  // 2.1.0
-        data << m_name;
-        data << p;
-        data << messageLength;
-        data << what;
-        data << uint16(player ? player->GetChatTag() : 0);
+        WorldPacket data(SMSG_MESSAGE_CHAT);
+        player->BuildPlayerChat(&data, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
 
         SendToAll(&data, !players[p].IsModerator() ? p : false);
     }
@@ -1067,32 +1061,70 @@ void Channel::MakeVoiceOff(WorldPacket* data, uint64 guid)
 
 void Channel::JoinNotify(uint64 guid)
 {
-    WorldPacket data;
+    ObjectGuid playerGuid = guid;
+    WorldPacket data(SMSG_USERLIST_ADD);
 
-    if (IsConstant())
-        data.Initialize(SMSG_USERLIST_ADD, 8+1+1+4+GetName().size()+1);
-    else
-        data.Initialize(SMSG_USERLIST_UPDATE, 8+1+1+4+GetName().size()+1);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBits(GetName().size(), 7);
+    data.WriteBit(playerGuid[4]);
 
-    data << uint64(guid);
+    data.WriteByteSeq(playerGuid[5]);
+
+    if (GetName().size())
+    {
+        data.FlushBits();
+        data.append(GetName().c_str(), GetName().size());
+    }
+
     data << uint8(GetPlayerFlags(guid));
-    data << uint8(GetFlags());
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[6]);
     data << uint32(GetNumPlayers());
-    data << GetName();
+    data.WriteByteSeq(playerGuid[2]);
 
-    if (IsConstant())
-        SendToAllButOne(&data, guid);
-    else
-        SendToAll(&data);
+    SendToAllButOne(&data, guid);
 }
 
 void Channel::LeaveNotify(uint64 guid)
 {
-    WorldPacket data(SMSG_USERLIST_REMOVE, 8+1+4+GetName().size()+1);
-    data << uint64(guid);
+    WorldPacket data(SMSG_USERLIST_REMOVE);
+    ObjectGuid playerGuid = guid;
+
+    data.WriteBit(playerGuid[2]);
+    data.WriteBits(GetName().size(), 7);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(playerGuid[4]);
+
     data << uint8(GetFlags());
+    data.WriteByteSeq(playerGuid[6]);
+    data << uint8(GetPlayerFlags(guid));
+    data.WriteByteSeq(playerGuid[0]);
+
+    if (GetName().size())
+        data.append(GetName().c_str(), GetName().size());
+
     data << uint32(GetNumPlayers());
-    data << GetName();
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[7]);
 
     if (IsConstant())
         SendToAllButOne(&data, guid);

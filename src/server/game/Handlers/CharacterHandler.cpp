@@ -19,14 +19,13 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "SystemConfig.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
-#include "ArenaTeam.h"
+#include "Arena.h"
 #include "Chat.h"
 #include "Group.h"
 #include "Guild.h"
@@ -783,7 +782,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
     }
 }
 
-void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
+void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
     ObjectGuid charGuid;
     bool unkBit = false;
@@ -823,15 +822,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
         data << uint8(CHAR_DELETE_FAILED_GUILD_LEADER);
-        SendPacket(&data);
-        return;
-    }
-
-    // is arena team captain
-    if (sArenaTeamMgr->GetArenaTeamByCaptain(charGuid))
-    {
-        WorldPacket data(SMSG_CHAR_DELETE, 1);
-        data << uint8(CHAR_DELETE_FAILED_ARENA_CAPTAIN);
         SendPacket(&data);
         return;
     }
@@ -1063,6 +1053,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
             chH.PSendSysMessage(_FULLVERSION);
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
+    }
+
+    if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
+    {
+        data.Initialize(SMSG_SET_ARENA_SEASON, 8);
+        data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1);
+        data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+        SendPacket(&data);
     }
 
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
@@ -1324,27 +1322,36 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     delete holder;
 }
 
-void WorldSession::HandleSetFactionAtWar(WorldPacket & recvData)
+void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_ATWAR");
 
-    uint32 repListID;
-    uint8  flag;
+    uint8 repListID;
 
     recvData >> repListID;
-    recvData >> flag;
 
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag);
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, true);
+}
+
+void WorldSession::HandleUnSetFactionAtWar(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNSET_FACTION_ATWAR");
+
+    uint8 repListID;
+
+    recvData >> repListID;
+
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, false);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
-void WorldSession::HandleSetFactionCheat(WorldPacket & /*recvData*/)
+void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
 {
     sLog->outError(LOG_FILTER_NETWORKIO, "WORLD SESSION: HandleSetFactionCheat, not expected call, please report.");
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket & recvData)
+void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
 {
     uint32 data;
     recvData >> data;
@@ -1372,7 +1379,7 @@ void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
         SetTutorialInt(i, 0x00000000);
 }
 
-void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_WATCHED_FACTION");
     uint32 fact;
@@ -1380,14 +1387,23 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recvData)
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
 }
 
-void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_INACTIVE");
     uint32 replistid;
-    uint8 inactive;
-    recvData >> replistid >> inactive;
+    bool inactive;
+
+    recvData >> replistid;
+    inactive = recvData.ReadBit();
 
     _player->GetReputationMgr().SetInactive(replistid, inactive);
+}
+
+void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOW_ACCOUNT_ACHIEVEMENT for %s", _player->GetName());
+
+    bool showing = recvData.ReadBit();
 }
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
@@ -1675,7 +1691,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     _player->SetStandState(0);                              // stand up
 }
 
-void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
+void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 {
     uint32 slot;
     recvData >> slot;
@@ -1900,7 +1916,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     _player->SetEquipmentSet(index, eqSet);
 }
 
-void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
+void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_DELETE");
 
@@ -2364,9 +2380,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             trans->Append(stmt);
 
         }
-
-        // Leave Arena Teams
-        Player::LeaveAllArenaTeams(guid);
 
         // Reset homebind and position
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);

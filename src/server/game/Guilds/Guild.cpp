@@ -1158,11 +1158,19 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     _CreateDefaultGuildRanks(pLeaderSession->GetSessionDbLocaleIndex());
     // Add guildmaster
     bool ret = AddMember(m_leaderGuid, GR_GUILDMASTER);
+    // Call scripts on successful create
     if (ret)
-        // Call scripts on successful create
         sScriptMgr->OnGuildCreate(this, pLeader, name);
 
-    _BroadcastEvent(GE_FOUNDER, m_leaderGuid);
+    WorldPacket data(SMSG_GUILD_SEND_MOTD);
+
+    data.WriteBits(m_motd.size(), 10);
+    data.FlushBits();
+
+    if (m_motd.size() > 0)
+        data.append(m_motd.c_str(), m_motd.size());
+
+    BroadcastPacket(&data);
 
     return ret;
 }
@@ -1800,7 +1808,9 @@ void Guild::HandleAcceptMember(WorldSession* session)
     {
         _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, player->GetGUIDLow());
 
-        WorldPacket data(SMSG_GUILD_SEND_PLAYER_JOINED);
+        WorldPacket data;
+
+        data.Initialize(SMSG_GUILD_SEND_PLAYER_JOINED);
         ObjectGuid playerGuid = player->GetGUID();
 
         data.WriteBits(strlen(player->GetName()), 6);
@@ -1826,6 +1836,39 @@ void Guild::HandleAcceptMember(WorldSession* session)
         data.WriteByteSeq(playerGuid[0]);
         data.WriteByteSeq(playerGuid[7]);
 
+        BroadcastPacket(&data);
+
+        data.Initialize(SMSG_GUILD_SEND_MOTD);
+
+        data.WriteBits(m_motd.size(), 10);
+        data.FlushBits();
+
+        if (m_motd.size() > 0)
+            data.append(m_motd.c_str(), m_motd.size());
+
+        session->SendPacket(&data);
+
+        data.Initialize(SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS);
+        data.WriteBit(0);
+        data.WriteBits(strlen(session->GetPlayer()->GetName()), 6);
+        data.WriteBit(1);
+
+        uint8 bitsLoginOrder[8] = { 0, 2, 6, 7, 3, 4, 5, 1 };
+        data.WriteBitInOrder(playerGuid, bitsLoginOrder);
+
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[4]);
+
+        if (strlen(session->GetPlayer()->GetName()) > 0)
+            data.append(session->GetPlayer()->GetName(), strlen(session->GetPlayer()->GetName()));
+
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data << uint32(realmID);
+        data.WriteByteSeq(playerGuid[2]);
+        data.WriteByteSeq(playerGuid[3]);
         BroadcastPacket(&data);
 
         sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));
@@ -2140,11 +2183,12 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
         return;
 
     WorldPacket data(SMSG_GUILD_PARTY_STATE_RESPONSE, 13);
+
+    data << float(0.f);                                                                 // Guild XP multiplier
+    data << uint32(0);                                                                  // Current guild members
+    data << uint32(0);                                                                  // Needed guild members
     data.WriteBit(player->GetMap()->GetOwnerGuildId(player->GetTeam()) == GetId());     // Is guild group
     data.FlushBits();
-    data << uint32(0);                                                                  // Current guild members
-    data << float(0.f);                                                                 // Guild XP multiplier
-    data << uint32(0);                                                                  // Needed guild members
 
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");

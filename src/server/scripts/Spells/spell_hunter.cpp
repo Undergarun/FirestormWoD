@@ -1614,9 +1614,10 @@ class spell_hun_rapid_fire : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_rapid_fire_SpellScript);
 
+            // CRASHFIX: crash in 5.4.0 due to GetEffect), effect 1 doesn't exist in DBC in 5.4
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                /*if (Player* _player = GetCaster()->ToPlayer())
                 {
                     // Item - Bonus season 12 PvP
                     if (_player->HasAura(HUNTER_SPELL_RAPID_INTENSITY))
@@ -1637,7 +1638,7 @@ class spell_hun_rapid_fire : public SpellScriptLoader
                             rapidFire->GetEffect(1)->ChangeAmount(0);
                         }
                     }
-                }
+                }*/
             }
 
             void Register()
@@ -2226,31 +2227,41 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (!GetExplTargetUnit())
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                if (Creature* target = GetExplTargetUnit()->ToCreature())
+                if (Player* caster = GetCaster()->ToPlayer())
                 {
-                    if (target->getLevel() > caster->getLevel())
-                        return SPELL_FAILED_HIGHLEVEL;
+                    if (!GetExplTargetUnit())
+                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                    if (!target->GetCreatureTemplate()->isTameable(caster->ToPlayer()->CanTameExoticPets()))
-                        return SPELL_FAILED_BAD_TARGETS;
+                    // If we have a full list we shoulden't be able to create a new one.
+                    if (caster->getSlotForNewPet() == PET_SLOT_FULL_LIST)
+                    {
+                        caster->SendPetTameResult(PET_TAME_ERROR_TOO_MANY_PETS);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
 
-                    if (caster->GetPetGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                    if (Creature* target = GetExplTargetUnit()->ToCreature())
+                    {
+                        if (target->getLevel() > caster->getLevel())
+                            return SPELL_FAILED_HIGHLEVEL;
 
-                    if (caster->GetCharmGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                        if (!target->GetCreatureTemplate()->isTameable(caster->ToPlayer()->CanTameExoticPets()))
+                            return SPELL_FAILED_BAD_TARGETS;
+
+                        if (caster->GetPetGUID())
+                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                        if (caster->GetCharmGUID())
+                            return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                    }
+                    else
+                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                    return SPELL_CAST_OK;
                 }
                 else
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+                    return SPELL_FAILED_DONT_REPORT;
 
-                return SPELL_CAST_OK;
+                return SPELL_FAILED_DONT_REPORT;
             }
 
             void Register()

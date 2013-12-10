@@ -1,0 +1,1 @@
+ALTER TABLE `character_currency` ADD COLUMN `flags` INT(10) UNSIGNED NULL AFTER `season_total`;

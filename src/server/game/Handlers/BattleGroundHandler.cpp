@@ -19,11 +19,10 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-#include "ArenaTeam.h"
+#include "Arena.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
@@ -76,22 +75,37 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     uint32 bgTypeId_ = 0;
     uint32 instanceId = 0;
     uint8 joinAsGroup = 0;
+    uint8 role;
     bool isPremade = false;
     Group* grp = NULL;
+    uint32 disabledBgs[2];
 
-    recvData >> instanceId;                                 // battleground type id (DBC id)
-    recvData.read_skip<uint32>();
-    recvData.read_skip<uint32>();
+    for (int i = 0; i < 2; i++)
+        recvData >> disabledBgs[i];
 
-    uint8 bitOrder[8] = {2, 5, 3, 7, 6, 0, 1, 4};
-    recvData.ReadBitInOrder(guid, bitOrder);
-
+    guid[5] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
     joinAsGroup = recvData.ReadBit();
-
+    guid[0] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    role = recvData.ReadBit(); // byte11
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {6, 1, 3, 5, 7, 0, 4, 2};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[6]);
+
+    if (!role)
+        recvData >> role;
 
     bgTypeId_ = GUID_LOPART(guid);
 
@@ -120,12 +134,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
         return;
 
     // get bg instance or bg template if instance not found
-    Battleground* bg = NULL;
-    if (instanceId)
-        bg = sBattlegroundMgr->GetBattlegroundThroughClientInstance(instanceId, bgTypeId);
+    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
 
-    if (!bg)
-        bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
     if (!bg)
         return;
 
@@ -398,24 +408,26 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
     ObjectGuid guid;
     
-    recvData >> unk;
+    action = recvData.ReadBit();
+    recvData.FlushBits();
     recvData >> queueSlot;
     recvData >> time;
+    recvData >> unk;
 
+    guid[7] = recvData.ReadBit();
     guid[0] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    action = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {0, 3, 4, 7, 1, 5, 6, 2};
+    uint8 byteOrder[8] = {0, 7, 2, 6, 3, 5, 1, 4};
     recvData.ReadBytesSeq(guid, byteOrder);
+
+    queueSlot--;
 
     if (!_player->InBattlegroundQueue())
     {
@@ -548,16 +560,14 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             if (bg->isArena() && bg->GetStatus() > STATUS_WAIT_QUEUE)
                 return;
             // if player leaves rated arena match before match start, it is counted as he played but he lost
-            if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
+            /*if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
             {
-                ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ginfo.Team);
-                if (at)
+                if (ginfo.group)
                 {
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "UPDATING memberLost's personal arena rating for %u by opponents rating: %u, because he has left queue!", GUID_LOPART(_player->GetGUID()), ginfo.OpponentsTeamRating);
-                    at->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
-                    at->SaveToDB();
+                    ginfo.group->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
                 }
-            }
+            }*/
 
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueSlot, STATUS_NONE, _player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0);
             SendPacket(&data);
@@ -579,11 +589,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
-
-    /*recvData.read_skip<uint8>();                           // unk1
-    recvData.read_skip<uint8>();                           // unk2
-    recvData.read_skip<uint32>();                          // BattlegroundTypeId
-    recvData.read_skip<uint16>();                          // unk3*/
 
     // not allow leave battleground in combat
     if (_player->isInCombat())
@@ -674,7 +679,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     uint32 arenaRating = 0;
     uint32 matchmakerRating = 0;
 
-    uint8 arenatype = ArenaTeam::GetTypeBySlot(arenaslot);
+    uint8 arenatype = Arena::GetTypeBySlot(arenaslot);
 
     //check existance
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
@@ -699,26 +704,31 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 
     GroupJoinBattlegroundResult err = ERR_BATTLEGROUND_NONE;
 
-     Group* grp = _player->GetGroup();
-     // no group found, error
-     if (!grp)
-         return;
-     if (grp->GetLeaderGUID() != _player->GetGUID())
-         return;
+    Group* grp = _player->GetGroup();
 
-     uint32 ateamId = _player->GetArenaTeamId(arenaslot);
-     // check real arenateam existence only here (if it was moved to group->CanJoin .. () then we would ahve to get it twice)
-     ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ateamId);
-     if (!at)
-     {
-         _player->GetSession()->SendNotInArenaTeamPacket(arenatype);
-         return;
-     }
+    // no group found, error
+    if (!grp)
+        return;
 
-    // get the team rating for queueing
-     arenaRating = at->GetRating();
-     matchmakerRating = at->GetAverageMMR(grp);
-     // the arenateam id must match for everyone in the group
+    if (grp->GetLeaderGUID() != _player->GetGUID())
+        return;
+
+    uint32 playerDivider = 0;
+    for (GroupReference const* ref = grp->GetFirstMember(); ref != NULL; ref = ref->next())
+    {
+        if (Player const* groupMember = ref->getSource())
+        {
+            arenaRating += groupMember->GetArenaPersonalRating(arenaslot);
+            matchmakerRating += groupMember->GetArenaMatchMakerRating(arenaslot);
+            ++playerDivider;
+        }
+    }
+
+    if (!playerDivider)
+        return;
+
+    arenaRating /= playerDivider;
+    matchmakerRating /= playerDivider;
 
     if (arenaRating <= 0)
         arenaRating = 1;
@@ -733,7 +743,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: arena team id %u, leader %s queued with matchmaker rating %u for type %u", _player->GetArenaTeamId(arenaslot), _player->GetName(), matchmakerRating, arenatype);
 
-        ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, true, false, arenaRating, matchmakerRating, ateamId);
+        ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, true, false, arenaRating, matchmakerRating);
         avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
     }
 

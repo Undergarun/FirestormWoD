@@ -75,7 +75,7 @@ float CONF_float_to_int16_limit = 2048.0f;   // Max accuracy = val/65536
 float CONF_flat_height_delta_limit = 0.005f; // If max - min less this value - surface is flat
 float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - liquid surface is flat
 
-uint32 CONF_TargetBuild = 17371;              // 5.4.0 17371
+uint32 CONF_TargetBuild = 17399;              // 5.4.0 17399
 
 // List MPQ for extract maps from
 char const* CONF_mpq_list[]=
@@ -85,22 +85,7 @@ char const* CONF_mpq_list[]=
     "expansion2.MPQ",
     "expansion3.MPQ",
     "expansion4.MPQ",
-    "wow-update-base-16016.MPQ",
-    "wow-update-base-16048.MPQ",
-    "wow-update-base-16057.MPQ",
-    "wow-update-base-16309.MPQ",
-    "wow-update-base-16357.MPQ",
-    "wow-update-base-16516.MPQ",
-    "wow-update-base-16516.MPQ",
-    "wow-update-base-16650.MPQ",
-    "wow-update-base-16844.MPQ",
-    "wow-update-base-16965.MPQ",
-    "wow-update-base-17116.MPQ",
-    "wow-update-base-17266.MPQ",
-    "wow-update-base-17325.MPQ",
-    "wow-update-base-17345.MPQ",
     "misc.MPQ",                             // LiquiType.dbc
-
 };
 
 uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516,  16650, 16844, 16965, 17116, 17266, 17325, 17345, 0};
@@ -556,7 +541,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 }
             }
             // Get custom height
-            adt_MCVT *v = cell->getMCVT();
+            adt_MCVT *v = adt.cellsMcvt[i][j];
             if (!v)
                 continue;
             // get V9 height map
@@ -975,7 +960,7 @@ void ExtractMapsFromMpq(uint32 build)
     {
         printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
-        sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
+        sprintf(mpq_map_name, "World/Maps/%s/%s.wdt", map_ids[z].name, map_ids[z].name);
         WDT_file wdt;
         if (!wdt.loadFile(WorldMpq, mpq_map_name, false))
             continue;
@@ -987,7 +972,7 @@ void ExtractMapsFromMpq(uint32 build)
                 if (!(wdt.main->adt_list[y][x].flag & 0x1))
                     continue;
 
-                sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
+                sprintf(mpq_filename, "World/Maps/%s/%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(mpq_filename, output_filename, y, x, build);
             }
@@ -1273,10 +1258,11 @@ int main(int argc, char * arg[])
     if (FirstLocale < 0)
     {
         printf("No locales detected\n");
-        return 0;
-    }
 
-    if (CONF_extract & EXTRACT_MAP)
+        // Extract maps
+        ExtractMapsFromMpq(build);
+    }
+    else if (CONF_extract & EXTRACT_MAP)
     {
         printf("Using locale: %s\n", Locales[FirstLocale]);
 

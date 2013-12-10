@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
+#include "Arena.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "Bag.h"
@@ -177,6 +178,7 @@ struct PlayerCurrency
    uint32 totalCount;
    uint32 weekCount;
    uint32 seasonTotal;
+   uint8 flags;
 };
 
 typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
@@ -197,9 +199,9 @@ typedef ACE_Based::LockedMap<uint32 /*instanceId*/, time_t/*releaseTime*/> Insta
 
 enum TrainerSpellState
 {
-    TRAINER_SPELL_GRAY  = 0,
-    TRAINER_SPELL_GREEN = 1,
-    TRAINER_SPELL_RED   = 2,
+    TRAINER_SPELL_GRAY           = 0,
+    TRAINER_SPELL_GREEN          = 1,
+    TRAINER_SPELL_RED            = 2,
     TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
 };
 
@@ -717,14 +719,14 @@ enum TransferAbortReason
     TRANSFER_ABORT_DIFFICULTY                   = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
     TRANSFER_ABORT_UNIQUE_MESSAGE               = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
     TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES     = 0x0A,         // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // 3.1
+    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // Transfer Aborted: you must be in a raid group to enter this instance
     TRANSFER_ABORT_NOT_FOUND1                   = 0x0C,         // 3.1
     TRANSFER_ABORT_NOT_FOUND2                   = 0x0D,         // 3.1
     TRANSFER_ABORT_NOT_FOUND3                   = 0x0E,         // 3.2
     TRANSFER_ABORT_REALM_ONLY                   = 0x0F,         // All players on party must be from the same realm.
     TRANSFER_ABORT_MAP_NOT_ALLOWED              = 0x10,         // Map can't be entered at this time.
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // 4.2.2
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // 4.2.2
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // You are already locked to %s.
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
 };
 
 enum InstanceResetWarningType
@@ -792,7 +794,7 @@ enum PlayerChatTag
     CHAT_TAG_AFK        = 0x01,
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_COM        = 0x08, // Commentator
+    CHAT_TAG_COM        = 0x08,                             // Commentator
     CHAT_TAG_DEV        = 0x10,
 };
 
@@ -885,7 +887,7 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) // TODO: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
+#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) // @TODO: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
 
 struct InstancePlayerBind
 {
@@ -1366,7 +1368,7 @@ class Player : public Unit, public GridObject<Player>
         void TextEmote(const std::string& text);
         void Whisper(const std::string& text, const uint32 language, uint64 receiver);
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
-        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL) const;
+        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL, const std::string& channel = "") const;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -1456,6 +1458,7 @@ class Player : public Unit, public GridObject<Player>
         /// send initialization of new currency for client
         void SendNewCurrency(uint32 id) const;
         /// send full data about all currencies to client
+        void ModifyCurrencyFlags(uint32 currencyId, uint8 flags);
         void SendCurrencies() const;
         void SendPvpRewards() const;
         /// return count of currency witch has plr
@@ -2094,13 +2097,25 @@ class Player : public Unit, public GridObject<Player>
                 UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
             }
         }
+        
+        // Arena
         static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
-        static void LeaveAllArenaTeams(uint64 guid);
         uint32 GetArenaTeamId(uint8 slot) const { /*return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID);**/ return 0;}
-        uint32 GetArenaPersonalRating(uint8 slot) const { return 0; }
+        uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_ArenaPersonalRating[slot]; }
+        uint32 GetArenaMatchMakerRating(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_ArenaMatchMakerRating[slot]; }
+        void SetArenaPersonalRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaPersonalRating[slot] = value; }
+        void SetArenaMatchMakerRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaMatchMakerRating[slot] = value; }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
         uint32 GetRBGPersonalRating() const { return 0; }
+        uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_WeekGames[slot]; }
+        uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_WeekWins[slot]; }
+        uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_SeasonGames[slot]; }
+        void IncrementWeekGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekGames[slot]; }
+        void IncrementWeekWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekWins[slot]; }
+        void IncrementSeasonGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonGames[slot]; }
+        void IncrementSeasonWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonWins[slot]; }
+        void FinishWeek();
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
 
@@ -2296,7 +2311,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
-        // TODO: Properly implement correncies as of Cataclysm
+        // @TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
         bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
@@ -3238,6 +3253,14 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        // Arena
+        uint32 m_ArenaPersonalRating[MAX_ARENA_SLOT];
+        uint32 m_ArenaMatchMakerRating[MAX_ARENA_SLOT];
+        uint32 m_WeekGames[MAX_ARENA_SLOT];
+        uint32 m_WeekWins[MAX_ARENA_SLOT];
+        uint32 m_SeasonGames[MAX_ARENA_SLOT];
+        uint32 m_SeasonWins[MAX_ARENA_SLOT];
 };
 
 void AddItemsSetItem(Player*player, Item* item);

@@ -38,7 +38,6 @@
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "GuildFinderMgr.h"
 #include "TicketMgr.h"
@@ -1557,7 +1556,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureClassLevelStats();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
-    sObjectMgr->RestructCreatureGUID(10000);
+    sObjectMgr->RestructCreatureGUID(10000);                     // Select amount
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
@@ -1725,9 +1724,6 @@ void World::SetInitialWorldSettings()
     sGuildMgr->LoadGuilds();
 
     sGuildFinderMgr->LoadFromDB();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading ArenaTeams...");
-    sArenaTeamMgr->LoadArenaTeams();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Groups...");
     sGroupMgr->LoadGroups();
@@ -2935,12 +2931,7 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
         uint32 accountId = fields[0].GetUInt32();
         uint8 charCount = uint8(fields[1].GetUInt64());
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
-        stmt->setUInt32(0, accountId);
-        stmt->setUInt32(1, realmID);
-        LoginDatabase.Execute(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REALM_CHARACTERS);
         stmt->setUInt8(0, charCount);
         stmt->setUInt32(1, accountId);
         stmt->setUInt32(2, realmID);

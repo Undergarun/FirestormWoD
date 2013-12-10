@@ -76,29 +76,109 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
         return;
     }
 
-    /*switch (recvData.GetOpcode())
-    {
+    switch (recvData.GetOpcode())
+    {/*
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:
             GetPlayer()->ChangeSeat(-1, false);
             break;
         case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
             GetPlayer()->ChangeSeat(-1, true);
             break;
+            */
         case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
         {
             float x, y, z;
-            recvData >> z;
             int8 seatId;
-            recvData >> seatId;
+            ObjectGuid playerGUID;
+            ObjectGuid accessoryGUID;
+            ObjectGuid transportGUID;
+            bool time2 = false;
+            bool time3 = false;
+            recvData >> seatId >> y >> x >> z;
+
+            recvData.ReadBit();
+            playerGUID[1] = recvData.ReadBit();
+            playerGUID[7] = recvData.ReadBit();
+            playerGUID[5] = recvData.ReadBit();
+            recvData.ReadBit();
+            accessoryGUID[6] = recvData.ReadBit();
+            accessoryGUID[2] = recvData.ReadBit();
+            bool hasUnkFloat = !recvData.ReadBit();
+            accessoryGUID[4] = recvData.ReadBit();
+            bool hastransport = recvData.ReadBit();
+            bool hasUnk = !recvData.ReadBit();
+            accessoryGUID[1] = recvData.ReadBit();
+            playerGUID[2] = recvData.ReadBit();
+            playerGUID[0] = recvData.ReadBit();
+            accessoryGUID[0] = recvData.ReadBit();
+            accessoryGUID[7] = recvData.ReadBit();
+            playerGUID[4] = recvData.ReadBit();
+            playerGUID[3] = recvData.ReadBit();
+            accessoryGUID[5] = recvData.ReadBit();
+            bool hasUnkFloat2 = recvData.ReadBit();
+            accessoryGUID[3] = recvData.ReadBit();
+            recvData.ReadBit();
+            playerGUID[6] = recvData.ReadBit();
+            bool unk = recvData.ReadBit();
+            bool hasUnk2 = !recvData.ReadBit();
+            bool hasUnk3 = !recvData.ReadBit();
+            bool hasUnk4 = !recvData.ReadBit();
+            bool hasUnkFloat3 = !recvData.ReadBit();
+            uint32 unkcounter = recvData.ReadBits(23);
+            if (unk)
+                recvData.ReadBit();
+            if (hastransport)
+            {
+                transportGUID[6] = recvData.ReadBit();
+                transportGUID[1] = recvData.ReadBit();
+                transportGUID[3] = recvData.ReadBit();
+                transportGUID[4] = recvData.ReadBit();
+                transportGUID[2] = recvData.ReadBit();
+                transportGUID[5] = recvData.ReadBit();
+                transportGUID[0] = recvData.ReadBit();
+                time2 = recvData.ReadBit();
+                transportGUID[7] = recvData.ReadBit();
+                time3 = recvData.ReadBit();
+            }
+
+            if (hasUnk)
+                recvData.ReadBits(13); // extra mov flags
+
+            if (hasUnk3)
+                recvData.ReadBits(30); // mov flags
+
+            recvData.FlushBits();
+            recvData.ReadByteSeq(playerGUID[7]);
+            recvData.ReadByteSeq(accessoryGUID[4]);
+            recvData.ReadByteSeq(playerGUID[4]);
+            recvData.ReadByteSeq(playerGUID[1]);
+            recvData.ReadByteSeq(accessoryGUID[7]);
+            recvData.ReadByteSeq(accessoryGUID[0]);
+            for (uint32 i = 0; i < unkcounter; i++)
+                recvData.read<uint32>();
+            recvData.ReadByteSeq(playerGUID[0]);
+            recvData.ReadByteSeq(accessoryGUID[6]);
+            recvData.ReadByteSeq(playerGUID[3]);
+            recvData.ReadByteSeq(accessoryGUID[5]);
+            recvData.ReadByteSeq(playerGUID[2]);
+            recvData.ReadByteSeq(accessoryGUID[3]);
+            recvData.ReadByteSeq(accessoryGUID[2]);
+            recvData.ReadByteSeq(playerGUID[6]);
+            recvData.ReadByteSeq(accessoryGUID[1]);
+
+
+
+            
+            /*recvData >> seatId;
             recvData >> y;
             recvData >> x;
             
             uint64 accessory;        // accessory vehicle guid
-            recvData >> accessory;
+            recvData >> accessory;*/
 
-            if (!accessory)
+            if (!accessoryGUID)
                 GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
+            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), accessoryGUID))
             {
                 if (Vehicle* vehicle = vehUnit->GetVehicleKit())
                     if (vehicle->HasEmptySeat(seatId))
@@ -113,10 +193,10 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             int8 seatId;
             recvData >> seatId;
 
-            uint8 bitOrder[8] = {0, 3, 6, 5, 2, 4, 7, 1};
+            uint8 bitOrder[8] = {2, 7, 4, 3, 0, 5, 1, 6};
             recvData.ReadBitInOrder(guid, bitOrder);
 
-            uint8 byteOrder[8] = {1, 6, 7, 2, 0, 3, 5, 4};
+            uint8 byteOrder[8] = {5, 6, 4, 0, 1, 2, 7, 3};
             recvData.ReadBytesSeq(guid, byteOrder);
 
             if (vehicle_base->GetGUID() == guid)
@@ -129,7 +209,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
         }
         default:
             break;
-    }*/
+    }
 }
 
 void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
@@ -137,10 +217,10 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
     // Read guid
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = {0, 7, 1, 2, 3, 4, 5, 6};
+    uint8 bitOrder[8] = {0, 5, 1, 4, 2, 7, 3, 6};
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {4, 0, 5, 6, 1, 3, 7, 2};
+    uint8 byteOrder[8] = {0, 6, 2, 1, 4, 7, 3, 5};
     recvData.ReadBytesSeq(guid, byteOrder);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))

@@ -475,6 +475,25 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
+    &AuraEffect::HandleAuraModIncreaseEnergyPercent,              //419 SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
+    &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
+    &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_421
+    &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422
+    &AuraEffect::HandleNULL,                                      //423 SPELL_AURA_423
+    &AuraEffect::HandleNULL,                                      //424 SPELL_AURA_424
+    &AuraEffect::HandleNULL,                                      //425 SPELL_AURA_425
+    &AuraEffect::HandleNULL,                                      //426 SPELL_AURA_426
+    &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_427
+    &AuraEffect::HandleNULL,                                      //428 SPELL_AURA_428
+    &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_429
+    &AuraEffect::HandleNULL,                                      //430 SPELL_AURA_430
+    &AuraEffect::HandleNULL,                                      //431 SPELL_AURA_431
+    &AuraEffect::HandleNULL,                                      //432 SPELL_AURA_432
+    &AuraEffect::HandleNULL,                                      //433 SPELL_AURA_433
+    &AuraEffect::HandleNULL,                                      //434 SPELL_AURA_434
+    &AuraEffect::HandleNULL,                                      //435 SPELL_AURA_435
+    &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_436
+    &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -3104,7 +3123,7 @@ void AuraEffect::HandleAuraTrackStealthed(AuraApplication const* aurApp, uint8 m
         if (target->HasAuraType(GetAuraType()))
             return;
     }
-    target->ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_TRACK_STEALTHED, apply);
+    target->ApplyModFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTE_TRACK_STEALTHED, apply);
 }
 
 void AuraEffect::HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6277,9 +6296,9 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
         return;
 
     if (apply)
-        aurApp->GetTarget()->RemoveByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+        aurApp->GetTarget()->RemoveByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
     else if (!aurApp->GetTarget()->GetBaseMap()->Instanceable())
-        aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+        aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
 }
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const

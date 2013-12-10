@@ -19,6 +19,7 @@
 #define TRINITY_DB2STORES_H
 
 #include "Common.h"
+#include "DB2fmt.h"
 #include "DB2Store.h"
 #include "DB2Structure.h"
 
@@ -29,6 +30,7 @@ extern DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry> sItemSparseStore;
 extern DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore;
+extern DB2Storage <SpellReagentsEntry> sSpellReagentsStore;
 
 void LoadDB2Stores(const std::string& dataPath);
 

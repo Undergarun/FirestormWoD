@@ -25,7 +25,7 @@ CREATE TABLE `account` (
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
-  `locked` int(10) unsigned NOT NULL DEFAULT '0',
+  `locked` smallint(3) NOT NULL DEFAULT '0',
   `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expansion` tinyint(3) unsigned NOT NULL DEFAULT '4',
@@ -33,7 +33,6 @@ CREATE TABLE `account` (
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `os` varchar(3) NOT NULL DEFAULT '',
   `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
-  `animator` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`),
   KEY `recruiterIndex` (`recruiter`)
@@ -164,7 +163,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '17399',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '17399' COMMENT '17399 build 5.4.0',
   `online` int(10) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_name` (`name`)

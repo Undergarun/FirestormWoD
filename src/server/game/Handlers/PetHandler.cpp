@@ -58,17 +58,51 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 
 void WorldSession::HandlePetAction(WorldPacket & recvData)
 {
-    uint64 guid1;
+    ObjectGuid guid1;
+    ObjectGuid guid2;
     uint32 data;
-    uint64 guid2;
     float x, y, z;
-    recvData >> guid1;                                     //pet guid
     recvData >> data;
-    recvData >> guid2;                                     //tag guid
+
     // Position
     recvData >> x;
-    recvData >> y;
     recvData >> z;
+    recvData >> y;
+
+    guid1[0] = recvData.ReadBit();
+    guid1[2] = recvData.ReadBit();
+    guid1[6] = recvData.ReadBit();
+    guid1[1] = recvData.ReadBit();
+    guid2[6] = recvData.ReadBit();
+    guid2[4] = recvData.ReadBit();
+    guid2[0] = recvData.ReadBit();
+    guid2[1] = recvData.ReadBit();
+    guid2[3] = recvData.ReadBit();
+    guid1[3] = recvData.ReadBit();
+    guid2[2] = recvData.ReadBit();
+    guid1[4] = recvData.ReadBit();
+    guid2[5] = recvData.ReadBit();
+    guid2[7] = recvData.ReadBit();
+    guid1[5] = recvData.ReadBit();
+    guid1[7] = recvData.ReadBit();
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(guid2[7]);
+    recvData.ReadByteSeq(guid1[7]);
+    recvData.ReadByteSeq(guid2[6]);
+    recvData.ReadByteSeq(guid2[0]);
+    recvData.ReadByteSeq(guid2[3]);
+    recvData.ReadByteSeq(guid1[1]);
+    recvData.ReadByteSeq(guid2[2]);
+    recvData.ReadByteSeq(guid2[1]);
+    recvData.ReadByteSeq(guid1[2]);
+    recvData.ReadByteSeq(guid1[5]);
+    recvData.ReadByteSeq(guid1[6]);
+    recvData.ReadByteSeq(guid1[0]);
+    recvData.ReadByteSeq(guid1[3]);
+    recvData.ReadByteSeq(guid2[4]);
+    recvData.ReadByteSeq(guid2[5]);
+    recvData.ReadByteSeq(guid1[4]);
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
@@ -118,10 +152,13 @@ void WorldSession::HandlePetAction(WorldPacket & recvData)
 
 void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+    uint8 bitOrder[8] = {4, 2, 0, 6, 1, 7, 5, 3};
+    recvData.ReadBitInOrder(guid, bitOrder);
+    uint8 byteOrder[8] = {3, 2, 4, 0, 7, 6, 5, 1};
+    recvData.ReadBytesSeq(guid, byteOrder);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PET_STOP_ATTACK for GUID " UI64FMTD "", guid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PET_STOP_ATTACK");
 
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
@@ -561,10 +598,17 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
-    uint64 petguid;
-    uint8  count;
+    ObjectGuid petguid;
+    uint32 position;
+    uint32 data;
+    bool move_command = false;
 
-    recvData >> petguid;
+    recvData >> data >> position;
+    uint8 bitOrder[8] = {1, 7, 3, 5, 2, 6, 4, 0};
+    recvData.ReadBitInOrder(petguid, bitOrder);
+    uint8 byteOrder[8] = {0, 1, 2, 3, 7, 4, 6, 5};
+    recvData.ReadBytesSeq(petguid, byteOrder);
+
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
@@ -581,95 +625,55 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
         return;
     }
 
-    count = (recvData.size() == 24) ? 2 : 1;
+    uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data);
 
-    uint32 position[2];
-    uint32 data[2];
-    bool move_command = false;
+    //ignore invalid position
+    if (position >= MAX_UNIT_ACTION_BAR_INDEX)
+        return;
 
-    for (uint8 i = 0; i < count; ++i)
+    uint8 act_state_0 = UNIT_ACTION_BUTTON_TYPE(data);
+    if ((act_state_0 == ACT_COMMAND && UNIT_ACTION_BUTTON_ACTION(data) != COMMAND_MOVE_TO) || act_state_0 == ACT_REACTION)
     {
-        recvData >> position[i];
-        recvData >> data[i];
-
-        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
-
-        //ignore invalid position
-        if (position[i] >= MAX_UNIT_ACTION_BAR_INDEX)
+        uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data);
+        UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position);
+        if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
+            act_state_0 != actionEntry_1->GetType())
             return;
-
-        // in the normal case, command and reaction buttons can only be moved, not removed
-        // at moving count == 2, at removing count == 1
-        // ignore attempt to remove command|reaction buttons (not possible at normal case)
-        if ((act_state == ACT_COMMAND && UNIT_ACTION_BUTTON_ACTION(data[i]) != COMMAND_MOVE_TO) || act_state == ACT_REACTION)
-        {
-            if (count == 1)
-                return;
-
-            move_command = true;
-        }
     }
 
-    // check swap (at command->spell swap client remove spell first in another packet, so check only command move correctness)
-    if (move_command)
+    uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data);
+    //uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data);
+
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position, spell_id, uint32(act_state));
+
+    //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
+    if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
     {
-        uint8 act_state_0 = UNIT_ACTION_BUTTON_TYPE(data[0]);
-        if ((act_state_0 == ACT_COMMAND && UNIT_ACTION_BUTTON_ACTION(data[0]) != COMMAND_MOVE_TO) || act_state_0 == ACT_REACTION)
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
         {
-            uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data[0]);
-            UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position[1]);
-            if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
-                act_state_0 != actionEntry_1->GetType())
-                return;
-        }
-
-        uint8 act_state_1 = UNIT_ACTION_BUTTON_TYPE(data[1]);
-        if ((act_state_1 == ACT_COMMAND && UNIT_ACTION_BUTTON_ACTION(data[1]) != COMMAND_MOVE_TO) || act_state_1 == ACT_REACTION)
-        {
-            uint32 spell_id_1 = UNIT_ACTION_BUTTON_ACTION(data[1]);
-            UnitActionBarEntry const* actionEntry_0 = charmInfo->GetActionBarEntry(position[0]);
-            if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() ||
-                act_state_1 != actionEntry_0->GetType())
-                return;
-        }
-    }
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
-        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
-
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
-
-        //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-        if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
-        {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
+            //sign for autocast
+            if (act_state == ACT_ENABLED)
             {
-                //sign for autocast
-                if (act_state == ACT_ENABLED)
-                {
-                    if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
-                        ((Pet*)pet)->ToggleAutocast(spellInfo, true);
-                    else
-                        for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == pet->GetEntry())
-                                (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, true);
-                }
-                //sign for no/turn off autocast
-                else if (act_state == ACT_DISABLED)
-                {
-                    if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
-                        ((Pet*)pet)->ToggleAutocast(spellInfo, false);
-                    else
-                        for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == pet->GetEntry())
-                                (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, false);
-                }
+                if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
+                    ((Pet*)pet)->ToggleAutocast(spellInfo, true);
+                else
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, true);
             }
-
-            charmInfo->SetActionBar(position[i], spell_id, ActiveStates(act_state));
+            //sign for no/turn off autocast
+            else if (act_state == ACT_DISABLED)
+            {
+                if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
+                    ((Pet*)pet)->ToggleAutocast(spellInfo, false);
+                else
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, false);
+            }
         }
+
+        charmInfo->SetActionBar(position, spell_id, ActiveStates(act_state));
     }
 }
 
@@ -677,17 +681,28 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
 
-    uint64 petguid;
-    uint8 isdeclined;
-
     std::string name;
     DeclinedName declinedname;
+    uint8 declineNameLenght[MAX_DECLINED_NAME_CASES] = {0, 0, 0, 0, 0};
 
-    recvData >> petguid;
-    recvData >> name;
-    recvData >> isdeclined;
+    recvData.read_skip<uint32>();   // unk, client send 2048, maybe flags ?
+    bool hasName = !recvData.ReadBit();
+    bool isdeclined = recvData.ReadBit();
 
-    Pet* pet = ObjectAccessor::FindPet(petguid);
+    if (isdeclined)
+        for(int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
+            declineNameLenght[i] = recvData.ReadBits(7);
+
+    if (hasName)
+    {
+        uint8 nameLenght = recvData.ReadBits(8);
+        recvData.FlushBits();
+        name = recvData.ReadString(nameLenght);
+    }
+
+    Pet* pet = GetPlayer()->GetPet();
+    if (!pet)
+        return;
                                                             // check it!
     if (!pet || !pet->isPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ||
@@ -718,9 +733,7 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
     if (isdeclined)
     {
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        {
-            recvData >> declinedname.name[i];
-        }
+            declinedname.name[i] = recvData.ReadString(declineNameLenght[i]);
 
         std::wstring wname;
         Utf8toWStr(name, wname);
@@ -760,8 +773,12 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
 
 void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData >> guid;                                      //pet guid
+    ObjectGuid guid;
+    uint8 bitOrder[8] = {7, 0, 6, 3, 1, 2, 4, 5};
+    recvData.ReadBitInOrder(guid, bitOrder);
+    uint8 byteOrder[8] = {7, 4, 3, 0, 2, 6, 5, 1};
+    recvData.ReadBytesSeq(guid, byteOrder);
+
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", GUID_LOPART(guid));
 
     if (!_player->IsInWorld())
@@ -781,93 +798,210 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
-{
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_PET_SPELL_AUTOCAST");
-    uint64 guid;
-    uint32 spellid;
-    uint32  state;                                           //1 for on, 0 for off
-    recvPacket >> guid >> spellid >> state;
-
-    if (!_player->GetGuardianPet() && !_player->GetCharm())
-        return;
-
-    if (ObjectAccessor::FindPlayer(guid))
-        return;
-
-    Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-
-    if (!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
-        return;
-    }
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
-    // do not add not learned spells/ passive spells
-    if (!pet->HasSpell(spellid) || spellInfo->IsAutocastable())
-        return;
-
-    CharmInfo* charmInfo = pet->GetCharmInfo();
-    if (!charmInfo)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
-        return;
-    }
-
-    if (pet->isPet())
-        ((Pet*)pet)->ToggleAutocast(spellInfo, state);
-    else
-        pet->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, state);
-
-    charmInfo->SetSpellAutocast(spellInfo, state);
-}
-
 void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL");
 
-    uint64 guid;
-    uint8  castCount;
-    uint32 spellId;
-    uint8  castFlags;
+    ObjectGuid casterGUID;
+    ObjectGuid unkGUID1;
+    ObjectGuid transportDstGUID;
+    ObjectGuid transportSrcGUID;
+    ObjectGuid targetGUID;
+    ObjectGuid unkGUID2;
+    bool hasDestPos;
+    bool hasSrcPos;
+    bool hasSpeed;
+    bool hasSpell;
+    bool hasGlyphIndex;
+    bool hasTargetFlags;
+    bool hasElevation;
+    bool hasString;
+    bool hasCastCount;
+    bool hasUnk5bits;
+    uint32 archeologyCounter = 0;
+    WorldLocation dstLoc, srcLoc;
+    float speed, elevation;
+    uint32 targetFlags = 0;
+    uint32 spellID = 0;
+    uint32 stringLenght = 0;
+    uint8 castCount = 0;
 
-    recvPacket >> guid >> castCount >> spellId >> castFlags;
+    casterGUID[3] = recvPacket.ReadBit();
+    casterGUID[5] = recvPacket.ReadBit();
+    hasDestPos = recvPacket.ReadBit();
+    recvPacket.ReadBit();                   // unk bit
+    hasSpeed = !recvPacket.ReadBit();
+    hasSrcPos = recvPacket.ReadBit();
+    hasSpell = !recvPacket.ReadBit();
+    casterGUID[0] = recvPacket.ReadBit();
+    hasGlyphIndex = !recvPacket.ReadBit();
+    casterGUID[7] = recvPacket.ReadBit();
+    hasTargetFlags = !recvPacket.ReadBit();
+    hasElevation = !recvPacket.ReadBit();
+    recvPacket.ReadBit();                   // has movement info
+    hasString = !recvPacket.ReadBit();
+    recvPacket.ReadBit();                   // !inverse bit, unk
+    hasCastCount = !recvPacket.ReadBit();
+    casterGUID[2] = recvPacket.ReadBit();
+    casterGUID[4] = recvPacket.ReadBit();
+    archeologyCounter = recvPacket.ReadBits(2);
+    casterGUID[1] = recvPacket.ReadBit();
+    hasUnk5bits = !recvPacket.ReadBit();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", guid, castCount, spellId, castFlags);
+    for (uint32 i = 0; i < archeologyCounter; i++)
+        recvPacket.ReadBits(2);             // archeology type
+
+    casterGUID[6] = recvPacket.ReadBit();
+
+    if (hasDestPos)
+    {
+        uint8 bitOrder[8] = {2, 7, 4, 0, 1, 6, 5, 3};
+        recvPacket.ReadBitInOrder(transportDstGUID, bitOrder);
+    }
+
+    // movement block (disabled by patch client-side)
+
+    if (hasSrcPos)
+    {
+        uint8 bitOrder[8] = {6, 2, 3, 1, 5, 4, 0, 7};
+        recvPacket.ReadBitInOrder(transportSrcGUID, bitOrder);
+    }
+
+    if (hasUnk5bits)
+        recvPacket.ReadBits(5);             // unk 5 bits
+
+    // Target GUID
+    {
+        uint8 bitOrder[8] = {3, 5, 6, 2, 4, 1, 7, 0};
+        recvPacket.ReadBitInOrder(targetGUID, bitOrder);
+    }
+
+    // unkGUID1
+    {
+        uint8 bitOrder[8] = {3, 1, 5, 2, 4, 7, 0, 6};
+        recvPacket.ReadBitInOrder(unkGUID1, bitOrder);
+    }
+
+    if (hasTargetFlags)
+        targetFlags = recvPacket.ReadBits(20);
+
+    if (hasString)
+        stringLenght = recvPacket.ReadBits(7);
+
+    recvPacket.ReadByteSeq(casterGUID[0]);
+    recvPacket.ReadByteSeq(casterGUID[4]);
+    recvPacket.ReadByteSeq(casterGUID[5]);
+    recvPacket.ReadByteSeq(casterGUID[1]);
+    recvPacket.ReadByteSeq(casterGUID[2]);
+    recvPacket.ReadByteSeq(casterGUID[3]);
+    recvPacket.ReadByteSeq(casterGUID[7]);
+    
+    for (uint32 i = 0; i < archeologyCounter; i++)
+    {
+        recvPacket.read_skip<uint32>(); // entry
+        recvPacket.read_skip<uint32>(); // counter
+    }
+
+    recvPacket.ReadByteSeq(casterGUID[6]);
+    recvPacket.ReadByteSeq(unkGUID1[1]);
+    recvPacket.ReadByteSeq(unkGUID1[5]);
+    recvPacket.ReadByteSeq(unkGUID1[4]);
+    recvPacket.ReadByteSeq(unkGUID1[2]);
+    recvPacket.ReadByteSeq(unkGUID1[7]);
+    recvPacket.ReadByteSeq(unkGUID1[3]);
+    recvPacket.ReadByteSeq(unkGUID1[0]);
+
+    if (hasSrcPos)
+    {
+        recvPacket.ReadByteSeq(transportSrcGUID[4]);
+        srcLoc.m_positionY = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportSrcGUID[2]);
+        recvPacket.ReadByteSeq(transportSrcGUID[6]);
+        srcLoc.m_positionZ = recvPacket.read<float>();
+        srcLoc.m_positionX = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportSrcGUID[1]);
+        recvPacket.ReadByteSeq(transportSrcGUID[3]);
+        recvPacket.ReadByteSeq(transportSrcGUID[5]);
+        recvPacket.ReadByteSeq(transportSrcGUID[7]);
+        recvPacket.ReadByteSeq(transportSrcGUID[0]);
+    }
+
+    // Target GUID
+    {
+        uint8 byteOrder[8] = {7, 4, 2, 6, 3, 0, 5, 1};
+        recvPacket.ReadBytesSeq(targetGUID, byteOrder);
+    }
+
+    if (hasDestPos)
+    {
+        dstLoc.m_positionX = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportDstGUID[5]);
+        recvPacket.ReadByteSeq(transportDstGUID[7]);
+        recvPacket.ReadByteSeq(transportDstGUID[2]);
+        recvPacket.ReadByteSeq(transportDstGUID[0]);
+        recvPacket.ReadByteSeq(transportDstGUID[1]);
+        recvPacket.ReadByteSeq(transportDstGUID[3]);
+        recvPacket.ReadByteSeq(transportDstGUID[6]);
+        dstLoc.m_positionZ = recvPacket.read<float>();
+        dstLoc.m_positionY = recvPacket.read<float>();
+        recvPacket.ReadByteSeq(transportDstGUID[4]);
+    }
+
+    if (hasGlyphIndex)
+        recvPacket.read_skip<uint32>();     // glyph index
+
+    if (hasSpeed)
+        speed = recvPacket.read<float>();
+
+    if (hasSpell)
+        spellID = recvPacket.read<uint32>();
+
+    if (hasCastCount)
+        castCount = recvPacket.read<uint8>();
+
+    if (hasString)
+        recvPacket.ReadString(stringLenght);
+
+    if (hasElevation)
+        elevation = recvPacket.read<float>();
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, castCount: %u, spellId %u, targetFlags %u", castCount, spellID, targetFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
 
-    Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* caster = ObjectAccessor::GetUnit(*_player, casterGUID);
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(casterGUID)), GetPlayer()->GetName());
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %i", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %i", spellID);
         return;
     }
 
     if (spellInfo->StartRecoveryCategory > 0) // Check if spell is affected by GCD
         if (caster->GetTypeId() == TYPEID_UNIT && caster->GetCharmInfo() && caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
         {
-            caster->SendPetCastFail(spellId, SPELL_FAILED_NOT_READY);
+            caster->SendPetCastFail(spellID, SPELL_FAILED_NOT_READY);
             return;
         }
 
     // do not cast not learned spells
-    if (!caster->HasSpell(spellId) || spellInfo->IsPassive())
+    if (!caster->HasSpell(spellID) || spellInfo->IsPassive())
         return;
 
     SpellCastTargets targets;
-    HandleClientCastFlags(recvPacket, castFlags, targets);
+    targets.Initialize(targetFlags, targetGUID, unkGUID1, transportDstGUID, dstLoc, transportSrcGUID, srcLoc);
+    targets.SetElevation(elevation);
+    targets.SetSpeed(speed);
+    targets.Update(caster);
 
     caster->ClearUnitState(UNIT_STATE_FOLLOW);
 
@@ -886,7 +1020,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         if (caster->GetTypeId() == TYPEID_UNIT)
         {
             Creature* pet = caster->ToCreature();
-            pet->AddCreatureSpellCooldown(spellId);
+            pet->AddCreatureSpellCooldown(spellID);
             if (pet->isPet())
             {
                 Pet* p = (Pet*)pet;
@@ -895,7 +1029,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
                 if (p->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
                     pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
                 else
-                    pet->SendPetAIReaction(guid);
+                    pet->SendPetAIReaction(spellID);
             }
         }
 
@@ -903,16 +1037,16 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
     else
     {
-        caster->SendPetCastFail(spellId, result);
+        caster->SendPetCastFail(spellID, result);
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if (!caster->ToPlayer()->HasSpellCooldown(spellId))
-                GetPlayer()->SendClearCooldown(spellId, caster);
+            if (!caster->ToPlayer()->HasSpellCooldown(spellID))
+                GetPlayer()->SendClearCooldown(spellID, caster);
         }
         else
         {
-            if (!caster->ToCreature()->HasSpellCooldown(spellId))
-                GetPlayer()->SendClearCooldown(spellId, caster);
+            if (!caster->ToCreature()->HasSpellCooldown(spellID))
+                GetPlayer()->SendClearCooldown(spellID, caster);
         }
 
         spell->finish(false);
@@ -922,17 +1056,33 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
 {
-    WorldPacket data(SMSG_PET_NAME_INVALID, 4 + name.size() + 1 + 1);
-    data << uint32(error);
-    data << name;
+    WorldPacket data(SMSG_PET_NAME_INVALID);
+
+    data.WriteBit(bool(declinedName));
+
     if (declinedName)
     {
-        data << uint8(1);
         for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << declinedName->name[i];
+            data.WriteBits(declinedName->name[i].size(), 7);
     }
-    else
-        data << uint8(0);
+
+    data.WriteBit(0);
+    data.WriteBits(name.size(), 8);
+    data.FlushBits();
+
+    if (name.size())
+        data.append(name.c_str(), name.size());
+
+    if (declinedName)
+    {
+        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            if (declinedName->name[i].size())
+                data.append(declinedName->name[i].c_str(), declinedName->name[i].size());
+    }
+
+    data << uint8(1);
+    data << uint32(error);
+
     SendPacket(&data);
 }
 

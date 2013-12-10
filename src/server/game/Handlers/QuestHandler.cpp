@@ -102,7 +102,6 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     recvData.FlushBits();
     recvData.ReadBitInOrder(guid, byteOrder);
 
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u, unk1 = %u", GUID_LOPART(guid), unk1);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
