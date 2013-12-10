@@ -1857,12 +1857,12 @@ struct SpellEffectEntry
 // @author Selenium: 5.4 valid
 struct SpellEffectScalingEntry
 {
-    //uint32    Id;                                         // 0
+    //uint32    Unk_540;                                    // New 5.4.X
     float     Multiplier;                                   // 1
     float     RandomMultiplier;                             // 2
     float     OtherMultiplier;                              // 3
     //float   Unk_505                                       // 4
-    //uint32  Unk_540;                                      // 5 New 5.4.X
+    uint32    Id;                                           // Effect ID
 };
 
 #define MAX_SPELL_EFFECTS 32

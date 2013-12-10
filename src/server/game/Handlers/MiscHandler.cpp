@@ -1233,19 +1233,19 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
 
     recvData >> button;
 
-    ObjectGuid guid;
+    ObjectGuid packetData;
 
     uint8 bitsOrder[8] = { 1, 7, 6, 5, 2, 4, 0, 3 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    recvData.ReadBitInOrder(packetData, bitsOrder);
 
     uint8 bytesOrder[8] = { 2, 7, 1, 4, 0, 5, 3, 6 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
+    recvData.ReadBytesSeq(packetData, bytesOrder);
 
-    uint32 action = ACTION_BUTTON_ACTION(guid);
-    uint8  type   = ACTION_BUTTON_TYPE(guid);
+    uint32 action = uint64(packetData) & 0xFFFFFFFF;
+    uint8  type   = (uint64(packetData) & 0xFF00000000000000) >> 56;
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
-    if (!guid)
+    if (!packetData)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
         GetPlayer()->removeActionButton(button);
@@ -1390,7 +1390,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
         return;
     }
 
-    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, actionBar);
+    GetPlayer()->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, actionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
@@ -1570,7 +1570,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     }
 
     data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[1]);
     data.WriteByteSeq(playerGuid[5]);
     data.WriteByteSeq(playerGuid[0]);
 

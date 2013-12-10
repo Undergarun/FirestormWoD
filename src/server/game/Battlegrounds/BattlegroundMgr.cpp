@@ -441,10 +441,29 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     buff.WriteBit(bg->GetStatus() == STATUS_WAIT_LEAVE);    // If Ended
     buff.WriteBit(isRated);                                 // HaveArenaData
 
-    size_t count_pos = buff.bitwpos();
-    buff.WriteBits(0, 19);                                  // Placeholder
-
+    // HACK WAY to get player count, atm PutBits function of ByteBuffer doesn't work and make crash ...
     Battleground::BattlegroundScoreMap::const_iterator itr2 = bg->GetPlayerScoresBegin();
+    for (Battleground::BattlegroundScoreMap::const_iterator itr = itr2; itr != bg->GetPlayerScoresEnd();)
+    {
+        itr2 = itr++;
+        if (!bg->IsPlayerInBattleground(itr2->first))
+        {
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "Player " UI64FMTD " has scoreboard entry for battleground %u but is not in battleground!", itr->first, bg->GetTypeID(true));
+            continue;
+        }
+        ObjectGuid guid = itr2->first;
+        Player* player = ObjectAccessor::FindPlayer(itr2->first);
+
+        if (!player)
+            continue;
+
+        count++;
+    }
+
+    size_t count_pos = buff.bitwpos();
+    buff.WriteBits(count, 19);                                  // Placeholder
+    
+    itr2 = bg->GetPlayerScoresBegin();
     for (Battleground::BattlegroundScoreMap::const_iterator itr = itr2; itr != bg->GetPlayerScoresEnd();)
     {
         itr2 = itr++;
@@ -647,10 +666,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         else
             ++counth2;
 
-        ++count;
+        //++count;
     }
 
-    buff.PutBits<int32>(count_pos, count, 19);
+    //buff.PutBits<int32>(count_pos, count, 19);
 
     *data << uint8(counta2);
     *data << uint8(counth2);

@@ -475,7 +475,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
-    &AuraEffect::HandleNULL,                                      //419 SPELL_AURA_419
+    &AuraEffect::HandleAuraModIncreaseEnergyPercent,              //419 SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
     &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_421
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422
@@ -3123,7 +3123,7 @@ void AuraEffect::HandleAuraTrackStealthed(AuraApplication const* aurApp, uint8 m
         if (target->HasAuraType(GetAuraType()))
             return;
     }
-    target->ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_TRACK_STEALTHED, apply);
+    target->ApplyModFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTE_TRACK_STEALTHED, apply);
 }
 
 void AuraEffect::HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6296,9 +6296,9 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
         return;
 
     if (apply)
-        aurApp->GetTarget()->RemoveByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+        aurApp->GetTarget()->RemoveByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
     else if (!aurApp->GetTarget()->GetBaseMap()->Instanceable())
-        aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+        aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
 }
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const

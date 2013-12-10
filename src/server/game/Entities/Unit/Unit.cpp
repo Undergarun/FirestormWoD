@@ -5395,43 +5395,74 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 {
     constAuraEffectPtr aura = pInfo->auraEff;
 
-    WorldPacket data(SMSG_PERIODICAURALOG, 30);
-    data.append(GetPackGUID());
-    data.appendPackGUID(aura->GetCasterGUID());
-    data << uint32(aura->GetId());                          // spellId
-    data << uint32(1);                                      // count
-    data << uint32(aura->GetAuraType());                    // auraId
-    switch (aura->GetAuraType())
-    {
-        case SPELL_AURA_PERIODIC_DAMAGE:
-        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(pInfo->overDamage);              // overkill?
-            data << uint32(aura->GetSpellInfo()->GetSchoolMask());
-            data << uint32(pInfo->absorb);                  // absorb
-            data << uint32(pInfo->resist);                  // resist
-            data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
-            break;
-        case SPELL_AURA_PERIODIC_HEAL:
-        case SPELL_AURA_OBS_MOD_HEALTH:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(pInfo->overDamage);              // overheal
-            data << uint32(pInfo->absorb);                  // absorb
-            data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
-            break;
-        case SPELL_AURA_OBS_MOD_POWER:
-        case SPELL_AURA_PERIODIC_ENERGIZE:
-            data << uint32(aura->GetMiscValue());           // power type
-            data << uint32(pInfo->damage);                  // damage
-            break;
-        case SPELL_AURA_PERIODIC_MANA_LEECH:
-            data << uint32(aura->GetMiscValue());           // power type
-            data << uint32(pInfo->damage);                  // amount
-            data << float(pInfo->multiplier);               // gain multiplier
-            break;
-        default:
-            return;
-    }
+    WorldPacket data(SMSG_PERIODIC_AURA_LOG, 60);
+    ObjectGuid targetGuid = GetGUID();
+    ObjectGuid casterGuid = aura->GetCasterGUID();
+
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(false);                                   // HasPowerData
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBits(1, 21);                                  // Count
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(pInfo->critical);                         // IsCrit
+    data.WriteBit(!(pInfo->overDamage > 0));                // Inversed, HasOverkill
+    data.WriteBit(!(pInfo->absorb > 0));                    // Inversed, HasAbsorb
+    data.WriteBit(!aura->GetSpellInfo()->GetSchoolMask());  // Inversed, HasSchoolMask
+    data.WriteBit(false);                                   // Inversed, HasOverHeal
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[5]);
+
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[7]);
+
+    // OverHeal, send -1 if any
+    if (pInfo->overDamage)
+        data << uint32(pInfo->overDamage);
+    else
+        data << uint32(-1);
+
+    data << uint32(aura->GetAuraType());
+
+    if (pInfo->overDamage && aura->GetAuraType() == SPELL_AURA_PERIODIC_HEAL || aura->GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
+        data << uint32(pInfo->overDamage);
+    else
+        data << uint32(0);
+
+    if (pInfo->absorb)
+        data << uint32(pInfo->absorb);
+
+    data << uint32(pInfo->damage);
+
+    if (aura->GetSpellInfo()->GetSchoolMask())
+        data << uint32(aura->GetSpellInfo()->GetSchoolMask());
+
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[2]);
+
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(casterGuid[5]);
+    data << uint32(aura->GetSpellInfo()->Id);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGuid[6]);
 
     SendMessageToSet(&data, true);
 }
@@ -10119,7 +10150,7 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, Au
 
 void Unit::setPowerType(Powers new_powertype)
 {
-    SetByteValue(UNIT_FIELD_BYTES_0, 2, new_powertype);
+    SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, new_powertype);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -11249,15 +11280,53 @@ void Unit::UnsummonAllTotems()
 void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
 {
     // we guess size
-    WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+4+4+1+1));
-    data.append(victim->GetPackGUID());
-    data.append(GetPackGUID());
-    data << uint32(SpellID);
+    WorldPacket data(SMSG_SPELL_HEAL_LOG, 60);
+    ObjectGuid targetGuid = victim->GetGUID();
+    ObjectGuid casterGuid = GetGUID();
+
+    data.WriteBit(critical);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(false);                               // IsDebug
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(false);                               // HasPowerData
+    data.WriteBit(false);                               // IsDebug 2
+
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(targetGuid[1]);
+
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(casterGuid[6]);
+    data << uint32(Absorb);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(targetGuid[7]);
     data << uint32(Damage);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(casterGuid[4]);
+    data << uint32(SpellID);
+    data.WriteByteSeq(targetGuid[1]);
     data << uint32(OverHeal);
-    data << uint32(Absorb); // Absorb amount
-    data << uint8(critical ? 1 : 0);
-    data << uint8(0); // unused
+
     SendMessageToSet(&data, true);
 }
 
@@ -11274,12 +11343,48 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELLENERGIZELOG, (8+8+4+4+4+1));
-    data.append(victim->GetPackGUID());
-    data.append(GetPackGUID());
-    data << uint32(spellID);
-    data << uint32(powerType);
+    WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, 60);
+    ObjectGuid targetGuid = victim->GetGUID();
+    ObjectGuid casterGuid = GetGUID();
+
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(false);                       // HasPowerData
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(casterGuid[7]);
+
+    data.WriteByteSeq(targetGuid[3]);
     data << uint32(damage);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(casterGuid[6]);
+    data << uint32(spellID);
+    data.WriteByteSeq(casterGuid[3]);
+    data << uint32(powerType);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(casterGuid[0]);
+
     SendMessageToSet(&data, true);
 }
 

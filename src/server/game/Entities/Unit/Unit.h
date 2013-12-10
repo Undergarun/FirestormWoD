@@ -1427,7 +1427,7 @@ class Unit : public WorldObject
         int32 ModifyHealth(int32 val);
         int32 GetHealthGain(int32 dVal);
 
-        Powers getPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, 2)); }
+        Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
