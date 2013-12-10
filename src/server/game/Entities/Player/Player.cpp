@@ -4358,8 +4358,8 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
     WorldPacket data(SMSG_SEND_MAIL_RESULT, 4 * 6);
 
     data << uint32(mailAction);
-    data << uint32(equipError);
     data << uint32(mailError);
+    data << uint32(equipError);
     data << uint32(item_guid);
     data << uint32(item_count);
     data << uint32(mailId);
