@@ -3235,12 +3235,12 @@ enum LockType
     LOCKTYPE_OPEN_ATTACKING        = 14,
     LOCKTYPE_GAHZRIDIAN            = 15,
     LOCKTYPE_BLASTING              = 16,
-    LOCKTYPE_SLOW_OPEN             = 17,
-    LOCKTYPE_SLOW_CLOSE            = 18,
+    LOCKTYPE_PVP_OPEN              = 17,
+    LOCKTYPE_PVP_CLOSE             = 18,
     LOCKTYPE_FISHING               = 19,
     LOCKTYPE_INSCRIPTION           = 20,
     LOCKTYPE_OPEN_FROM_VEHICLE     = 21,
-    LOCKTYPE_ARCHEOLOGY_INSPECT    = 22,
+    LOCKTYPE_ARCHAEOLOGY           = 22,
     LOCKTYPE_QUICK_OPEN_JCJ        = 23
 };
 
@@ -3464,8 +3464,8 @@ enum HolidayIds
 // values based at QuestInfo.dbc
 enum QuestTypes
 {
-    QUEST_TYPE_ELITE               = 1,
-    QUEST_TYPE_LIFE                = 21,
+    QUEST_TYPE_GROUP               = 1,
+    QUEST_TYPE_CLASS               = 21,
     QUEST_TYPE_PVP                 = 41,
     QUEST_TYPE_RAID                = 62,
     QUEST_TYPE_DUNGEON             = 81,
@@ -3781,6 +3781,7 @@ inline SkillType SkillByLockType(LockType locktype)
     case LOCKTYPE_MINING:      return SKILL_MINING;
     case LOCKTYPE_FISHING:     return SKILL_FISHING;
     case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
+    case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
     default: break;
     }
     return SKILL_NONE;
