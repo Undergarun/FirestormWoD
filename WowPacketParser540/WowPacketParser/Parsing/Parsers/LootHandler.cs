@@ -98,7 +98,37 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_LOOT_REMOVED)]
         public static void HandleLootRemoved(Packet packet)
         {
+            var lootGuid = new byte[8];
+            var guid2 = new byte[8];
+
+            packet.StartBitStream(lootGuid, 7, 0, 5);
+            guid2[5] = packet.ReadBit();
+            lootGuid[6] = packet.ReadBit();
+            guid2[2] = packet.ReadBit();
+            guid2[3] = packet.ReadBit();
+            lootGuid[2] = packet.ReadBit();
+            guid2[1] = packet.ReadBit();
+            guid2[7] = packet.ReadBit();
+            lootGuid[1] = packet.ReadBit();
+            guid2[4] = packet.ReadBit();
+            guid2[6] = packet.ReadBit();
+            lootGuid[4] = packet.ReadBit();
+            lootGuid[3] = packet.ReadBit();
+            guid2[0] = packet.ReadBit();
+
+            packet.ReadXORBytes(lootGuid, 5, 4);
+            packet.ReadXORByte(guid2, 6);
+            packet.ReadXORBytes(lootGuid, 6, 7);
+            packet.ReadXORBytes(guid2, 3, 0);
             packet.ReadByte("Slot");
+            packet.ReadXORBytes(lootGuid, 3, 1);
+            packet.ReadXORByte(guid2, 5);
+            packet.ReadXORByte(lootGuid, 2);
+            packet.ReadXORBytes(guid2, 2, 7, 1, 4);
+            packet.ReadXORByte(lootGuid, 0);
+
+            packet.WriteGuid("Loot GUID", lootGuid);
+            packet.WriteGuid("Unk GUID", guid2);
         }
 
         [Parser(Opcode.SMSG_LOOT_RESPONSE)]

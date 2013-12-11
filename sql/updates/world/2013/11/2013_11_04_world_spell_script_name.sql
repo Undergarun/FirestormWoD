@@ -1,5 +1,7 @@
 -- Starting quest class
 
+DELETE FROM `spell_script_names` WHERE `spell_id` IN ( 100,122,172,589,2098,8921,56641,73899);
+
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('100','spell_quests_spell_hit');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('122','spell_quests_spell_hit');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('172','spell_quests_spell_hit');

@@ -19,6 +19,7 @@
 #define TRINITY_DB2STORES_H
 
 #include "Common.h"
+#include "DB2fmt.h"
 #include "DB2Store.h"
 #include "DB2Structure.h"
 

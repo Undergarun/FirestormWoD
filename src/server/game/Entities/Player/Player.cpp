@@ -28686,7 +28686,7 @@ void Player::SendMovementSetCanFly(bool apply)
     {
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 1 + 8 + 4);
 
-        uint8 bitOrder[8] = {4, 3, 2, 0, 1, 5, 7, 6};
+        uint8 bitOrder[8] = {2, 1, 5, 0, 3, 4, 6, 7};
         data.WriteBitInOrder(guid, bitOrder);
 
         data.WriteByteSeq(guid[1]);

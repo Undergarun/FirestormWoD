@@ -1184,7 +1184,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.ReadXORByte(GUID4, 5);
             packet.ReadXORByte(GUID5, 2);
 
-            packet.ReadSByte("byte 32");
+            packet.ReadSByte("CastCount");
         }
 
         /*[Parser(Opcode.SMSG_SPELL_GO)]

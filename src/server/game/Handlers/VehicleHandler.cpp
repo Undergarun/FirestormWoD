@@ -154,7 +154,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             recvData.ReadByteSeq(playerGUID[1]);
             recvData.ReadByteSeq(accessoryGUID[7]);
             recvData.ReadByteSeq(accessoryGUID[0]);
-            for (int i = 0; i < unkcounter; i++)
+            for (uint32 i = 0; i < unkcounter; i++)
                 recvData.read<uint32>();
             recvData.ReadByteSeq(playerGUID[0]);
             recvData.ReadByteSeq(accessoryGUID[6]);
