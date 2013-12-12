@@ -438,7 +438,7 @@ enum Opcodes
     CMSG_REPORT_PVP_AFK                               = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_CEMETERY_LIST                        = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_CEMETERY_LIST                        = 0x18AE, // 5.4.0 17399
     CMSG_REQUEST_HOTFIX                               = 0x1A8B, // 5.4.0 17399
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x1757, // 5.4.0 17399
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
@@ -568,7 +568,7 @@ enum Opcodes
     CMSG_WRAP_ITEM                                    = 0x000,  // 5.0.5 16048
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_MOVE                                  = 0x717,  // 5.4.0 17399 CUSTOM OPCODE, client patch
-    CMSG_CORPSE_QUERY                                 = 0x18AE, // 5.4.0 17399
+    CMSG_CORPSE_QUERY                                 = 0x13DB, // 5.0.5 16048
 
     // MSG
     MSG_INSPECT_ARENA_TEAMS                           = 0x000,  // 5.0.5 16048
@@ -1328,7 +1328,7 @@ enum Opcodes
     SMSG_REMOVE_LOSS_OF_CONTROL                       = 0x438,  // 5.4.0 17399 (JamList)
     SMSG_UNLEARNED_SPELLS                             = 0x523,  // 5.4.0 17399
     SMSG_REPORT_PVP_AFK_RESULT                        = 0x03F,  // 5.4.0 17399 (JamList)
-    SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x499,  // 5.4.0 17399 (JamList)
+    SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x499,  // 5.4.0 17399
     SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x08A,  // 5.4.0 17399 (JamList)
     SMSG_RESEARCH_COMPLETE                            = 0x928,  // 5.4.0 17399 (JamList)
     SMSG_RESEARCH_SETUP_HISTORY                       = 0x034,  // 5.4.0 17399 (JamList)

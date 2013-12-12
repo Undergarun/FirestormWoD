@@ -6670,6 +6670,29 @@ void Player::RepopAtGraveyard()
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 }
 
+void Player::SendCemeteryList(bool onMap)
+{
+    ByteBuffer buf(16);
+    uint32 count = 0;
+
+    uint32 zoneId = GetZoneId();
+    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(zoneId);
+    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(zoneId);
+    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    {
+        ++count;
+        buf << uint32(itr->second.safeLocId);
+    }
+
+    WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
+    packet.WriteBit(onMap);
+    packet.WriteBits(count, 22);
+    packet.FlushBits();
+    if (buf.size())
+        packet.append(buf);
+    GetSession()->SendPacket(&packet);
+}
+
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
 {
     if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)

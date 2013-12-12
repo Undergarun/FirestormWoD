@@ -478,6 +478,11 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
+void WorldSession::HandleCemeteryListOpcode(WorldPacket& /*recvData*/)
+{
+    GetPlayer()->SendCemeteryList(false);
+}
+
 void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
 {
     uint32 textID;

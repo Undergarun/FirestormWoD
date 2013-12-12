@@ -779,6 +779,7 @@ class WorldSession
 
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
+        void HandleCemeteryListOpcode(WorldPacket& recvData);
         void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
