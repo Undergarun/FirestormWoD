@@ -1529,11 +1529,31 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     DealDamageMods(this, damage, &absorb);
 
     WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
-    data << uint64(GetGUID());
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
+    ObjectGuid playerGuid = GetGUID();
+
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(false);           // HasPowerData
+    data.WriteBit(playerGuid[4]);
+
     data << uint32(damage);
-    data << uint32(absorb);
     data << uint32(resist);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[1]);
+    data << uint32(absorb);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[6]);
+    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
+    data.WriteByteSeq(playerGuid[0]);
+
     SendMessageToSet(&data, true);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

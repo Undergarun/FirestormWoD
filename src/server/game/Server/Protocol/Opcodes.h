@@ -879,7 +879,7 @@ enum Opcodes
     SMSG_ENABLE_BARBER_SHOP                           = 0x89E,  // 5.4.0 17399
     SMSG_ENABLE_HONOR_BUDDY_DETECTION                 = 0x125,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ENCHANTMENT_LOG                              = 0x922,  // 5.4.0 17399
-    SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x000,  // 5.0.5 16048
+    SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x15B1, // 5.4.0 17399
     SMSG_EQUIPMENT_SET_LIST                           = 0x938,  // 5.4.0 17399
     SMSG_EQUIPMENT_SET_SAVED                          = 0x5AD,  // 5.4.0 17399
     SMSG_EXPECTED_SPAM_RECORDS                        = 0x10A,  // 5.4.0 17399 (JamList)
