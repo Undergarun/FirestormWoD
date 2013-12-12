@@ -385,30 +385,35 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_SAVE_GUILD_EMBLEM");
 
-    uint64 vendorGuid;
-    recvPacket >> vendorGuid;
-
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(recvPacket);
 
-    if (GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_TABARDDESIGNER))
-    {
-        // Remove fake death
-        if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-            GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    ObjectGuid playerGuid;
 
-        if (Guild* guild = _GetPlayerGuild(this))
-            guild->HandleSetEmblem(this, emblemInfo);
-        else
-            // "You are not part of a guild!";
-            Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD);
-    }
+    uint8 bitsOrder[8] = { 6, 4, 0, 7, 5, 2, 1, 3 };
+    recvPacket.ReadBitInOrder(playerGuid, bitsOrder);
+
+    recvPacket.FlushBits();
+
+    uint8 bytesOrder[8] = { 5, 1, 0, 7, 4, 3, 6, 2 };
+    recvPacket.ReadBytesSeq(playerGuid, bytesOrder);
+
+    Player* player = ObjectAccessor::FindPlayer(playerGuid);
+    if (!player)
+        return;
+
+    if (GetPlayer()->GetGUID() != player->GetGUID())
+        return;
+
+    // Remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    if (Guild* guild = _GetPlayerGuild(this))
+        guild->HandleSetEmblem(this, emblemInfo);
     else
-    {
-        // "That's not an emblem vendor!"
-        Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_INVALIDVENDOR);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(vendorGuid));
-    }
+        // "You are not part of a guild!";
+        Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD);
 }
 
 void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)

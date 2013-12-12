@@ -520,6 +520,7 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x1A1F, // 5.4.0 17399
     CMSG_SUMMON_RESPONSE                              = 0x000,  // 5.0.5 16048
     CMSG_SUSPEND_TOKEN                                = 0x000,  // 5.0.5 16048 Unused
+    CMSG_SAVE_GUILD_EMBLEM                            = 0x150C, // 5.4.0 17399
     CMSG_SWAP_INV_ITEM                                = 0x445,  // 5.4.0 17399
     CMSG_SWAP_ITEM                                    = 0x440,  // 5.4.0 17399
     CMSG_SYNC_DANCE                                   = 0x000,  // 5.0.5 16048
@@ -618,7 +619,6 @@ enum Opcodes
     MSG_MOVE_WORLDPORT_ACK                            = 0x1752, // 5.4.0 17399
     MSG_NOTIFY_PARTY_SQUELCH                          = 0x000,  // 5.0.5 16048
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x000,  // 5.0.5 16048
-    MSG_SAVE_GUILD_EMBLEM                             = 0x000,  // 5.0.5 16048
     MSG_SET_RAID_DIFFICULTY                           = 0x1F80, // 5.4.0 17399
     MSG_VERIFY_CONNECTIVITY                           = 0x4F57, // 5.4.0 17399
 
