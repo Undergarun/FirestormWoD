@@ -65,7 +65,7 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
     data << uint32(errCode);
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (MSG_SAVE_GUILD_EMBLEM)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_PLAYER_SAVE_GUILD_EMBLEM)");
 }
 
 // LogHolder
@@ -1375,17 +1375,15 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 void Guild::HandleQuery(WorldSession* session)
 {
     WorldPacket data(SMSG_GUILD_QUERY_RESPONSE);
+    ObjectGuid guildGuid = GetGUID(); // Guild GUID is sent twice
 
-    ObjectGuid playerGuid = session->GetPlayer() ? session->GetPlayer()->GetGUID() : 0;
-    ObjectGuid guildGuid = GetGUID();
-
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[5]);
+    data.WriteBit(guildGuid[6]);
+    data.WriteBit(guildGuid[2]);
+    data.WriteBit(guildGuid[0]);
+    data.WriteBit(guildGuid[3]);
+    data.WriteBit(guildGuid[4]);
+    data.WriteBit(guildGuid[1]);
+    data.WriteBit(guildGuid[5]);
 
     data.WriteBit(1); // hasData
 
@@ -1404,7 +1402,7 @@ void Guild::HandleQuery(WorldSession* session)
     data.WriteBit(guildGuid[4]);
     data.WriteBit(guildGuid[6]);
 
-    data.WriteBit(playerGuid[7]);
+    data.WriteBit(guildGuid[7]);
 
     data << uint32(m_emblemInfo.GetStyle());
 
@@ -1435,14 +1433,14 @@ void Guild::HandleQuery(WorldSession* session)
     data.WriteByteSeq(guildGuid[2]);
     data.WriteByteSeq(guildGuid[7]);
     data.WriteByteSeq(guildGuid[4]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(guildGuid[4]);
+    data.WriteByteSeq(guildGuid[1]);
+    data.WriteByteSeq(guildGuid[0]);
+    data.WriteByteSeq(guildGuid[3]);
+    data.WriteByteSeq(guildGuid[5]);
+    data.WriteByteSeq(guildGuid[7]);
+    data.WriteByteSeq(guildGuid[6]);
+    data.WriteByteSeq(guildGuid[2]);
 
     session->SendPacket(&data);
 
@@ -1869,6 +1867,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
         data << uint32(realmID);
         data.WriteByteSeq(playerGuid[2]);
         data.WriteByteSeq(playerGuid[3]);
+
         BroadcastPacket(&data);
 
         sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));

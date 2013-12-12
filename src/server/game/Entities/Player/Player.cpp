@@ -1529,11 +1529,31 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     DealDamageMods(this, damage, &absorb);
 
     WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
-    data << uint64(GetGUID());
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
+    ObjectGuid playerGuid = GetGUID();
+
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(false);           // HasPowerData
+    data.WriteBit(playerGuid[4]);
+
     data << uint32(damage);
-    data << uint32(absorb);
     data << uint32(resist);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[1]);
+    data << uint32(absorb);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[6]);
+    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
+    data.WriteByteSeq(playerGuid[0]);
+
     SendMessageToSet(&data, true);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -4358,8 +4378,8 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
     WorldPacket data(SMSG_SEND_MAIL_RESULT, 4 * 6);
 
     data << uint32(mailAction);
-    data << uint32(equipError);
     data << uint32(mailError);
+    data << uint32(equipError);
     data << uint32(item_guid);
     data << uint32(item_count);
     data << uint32(mailId);
@@ -6668,6 +6688,29 @@ void Player::RepopAtGraveyard()
     }
     else if (GetPositionZ() < zone->MaxDepth)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+}
+
+void Player::SendCemeteryList(bool onMap)
+{
+    ByteBuffer buf(16);
+    uint32 count = 0;
+
+    uint32 zoneId = GetZoneId();
+    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(zoneId);
+    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(zoneId);
+    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    {
+        ++count;
+        buf << uint32(itr->second.safeLocId);
+    }
+
+    WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
+    packet.WriteBit(onMap);
+    packet.WriteBits(count, 22);
+    packet.FlushBits();
+    if (buf.size())
+        packet.append(buf);
+    GetSession()->SendPacket(&packet);
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)

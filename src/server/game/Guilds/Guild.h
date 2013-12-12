@@ -152,21 +152,22 @@ enum PetitionTurns
 {
     PETITION_TURN_OK                    = 0,
     PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4,
-    PETITION_TURN_GUILD_PERMISSIONS     = 11,
-    PETITION_TURN_GUILD_NAME_INVALID    = 12
+    PETITION_TURN_GUILD_PERMISSIONS     = 12,
+    PETITION_TURN_GUILD_NAME_INVALID    = 13,
+    PETITION_TURN_NEED_MORE_SIGNATURES  = 15
 };
 
 enum PetitionSigns
 {
-    PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_ALREADY_SIGNED        = 1,
+    PETITION_SIGN_DECLINED              = 0,
+    PETITION_SIGN_NOT_SERVER            = 1,
     PETITION_SIGN_ALREADY_IN_GUILD      = 2,
-    PETITION_SIGN_CANT_SIGN_OWN         = 3,
-    PETITION_SIGN_NOT_SERVER            = 4,
-    PETITION_SIGN_FULL                  = 5,
-    PETITION_SIGN_ALREADY_SIGNED_OTHER  = 6,
-    PETITION_SIGN_RESTRICTED_ACCOUNT    = 7
+    PETITION_SIGN_ALREADY_SIGNED        = 3,
+    PETITION_SIGN_OK                    = 4,
+    PETITION_SIGN_CANT_SIGN_OWN         = 6,
+    PETITION_SIGN_FULL                  = 9,
+    PETITION_SIGN_ALREADY_SIGNED_OTHER  = 10,
+    PETITION_SIGN_RESTRICTED_ACCOUNT    = 12
 };
 
 enum GuildBankRights
@@ -278,7 +279,7 @@ class EmblemInfo
 
         void LoadFromDB(Field* fields);
         void SaveToDB(uint32 guildId) const;
-        void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_color >> m_borderStyle >> m_borderColor >> m_backgroundColor; }
+        void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_backgroundColor >> m_borderStyle >> m_color >> m_borderColor; }
         void WritePacket(WorldPacket& data) const;
 
         uint32 GetStyle() const { return m_style; }

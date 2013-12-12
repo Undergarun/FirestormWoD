@@ -370,16 +370,18 @@ enum Opcodes
     CMSG_NPC_TEXT_QUERY                               = 0x108B, // 5.4.0 17399
     CMSG_OBJECT_UPDATE_FAILED                         = 0x1926, // 5.4.0 17399
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x1526, // 5.4.0 17399
-    CMSG_OFFER_PETITION                               = 0x000,  // 5.0.5 16048
+    CMSG_OFFER_PETITION                               = 0x170B, // 5.4.0 17399
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
     CMSG_OPEN_ITEM                                    = 0x000,  // 5.0.5 16048
     CMSG_OPT_OUT_OF_LOOT                              = 0x000,  // 5.0.5 16048
     CMSG_PAGE_TEXT_QUERY                              = 0x000,  // 5.0.5 16048
-    CMSG_PETITION_BUY                                 = 0x000,  // 5.0.5 16048
-    CMSG_PETITION_QUERY                               = 0x000,  // 5.0.5 16048
+    CMSG_PETITION_BUY                                 = 0x13AE, // 5.4.0 17399
+    CMSG_PETITION_DECLINE                             = 0x1A3B, // 5.4.0 17399
+    CMSG_PETITION_QUERY                               = 0x1404, // 5.4.0 17399
+    CMSG_PETITION_RENAME                              = 0x1242, // 5.4.0 17399
     CMSG_PETITION_SHOWLIST                            = 0x000,  // 5.0.5 16048
-    CMSG_PETITION_SHOW_SIGNATURES                     = 0x000,  // 5.0.5 16048
-    CMSG_PETITION_SIGN                                = 0x000,  // 5.0.5 16048
+    CMSG_PETITION_SHOW_SIGNATURES                     = 0x1B72, // 5.4.0 17399
+    CMSG_PETITION_SIGN                                = 0x17F3, // 5.4.0 17399
     CMSG_PET_ABANDON                                  = 0x1222, // 5.4.0 17399
     CMSG_PET_ACTION                                   = 0x1722, // 5.4.0 17399
     CMSG_PET_CANCEL_AURA                              = 0x17FA, // 5.4.0 17399
@@ -436,7 +438,7 @@ enum Opcodes
     CMSG_REPORT_PVP_AFK                               = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_CEMETERY_LIST                        = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_CEMETERY_LIST                        = 0x18AE, // 5.4.0 17399
     CMSG_REQUEST_HOTFIX                               = 0x1A8B, // 5.4.0 17399
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x1757, // 5.4.0 17399
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
@@ -518,6 +520,7 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x1A1F, // 5.4.0 17399
     CMSG_SUMMON_RESPONSE                              = 0x000,  // 5.0.5 16048
     CMSG_SUSPEND_TOKEN                                = 0x000,  // 5.0.5 16048 Unused
+    CMSG_SAVE_GUILD_EMBLEM                            = 0x150C, // 5.4.0 17399
     CMSG_SWAP_INV_ITEM                                = 0x445,  // 5.4.0 17399
     CMSG_SWAP_ITEM                                    = 0x440,  // 5.4.0 17399
     CMSG_SYNC_DANCE                                   = 0x000,  // 5.0.5 16048
@@ -538,7 +541,7 @@ enum Opcodes
     CMSG_TRAINER_LIST                                 = 0x1AFA, // 5.4.0 17399
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x1928, // 5.4.0 17399
     CMSG_TRIGGER_CINEMATIC_CHEAT                      = 0x000,  // 5.0.5 16048
-    CMSG_TURN_IN_PETITION                             = 0x000,  // 5.0.5 16048
+    CMSG_TURN_IN_PETITION                             = 0x1363, // 5.4.0 17399
     CMSG_TUTORIAL_CLEAR                               = 0x000,  // 5.0.5 16048
     CMSG_TUTORIAL_FLAG                                = 0x1B19, // 5.4.0 17399
     CMSG_TUTORIAL_RESET                               = 0x174C, // 5.4.0 17399
@@ -567,7 +570,7 @@ enum Opcodes
     CMSG_WRAP_ITEM                                    = 0x000,  // 5.0.5 16048
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_MOVE                                  = 0x717,  // 5.4.0 17399 CUSTOM OPCODE, client patch
-    CMSG_CORPSE_QUERY                                 = 0x18AE, // 5.4.0 17399
+    CMSG_CORPSE_QUERY                                 = 0x13DB, // 5.0.5 16048
 
     // MSG
     MSG_INSPECT_ARENA_TEAMS                           = 0x000,  // 5.0.5 16048
@@ -616,10 +619,7 @@ enum Opcodes
     MSG_MOVE_WATER_WALK                               = 0,      // Client patched
     MSG_MOVE_WORLDPORT_ACK                            = 0x1752, // 5.4.0 17399
     MSG_NOTIFY_PARTY_SQUELCH                          = 0x000,  // 5.0.5 16048
-    MSG_PETITION_DECLINE                              = 0x000,  // 5.0.5 16048
-    MSG_PETITION_RENAME                               = 0x000,  // 5.0.5 16048
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x000,  // 5.0.5 16048
-    MSG_SAVE_GUILD_EMBLEM                             = 0x000,  // 5.0.5 16048
     MSG_SET_RAID_DIFFICULTY                           = 0x1F80, // 5.4.0 17399
     MSG_VERIFY_CONNECTIVITY                           = 0x4F57, // 5.4.0 17399
 
@@ -880,7 +880,7 @@ enum Opcodes
     SMSG_ENABLE_BARBER_SHOP                           = 0x89E,  // 5.4.0 17399
     SMSG_ENABLE_HONOR_BUDDY_DETECTION                 = 0x125,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ENCHANTMENT_LOG                              = 0x922,  // 5.4.0 17399
-    SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x000,  // 5.0.5 16048
+    SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x15B1, // 5.4.0 17399
     SMSG_EQUIPMENT_SET_LIST                           = 0x938,  // 5.4.0 17399
     SMSG_EQUIPMENT_SET_SAVED                          = 0x5AD,  // 5.4.0 17399
     SMSG_EXPECTED_SPAM_RECORDS                        = 0x10A,  // 5.4.0 17399 (JamList)
@@ -1191,7 +1191,6 @@ enum Opcodes
     SMSG_NOTIFY_DEST_LOC_SPELL_CAST                   = 0x000,  // 5.0.5 16048
     SMSG_NPC_TEXT_UPDATE                              = 0x886,  // 5.4.0 17399
     SMSG_NPC_WONT_TALK                                = 0x000,  // 5.0.5 16048
-    SMSG_OFFER_PETITION_ERROR                         = 0x126,  // 5.4.0 17399 (JamList)
     SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA         = 0x43E,  // 5.4.0 17399
     SMSG_OPEN_CONTAINER                               = 0x908,  // 5.4.0 17399 (JamList)
     SMSG_OPEN_LFG_DUNGEON_FINDER                      = 0x0B3,  // 5.4.0 17399 (JamList)
@@ -1206,12 +1205,12 @@ enum Opcodes
     SMSG_PAUSE_MIRROR_TIMER                           = 0x488,  // 5.4.0 17399 (JamList)
     SMSG_PERIODIC_AURA_LOG                            = 0x1097, // 5.4.0 17399
     SMSG_PENDING_RAID_LOCK                            = 0x59E,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_PETITION_ALREADY_SIGNED                      = 0x00C,  // 5.4.0 17399 (JamList)
-    SMSG_PETITION_QUERY_RESPONSE                      = 0x419,  // 5.4.0 17399 (JamList)
-    SMSG_PETITION_SHOW_LIST                           = 0x514,  // 5.4.0 17399 (JamList)
-    SMSG_PETITION_SHOW_SIGNATURES                     = 0x421,  // 5.4.0 17399 (JamList)
-    SMSG_PETITION_SIGN_RESULTS                        = 0x000,  // 5.0.5 16048
-    SMSG_PETITION_DECLINED                            = 0x592,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_PETITION_ALREADY_SIGNED                      = 0x00C,  // 5.4.0 17399
+    SMSG_PETITION_DECLINED                            = 0x592,  // 5.4.0 17399
+    SMSG_PETITION_QUERY_RESPONSE                      = 0x419,  // 5.4.0 17399
+    SMSG_PETITION_RENAME                              = 0x4BA,  // 5.4.0 17399
+    SMSG_PETITION_SHOW_LIST                           = 0x514,  // 5.4.0 17399
+    SMSG_PETITION_SHOW_SIGNATURES                     = 0x421,  // 5.4.0 17399
     SMSG_PET_ACTION_FEEDBACK                          = 0x43B,  // 5.4.0 17399
     SMSG_PET_ACTION_SOUND                             = 0x4A5,  // 5.4.0 17399
     SMSG_PET_ADDED                                    = 0x43A,  // 5.4.0 17399 (JamList)
@@ -1330,7 +1329,7 @@ enum Opcodes
     SMSG_REMOVE_LOSS_OF_CONTROL                       = 0x438,  // 5.4.0 17399 (JamList)
     SMSG_UNLEARNED_SPELLS                             = 0x523,  // 5.4.0 17399
     SMSG_REPORT_PVP_AFK_RESULT                        = 0x03F,  // 5.4.0 17399 (JamList)
-    SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x499,  // 5.4.0 17399 (JamList)
+    SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x499,  // 5.4.0 17399
     SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x08A,  // 5.4.0 17399 (JamList)
     SMSG_RESEARCH_COMPLETE                            = 0x928,  // 5.4.0 17399 (JamList)
     SMSG_RESEARCH_SETUP_HISTORY                       = 0x034,  // 5.4.0 17399 (JamList)
@@ -1499,7 +1498,7 @@ enum Opcodes
     SMSG_TRANSFER_PENDING                             = 0x8B5,  // 5.4.0 17399
     SMSG_TRIGGER_CINEMATIC                            = 0x000,  // 5.0.5 16048
     SMSG_TRIGGER_MOVIE                                = 0x414,  // 5.4.0 17399
-    SMSG_TURN_IN_PETITION_RESULTS                     = 0x916,  // 5.4.0 17399 (JamList)
+    SMSG_TURN_IN_PETITION_RESULTS                     = 0x194,  // 5.4.0 17399
     SMSG_TUTORIAL_FLAGS                               = 0x1F35, // 5.4.0 17399
     SMSG_UI_TIME                                      = 0x911,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x000,  // 5.0.5 16048
