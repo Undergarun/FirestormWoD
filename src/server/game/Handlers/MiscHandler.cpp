@@ -2430,3 +2430,68 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
 
     SendPacket(&data);
 }
+
+void WorldSession::HandleTradeInfo (WorldPacket& recvPacket)
+{
+    uint32 skillId = recvPacket.read<uint32>();
+    uint32 spellId = recvPacket.read<uint32>();
+
+    ObjectGuid guid;
+    uint8 bitOrder[8] = {5, 4, 7, 1, 3, 6, 0, 2};
+    recvPacket.ReadBitInOrder(guid, bitOrder);
+    uint8 byteOrder[8] = {7, 3, 4, 6, 1, 5, 0, 2};
+    recvPacket.ReadBytesSeq(guid, byteOrder);
+
+    Player* plr = sObjectAccessor->FindPlayer(guid);
+    if (!plr || !plr->HasSkill(skillId) || !plr->HasSpell(spellId))
+        return;
+
+    uint32 spellSkillCount = 0;
+    for (auto itr : plr->GetSpellMap())
+    {
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+        if (!spell)
+            continue;
+
+        if (spell->IsAbilityOfSkillType(skillId) && spell->Effects[0].Effect != SPELL_EFFECT_TRADE_SKILL)
+            spellSkillCount++;
+    }
+
+    WorldPacket data(SMSG_TRADE_INFO);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
+    data.WriteBits(spellSkillCount, 22);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBits(1, 22);              // skill value count
+    data.WriteBits(1, 22);              // skill id count
+    data.WriteBits(1, 22);              // skill max value
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[0]);
+    data << uint32(plr->GetSkillValue(skillId));
+    data.WriteByteSeq(guid[0]);
+    data << uint32(skillId);
+    data.WriteByteSeq(guid[1]);
+    data << uint32(spellId);
+
+    for (auto itr : plr->GetSpellMap())
+    {
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+        if (!spell)
+            continue;
+
+        if (spell->IsAbilityOfSkillType(skillId) && spell->Effects[0].Effect != SPELL_EFFECT_TRADE_SKILL)
+            data << uint32(spell->Id);
+    }
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data << uint32(plr->GetMaxSkillValue(skillId));
+    SendPacket(&data);
+}

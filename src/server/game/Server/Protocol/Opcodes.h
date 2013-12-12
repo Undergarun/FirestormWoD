@@ -533,6 +533,7 @@ enum Opcodes
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x000,  // 5.0.5 16048
     CMSG_TOGGLE_PVP                                   = 0x182C, // 5.4.0 17399
     CMSG_TOTEM_DESTROYED                              = 0x13E3, // 5.4.0 17399
+    CMSG_TRADE_INFO                                   = 0x164E, // 5.4.0 17399
     CMSG_TRAINER_BUY_SPELL                            = 0x12EF, // 5.4.0 17399
     CMSG_TRAINER_LIST                                 = 0x1AFA, // 5.4.0 17399
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x1928, // 5.4.0 17399
@@ -1489,6 +1490,7 @@ enum Opcodes
     SMSG_TITLE_LOST                                   = 0x839,  // 5.4.0 17399
     SMSG_TOGGLE_XP_GAIN                               = 0x000,  // 5.0.5 16048
     SMSG_TOTEM_CREATED                                = 0x904,  // 5.4.0 17399
+    SMSG_TRADE_INFO                                   = 0x13E,  // 5.4.0 17399
     SMSG_TRADE_STATUS                                 = 0x10F,  // 5.4.0 17399
     SMSG_TRADE_UPDATED                                = 0x912,  // 5.4.0 17399
     SMSG_TRAINER_LIST                                 = 0x09A,  // 5.4.0 17399

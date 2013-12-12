@@ -1003,6 +1003,7 @@ class WorldSession
         void SendReforgeResult(bool success);
 
         // Miscellaneous
+        void HandleTradeInfo (WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleAlterAppearance(WorldPacket& recvData);
