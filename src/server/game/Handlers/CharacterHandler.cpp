@@ -310,11 +310,11 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     recvData >> gender;
     recvData >> race_;
     recvData >> facialHair;
-    recvData >> hairStyle;
+    recvData >> hairColor;
     recvData >> outfitId;
     recvData >> class_;
     recvData >> skin;
-    recvData >> hairColor;
+    recvData >> hairStyle;
 
     unkBit = recvData.ReadBit();
 
