@@ -1848,29 +1848,6 @@ void Guild::HandleAcceptMember(WorldSession* session)
 
         session->SendPacket(&data);
 
-        data.Initialize(SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS);
-        data.WriteBit(0);
-        data.WriteBits(strlen(session->GetPlayer()->GetName()), 6);
-        data.WriteBit(1);
-
-        uint8 bitsLoginOrder[8] = { 0, 2, 6, 7, 3, 4, 5, 1 };
-        data.WriteBitInOrder(playerGuid, bitsLoginOrder);
-
-        data.WriteByteSeq(playerGuid[6]);
-        data.WriteByteSeq(playerGuid[4]);
-
-        if (strlen(session->GetPlayer()->GetName()) > 0)
-            data.append(session->GetPlayer()->GetName(), strlen(session->GetPlayer()->GetName()));
-
-        data.WriteByteSeq(playerGuid[5]);
-        data.WriteByteSeq(playerGuid[0]);
-        data.WriteByteSeq(playerGuid[7]);
-        data.WriteByteSeq(playerGuid[1]);
-        data << uint32(realmID);
-        data.WriteByteSeq(playerGuid[2]);
-        data.WriteByteSeq(playerGuid[3]);
-        BroadcastPacket(&data);
-
         sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));
     }
 }
