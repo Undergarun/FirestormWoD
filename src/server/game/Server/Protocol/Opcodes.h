@@ -188,7 +188,7 @@ enum Opcodes
     CMSG_DUEL_RESPONSE                                = 0x13FE, // 5.4.0 17399
     CMSG_DUEL_PROPOSED                                = 0x129B, // 5.4.0 17399
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0x000,  // 5.0.5 16048
-    CMSG_EJECT_PASSENGER                              = 0x000,  // 5.0.5 16048
+    CMSG_EJECT_PASSENGER                              = 0x1423, // 5.4.0 17399
     CMSG_EMOTE                                        = 0x000,  // 5.0.5 16048
     CMSG_ENABLETAXI                                   = 0x000,  // 5.0.5 16048
     CMSG_ENABLE_NAGLE                                 = 0x000,  // 5.0.5 16048
