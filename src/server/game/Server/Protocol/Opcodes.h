@@ -1254,7 +1254,7 @@ enum Opcodes
     SMSG_PLAYER_SAVE_GUILD_EMBLEM                     = 0x880,  // 5.4.0 17399
     SMSG_PLAYER_TABAR_VENDOR_SHOW                     = 0x091,  // 5.4.0 17399
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0x000,  // 5.0.5 16048
-    SMSG_PLAYER_VEHICLE_DATA                          = 0x000,  // 5.0.5 16048
+    SMSG_PLAYER_VEHICLE_DATA                          = 0x48A,  // 5.4.0 17399
     SMSG_PLAY_DANCE                                   = 0x000,  // 5.0.5 16048
     SMSG_PLAY_MUSIC                                   = 0x000,  // 5.0.5 16048
     SMSG_PLAY_OBJECT_SOUND                            = 0x000,  // 5.0.5 16048
