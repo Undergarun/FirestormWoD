@@ -477,24 +477,24 @@ enum AuraType
     SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
     SPELL_AURA_418                                          = 418,  // 5.0.5 unk aura
     SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2                = 419,  // SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
-    SPELL_AURA_420                                          = 420,  // 5.4.0 unk aura
-    SPELL_AURA_421                                          = 421,  // 5.4.0 unk aura
-    SPELL_AURA_422                                          = 422,  // 5.4.0 unk aura
-    SPELL_AURA_423                                          = 423,  // 5.4.0 unk aura
-    SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura
-    SPELL_AURA_425                                          = 425,  // 5.4.0 unk aura
-    SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura
-    SPELL_AURA_427                                          = 427,  // 5.4.0 unk aura
-    SPELL_AURA_428                                          = 428,  // 5.4.0 unk aura
-    SPELL_AURA_429                                          = 429,  // 5.4.0 unk aura
-    SPELL_AURA_430                                          = 430,  // 5.4.0 unk aura
-    SPELL_AURA_431                                          = 431,  // 5.4.0 unk aura
-    SPELL_AURA_432                                          = 432,  // 5.4.0 unk aura
-    SPELL_AURA_433                                          = 433,  // 5.4.0 unk aura
-    SPELL_AURA_434                                          = 434,  // 5.4.0 unk aura
-    SPELL_AURA_435                                          = 435,  // 5.4.0 unk aura
-    SPELL_AURA_436                                          = 436,  // 5.4.0 unk aura
-    SPELL_AURA_437                                          = 437,  // 5.4.0 unk aura
+    SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)
+    SPELL_AURA_MOD_HEALING                                  = 421,  // 5.4.0 unk aura (NYI)
+    SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0 unk aura (NYI) wind Storm Iron Qon phase 2
+    SPELL_AURA_423                                          = 423,  // 5.4.0 unk aura (NYI) "Balance: Spell Damage and Hit Chance increased.Mana cost of all damage spells reduced by 100 % ."
+    SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura (NYI) Heart of the Wild talent related
+    SPELL_AURA_425                                          = 425,  // 5.4.0 unused
+    SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura (NYI) Brawl queue
+    SPELL_AURA_427                                          = 427,  // 5.4.0 unk aura (NYI) Spell 91318
+    SPELL_AURA_428                                          = 428,  // 5.4.0 unk aura (NYI) used for cart in silvershard mines ?
+    SPELL_AURA_MOD_PET_DAMAGE_DONE                          = 429,  // 5.4.0 unk aura (NYI) see 144364
+    SPELL_AURA_430                                          = 430,  // 5.4.0 unk aura (NYI)
+    SPELL_AURA_431                                          = 431,  // 5.4.0 unk aura (NYI) Contested Territory 142869
+    SPELL_AURA_432                                          = 432,  // 5.4.0 unk aura (NYI)
+    SPELL_AURA_433                                          = 433,  // 5.4.0 unused
+    SPELL_AURA_434                                          = 434,  // 5.4.0 unk aura (NYI) used by wowhead.com/spell=145175 value is wowhead.com/npc=72327
+    SPELL_AURA_435                                          = 435,  // 5.4.0 Unused
+    SPELL_AURA_436                                          = 436,  // 5.4.0 Internal spell
+    SPELL_AURA_437                                          = 437,  // 5.4.0 Internal spell
     TOTAL_AURAS                                             = 438   // 5.4.0
 };
 

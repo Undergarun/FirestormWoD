@@ -1068,7 +1068,7 @@ enum SpellEffects
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES       = 170,
     SPELL_EFFECT_171                                = 171, // Summons gamebject (player farm related)
-    SPELL_EFFECT_RESURRECT_WITH_AURA                = 172, // Aoe resurrection
+    SPELL_EFFECT_RESURRECT_WITH_AURA                = 172, // Aoe resurrection (guild perk)
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
@@ -1076,7 +1076,7 @@ enum SpellEffects
     SPELL_EFFECT_177                                = 177,
     SPELL_EFFECT_178                                = 178, // Unused (5.0.5)
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
-    SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // Only one spell : "Update Area Triggers" 106584
+    SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // "Update Area Triggers" 106584 & 1333355
     SPELL_EFFECT_UNLEARN_TALENT                     = 181,
     SPELL_EFFECT_182                                = 182, // despawwn areatrigger
     SPELL_EFFECT_183                                = 183, // Unused (5.0.5)
@@ -1086,7 +1086,7 @@ enum SpellEffects
     SPELL_EFFECT_RANDOM_DIGSITE                     = 187, // 126957 only
     SPELL_EFFECT_STAMPEDE                           = 188, // Stampede 121818
     SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
-    SPELL_EFFECT_190                                = 190, // 1 internal spell
+    SPELL_EFFECT_190                                = 190, // internal spell
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
     SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
     SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
@@ -1095,16 +1095,16 @@ enum SpellEffects
     SPELL_EFFECT_196                                = 196, // summon multi NPC
     SPELL_EFFECT_197                                = 197, // 130243 only
     SPELL_EFFECT_198                                = 198, // Mini scene event
-    SPELL_EFFECT_199                                = 199, // 129857
+    SPELL_EFFECT_199                                = 199, //
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
     SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
     SPELL_EFFECT_202                                = 202, // Unk 5.4.0
     SPELL_EFFECT_203                                = 203, // Unk 5.4.0
-    SPELL_EFFECT_204                                = 204, // Unk 5.4.0
-    SPELL_EFFECT_205                                = 205, // Unk 5.4.0
-    SPELL_EFFECT_206                                = 206, // Unk 5.4.0
-    SPELL_EFFECT_207                                = 207, // Unk 5.4.0
-    SPELL_EFFECT_208                                = 208, // Unk 5.4.0
+    SPELL_EFFECT_UPGRADE_BATTLEPET                  = 204, // BATTLEPET System 5.4.0
+    SPELL_EFFECT_PVE_PVP_CHOICE                     = 205, // Unk use 5.4.0
+    SPELL_EFFECT_ETERNITY_EMBRACE                   = 206, // used for TimelessIsle 5.4.0
+    SPELL_EFFECT_207                                = 207, // Unused 5.4.0
+    SPELL_EFFECT_TEST_REPUTATION                    = 208, // Unk 5.4.0
     TOTAL_SPELL_EFFECTS                             = 209
 };
 
