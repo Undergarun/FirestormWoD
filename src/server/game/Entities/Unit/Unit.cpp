@@ -1778,45 +1778,14 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
         return;
     }
 
-    WorldPacket data(SMSG_TEXT_EMOTE);
-    ObjectGuid targetGuid = NULL;
-    ObjectGuid unitGuid = GetGUID();
+    // Hack fix for clear emote at moving
+    if (Player* plr = ToPlayer())
+        plr->SetLastPlayedEmote(anim_id);
 
-    data.WriteBit(unitGuid[0]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(unitGuid[6]);
-    data.WriteBit(unitGuid[7]);
-    data.WriteBit(unitGuid[3]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(unitGuid[5]);
-    data.WriteBit(unitGuid[2]);
-    data.WriteBit(unitGuid[1]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(unitGuid[4]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(targetGuid[2]);
+    WorldPacket data(SMSG_EMOTE);
 
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[5]);
-    data.WriteByteSeq(unitGuid[1]);
-    data.WriteByteSeq(targetGuid[6]);
-    data << int32(-1);              // Text ID
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(targetGuid[4]);
     data << uint32(anim_id);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(unitGuid[7]);
-    data.WriteByteSeq(unitGuid[3]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(unitGuid[6]);
-    data.WriteByteSeq(unitGuid[2]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(unitGuid[0]);
-    data.WriteByteSeq(targetGuid[3]);
+    data << uint64(GetGUID());
 
     SendMessageToSet(&data, true);
 }

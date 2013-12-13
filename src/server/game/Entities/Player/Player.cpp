@@ -729,6 +729,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_speakTime = 0;
     m_speakCount = 0;
 
+    m_lastPlayedEmote = 0;
+
     m_pmChatTime = 0;
     m_pmChatCount = 0;
 

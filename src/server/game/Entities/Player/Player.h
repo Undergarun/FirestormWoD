@@ -2873,6 +2873,9 @@ class Player : public Unit, public GridObject<Player>
         void SetKnockBackTime(uint32 timer) { m_knockBackTimer = timer; }
         uint32 GetKnockBackTime() const { return m_knockBackTimer; }
 
+        void SetLastPlayedEmote(uint32 id) { m_lastPlayedEmote = id; }
+        uint32 GetLastPlayedEmote() { return m_lastPlayedEmote; }
+
         void SetIgnoreMovementCount(uint8 count) { m_ignoreMovementCount = count; }
         uint8 GetIgnoreMovementCount() const { return m_ignoreMovementCount; }
 
@@ -3247,6 +3250,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
+
+        uint32 m_lastPlayedEmote;
 
         // Store callback
         PreparedQueryResultFuture _storeGoldCallback;

@@ -186,7 +186,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
     SendNameQueryOpcode(guid);
 }
 
-void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleQueryTimeOpcode(WorldPacket& /*recvData*/)
 {
     SendQueryTimeResponse();
 }
@@ -200,7 +200,7 @@ void WorldSession::SendQueryTimeResponse()
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 {
     uint32 entry;
     recvData >> entry;
@@ -299,7 +299,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recvData)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 {
     uint32 entry;
     recvData >> entry;
@@ -483,7 +483,7 @@ void WorldSession::HandleCemeteryListOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->SendCemeteryList(false);
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 {
     uint32 textID;
     ObjectGuid guid;
