@@ -13451,9 +13451,19 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 GetVehicleKit()->Reset();
 
                 // Send others that we now have a vehicle
+                ObjectGuid guid = GetGUID();
                 WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
-                data.appendPackGUID(GetGUID());
+                uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
+                data.WriteBitInOrder(guid, bitOrder);
+                data.WriteByteSeq(guid[4]);
+                data.WriteByteSeq(guid[3]);
+                data.WriteByteSeq(guid[1]);
                 data << uint32(VehicleId);
+                data.WriteByteSeq(guid[6]);
+                data.WriteByteSeq(guid[7]);
+                data.WriteByteSeq(guid[5]);
+                data.WriteByteSeq(guid[2]);
+                data.WriteByteSeq(guid[0]);
                 SendMessageToSet(&data, true);
 
                 data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
@@ -13501,9 +13511,19 @@ void Unit::Dismount()
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
         // Send other players that we are no longer a vehicle
+        ObjectGuid guid = GetGUID();
         data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8+4);
-        data.appendPackGUID(GetGUID());
+        uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
+        data.WriteBitInOrder(guid, bitOrder);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[1]);
         data << uint32(0);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[0]);
         ToPlayer()->SendMessageToSet(&data, true);
         // Remove vehicle from player
         RemoveVehicleKit();
@@ -20149,7 +20169,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, false, NULL, NULLAURA_EFFECT, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
-                int32 bp0 = seatId;
+                int32 bp0 = seatId+1;
                 Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0, NULL, origCasterGUID);
             }
         }

@@ -187,7 +187,7 @@ enum Opcodes
     CMSG_DUEL_RESPONSE                                = 0x13FE, // 5.4.0 17399
     CMSG_DUEL_PROPOSED                                = 0x129B, // 5.4.0 17399
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0x1A13, // 5.4.0 17399
-    CMSG_EJECT_PASSENGER                              = 0x000,  // 5.0.5 16048
+    CMSG_EJECT_PASSENGER                              = 0x1423, // 5.4.0 17399
     CMSG_EMOTE                                        = 0x1689, // 5.4.0 17399
     CMSG_ENABLETAXI                                   = 0x000,  // 5.0.5 16048
     CMSG_ENABLE_NAGLE                                 = 0x000,  // 5.0.5 16048
@@ -1253,7 +1253,7 @@ enum Opcodes
     SMSG_PLAYER_SAVE_GUILD_EMBLEM                     = 0x880,  // 5.4.0 17399
     SMSG_PLAYER_TABAR_VENDOR_SHOW                     = 0x091,  // 5.4.0 17399
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0x000,  // 5.0.5 16048
-    SMSG_PLAYER_VEHICLE_DATA                          = 0x000,  // 5.0.5 16048
+    SMSG_PLAYER_VEHICLE_DATA                          = 0x48A,  // 5.4.0 17399
     SMSG_PLAY_DANCE                                   = 0x000,  // 5.0.5 16048
     SMSG_PLAY_MUSIC                                   = 0x000,  // 5.0.5 16048
     SMSG_PLAY_OBJECT_SOUND                            = 0x000,  // 5.0.5 16048

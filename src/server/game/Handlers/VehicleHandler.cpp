@@ -246,8 +246,11 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
         return;
     }
 
-    uint64 guid;
-    data >> guid;
+    ObjectGuid guid;
+    uint8 bitOrder[8] = {3, 2, 4, 7, 5, 1, 6, 0};
+    data.ReadBitInOrder(guid, bitOrder);
+    uint8 byteOrder[8] = {5, 2, 3, 6, 0, 7, 4, 1};
+    data.ReadBytesSeq(guid, byteOrder);
 
     if (IS_PLAYER_GUID(guid))
     {
