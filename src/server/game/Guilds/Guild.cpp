@@ -1904,6 +1904,8 @@ void Guild::HandleLeaveMember(WorldSession* session)
 
     if (disband)
         delete this;
+    else
+        HandleRoster(session);
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
