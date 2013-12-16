@@ -285,11 +285,11 @@ enum Opcodes
     CMSG_INSPECT                                      = 0x167E, // 5.4.0 17399
     CMSG_INSPECT_HONOR_STATS                          = 0x14AC, // 5.4.0 17399
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x000,  // 5.0.5 16048
-    CMSG_ITEM_REFUND                                  = 0x000,  // 5.0.5 16048
-    CMSG_ITEM_REFUND_INFO                             = 0x000,  // 5.0.5 16048
+    CMSG_ITEM_REFUND                                  = 0x136F, // 5.4.0 17399
+    CMSG_ITEM_REFUND_INFO                             = 0x1A76, // 5.4.0 17399
     CMSG_ITEM_TEXT_QUERY                              = 0x000,  // 5.0.5 16048
     CMSG_JOIN_CHANNEL                                 = 0x1C14, // 5.4.0 17399
-    CMSG_KEEP_ALIVE                                   = 0x000,  // 5.0.5 16048
+    CMSG_KEEP_ALIVE                                   = 0x131A, // 5.4.0 17399
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x10AE, // 5.4.0 17399
     CMSG_LEARN_TALENTS                                = 0x1901, // 5.4.0 17399
     CMSG_LEAVE_BATTLEFIELD                            = 0x100B, // 5.4.0 17399
@@ -373,7 +373,7 @@ enum Opcodes
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
     CMSG_OPEN_ITEM                                    = 0x000,  // 5.0.5 16048
     CMSG_OPT_OUT_OF_LOOT                              = 0x000,  // 5.0.5 16048
-    CMSG_PAGE_TEXT_QUERY                              = 0x000,  // 5.0.5 16048
+    CMSG_PAGE_TEXT_QUERY                              = 0x1082, // 5.4.0 17399
     CMSG_PETITION_BUY                                 = 0x13AE, // 5.4.0 17399
     CMSG_PETITION_DECLINE                             = 0x1A3B, // 5.4.0 17399
     CMSG_PETITION_QUERY                               = 0x1404, // 5.4.0 17399
@@ -547,7 +547,7 @@ enum Opcodes
     CMSG_UNACCEPT_TRADE                               = 0x15A0, // 5.4.0 17399
     CMSG_UNLEARN_SKILL                                = 0x177A, // 5.4.0 17399
     CMSG_UNLEARN_SPECIALIZATION                       = 0x000,  // 5.0.5 16048
-    CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x000,  // 5.0.5 16048
+    CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x143C, // 5.4.0 17399
     CMSG_UPDATE_ACCOUNT_DATA                          = 0x12DF, // 5.4.0 17399
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x000,  // 5.0.5 16048
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x000,  // 5.0.5 16048
@@ -1004,6 +1004,7 @@ enum Opcodes
     SMSG_GUILD_RENAMED                                = 0x000,  // 5.0.5 16048
     SMSG_GUILD_REPUTATION_REACTION_CHANGED            = 0x000,  // 5.0.5 16048
     SMSG_GUILD_REPUTATION_WEEKLY_CAP                  = 0x457,  // 5.4.0 17399
+    SMSG_GUILD_SEND_MEMBER_LEAVE                      = 0xC46,  // 5.4.0 17399
     SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS               = 0xC43,  // 5.4.0 17399
     SMSG_GUILD_SEND_PLAYER_JOINED                     = 0x556,  // 5.4.0 17399
     SMSG_GUILD_RESET                                  = 0x000,  // 5.0.5 16048
@@ -1045,10 +1046,9 @@ enum Opcodes
     SMSG_ITEM_ADD_PASSIVE                             = 0x92D,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_COOLDOWN                                = 0x000,  // 5.0.5 16048
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x437,  // 5.4.0 17399
-    SMSG_ITEM_EXPIRE_PURCHASE_REFUND                  = 0x83C,  // 5.4.0 17399 (JamList)
+    SMSG_ITEM_REFUND_INFO_RESPONSE                    = 0x83C,  // 5.4.0 17399
     SMSG_ITEM_PUSH_RESULT                             = 0x008,  // 5.4.0 17399
-    SMSG_ITEM_REFUND_INFO_RESPONSE                    = 0x000,  // 5.0.5 16048
-    SMSG_ITEM_REFUND_RESULT                           = 0x585,  // 5.4.0 17399 (JamList)
+    SMSG_ITEM_REFUND_RESULT                           = 0x197,  // 5.4.0 17399
     SMSG_ITEM_REMOVE_PASSIVE                          = 0x58F,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_SEND_PASSIVE                            = 0x000,  // 5.0.5 16048
     SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x000,  // 5.0.5 16048
@@ -1194,7 +1194,7 @@ enum Opcodes
     SMSG_OPEN_CONTAINER                               = 0x908,  // 5.4.0 17399 (JamList)
     SMSG_OPEN_LFG_DUNGEON_FINDER                      = 0x0B3,  // 5.4.0 17399 (JamList)
     SMSG_OVERRIDE_LIGHT                               = 0x81E,  // 5.4.0 17399 (JamList)
-    SMSG_PAGE_TEXT_QUERY_RESPONSE                     = 0x114,  // 5.4.0 17399 (JamList)
+    SMSG_PAGE_TEXT_QUERY_RESPONSE                     = 0x114,  // 5.4.0 17399
     SMSG_PAGE_TEXT                                    = 0x116,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PARTY_COMMAND_RESULT                         = 0x16A5, // 5.4.0 17399
     SMSG_PARTY_KILL_LOG                               = 0x000,  // 5.0.5 16048
@@ -1357,8 +1357,7 @@ enum Opcodes
     SMSG_SCENE_OBJECT_PET_BATTLE_ROUND_RESULT         = 0x51B,  // 5.4.0 17399 SCENE systeme (NYI)
     SMSG_SCENE_OBJECT_PET_BATTLE_REMPLACEMENTS_MADE   = 0x905,  // 5.4.0 17399 SCENE systeme (NYI)
     SMSG_SCRIPT_MESSAGE                               = 0x42A,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_SELL_ITEM                                    = 0x000,  // 5.0.5 16048
-    SMSG_SELL_RESPONSE                                = 0x135,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_SELL_ITEM                                    = 0x135,  // 5.4.0 17399
     SMSG_SEND_ITEM_PASSIVE                            = 0x1AC,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SEND_ITEM_DURABILITY                         = 0x41A,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SEND_MAIL_RESULT                             = 0x82E,  // 5.4.0 17399
@@ -1377,7 +1376,6 @@ enum Opcodes
     SMSG_SET_AI_ANIM_KIT                              = 0x1B9,  // 5.4.0 17399 (JamList)
     SMSG_SET_ANIM_TIMER                               = 0x12C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x1B0,  // 5.4.0 17399 (JamList)
-    SMSG_SET_CURRENCY                                 = 0x0B4,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_DUNGEON_DIFFICULTY                       = 0x40C,  // 5.4.0 17399
     SMSG_SET_FACTION_ATWAR                            = 0x1A0,  // 5.4.0 17399 (JamList)
     SMSG_SET_FACTION_STANDING                         = 0x4BE,  // 5.4.0 17399
@@ -1386,8 +1384,6 @@ enum Opcodes
     SMSG_SET_FLAT_SPELL_MODIFIER                      = 0x000,  // 5.0.5 16048
     SMSG_SET_FORCED_REACTIONS                         = 0x098,  // 5.4.0 17399
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                 = 0x8B4,  // 5.4.0 17399 (JamList) Challenge mode (NYI)
-    SMSG_SET_ITEM_PURCHASE_DATA                       = 0x197,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_SET_MAX_WEEKLY_QUANTITY                      = 0x19D,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_MELEE_ANIM_KIT                           = 0x400,  // 5.4.0 17399 (JamList)
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0x03C,  // 5.4.0 17399 (JamList)
     SMSG_SET_PCT_SPELL_MODIFIER                       = 0x000,  // 5.0.5 16048
@@ -1505,8 +1501,8 @@ enum Opcodes
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,  // 5.4.0 17399
     SMSG_UPDATE_ACTION_BUTTONS                        = 0x096,  // 5.4.0 17399
     SMSG_UPDATE_COMBO_POINTS                          = 0x036,  // 5.4.0 17399
-    SMSG_UPDATE_CURRENCY                              = 0x000,  // 5.0.5 16048
-    SMSG_UPDATE_CURRENCY_WEEK_LIMIT                   = 0x000,  // 5.0.5 16048
+    SMSG_UPDATE_CURRENCY                              = 0x0B4,  // 5.4.0 17399
+    SMSG_UPDATE_CURRENCY_WEEK_LIMIT                   = 0x19D,  // 5.4.0 17399
     SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x18B,  // 5.4.0 17399 (JamList)
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x081,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0x000,  // 5.0.5 16048

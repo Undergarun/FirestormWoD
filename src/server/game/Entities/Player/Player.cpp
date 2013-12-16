@@ -8487,7 +8487,6 @@ void Player::SendNewCurrency(uint32 id) const
     if (itr == _currencyStorage.end())
         return;
 
-    ByteBuffer currencyData;
     WorldPacket packet(SMSG_INIT_CURRENCY);
 
     packet.WriteBits(1, 21);
@@ -8506,19 +8505,16 @@ void Player::SendNewCurrency(uint32 id) const
     packet.WriteBit(weekCap);
     packet.WriteBits(itr->second.flags, 5);
 
-    currencyData << uint32(itr->second.totalCount / precision);
+    packet << uint32(itr->second.totalCount / precision);
 
     if (weekCount)
-        currencyData << uint32(weekCount);
+        packet << uint32(weekCount);
     if (weekCap)
-        currencyData << uint32(weekCap);
+        packet << uint32(weekCap);
     if (seasonTotal)
-        currencyData << uint32(seasonTotal);
+        packet << uint32(seasonTotal);
     
-    currencyData << uint32(entry->ID);
-    
-    packet.FlushBits();
-    packet.append(currencyData);
+    packet << uint32(entry->ID);
 
     GetSession()->SendPacket(&packet);
 }
@@ -8633,7 +8629,7 @@ void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
         _currencyStorage[currencyId].state = PLAYERCURRENCY_CHANGED;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
+void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
 {
     if (!count)
         return;
@@ -8670,7 +8666,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     // count can't be more then weekCap.
     uint32 weekCap = GetCurrencyWeekCap(currency);
-    if (weekCap && count > int32(weekCap))
+    if (!ignoreLimit && weekCap && count > int32(weekCap))
         count = weekCap;
 
     int32 newTotalCount = int32(oldTotalCount) + count;
@@ -8683,25 +8679,33 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     int32 newSeasonTotalCount = int32(oldSeasonTotalCount) + (count > 0 ? count : 0);
 
-    if (weekCap)
+    if ( !ignoreLimit )
     {
-        //ASSERT(weekCap >= oldWeekCount);
-
-        // @TODO: fix conquest points
         // if we get more then weekCap just set to limit
-        if (int32(weekCap) < newWeekCount)
+        if (weekCap && int32(weekCap) < newWeekCount)
         {
             newWeekCount = int32(weekCap);
             // weekCap - oldWeekCount alwayt >= 0 as we set limit before!
             newTotalCount = oldTotalCount + (weekCap - oldWeekCount);
         }
+
+        // if we get more then totalCap set to maximum;
+        if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+        {
+            newTotalCount = int32(currency->TotalCap);
+            newWeekCount = weekCap;
+        }
     }
 
-    // if we get more then totalCap set to maximum;
-    if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+    if (newWeekCount < 0)
+        newWeekCount = 0;
+    if (newTotalCount < 0)
+        newTotalCount = 0;
+
+    if (id == CURRENCY_TYPE_HONOR_POINTS || id == CURRENCY_TYPE_JUSTICE_POINTS)
     {
-        newTotalCount = int32(currency->TotalCap);
-        newWeekCount = weekCap;
+        newWeekCount = newTotalCount;
+        weekCap = 0;
     }
 
     if (uint32(newTotalCount) != oldTotalCount)
@@ -8733,17 +8737,18 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
                 return;
             }
 
-            WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
-            
-            packet << uint32(id);
-            packet << uint32(newTotalCount / precision);
-            
+            WorldPacket packet(SMSG_UPDATE_CURRENCY);
+
             packet.WriteBit(weekCap != 0);
-            packet.WriteBit(0);//printLog); // print in log
-            packet.WriteBit(itr->second.seasonTotal); // hasSeasonCount
-            
+            packet.WriteBit(0);                         // Print in log
+            packet.WriteBit(itr->second.seasonTotal);
+
             if (itr->second.seasonTotal)
                 packet << uint32(itr->second.seasonTotal);
+
+            packet << uint32(id);
+            packet << uint32(newTotalCount / precision);
+            packet << uint32(0);                        // Unk
 
             if (weekCap)
                 packet << uint32(newWeekCount / precision);
@@ -8802,22 +8807,19 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             cap = JadeCore::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
             break;
         case CURRENCY_TYPE_JUSTICE_POINTS:
-            // No more week cap of Justice Points !
+            // No week cap for Justice Points
             cap = 0;
             break;
-            /*
-             *   @TODO : add weekcap 1000
-             */
         case CURRENCY_TYPE_VALOR_POINTS:
-            cap = 3000 * CURRENCY_PRECISION;
+            cap = 1000 * CURRENCY_PRECISION;
             break;
     }
 
    if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
    {
        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-       packet << uint32(currency->ID);
        packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
+       packet << uint32(currency->ID);
        GetSession()->SendPacket(&packet);
    }
 
@@ -8863,8 +8865,8 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
         uint32 cap = GetCurrencyWeekCap(currencyEntry);
 
         WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-        packet << uint32(currenciesToUpdate[i]);
         packet << uint32(cap / precision);
+        packet << uint32(currenciesToUpdate[i]);
         GetSession()->SendPacket(&packet);
     }
 }
@@ -15088,10 +15090,46 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));
-    data << uint64(creature ? creature->GetGUID() : 0);
-    data << uint64(guid);
+
+    ObjectGuid itemGuid = guid;
+    ObjectGuid npcGuid = creature ? creature->GetGUID() : NULL;
+    WorldPacket data(SMSG_SELL_ITEM);
+
+    data.WriteBit(itemGuid[6]);
+    data.WriteBit(itemGuid[3]);
+    data.WriteBit(npcGuid[3]);
+    data.WriteBit(npcGuid[5]);
+    data.WriteBit(npcGuid[2]);
+    data.WriteBit(itemGuid[7]);
+    data.WriteBit(npcGuid[0]);
+    data.WriteBit(npcGuid[1]);
+    data.WriteBit(itemGuid[5]);
+    data.WriteBit(npcGuid[6]);
+    data.WriteBit(itemGuid[4]);
+    data.WriteBit(npcGuid[7]);
+    data.WriteBit(itemGuid[0]);
+    data.WriteBit(itemGuid[2]);
+    data.WriteBit(npcGuid[4]);
+    data.WriteBit(itemGuid[1]);
+
     data << uint8(msg);
+    data.WriteByteSeq(npcGuid[6]);
+    data.WriteByteSeq(itemGuid[3]);
+    data.WriteByteSeq(itemGuid[4]);
+    data.WriteByteSeq(npcGuid[7]);
+    data.WriteByteSeq(npcGuid[4]);
+    data.WriteByteSeq(itemGuid[0]);
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[1]);
+    data.WriteByteSeq(itemGuid[1]);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(itemGuid[7]);
+    data.WriteByteSeq(itemGuid[2]);
+    data.WriteByteSeq(itemGuid[6]);
+    data.WriteByteSeq(npcGuid[3]);
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(itemGuid[5]);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -28315,36 +28353,31 @@ void Player::SendRefundInfo(Item* item)
         return;
     }
 
-    ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
+    ObjectGuid itemGuid = item->GetGUID();
+    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE);
 
-    uint8 bitOrder[8] = {3, 5, 7, 6, 2, 4, 0, 1};
-    data.WriteBitInOrder(guid, bitOrder);
+    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());   // Time Left
+    data << uint32(0);                                              // Unk
+    data << uint32(item->GetPaidMoney());                           // Money cost
 
-    data.FlushBits();
-    data.WriteByteSeq(guid[7]);
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
     {
         data << uint32(iece->RequiredItemCount[i]);
         data << uint32(iece->RequiredItem[i]);
     }
 
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
     {
-        data << uint32(iece->RequiredCurrencyCount[i]);
         data << uint32(iece->RequiredCurrency[i]);
+        data << uint32(iece->RequiredCurrencyCount[i] / 100);       // Must be devided by precision
     }
 
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data << uint32(0);
-    data.WriteByteSeq(guid[0]);
-    data << uint32(item->GetPaidMoney());               // money cost
+    uint8 bitsOrder[8] = { 1, 0, 7, 2, 3, 6, 4, 5 };
+    data.WriteBitInOrder(itemGuid, bitsOrder);
+
+    uint8 bytesOrder[8] = { 6, 1, 0, 2, 5, 3, 4, 7 };
+    data.WriteBytesSeq(itemGuid, bytesOrder);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -28376,42 +28409,40 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
 
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
 {
-    ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
+    ObjectGuid itemGuid = item->GetGUID();
+    WorldPacket data(SMSG_ITEM_REFUND_RESULT);
 
-    uint8 bitOrder[8] = {4, 5, 1, 6, 7, 0, 3, 2};
-    data.WriteBitInOrder(guid, bitOrder);
-
+    data.WriteBit(itemGuid[2]);
+    data.WriteBit(itemGuid[1]);
+    data.WriteBit(itemGuid[4]);
+    data.WriteBit(itemGuid[3]);
     data.WriteBit(!error);
-    data.WriteBit(item->GetPaidMoney() > 0);
-    data.FlushBits();
+    data.WriteBit(itemGuid[5]);
+    data.WriteBit(itemGuid[7]);
+    data.WriteBit(itemGuid[0]);
+    data.WriteBit(itemGuid[6]);
+    data << uint8(error);
+
     if (!error)
     {
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
-        {
-            data << uint32(iece->RequiredCurrencyCount[i]);
-            data << uint32(iece->RequiredCurrency[i]);
-        }
-
-        data << uint32(item->GetPaidMoney());               // money cost
-
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i) // item cost data
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
             data << uint32(iece->RequiredItemCount[i]);
             data << uint32(iece->RequiredItem[i]);
         }
+
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        {
+            data << uint32(iece->RequiredCurrency[i]);
+            data << uint32(iece->RequiredCurrencyCount[i]);
+        }
+
+        data << uint32(item->GetPaidMoney());
     }
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
+    uint8 bytesOrder[8] = { 1, 6, 4, 2, 0, 5, 7, 3 };
+    data.WriteBytesSeq(itemGuid, bytesOrder);
 
-    data << uint8(error);                              // error code
     GetSession()->SendPacket(&data);
 }
 
@@ -28468,6 +28499,28 @@ void Player::RefundItem(Item* item)
         return;
     }
 
+    // Check total cap
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    {
+        // Second field in dbc is season count except one row
+        if (i == 1 && iece->ID != 2999)
+            continue;
+
+        uint32 currencyId = iece->RequiredCurrency[i];
+        CurrencyTypesEntry const* cte = sCurrencyTypesStore.LookupEntry(currencyId);
+        if (!cte)
+            continue;
+
+        uint32 count = iece->RequiredCurrencyCount[i] / cte->GetPrecision();
+        uint32 plrCount = GetCurrency(currencyId, cte->HasPrecision());
+
+        if (cte->TotalCap && (plrCount + count > (cte->TotalCap / cte->GetPrecision())))
+        {
+            SendItemRefundResult(item, iece, 10);
+            return;
+        }
+    }
+
     SendItemRefundResult(item, iece, 0);
 
     uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
@@ -28481,7 +28534,7 @@ void Player::RefundItem(Item* item)
     // Destroy item
     DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 
-    // Grant back extendedcost items
+    // Grant back extended cost items ...
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
     {
         uint32 count = iece->RequiredItemCount[i];
@@ -28494,6 +28547,19 @@ void Player::RefundItem(Item* item)
             Item* it = StoreNewItem(dest, itemid, true);
             SendNewItem(it, count, true, false, true);
         }
+    }
+
+    // ... and currencies
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    {
+        // Second field in dbc is season count except one row
+        if (i == 1 && iece->ID != 2999)
+            continue;
+
+        uint32 currency = iece->RequiredCurrency[i];
+        uint32 count = iece->RequiredCurrencyCount[i];
+        if (currency && count)
+            ModifyCurrency(currency, count, false, true, true);
     }
 
     // Grant back money

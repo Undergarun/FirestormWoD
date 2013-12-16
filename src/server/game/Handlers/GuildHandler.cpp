@@ -468,7 +468,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
         if (Guild* guild = _GetPlayerGuild(this))
             guild->SendBankList(this, 0, true, true);
         else
-            Guild::SendCommandResult(this, GUILD_UNK1, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+            Guild::SendCommandResult(this, GUILD_BANK, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     }
 }
 
@@ -519,9 +519,19 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
     recvData.ReadBytesSeq(goGuid, bytesOrder);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    {
         if (money && GetPlayer()->HasEnoughMoney(money))
+        {
             if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleMemberDepositMoney(this, money);
+            {
+                uint64 amount = guild->GetBankMoney();
+                if ((amount + money) > MAX_MONEY_AMOUNT)
+                    guild->SendCommandResult(this, GUILD_BANK, ERR_GUILD_TOO_MUCH_MONEY);
+                else
+                    guild->HandleMemberDepositMoney(this, money);
+            }
+        }
+    }
 }
 
 void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)

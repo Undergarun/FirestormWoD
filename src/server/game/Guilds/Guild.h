@@ -82,7 +82,7 @@ enum GuildCommandType
     GUILD_INVITE_S  = 0x01,
     GUILD_QUIT_S    = 0x03,
     GUILD_FOUNDER_S = 0x0E,
-    GUILD_UNK1      = 0x13,
+    GUILD_BANK      = 0x13,
     GUILD_UNK2      = 0x14
 };
 
@@ -741,7 +741,7 @@ class Guild
         void HandleRemoveRank(WorldSession* session, uint32 rankId);
         void HandleChangeNameRank(WorldSession* session, uint32 id, std::string const& name);
         void HandleSwapRanks(WorldSession* session, uint32 id, bool up);
-        void HandleMemberDepositMoney(WorldSession* session, uint32 amount, bool cashFlow = false);
+        void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
         bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
         void HandleMemberLogout(WorldSession* session);
         void HandleDisband(WorldSession* session);
@@ -758,6 +758,7 @@ class Guild
         void SendGuildReputationWeeklyCap(WorldSession* session) const;
         void SendGuildXP(WorldSession* session) const;
         void SendGuildRecipes(WorldSession* session) const;
+        void SendMemberLeave(WorldSession* session, ObjectGuid playerGuid, bool kicked);
 
         // Load from DB
         bool LoadFromDB(Field* fields);
@@ -798,6 +799,7 @@ class Guild
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
         void SwapItemsWithInventory(Player* player, bool toChar, uint8 tabId, uint8 slotId, uint8 playerBag, uint8 playerSlotId, uint32 splitedAmount);
         void AutoStoreItemInInventory(Player* player, uint8 tabId, uint8 slotId, uint32 amount);
+        uint64 GetBankMoney() { return m_bankMoney; }
 
         // Bank tabs
         void SetBankTabText(uint8 tabId, const std::string& text);
