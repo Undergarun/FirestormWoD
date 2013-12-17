@@ -46,9 +46,9 @@ enum BattlegroundBracketId                                  // bracketId for lev
 
 enum CurrencyFlags
 {
-    CURRENCY_FLAG_TRADEABLE      = 0x01,
-    CURRENCY_FLAG_HIGH_PRECISION = 0x08,
-    CURRENCY_FLAG_HAS_SEASON_COUNT  = 0x80, // guessed
+    CURRENCY_FLAG_TRADEABLE         = 0x01,
+    CURRENCY_FLAG_HIGH_PRECISION    = 0x08,
+    CURRENCY_FLAG_HAS_SEASON_COUNT  = 0x80                  // guessed
 };
 
 enum AreaTeams
