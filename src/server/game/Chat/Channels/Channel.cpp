@@ -51,7 +51,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
         else                                                // for all other channels
             m_flags |= CHANNEL_FLAG_NOT_LFG;
     }
-    else if (!stricmp(m_name.c_str(), "world"))
+    else if (!stricmp(m_name.c_str(), "all"))
     {
         m_announce = false;
         _special = true;
