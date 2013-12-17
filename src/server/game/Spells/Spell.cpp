@@ -4330,9 +4330,9 @@ void Spell::SendSpellStart()
     bool unkInt3 = false;
     bool unkInt4 = false;
     bool unkInt5 = false;
-    bool unkByte = false;
+    bool hasRuneStateBefore = m_runesState;
     bool unkByte2 = false;
-    bool unkByte3 = false;
+    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetRunesState();
     bool unkByte4 = false;
     bool unkByte5 = false;
     bool unkByte6 = false;
@@ -4367,7 +4367,7 @@ void Spell::SendSpellStart()
 
     data.WriteBit(!unkBit);                                 // !unkBit
     data.WriteBit(!unkInt);                                 // !has unk int
-    data.WriteBit(!unkByte);                                // !has unk byte
+    data.WriteBit(!hasRuneStateBefore);                     // !has rune before
     data.WriteBit(!unkInt2);                                // !has unk int 2
     data.WriteBit(caster[7]);
 
@@ -4400,7 +4400,7 @@ void Spell::SendSpellStart()
         data.WriteBitInOrder(sourceTransport, srcBitsOrder);
     }
 
-    data.WriteBit(!unkByte3);                               // !has unk byte 3
+    data.WriteBit(!hasRuneStateAfter);                               // !has rune after
     data.WriteBit(!unkByte4);                               // !has unk byte 4
     data.WriteBit(itemCaster[4]);
 
@@ -4427,10 +4427,8 @@ void Spell::SendSpellStart()
     data.WriteBit(itemCaster[3]);
 
     uint8 runeCooldownCount = 0;
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (Player* player = m_caster->ToPlayer())
-            if (player->getClass() == CLASS_DEATH_KNIGHT && player->GetRuneCooldown(i) != 0)
-                runeCooldownCount++;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
+        runeCooldownCount = 6;
 
     data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
     data.WriteBit(!itemTargetGUID);                         // !itemTargetGUID
@@ -4611,17 +4609,29 @@ void Spell::SendSpellStart()
     data.WriteByteSeq(caster[6]);
     data.WriteByteSeq(itemCaster[3]);
 
-    if (unkByte)
-        data << uint8(0);
+    if (hasRuneStateBefore)
+        data << uint8(m_runesState);
 
     uint8 bytesOrderUnitTarget[8] = { 3, 2, 1, 4, 6, 0, 7, 5 };
     data.WriteBytesSeq(unitTargetGUID, bytesOrderUnitTarget);
     data.WriteByteSeq(caster[3]);
 
-    for (uint8 i = 0; i < runeCooldownCount; i++)
+    if (runeCooldownCount)
+    {
         if (Player* player = m_caster->ToPlayer())
-            if (player->GetRuneCooldown(i) != 0)
-                data << uint8(player->GetRuneCooldown(i));
+        {
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            {
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+            }
+        }
+        else
+        {
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                data << uint8(0);
+        }
+    }
 
     if (unkStringLength > 0)
     {
@@ -4642,7 +4652,7 @@ void Spell::SendSpellStart()
     if (unkFloat)
         data << float(0.0f);
 
-    data << uint32(0);                                      // unk 88
+    data << uint32(castFlags);                                      // unk 88
     data.WriteByteSeq(caster[4]);
     data.WriteByteSeq(caster[1]);
     data << uint32(m_spellInfo->Id);                        // spellId
@@ -4662,8 +4672,8 @@ void Spell::SendSpellStart()
     if (unkByte2)
         data << uint8(0);
 
-    if (unkByte3)
-        data << uint8(0);
+    if (hasRuneStateAfter)
+        data << uint8(m_caster->ToPlayer()->GetRunesState());
 
     if (unkInt4)
         data << uint32(0);
@@ -4815,8 +4825,8 @@ void Spell::SendSpellGo()
     bool hasBit101 = false;
     bool hasBit102 = false;
     bool hasBit106 = false;
-    bool hasBit336 = false;
-    bool hasBit337 = false;
+    bool hasRuneStateBefore = m_runesState;
+    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetRunesState();
     bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;
@@ -4869,7 +4879,7 @@ void Spell::SendSpellGo()
     data.WriteBitInOrder(target, bitsOrder1);
 
     data.WriteBit(caster[1]);
-    data.WriteBit(!hasBit337);                              // !hasBit337
+    data.WriteBit(!hasRuneStateAfter);
 
     uint8 bitsOrder2[8] = { 7, 0, 1, 3, 4, 2, 5, 6 };
     data.WriteBitInOrder(itemGuid, bitsOrder2);
@@ -4977,16 +4987,14 @@ void Spell::SendSpellGo()
         }
     }
 
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (Player* player = m_caster->ToPlayer())
-            if (player->getClass() == CLASS_DEATH_KNIGHT && player->GetRuneCooldown(i) != 0)
-                runeCooldownCount++;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() ==  CLASS_DEATH_KNIGHT)
+        runeCooldownCount = 6;
 
     data.WriteBit(itemCaster[0]);
     data.WriteBit(itemCaster[4]);
     data.WriteBit(caster[6]);
     data.WriteBits(runeCooldownCount, 3);
-    data.WriteBit(!hasBit336);                              // !hasBit336
+    data.WriteBit(!hasRuneStateBefore);
     data.WriteBit(caster[7]);
     data.WriteBits(missCount, 25);
 
@@ -5116,8 +5124,8 @@ void Spell::SendSpellGo()
     if (hasBit102)
         data << uint32(0);
 
-    if (hasBit337)
-        data << uint8(0);
+    if (hasRuneStateAfter)
+        data << uint8(m_caster->ToPlayer()->GetRunesState());
 
     data.WriteByteSeq(itemCaster[0]);
     data.WriteByteSeq(caster[4]);
@@ -5156,8 +5164,8 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(itemCaster[2]);
     data.WriteByteSeq(caster[6]);
 
-    if (hasBit336)
-        data << uint8(0);
+    if (hasRuneStateBefore)
+        data << uint8(m_runesState);
 
     data.WriteByteSeq(caster[1]);
     data << uint32(getMSTime());                            // timestamp
@@ -5201,10 +5209,22 @@ void Spell::SendSpellGo()
         data << int32((Powers)m_spellPowerData->powerType); //Power
     }
 
-    for (uint8 i = 0; i < runeCooldownCount; i++)
+    if (runeCooldownCount)
+    {
         if (Player* player = m_caster->ToPlayer())
-            if (player->GetRuneCooldown(i) != 0)
-                data << uint8(player->GetRuneCooldown(i));
+        {
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            {
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+            }
+        }
+        else
+        {
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                data << uint8(0);
+        }
+    }
 
     if (unkStringLength > 0)
     {
@@ -5223,7 +5243,7 @@ void Spell::SendSpellGo()
     if (hasBit384)
         data << uint8(0);
 
-    data << uint32(0); // unk flags, sniffed from retail
+    data << uint32(castFlags); // unk flags, sniffed from retail
     data.WriteByteSeq(caster[5]);
 
     if (hasBit101)
