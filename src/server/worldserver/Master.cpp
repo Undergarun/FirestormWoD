@@ -108,6 +108,7 @@ public:
             {
                 sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
                 ASSERT(false);
+                exit(0);
             }
         }
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
