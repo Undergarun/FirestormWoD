@@ -2154,12 +2154,18 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             break;
     }
 
-    uint32 used_loginFlag = AT_LOGIN_CHANGE_RACE;
-    if (oldTeam != team)
-        used_loginFlag = AT_LOGIN_CHANGE_FACTION;
+    uint32 used_loginFlag = at_loginFlags;
 
     // We need to correct race when it's pandaren
     // Because client always send neutral ID
+    if (race == RACE_PANDAREN_NEUTRAL)
+    {
+        if (at_loginFlags & AT_LOGIN_CHANGE_RACE)
+            team = oldTeam;
+        else
+            team = oldTeam == BG_TEAM_ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    }
+
     if (race == RACE_PANDAREN_NEUTRAL)
     {
         if (oldTeam == team)
@@ -2167,6 +2173,11 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         else
             race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLI;
     }
+
+    // Not really necessary because changing race does not include faction change
+    // But faction change can include race change
+    if (oldTeam != team)
+        used_loginFlag = AT_LOGIN_CHANGE_FACTION;
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {

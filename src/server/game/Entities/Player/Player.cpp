@@ -8679,7 +8679,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     int32 newSeasonTotalCount = int32(oldSeasonTotalCount) + (count > 0 ? count : 0);
 
-    if ( !ignoreLimit )
+    if (!ignoreLimit)
     {
         // if we get more then weekCap just set to limit
         if (weekCap && int32(weekCap) < newWeekCount)
