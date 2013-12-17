@@ -44,6 +44,13 @@ enum BattlegroundBracketId                                  // bracketId for lev
 // must be max value in PvPDificulty slot+1
 #define MAX_BATTLEGROUND_BRACKETS  17
 
+enum CurrencyFlags
+{
+    CURRENCY_FLAG_TRADEABLE         = 0x01,
+    CURRENCY_FLAG_HIGH_PRECISION    = 0x08,
+    CURRENCY_FLAG_HAS_SEASON_COUNT  = 0x80                  // guessed
+};
+
 enum AreaTeams
 {
     AREATEAM_NONE  = 0,

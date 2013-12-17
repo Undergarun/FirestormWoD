@@ -592,6 +592,13 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
         return;
     }
 
+    // Don't take money if it exceed the max amount
+    if (player->GetMoney() + money > MAX_MONEY_AMOUNT)
+    {
+        player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_EQUIP_ERROR);
+        return;
+    }
+
     player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_OK);
 
     player->ModifyMoney(money);

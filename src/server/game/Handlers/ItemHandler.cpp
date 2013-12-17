@@ -1806,11 +1806,13 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = {2, 3, 7, 4, 0, 5, 6, 1};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    uint8 bitsOrder[8] = { 7, 6, 0, 4, 5, 3, 2, 1 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
 
-    uint8 byteOrder[8] = {0, 2, 6, 1, 7, 3, 4, 5};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 2, 0, 3, 1, 6, 7, 4, 5 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
@@ -1825,15 +1827,18 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
 void WorldSession::HandleItemRefund(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND");
-    ObjectGuid guid;
 
-    uint8 bitOrder[8] = {6, 4, 1, 5, 2, 3, 7, 0};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    ObjectGuid itemGuid;
 
-    uint8 byteOrder[8] = {1, 3, 7, 5, 6, 0, 2, 4};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    uint8 bitsOrder[8] = { 4, 7, 6, 5, 0, 3, 2, 1 };
+    recvData.ReadBitInOrder(itemGuid, bitsOrder);
 
-    Item* item = _player->GetItemByGuid(guid);
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 2, 1, 4, 3, 5, 6, 0, 7 };
+    recvData.ReadBytesSeq(itemGuid, bytesOrder);
+
+    Item* item = _player->GetItemByGuid(itemGuid);
     if (!item)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Item refund: item not found!");

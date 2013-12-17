@@ -186,7 +186,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
     SendNameQueryOpcode(guid);
 }
 
-void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleQueryTimeOpcode(WorldPacket& /*recvData*/)
 {
     SendQueryTimeResponse();
 }
@@ -200,7 +200,7 @@ void WorldSession::SendQueryTimeResponse()
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 {
     uint32 entry;
     recvData >> entry;
@@ -299,7 +299,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recvData)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 {
     uint32 entry;
     recvData >> entry;
@@ -483,7 +483,7 @@ void WorldSession::HandleCemeteryListOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->SendCemeteryList(false);
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 {
     uint32 textID;
     ObjectGuid guid;
@@ -643,24 +643,27 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
 
+    ObjectGuid objectGuid;
     uint32 pageID;
     recvData >> pageID;
-    recvData.read_skip<uint64>();                          // guid
+
+    uint8 bitsOrder[8] = { 0, 7, 5, 2, 1, 3, 4, 6 };
+    recvData.ReadBitInOrder(objectGuid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 7, 4, 6, 5, 2, 3, 0, 1 };
+    recvData.ReadBytesSeq(objectGuid, bytesOrder);
 
     while (pageID)
     {
         PageText const* pageText = sObjectMgr->GetPageText(pageID);
-                                                            // guess size
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
-        data << pageID;
 
-        if (!pageText)
-        {
-            data << "Item page missing.";
-            data << uint32(0);
-            pageID = 0;
-        }
-        else
+        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
+
+        data.WriteBit(pageText != NULL);
+
+        if (pageText)
         {
             std::string Text = pageText->Text;
 
@@ -669,10 +672,20 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
                 if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
                     ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
 
-            data << Text;
+            data.WriteBits(Text.size(), 12);
+
+            data.FlushBits();
+            if (Text.size())
+                data.append(Text.c_str(), Text.size());
+
+            data << uint32(pageID);
             data << uint32(pageText->NextPage);
-            pageID = pageText->NextPage;
         }
+
+        data << uint32(pageID);
+
+        pageID = pageText->NextPage;
+
         SendPacket(&data);
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");

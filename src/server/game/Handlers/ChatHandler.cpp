@@ -790,7 +790,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     if (!em)
         return;
 
-    uint32 emote_anim = em->Id;
+    uint32 emote_anim = em->textid;
 
     switch (emote_anim)
     {
@@ -814,7 +814,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     Cell cell(p);
     cell.SetNoCreate();
 
-    JadeCore::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
+    JadeCore::EmoteChatBuilder emote_builder(*GetPlayer(), emote_anim, text_emote, unit);
     JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder > emote_do(emote_builder);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
     TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);

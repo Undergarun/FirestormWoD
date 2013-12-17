@@ -1896,16 +1896,16 @@ void Guild::HandleLeaveMember(WorldSession* session)
     }
     else
     {
+        SendMemberLeave(session, ObjectGuid(player->GetGUID()), false);
         DeleteMember(player->GetGUID(), false, false);
-
         _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUIDLow());
-        _BroadcastEvent(GE_LEFT, player->GetGUID(), player->GetName());
-
         SendCommandResult(session, GUILD_QUIT_S, ERR_PLAYER_NO_MORE_IN_GUILD, m_name);
     }
 
     if (disband)
         delete this;
+    else
+        HandleRoster(session);
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
@@ -1930,12 +1930,14 @@ void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
         {
             // After call to DeleteMember pointer to member becomes invalid
             _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUIDLow(), GUID_LOPART(guid));
-            _BroadcastEvent(GE_REMOVED, 0, member->GetName().c_str(), player->GetName());
+            SendMemberLeave(session, ObjectGuid(member->GetGUID()), true);
             DeleteMember(guid, false, true);
         }
     }
     else if (removedPlayer)
         SendCommandResult(session, GUILD_QUIT_S, ERR_PLAYER_NO_MORE_IN_GUILD, removedPlayer->GetName());
+
+    HandleRoster(session);
 }
 
 void Guild::HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64 setterGuid, uint32 rank)
@@ -2045,7 +2047,7 @@ void Guild::HandleRemoveRank(WorldSession* session, uint32 rankId)
     }
 }
 
-void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount, bool cashFlow /*=false*/)
+void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow /*=false*/)
 {
     Player* player = session->GetPlayer();
 
@@ -2452,6 +2454,81 @@ void Guild::SendGuildRecipes(WorldSession* session) const
     }*/
 
     session->SendPacket(&data);
+}
+
+void Guild::SendMemberLeave(WorldSession* session, ObjectGuid playerGuid, bool kicked)
+{
+    WorldPacket data(SMSG_GUILD_SEND_MEMBER_LEAVE, 20);
+
+    ObjectGuid kickerGuid = session->GetPlayer()->GetGUID();
+
+    Player* kickerPlayer = session->GetPlayer();
+    if (!kickerPlayer)
+        return;
+
+    Member* member = GetMember(playerGuid);
+    if (!member)
+        return;
+
+    if (member)
+    {
+        data.WriteBit(playerGuid[0]);
+        data.WriteBit(playerGuid[6]);
+        data.WriteBit(playerGuid[5]);
+        data.WriteBits(member->GetName().size(), 6);
+        data.WriteBit(playerGuid[2]);
+        data.WriteBit(playerGuid[4]);
+        data.WriteBit(kicked);
+
+        if (kicked)
+        {
+            data.WriteBit(1);                   // !Unk
+            data.WriteBit(kickerGuid[5]);
+            data.WriteBit(kickerGuid[7]);
+            data.WriteBit(kickerGuid[2]);
+            data.WriteBit(kickerGuid[4]);
+            data.WriteBit(kickerGuid[3]);
+            data.WriteBit(kickerGuid[1]);
+            data.WriteBit(kickerGuid[6]);
+            data.WriteBit(kickerGuid[0]);
+            data.WriteBit(0);                   // Unk
+            data.WriteBit(1);                   // !hasRealmId ?
+            data.WriteBits(strlen(kickerPlayer->GetName()), 6);
+        }
+
+        data.WriteBit(playerGuid[1]);
+        data.WriteBit(playerGuid[3]);
+        data.WriteBit(playerGuid[7]);
+
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[2]);
+        data.WriteByteSeq(playerGuid[1]);
+
+        if (kicked)
+        {
+            data.WriteByteSeq(kickerGuid[3]);
+            data.WriteByteSeq(kickerGuid[0]);
+            data.WriteByteSeq(kickerGuid[7]);
+            data.WriteByteSeq(kickerGuid[1]);
+            data.WriteByteSeq(kickerGuid[5]);
+            data.WriteByteSeq(kickerGuid[6]);
+            data.WriteByteSeq(kickerGuid[2]);
+            data.WriteByteSeq(kickerGuid[4]);
+            if (strlen(kickerPlayer->GetName()))
+                data.append(kickerPlayer->GetName(), strlen(kickerPlayer->GetName()));
+        }
+
+        data.WriteByteSeq(playerGuid[3]);
+        data << uint32(0);              // Unk
+        data.WriteByteSeq(playerGuid[4]);
+        if (member->GetName().size())
+            data.append(member->GetName().c_str(), member->GetName().size());
+        data.WriteByteSeq(playerGuid[0]);
+
+        BroadcastPacket(&data);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -3575,10 +3652,10 @@ void Guild::SendGuildXP(WorldSession* session) const
     Member const* member = GetMember(session->GetGuidLow());
 
     WorldPacket data(SMSG_GUILD_XP, 40);
-    data << uint64(0); // fucking unknow
     data << uint64(GetExperience());
-    data << uint64(GetTodayExperience());
     data << uint64(sGuildMgr->GetXPForGuildLevel(GetLevel()) - GetExperience());    // XP missing for next level
+    data << uint64(0); // fucking unknow
+    data << uint64(GetTodayExperience());
     session->SendPacket(&data);
 }
 

@@ -1296,10 +1296,12 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     uint32 time;
     recvData >> time;
 
-    uint8 bitOrder[8] = {7, 1, 2, 6, 3, 4, 5, 0};
+    uint8 bitOrder[8] = { 3, 0, 5, 1, 7, 6, 4, 2 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {1, 4, 2, 7, 0, 5, 6, 3};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 1, 6, 0, 5, 3, 4, 2, 7 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     //TODO!

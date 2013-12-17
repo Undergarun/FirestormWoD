@@ -386,6 +386,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
+    // Hack Fix, clean emotes when moving
+    if (plrMover && plrMover->GetLastPlayedEmote())
+        plrMover->HandleEmoteCommand(0);
+
     if (plrMover)
         sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
     /*----------------------*/
@@ -506,13 +510,13 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 
     recvPacket.ReadBit(); //unk
 
-    uint8 bitOrder[8] = {2, 1, 6, 5, 4, 7, 0, 3};
-    recvPacket.ReadBitInOrder(guid, bitOrder);
+    uint8 bitsOrder[8] = { 4, 7, 6, 0, 5, 3, 1, 2 };
+    recvPacket.ReadBitInOrder(guid, bitsOrder);
 
     recvPacket.FlushBits();
 
-    uint8 byteOrder[8] = {4, 2, 7, 3, 0, 5, 6, 1};
-    recvPacket.ReadBytesSeq(guid, byteOrder);
+    uint8 bytesOrder[8] = { 7, 0, 3, 6, 5, 2, 4, 1 };
+    recvPacket.ReadBytesSeq(guid, bytesOrder);
 
     if (GetPlayer()->IsInWorld())
     {

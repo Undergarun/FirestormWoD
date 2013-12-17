@@ -2510,3 +2510,9 @@ void LFGMgr::RemoveGroupData(uint64 guid)
     if (it != m_Groups.end())
         m_Groups.erase(it);
 }
+
+LfgUpdateData LFGMgr::GetLfgStatus(uint64 guid)
+{
+    LfgPlayerData& playerData = m_Players[guid];
+    return LfgUpdateData(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+}

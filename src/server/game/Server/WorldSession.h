@@ -891,6 +891,7 @@ class WorldSession
         void HandleLfgTeleportOpcode(WorldPacket& recvData);
         void HandleLfrSearchOpcode(WorldPacket& recvData);
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
+        void HandleLfgGetStatus(WorldPacket& recvData);
 
         void SendLfgUpdatePlayer(const LfgUpdateData& updateData);
         void SendLfgUpdateParty(const LfgUpdateData& updateData, uint32 joinTime = 0);

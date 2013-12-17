@@ -1422,11 +1422,31 @@ void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
+    uint32 nameLen = 0;
     std::string newName;
 
-    recvData >> guid;
-    recvData >> newName;
+    guid[3] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    nameLen = recvData.ReadBits(6);
+    guid[4] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[2]);
+    newName = recvData.ReadString(nameLen);
+    recvData.ReadByteSeq(guid[6]);
 
     // prevent character rename to invalid name
     if (!normalizePlayerName(newName))
@@ -2024,12 +2044,57 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 {
     // TODO: Move queries to prepared statements
-    uint64 guid;
+    ObjectGuid guid;
     std::string newname;
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
-    recvData >> guid;
-    recvData >> newname;
-    recvData >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face >> race;
+    bool unk, hasSkin, hasFace, hasHairStyle, hasHairColor, hasFacialHair;
+    uint8 gender, race;
+    uint8 skin = 0;
+    uint8 face = 0;
+    uint8 hairStyle = 0;
+    uint8 hairColor = 0;
+    uint8 facialHair = 0;
+    uint32 nameLen = 0;
+
+    recvData >> gender;
+    recvData >> race;
+    unk = recvData.ReadBit();
+    hasFace = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    nameLen = recvData.ReadBits(6);
+    hasHairStyle = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    hasHairColor = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    hasFacialHair = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    hasSkin = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[7]);
+    newname = recvData.ReadString(nameLen);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[1]);
+
+    if (hasHairStyle)
+        recvData >> hairStyle;
+    if (hasHairColor)
+        recvData >> hairColor;
+    if (hasFace)
+        recvData >> face;
+    if (hasSkin)
+        recvData >> skin;
+    if (hasFacialHair)
+        recvData >> facialHair;
 
     uint32 lowGuid = GUID_LOPART(guid);
 
@@ -2041,8 +2106,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     if (!result)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(CHAR_CREATE_ERROR);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -2052,12 +2118,10 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     uint32 playerClass      = uint32(fields[1].GetUInt8());
     uint32 level            = uint32(fields[2].GetUInt8());
     uint32 at_loginFlags    = fields[3].GetUInt16();
-    uint32 used_loginFlag   = ((recvData.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
     char const* knownTitlesStr = fields[4].GetCString();
 
-    BattlegroundTeamId oldTeam = BG_TEAM_ALLIANCE;
-
     // Search each faction is targeted
+    BattlegroundTeamId oldTeam = BG_TEAM_ALLIANCE;
     switch (oldRace)
     {
         case RACE_ORC:
@@ -2073,28 +2137,62 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             break;
     }
 
+    // Search each faction is targeted
+    BattlegroundTeamId team = BG_TEAM_ALLIANCE;
+    switch (race)
+    {
+        case RACE_ORC:
+        case RACE_GOBLIN:
+        case RACE_TAUREN:
+        case RACE_UNDEAD_PLAYER:
+        case RACE_TROLL:
+        case RACE_BLOODELF:
+        case RACE_PANDAREN_HORDE:
+            team = BG_TEAM_HORDE;
+            break;
+        default:
+            break;
+    }
+
+    uint32 used_loginFlag = at_loginFlags;
+
     // We need to correct race when it's pandaren
     // Because client always send neutral ID
     if (race == RACE_PANDAREN_NEUTRAL)
     {
-        if ((recvData.GetOpcode() == CMSG_CHAR_RACE_CHANGE))
+        if (at_loginFlags & AT_LOGIN_CHANGE_RACE)
+            team = oldTeam;
+        else
+            team = oldTeam == BG_TEAM_ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    }
+
+    if (race == RACE_PANDAREN_NEUTRAL)
+    {
+        if (oldTeam == team)
             race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_ALLI : RACE_PANDAREN_HORDE;
         else
             race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLI;
     }
 
+    // Not really necessary because changing race does not include faction change
+    // But faction change can include race change
+    if (oldTeam != team)
+        used_loginFlag = AT_LOGIN_CHANGE_FACTION;
+
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(CHAR_CREATE_ERROR);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
 
     if (!(at_loginFlags & used_loginFlag))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(CHAR_CREATE_ERROR);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -2104,8 +2202,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
         if ((1 << (race - 1)) & raceMaskDisabled)
         {
-            WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+            WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
             data << uint8(CHAR_CREATE_ERROR);
+            data << uint64(guid);
             SendPacket(&data);
             return;
         }
@@ -2114,8 +2213,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     // prevent character rename to invalid name
     if (!normalizePlayerName(newname))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(CHAR_NAME_NO_NAME);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -2123,8 +2223,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(newname, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(res);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -2132,8 +2233,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     // check name limitations
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newname))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(CHAR_NAME_RESERVED);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -2143,8 +2245,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         if (newguid != guid)
         {
-            WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+            WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
             data << uint8(CHAR_CREATE_NAME_IN_USE);
+            data << uint64(guid);
             SendPacket(&data);
             return;
         }
@@ -2173,24 +2276,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     trans->Append(stmt);
 
     sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
-
-    BattlegroundTeamId team = BG_TEAM_ALLIANCE;
-
-    // Search each faction is targeted
-    switch (race)
-    {
-        case RACE_ORC:
-        case RACE_GOBLIN:
-        case RACE_TAUREN:
-        case RACE_UNDEAD_PLAYER:
-        case RACE_TROLL:
-        case RACE_BLOODELF:
-        case RACE_PANDAREN_HORDE:
-            team = BG_TEAM_HORDE;
-            break;
-        default:
-            break;
-    }
 
     // Switch Languages
     // delete all languages first
@@ -2263,7 +2348,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         trans->Append(stmt);
     }
 
-    if (recvData.GetOpcode() == CMSG_CHAR_FACTION_CHANGE)
+    if (oldTeam != team)
     {
         // Delete all Flypaths
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXI_PATH);
@@ -2378,7 +2463,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
             stmt->setUInt32(0, lowGuid);
             trans->Append(stmt);
-
         }
 
         // Reset homebind and position
@@ -2406,6 +2490,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             stmt->setFloat (5, 15.7588f);
             Player::SavePositionInDB(1, 1633.33f, -4439.11f, 15.7588f, 0.0f, 1637, lowGuid);
         }
+
         trans->Append(stmt);
 
         // Achievement conversion
@@ -2474,6 +2559,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             stmt->setUInt32(2, lowGuid);
             trans->Append(stmt);
         }
+
         // Title conversion
         if (knownTitlesStr)
         {
@@ -2537,7 +2623,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 trans->Append(stmt);
             }
         }
-
     }
 
     CharacterDatabase.CommitTransaction(trans);
@@ -2545,16 +2630,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     std::string IP_str = GetRemoteAddress();
     sLog->outDebug(LOG_FILTER_UNITS, "Account: %d (IP: %s), Character guid: %u Change Race/Faction to: %s", GetAccountId(), IP_str.c_str(), lowGuid, newname.c_str());
 
-    WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
+    WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
     data << uint8(RESPONSE_SUCCESS);
     data << uint64(guid);
     data << newname;
     data << uint8(gender);
     data << uint8(skin);
-    data << uint8(face);
-    data << uint8(hairStyle);
     data << uint8(hairColor);
+    data << uint8(hairStyle);
     data << uint8(facialHair);
+    data << uint8(face);
     data << uint8(race);
     SendPacket(&data);
 }

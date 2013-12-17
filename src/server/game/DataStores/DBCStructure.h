@@ -915,6 +915,10 @@ struct CurrencyTypesEntry
     uint32 Flags;                                           // 9
     //char* description;                                    // 10
     //char* subDescription;                                 // 11
+
+    bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
+    bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
+    float GetPrecision() const  { return HasPrecision() ? 100.0f : 1.0f; }
 };
 
 // @author Selenium: 5.4 valid

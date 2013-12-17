@@ -319,6 +319,7 @@ class LFGMgr
         bool IsTeleported(uint64 pguid);
         void SetRoles(uint64 guid, uint8 roles);
         void SetSelectedDungeons(uint64 guid, const LfgDungeonSet& dungeons);
+        LfgUpdateData GetLfgStatus(uint64 guid);
 
         void SendUpdateStatus(Player*, const std::string&, const LfgDungeonSet& selectedDungeons, bool join, bool quit);
 

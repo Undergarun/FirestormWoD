@@ -838,7 +838,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     ByteBuffer dataBuffer;
 
     ObjectGuid creatureGuid = lv._guid;
-    ObjectGuid lootViewGuid = NULL;
+    ObjectGuid lootViewGuid = MAKE_NEW_GUID(GUID_LOPART(creatureGuid), 0, HIGHGUID_LOOT);
 
     bool unkBit69 = false;
     bool unkBit48 = true;
