@@ -8799,11 +8799,9 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             cap = std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, false));
             break;
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
-            // should add precision mod = 100
             cap = JadeCore::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
             break;
         case CURRENCY_TYPE_CONQUEST_META_RBG:
-            // should add precision mod = 100
             cap = JadeCore::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
             break;
         case CURRENCY_TYPE_JUSTICE_POINTS:
