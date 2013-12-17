@@ -10537,12 +10537,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
 
 void Player::SendNotifyLootMoneyRemoved(uint64 gold)
 {
-    WorldPacket data(SMSG_LOOT_CLEAR_MONEY);
-    data << uint64(gold);
-    GetSession()->SendPacket(&data);
-
-    data.Initialize(SMSG_COIN_REMOVED);
-    ObjectGuid guid = GetLootGUID();
+    WorldPacket data(SMSG_COIN_REMOVED);
+    ObjectGuid guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
     uint8 bitOrder[8] = { 1, 3, 4, 0, 5, 6, 2, 7 };
     data.WriteBitInOrder(guid, bitOrder);
@@ -10558,41 +10554,41 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot)
     WorldPacket data(SMSG_LOOT_REMOVED);
 
     ObjectGuid guid = GetLootGUID();
-    ObjectGuid unkGuid = NULL;
+    ObjectGuid lootGuid = MAKE_NEW_GUID(GUID_LOPART(guid), 0, HIGHGUID_LOOT);
 
     data.WriteBit(guid[7]);
     data.WriteBit(guid[0]);
     data.WriteBit(guid[5]);
-    data.WriteBit(unkGuid[5]);
+    data.WriteBit(lootGuid[5]);
     data.WriteBit(guid[6]);
-    data.WriteBit(unkGuid[2]);
-    data.WriteBit(unkGuid[3]);
+    data.WriteBit(lootGuid[2]);
+    data.WriteBit(lootGuid[3]);
     data.WriteBit(guid[2]);
-    data.WriteBit(unkGuid[1]);
-    data.WriteBit(unkGuid[7]);
+    data.WriteBit(lootGuid[1]);
+    data.WriteBit(lootGuid[7]);
     data.WriteBit(guid[1]);
-    data.WriteBit(unkGuid[4]);
-    data.WriteBit(unkGuid[6]);
+    data.WriteBit(lootGuid[4]);
+    data.WriteBit(lootGuid[6]);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[3]);
-    data.WriteBit(unkGuid[0]);
+    data.WriteBit(lootGuid[0]);
 
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(unkGuid[6]);
+    data.WriteByteSeq(lootGuid[6]);
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(unkGuid[3]);
-    data.WriteByteSeq(unkGuid[0]);
+    data.WriteByteSeq(lootGuid[3]);
+    data.WriteByteSeq(lootGuid[0]);
     data << uint8(lootSlot);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(unkGuid[5]);
+    data.WriteByteSeq(lootGuid[5]);
     data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(unkGuid[2]);
-    data.WriteByteSeq(unkGuid[7]);
-    data.WriteByteSeq(unkGuid[1]);
-    data.WriteByteSeq(unkGuid[4]);
+    data.WriteByteSeq(lootGuid[2]);
+    data.WriteByteSeq(lootGuid[7]);
+    data.WriteByteSeq(lootGuid[1]);
+    data.WriteByteSeq(lootGuid[4]);
     data.WriteByteSeq(guid[0]);
 
     GetSession()->SendPacket(&data);

@@ -1098,7 +1098,6 @@ enum Opcodes
     SMSG_LOG_XP_GAIN                                  = 0x4A2,  // 5.4.0 17399
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x823,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_LOOT_ALL_PASSED                              = 0x0AB,  // 5.4.0 17399 (JamList)
-    SMSG_LOOT_CLEAR_MONEY                             = 0x000,  // 5.0.5 16048
     SMSG_LOOT_CONTENTS                                = 0x115,  // 5.4.0 17399 (JamList)
     SMSG_LOOT_ITEM_LIST                               = 0x412,  // 5.4.0 17399 (JamList) (NYI) or SMSG_LOOT_LIST ?
     SMSG_LOOT_LIST                                    = 0x0BB,  // 5.4.0 17399
