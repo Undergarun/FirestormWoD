@@ -560,12 +560,10 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
                 player->UpdateForQuestWorldObjects();
             }
 
-            WorldPacket data;
-
             if (method == GROUP_REMOVEMETHOD_KICK)
             {
-                data.Initialize(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendPacket(&data);
+                WorldPacket kick(SMSG_GROUP_UNINVITE, 0);
+                player->GetSession()->SendPacket(&kick);
             }
 
             ObjectGuid groupGuid = GetGUID();
@@ -580,7 +578,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
 
             uint32 memberNameLength = 0;
 
-            data.Initialize(SMSG_PARTY_UPDATE);
+            WorldPacket data(SMSG_PARTY_UPDATE);
 
             data.WriteBit(leaderGuid[1]);
             data.WriteBit(groupGuid[7]);
