@@ -3572,6 +3572,21 @@ void ObjectMgr::LoadQuests()
 
     mExclusiveQuestGroups.clear();
 
+
+    /* Need to add new fields
+            RequiredFactionKills        after RequiredFactionValue2
+            RequiredFactionKillsCount   after RequiredFactionKills
+            RequiredPetBattleWith       after RequiredFactionKillsCount
+            RewardXPId                  after RewardXPId
+            move EndText                after RequestItemsText
+            Add RequiredNpcOrGo 5 to 10 after RequiredNpcOrGo4
+            RequiredNpcOrGoCount 5 to 10 after RequiredNpcOrGoCount4
+            RequiredItemId 7 to 10      after RequiredItemId6
+            RequiredItemCount 7 to 10   after RequiredItemCount6
+            RequiredSpellCast 5 to 6    after RequiredSpellCast4
+            ObjectiveText 5 to 10       after ObjectiveText4
+            remove QuestGiverTargetName
+    */
     QueryResult result = WorldDatabase.Query("SELECT "
         //0     1      2        3        4           5       6            7             8           9              10              11             12                 13
         "Id, Method, Level, MinLevel, MaxLevel, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredTeam, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "

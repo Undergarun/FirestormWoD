@@ -33,7 +33,7 @@ class ObjectMgr;
 
 #define MAX_QUEST_LOG_SIZE 25
 
-#define QUEST_OBJECTIVES_COUNT 4
+#define QUEST_OBJECTIVES_COUNT 4            /* update me to 10 */
 #define QUEST_ITEM_OBJECTIVES_COUNT 6
 #define QUEST_SOURCE_ITEM_IDS_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
