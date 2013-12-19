@@ -25562,6 +25562,9 @@ void Player::SendAurasForTarget(Unit* target)
         //packet.WriteGuid("PowerUnitGUID", guid2);
     }
 
+    uint8 orderGuid[8] = { 0, 4, 3, 7, 5, 6, 2, 1 };
+    data.WriteBytesSeq(targetGuid, orderGuid);
+
     GetSession()->SendPacket(&data);
 }
 

@@ -1401,7 +1401,6 @@ void Guild::HandleQuery(WorldSession* session)
     data.WriteBit(guildGuid[7]);
     data.WriteBit(guildGuid[4]);
     data.WriteBit(guildGuid[6]);
-
     data.WriteBit(guildGuid[7]);
 
     data << uint32(m_emblemInfo.GetStyle());
@@ -1417,7 +1416,7 @@ void Guild::HandleQuery(WorldSession* session)
     }
 
     data.WriteByteSeq(guildGuid[1]);
-    data << uint32(0); // unk flag ?
+    data << uint32(realmID);
     data << uint32(m_emblemInfo.GetColor());
     data << uint32(m_emblemInfo.GetBackgroundColor());
     data << uint32(m_emblemInfo.GetBorderStyle());
@@ -1557,6 +1556,8 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS);
 
         HandleQuery(session);
+
+        m_achievementMgr.UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD, 1, 0, NULL, player);
     }
 }
 

@@ -383,7 +383,7 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_SAVE_GUILD_EMBLEM");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SAVE_GUILD_EMBLEM");
 
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(recvPacket);
