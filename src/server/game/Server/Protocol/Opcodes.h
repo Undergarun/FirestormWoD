@@ -883,7 +883,7 @@ enum Opcodes
     SMSG_EQUIPMENT_SET_LIST                           = 0x938,  // 5.4.0 17399
     SMSG_EQUIPMENT_SET_SAVED                          = 0x5AD,  // 5.4.0 17399
     SMSG_EXPECTED_SPAM_RECORDS                        = 0x10A,  // 5.4.0 17399 (JamList)
-    SMSG_EXPLORATION_EXPERIENCE                       = 0x88A,  // 5.4.0 17399 (JamList)
+    SMSG_EXPLORATION_EXPERIENCE                       = 0x583,  // 5.4.0 17399
     SMSG_FACTION_BONUS_INFO                           = 0x407,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_FAILED_PLAYER_CONDITION                      = 0x524,  // 5.4.0 17399 (JamList)
     SMSG_FEATURE_SYSTEM_STATUS                        = 0x0B9,  // 5.4.0 17399
@@ -1061,7 +1061,7 @@ enum Opcodes
     SMSG_LEARN_TALENT_FAILED                          = 0x897,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_LEVELUP_INFO                                 = 0x402,  // 5.4.0 17399
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
-    SMSG_LFG_BOOT_PLAYER                              = 0x583,  // 5.4.0 17399 (JamList)
+    SMSG_LFG_BOOT_PLAYER                              = 0x583,  // 5.4.0 17399 (JamList) -- Not correct, it's exploration experience
     SMSG_LFG_DISABLED                                 = 0x105,  // 5.4.0 17399 (JamList)
     SMSG_LFG_JOIN_RESULT                              = 0x017,  // 5.4.0 17399 (JamList)
     SMSG_LFG_OFFER_CONTINUE                           = 0x8AB,  // 5.4.0 17399 (JamList)
