@@ -1408,7 +1408,7 @@ enum Opcodes
     SMSG_SPELL_ENERGIZE_LOG                           = 0x1492, // 5.4.0 17399
     SMSG_SPELL_HEAL_LOG                               = 0x1594, // 5.4.0 17399
     SMSG_SPELLINSTAKILLLOG                            = 0x000,  // 5.0.5 16048
-    SMSG_SPELLINTERRUPTLOG                            = 0x000,  // 5.0.5 16048
+    SMSG_SPELL_INTERRUPT_LOG                            = 0x1980, // 5.4.0 17399
     SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGMISS                                 = 0x000,  // 5.0.5 16048
     SMSG_SPELL_NON_MELEE_DAMAGE_LOG                   = 0x1085, // 5.4.0 17399

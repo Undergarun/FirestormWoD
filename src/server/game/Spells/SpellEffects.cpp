@@ -4378,7 +4378,51 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                 {
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
+
+                    WorldPacket interrupt(SMSG_SPELL_INTERRUPT_LOG);
+                    ObjectGuid targetGuid = unitTarget->GetGUID();
+                    ObjectGuid casterGuid = m_originalCasterGUID;
+
+                    interrupt.WriteBit(casterGuid[5]);
+                    interrupt.WriteBit(targetGuid[5]);
+                    interrupt.WriteBit(targetGuid[4]);
+                    interrupt.WriteBit(casterGuid[2]);
+                    interrupt.WriteBit(targetGuid[0]);
+                    interrupt.WriteBit(casterGuid[6]);
+                    interrupt.WriteBit(0);
+                    interrupt.WriteBit(targetGuid[6]);
+                    interrupt.WriteBit(casterGuid[4]);
+                    interrupt.WriteBit(casterGuid[1]);
+                    interrupt.WriteBit(targetGuid[2]);
+                    interrupt.WriteBit(casterGuid[0]);
+                    interrupt.WriteBit(targetGuid[3]);
+                    interrupt.WriteBit(casterGuid[3]);
+                    interrupt.WriteBit(targetGuid[1]);
+                    interrupt.WriteBit(casterGuid[7]);
+                    interrupt.WriteBit(targetGuid[7]);
+
+                    interrupt.WriteByteSeq(casterGuid[0]);
+                    interrupt.WriteByteSeq(casterGuid[4]);
+                    interrupt.WriteByteSeq(targetGuid[3]);
+                    interrupt.WriteByteSeq(casterGuid[3]);
+                    interrupt << uint32(m_spellInfo->Id);
+                    interrupt.WriteByteSeq(targetGuid[4]);
+                    interrupt.WriteByteSeq(casterGuid[1]);
+                    interrupt.WriteByteSeq(targetGuid[7]);
+                    interrupt.WriteByteSeq(targetGuid[0]);
+                    interrupt.WriteByteSeq(casterGuid[5]);
+                    interrupt << uint32(curSpellInfo->Id);
+                    interrupt.WriteByteSeq(targetGuid[1]);
+                    interrupt.WriteByteSeq(targetGuid[5]);
+                    interrupt.WriteByteSeq(casterGuid[7]);
+                    interrupt.WriteByteSeq(targetGuid[6]);
+                    interrupt.WriteByteSeq(casterGuid[6]);
+                    interrupt.WriteByteSeq(casterGuid[2]);
+                    interrupt.WriteByteSeq(targetGuid[2]);
+
+                    m_originalCaster->SendMessageToSet(&interrupt, true);
                 }
+
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
             }
