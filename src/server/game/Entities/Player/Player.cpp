@@ -13616,11 +13616,27 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
                     GetGlobalCooldownMgr().AddGlobalCooldown(spellProto, m_weaponChangeTimer);
 
-                    WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4);
-                    data << uint64(GetGUID());
-                    data << uint8(1);
+                    WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+                    ObjectGuid guid = GetGUID();
+
+                    data.WriteBits(1, 21);
+                    data.WriteBit(0);
+
+                    uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+                    data.WriteBitInOrder(guid, bitsOrder);
+
                     data << uint32(cooldownSpell);
                     data << uint32(0);
+                    data.WriteByteSeq(guid[4]);
+                    data << uint8(1);
+                    data.WriteByteSeq(guid[1]);
+                    data.WriteByteSeq(guid[5]);
+                    data.WriteByteSeq(guid[7]);
+                    data.WriteByteSeq(guid[6]);
+                    data.WriteByteSeq(guid[0]);
+                    data.WriteByteSeq(guid[2]);
+                    data.WriteByteSeq(guid[3]);
+
                     GetSession()->SendPacket(&data);
                 }
             }
@@ -23554,15 +23570,18 @@ void Player::ContinueTaxiFlight()
 
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
-                                                            // last check 2.0.10
-    WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
-    data << uint64(GetGUID());
-    data << uint8(0x0);                                     // flags (0x1, 0x2)
+    WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+    ByteBuffer dataBuffer;
+    ObjectGuid playerGuid = GetGUID();
+
+    uint32 counter = 0;
     time_t curTime = time(NULL);
+
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
         if (itr->second->state == PLAYERSPELL_REMOVED)
             continue;
+
         uint32 unSpellId = itr->first;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
         if (!spellInfo)
@@ -23580,11 +23599,33 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetSpellCooldownDelay(unSpellId) < unTimeMs/IN_MILLISECONDS)
         {
-            data << uint32(unSpellId);
-            data << uint32(unTimeMs);                       // in m.secs
+            ++counter;
+            dataBuffer << uint32(unSpellId);
+            dataBuffer << uint32(unTimeMs);                       // in m.secs
             AddSpellCooldown(unSpellId, 0, curTime + unTimeMs/IN_MILLISECONDS);
         }
     }
+
+    data.WriteBits(counter, 21);
+    data.WriteBit(0);
+
+    uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+    data.WriteBitInOrder(playerGuid, bitsOrder);
+
+    data.FlushBits();
+    if (dataBuffer.size())
+        data.append(dataBuffer);
+
+    data.WriteByteSeq(playerGuid[4]);
+    data << uint8(6);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[3]);
+
     GetSession()->SendPacket(&data);
 }
 
@@ -25117,13 +25158,30 @@ void Player::SendInitialPacketsBeforeAddToMap()
 void Player::SendCooldownAtLogin()
 {
     time_t curTime = time(NULL);
+
     for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
     {
-        WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4+4);
-        data << uint64(GetGUID());
-        data << uint8(1);
+        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+        ObjectGuid playerGuid = GetGUID();
+
+        data.WriteBits(1, 21);
+        data.WriteBit(0);
+
+        uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+        data.WriteBitInOrder(playerGuid, bitsOrder);
+
         data << uint32(itr->first);
         data << uint32(0);
+        data.WriteByteSeq(playerGuid[4]);
+        data << uint8(1);
+        data.WriteByteSeq(playerGuid[1]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[2]);
+        data.WriteByteSeq(playerGuid[3]);
+
         GetSession()->SendPacket(&data);
     }
 }

@@ -1405,10 +1405,14 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
     if (result)
     {
         time_t curTime = time(NULL);
+        WorldPacket data(SMSG_SPELL_COOLDOWN, result->GetRowCount() * 8 + 4);
+        ObjectGuid petGuid = GetGUID();
 
-        WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
-        data << GetGUID();
-        data << uint8(0x0);                                 // flags (0x1, 0x2)
+        data.WriteBits(result->GetRowCount(), 21);
+        data.WriteBit(1);
+
+        uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+        data.WriteBitInOrder(petGuid, bitsOrder);
 
         do
         {
@@ -1436,8 +1440,10 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
         }
         while (result->NextRow());
 
-        if (!m_CreatureSpellCooldowns.empty() && GetOwner())
-            ((Player*)GetOwner())->GetSession()->SendPacket(&data);
+        uint8 bytesOrder[8] = { 4, 1, 5, 7, 6, 0, 2, 3 };
+        data.WriteBytesSeq(petGuid, bytesOrder);
+
+        ((Player*)GetOwner())->GetSession()->SendPacket(&data);
     }
 }
 
