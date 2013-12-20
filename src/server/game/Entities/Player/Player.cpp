@@ -23022,11 +23022,11 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     int i = 0;
     flag96 _mask = 0;
     uint32 modTypeCount = 0; // count of mods per one mod->op
+
+    ByteBuffer dataBuffer;
     WorldPacket data(opcode);
-    data << uint32(1);  // count of different mod->op's in packet
-    size_t writePos = data.wpos();
-    data << uint32(modTypeCount);
-    data << uint8(mod->op);
+    data.WriteBits(1, 22);  // count of different mod->op's in packet
+
     for (int eff = 0; eff < 96; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
@@ -23043,10 +23043,10 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                         val += (*itr)->value/100;
 
                 if (mod->value)
-                    val += apply ? float(mod->value)/100 : 1 / (float((mod->value))/100);
+                    val += apply ? float(mod->value)/100 : -(float((mod->value))/100);
 
-                data << uint8(eff);
-                data << float(val);
+                dataBuffer << float(val);
+                dataBuffer << uint8(eff);
                 ++modTypeCount;
                 continue;
             }
@@ -23055,15 +23055,37 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
                     val += (*itr)->value;
-            val += apply ? mod->value : -(mod->value);
 
-            data << uint8(eff);
-            data << float(val);
+            val += apply ? float(mod->value) : -float(mod->value);
+
+            dataBuffer << float(val);
+            dataBuffer << uint8(eff);
             ++modTypeCount;
         }
     }
-    data.put<uint32>(writePos, modTypeCount);
+
+    data.WriteBits(modTypeCount, 21);
+
+    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+    {
+        data << uint8(mod->op);
+
+        if (dataBuffer.size())
+            data.append(dataBuffer);
+    }
+    else
+    {
+        if (dataBuffer.size())
+        {
+            data.FlushBits();
+            data.append(dataBuffer);
+        }
+
+        data << uint8(mod->op);
+    }
+
     SendDirectMessage(&data);
+
     if (apply)
         m_spellMods[mod->op].push_back(mod);
     else

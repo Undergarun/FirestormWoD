@@ -1380,12 +1380,12 @@ enum Opcodes
     SMSG_SET_FACTION_STANDING                         = 0x4BE,  // 5.4.0 17399
     SMSG_SET_FACTION_VISIBLE                          = 0x525,  // 5.4.0 17399
     SMSG_SET_FACTION_NOT_VISIBLE                      = 0x406,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_SET_FLAT_SPELL_MODIFIER                      = 0x000,  // 5.0.5 16048
+    SMSG_SET_FLAT_SPELL_MODIFIER                      = 0x1530, // 5.4.0 17399
     SMSG_SET_FORCED_REACTIONS                         = 0x098,  // 5.4.0 17399
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                 = 0x8B4,  // 5.4.0 17399 (JamList) Challenge mode (NYI)
     SMSG_SET_MELEE_ANIM_KIT                           = 0x400,  // 5.4.0 17399 (JamList)
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0x03C,  // 5.4.0 17399 (JamList)
-    SMSG_SET_PCT_SPELL_MODIFIER                       = 0x000,  // 5.0.5 16048
+    SMSG_SET_PCT_SPELL_MODIFIER                       = 0x1C06, // 5.4.0 17399
     SMSG_SET_PET_SPECIALIZATION                       = 0x5BE,  // 5.4.0 17399
     SMSG_SET_PHASE_SHIFT                              = 0x000,  // 5.0.5 16048
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0x586,  // 5.4.0 17399 (JamList)
