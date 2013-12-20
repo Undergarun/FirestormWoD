@@ -425,7 +425,7 @@ enum Opcodes
     CMSG_RANDOM_ROLL                                  = 0x1A9B, // 5.4.0 17399
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x000,  // 5.0.5 16048
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0x1A0E, // 5.4.0 17399
-    CMSG_READ_ITEM                                    = 0x1F58, // 5.4.0 17399
+    CMSG_READ_ITEM                                    = 0x1A95, // 5.4.0 17399
     CMSG_REALM_NAME_QUERY                             = 0x13D7, // 5.4.0 17399
     CMSG_REALM_SPLIT                                  = 0x129F, // 5.4.0 17399
     CMSG_RECLAIM_CORPSE                               = 0x1AAB, // 5.4.0 17399
@@ -1313,8 +1313,8 @@ enum Opcodes
     SMSG_RANDOM_ROLL                                  = 0x821,  // 5.4.0 17399
     SMSG_RATED_BG_RATING                              = 0x000,  // 5.0.5 16048
     SMSG_RATED_BG_STATS                               = 0x000,  // 5.0.5 16048
-    SMSG_READ_ITEM_FAILED                             = 0x000,  // 5.0.5 16048
-    SMSG_READ_ITEM_OK                                 = 0x000,  // 5.0.5 16048
+    SMSG_READ_ITEM_FAILED                             = 0x1741, // 5.4.0 17399
+    SMSG_READ_ITEM_OK                                 = 0x1231, // 5.4.0 17399
     SMSG_REALM_QUERY_RESPONSE                         = 0x42B,  // 5.4.0 17399
     SMSG_REALM_SPLIT                                  = 0x099,  // 5.4.0 17399
     SMSG_REAL_GROUP_UPDATE                            = 0x000,  // 5.0.5 16048 Deprecated

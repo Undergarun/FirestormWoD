@@ -459,11 +459,10 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_READ_ITEM");
 
-    uint64 itemGuid;
+    uint8 bag, slot;
+    recvData >> bag >> slot;
 
-    recvData >> itemGuid;
-
-    Item* pItem = _player->GetItemByGuid(itemGuid);
+    Item* pItem = _player->GetItemByPos(bag, slot);
     if (pItem && pItem->GetTemplate()->PageText)
     {
         WorldPacket data;
@@ -480,6 +479,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
             sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Unable to read item");
             _player->SendEquipError(msg, pItem, NULL);
         }
+
         data << pItem->GetGUID();
         SendPacket(&data);
     }
