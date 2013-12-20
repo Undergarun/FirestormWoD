@@ -1044,7 +1044,7 @@ enum Opcodes
     SMSG_INVALID_PROMOTION_CODE                       = 0x934,  // 5.4.0 17399 (JamList)
     SMSG_INVENTORY_CHANGE_FAILURE                     = 0x813,  // 5.4.0 17399
     SMSG_ITEM_ADD_PASSIVE                             = 0x92D,  // 5.4.0 17399 (JamList)
-    SMSG_ITEM_COOLDOWN                                = 0x000,  // 5.0.5 16048
+    SMSG_ITEM_COOLDOWN                                = 0x1F91, // 5.4.0 17399
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x437,  // 5.4.0 17399
     SMSG_ITEM_REFUND_INFO_RESPONSE                    = 0x83C,  // 5.4.0 17399
     SMSG_ITEM_PUSH_RESULT                             = 0x008,  // 5.4.0 17399
