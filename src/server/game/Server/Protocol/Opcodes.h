@@ -1368,7 +1368,7 @@ enum Opcodes
     SMSG_SERVER_FIRST_ACHIEVEMENT                     = 0x5AA,  // 5.4.0 17399 (JamList)
     SMSG_SERVER_INFO_QUERY_RESPONSE                   = 0x01F,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SERVER_INFO_RESPONSE                         = 0x01A,  // 5.4.0 17399 (JamList)
-    SMSG_SERVER_MESSAGE                               = 0x000,  // 5.0.5 16048
+    SMSG_SERVER_MESSAGE                               = 0x13A9, // 5.4.0 17399
     SMSG_SERVER_PERF                                  = 0x58C,  // 5.4.0 17399 (JamList)
     SMSG_SET_ARENA_SEASON                             = 0x189,  // 5.4.0 17399 (JamList)
     SMSG_SETUP_RESEARCH_HISTORY                       = 0x000,  // 5.0.5 16048
