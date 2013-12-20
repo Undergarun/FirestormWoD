@@ -1481,7 +1481,7 @@ enum Opcodes
     SMSG_TIME_ZONE_INFORMATION                        = 0x883,  // 5.4.0 17399 - Read7Bits x2 + ReadWoWString x2 : Sniffed "Europe/Paris" x 2
     SMSG_TITLE_EARNED                                 = 0x91B,  // 5.4.0 17399
     SMSG_TITLE_LOST                                   = 0x839,  // 5.4.0 17399
-    SMSG_TOGGLE_XP_GAIN                               = 0x000,  // 5.0.5 16048
+    SMSG_TOGGLE_XP_GAIN                               = 0x1279, // 5.4.0 17399
     SMSG_TOTEM_CREATED                                = 0x904,  // 5.4.0 17399
     SMSG_TRADE_INFO                                   = 0x13E,  // 5.4.0 17399
     SMSG_TRADE_STATUS                                 = 0x10F,  // 5.4.0 17399
@@ -1490,7 +1490,7 @@ enum Opcodes
     SMSG_TRAINER_SERVICE                              = 0x031,  // 5.4.0 17399
     SMSG_TRANSFER_ABORTED                             = 0x8A9,  // 5.4.0 17399
     SMSG_TRANSFER_PENDING                             = 0x8B5,  // 5.4.0 17399
-    SMSG_TRIGGER_CINEMATIC                            = 0x000,  // 5.0.5 16048
+    SMSG_TRIGGER_CINEMATIC                            = 0x16AD, // 5.4.0 17399
     SMSG_TRIGGER_MOVIE                                = 0x414,  // 5.4.0 17399
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x194,  // 5.4.0 17399
     SMSG_TUTORIAL_FLAGS                               = 0x1F35, // 5.4.0 17399
