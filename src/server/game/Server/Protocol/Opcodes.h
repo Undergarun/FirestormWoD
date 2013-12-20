@@ -843,7 +843,7 @@ enum Opcodes
     SMSG_CURRENCY_LOOT_REMOVED                        = 0x000,  // 5.0.5 16048
     SMSG_CURRENCY_LOOT_RESTORED                       = 0x000,  // 5.0.5 16048 Deprecated 0x30A0 4.3.4
     SMSG_CUSTOM_LOAD_SCREEN                           = 0x50B,  // 5.4.0 17399 (JamList)
-    SMSG_DAMAGE_CALC_LOG                              = 0x000,  // 5.0.5 16048
+    SMSG_DAMAGE_CALC_LOG                              = 0x16B9, // 5.4.0 17399
     SMSG_DAMAGE_DONE_OBSOLETE                         = 0x000,  // 5.0.5 16048
     SMSG_DANCE_QUERY_RESPONSE                         = 0x000,  // 5.0.5 16048
     SMSG_DB_LOOKUP_RESULT                             = 0x90A,  // 5.4.0 17399 (JamList) (NYI)
@@ -1504,7 +1504,7 @@ enum Opcodes
     SMSG_UPDATE_CURRENCY_WEEK_LIMIT                   = 0x19D,  // 5.4.0 17399
     SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x18B,  // 5.4.0 17399 (JamList)
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x081,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0x000,  // 5.0.5 16048
+    SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0x16B5, // 5.4.0 17399
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x089,  // 5.4.0 17399
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_LAST_INSTANCE                         = 0x5B2,  // 5.4.0 17399
