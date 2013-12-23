@@ -1366,10 +1366,49 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WRAP_ITEM");
 
-    uint8 gift_bag, gift_slot, item_bag, item_slot;
+    bool hasGiftBag, hasGiftSlot, hasItemBag, hasItemSlot;
+    uint8 gift_bag = 0;
+    uint8 gift_slot = 0;
+    uint8 item_bag = 0;
+    uint8 item_slot = 0;
 
-    recvData >> gift_bag >> gift_slot;                     // paper
-    recvData >> item_bag >> item_slot;                     // item
+    uint8 itemCount = recvData.ReadBits(2);
+
+    for (uint8 i = 0; i < itemCount; ++i)
+    {
+        if (i == 0)
+        {
+            hasGiftBag = !recvData.ReadBit();
+            hasGiftSlot = !recvData.ReadBit();
+        }
+        else
+        {
+            hasItemBag = !recvData.ReadBit();
+            hasItemSlot = !recvData.ReadBit();
+        }
+    }
+
+    recvData.FlushBits();
+
+    for (uint8 i = 0; i < itemCount; ++i)
+    {
+        if (i == 0)
+        {
+            if (hasGiftSlot)
+                recvData >> gift_slot;
+
+            if (hasGiftBag)
+                recvData >> gift_bag;
+        }
+        else
+        {
+            if (hasItemSlot)
+                recvData >> item_slot;
+
+            if (hasItemBag)
+                recvData >> item_bag;
+        }
+    }
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WRAP: receive gift_bag = %u, gift_slot = %u, item_bag = %u, item_slot = %u", gift_bag, gift_slot, item_bag, item_slot);
 
@@ -1450,13 +1489,26 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     switch (item->GetEntry())
     {
-        case 5042:  item->SetEntry(5043); break;
-        case 5048:  item->SetEntry(5044); break;
-        case 17303: item->SetEntry(17302); break;
-        case 17304: item->SetEntry(17305); break;
-        case 17307: item->SetEntry(17308); break;
-        case 21830: item->SetEntry(21831); break;
+        case 5042:
+            item->SetEntry(5043);
+            break;
+        case 5048:
+            item->SetEntry(5044);
+            break;
+        case 17303:
+            item->SetEntry(17302);
+            break;
+        case 17304:
+            item->SetEntry(17305);
+            break;
+        case 17307:
+            item->SetEntry(17308);
+            break;
+        case 21830:
+            item->SetEntry(21831);
+            break;
     }
+
     item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
@@ -1467,6 +1519,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         item->RemoveFromUpdateQueueOf(_player);
         item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
     }
+
     CharacterDatabase.CommitTransaction(trans);
 
     uint32 count = 1;

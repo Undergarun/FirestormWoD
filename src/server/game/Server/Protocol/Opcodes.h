@@ -371,7 +371,7 @@ enum Opcodes
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x1526, // 5.4.0 17399
     CMSG_OFFER_PETITION                               = 0x170B, // 5.4.0 17399
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
-    CMSG_OPEN_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_OPEN_ITEM                                    = 0x1A01, // 5.4.0 17399
     CMSG_OPT_OUT_OF_LOOT                              = 0x000,  // 5.0.5 16048
     CMSG_PAGE_TEXT_QUERY                              = 0x1082, // 5.4.0 17399
     CMSG_PETITION_BUY                                 = 0x13AE, // 5.4.0 17399
@@ -566,7 +566,7 @@ enum Opcodes
     CMSG_WHOIS                                        = 0x000,  // 5.0.5 16048
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x1646, // 5.4.0 17399
     CMSG_WORLD_TELEPORT                               = 0x000,  // 5.0.5 16048
-    CMSG_WRAP_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_WRAP_ITEM                                    = 0x041,  // 5.4.0 17399
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_MOVE                                  = 0x717,  // 5.4.0 17399 CUSTOM OPCODE, client patch
     CMSG_CORPSE_QUERY                                 = 0x13DB, // 5.0.5 16048
