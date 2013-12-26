@@ -785,23 +785,22 @@ void Battleground::EndBattleground(uint32 winner)
     {
         loser_arena_team = GetBgRaid(GetOtherTeam(winner));
         winner_arena_team = GetBgRaid(winner);
+        uint8 slot = Arena::GetSlotByType(GetArenaType());
+
         if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
         {
-            loser_team_rating = loser_arena_team->GetRating(Arena::GetSlotByType(GetArenaType()));
-            loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner), Arena::GetSlotByType(GetArenaType()));
-            winner_team_rating = winner_arena_team->GetRating(Arena::GetSlotByType(GetArenaType()));
-            winner_matchmaker_rating = GetArenaMatchmakerRating(winner, Arena::GetSlotByType(GetArenaType()));
+            loser_team_rating = loser_arena_team->GetRating(slot);
+            loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner), slot);
+            winner_team_rating = winner_arena_team->GetRating(slot);
+            winner_matchmaker_rating = GetArenaMatchmakerRating(winner, slot);
 
-            winner_arena_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, Arena::GetSlotByType(GetArenaType()));
-            loser_arena_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, Arena::GetSlotByType(GetArenaType()));
-            //SetArenaMatchmakerRating(winner, winner_matchmaker_rating + winner_matchmaker_change);
-            //SetArenaMatchmakerRating(GetOtherTeam(winner), loser_matchmaker_rating + loser_matchmaker_change);
-            //SetArenaTeamRatingChangeForTeam(winner, winner_change);
-            //SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
+            winner_arena_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
+            loser_arena_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, slot);
+
             if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                 for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
                     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                        sLog->outArena("Statistics match Type: %u for %s (GUID: " UI64FMTD ", Team: %d, IP: %s): %u damage, %u healing, %u killing blows", m_ArenaType, player->GetName(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3), player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
+                        sLog->outArena("Statistics match Type: %u for %s (GUID: " UI64FMTD ", IP: %s): %u damage, %u healing, %u killing blows", m_ArenaType, player->GetName(), itr->first, player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
         }
         // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
         else
@@ -864,24 +863,13 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if (team == winner)
             {
+                uint8 slot = Arena::GetSlotByType(GetArenaType());
+
                 // update achievement BEFORE personal rating update
-                uint32 rating = player->GetArenaPersonalRating(Arena::GetSlotByType(GetArenaType()));
+                uint32 rating = player->GetArenaPersonalRating(slot);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
-
-                // update personal rating
-                int32 mod = Arena::GetRatingMod(rating, loser_matchmaker_rating, true);
-                player->SetArenaPersonalRating(mod, Arena::GetSlotByType(GetArenaType()));
-
-                // update matchmaker rating
-                player->SetArenaMatchMakerRating(winner_matchmaker_change, Arena::GetSlotByType(GetArenaType()));
-
-                // update personal stats
-                player->IncrementWeekGames(Arena::GetSlotByType(GetArenaType()));
-                player->IncrementSeasonGames(Arena::GetSlotByType(GetArenaType()));
-                player->IncrementSeasonWins(Arena::GetSlotByType(GetArenaType()));
-                player->IncrementWeekWins(Arena::GetSlotByType(GetArenaType()));
             }
             else
             {
@@ -908,12 +896,12 @@ void Battleground::EndBattleground(uint32 winner)
                 if (!player->GetRandomWinner())
                 {
                     // 100cp awarded for the first rated battleground won each day 
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RBG, BG_REWARD_WINNER_CONQUEST_FIRST);
+                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
                 }
             }
-            //else // 50cp awarded for each non-rated battleground won 
-             //   player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RBG, BG_REWARD_WINNER_CONQUEST_LAST );
+            else // 50cp awarded for each non-rated battleground won 
+                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, BG_REWARD_WINNER_CONQUEST_LAST );
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)

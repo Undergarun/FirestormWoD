@@ -801,7 +801,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     duel = NULL;
 
     m_GuildIdInvited = 0;
-    m_ArenaTeamIdInvited = 0;
 
     m_atLoginFlags = AT_LOGIN_NONE;
 
@@ -965,6 +964,19 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_groupUpdateDelay = 5000;
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
+
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    {
+        m_ArenaPersonalRating[i] = 0;
+        m_BestRatingOfWeek[i] = 0;
+        m_BestRatingOfSeason[i] = 0;
+        m_ArenaMatchMakerRating[i] = 0;
+        m_WeekWins[i] = 0;
+        m_PrevWeekWins[i] = 0;
+        m_SeasonWins[i] = 0;
+        m_WeekGames[i] = 0;
+        m_SeasonGames[i] = 0;
+    }
 
     m_initializeCallback = false;
 }
@@ -8613,14 +8625,17 @@ void Player::SendCurrencies() const
 
 void Player::SendPvpRewards() const
 {
-    WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
+    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true); // Count of gived conquest points from Random BG in week - dword34
+    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true); // Max Conquest points cap - dword20
+    packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / 100; // Conquest points from Arena win - dword30
+    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true); // Count of gived conquest points from Arena in week - dword28
+    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true); // Count of gived conquest points from Rated BG in week - dword2C
+    packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD)  / 100; // Conquest points from Rated BG win - dword18
+    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true); // Conquest points cap for Arena dword10
+    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true); // Conquest points cap for Rated BG - dword14
+    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true); // Conquest points cap for Random BG - dword24
+    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true); // Count of gived all conquest points in week - dword1C
     GetSession()->SendPacket(&packet);
 }
 
@@ -8847,13 +8862,16 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
     {
             //original conquest not have week cap
         case CURRENCY_TYPE_CONQUEST_POINTS:
-            cap = std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, false));
+            cap = std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, false));
             break;
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
-            cap = JadeCore::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
+        case CURRENCY_TYPE_CONQUEST_META_RBG: // Temp
+            // should add precision mod = 100
+            cap = JadeCore::Currency::ConquestRatingCalculator(GetMaxRating()) * CURRENCY_PRECISION;
             break;
-        case CURRENCY_TYPE_CONQUEST_META_RBG:
-            cap = JadeCore::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
+        case CURRENCY_TYPE_CONQUEST_META_RANDOM_BG:
+            // should add precision mod = 100
+            cap = JadeCore::Currency::BgConquestRatingCalculator(GetMaxRating()) * CURRENCY_PRECISION;
             break;
         case CURRENCY_TYPE_JUSTICE_POINTS:
             // No week cap for Justice Points
@@ -8864,13 +8882,13 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
             break;
     }
 
-   if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
-   {
-       WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-       packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
-       packet << uint32(currency->ID);
-       GetSession()->SendPacket(&packet);
-   }
+    /*if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
+    {
+        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
+        packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
+        packet << uint32(currency->ID);
+        GetSession()->SendPacket(&packet);
+    }*/
 
     return cap;
 }
@@ -8949,20 +8967,6 @@ uint8 Player::GetRankFromDB(uint64 guid)
         return result->Fetch()[1].GetUInt8();
 
     return 0;
-}
-
-uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID);
-    stmt->setUInt32(0, GUID_LOPART(guid));
-    stmt->setUInt8(1, type);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return 0;
-
-    uint32 id = (*result)[0].GetUInt32();
-    return id;
 }
 
 uint32 Player::GetZoneIdFromDB(uint64 guid)
@@ -16111,10 +16115,10 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data.WriteBit(unkGuid[6]);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[6]);
-    data.WriteBit(0);                                       // Unk bit
+    data.WriteBit(created);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[5]);
-    data.WriteBit(1);                                       // Unk bit
+    data.WriteBit(1);                                       // display
     data.WriteBit(unkGuid[3]);
     data.WriteBit(unkGuid[4]);
     data.WriteBit(unkGuid[5]);
@@ -16124,8 +16128,8 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data.WriteBit(unkGuid[2]);
     data.WriteBit(unkGuid[0]);
     data.WriteBit(unkGuid[1]);
-    data.WriteBit(0);                                       // Unk bit
-    data.WriteBit(0);                                       // Unk bit
+    data.WriteBit(0);                                       // additional loot
+    data.WriteBit(received);
     data.WriteBit(guid[2]);
 
     data.WriteByteSeq(guid[0]);
@@ -18750,48 +18754,6 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
         m_declinedname->name[i] = (*result)[i].GetString();
 }
 
-void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
-{
-    // arenateamid, played_week, played_season, personal_rating
-    /*memset((void*)&m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
-
-    uint16 personalRatingCache[] = {0, 0, 0};
-
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 arenaTeamId = fields[0].GetUInt32();
-
-            ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);
-            if (!arenaTeam)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadArenaTeamInfo: couldn't load arenateam %u", arenaTeamId);
-                continue;
-            }
-
-            uint8 arenaSlot = arenaTeam->GetSlot();
-
-            personalRatingCache[arenaSlot] = fields[4].GetUInt16();
-
-            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_ID, arenaTeamId);
-            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_TYPE, arenaTeam->GetType());
-            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_MEMBER, (arenaTeam->GetCaptain() == GetGUID()) ? 0 : 1);
-            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, uint32(fields[1].GetUInt16()));
-            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, uint32(fields[2].GetUInt16()));
-            SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, uint32(fields[3].GetUInt16()));
-        }
-        while (result->NextRow());
-    }
-
-    for (uint8 slot = 0; slot <= 2; ++slot)
-    {
-        SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, uint32(personalRatingCache[slot]));
-    }*/
-}
-
 void Player::_LoadEquipmentSets(PreparedQueryResult result)
 {
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
@@ -18822,6 +18784,30 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
             break;
     }
     while (result->NextRow());
+}
+
+void Player::_LoadArenaData(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    Field* fields = result->Fetch();
+    //        0        1                  2                    3                  4           5          6              7             8            9        10                 11                   12                 13          14         15             16            17           18       19                 20                   21                 22          23         24             25            26
+    // SELECT rating0, bestRatingOfWeek0, bestRatingOfSeason0, matchMakerRating0, weekGames0, weekWins0, prevWeekWins0, seasonGames0, seasonWins0, rating1, bestRatingOfWeek1, bestRatingOfSeason1, matchMakerRating1, weekGames1, weekWins1, prevWeekWins1, seasonGames1, seasonWins1, rating2, bestRatingOfWeek2, bestRatingOfSeason2, matchMakerRating2, weekGames2, weekWins2, prevWeekWins2, seasonGames2, seasonWins2 FROM character_arena_data WHERE guid = ?
+
+    uint8 j = 0;
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    {
+        m_ArenaPersonalRating[i] = fields[j++].GetUInt32();
+        m_BestRatingOfWeek[i] = fields[j++].GetUInt32();
+        m_BestRatingOfSeason[i] = fields[j++].GetUInt32();
+        m_ArenaMatchMakerRating[i] = fields[j++].GetUInt32();
+        m_WeekGames[i] = fields[j++].GetUInt32();
+        m_WeekWins[i] = fields[j++].GetUInt32();
+        m_PrevWeekWins[i] = fields[j++].GetUInt32();
+        m_SeasonGames[i] = fields[j++].GetUInt32();
+        m_SeasonWins[i] = fields[j++].GetUInt32();
+    }
 }
 
 void Player::_LoadBGData(PreparedQueryResult result)
@@ -19061,8 +19047,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
-    _LoadArenaTeamInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENAINFO));
-
     _LoadCurrency(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADCURRENCY));
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[40].GetUInt32());
     SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[41].GetUInt16());
@@ -19070,6 +19054,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadBoundInstances(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES));
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES));
+    _LoadArenaData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENADATA));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
 
     GetSession()->SetPlayer(this);
@@ -21336,6 +21321,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
 
+    _SaveArenaData(trans);
     _SaveBGData(trans);
     _SaveInventory(trans);
     _SaveVoidStorage(trans);
@@ -28198,6 +28184,31 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
     }
 }
 
+void Player::_SaveArenaData(SQLTransaction& trans)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_ARENA_DATA);
+    stmt->setUInt32(0, GetGUIDLow());
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_ARENA_DATA);
+    stmt->setUInt32(0, GetGUIDLow());
+
+    uint8 j = 1;
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    {
+        stmt->setUInt32(j++, m_ArenaPersonalRating[i]);
+        stmt->setUInt32(j++, m_BestRatingOfWeek[i]);
+        stmt->setUInt32(j++, m_BestRatingOfSeason[i]);
+        stmt->setUInt32(j++, m_ArenaMatchMakerRating[i]);
+        stmt->setUInt32(j++, m_WeekGames[i]);
+        stmt->setUInt32(j++, m_WeekWins[i]);
+        stmt->setUInt32(j++, m_PrevWeekWins[i]);
+        stmt->setUInt32(j++, m_SeasonGames[i]);
+        stmt->setUInt32(j++, m_SeasonWins[i]);
+    }
+    trans->Append(stmt);
+}
+
 void Player::_SaveBGData(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
@@ -29681,6 +29692,8 @@ void Player::FinishWeek()
 {
     for (int slot = 0; slot < MAX_ARENA_SLOT; ++slot)
     {
+        m_BestRatingOfWeek[slot] = 0;
+        m_PrevWeekWins[slot] = m_WeekWins[slot];
         m_WeekGames[slot] = 0;
         m_WeekWins[slot] = 0;
     }

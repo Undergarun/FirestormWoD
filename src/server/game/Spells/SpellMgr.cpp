@@ -2717,8 +2717,9 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
-        // Player damage reduction (40% base resilience)
+        // Player damage reduction (72% base resilience)
         mSpellClassInfo[ClassID].insert(115043);
+        mSpellClassInfo[ClassID].insert(142689);
         // Player mastery activation
         mSpellClassInfo[ClassID].insert(114585);
 
