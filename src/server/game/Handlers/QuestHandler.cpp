@@ -89,20 +89,16 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    uint8 byteOrder[8] = {4, 6, 0, 3, 5, 1, 2, 7};
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    uint8 unk1 = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    recvData.FlushBits();
-    recvData.ReadBitInOrder(guid, byteOrder);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u, unk1 = %u", GUID_LOPART(guid), unk1);
+    uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = {0, 2, 6, 1, 4, 7, 5, 3};
+    recvData.ReadBytesSeq(guid, byteOrder);
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!creature)

@@ -28,6 +28,7 @@
 #include "Chat.h"
 #include "Language.h"
 #include "Log.h"
+#include "LFG.h"
 #include "Player.h"
 #include "Object.h"
 #include "Opcodes.h"
@@ -92,7 +93,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     guid[6] = recvData.ReadBit();
     guid[2] = recvData.ReadBit();
     guid[4] = recvData.ReadBit();
-    role = recvData.ReadBit(); // byte11
+    role = recvData.ReadBit() == 1 ? ROLE_DAMAGE : 0;
     recvData.FlushBits();
 
     recvData.ReadByteSeq(guid[7]);
@@ -104,7 +105,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     recvData.ReadByteSeq(guid[4]);
     recvData.ReadByteSeq(guid[6]);
 
-    if (!role)
+    if (role != ROLE_DAMAGE)
         recvData >> role;
 
     bgTypeId_ = GUID_LOPART(guid);
@@ -732,6 +733,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 
     if (arenaRating <= 0)
         arenaRating = 1;
+    if (matchmakerRating <= 0)
+        matchmakerRating = 1;
 
     BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
 
@@ -741,7 +744,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, arenatype, arenatype, true, arenaslot);
     if (!err || (err && sBattlegroundMgr->isArenaTesting()))
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: arena team id %u, leader %s queued with matchmaker rating %u for type %u", _player->GetArenaTeamId(arenaslot), _player->GetName(), matchmakerRating, arenatype);
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued with matchmaker rating %u for type %u", _player->GetName(), matchmakerRating, arenatype);
 
         ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, true, false, arenaRating, matchmakerRating);
         avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());

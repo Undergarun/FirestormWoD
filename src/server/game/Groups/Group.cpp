@@ -104,6 +104,8 @@ bool Group::Create(Player* leader)
     m_leaderGuid = leaderGuid;
     m_leaderName = leader->GetName();
 
+    leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+
     m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
     if (m_groupType & GROUPTYPE_RAID)
@@ -338,6 +340,7 @@ bool Group::AddLeaderInvite(Player* player)
 
     m_leaderGuid = player->GetGUID();
     m_leaderName = player->GetName();
+    player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
     return true;
 }
 
@@ -806,8 +809,16 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
         CharacterDatabase.CommitTransaction(trans);
     }
 
+    Player* oldLeader = ObjectAccessor::FindPlayer(m_leaderGuid);
+
+    if (oldLeader)
+        oldLeader->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+
     m_leaderGuid = newLeader->GetGUID();
     m_leaderName = newLeader->GetName();
+
+    newLeader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
     WorldPacket data(SMSG_GROUP_SET_LEADER);
@@ -2555,7 +2566,6 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
 
     BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
@@ -2575,9 +2585,6 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
-        // don't let join rated matches if the arena team id doesn't match
-        if (isRated && member->GetArenaTeamId(arenaSlot) != arenaTeamId)
-            return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't let join if someone from the group is already in that bg queue
         if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
@@ -3239,7 +3246,7 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
                 p->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
 
                 // update personal played stats
-                p->IncrementWeekWins(slot);
+                p->IncrementWeekGames(slot);
                 p->IncrementSeasonGames(slot);
                 return;
             }
@@ -3262,7 +3269,7 @@ void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slo
             player->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
 
             // Update personal played stats
-            player->IncrementWeekWins(slot);
+            player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);
             return;
         }
@@ -3302,10 +3309,13 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
+            player->SetArenaPersonalRating(slot, (player->GetArenaPersonalRating(slot) + rating_change) > 0 ? (player->GetArenaPersonalRating(slot) + rating_change) : 0);
+            player->SetArenaMatchMakerRating(slot, (player->GetArenaMatchMakerRating(slot) + mod) > 0 ? (player->GetArenaMatchMakerRating(slot) + mod) : 0);
+
             player->IncrementWeekWins(slot);
             player->IncrementSeasonWins(slot);
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
         }
     }
 }
@@ -3323,8 +3333,11 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+            player->SetArenaPersonalRating(slot, (player->GetArenaPersonalRating(slot) + rating_change) > 0 ? (player->GetArenaPersonalRating(slot) + rating_change) : 0);
+            player->SetArenaMatchMakerRating(slot, (player->GetArenaMatchMakerRating(slot) + mod) > 0 ? (player->GetArenaMatchMakerRating(slot) + mod) : 0);
+
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
         }
     }
 }

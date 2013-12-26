@@ -172,13 +172,14 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
     ObjectGuid guid = objectGUID;
 
     WorldPacket data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
-    data << uint32(titleTextId);
-    data << uint32(0);                                  // Friendship faction
 
     if (titleTextId == DEFAULT_GOSSIP_MESSAGE && !_gossipMenu.GetMenuId())
         data << uint32(DEFAULT_GREETINGS_GOSSIP);           // default greeting ID
     else
         data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
+
+    data << uint32(0);                                  // Friendship faction
+    data << uint32(titleTextId);
 
     data.WriteBit(guid[0]);
     data.WriteBit(guid[1]);
