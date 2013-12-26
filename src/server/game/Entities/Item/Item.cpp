@@ -290,6 +290,32 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     if (!itemProto)
         return false;
 
+    // For Item Upgrade
+    if (itemProto->ItemLevel >= 458)
+    {
+        if (IsPvPItem())
+        {
+            if (itemProto->Quality == ITEM_QUALITY_EPIC)
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
+            else
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
+        }
+        else
+        {
+            if (itemProto->Quality == ITEM_QUALITY_EPIC)
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
+            else if (itemProto->Quality == ITEM_QUALITY_LEGENDARY)
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
+            else
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
+        }
+
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+
+        if (Player* player = ObjectAccessor::FindPlayer(owner ? owner->GetGUID() : 0))
+            SetState(ITEM_CHANGED, player);
+    }
+
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
@@ -369,6 +395,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setInt16 (++index, GetItemRandomPropertyId());
             stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0)); // reforge Id
             stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)); // Transmogrification Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)); // itemUpgrade Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
@@ -416,8 +443,8 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
-    //                                                    0                1      2         3        4      5             6                 7          8               9            10          11    12
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, reforgeId, transmogrifyId,   durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                              0                1          2       3        4        5         6               7              8            9            10          11         12        13
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, reforgeId, transmogrifyId, upgradeId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -477,12 +504,49 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
     }
 
+    if (uint32 upgradeId = fields[10].GetUInt32())
+    {
+        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+
+        if (Player* player = ObjectAccessor::FindPlayer(owner_guid))
+            SetState(ITEM_CHANGED, player);
+    }
+    else
+    {
+        // For Item Upgrade
+        if (proto->ItemLevel >= 458)
+        {
+            if (IsPvPItem())
+            {
+                if (proto->Quality == ITEM_QUALITY_EPIC)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
+                else
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
+            }
+            else
+            {
+                if (proto->Quality == ITEM_QUALITY_EPIC)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
+                else if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
+                else
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
+            }
+
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+
+            if (Player* player = ObjectAccessor::FindPlayer(owner_guid))
+                SetState(ITEM_CHANGED, player);
+        }
+    }
+
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
         UpdateItemSuffixFactor();
 
-    uint32 durability = fields[10].GetUInt16();
+    uint32 durability = fields[11].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
     // update max durability (and durability) if need
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
@@ -492,8 +556,8 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         need_save = true;
     }
 
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[11].GetUInt32());
-    SetText(fields[10].GetString());
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[12].GetUInt32());
+    SetText(fields[13].GetString());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -1515,4 +1579,18 @@ int32 Item::GetReforgableStat(ItemModType statType) const
     }
 
     return 0;
+}
+
+bool Item::IsPvPItem() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+        return false;
+
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if (proto->ItemStat[i].ItemStatType == ITEM_MOD_PVP_POWER
+            || proto->ItemStat[i].ItemStatType == ITEM_MOD_RESILIENCE_RATING)
+            return true;
+
+    return false;
 }

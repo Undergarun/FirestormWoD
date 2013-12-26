@@ -383,6 +383,8 @@ class Item : public Object
 
         int32 GetReforgableStat(ItemModType statType) const;
 
+        bool IsPvPItem() const;
+
     private:
         std::string m_text;
         uint8 m_slot;

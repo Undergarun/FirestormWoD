@@ -3491,6 +3491,57 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
     return creature;
 }
 
+Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
+{
+    // unit checks
+    if (!guid)
+        return NULL;
+
+    if (!IsInWorld())
+        return NULL;
+
+    if (isInFlight())
+        return NULL;
+
+    // exist (we need look pets also for some interaction (quest/etc)
+    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
+    if (!creature)
+        return NULL;
+
+    // Deathstate checks
+    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
+        return NULL;
+
+    // alive or spirit healer
+    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
+        return NULL;
+
+    // appropriate npc type
+    if (npcflagmask && !creature->HasFlag(UNIT_NPC_FLAGS + 1, npcflagmask))
+        return NULL;
+
+    // not allow interaction under control, but allow with own pets
+    if (creature->GetCharmerGUID())
+        return NULL;
+
+    // not enemy
+    if (creature->IsHostileTo(this))
+        return NULL;
+
+    // not unfriendly
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
+        if (factionTemplate->faction)
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction))
+                if (faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
+                    return NULL;
+
+    // not too far
+    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+        return NULL;
+
+    return creature;
+}
+
 GameObject* Player::GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const
 {
     if (GameObject* go = GetMap()->GetGameObject(guid))
@@ -9432,24 +9483,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_CRIT_SPELL_RATING:
                 ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
                 break;
-            // case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
-            //     ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
-            //     break;
-            // case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
-            //    ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
-            //    break;
-            //case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
-            //    ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
-            //    break;
-            //case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
-            //    ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
-            //    break;
             case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
                 ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
                 break;
-            // case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
-            // ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
-            // break;
             case ITEM_MOD_HASTE_MELEE_RATING:
                 ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
                 break;
@@ -9469,16 +9505,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
                 ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
                 break;
-            //case ITEM_MOD_HIT_TAKEN_RATING:
-            //    ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
-            //   ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
-            //    ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
-            //    break;
-            //case ITEM_MOD_CRIT_TAKEN_RATING:
-            //    ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
-            //    ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
-            //    ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
-            //    break;
             case ITEM_MOD_RESILIENCE_RATING:
                 ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
                 break;
@@ -15480,12 +15506,160 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
     }
 }
 
+void Player::ApplyItemUpgrade(Item* item, bool apply)
+{
+    if (!item)
+        return;
+
+    ItemUpgradeEntry const* itemUpgrade = sItemUpgradeStore.LookupEntry(item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2));
+    if (!itemUpgrade || itemUpgrade->itemLevelUpgrade == 0)
+        return;
+
+    ItemUpgradeEntry const* prevItemUpgrade = sItemUpgradeStore.LookupEntry(itemUpgrade->precItemUpgradeId);
+    ItemTemplate const* proto = item->GetTemplate();
+    if (!proto)
+        return;
+
+    uint16 itemLevel = (prevItemUpgrade && prevItemUpgrade->itemLevelUpgrade) ? (proto->ItemLevel + prevItemUpgrade->itemLevelUpgrade) : proto->ItemLevel;
+    uint16 nextItemLevel = proto->ItemLevel + itemUpgrade->itemLevelUpgrade;
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+    {
+        uint32 statType = proto->ItemStat[i].ItemStatType;
+        int32 baseVal = proto->ItemStat[i].ItemStatValue;
+        int32 val = 0;
+
+        if (prevItemUpgrade && prevItemUpgrade->itemLevelUpgrade != 0)
+            val = baseVal * float(float(sSpellMgr->GetDatasForILevel(itemLevel)) / float(sSpellMgr->GetDatasForILevel(proto->ItemLevel)));
+
+        if (!sSpellMgr->GetDatasForILevel(itemLevel))
+            continue;
+
+        int32 newVal = 0;
+        if (val == 0)
+            newVal = baseVal * float(float(sSpellMgr->GetDatasForILevel(nextItemLevel)) / float(sSpellMgr->GetDatasForILevel(itemLevel)));
+        else
+            newVal = val * float(float(sSpellMgr->GetDatasForILevel(nextItemLevel)) / float(sSpellMgr->GetDatasForILevel(itemLevel)));
+
+        if (baseVal == 0 || newVal == 0)
+            continue;
+
+        val = baseVal;
+
+        switch (statType)
+        {
+            case ITEM_MOD_MANA:
+                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_HEALTH:
+                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_AGILITY:
+                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(STAT_AGILITY, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_STRENGTH:
+                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(STAT_STRENGTH, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_INTELLECT:
+                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(STAT_INTELLECT, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_SPIRIT:
+                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(STAT_SPIRIT, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_STAMINA:
+                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(STAT_STAMINA, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                ApplyRatingMod(CR_DODGE, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                ApplyRatingMod(CR_PARRY, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_BLOCK_RATING:
+                ApplyRatingMod(CR_BLOCK, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HIT_MELEE_RATING:
+                ApplyRatingMod(CR_HIT_MELEE, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HIT_RANGED_RATING:
+                ApplyRatingMod(CR_HIT_RANGED, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HIT_SPELL_RATING:
+                ApplyRatingMod(CR_HIT_SPELL, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_CRIT_MELEE_RATING:
+                ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_CRIT_RANGED_RATING:
+                ApplyRatingMod(CR_CRIT_RANGED, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_CRIT_SPELL_RATING:
+                ApplyRatingMod(CR_CRIT_SPELL, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+                ApplyRatingMod(CR_HASTE_MELEE, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HASTE_RANGED_RATING:
+                ApplyRatingMod(CR_HASTE_RANGED, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HASTE_SPELL_RATING:
+                ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HIT_RATING:
+                ApplyRatingMod(CR_HIT_MELEE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HIT_RANGED, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HIT_SPELL, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_CRIT_RATING:
+                ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_CRIT_RANGED, int32(newVal - val), apply);
+                ApplyRatingMod(CR_CRIT_SPELL, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_RESILIENCE_RATING:
+                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_PVP_POWER:
+                ApplyRatingMod(CR_PVP_POWER, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_HASTE_RATING:
+                ApplyRatingMod(CR_HASTE_MELEE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HASTE_RANGED, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_EXPERTISE_RATING:
+                ApplyRatingMod(CR_EXPERTISE, int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_ATTACK_POWER:
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_RANGED_ATTACK_POWER:
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(newVal - val), apply);
+                break;
+            case ITEM_MOD_SPELL_POWER:
+                ApplySpellPowerBonus(int32(newVal - val), apply);
+                break;
+            case ITEM_MOD_MASTERY_RATING:
+                ApplyRatingMod(CR_MASTERY, int32(newVal - val), apply);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void Player::ApplyEnchantment(Item* item, bool apply)
 {
     for (uint32 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
         ApplyEnchantment(item, EnchantmentSlot(slot), apply);
 
     ApplyReforgeEnchantment(item, apply);
+    ApplyItemUpgrade(item, apply);
 }
 
 void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
@@ -19691,8 +19865,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[13].GetUInt32();
-                uint8  slot     = fields[14].GetUInt8();
+                uint32 bagGuid  = fields[14].GetUInt32();
+                uint8  slot     = fields[15].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -19848,8 +20022,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[15].GetUInt32();
-    uint32 itemEntry = fields[16].GetUInt32();
+    uint32 itemGuid  = fields[16].GetUInt32();
+    uint32 itemEntry = fields[17].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;

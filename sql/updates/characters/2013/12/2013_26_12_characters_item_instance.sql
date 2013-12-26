@@ -1,0 +1,1 @@
+ALTER TABLE `item_instance` ADD COLUMN `upgradeId` MEDIUMINT(8) NULL AFTER `transmogrifyId`; 

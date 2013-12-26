@@ -2195,3 +2195,129 @@ void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
     if (GetPlayer())
         GetPlayer()->ModifyCurrencyFlags(currencyId, uint8(flags));
 }
+
+void WorldSession::SendItemUpgradeResult(bool success)
+{
+    WorldPacket data(SMSG_ITEM_UPGRADE_RESULT, 1);
+    data.WriteBit(success);
+    data.FlushBits();
+    SendPacket(&data);
+}
+
+void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
+
+    ObjectGuid npcGuid;
+    ObjectGuid itemGuid;
+    Player* player = GetPlayer();
+
+    uint32 item_slot = 0;
+    uint32 upgradeEntry = 0;
+    uint32 item_bag = 0;
+    recvData >> item_slot >> upgradeEntry >> item_bag;
+
+    npcGuid[6] = recvData.ReadBit();
+    itemGuid[4] = recvData.ReadBit();
+    itemGuid[3] = recvData.ReadBit();
+    itemGuid[5] = recvData.ReadBit();
+    npcGuid[5] = recvData.ReadBit();
+    itemGuid[1] = recvData.ReadBit();
+    npcGuid[7] = recvData.ReadBit();
+    npcGuid[3] = recvData.ReadBit();
+    itemGuid[6] = recvData.ReadBit();
+    itemGuid[2] = recvData.ReadBit();
+    npcGuid[2] = recvData.ReadBit();
+    npcGuid[4] = recvData.ReadBit();
+    itemGuid[7] = recvData.ReadBit();
+    npcGuid[1] = recvData.ReadBit();
+    npcGuid[0] = recvData.ReadBit();
+    itemGuid[0] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(itemGuid[4]);
+    recvData.ReadByteSeq(itemGuid[5]);
+    recvData.ReadByteSeq(npcGuid[3]);
+    recvData.ReadByteSeq(npcGuid[0]);
+    recvData.ReadByteSeq(itemGuid[1]);
+    recvData.ReadByteSeq(itemGuid[3]);
+    recvData.ReadByteSeq(itemGuid[7]);
+    recvData.ReadByteSeq(npcGuid[7]);
+    recvData.ReadByteSeq(npcGuid[6]);
+    recvData.ReadByteSeq(itemGuid[2]);
+    recvData.ReadByteSeq(npcGuid[1]);
+    recvData.ReadByteSeq(npcGuid[4]);
+    recvData.ReadByteSeq(npcGuid[5]);
+    recvData.ReadByteSeq(itemGuid[0]);
+    recvData.ReadByteSeq(itemGuid[6]);
+    recvData.ReadByteSeq(npcGuid[2]);
+
+    if (!player->GetNPCIfCanInteractWithFlag2(npcGuid, UNIT_NPC_FLAG2_ITEM_UPGRADE))
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    Item* item = player->GetItemByGuid(itemGuid);
+    if (!item)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    // Check if item guid is the same as item related to bag and slot
+    if (Item* tempItem = player->GetItemByPos(item_bag, item_slot))
+    {
+        if (item != tempItem)
+        {
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+            SendItemUpgradeResult(false);
+            return;
+        }
+    }
+    else
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    ItemUpgradeEntry const* itemUpEntry = sItemUpgradeStore.LookupEntry(upgradeEntry);
+    if (!itemUpEntry)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - ItemUpgradeEntry (%u) not found.", upgradeEntry);
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    // Check if player has enough currency
+    if (player->GetCurrency(itemUpEntry->currencyId, false) < itemUpEntry->currencyCost)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpEntry->currencyId, itemUpEntry->currencyCost);
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    uint32 actualUpgrade = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2);
+    if (actualUpgrade != itemUpEntry->precItemUpgradeId)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpEntry->Id, actualUpgrade);
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+    item->SetState(ITEM_CHANGED, player);
+
+    // Don't forget to remove currency cost
+    SendItemUpgradeResult(true);
+
+    if (item->IsEquipped())
+        player->ApplyItemUpgrade(item, true);
+
+    player->ModifyCurrency(itemUpEntry->currencyId, -itemUpEntry->currencyCost, false, true, true);
+}
