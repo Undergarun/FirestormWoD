@@ -49,6 +49,7 @@
 #include "SharedDefines.h"
 #include "Formulas.h"
 #include "DisableMgr.h"
+#include "LFG.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -267,7 +268,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         {
             data->Initialize(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 44);
 
-            uint8 role = 0;
+            uint8 role = pPlayer->GetBattleGroundRoles();
 
             data->WriteBit(bg_guid[4]);
             data->WriteBit(bg_guid[6]);
@@ -277,7 +278,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteBit(player_guid[3]);
             data->WriteBit(bg_guid[2]);
             data->WriteBit(player_guid[5]);
-            data->WriteBit(role);
+            data->WriteBit(role == ROLE_DAMAGE);
             data->WriteBit(bg_guid[0]);
             data->WriteBit(bg_guid[7]);
             data->WriteBit(bg_guid[5]);
@@ -287,10 +288,19 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteBit(bg->isRated()); // byte38
             data->WriteBit(player_guid[1]);
             data->WriteBit(player_guid[4]);
+
             data->FlushBits();
 
-            if (!role)
-                *data << uint8(role);
+            if (role != ROLE_DAMAGE)
+            {
+                // Client use sent value like this
+                // Role = 1 << (val + 1)
+                if (role == ROLE_TANK)
+                    *data << uint8(0);
+                else
+                    *data << uint8(1);
+            }
+
             *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
             data->WriteByteSeq(bg_guid[5]);
             *data << uint8(0); // byte32

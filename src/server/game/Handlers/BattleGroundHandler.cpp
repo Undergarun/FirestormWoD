@@ -200,6 +200,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
             return;
         }
 
+        _player->SetBattleGroundRoles(role);
+
         BattlegroundQueue& bgQueue = sBattlegroundMgr->m_BattlegroundQueues[bgQueueTypeId];
 
         GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, 0, false, isPremade, 0, 0);
