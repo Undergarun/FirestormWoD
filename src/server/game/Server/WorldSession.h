@@ -1006,6 +1006,10 @@ class WorldSession
         void HandleReforgeItemOpcode(WorldPacket& recvData);
         void SendReforgeResult(bool success);
 
+        // Item Upgrade
+        void HandleUpgradeItemOpcode(WorldPacket& recvData);
+        void SendItemUpgradeResult(bool success);
+
         // Miscellaneous
         void HandleTradeInfo (WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);

@@ -29,6 +29,8 @@ DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryf
 DB2Storage <ItemSparseEntry> sItemSparseStore (ItemSparsefmt);
 DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
 DB2Storage <SpellReagentsEntry> sSpellReagentsStore(SpellReagentsEntryfmt);
+DB2Storage <ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradeEntryfmt);
+DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
 
 typedef std::list<std::string> StoreProblemList1;
 
@@ -88,6 +90,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
     LoadDB2(bad_db2_files, sSpellReagentsStore, db2Path, "SpellReagents.db2");                                                 // 17399
+    LoadDB2(bad_db2_files, sItemUpgradeStore, db2Path, "ItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore, db2Path, "RulesetItemUpgrade.db2");
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)

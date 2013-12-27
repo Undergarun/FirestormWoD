@@ -560,6 +560,8 @@ typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
+typedef std::map<uint16, uint16> ItemUpgradeDatas;
+
 struct PetDefaultSpellsEntry
 {
     uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
@@ -702,6 +704,9 @@ class SpellMgr
 
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
+        // Item Upgrade datas
+        uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; };
+
     // Modifiers
     public:
 
@@ -734,6 +739,7 @@ class SpellMgr
         void LoadTalentSpellInfo();
         void LoadSpellPowerInfo();
         void LoadForbiddenSpells();
+        void InitializeItemUpgradeDatas();
 
         std::vector<uint32>        mSpellCreateItemList;
 
@@ -771,6 +777,7 @@ class SpellMgr
         TalentSpellSet             mTalentSpellInfo;
         SpellPowerVector           mSpellPowerInfo;
         std::list<uint32>          mForbiddenSpells;
+        ItemUpgradeDatas           mItemUpgradeDatas;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

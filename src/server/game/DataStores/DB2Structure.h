@@ -132,6 +132,24 @@ struct ItemSparseEntry
     int32      CurrencySubstitutionCount;                    // 133
 };
 
+struct ItemUpgradeEntry
+{
+    uint32 Id;
+    uint32 itemUpgradePath;
+    uint32 itemLevelUpgrade;
+    uint32 precItemUpgradeId;
+    uint32 currencyId;
+    uint32 currencyCost;
+};
+
+struct RulesetItemUpgradeEntry
+{
+    uint32 Id;
+    uint32 unk;
+    uint32 itemUpgradeId;
+    uint32 itemid;
+};
+
 #define MAX_ITEM_EXT_COST_ITEMS         5
 #define MAX_ITEM_EXT_COST_CURRENCIES    5
 

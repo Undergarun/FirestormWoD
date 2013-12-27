@@ -1280,6 +1280,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool CanInteractWithQuestGiver(Object* questGiver);
         Creature* GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask);
+        Creature* GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const;
 
         bool ToggleAFK();
@@ -1557,6 +1558,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false);
         void ApplyEnchantment(Item* item, bool apply);
         void ApplyReforgeEnchantment(Item* item, bool apply);
+        void ApplyItemUpgrade(Item* item, bool apply);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
         void BuildEnchantmentsInfoData(WorldPacket* data);
@@ -2915,6 +2917,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendBattlePetJournal();
 
+        uint8 GetBattleGroundRoles() const { return m_bgRoles; }
+        void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -3279,6 +3283,8 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        uint8 m_bgRoles;
 
         // Arena
         uint32 m_ArenaPersonalRating[MAX_ARENA_SLOT];

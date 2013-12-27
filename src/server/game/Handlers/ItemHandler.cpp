@@ -1366,10 +1366,49 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WRAP_ITEM");
 
-    uint8 gift_bag, gift_slot, item_bag, item_slot;
+    bool hasGiftBag, hasGiftSlot, hasItemBag, hasItemSlot;
+    uint8 gift_bag = 0;
+    uint8 gift_slot = 0;
+    uint8 item_bag = 0;
+    uint8 item_slot = 0;
 
-    recvData >> gift_bag >> gift_slot;                     // paper
-    recvData >> item_bag >> item_slot;                     // item
+    uint8 itemCount = recvData.ReadBits(2);
+
+    for (uint8 i = 0; i < itemCount; ++i)
+    {
+        if (i == 0)
+        {
+            hasGiftBag = !recvData.ReadBit();
+            hasGiftSlot = !recvData.ReadBit();
+        }
+        else
+        {
+            hasItemBag = !recvData.ReadBit();
+            hasItemSlot = !recvData.ReadBit();
+        }
+    }
+
+    recvData.FlushBits();
+
+    for (uint8 i = 0; i < itemCount; ++i)
+    {
+        if (i == 0)
+        {
+            if (hasGiftSlot)
+                recvData >> gift_slot;
+
+            if (hasGiftBag)
+                recvData >> gift_bag;
+        }
+        else
+        {
+            if (hasItemSlot)
+                recvData >> item_slot;
+
+            if (hasItemBag)
+                recvData >> item_bag;
+        }
+    }
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WRAP: receive gift_bag = %u, gift_slot = %u, item_bag = %u, item_slot = %u", gift_bag, gift_slot, item_bag, item_slot);
 
@@ -1450,13 +1489,26 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     switch (item->GetEntry())
     {
-        case 5042:  item->SetEntry(5043); break;
-        case 5048:  item->SetEntry(5044); break;
-        case 17303: item->SetEntry(17302); break;
-        case 17304: item->SetEntry(17305); break;
-        case 17307: item->SetEntry(17308); break;
-        case 21830: item->SetEntry(21831); break;
+        case 5042:
+            item->SetEntry(5043);
+            break;
+        case 5048:
+            item->SetEntry(5044);
+            break;
+        case 17303:
+            item->SetEntry(17302);
+            break;
+        case 17304:
+            item->SetEntry(17305);
+            break;
+        case 17307:
+            item->SetEntry(17308);
+            break;
+        case 21830:
+            item->SetEntry(21831);
+            break;
     }
+
     item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
@@ -1467,6 +1519,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         item->RemoveFromUpdateQueueOf(_player);
         item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
     }
+
     CharacterDatabase.CommitTransaction(trans);
 
     uint32 count = 1;
@@ -2141,4 +2194,130 @@ void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
 
     if (GetPlayer())
         GetPlayer()->ModifyCurrencyFlags(currencyId, uint8(flags));
+}
+
+void WorldSession::SendItemUpgradeResult(bool success)
+{
+    WorldPacket data(SMSG_ITEM_UPGRADE_RESULT, 1);
+    data.WriteBit(success);
+    data.FlushBits();
+    SendPacket(&data);
+}
+
+void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
+
+    ObjectGuid npcGuid;
+    ObjectGuid itemGuid;
+    Player* player = GetPlayer();
+
+    uint32 item_slot = 0;
+    uint32 upgradeEntry = 0;
+    uint32 item_bag = 0;
+    recvData >> item_slot >> upgradeEntry >> item_bag;
+
+    npcGuid[6] = recvData.ReadBit();
+    itemGuid[4] = recvData.ReadBit();
+    itemGuid[3] = recvData.ReadBit();
+    itemGuid[5] = recvData.ReadBit();
+    npcGuid[5] = recvData.ReadBit();
+    itemGuid[1] = recvData.ReadBit();
+    npcGuid[7] = recvData.ReadBit();
+    npcGuid[3] = recvData.ReadBit();
+    itemGuid[6] = recvData.ReadBit();
+    itemGuid[2] = recvData.ReadBit();
+    npcGuid[2] = recvData.ReadBit();
+    npcGuid[4] = recvData.ReadBit();
+    itemGuid[7] = recvData.ReadBit();
+    npcGuid[1] = recvData.ReadBit();
+    npcGuid[0] = recvData.ReadBit();
+    itemGuid[0] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    recvData.ReadByteSeq(itemGuid[4]);
+    recvData.ReadByteSeq(itemGuid[5]);
+    recvData.ReadByteSeq(npcGuid[3]);
+    recvData.ReadByteSeq(npcGuid[0]);
+    recvData.ReadByteSeq(itemGuid[1]);
+    recvData.ReadByteSeq(itemGuid[3]);
+    recvData.ReadByteSeq(itemGuid[7]);
+    recvData.ReadByteSeq(npcGuid[7]);
+    recvData.ReadByteSeq(npcGuid[6]);
+    recvData.ReadByteSeq(itemGuid[2]);
+    recvData.ReadByteSeq(npcGuid[1]);
+    recvData.ReadByteSeq(npcGuid[4]);
+    recvData.ReadByteSeq(npcGuid[5]);
+    recvData.ReadByteSeq(itemGuid[0]);
+    recvData.ReadByteSeq(itemGuid[6]);
+    recvData.ReadByteSeq(npcGuid[2]);
+
+    if (!player->GetNPCIfCanInteractWithFlag2(npcGuid, UNIT_NPC_FLAG2_ITEM_UPGRADE))
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    Item* item = player->GetItemByGuid(itemGuid);
+    if (!item)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    // Check if item guid is the same as item related to bag and slot
+    if (Item* tempItem = player->GetItemByPos(item_bag, item_slot))
+    {
+        if (item != tempItem)
+        {
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+            SendItemUpgradeResult(false);
+            return;
+        }
+    }
+    else
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    ItemUpgradeEntry const* itemUpEntry = sItemUpgradeStore.LookupEntry(upgradeEntry);
+    if (!itemUpEntry)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - ItemUpgradeEntry (%u) not found.", upgradeEntry);
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    // Check if player has enough currency
+    if (player->GetCurrency(itemUpEntry->currencyId, false) < itemUpEntry->currencyCost)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpEntry->currencyId, itemUpEntry->currencyCost);
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    uint32 actualUpgrade = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2);
+    if (actualUpgrade != itemUpEntry->precItemUpgradeId)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpEntry->Id, actualUpgrade);
+        SendItemUpgradeResult(false);
+        return;
+    }
+
+    item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+    item->SetState(ITEM_CHANGED, player);
+
+    // Don't forget to remove currency cost
+    SendItemUpgradeResult(true);
+
+    if (item->IsEquipped())
+        player->ApplyItemUpgrade(item, true);
+
+    player->ModifyCurrency(itemUpEntry->currencyId, -itemUpEntry->currencyCost, false, true, true);
 }

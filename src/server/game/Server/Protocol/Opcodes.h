@@ -372,7 +372,7 @@ enum Opcodes
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x1526, // 5.4.0 17399
     CMSG_OFFER_PETITION                               = 0x170B, // 5.4.0 17399
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
-    CMSG_OPEN_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_OPEN_ITEM                                    = 0x1A01, // 5.4.0 17399
     CMSG_OPT_OUT_OF_LOOT                              = 0x000,  // 5.0.5 16048
     CMSG_PAGE_TEXT_QUERY                              = 0x1082, // 5.4.0 17399
     CMSG_PETITION_BUY                                 = 0x13AE, // 5.4.0 17399
@@ -552,6 +552,7 @@ enum Opcodes
     CMSG_UPDATE_ACCOUNT_DATA                          = 0x12DF, // 5.4.0 17399
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x000,  // 5.0.5 16048
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x000,  // 5.0.5 16048
+    CMSG_UPGRADE_ITEM                                 = 0x11A0, // 5.4.0 17399
     CMSG_USED_FOLLOW                                  = 0x000,  // 5.0.5 16048
     CMSG_USE_ITEM                                     = 0x14A8, // 5.4.0 17399
     CMSG_VIOLENCE_LEVEL                               = 0x1927, // 5.4.0 17399
@@ -567,7 +568,7 @@ enum Opcodes
     CMSG_WHOIS                                        = 0x000,  // 5.0.5 16048
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x1646, // 5.4.0 17399
     CMSG_WORLD_TELEPORT                               = 0x000,  // 5.0.5 16048
-    CMSG_WRAP_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_WRAP_ITEM                                    = 0x041,  // 5.4.0 17399
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_MOVE                                  = 0x717,  // 5.4.0 17399 CUSTOM OPCODE, client patch
     CMSG_CORPSE_QUERY                                 = 0x13DB, // 5.0.5 16048
@@ -1057,7 +1058,7 @@ enum Opcodes
     SMSG_ITEM_SEND_PASSIVE                            = 0x000,  // 5.0.5 16048
     SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x000,  // 5.0.5 16048
     SMSG_ITEM_TIME_UPDATE                             = 0x53D,  // 5.4.0 17399 (JamList)
-    SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399 (JamList) ITEM_UPGRADE System (NYI)
+    SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x000,  // 5.0.5 16048
     SMSG_KICK_REASON                                  = 0x920,  // 5.4.0 17399 (JamList)
     SMSG_LEARNED_DANCE_MOVES                          = 0x000,  // 5.0.5 16048

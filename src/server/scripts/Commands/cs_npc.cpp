@@ -156,6 +156,7 @@ public:
             { "entry",          SEC_ADMINISTRATOR,  false, &HandleNpcSetEntryCommand,          "", NULL },
             { "factionid",      SEC_GAMEMASTER,     false, &HandleNpcSetFactionIdCommand,      "", NULL },
             { "flag",           SEC_GAMEMASTER,     false, &HandleNpcSetFlagCommand,           "", NULL },
+            { "flag",           SEC_GAMEMASTER,     false, &HandleNpcSetFlag2Command,          "", NULL },
             { "level",          SEC_GAMEMASTER,     false, &HandleNpcSetLevelCommand,          "", NULL },
             { "link",           SEC_GAMEMASTER,     false, &HandleNpcSetLinkCommand,           "", NULL },
             { "model",          SEC_GAMEMASTER,     false, &HandleNpcSetModelCommand,          "", NULL },
@@ -610,6 +611,37 @@ public:
         creature->SetUInt32Value(UNIT_NPC_FLAGS, npcFlags);
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
+
+        stmt->setUInt32(0, npcFlags);
+        stmt->setUInt32(1, creature->GetEntry());
+
+        WorldDatabase.Execute(stmt);
+
+        handler->SendSysMessage(LANG_VALUE_SAVED_REJOIN);
+
+        return true;
+    }
+
+    // Set npcflag2 of creature
+    static bool HandleNpcSetFlag2Command(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 npcFlags = (uint32) atoi((char*)args);
+
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        creature->SetUInt32Value(UNIT_NPC_FLAGS + 1, npcFlags);
+
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG2);
 
         stmt->setUInt32(0, npcFlags);
         stmt->setUInt32(1, creature->GetEntry());

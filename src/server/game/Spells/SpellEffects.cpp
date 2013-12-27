@@ -3093,6 +3093,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                     summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
                     summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                    summon->SetUInt32Value(UNIT_NPC_FLAGS + 1, summon->GetCreatureTemplate()->npcflag2);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 

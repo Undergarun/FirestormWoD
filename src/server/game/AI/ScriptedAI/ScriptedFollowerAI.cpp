@@ -298,6 +298,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
     }
 
     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    me->SetUInt32Value(UNIT_NPC_FLAGS + 1, UNIT_NPC_FLAG2_NONE);
 
     AddFollowState(STATE_FOLLOW_INPROGRESS);
 
