@@ -1366,10 +1366,25 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    ObjectGuid npcGuid = guid;
+
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
     if (time_ == uint32(-1))
         time_ = 0;
-    data << guid << time_;
+
+    uint8 bitsOrder[8] = { 0, 4, 2, 6, 3, 5, 1, 7 };
+    data.WriteBitInOrder(npcGuid, bitsOrder);
+
+    data.WriteByteSeq(npcGuid[4]);
+    data.WriteByteSeq(npcGuid[5]);
+    data.WriteByteSeq(npcGuid[3]);
+    data.WriteByteSeq(npcGuid[2]);
+    data.WriteByteSeq(npcGuid[6]);
+    data.WriteByteSeq(npcGuid[7]);
+    data << uint32(time_);
+    data.WriteByteSeq(npcGuid[0]);
+    data.WriteByteSeq(npcGuid[1]);
+
     player->GetSession()->SendPacket(&data);
 }
 

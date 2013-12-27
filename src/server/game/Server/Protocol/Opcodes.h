@@ -44,8 +44,8 @@ enum Opcodes
     CMSG_ADD_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
     CMSG_ALTER_APPEARANCE                             = 0x1B2F, // 5.4.0 17399
     CMSG_AREATRIGGER                                  = 0x1907, // 5.4.0 17399
-    CMSG_AREA_SPIRIT_HEALER_QUERY                     = 0x000,  // 5.0.5 16048
-    CMSG_AREA_SPIRIT_HEALER_QUEUE                     = 0x000,  // 5.0.5 16048
+    CMSG_AREA_SPIRIT_HEALER_QUERY                     = 0x17EF, // 5.4.0 17399
+    CMSG_AREA_SPIRIT_HEALER_QUEUE                     = 0x13B2, // 5.4.0 17399
     CMSG_ARENA_TEAM_ACCEPT                            = 0x000,  // 5.0.5 16048
     CMSG_ARENA_TEAM_CREATE                            = 0x000,  // 5.0.5 16048
     CMSG_ARENA_TEAM_DECLINE                           = 0x000,  // 5.0.5 16048
@@ -646,7 +646,7 @@ enum Opcodes
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x5B0,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AI_REACTION                                  = 0x5B1,  // 5.4.0 17399
     SMSG_ALL_ACHIEVEMENT_DATA                         = 0x816,  // 5.4.0 17399
-    SMSG_AREA_SPIRIT_HEALER_TIME                      = 0x110,  // 5.4.0 17399 (JamList)
+    SMSG_AREA_SPIRIT_HEALER_TIME                      = 0x092,  // 5.4.0 17399
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                 = 0x8A3,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x81A,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_TRIGGER_DENIED                          = 0x0A2,  // 5.4.0 17399 (JamList) (NYI) or SMSG_AREA_TRIGGER_MESSAGE ?
