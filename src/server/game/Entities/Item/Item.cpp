@@ -311,9 +311,6 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         }
 
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
-
-        if (Player* player = ObjectAccessor::FindPlayer(owner ? owner->GetGUID() : 0))
-            SetState(ITEM_CHANGED, player);
     }
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
@@ -508,9 +505,6 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     {
         SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
-
-        if (Player* player = ObjectAccessor::FindPlayer(owner_guid))
-            SetState(ITEM_CHANGED, player);
     }
     else
     {
@@ -535,9 +529,6 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
             }
 
             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
-
-            if (Player* player = ObjectAccessor::FindPlayer(owner_guid))
-                SetState(ITEM_CHANGED, player);
         }
     }
 
