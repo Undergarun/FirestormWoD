@@ -887,6 +887,14 @@ void World::LoadConfigSettings(bool reload)
     }
     m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD] *= 100;     //precision mod
 
+    m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD] = ConfigMgr::GetIntDefault("Currency.ConquestPointsRatedBGReward", 400);
+    if (int32(m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD]) <= 0)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Currency.ConquestPointsRatedBGReward (%i) must be > 0, set to default 400.", m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD]);
+        m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD] = 400;
+    }
+    m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD] *= 100;     //precision mod
+
     m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("RecruitAFriend.MaxLevel", 60);
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
@@ -1958,6 +1966,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading area skip update...");
     sObjectMgr->LoadSkipUpdateZone();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Initializing item upgrade datas...");
+    sSpellMgr->InitializeItemUpgradeDatas();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -3093,6 +3104,8 @@ void World::ResetDailyQuests()
 void World::ResetCurrencyWeekCap()
 {
     CharacterDatabase.Execute("UPDATE `character_currency` SET `week_count` = 0");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekGames0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekGames1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekGames2` = 0, `weekWins2` = 0");
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())

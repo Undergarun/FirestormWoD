@@ -694,7 +694,16 @@ enum NPCFlags
     UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000,       // players with mounts that have vehicle data should have it set
     UNIT_NPC_FLAG_REFORGER              = 0x08000000,       // reforging
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // transmogrification
-    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000        // void storage
+    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // void storage
+    UNIT_NPC_FLAG_UNK3                  = 0x40000000,
+    UNIT_NPC_FLAG_UNK4                  = 0x80000000
+};
+
+/// Non Player Character flags
+enum NPCFlags2
+{
+    UNIT_NPC_FLAG2_NONE                 = 0x00000000,
+    UNIT_NPC_FLAG2_ITEM_UPGRADE         = 0x00000001    // Item Upgrade
 };
 
 enum MovementFlags

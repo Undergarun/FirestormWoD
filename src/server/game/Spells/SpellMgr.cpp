@@ -488,7 +488,6 @@ bool SpellMgr::IsSpellForbidden(uint32 spellid)
     return false;
 }
 
-
 uint32 SpellMgr::GetSpellDifficultyId(uint32 spellId) const
 {
     SpellDifficultySearcherMap::const_iterator i = mSpellDifficultySearcherMap.find(spellId);
@@ -1811,6 +1810,26 @@ void SpellMgr::LoadForbiddenSpells()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u forbidden spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void SpellMgr::InitializeItemUpgradeDatas()
+{
+    uint32 oldMSTime = getMSTime();
+
+    uint16 spTable[71][2] =
+    {
+        {458, 4914}, {463, 5152}, {466, 5293}, {470, 5497}, {471, 5552}, {474, 5704}, {476, 5812}, {478, 5920}, {480, 6037}, {483, 6206},
+        {484, 6262}, {487, 6445}, {489, 6564}, {490, 6628}, {491, 6684}, {493, 6810}, {494, 6874}, {496, 7007}, {497, 7070}, {498, 7140},
+        {500, 7272}, {501, 7337}, {502, 7410}, {503, 7478}, {504, 7548}, {505, 7619}, {506, 7690}, {507, 7759}, {508, 7836}, {509, 7907},
+        {510, 7982}, {511, 8054}, {512, 8132}, {513, 8209}, {514, 8286}, {515, 8364}, {516, 8441}, {517, 8521}, {518, 8603}, {519, 8680},
+        {520, 8764}, {521, 8841}, {522, 8925}, {524, 9093}, {525, 9179}, {526, 9265}, {528, 9440}, {530, 9618}, {532, 9797}, {535, 10078},
+        {536, 10169}, {539, 10458}, {540, 10557}, {541, 10655}, {543, 10859}, {544, 10957}, {545, 11060}, {548, 11372}, {549, 11479}, {553, 11916},
+        {557, 12370}, {559, 12602}, {561, 12841}, {563, 13079}, {566, 13452}, {567, 13578}, {570, 13961}, {572, 14225}, {574, 14492}, {576, 14766}, {580, 15321}
+    };
+
+    for (uint8 i = 0; i < 71; ++i)
+        mItemUpgradeDatas.insert(std::make_pair(spTable[i][0], spTable[i][1]));
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 71 item upgrade datas in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
 
 void SpellMgr::LoadSpellProcEvents()
 {
@@ -2698,8 +2717,9 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
-        // Player damage reduction (40% base resilience)
+        // Player damage reduction (72% base resilience)
         mSpellClassInfo[ClassID].insert(115043);
+        mSpellClassInfo[ClassID].insert(142689);
         // Player mastery activation
         mSpellClassInfo[ClassID].insert(114585);
 

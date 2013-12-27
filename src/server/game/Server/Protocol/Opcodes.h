@@ -79,7 +79,7 @@ enum Opcodes
     CMSG_BANKER_ACTIVATE                              = 0x166F, // 5.4.0 17399
     CMSG_BATTLEFIELD_JOIN                             = 0x1107, // 5.4.0 17399
     CMSG_BATTLEFIELD_LEAVE                            = 0x000,  // 5.0.5 16048
-    CMSG_BATTLEFIELD_LIST                             = 0x000,  // 5.0.5 16048
+    CMSG_BATTLEFIELD_LIST                             = 0x10A6, // 5.4.0 17399
     CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE        = 0x000,  // 5.0.5 16048
     CMSG_BATTLEFIELD_MGR_EXIT_REQUEST                 = 0x000,  // 5.0.5 16048
     CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE        = 0x000,  // 5.0.5 16048
@@ -332,6 +332,7 @@ enum Opcodes
     CMSG_MAIL_RETURN_TO_SENDER                        = 0x1486, // 5.4.0 17399
     CMSG_MAIL_TAKE_ITEM                               = 0x1B37, // 5.4.0 17399
     CMSG_MAIL_TAKE_MONEY                              = 0x16EE, // 5.4.0 17399
+    CMSG_MANEUVER_START                               = 0x1696, // 5.4.0 17399
     CMSG_MEETINGSTONE_INFO                            = 0x000,  // 5.0.5 16048
     CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0x000,  // 5.0.5 16048
     CMSG_MESSAGECHAT_ADDON_GUILD                      = 0x149A, // 5.4.0 17399
@@ -371,7 +372,7 @@ enum Opcodes
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x1526, // 5.4.0 17399
     CMSG_OFFER_PETITION                               = 0x170B, // 5.4.0 17399
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
-    CMSG_OPEN_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_OPEN_ITEM                                    = 0x1A01, // 5.4.0 17399
     CMSG_OPT_OUT_OF_LOOT                              = 0x000,  // 5.0.5 16048
     CMSG_PAGE_TEXT_QUERY                              = 0x1082, // 5.4.0 17399
     CMSG_PETITION_BUY                                 = 0x13AE, // 5.4.0 17399
@@ -410,7 +411,7 @@ enum Opcodes
     CMSG_QUESTGIVER_ACCEPT_QUEST                      = 0x12B6, // 5.4.0 17399
     CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0x1A37, // 5.4.0 17399
     CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0x1AB3, // 5.4.0 17399
-    CMSG_QUESTGIVER_HELLO                             = 0x0000, // unk opcode
+    CMSG_QUESTGIVER_HELLO                             = 0x163F, // 5.4.0 17399
     CMSG_QUESTGIVER_QUERY_QUEST                       = 0x1377, // 5.4.0 17399
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0x1223, // 5.4.0 17399
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY             = 0x132F, // 5.4.0 17399
@@ -443,10 +444,10 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
     CMSG_REQUEST_PET_INFO                             = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_PVP_REWARDS                          = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_PVP_REWARDS                          = 0x1B16, // 5.4.0 17399
     CMSG_REQUEST_RAID_INFO                            = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RATED_BG_INFO                        = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_RATED_BG_STATS                       = 0x000,  // 5.0.5 16048
+    CMSG_REQUEST_RATED_BG_STATS                       = 0x13C6, // 5.4.0 17399
     CMSG_REQUEST_RESEARCH_HISTORY                     = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_VEHICLE_EXIT                         = 0x1528, // 5.4.0 17399
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x000,  // 5.0.5 16048
@@ -551,6 +552,7 @@ enum Opcodes
     CMSG_UPDATE_ACCOUNT_DATA                          = 0x12DF, // 5.4.0 17399
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x000,  // 5.0.5 16048
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x000,  // 5.0.5 16048
+    CMSG_UPGRADE_ITEM                                 = 0x11A0, // 5.4.0 17399
     CMSG_USED_FOLLOW                                  = 0x000,  // 5.0.5 16048
     CMSG_USE_ITEM                                     = 0x14A8, // 5.4.0 17399
     CMSG_VIOLENCE_LEVEL                               = 0x1927, // 5.4.0 17399
@@ -566,10 +568,13 @@ enum Opcodes
     CMSG_WHOIS                                        = 0x000,  // 5.0.5 16048
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x1646, // 5.4.0 17399
     CMSG_WORLD_TELEPORT                               = 0x000,  // 5.0.5 16048
-    CMSG_WRAP_ITEM                                    = 0x000,  // 5.0.5 16048
+    CMSG_WRAP_ITEM                                    = 0x041,  // 5.4.0 17399
     CMSG_ZONEUPDATE                                   = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_MOVE                                  = 0x717,  // 5.4.0 17399 CUSTOM OPCODE, client patch
     CMSG_CORPSE_QUERY                                 = 0x13DB, // 5.0.5 16048
+    CMSG_CONQUEST_POINTS_STATS_REQUEST                = 0x1B16, // 5.4.0 17399
+    CMSG_ARENA_2v2_STATS_REQUEST                      = 0x1186, // 5.4.0 17399
+    CMSG_ARENA_3v3_STATS_REQUEST                      = 0x13C6, // 5.4.0 17399
 
     // MSG
     MSG_INSPECT_ARENA_TEAMS                           = 0x000,  // 5.0.5 16048
@@ -1053,7 +1058,7 @@ enum Opcodes
     SMSG_ITEM_SEND_PASSIVE                            = 0x000,  // 5.0.5 16048
     SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x000,  // 5.0.5 16048
     SMSG_ITEM_TIME_UPDATE                             = 0x53D,  // 5.4.0 17399 (JamList)
-    SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399 (JamList) ITEM_UPGRADE System (NYI)
+    SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x000,  // 5.0.5 16048
     SMSG_KICK_REASON                                  = 0x920,  // 5.4.0 17399 (JamList)
     SMSG_LEARNED_DANCE_MOVES                          = 0x000,  // 5.0.5 16048
@@ -1144,7 +1149,7 @@ enum Opcodes
     SMSG_MOVE_KNOCK_BACK                              = 0x16FA, // 5.4.0 17371
     SMSG_MOVE_LAND_WALK                               = 0x000,  // 5.0.5 16048
     SMSG_MOVE_NORMAL_FALL                             = 0x000,  // 5.0.5 16048
-    SMSG_MOVE_ROOT                                    = 0x130B, // 5.4.0 17371
+    SMSG_MOVE_ROOT                                    = 0x1747, // 5.4.0 17399
     SMSG_MOVE_UPDATE                                  = 0x139F, // 5.4.0 17399
     SMSG_MOVE_SET_ACTIVE_MOVER                        = 0x12E3, // 5.4.0 17399
     SMSG_MOVE_SET_CAN_FLY                             = 0x1353, // 5.4.0 17399
@@ -1163,7 +1168,7 @@ enum Opcodes
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x000,  // 5.0.5 16048
     SMSG_MOVE_SET_WALK_SPEED                          = 0x161B, // 5.4.0 17371
     SMSG_MOVE_TELEPORT                                = 0x1342, // 5.4.0 17399
-    SMSG_MOVE_UNROOT                                  = 0x1259, // 5.4.0 17371
+    SMSG_MOVE_UNROOT                                  = 0x1247, // 5.4.0 17399
     SMSG_MOVE_UNSET_CAN_FLY                           = 0x16CE, // 5.4.0 17371
     SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x000,// 5.0.5 16048
     SMSG_MOVE_UNSET_HOVER                             = 0x000,  // 5.0.5 16048
