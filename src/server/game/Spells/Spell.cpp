@@ -4314,7 +4314,7 @@ void Spell::SendSpellStart()
     uint32 unkCounter3 = 0;
     uint32 unkCounter4 = 0;
 
-    ObjectGuid unk4;
+    ObjectGuid predicatedHealOverrideTarget;
     ObjectGuid caster = m_caster->GetGUID();
     ObjectGuid powerUnit = caster;
     ObjectGuid itemCaster = m_CastItem ? m_CastItem->GetGUID() : uint64(caster);
@@ -4323,20 +4323,35 @@ void Spell::SendSpellStart()
     ObjectGuid unitTargetGUID = m_targets.GetObjectTargetGUID();
     ObjectGuid itemTargetGUID = m_targets.GetItemTargetGUID();
 
-
     bool unkBit = false;
     bool unkInt = false;
-    bool unkInt2 = false;
+    uint32 predicatedHealAmount = 0;
     bool unkInt3 = false;
     bool unkInt4 = false;
     bool unkInt5 = false;
-    bool hasRuneStateBefore = m_runesState;
+    bool hasRuneStateBefore = false; // don't needed in spell_start
     bool unkByte2 = false;
-    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetRunesState();
-    bool unkByte4 = false;
+    bool hasRuneStateAfter = false; // don't needed in spell_start
+    uint8 predictedHealType = 0;
     bool unkByte5 = false;
     bool unkByte6 = false;
     bool unkFloat = false;
+
+    // Initialize predicated heal values
+    if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
+    {
+        if (Unit* target = sObjectAccessor->FindUnit(m_targets.GetObjectTargetGUID()))
+        {
+            castFlags |= CAST_FLAG_HEAL_PREDICTION;
+            predictedHealType = 2;
+            predicatedHealOverrideTarget =  target->GetGUID();
+
+            // Guess spell healing amount
+            predicatedHealAmount = m_caster->CalculateSpellDamage(target, m_spellInfo, 0);
+            predicatedHealAmount = m_caster->SpellHealingBonusDone(target, m_spellInfo, predicatedHealAmount, HEAL);
+            predicatedHealAmount = m_caster->SpellHealingBonusTaken(target, m_spellInfo, predicatedHealAmount, HEAL);
+        }
+    }
 
     data.WriteBit(m_targets.HasDst());
     data.WriteBit(itemCaster[6]);
@@ -4360,15 +4375,15 @@ void Spell::SendSpellStart()
         data.WriteBitInOrder(destTransport, destBitsOrder);
     }
 
-    data.WriteBit(1);                                       // !has unk guid 4
+    data.WriteBit(1);                                       // !fake bit guid, has type 2 target guid
 
     uint8 bitsOrder1[8] = { 5, 3, 4, 6, 7, 1, 2, 0 };
-    data.WriteBitInOrder(unk4, bitsOrder1);
+    data.WriteBitInOrder(predicatedHealOverrideTarget, bitsOrder1);
 
     data.WriteBit(!unkBit);                                 // !unkBit
     data.WriteBit(!unkInt);                                 // !has unk int
     data.WriteBit(!hasRuneStateBefore);                     // !has rune before
-    data.WriteBit(!unkInt2);                                // !has unk int 2
+    data.WriteBit(!predicatedHealAmount);                                // !has predicated heal amount
     data.WriteBit(caster[7]);
 
     ObjectGuid* unkGuids1;
@@ -4401,7 +4416,7 @@ void Spell::SendSpellStart()
     }
 
     data.WriteBit(!hasRuneStateAfter);                               // !has rune after
-    data.WriteBit(!unkByte4);                               // !has unk byte 4
+    data.WriteBit(!predictedHealType);                               // !has predicated type
     data.WriteBit(itemCaster[4]);
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
@@ -4427,8 +4442,8 @@ void Spell::SendSpellStart()
     data.WriteBit(itemCaster[3]);
 
     uint8 runeCooldownCount = 0;
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
-        runeCooldownCount = 6;
+    //if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
+        //runeCooldownCount = 6;
 
     data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
     data.WriteBit(!itemTargetGUID);                         // !itemTargetGUID
@@ -4561,7 +4576,7 @@ void Spell::SendSpellStart()
     data.WriteByteSeq(itemCaster[7]);
 
     uint8 bytesOrder4[8] = { 1, 7, 3, 0, 6, 2, 4, 5 };
-    data.WriteBytesSeq(unk4, bytesOrder4);
+    data.WriteBytesSeq(predicatedHealOverrideTarget, bytesOrder4);
 
     if (unkByte6)
     {
@@ -4646,8 +4661,8 @@ void Spell::SendSpellStart()
 
     data.WriteByteSeq(caster[7]);
 
-    if (unkInt2)
-        data << uint32(0);
+    if (predicatedHealAmount)
+        data << uint32(predicatedHealAmount);
 
     if (unkFloat)
         data << float(0.0f);
@@ -4657,8 +4672,8 @@ void Spell::SendSpellStart()
     data.WriteByteSeq(caster[1]);
     data << uint32(m_spellInfo->Id);                        // spellId
 
-    if (unkByte4)
-        data << float(0.0f);
+    if (predictedHealType)
+        data << uint8(predictedHealType);
 
     for (uint32 i = 0; i < powerCount; i++)
     {
@@ -4809,7 +4824,7 @@ void Spell::SendSpellGo()
     ObjectGuid transportSrc = m_targets.GetSrc()->_transportGUID;
     ObjectGuid transportDst = m_targets.GetDst()->_transportGUID;
 
-    uint32 powerCount = 0;
+    uint32 powerCount = 1;
     uint32 powerTypeCount = 1;
     uint32 runeCooldownCount = 0;
     uint32 unkStringLength = 0;
@@ -5205,8 +5220,8 @@ void Spell::SendSpellGo()
 
     for (uint32 i = 0; i < powerCount; i++)
     {
-        data << uint32(m_caster->GetPower((Powers)m_spellPowerData->powerType));
-        data << int32((Powers)m_spellPowerData->powerType); //Power
+        data << int32(m_powerCost);// m_caster->GetPower((Powers)m_spellPowerData->powerType));
+        data << uint8(m_spellPowerData->powerType); //Power
     }
 
     if (runeCooldownCount)
