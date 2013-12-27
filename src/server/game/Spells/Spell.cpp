@@ -4330,9 +4330,9 @@ void Spell::SendSpellStart()
     bool unkInt3 = false;
     bool unkInt4 = false;
     bool unkInt5 = false;
-    bool hasRuneStateBefore = m_runesState;
+    bool hasRuneStateBefore = false; // don't needed in spell_start
     bool unkByte2 = false;
-    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetRunesState();
+    bool hasRuneStateAfter = false; // don't needed in spell_start
     bool unkByte4 = false;
     bool unkByte5 = false;
     bool unkByte6 = false;
@@ -4427,8 +4427,8 @@ void Spell::SendSpellStart()
     data.WriteBit(itemCaster[3]);
 
     uint8 runeCooldownCount = 0;
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
-        runeCooldownCount = 6;
+    //if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
+        //runeCooldownCount = 6;
 
     data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
     data.WriteBit(!itemTargetGUID);                         // !itemTargetGUID
@@ -4809,7 +4809,7 @@ void Spell::SendSpellGo()
     ObjectGuid transportSrc = m_targets.GetSrc()->_transportGUID;
     ObjectGuid transportDst = m_targets.GetDst()->_transportGUID;
 
-    uint32 powerCount = 0;
+    uint32 powerCount = 1;
     uint32 powerTypeCount = 1;
     uint32 runeCooldownCount = 0;
     uint32 unkStringLength = 0;
@@ -5205,8 +5205,8 @@ void Spell::SendSpellGo()
 
     for (uint32 i = 0; i < powerCount; i++)
     {
-        data << uint32(m_caster->GetPower((Powers)m_spellPowerData->powerType));
-        data << int32((Powers)m_spellPowerData->powerType); //Power
+        data << int32(m_powerCost);// m_caster->GetPower((Powers)m_spellPowerData->powerType));
+        data << uint8(m_spellPowerData->powerType); //Power
     }
 
     if (runeCooldownCount)
