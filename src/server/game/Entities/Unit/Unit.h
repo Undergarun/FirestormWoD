@@ -50,8 +50,8 @@ enum SpellInterruptFlags
     SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
     SPELL_INTERRUPT_FLAG_UNK3         = 0x04, // any info?
     SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x08, // interrupt
-    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10,               // _complete_ interrupt on direct damage
-    //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
+    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10  // _complete_ interrupt on direct damage
+    //SPELL_INTERRUPT_UNK             = 0x20  // unk, 564 of 727 spells having this spell start with "Glyph"
 };
 
 // See SpellAuraInterruptFlags for other values definitions
@@ -83,14 +83,14 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_MOUNT               = 0x00020000,   // 17   misdirect, aspect, swim speed
     AURA_INTERRUPT_FLAG_NOT_SEATED          = 0x00040000,   // 18   removed by standing up (used by food and drink mostly and sleep/Fake Death like)
     AURA_INTERRUPT_FLAG_CHANGE_MAP          = 0x00080000,   // 19   leaving map/getting teleported
-    AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION    = 0x00100000,   // 20   removed by auras that make you invulnerable, or make other to lose selection on you
+    AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION = 0x00100000,   // 20   removed by auras that make you invulnerable, or make other to lose selection on you
     AURA_INTERRUPT_FLAG_UNK21               = 0x00200000,   // 21
     AURA_INTERRUPT_FLAG_TELEPORTED          = 0x00400000,   // 22
     AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT    = 0x00800000,   // 23   removed by entering pvp combat
     AURA_INTERRUPT_FLAG_DIRECT_DAMAGE       = 0x01000000,   // 24   removed by any direct damage
     AURA_INTERRUPT_FLAG_LANDING             = 0x02000000,   // 25   removed by hitting the ground
 
-    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
+    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE)
 };
 
 enum SpellModOp
@@ -140,7 +140,7 @@ enum SpellValueMod
     SPELLVALUE_BASE_POINT5,
     SPELLVALUE_RADIUS_MOD,
     SPELLVALUE_MAX_TARGETS,
-    SPELLVALUE_AURA_STACK,
+    SPELLVALUE_AURA_STACK
 };
 
 typedef std::pair<SpellValueMod, int32>     CustomSpellValueMod;
@@ -365,10 +365,10 @@ typedef std::list<SpellImmune> SpellImmuneList;
 
 enum UnitModifierType
 {
-    BASE_VALUE = 0,
-    BASE_PCT = 1,
-    TOTAL_VALUE = 2,
-    TOTAL_PCT = 3,
+    BASE_VALUE        = 0,
+    BASE_PCT          = 1,
+    TOTAL_VALUE       = 2,
+    TOTAL_PCT         = 3,
     MODIFIER_TYPE_END = 4
 };
 
@@ -414,7 +414,7 @@ enum TriggerCastFlags
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
     TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Disallows proc events from triggered spell (default)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
-    TRIGGERED_FULL_MASK                             = 0xFFFFFFFF,
+    TRIGGERED_FULL_MASK                             = 0xFFFFFFFF
 };
 
 enum UnitMods
@@ -482,11 +482,11 @@ enum BaseModType
 
 enum DeathState
 {
-    ALIVE       = 0,
-    JUST_DIED   = 1,
-    CORPSE      = 2,
-    DEAD        = 3,
-    JUST_RESPAWNED = 4,
+    ALIVE          = 0,
+    JUST_DIED      = 1,
+    CORPSE         = 2,
+    DEAD           = 3,
+    JUST_RESPAWNED = 4
 };
 
 enum UnitState
@@ -587,7 +587,7 @@ enum CombatRating
     CR_EXPERTISE                        = 23,
     CM_ARMOR_PENETRATION                = 24,
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,
+    CR_PVP_POWER                        = 26
 };
 
 #define MAX_COMBAT_RATING         27
@@ -699,11 +699,41 @@ enum NPCFlags
     UNIT_NPC_FLAG_UNK4                  = 0x80000000
 };
 
-/// Non Player Character flags
+/// Non Player Character flags2
 enum NPCFlags2
 {
     UNIT_NPC_FLAG2_NONE                 = 0x00000000,
-    UNIT_NPC_FLAG2_ITEM_UPGRADE         = 0x00000001    // Item Upgrade
+    UNIT_NPC_FLAG2_ITEM_UPGRADE         = 0x00000001,      // Item Upgrade
+    // UNIT_NPC_FLAG2_BLACKMARKET          = 0x00000002,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000004,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000008,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000010,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000020,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000040,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000080,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000100,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000200,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000400,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00000800,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00001000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00002000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00004000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00008000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00010000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00020000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00040000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00080000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00100000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00200000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00400000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x00800000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x01000000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x02000000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x08000000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x10000000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x20000000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x40000000,
+    // UNIT_NPC_FLAG2_UNK                  = 0x80000000
 };
 
 enum MovementFlags
@@ -739,7 +769,7 @@ enum MovementFlags
     MOVEMENTFLAG_FALLING_SLOW          = 0x08000000,               // active rogue safe fall spell (passive)
     MOVEMENTFLAG_HOVER                 = 0x10000000,               // hover, cannot jump
 
-    // TODO: Check if PITCH_UP and PITCH_DOWN really belong here..
+    // @TODO: Check if PITCH_UP and PITCH_DOWN really belong here..
     MOVEMENTFLAG_MASK_MOVING =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT |
         MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING |
@@ -775,7 +805,7 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK10                         = 0x00000100,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT         = 0x00000200,
     MOVEMENTFLAG2_INTERPOLATED_TURNING          = 0x00000400,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING         = 0x00000800,
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING         = 0x00000800
 };
 
 enum UnitTypeMask
@@ -790,7 +820,7 @@ enum UnitTypeMask
     UNIT_MASK_PUPPET                = 0x00000040,
     UNIT_MASK_HUNTER_PET            = 0x00000080,
     UNIT_MASK_CONTROLABLE_GUARDIAN  = 0x00000100,
-    UNIT_MASK_ACCESSORY             = 0x00000200,
+    UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
 namespace Movement{
@@ -804,7 +834,7 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_3             = 2,
     DIMINISHING_LEVEL_IMMUNE        = 3,
     DIMINISHING_LEVEL_4             = 3,
-    DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4,
+    DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
 struct DiminishingReturn
@@ -1000,7 +1030,7 @@ struct CalcDamageInfo
     uint32 procVictim;
     uint32 procEx;
     uint32 cleanDamage;          // Used only for rage calculation
-    MeleeHitOutcome hitOutCome;  // TODO: remove this field (need use TargetState)
+    MeleeHitOutcome hitOutCome;  // @TODO: remove this field (need use TargetState)
 };
 
 // Spell damage info structure based on structure sending in SMSG_SPELL_NON_MELEE_DAMAGE_LOG opcode
@@ -1263,7 +1293,7 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_FIRE  = 63,
     SUMMON_TYPE_TOTEM_EARTH = 81,
     SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83,
+    SUMMON_TYPE_TOTEM_AIR   = 83
 };
 
 enum Stagger
