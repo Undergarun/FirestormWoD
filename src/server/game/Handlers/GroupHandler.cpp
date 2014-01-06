@@ -561,7 +561,7 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     else
         data << uint32(0);
 
-    data << uint8(1);
+    data << uint8(unk);
     data << uint32(newRole); // New Role
 
     data.WriteBit(targetGuid[0]);
@@ -777,7 +777,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     /********************/
 
     // everything's fine, do it
-    if (x == 0xFF)                                          // target icon request
+    if (x == 0xFF)                                           // target icon request
         group->SendTargetIconList(this);
     else                                                    // target icon update
     {
@@ -1603,7 +1603,7 @@ void WorldSession::HandleRolePollBegin(WorldPacket& recvData)
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[2]);
 
-    data << uint8(1);
+    data << uint8(unk);
 
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[1]);
