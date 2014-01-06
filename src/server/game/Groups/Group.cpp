@@ -576,11 +576,16 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             bool automaticDistrib = false;
             bool sendDifficulty = true;
 
+            uint32 memberCount = 0;
+            ObjectGuid memberGuids = NULL;
+
+            uint32 memberNameLength = 0;
+
             WorldPacket data(SMSG_PARTY_UPDATE);
 
             data.WriteBit(leaderGuid[1]);
             data.WriteBit(groupGuid[7]);
-            data.WriteBits(0, 21);
+            data.WriteBits(memberCount, 21);
 
             data.WriteBit(leaderGuid[2]);
             data.WriteBit(groupGuid[0]);
@@ -639,7 +644,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             data.WriteByteSeq(looterGuid[4]);
 
             data.WriteByteSeq(groupGuid[3]);
-            data << uint8(1);               // unk, always 1 ?
+            data << uint8(0);               // unk byte
             data.WriteByteSeq(leaderGuid[7]);
 
             if (sendDifficulty)
@@ -651,14 +656,14 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             data.WriteByteSeq(groupGuid[0]);
             data.WriteByteSeq(groupGuid[6]);
             data.WriteByteSeq(leaderGuid[3]);
-            data << uint8(2);               // unk, always 2 ?
+            data << uint8(1);               // unk, always 1 ?
             data.WriteByteSeq(leaderGuid[1]);
             data.WriteByteSeq(leaderGuid[0]);
             data.WriteByteSeq(leaderGuid[2]);
             data.WriteByteSeq(leaderGuid[4]);
             data.WriteByteSeq(leaderGuid[6]);
             data << uint8(GetGroupType());
-            data << uint32(0xFFFFFFFF);
+            data << uint32(0);              // unk counter ?
             data.WriteByteSeq(groupGuid[2]);
             data.WriteByteSeq(groupGuid[1]);
             data.WriteByteSeq(groupGuid[4]);
@@ -883,11 +888,16 @@ void Group::Disband(bool hideDestroy /* = false */)
             bool automaticDistrib = false;
             bool sendDifficulty = true;
 
+            uint32 memberCount = 0;
+            ObjectGuid memberGuids = NULL;
+
+            uint32 memberNameLength = 0;
+
             data.Initialize(SMSG_PARTY_UPDATE);
 
             data.WriteBit(leaderGuid[1]);
             data.WriteBit(groupGuid[7]);
-            data.WriteBits(0, 21);
+            data.WriteBits(memberCount, 21);
 
             data.WriteBit(leaderGuid[2]);
             data.WriteBit(groupGuid[0]);
@@ -946,7 +956,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             data.WriteByteSeq(looterGuid[4]);
 
             data.WriteByteSeq(groupGuid[3]);
-            data << uint8(1);               // unk, always 1 ?
+            data << uint8(0);               // unk byte
             data.WriteByteSeq(leaderGuid[7]);
 
             if (sendDifficulty)
@@ -958,14 +968,14 @@ void Group::Disband(bool hideDestroy /* = false */)
             data.WriteByteSeq(groupGuid[0]);
             data.WriteByteSeq(groupGuid[6]);
             data.WriteByteSeq(leaderGuid[3]);
-            data << uint8(2);               // unk, always 2 ?
+            data << uint8(1);               // unk, always 1 ?
             data.WriteByteSeq(leaderGuid[1]);
             data.WriteByteSeq(leaderGuid[0]);
             data.WriteByteSeq(leaderGuid[2]);
             data.WriteByteSeq(leaderGuid[4]);
             data.WriteByteSeq(leaderGuid[6]);
             data << uint8(GetGroupType());
-            data << uint32(0xFFFFFFFF);
+            data << uint32(0);              // unk counter ?
             data.WriteByteSeq(groupGuid[2]);
             data.WriteByteSeq(groupGuid[1]);
             data.WriteByteSeq(groupGuid[4]);
@@ -2008,7 +2018,7 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
     data.WriteByteSeq(targetGuid[0]);
     data.WriteByteSeq(targetGuid[3]);
 
-    data << uint8(1);
+    data << uint8(0);                                       // set targets
 
     BroadcastPacket(&data, true);
 }
@@ -2107,6 +2117,11 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteBit(groupGuid[7]);
     data.WriteBits(memberCount, 21);
 
+    // Send self first
+    data.WriteBits(strlen(player->GetName()), 6);
+    uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
+    data.WriteBitInOrder(playerGUID, bitsSelfOrder);
+
     for (uint32 i = 0; i < memberCount; i++)
     {
         if (memberGuids[i] == playerGUID)
@@ -2117,11 +2132,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         uint8 bitsOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
         data.WriteBitInOrder(memberGuids[i], bitsOrder);
     }
-
-    // Send self last
-    data.WriteBits(strlen(player->GetName()), 6);
-    uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
-    data.WriteBitInOrder(playerGUID, bitsSelfOrder);
 
     data.WriteBit(leaderGuid[2]);
     data.WriteBit(groupGuid[0]);
@@ -2169,6 +2179,26 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         data << uint32(0);
     }
 
+    // Send self first
+    ObjectGuid plrGuid = playerGUID;
+    Player* plr = ObjectAccessor::FindPlayer(playerGUID);
+    uint8 onlineState = (plr) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+    onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
+
+    data.WriteByteSeq(plrGuid[5]);
+    data << uint8(slot->flags);
+    data << uint8(slot->roles);
+    data.WriteByteSeq(plrGuid[3]);
+    data.WriteByteSeq(plrGuid[6]);
+    data << uint8(slot->group);
+    data.append(slot->name.c_str(), slot->name.size());
+    data.WriteByteSeq(plrGuid[0]);
+    data.WriteByteSeq(plrGuid[2]);
+    data << uint8(onlineState);
+    data.WriteByteSeq(plrGuid[7]);
+    data.WriteByteSeq(plrGuid[1]);
+    data.WriteByteSeq(plrGuid[4]);
+
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         if (playerGUID == citr->guid)
@@ -2178,7 +2208,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
         Player* member = ObjectAccessor::FindPlayer(citr->guid);
         uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
-        //onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
+        onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
         data.WriteByteSeq(guid[5]);
         data << uint8(citr->flags);
@@ -2194,26 +2224,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[4]);
     }
-
-    // Send self last
-    ObjectGuid plrGuid = playerGUID;
-    Player* plr = ObjectAccessor::FindPlayer(playerGUID);
-    uint8 onlineState = (plr) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
-    //onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
-
-    data.WriteByteSeq(plrGuid[5]);
-    data << uint8(slot->flags);
-    data << uint8(slot->roles);
-    data.WriteByteSeq(plrGuid[3]);
-    data.WriteByteSeq(plrGuid[6]);
-    data << uint8(slot->group);
-    data.append(slot->name.c_str(), slot->name.size());
-    data.WriteByteSeq(plrGuid[0]);
-    data.WriteByteSeq(plrGuid[2]);
-    data << uint8(onlineState);
-    data.WriteByteSeq(plrGuid[7]);
-    data.WriteByteSeq(plrGuid[1]);
-    data.WriteByteSeq(plrGuid[4]);
 
     data << uint32(m_counter++);
 
@@ -2232,7 +2242,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     }
 
     data.WriteByteSeq(groupGuid[3]);
-    data << uint8(1);               // unk, always 1 ?
+    data << uint8(0);               // unk byte
     data.WriteByteSeq(leaderGuid[7]);
 
     if (sendDifficulty)
@@ -2244,14 +2254,14 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteByteSeq(groupGuid[0]);
     data.WriteByteSeq(groupGuid[6]);
     data.WriteByteSeq(leaderGuid[3]);
-    data << uint8(2);               // unk, always 2 ?
+    data << uint8(1);               // unk, always 1 ?
     data.WriteByteSeq(leaderGuid[1]);
     data.WriteByteSeq(leaderGuid[0]);
     data.WriteByteSeq(leaderGuid[2]);
     data.WriteByteSeq(leaderGuid[4]);
     data.WriteByteSeq(leaderGuid[6]);
     data << uint8(GetGroupType());
-    data << uint32(GetMembersCount() - 1);
+    data << uint32(0);              // unk counter ?
     data.WriteByteSeq(groupGuid[2]);
     data.WriteByteSeq(groupGuid[1]);
     data.WriteByteSeq(groupGuid[4]);

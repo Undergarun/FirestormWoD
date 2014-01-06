@@ -2173,8 +2173,15 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data)
 
     Battleground* bg = _player->GetBattleground();
 
-    uint64 guid;
-    recv_data >> guid;
+    ObjectGuid guid;
+
+    uint8 bitsOrder[8] = { 5, 3, 0, 6, 1, 7, 4, 2 };
+    recv_data.ReadBitInOrder(guid, bitsOrder);
+
+    recv_data.FlushBits();
+
+    uint8 bytesOrder[8] = { 6, 7, 3, 0, 5, 4, 2, 1 };
+    recv_data.ReadBytesSeq(guid, bytesOrder);
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -2195,11 +2202,17 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
 
     Battleground* bg = _player->GetBattleground();
+    ObjectGuid npcGuid;
 
-    uint64 guid;
-    recv_data >> guid;
+    uint8 bitsOrder[8] = { 6, 2, 0, 3, 5, 4, 1, 7 };
+    recv_data.ReadBitInOrder(npcGuid, bitsOrder);
 
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
+    recv_data.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 2, 6, 0, 1, 7, 3, 5 };
+    recv_data.ReadBytesSeq(npcGuid, bytesOrder);
+
+    Creature* unit = GetPlayer()->GetMap()->GetCreature(npcGuid);
     if (!unit)
         return;
 
@@ -2207,10 +2220,10 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
         return;
 
     if (bg)
-        bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+        bg->AddPlayerToResurrectQueue(npcGuid, _player->GetGUID());
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-        bf->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+        bf->AddPlayerToResurrectQueue(npcGuid, _player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
