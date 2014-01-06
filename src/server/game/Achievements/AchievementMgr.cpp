@@ -3191,7 +3191,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const *ac
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_EQUALS: // 15
             {
                 // miscValue1 is itemid
-                ItemTemplate const * const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
                 if (!item || item->Quality < reqValue)
                     return false;
 

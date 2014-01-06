@@ -655,6 +655,17 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
     uint8 bytesOrder[8] = { 7, 4, 6, 5, 2, 3, 0, 1 };
     recvData.ReadBytesSeq(objectGuid, bytesOrder);
 
+    if (IS_UNIT_GUID(objectGuid))
+    {
+        if (Unit* unit = Unit::GetUnit(*(GetPlayer()), objectGuid))
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Received CMSG_PAGE_TEXT_QUERY. Unit Entry: %u", unit->GetEntry());
+    }
+    else if (IS_GAMEOBJECT_GUID(objectGuid))
+    {
+        if (GameObject* go = GetPlayer()->GetMap()->GetGameObject(objectGuid))
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Received CMSG_PAGE_TEXT_QUERY. Gameobject Entry: %u", go->GetEntry());
+    }
+
     while (pageID)
     {
         PageText const* pageText = sObjectMgr->GetPageText(pageID);

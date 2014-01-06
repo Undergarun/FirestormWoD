@@ -291,7 +291,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         return false;
 
     // For Item Upgrade
-    if (itemProto->ItemLevel >= 458)
+    if (itemProto->ItemLevel >= 458 && IsStuffItem())
     {
         if (IsPvPItem())
         {
@@ -310,7 +310,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
                 SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
         }
 
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
     }
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
@@ -498,18 +498,18 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     if (uint32 transmogId = fields[9].GetInt32())
     {
         SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, transmogId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
     }
 
     if (uint32 upgradeId = fields[10].GetUInt32())
     {
         SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
     }
     else
     {
         // For Item Upgrade
-        if (proto->ItemLevel >= 458)
+        if (proto->ItemLevel >= 458 && IsStuffItem())
         {
             if (IsPvPItem())
             {
@@ -528,7 +528,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
                     SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
             }
 
-            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
         }
     }
 
@@ -1582,6 +1582,34 @@ bool Item::IsPvPItem() const
         if (proto->ItemStat[i].ItemStatType == ITEM_MOD_PVP_POWER
             || proto->ItemStat[i].ItemStatType == ITEM_MOD_RESILIENCE_RATING)
             return true;
+
+    return false;
+}
+
+bool Item::IsStuffItem() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+        return false;
+
+    uint32 invType = proto->InventoryType;
+
+    switch (invType)
+    {
+        case INVTYPE_NON_EQUIP:
+        case INVTYPE_BODY:
+        case INVTYPE_BAG:
+        case INVTYPE_TABARD:
+        case INVTYPE_HOLDABLE:
+        case INVTYPE_AMMO:
+        case INVTYPE_THROWN:
+        case INVTYPE_QUIVER:
+        case INVTYPE_RELIC:
+        case INVTYPE_RANGEDRIGHT:
+            return false;
+        default:
+            return true;
+    }
 
     return false;
 }

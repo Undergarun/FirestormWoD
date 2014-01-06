@@ -2054,7 +2054,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         if (!newEntries[i]) // reset look
         {
             itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, 0);
-            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
+            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
             player->SetVisibleItemSlot(slots[i], itemTransmogrified);
         }
         else
@@ -2067,7 +2067,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
             // All okay, proceed
             itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, newEntries[i]);
-            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
+            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
             player->SetVisibleItemSlot(slots[i], itemTransmogrified);
 
             itemTransmogrified->UpdatePlayedTime(player);
@@ -2168,7 +2168,8 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (item->HasFlag(ITEM_FIELD_MODIFIERS_MASK, 1))
+    // Player has already reforged this item, must to reset it
+    if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0))
     {
         SendReforgeResult(false);
         return;
@@ -2310,7 +2311,8 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     }
 
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
-    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 7);
+    // Must apply the three flags
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
     item->SetState(ITEM_CHANGED, player);
 
     // Don't forget to remove currency cost
@@ -2319,5 +2321,5 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     if (item->IsEquipped())
         player->ApplyItemUpgrade(item, true);
 
-    player->ModifyCurrency(itemUpEntry->currencyId, -itemUpEntry->currencyCost, false, true, true);
+    player->ModifyCurrency(itemUpEntry->currencyId, -int32(itemUpEntry->currencyCost), false, true, true);
 }

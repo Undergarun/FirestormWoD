@@ -759,6 +759,56 @@ void Player::UpdateMasteryPercentage()
         UpdateArmor();
 }
 
+void Player::UpdatePvPPowerPercentage()
+{
+    float value = GetRatingBonusValue(CR_PVP_POWER);
+    value /= 400;
+    value = value < 0.0f ? 0.0f : value;
+
+    float damage_value = value;
+    float heal_value = value;
+
+    switch (GetSpecializationId(GetActiveSpec()))
+    {
+        // All other specializations and classes (including tanking) receive a 40% bonus to healing from PvP Power.
+        case SPEC_WARRIOR_ARMS:
+        case SPEC_WARRIOR_FURY:
+        case SPEC_WARRIOR_PROTECTION:
+        case SPEC_HUNTER_BEASTMASTER:
+        case SPEC_HUNTER_MARKSMAN:
+        case SPEC_HUNTER_SURVIVAL:
+        case SPEC_ROGUE_ASSASSINATION:
+        case SPEC_ROGUE_COMBAT:
+        case SPEC_ROGUE_SUBTLETY:
+        case SPEC_DK_BLOOD:
+        case SPEC_DK_FROST:
+        case SPEC_DK_UNHOLY:
+        case SPEC_MAGE_ARCANE:
+        case SPEC_MAGE_FIRE:
+        case SPEC_MAGE_FROST:
+        case SPEC_WARLOCK_AFFLICTION:
+        case SPEC_WARLOCK_DEMONOLOGY:
+        case SPEC_WARLOCK_DESTRUCTION:
+            heal_value *= 0.4f;
+            break;
+        // Healing specializations receive a 100% bonus to healing from PvP Power.
+        case SPEC_PALADIN_HOLY:
+        case SPEC_PRIEST_DISCIPLINE:
+        case SPEC_PRIEST_HOLY:
+        case SPEC_SHAMAN_RESTORATION:
+        case SPEC_DROOD_RESTORATION:
+        case SPEC_MONK_WINDWALKER:
+            damage_value = 0.0f;
+            break;
+        // Damage specializations for Druids, Monks, Paladins, Priests, and Shaman receive a 70% bonus to healing from PvP Power.
+        default:
+            heal_value *= 0.7f;
+    }
+
+    SetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE, damage_value);
+    SetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, heal_value);
+}
+
 void Player::UpdateMeleeHitChances()
 {
     m_modMeleeHitChance = 0;

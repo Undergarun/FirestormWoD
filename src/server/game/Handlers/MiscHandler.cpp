@@ -952,15 +952,23 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RESURRECT_RESPONSE");
 
-    uint64 guid;
-    uint8 status;
-    recvData >> guid;
+    uint32 status;
     recvData >> status;
+
+    ObjectGuid guid;
+
+    uint8 bitsOrder[8] = { 3, 4, 1, 5, 2, 0, 7, 6 };
+    recvData.ReadBitInOrder(guid, bitsOrder);
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 0, 6, 4, 5, 3, 1, 2, 7 };
+    recvData.ReadBytesSeq(guid, bytesOrder);
 
     if (GetPlayer()->isAlive())
         return;
 
-    if (status == 0)
+    if (status == 1)
     {
         GetPlayer()->ClearResurrectRequestData();           // reject
         return;
@@ -1504,10 +1512,10 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
 
         data.WriteBit(itemCreator[0]);
-        data.WriteBit(0);               // unk bit
+        data.WriteBit(0);               // unk bit 32
         data.WriteBit(itemCreator[6]);
         data.WriteBit(itemCreator[7]);
-        data.WriteBit(0);               // unk bit
+        data.WriteBit(0);               // unk bit 16
         data.WriteBit(itemCreator[3]);
         data.WriteBit(itemCreator[2]);
         data.WriteBit(itemCreator[1]);
@@ -1541,6 +1549,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
         ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
 
+        // related to random stats
         // if (unkBit)
         //     data << uint16(UNK);
 
@@ -1553,7 +1562,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
             if (!enchId)
                 continue;
 
-            data << uint8(0);           // unk byte
+            data << uint8(j);
             data << uint32(enchId);
         }
 
@@ -1563,7 +1572,41 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         data.WriteByteSeq(itemCreator[0]);
         data.WriteByteSeq(itemCreator[2]);
         data.WriteByteSeq(itemCreator[6]);
-        data << uint32(0);              // unk byte counter
+
+        uint32 mask = 0;
+        uint32 modifiers = 0;
+
+        if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0))
+        {
+            ++modifiers;
+            mask |= 1;
+        }
+
+        if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1))
+        {
+            ++modifiers;
+            mask |= 2;
+        }
+
+        if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2))
+        {
+            ++modifiers;
+            mask |= 4;
+        }
+
+        data << uint32(modifiers == 0 ? 0 : ((modifiers * 4) + 4));
+
+        if (modifiers > 0)
+        {
+            data << uint32(mask);
+            if (uint32 reforge = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0))
+                data << uint32(reforge);
+            if (uint32 transmogrification = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1))
+                data << uint32(transmogrification);
+            if (uint32 upgrade = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2))
+                data << uint32(upgrade);
+        }
+
         data.WriteByteSeq(itemCreator[1]);
         data.WriteByteSeq(itemCreator[7]);
         data.WriteByteSeq(itemCreator[5]);

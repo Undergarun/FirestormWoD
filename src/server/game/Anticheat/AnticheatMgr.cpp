@@ -321,9 +321,10 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
         // display warning at the center of the screen, hacky way?
         std::string str = "";
         str = "|cFFFFFC00[Anticheat]|cFF00FFFF[|cFF60FF00" + std::string(player->GetName()) + "|cFF00FFFF] Cheat detected!";
-        WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-        data << str;
-        //sWorld->SendGlobalGMMessage(&data); NO MORE OF THIS PLEASE THIS IS FLOODING MY SCREEN FOR NOTHIN'
+        WorldPacket data(SMSG_NOTIFICATION, 2 + str.length());
+        data.WriteBits(str.length(), 12);
+        data.FlushBits();
+        data.WriteString(str);
     }
 }
 

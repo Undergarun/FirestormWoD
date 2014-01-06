@@ -73,7 +73,7 @@ void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
         return;
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "]", gguid, guid);
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS);
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         if (Player* plrg = itr->getSource())
@@ -130,7 +130,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
             // Update internal kick cooldown of kicked
         */
 
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1);
         player->GetSession()->SendLfgUpdateParty(updateData);
         if (player->GetMap()->IsDungeon())                    // Teleport player out the dungeon
             sLFGMgr->TeleportPlayer(player, true);
@@ -157,14 +157,14 @@ void LFGGroupScript::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 o
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
     Player* player = ObjectAccessor::FindPlayer(newLeaderGuid);
 
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1);
     if (player)
         player->GetSession()->SendLfgUpdateParty(updateData);
 
     player = ObjectAccessor::FindPlayer(oldLeaderGuid);
     if (player)
     {
-        updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND;
+        updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND_UNK16;
         player->GetSession()->SendLfgUpdateParty(updateData);
     }
 }

@@ -2722,6 +2722,8 @@ void SpellMgr::LoadSpellClassInfo()
         mSpellClassInfo[ClassID].insert(142689);
         // Player mastery activation
         mSpellClassInfo[ClassID].insert(114585);
+        // Battle Fatigue
+        mSpellClassInfo[ClassID].insert(134735);
 
         // All Rune for DK
         if (ClassID == CLASS_DEATH_KNIGHT)

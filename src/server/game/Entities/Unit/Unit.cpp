@@ -5380,11 +5380,15 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     data.WriteBit(targetGuid[2]);
     data.WriteBit(targetGuid[4]);
     data.WriteBit(casterGuid[4]);
+
+    bool overheal = pInfo->overDamage && aura->GetAuraType() == SPELL_AURA_PERIODIC_HEAL || aura->GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH;
+    bool overdamage = pInfo->overDamage && aura->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || aura->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
+
     data.WriteBit(pInfo->critical);                         // IsCrit
-    data.WriteBit(!(pInfo->overDamage > 0));                // Inversed, HasOverkill
+    data.WriteBit(!overdamage);                             // Inversed, HasOverkill
     data.WriteBit(!(pInfo->absorb > 0));                    // Inversed, HasAbsorb
     data.WriteBit(!aura->GetSpellInfo()->GetSchoolMask());  // Inversed, HasSchoolMask
-    data.WriteBit(false);                                   // Inversed, HasOverHeal
+    data.WriteBit(overheal);                                // Inversed, HasOverHeal
     data.WriteBit(casterGuid[0]);
     data.WriteBit(targetGuid[0]);
     data.WriteBit(targetGuid[7]);
@@ -5396,17 +5400,13 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     data.WriteByteSeq(casterGuid[7]);
 
     // OverHeal, send -1 if any
-    if (pInfo->overDamage)
+    if (overheal)
         data << uint32(pInfo->overDamage);
-    else
-        data << uint32(-1);
 
     data << uint32(aura->GetAuraType());
 
-    if (pInfo->overDamage && aura->GetAuraType() == SPELL_AURA_PERIODIC_HEAL || aura->GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
+    if (overdamage)
         data << uint32(pInfo->overDamage);
-    else
-        data << uint32(0);
 
     if (pInfo->absorb)
         data << uint32(pInfo->absorb);
@@ -11372,6 +11372,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
 
+    if (victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+        CastSpell(victim, 134735, true);
+
     // Some spells don't benefit from done mods
     if (spellProto->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)
         return pdamage;
@@ -11409,7 +11412,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Apply Power PvP damage bonus - Only works in Battlegrounds or Arena
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && isPet() && GetOwner() && GetOwner()->ToPlayer())))
     {
-        float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
+        float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
         AddPct(DoneTotalMod, PvPPower);
     }
 
@@ -12470,6 +12473,13 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     float DoneTotalMod = 1.0f;
     int32 DoneTotal = 0;
 
+    // Apply Power PvP healing bonus - Only works in Battlegrounds or Arena
+    if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && GetMap() && GetMap()->IsBattlegroundOrArena())
+    {
+        float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING);
+        AddPct(DoneTotalMod, PvPPower);
+    }
+
     // Healing done percent
     AuraEffectList const& mHealingDonePct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
     for (AuraEffectList::const_iterator i = mHealingDonePct.begin(); i != mHealingDonePct.end(); ++i)
@@ -12503,13 +12513,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             default:
                 break;
         }
-    }
-
-    // Apply Power PvP healing bonus - Only works in Battlegrounds or Arena
-    if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && GetMap() && GetMap()->IsBattlegroundOrArena())
-    {
-        float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
-        AddPct(DoneTotalMod, PvPPower);
     }
 
     // Done fixed damage bonus auras
@@ -12929,6 +12932,9 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (!victim || pdamage == 0)
         return 0;
 
+    if (victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+        CastSpell(victim, 134735, true);
+
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
     // Done fixed damage bonus auras
@@ -12991,7 +12997,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // Apply Power PvP damage bonus - Only works in Battlegrounds or Arena
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && victim->GetGUID() == TYPEID_PLAYER)
     {
-        float PvPPower = ToPlayer()->GetRatingBonusValue(CR_PVP_POWER);
+        float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
         AddPct(DoneTotalMod, PvPPower);
     }
 
@@ -15708,7 +15714,7 @@ void Unit::SetPower(Powers power, int32 val)
 
     SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
 
-    if (IsInWorld())
+    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER)
     {
         WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
         ObjectGuid guid = GetGUID();
@@ -15738,7 +15744,7 @@ void Unit::SetPower(Powers power, int32 val)
         data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[5]);
 
-        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
+        ToPlayer()->GetSession()->SendPacket(&data);
     }
 
     // Custom MoP Script
@@ -19166,14 +19172,14 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     uint8 bitOrder[8] = {4, 6, 3, 7, 2, 5, 0, 1};
     data.WriteBitInOrder(guid, bitOrder);
     data.WriteByteSeq(guid[2]);
-    data << float(vsin);
-    data.WriteByteSeq(guid[3]);
-    data << float(speedXY);
     data << float(speedZ);
+    data.WriteByteSeq(guid[3]);
+    data << float(vcos);
+    data << float(vsin);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[1]);
     data << uint32(0);
-    data << float(vcos);
+    data << float(speedXY);
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[7]);

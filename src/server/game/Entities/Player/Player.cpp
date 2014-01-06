@@ -773,6 +773,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_regenTimer = 0;
     m_regenTimerCount = 0;
+    m_manaRegenTimerCount = 0;
+    m_energyRegenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
@@ -2225,7 +2227,7 @@ void Player::Update(uint32 p_time)
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
-    if (IsHasDelayedTeleport() && isAlive())
+    if (IsHasDelayedTeleport())
         TeleportTo(m_teleport_dest, m_teleport_options);
 }
 
@@ -2793,18 +2795,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 bool unk = false;
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
+
+                data.WriteBit(false);
+                data.WriteBit(m_transport != NULL);
                 
                 if (m_transport)
-                {
-                    data.WriteBit(unk);       // unknown
-                    data.WriteBit(1);         // has transport
                     data  << GetMapId() << m_transport->GetEntry();
-                }
-                else
-                {
-                    data.WriteBit(unk);       // unknown
-                    data.WriteBit(0);         // has transport
-                }
 
                 if (unk)
                     data << uint32(0);
@@ -2996,6 +2992,9 @@ void Player::RegenerateAll()
     if (getClass() == CLASS_HUNTER)
         m_focusRegenTimerCount += m_regenTimer;
 
+    m_manaRegenTimerCount += m_regenTimer;
+    m_energyRegenTimerCount += m_regenTimer;
+
     if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
         m_demonicFuryPowerRegenTimerCount += m_regenTimer;
     else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
@@ -3003,8 +3002,11 @@ void Player::RegenerateAll()
     else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
         m_soulShardsRegenTimerCount += m_regenTimer;
 
-    Regenerate(POWER_ENERGY);
-    Regenerate(POWER_MANA);
+    if (m_energyRegenTimerCount >= 2000)
+        Regenerate(POWER_ENERGY);
+
+    if (m_manaRegenTimerCount >= 2000)
+        Regenerate(POWER_MANA);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
@@ -3116,10 +3118,11 @@ void Player::Regenerate(Powers power)
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
             if (isInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_manaRegenTimerCount) + CalculatePct(0.001f, spellHaste));
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_manaRegenTimerCount) + CalculatePct(0.001f, spellHaste));
 
+            m_manaRegenTimerCount -= 2000;
             break;
         }
         // Regenerate Rage
@@ -3139,7 +3142,8 @@ void Player::Regenerate(Powers power)
             break;
         // Regenerate Energy
         case POWER_ENERGY:
-            addvalue += ((0.01f * m_regenTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+            addvalue += ((0.01f * m_energyRegenTimerCount) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+            m_energyRegenTimerCount -= 2000;
             break;
         // Regenerate Runic Power
         case POWER_RUNIC_POWER:
@@ -3341,10 +3345,8 @@ void Player::Regenerate(Powers power)
         else
             m_powerFraction[powerIndex] = addvalue - integerValue;
     }
-    //if (m_regenTimerCount >= 2000)
-        SetPower(power, curValue);
-    /*else
-        UpdateUInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);*/
+
+    SetPower(power, curValue);
 }
 
 void Player::RegenerateHealth()
@@ -7238,6 +7240,9 @@ void Player::UpdateRating(CombatRating cr)
             }
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryPercentage();
+            break;
+        case CR_PVP_POWER:
+            UpdatePvPPowerPercentage();
             break;
         default:
             break;
@@ -15386,8 +15391,8 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
     switch (reforge->SourceStat)
     {
         case ITEM_MOD_SPIRIT:
-            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
+            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -int32(removeValue), apply);
+            ApplyStatBuffMod(STAT_SPIRIT, -int32(removeValue), apply);
             break;
         case ITEM_MOD_DODGE_RATING:
             ApplyRatingMod(CR_DODGE, -int32(removeValue), apply);
@@ -15450,8 +15455,8 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
     switch (reforge->FinalStat)
     {
         case ITEM_MOD_SPIRIT:
-            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
+            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, int32(addValue), apply);
+            ApplyStatBuffMod(STAT_SPIRIT, int32(addValue), apply);
             break;
         case ITEM_MOD_DODGE_RATING:
             ApplyRatingMod(CR_DODGE, int32(addValue), apply);
@@ -28858,9 +28863,9 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
         m_IsBGRandomWinner = true;
 }
 
-float Player::GetAverageItemLevel()
+uint32 Player::GetAverageItemLevel()
 {
-    float sum = 0;
+    int32 sum = 0;
     uint32 count = 0;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
@@ -28875,7 +28880,10 @@ float Player::GetAverageItemLevel()
         ++count;
     }
 
-    return ((float)sum) / count;
+    if (count == 0)
+        return 0;
+
+    return uint32(floorf(((float)sum) / count));
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
