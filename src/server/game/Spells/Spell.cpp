@@ -5220,7 +5220,7 @@ void Spell::SendSpellGo()
 
     for (uint32 i = 0; i < powerCount; i++)
     {
-        data << int32(m_powerCost);// m_caster->GetPower((Powers)m_spellPowerData->powerType));
+        data << uint32(m_caster->GetPower((Powers)m_spellPowerData->powerType));
         data << uint8(m_spellPowerData->powerType); //Power
     }
 
