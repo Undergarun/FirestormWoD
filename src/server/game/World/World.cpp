@@ -2671,8 +2671,28 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
     else
         guid = pBanned->GetGUIDLow();
 
+    // Check if player is already banned
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BANNED);
+    stmt->setUInt32(0, guid);
+    PreparedQueryResult bannedResult = CharacterDatabase.Query(stmt);
+    if (bannedResult)
+    {
+        // If new duration > oldDuration, overwrite the ban, else, return
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BANNED_DURATION);
+        stmt->setUInt32(0, guid);
+        PreparedQueryResult timeResult = CharacterDatabase.Query(stmt);
+        if (timeResult)
+        {
+            Field* fields = timeResult->Fetch();
+            uint32 oldTime = fields[0].GetUInt32();
+
+            if ((time(NULL) + duration_secs) < oldTime)
+                return BAN_SYNTAX_ERROR;
+        }
+    }
+
     // make sure there is only one active ban
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
     stmt->setUInt32(0, guid);
     CharacterDatabase.Execute(stmt);
 
