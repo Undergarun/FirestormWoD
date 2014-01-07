@@ -486,6 +486,17 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     sessionDiff = getMSTime() - sessionDiff;
     if (sessionDiff > 50)
     {
+        std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(CMSG_ADD_FRIEND);
+        if (itr != pktHandle.end())
+        {
+            if ((*itr).second.nbPkt > 5)
+            {
+                sLog->OutPandashan("Account [%u] has been kicked for flood of CMSG_ADD_FRIEND (count : %u)", GetAccountId(), (*itr).second.nbPkt);
+                KickPlayer();
+                return false;
+            }
+        }
+
         sLog->OutPandashan("Session of account [%u] take more than 50 ms to execute (%u ms)", GetAccountId(), sessionDiff);
         for (auto itr : pktHandle)
             sLog->OutPandashan("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first).c_str(), itr.second.totalTime);
