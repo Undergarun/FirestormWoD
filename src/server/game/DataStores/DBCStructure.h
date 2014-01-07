@@ -1479,9 +1479,9 @@ struct LFGDungeonEntry
     //char*   namelite;                                     // 12 Name lite
     uint32  expansion;                                      // 13
     //uint32  unk_2;                                        // 14
-    uint32 flags2;                                          // 15 Unk use
+    uint32 grouptype;                                       // 15
     //char* descr                                           // 16 Description
-    uint32 grouptype;                                       // 17
+    uint32 flags2;                                          // 17
     uint32 tankNeeded;                                      // 18
     uint32 healerNeeded;                                    // 19
     uint32 dpsNeeded;                                       // 20
@@ -1489,8 +1489,8 @@ struct LFGDungeonEntry
     //uint32 unk_4;                                         // 22
     //uint32 unk_5;                                         // 23
     //uint32 unk_6;                                         // 24 only 0
-    //uint32 unk_7;                                         // 25
-    //uint32 unk_8;                                         // 26 only for categories
+    uint32 category;                                        // 25 only for categories
+    //uint32 unk_8;                                         // 26 only 0
     //uint32 unk_9;                                         // 27
     //uint32 unk_10;                                        // 28
     // Helpers

@@ -33,6 +33,7 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "LFGMgr.h"
+#include "Player.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
@@ -1287,7 +1288,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                         break;
                 }
 
-                float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+                uint16 avgILvl = caster->ToPlayer()->GetAverageItemLevel();
                 if (avgILvl < baseItemLevel)
                     return;                     // TODO: Research possibility of scaling down
 
@@ -1395,7 +1396,7 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
                                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                                     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
                                         if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
-                                            if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
+                                            if (randomDungeon && randomDungeon->type == TYPEID_RANDOM_DUNGEON)
                                                 return; // in correct dungeon
 
                     Remove(AURA_REMOVE_BY_DEFAULT);

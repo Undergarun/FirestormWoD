@@ -919,6 +919,8 @@ struct AccessRequirement
     uint32 quest_A;
     uint32 quest_H;
     uint32 achievement;
+    uint32 itemlevelMin;
+    uint32 itemlevelMax;
     std::string questFailedText;
 };
 
@@ -2196,6 +2198,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
         void UpdateMasteryPercentage();
+        void UpdatePvPPowerPercentage();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
@@ -2819,7 +2822,7 @@ class Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        float GetAverageItemLevel();
+        uint32 GetAverageItemLevel();
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -2924,6 +2927,8 @@ class Player : public Unit, public GridObject<Player>
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
+        uint32 m_manaRegenTimerCount;
+        uint32 m_energyRegenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
         uint32 m_burningEmbersRegenTimerCount;

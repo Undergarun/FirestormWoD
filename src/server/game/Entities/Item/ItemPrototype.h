@@ -742,9 +742,10 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    float GetItemLevelIncludingQuality() const
+    int GetItemLevelIncludingQuality() const
     {
-        float itemLevel = (float)ItemLevel;
+        int itemLevel = ItemLevel;
+
         switch (Quality)
         {
             case ITEM_QUALITY_POOR:
@@ -762,7 +763,8 @@ struct ItemTemplate
             default:
                 break;
         }
-        return itemLevel;
+
+        return itemLevel >= 0 ? itemLevel : 1;
     }
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }

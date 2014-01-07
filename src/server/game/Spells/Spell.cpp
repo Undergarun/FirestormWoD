@@ -5530,16 +5530,28 @@ void Spell::SendInterrupted(uint8 result)
     ObjectGuid casterGuid = m_caster->GetGUID();
 
     WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
-    data.append(m_caster->GetPackGUID());
+
+    uint8 bitsOtherOrder[8] = { 2, 1, 7, 0, 5, 3, 4, 6 };
+    data.WriteBitInOrder(casterGuid, bitsOtherOrder);
+
     data << uint8(m_cast_count);
-    data << uint32(m_spellInfo->Id);
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[5]);
     data << uint8(result);
+    data << uint32(m_spellInfo->Id);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(casterGuid[6]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(casterGuid[2]);
+
     m_caster->SendMessageToSet(&data, true);
 
     data.Initialize(SMSG_SPELL_FAILED_OTHER, (8+4));
 
-    uint8 bitsOtherOrder[8] = { 5, 6, 7, 0, 4, 3, 1, 2 };
-    data.WriteBitInOrder(casterGuid, bitsOtherOrder);
+    uint8 bitsOtherOrder1[8] = { 5, 6, 7, 0, 4, 3, 1, 2 };
+    data.WriteBitInOrder(casterGuid, bitsOtherOrder1);
 
     data.WriteByteSeq(casterGuid[4]);
     data.WriteByteSeq(casterGuid[6]);
@@ -5624,17 +5636,40 @@ void Spell::SendResurrectRequest(Player* target)
     // for player resurrections the name is looked up by guid
     char const* resurrectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
 
+    ObjectGuid guid = m_caster->GetGUID();
+
     WorldPacket data(SMSG_RESURRECT_REQUEST, (8+4+strlen(resurrectorName)+1+1+1+4));
-    data << uint64(m_caster->GetGUID()); // resurrector guid
-    data << uint32(strlen(resurrectorName) + 1);
 
-    data << resurrectorName;
-    data << uint8(0); // use timer according to client symbols
+    data.WriteBits(strlen(resurrectorName), 6);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);
+    data.WriteBit(guid[7]);
+    data.WriteBit(false);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[3]);
 
-    data << uint8(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1); // "you'll be afflicted with resurrection sickness"
-    // override delay sent with SMSG_CORPSE_RECLAIM_DELAY, set instant resurrection for spells with this attribute
-    // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+
     data << uint32(m_spellInfo->Id);
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteString(resurrectorName);
+
+    data.WriteByteSeq(guid[7]);
+
+    data << uint32(0);
+    data << uint32(0);
+
+    data.WriteByteSeq(guid[6]);
+
     target->GetSession()->SendPacket(&data);
 }
 

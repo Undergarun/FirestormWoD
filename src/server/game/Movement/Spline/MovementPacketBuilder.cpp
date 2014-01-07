@@ -116,15 +116,24 @@ namespace Movement
 
     void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data)
     {
-        if (!data.WriteBit(!moveSpline.Finalized()))
+        bool finalized = moveSpline.Finalized();
+        data.WriteBit(!finalized);
+        if (finalized)
             return;
 
         data.WriteBit(moveSpline.splineflags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation)); //   hasSplineStartTime = packet.ReadBit();
 
-        data.WriteBits(uint8(moveSpline.spline.mode()), 2); // packet.ReadEnum<SplineMode>("Spline Mode", 2, index);
-        data.WriteBits(moveSpline.splineflags.raw(), 20); // packet.ReadEnum<SplineFlag434>("Spline flags", 20, index);
-        data.WriteBit(0); // unk
-        data.WriteBits(moveSpline.getPath().size(), 25); // splineCount = packet.ReadBits("Spline Waypoints", 22, index);
+        data.WriteBits(uint8(moveSpline.spline.mode()), 2);
+        data.WriteBits(moveSpline.splineflags.raw(), 25);
+        data.WriteBit(false);
+
+        if (false)
+        {
+            data.WriteBits(0, 21);
+            data.WriteBits(0, 2);
+        }
+
+        data.WriteBits(moveSpline.getPath().size(), 20);
         data.WriteBit((moveSpline.splineflags & MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration());
 
         /*switch (moveSpline.splineflags & MoveSplineFlag::Mask_Final_Facing)

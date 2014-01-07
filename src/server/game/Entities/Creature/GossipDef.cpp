@@ -1424,12 +1424,12 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
     data << uint32(0);
     data << uint32(0);
-    data << uint32(0);
+    data << uint32(quest->GetFlags());
     data << uint32(quest->GetQuestId());
     data << uint32(GUID_ENPART(npcGUID));
     data << uint32(0);
     data << uint32(0);
-    data << uint32(0);
+    data << uint32(95);
     data << uint32(0);
     data.WriteBit(closeOnCancel);
     data.WriteBit(guid[5]);

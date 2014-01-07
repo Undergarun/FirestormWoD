@@ -90,12 +90,12 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
+    uint8 bitOrder[8] = { 6, 3, 4, 2, 5, 7, 0, 1 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {0, 2, 6, 1, 4, 7, 5, 3};
+    uint8 byteOrder[8] = { 0, 2, 6, 1, 4, 7, 5, 3 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));

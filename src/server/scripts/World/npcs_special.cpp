@@ -4769,7 +4769,7 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    //new npc_choose_faction();
+    new npc_choose_faction();
     //new npc_rate_xp_modifier();
     new npc_capacitor_totem();
     new npc_feral_spirit();

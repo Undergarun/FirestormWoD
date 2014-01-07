@@ -204,18 +204,7 @@ void AuraApplication::BuildBitsUpdatePacket(ByteBuffer& data, bool remove) const
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
 
-    uint32 EffectMask = 0;
-    uint8 count = 0;
-    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-    {
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
-                EffectMask |= 1 << i;
-
-            count++;
-        }
-    }
+    uint8 count = (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT) ? MAX_SPELL_EFFECTS : 0;
 
     data.WriteBit(flags & AFLAG_DURATION); // duration
     data.WriteBits(count, 22);
@@ -246,7 +235,7 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
 
-    uint32 EffectMask = 0;
+    uint32 mask = 0;
 
     if (flags & AFLAG_DURATION)
         data << uint32(aura->GetMaxDuration());
@@ -261,16 +250,18 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
 
     data << uint8(flags);
 
-    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
         {
-            if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
-            {
+            if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 data << float(eff->GetAmount());
-                EffectMask |= 1 << i;
-            }
-            else
+
+            mask |= 1 << i;
+        }
+        else
+        {
+            if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 data << float(0.00f);
         }
     }
@@ -286,7 +277,7 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
     // effect value 2 for
 
     data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
-    data << uint32(EffectMask);
+    data << uint32(mask);
     data << uint16(aura->GetCasterLevel());
     data << uint8(_slot);
 }

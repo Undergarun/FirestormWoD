@@ -598,10 +598,25 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     if (!_player->isAlive() || _player->isInCombat())
         return;
 
-    uint64 summonerGuid;
+    ObjectGuid summonerGuid;
     bool agree;
-    recvData >> summonerGuid;
-    recvData >> agree;
+
+    summonerGuid[7] = recvData.ReadBit();
+    summonerGuid[3] = recvData.ReadBit();
+    summonerGuid[6] = recvData.ReadBit();
+
+    agree = recvData.ReadBit();
+
+    summonerGuid[4] = recvData.ReadBit();
+    summonerGuid[5] = recvData.ReadBit();
+    summonerGuid[1] = recvData.ReadBit();
+    summonerGuid[0] = recvData.ReadBit();
+    summonerGuid[2] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    uint8 bytesOrder[8] = { 4, 2, 6, 1, 7, 3, 0, 5 };
+    recvData.ReadBytesSeq(summonerGuid, bytesOrder);
 
     _player->SummonIfPossible(agree);
 }

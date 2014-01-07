@@ -6065,8 +6065,8 @@ void ObjectMgr::LoadAccessRequirements()
 
     _accessRequirementStore.clear();                                  // need for reload case
 
-    //                                               0      1           2          3          4     5      6             7             8                      9
-    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
+    //                                               0      1           2          3          4     5      6             7             8                      9                 10              11
+    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, itemlevel_min, itemlevel_max, quest_failed_text FROM access_requirement");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 access requirement definitions. DB table `access_requirement` is empty.");
@@ -6094,7 +6094,9 @@ void ObjectMgr::LoadAccessRequirements()
         ar.quest_A                  = fields[6].GetUInt32();
         ar.quest_H                  = fields[7].GetUInt32();
         ar.achievement              = fields[8].GetUInt32();
-        ar.questFailedText          = fields[9].GetString();
+        ar.itemlevelMin             = fields[9].GetUInt32();
+        ar.itemlevelMax             = fields[10].GetUInt32();
+        ar.questFailedText          = fields[11].GetString();
 
         if (ar.item)
         {

@@ -384,6 +384,7 @@ class Item : public Object
         int32 GetReforgableStat(ItemModType statType) const;
 
         bool IsPvPItem() const;
+        bool IsStuffItem() const;
 
     private:
         std::string m_text;

@@ -20,7 +20,7 @@
 
 #include "Common.h"
 
-enum LfgRoles
+enum LfgRoles : uint8
 {
     ROLE_NONE                                    = 0x00,
     ROLE_LEADER                                  = 0x01,
@@ -29,25 +29,29 @@ enum LfgRoles
     ROLE_DAMAGE                                  = 0x08
 };
 
-enum LfgUpdateType
+enum LfgUpdateType : uint8
 {
-    LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
-    LFG_UPDATETYPE_LEADER                        = 1,
-    LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_PROPOSAL                 = 5,
-    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 7,
-    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,
-    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,
-    LFG_UPDATETYPE_GROUP_FOUND                   = 10,
-    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 12,
-    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
-    LFG_UPDATETYPE_CLEAR_LOCK_LIST               = 14,
-    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
-    LFG_UPDATETYPE_GROUP_DISBAND                 = 16
+    LFG_UPDATETYPE_DEFAULT                       = 0,  // Internal Use
+    LFG_UPDATETYPE_LEADER_UNK1                   = 1,  //  - FIXME: At group leave
+    LFG_UPDATETYPE_ROLECHECK_ABORTED             = 43, //  - ERR_PARTY_ROLE_NOT_AVAILABLE
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 13, //  +
+    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,  //  -
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,  //  +
+    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,  //  -
+    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,  //  -
+    LFG_UPDATETYPE_GROUP_FOUND                   = 25, //  -
+    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 24, //  +
+    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 11, //  +
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 52, //  +
+    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16, //  - 6
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17, //  -    FIXME: Sometimes at group disband
+
+    LFG_UPDATETYPE_ERROR                         = 45, // ERR_JOIN_LFG_OBJECT_FAILED
+    // 25 - related to party guid
+    // 52 - update status
 };
 
-enum LfgState
+enum LfgState : uint8
 {
     LFG_STATE_NONE,                                        // Not using LFG / LFR
     LFG_STATE_ROLECHECK,                                   // Rolecheck active
@@ -60,7 +64,7 @@ enum LfgState
 };
 
 /// Instance lock types
-enum LfgLockStatusType
+enum LfgLockStatusType : uint16
 {
     LFG_LOCKSTATUS_OK                            = 0,      // Internal use only
     LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION        = 1,
@@ -74,18 +78,25 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
     LFG_LOCKSTATUS_MISSING_ITEM                  = 1025,
     LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031,
+    LFG_LOCKSTATUS_ACHIEVEMENT_NOT_COMPLITED     = 1034,
     LFG_LOCKSTATUS_TEMPORARILY_DISABLED          = 10000
 };
 
 /// Dungeon and reason why player can't join
 struct LfgLockStatus
 {
-    uint32 dungeon;                                        ///< Dungeon Id
-    LfgLockStatusType lockstatus;                          ///< Lock type
+    uint16 itemLevel;
+    LfgLockStatusType lockstatus;
+
+    LfgLockStatus()
+    {
+        itemLevel = 0;
+        lockstatus = LFG_LOCKSTATUS_OK;
+    }
 };
 
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, LfgLockStatusType> LfgLockMap;
+typedef std::map<uint32, LfgLockStatus> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
 
 #endif

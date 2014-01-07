@@ -3342,7 +3342,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             }
         }
     }
-	
+
     WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+success_list.size()*5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
@@ -5455,7 +5455,11 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (target->isInFlight())
         return;
 
-    target->TeleportTo(target->GetStartPosition(), TELE_TO_SPELL);
+    if (target->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        target->RepopAtGraveyard();
+    else
+        target->TeleportTo(target->GetStartPosition(), TELE_TO_SPELL);
+
     // homebind location is loaded always
     // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
 
