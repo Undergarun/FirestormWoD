@@ -1068,7 +1068,7 @@ enum Opcodes
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
     SMSG_LFG_BOOT_PLAYER                              = 0x583,  // 5.4.0 17399 (JamList) -- Not correct, it's exploration experience
     SMSG_LFG_DISABLED                                 = 0x105,  // 5.4.0 17399
-    SMSG_LFG_JOIN_RESULT                              = 0x017,  // 5.4.0 17399 (JamList)
+    SMSG_LFG_JOIN_RESULT                              = 0x017,  // 5.4.0 17399
     SMSG_LFG_OFFER_CONTINUE                           = 0x8AB,  // 5.4.0 17399
     SMSG_LFG_OPEN_FROM_GOSSIP                         = 0x000,  // 5.0.5 16048
     SMSG_LFG_PARTY_INFO                               = 0x5A0,  // 5.4.0 17399 (JamList)

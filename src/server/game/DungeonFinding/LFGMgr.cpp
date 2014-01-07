@@ -525,7 +525,6 @@ bool LFGMgr::RemoveFromQueue(uint64 guid)
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RemoveFromQueue: [" UI64FMTD "] not in queue", guid);
         return false;
     }
-
 }
 
 /**
@@ -654,7 +653,7 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
     {
         LfgDungeonSet playerDungeons = GetSelectedDungeons(guid);
         if (playerDungeons == dungeons)                     // Joining the same dungeons -- Send OK
-         {
+        {
             LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
             player->GetSession()->SendLfgJoinResult(player->GetGUID(), joinData); // Default value of joinData.result = LFG_JOIN_OK
             if (grp)
@@ -671,6 +670,7 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
             RemoveFromQueue(gguid);
         }
     }
+
     const LFGDungeonEntry* entry = sLFGDungeonStore.LookupEntry(*dungeons.begin() & 0xFFFFFF);
     uint8 type = TYPEID_DUNGEON;
     uint8 maxGroupSize = 5;
@@ -879,31 +879,33 @@ void LFGMgr::Leave(Player* player, Group* grp /* = NULL*/)
     switch (state)
     {
         case LFG_STATE_QUEUED:
-            {
-                uint8 tankAdded = 0;
-                uint8 healerAdded = 0;
-                uint8 dpsAdded = 0;
-                LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+        {
+            uint8 tankAdded = 0;
+            uint8 healerAdded = 0;
+            uint8 dpsAdded = 0;
+            LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
 
-                if (grp)
-                {
-                    RestoreState(guid);
-                    for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-                        if (Player* plrg = itr->getSource())
-                        {
-                            SendUpdateStatus(plrg, updateData);
-                            uint64 pguid = plrg->GetGUID();
-                            ClearState(pguid);
-                        }
-                }
-                else
-                {
-                    SendUpdateStatus(player, updateData);
-                    ClearState(guid);
-                }
-                RemoveFromQueue(guid);
+            if (grp)
+            {
+                RestoreState(guid);
+                for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                    if (Player* plrg = itr->getSource())
+                    {
+                        SendUpdateStatus(plrg, updateData);
+                        uint64 pguid = plrg->GetGUID();
+                        ClearState(pguid);
+                    }
             }
+            else
+            {
+                SendUpdateStatus(player, updateData);
+                ClearState(guid);
+            }
+
+            RemoveFromQueue(guid);
+
             break;
+        }
         case LFG_STATE_ROLECHECK:
             if (grp)
                 UpdateRoleCheck(guid);                     // No player to update role = LFG_ROLECHECK_ABORTED

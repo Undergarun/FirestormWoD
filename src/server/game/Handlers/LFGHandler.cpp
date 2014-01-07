@@ -35,6 +35,8 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
     uint8 unk8 = 0;
     bool unkbit = false;
 
+    recvData >> unk8;
+
     for (int i = 0; i < 3; i++)
         recvData.read_skip<uint32>();
 
