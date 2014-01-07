@@ -25,6 +25,7 @@
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "Group.h"
+#include "ObjectAccessor.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {
@@ -979,6 +980,143 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             return b;
     }
 
+    // Process radius loot
+    for (uint32 slot = l.items.size() + l.quest_items.size(); slot <= l.maxLinkedSlot; slot++)
+    {
+        if (!l.isLinkedLoot(slot))
+            continue;
+
+        LinkedLootInfo loot = l.getLinkedLoot(slot);
+        {
+            Creature* c = lv.viewer->GetCreature(*lv.viewer, loot.creatureGUID);
+            if (!c)
+                continue;
+
+            Loot linkedLoot = c->loot;
+            switch (loot.permission)
+            {
+                case GROUP_PERMISSION:
+                {
+                    // if you are not the round-robin group looter, you can only see
+                    // blocked rolled items and quest items, and !ffa items
+                    if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
+                    {
+                        uint8 slot_type;
+
+                        if (linkedLoot.items[loot.slot].is_blocked)
+                            slot_type = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                        else if (linkedLoot.roundRobinPlayer == 0 || !linkedLoot.items[loot.slot].is_underthreshold || lv.viewer->GetGUID() == linkedLoot.roundRobinPlayer)
+                        {
+                            // no round robin owner or he has released the loot
+                            // or it IS the round robin group owner
+                            // => item is lootable
+                            slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        }
+                        else
+                            // item shall not be displayed.
+                            continue;
+
+                        bitsItemBuffer.WriteBit(!slot_type);
+                        bitsItemBuffer.WriteBit(!slot);
+                        bitsItemBuffer.WriteBits(1, 2);
+                        bitsItemBuffer.WriteBit(0);
+                        bitsItemBuffer.WriteBits(2, 3);
+
+                        if (slot)
+                            dataBuffer << uint8(slot);
+
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].count);
+
+                        if (slot_type)
+                            dataBuffer << uint8(slot_type);
+
+                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
+                        dataBuffer << uint32(0);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].itemid);
+                        ++itemsShown;
+                        ++index;
+                    }
+                    break;
+                }
+                case ROUND_ROBIN_PERMISSION:
+                {
+                    if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
+                    {
+                        if (linkedLoot.roundRobinPlayer != 0 && lv.viewer->GetGUID() != linkedLoot.roundRobinPlayer)
+                            // item shall not be displayed.
+                            continue;
+
+                        bitsItemBuffer.WriteBit(!LOOT_SLOT_TYPE_ALLOW_LOOT);
+                        bitsItemBuffer.WriteBit(!slot);
+                        bitsItemBuffer.WriteBits(1, 2);
+                        bitsItemBuffer.WriteBit(0);
+                        bitsItemBuffer.WriteBits(2, 3);
+
+                        if (slot)
+                            dataBuffer << uint8(slot);
+
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].count);
+                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
+                        dataBuffer << uint32(0);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].itemid);
+                        ++itemsShown;
+                        ++index;
+                    }
+                    break;
+                }
+                case ALL_PERMISSION:
+                case MASTER_PERMISSION:
+                case OWNER_PERMISSION:
+                {
+                    uint8 slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    switch (loot.permission)
+                    {
+                        case MASTER_PERMISSION:
+                            slot_type = LOOT_SLOT_TYPE_MASTER;
+                            break;
+                        case OWNER_PERMISSION:
+                            slot_type = LOOT_SLOT_TYPE_OWNER;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
+                    {
+                        bitsItemBuffer.WriteBit(!slot_type);
+                        bitsItemBuffer.WriteBit(!slot);
+                        bitsItemBuffer.WriteBits(1, 2);
+                        bitsItemBuffer.WriteBit(0);
+                        bitsItemBuffer.WriteBits(2, 3);
+
+                        if (slot)
+                            dataBuffer << uint8(slot);
+
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].count);
+
+                        if (slot_type)
+                            dataBuffer << uint8(slot_type);
+
+                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
+                        dataBuffer << uint32(0);
+                        dataBuffer << uint32(linkedLoot.items[loot.slot].itemid);
+                        ++itemsShown;
+                        ++index;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
     QuestItemMap const& lootPlayerQuestItems = l.GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(lv.viewer->GetGUIDLow());
@@ -1180,8 +1318,8 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     b.append(dataBuffer);
     b.WriteByteSeq(creatureGuid[0]);
 
-    if (lv.loot.gold)
-        b << uint32(lv.loot.gold);
+    if (lv.loot.gold + lv.loot.additionalLinkedGold)
+        b << uint32(lv.loot.gold + lv.loot.additionalLinkedGold);
 
     if (lv._loot_type)
         b << uint8(lv._loot_type);

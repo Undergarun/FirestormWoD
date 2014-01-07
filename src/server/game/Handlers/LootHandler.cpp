@@ -30,6 +30,7 @@
 #include "World.h"
 #include "Util.h"
 #include "GuildMgr.h"
+#include "GridNotifiers.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 {
@@ -39,6 +40,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
     uint64 lguid = player->GetLootGUID();
     Loot* loot = NULL;
     uint8 lootSlot = 0;
+    uint8 linkedLootSlot = 255;
 
     uint32 count = recvData.ReadBits(23);
 
@@ -62,6 +64,8 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
         recvData.ReadByteSeq(guids[i][1]);
         recvData.ReadByteSeq(guids[i][0]);
         recvData.ReadByteSeq(guids[i][2]);
+
+        linkedLootSlot = 0xFF;
 
         if (IS_GAMEOBJECT_GUID(lguid))
         {
@@ -112,9 +116,23 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
             }
 
             loot = &creature->loot;
+            if (loot->isLinkedLoot(lootSlot))
+            {
+                LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(lootSlot);
+                creature = player->GetCreature(*player, linkedLootInfo.creatureGUID);
+                if (!creature)
+                {
+                    player->SendLootRelease(lguid);
+                    return;
+                }
+
+                loot = &creature->loot;
+                linkedLootSlot = lootSlot;
+                lootSlot = linkedLootInfo.slot;
+            }
         }
 
-        player->StoreLootItem(lootSlot, loot);
+        player->StoreLootItem(lootSlot, loot, linkedLootSlot);
     }
 }
 
@@ -127,7 +145,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     if (!guid)
         return;
 
-    Loot* loot = NULL;
+    Loot* masterLoot = NULL;
+    std::list<Loot*> linkedLoots;
     bool shareMoney = true;
 
     switch (GUID_HIPART(guid))
@@ -138,7 +157,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
             // do not check distance for GO if player is the owner of it (ex. fishing bobber)
             if (go && ((go->GetOwnerGUID() == player->GetGUID() || go->IsWithinDistInMap(player, INTERACTION_DISTANCE))))
-                loot = &go->loot;
+                masterLoot = &go->loot;
 
             break;
         }
@@ -148,7 +167,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
             if (bones && bones->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
-                loot = &bones->loot;
+                masterLoot = &bones->loot;
                 shareMoney = false;
             }
 
@@ -158,7 +177,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         {
             if (Item* item = player->GetItemByGuid(guid))
             {
-                loot = &item->loot;
+                masterLoot = &item->loot;
                 shareMoney = false;
             }
             break;
@@ -170,9 +189,32 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
             if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
-                loot = &creature->loot;
+                masterLoot = &creature->loot;
                 if (creature->isAlive())
                     shareMoney = false;
+                // Check creature around for radius loot
+                else
+                {
+                    std::list<Creature*> linkedLootCreatures;
+                    CellCoord p(JadeCore::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
+                    Cell cell(p);
+                    cell.SetNoCreate();
+
+                    JadeCore::AllDeadCreaturesInRange check(player, 25.0f, creature->GetGUID());
+                    JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange> searcher(player, linkedLootCreatures, check);
+                    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange>, GridTypeMapContainer> cSearcher(searcher);
+                    cell.Visit(p, cSearcher, *(player->GetMap()), *player,  25.0f);
+
+                    for (auto itr : linkedLootCreatures)
+                    {
+                        Player* recipient = itr->GetLootRecipient();
+                        if (!recipient)
+                            continue;
+
+                        if (itr->loot.IsLooter(player->GetGUID()))
+                            linkedLoots.push_back(&itr->loot);
+                    }
+                }
             }
             break;
         }
@@ -180,7 +222,10 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             return;                                         // unlootable type
     }
 
-    if (loot)
+    if (masterLoot)
+        linkedLoots.push_back(masterLoot);
+
+    for (auto loot : linkedLoots)
     {
         if (shareMoney && player->GetGroup())      //item, pickpocket and players can be looted only single player
         {
@@ -421,6 +466,30 @@ void WorldSession::DoLootRelease(uint64 lguid)
 
             creature->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             loot->clear();
+
+            // Clear all linkedLoot looted
+            std::set<uint64> alreadyClear;
+            for (auto itr : loot->linkedLoot)
+            {
+                if (alreadyClear.find(itr.second.creatureGUID) == alreadyClear.end())
+                {
+                    alreadyClear.insert(itr.second.creatureGUID);
+                    if (Creature* c = creature->GetCreature(*creature, itr.second.creatureGUID))
+                    {
+                        if (!c->loot.isLooted())
+                            continue;
+
+                        // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
+                        if (!c->isAlive())
+                            c->AllLootRemovedFromCorpse();
+
+                        c->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                        c->loot.clear();
+                        c->loot.RemoveLooter(player->GetGUID());
+                    }
+                }
+            }
+            loot->linkedLoot.clear();
         }
         else
         {

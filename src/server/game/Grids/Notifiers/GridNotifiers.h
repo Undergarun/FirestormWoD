@@ -1389,6 +1389,25 @@ namespace JadeCore
             float m_fRange;
     };
 
+
+    class AllDeadCreaturesInRange
+    {
+        public:
+            AllDeadCreaturesInRange(const WorldObject* object, float maxRange, uint64 excludeGUID) : m_pObject(object), m_fRange(maxRange), m_excludeGUID(excludeGUID) {}
+            bool operator() (Unit* unit)
+            {
+                if (unit->GetTypeId() == TYPEID_UNIT && unit->GetGUID() != m_excludeGUID && !unit->isAlive() && m_pObject->IsWithinDist(unit, m_fRange, false))
+                    return true;
+
+                return false;
+            }
+
+        private:
+            const WorldObject* m_pObject;
+            uint64 m_excludeGUID;
+            float m_fRange;
+    };
+
     class PlayerAtMinimumRangeAway
     {
     public:
