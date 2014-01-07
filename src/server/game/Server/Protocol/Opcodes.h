@@ -761,7 +761,7 @@ enum Opcodes
     SMSG_CALENDAR_RAID_LOCKOUT_ADDED                  = 0x19F,  // 5.4.0 17399 (JamList)
     SMSG_CALENDAR_RAID_LOCKOUT_REMOVED                = 0x08E,  // 5.4.0 17399 (JamList)
     SMSG_CALENDAR_RAID_LOCKOUT_UPDATED                = 0x5AC,  // 5.4.0 17399 (JamList)
-    SMSG_CALENDAR_SEND_CALENDAR                       = 0x020,  // 5.4.0 17399
+    SMSG_CALENDAR_SEND_CALENDAR                       = 0x020,  // 5.4.0 17399 -- FREEZE CLIENT !!
     SMSG_CALENDAR_SEND_EVENT                          = 0x889,  // 5.4.0 17399 (JamList)
     SMSG_CALENDAR_SEND_NUM_PENDING                    = 0x121,  // 5.4.0 17399
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0x000,  // 5.0.5 16048
