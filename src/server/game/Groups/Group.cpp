@@ -1981,7 +1981,7 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 
     WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
 
-    data.WriteBit(whoGuid[1]);
+    data.WriteBit(whoGuid[2]);
     data.WriteBit(whoGuid[4]);
     data.WriteBit(targetGuid[1]);
     data.WriteBit(targetGuid[2]);
@@ -2654,6 +2654,8 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
         player->SetDungeonDifficulty(difficulty);
         player->SendDungeonDifficulty(true);
     }
+
+    SendUpdate();
 }
 
 void Group::SetRaidDifficulty(Difficulty difficulty)
@@ -2678,6 +2680,8 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
         player->SetRaidDifficulty(difficulty);
         player->SendRaidDifficulty(true);
     }
+
+    SendUpdate();
 }
 
 bool Group::InCombatToInstance(uint32 instanceId)
