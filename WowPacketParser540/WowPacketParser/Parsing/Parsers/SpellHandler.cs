@@ -12,6 +12,25 @@ namespace WowPacketParser.Parsing.Parsers
 {
     public static class SpellHandler
     {
+        [Parser(Opcode.SMSG_LOSS_OF_CONTROL_AURA_UPDATE)]
+        public static void HandleLossOfControlAuraUpdate(Packet packet)
+        {
+            var counter = packet.ReadBits("counter", 22);
+
+            var unkLen1 = new uint[counter];
+            var unkLen2 = new uint[counter];
+            for (int i = 0; i < counter; ++i)
+            {
+                unkLen1[i] = packet.ReadBits("unkLen1", 8, i);
+                unkLen2[i] = packet.ReadBits("unkLen2", 8, i);
+            }
+
+            for (int i = 0; i < counter; ++i)
+            {
+                packet.ReadByte("Unk Byte", i);
+                packet.ReadByte("Unk Byte", i);
+            }
+        }
 
         [Parser(Opcode.SMSG_SPELLINTERRUPTLOG)] // 4.3.4
         public static void HandleSpellInterruptLog(Packet packet)
@@ -1096,6 +1115,16 @@ namespace WowPacketParser.Parsing.Parsers
         }
 
         [Parser(Opcode.SMSG_SPELL_FAILURE)]
+        public static void HandleSpellFailure(Packet packet)
+        {
+            packet.ReadByte("CastCount");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Spell ID");
+
+            packet.ReadBit("bit4");
+            packet.ReadBit("bit5");
+        }
+
         [Parser(Opcode.SMSG_SPELL_FAILED_OTHER)]
         public static void HandleSpellFailedOther(Packet packet)
         {
@@ -1258,40 +1287,48 @@ namespace WowPacketParser.Parsing.Parsers
             packet.WriteGuid("Player GUID", playerGuid);
         }
 
-        [Parser(Opcode.SMSG_SPELL_COOLDOWN)]
-        public static void HandleSpellCooldown(Packet packet)
-        {
-            packet.ReadGuid("GUID");
-            packet.ReadByte("Unk mask");
-            while (packet.CanRead())
-            {
-                packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
-                packet.ReadInt32("Time");
-            }
-        }
-
-        [Parser(Opcode.SMSG_SET_FLAT_SPELL_MODIFIER, ClientVersionBuild.Zero, ClientVersionBuild.V4_0_6_13596)]
-        [Parser(Opcode.SMSG_SET_PCT_SPELL_MODIFIER, ClientVersionBuild.Zero, ClientVersionBuild.V4_0_6_13596)]
-        public static void HandleSetSpellModifier(Packet packet)
-        {
-            packet.ReadByte("Spell Mask bitpos");
-            packet.ReadEnum<SpellModOp>("Spell Mod", TypeCode.Byte);
-            packet.ReadInt32("Amount");
-        }
-
         [Parser(Opcode.SMSG_SET_PCT_SPELL_MODIFIER, ClientVersionBuild.V4_0_6_13596)]
         [Parser(Opcode.SMSG_SET_FLAT_SPELL_MODIFIER, ClientVersionBuild.V4_0_6_13596)]
         public static void HandleSetSpellModifierFlat406(Packet packet)
         {
-            var modCount = packet.ReadUInt32("Modifier type count");
-            for (var j = 0; j < modCount; ++j)
+            if (packet.Opcode == 7174)
             {
-                var modTypeCount = packet.ReadUInt32("Count", j);
-                packet.ReadEnum<SpellModOp>("Spell Mod", TypeCode.Byte, j);
-                for (var i = 0; i < modTypeCount; ++i)
+                // SMSG_SET_PCT_SPELL_MODIFIER - 7174 in 5.4.0
+                var modCount = packet.ReadBits("Modifier type count", 22);
+
+                var modTypeCount = new uint[modCount];
+                for (var j = 0; j < modCount; ++j)
+                    modTypeCount[j] = (uint)packet.ReadBits("Count", 21, j);
+
+                for (var j = 0; j < modCount; ++j)
                 {
-                    packet.ReadByte("Spell Mask bitpos", j, i);
-                    packet.ReadSingle("Amount", j, i);
+                    packet.ReadEnum<SpellModOp>("Spell Mod", TypeCode.Byte, j);
+
+                    for (var i = 0; i < modTypeCount[j]; ++i)
+                    {
+                        packet.ReadSingle("Amount", j, i);
+                        packet.ReadByte("Spell Mask bitpos", j, i);
+                    }
+                }
+            }
+            else if (packet.Opcode == 5424)
+            {
+                // SMSG_SET_FLAT_SPELL_MODIFIER - 5424 in 5.4.0
+                var modCount = packet.ReadBits("Modifier type count", 22);
+
+                var modTypeCount = new uint[modCount];
+                for (var j = 0; j < modCount; ++j)
+                    modTypeCount[j] = (uint)packet.ReadBits("Count", 21, j);
+
+                for (var j = 0; j < modCount; ++j)
+                {
+                    for (var i = 0; i < modTypeCount[j]; ++i)
+                    {
+                        packet.ReadSingle("Amount", j, i);
+                        packet.ReadByte("Spell Mask bitpos", j, i);
+                    }
+
+                    packet.ReadEnum<SpellModOp>("Spell Mod", TypeCode.Byte, j);
                 }
             }
         }
