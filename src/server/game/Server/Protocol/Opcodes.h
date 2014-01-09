@@ -714,7 +714,7 @@ enum Opcodes
     SMSG_BATTLEGROUND_POINTS                          = 0x518,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_BATTLEGROUND_PLAYER_JOINED                   = 0x8B2,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEGROUND_PLAYER_LEFT                     = 0x822,  // 5.4.0 17399 (JamList)
-    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x838,  // 5.4.0 17399 (JamList)
+    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x838,  // 5.4.0 17399
     SMSG_BATTLEPET_CAGE_DATA_ERROR                    = 0x837,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_DELETE                             = 0x8AC,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_ERROR                              = 0x491,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)

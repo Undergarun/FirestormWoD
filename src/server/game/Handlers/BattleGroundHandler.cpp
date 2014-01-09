@@ -280,85 +280,50 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     if (!bg)                                                 // can't be received if player not in battleground
         return;
 
-    uint32 acount = 0;
-    uint32 hcount = 0;
-    Player* aplr = NULL;
-    Player* hplr = NULL;
+    uint32 count = 0;
+    std::list<Player*> players;
 
-    if (uint64 guid = bg->GetFlagPickerGUID(TEAM_ALLIANCE))
+    if (Player* plr = ObjectAccessor::FindPlayer(bg->GetFlagPickerGUID(TEAM_ALLIANCE)))
     {
-        aplr = ObjectAccessor::FindPlayer(guid);
-        if (aplr)
-            ++acount;
+        players.push_back(plr);
+        ++count;
     }
 
-    if (uint64 guid = bg->GetFlagPickerGUID(TEAM_HORDE))
+    if (Player* plr = ObjectAccessor::FindPlayer(bg->GetFlagPickerGUID(TEAM_HORDE)))
     {
-        hplr = ObjectAccessor::FindPlayer(guid);
-        if (hplr)
-            ++hcount;
+        players.push_back(plr);
+        ++count;
     }
-
-    ObjectGuid aguid = aplr ? aplr->GetGUID() : 0;
-    ObjectGuid hguid = hplr ? hplr->GetGUID() : 0;
 
     WorldPacket data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
+    ByteBuffer dataBuffer;
 
-    data.WriteBits(acount, 22);
-    for (uint8 i = 0; i < acount; i++)
-    {
-        data.WriteBit(aguid[3]);
-        data.WriteBit(aguid[5]);
-        data.WriteBit(aguid[1]);
-        data.WriteBit(aguid[6]);
-        data.WriteBit(aguid[7]);
-        data.WriteBit(aguid[0]);
-        data.WriteBit(aguid[2]);
-        data.WriteBit(aguid[4]);
-    }
+    data.WriteBits(count, 20);
 
-    data.WriteBits(hcount, 22);
-    for (uint8 i = 0; i < hcount; i++)
+    for (auto itr : players)
     {
-        data.WriteBit(hguid[6]);
-        data.WriteBit(hguid[5]);
-        data.WriteBit(hguid[4]);
-        data.WriteBit(hguid[7]);
-        data.WriteBit(hguid[2]);
-        data.WriteBit(hguid[1]);
-        data.WriteBit(hguid[0]);
-        data.WriteBit(hguid[3]);
+        ObjectGuid guid = itr->GetGUID();
+
+        uint8 bits[8] = { 6, 7, 3, 1, 2, 0, 5, 4 };
+        data.WriteBitInOrder(guid, bits);
+
+        dataBuffer.WriteByteSeq(guid[6]);
+        dataBuffer.WriteByteSeq(guid[3]);
+        dataBuffer.WriteByteSeq(guid[1]);
+        dataBuffer << float(itr->GetPositionY());
+        dataBuffer.WriteByteSeq(guid[4]);
+        dataBuffer.WriteByteSeq(guid[0]);
+        dataBuffer << float(itr->GetPositionX());
+        dataBuffer.WriteByteSeq(guid[2]);
+        dataBuffer.WriteByteSeq(guid[5]);
+        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);
+        dataBuffer.WriteByteSeq(guid[7]);
+        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);
     }
 
     data.FlushBits();
-
-    for (uint8 i = 0; i < hcount; i++)
-    {
-        data.WriteByteSeq(hguid[2]);
-        data.WriteByteSeq(hguid[1]);
-        data << float(hplr->GetPositionY());
-        data.WriteByteSeq(hguid[5]);
-        data.WriteByteSeq(hguid[4]);
-        data.WriteByteSeq(hguid[7]);
-        data.WriteByteSeq(hguid[0]);
-        data.WriteByteSeq(hguid[6]);
-        data.WriteByteSeq(hguid[3]);
-        data << float(hplr->GetPositionX());
-    }
-
-    for (uint8 i = 0; i < acount; i++)
-    {
-        data.WriteByteSeq(aguid[6]);
-        data << float(aplr->GetPositionX());
-        data.WriteByteSeq(aguid[5]);
-        data.WriteByteSeq(aguid[3]);
-        data << float(aplr->GetPositionY());
-        data.WriteByteSeq(aguid[1]);
-        data.WriteByteSeq(aguid[7]);
-        data.WriteByteSeq(aguid[0]);
-        data.WriteByteSeq(aguid[2]);
-        data.WriteByteSeq(aguid[4]);
-    }
+    if (dataBuffer.size())
+        data.append(dataBuffer);
 
     SendPacket(&data);
 }
