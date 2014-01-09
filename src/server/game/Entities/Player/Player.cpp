@@ -25327,7 +25327,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
     data << float(0.01666667f);                                 // game speed
-    data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
+    data << uint32(secsToTimeBitFields(time(NULL)));            // server hour
     data << uint32(0);                                          // added in 3.1.2
     data << uint32(0);                                          // added in 5.4.0
     data << uint32(secsToTimeBitFields(time(NULL)));            // local hour

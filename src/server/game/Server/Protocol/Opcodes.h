@@ -797,7 +797,7 @@ enum Opcodes
     SMSG_CHAT_IGNORED_ACCOUNT_MUTED                   = 0x590,  // 5.4.0 17399 (JamList)
     SMSG_CHAT_NOT_IN_PARTY                            = 0x1A7,  // 5.4.0 17399 (JamList)
     SMSG_CHAT_PLAYER_AMBIGUOUS                        = 0x52F,  // 5.0.5 16048
-    SMSG_CHAT_PLAYER_NOT_FOUND                        = 0x51E,  // 5.0.5 16048
+    SMSG_CHAT_PLAYER_NOT_FOUND                        = 0x51E,  // 5.4.0 17399
     SMSG_CHAT_RESTRICTED                              = 0x5A5,  // 5.0.5 16048
     SMSG_CHAT_SERVER_DISCONNECTED                     = 0x000,  // 5.0.5 16048
     SMSG_CHAT_SERVER_RECONNECTED                      = 0x40D,  // 5.4.0 17399 (JamList)
@@ -1282,7 +1282,7 @@ enum Opcodes
     SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0x000,  // 5.0.5 16048 Deprecated
     SMSG_QUERY_OBJECT_POSITION                        = 0x910,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_QUERY_OBJECT_ROTATION                        = 0x104,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_QUERY_TIME_RESPONSE                          = 0x08B,  // 5.4.0 17399 (JamList)
+    SMSG_QUERY_TIME_RESPONSE                          = 0x08C,  // 5.4.0 17399
     SMSG_QUERY_BATTLEPET_NAME_RESPONSE                = 0x89D,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_QUERY_NPC_TEXT_RESPONSE                      = 0x886,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_QUEST_PUSH_RESULT                            = 0x15BA, // 5.4.0 17399
@@ -1499,7 +1499,7 @@ enum Opcodes
     SMSG_TRIGGER_MOVIE                                = 0x414,  // 5.4.0 17399
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x194,  // 5.4.0 17399
     SMSG_TUTORIAL_FLAGS                               = 0x1F35, // 5.4.0 17399
-    SMSG_UI_TIME                                      = 0x911,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_UI_TIME                                      = 0x000,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x000,  // 5.0.5 16048
     SMSG_UNIT_SPELLCAST_START                         = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,  // 5.4.0 17399
@@ -1545,7 +1545,7 @@ enum Opcodes
     SMSG_WHO                                          = 0x8A5,  // 5.4.0 17399
     SMSG_WHOIS                                        = 0x49D,  // 5.4.0 17399
     SMSG_WORLD_SERVER_INFO                            = 0x52E,  // 5.4.0 17399
-    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x90D,  // 5.4.0 17399
+    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x911,  // 5.4.0 17399
     SMSG_XP_GAIN_ABORTED                              = 0x131,  // 5.4.0 17399
     SMSG_ZONE_UNDER_ATTACK                            = 0x000,  // 5.0.5 16048
 };
