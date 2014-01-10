@@ -274,60 +274,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
-{
-    Battleground* bg = _player->GetBattleground();
-    if (!bg)                                                 // can't be received if player not in battleground
-        return;
-
-    uint32 count = 0;
-    std::list<Player*> players;
-
-    if (Player* plr = ObjectAccessor::FindPlayer(bg->GetFlagPickerGUID(TEAM_ALLIANCE)))
-    {
-        players.push_back(plr);
-        ++count;
-    }
-
-    if (Player* plr = ObjectAccessor::FindPlayer(bg->GetFlagPickerGUID(TEAM_HORDE)))
-    {
-        players.push_back(plr);
-        ++count;
-    }
-
-    WorldPacket data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
-    ByteBuffer dataBuffer;
-
-    data.WriteBits(count, 20);
-
-    for (auto itr : players)
-    {
-        ObjectGuid guid = itr->GetGUID();
-
-        uint8 bits[8] = { 6, 7, 3, 1, 2, 0, 5, 4 };
-        data.WriteBitInOrder(guid, bits);
-
-        dataBuffer.WriteByteSeq(guid[6]);
-        dataBuffer.WriteByteSeq(guid[3]);
-        dataBuffer.WriteByteSeq(guid[1]);
-        dataBuffer << float(itr->GetPositionY());
-        dataBuffer.WriteByteSeq(guid[4]);
-        dataBuffer.WriteByteSeq(guid[0]);
-        dataBuffer << float(itr->GetPositionX());
-        dataBuffer.WriteByteSeq(guid[2]);
-        dataBuffer.WriteByteSeq(guid[5]);
-        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);
-        dataBuffer.WriteByteSeq(guid[7]);
-        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);
-    }
-
-    data.FlushBits();
-    if (dataBuffer.size())
-        data.append(dataBuffer);
-
-    SendPacket(&data);
-}
-
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");

@@ -837,7 +837,6 @@ class WorldSession
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
-        void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
         void HandlePVPLogDataOpcode(WorldPacket& recvData);
         void HandleBattleFieldPortOpcode(WorldPacket& recvData);
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
