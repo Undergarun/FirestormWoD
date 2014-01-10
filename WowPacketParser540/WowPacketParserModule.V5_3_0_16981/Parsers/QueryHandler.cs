@@ -39,7 +39,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             }
 
             var qItemCount = packet.ReadBits("itemCount", 22);
-            uint sLenght1 = packet.ReadBits(6) ^ 1;
+            uint sLenght1 = packet.ReadBits(6);
             System.Console.WriteLine("sLength1: " + sLenght1);
             uint sLenght2 = packet.ReadBits("sLength2", 11);
             uint sLenght3 = packet.ReadBits("sLength3", 11);

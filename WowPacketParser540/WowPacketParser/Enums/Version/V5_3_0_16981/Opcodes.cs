@@ -118,7 +118,10 @@ namespace WowPacketParser.Enums.Version.V5_3_0_16981
             {Opcode.SMSG_SPELLENERGIZELOG, 5266},
             {Opcode.SMSG_SPELL_BATTLE_PET_REVIVE, 4277},
             {Opcode.SMSG_SPELL_UNK_LOG, 5410},
-            {Opcode.SMSG_SPELL_UNK_LOG2, 4518}
+            {Opcode.SMSG_SPELL_UNK_LOG2, 4518},
+            {Opcode.SMSG_LOOT_START_ROLL, 1296},
+            {Opcode.SMSG_LOOT_ROLL, 1318},
+            {Opcode.SMSG_LOOT_ROLL_WON, 445},
             /*{Opcode.CMSG_ADDON_REGISTERED_PREFIXES, 0x0470},
             {Opcode.CMSG_AREATRIGGER, 0x04DB},
             {Opcode.CMSG_CAST_SPELL, 0x01CE},
