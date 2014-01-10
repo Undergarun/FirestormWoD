@@ -858,7 +858,12 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 void WorldSession::SendPlayerNotFoundNotice(std::string name)
 {
     WorldPacket data(SMSG_CHAT_PLAYER_NOT_FOUND, name.size()+1);
-    data << name;
+
+    data.WriteBits((name.size() - (name.size() % 2)) / 2, 8);
+    data.WriteBit((name.size() % 2));
+    data.FlushBits();
+    data.append(name.c_str(), name.size());
+
     SendPacket(&data);
 }
 

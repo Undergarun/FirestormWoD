@@ -1489,21 +1489,35 @@ namespace WowPacketParser.Parsing.Parsers
             packet.WriteGuid("Guid", guid);
         }
 
-        [Parser(Opcode.SMSG_BATTLEGROUND_PLAYER_POSITIONS, ClientVersionBuild.V4_0_6_13596, ClientVersionBuild.V4_3_0_15005)]
+        [Parser(Opcode.SMSG_BATTLEGROUND_PLAYER_POSITIONS)]
         public static void HandleBattlegroundPlayerPositions(Packet packet)
         {
-            var count1 = packet.ReadUInt32("Count 1");
-            for (var i = 0; i < count1; ++i)
+            var count = packet.ReadBits("Count", 20);
+
+            var guids = new byte[count][];
+            for (var i = 0; i < count; ++i)
             {
-                packet.ReadGuid("GUID", i);
-                packet.ReadVector2("Position", i);
+                guids[i] = new byte[8];
+
+                packet.StartBitStream(guids[i], 6, 7, 3, 1, 2, 0, 5, 4);
             }
 
-            var count2 = packet.ReadUInt32("Count 2");
-            for (var i = 0; i < count2; ++i)
+            for (var i = 0; i < count; ++i)
             {
-                packet.ReadGuid("GUID", i);
-                packet.ReadVector2("Position", i);
+                packet.ReadXORByte(guids[i], 6);
+                packet.ReadXORByte(guids[i], 3);
+                packet.ReadXORByte(guids[i], 1);
+                packet.ReadSingle("Position Y", i);
+                packet.ReadXORByte(guids[i], 4);
+                packet.ReadXORByte(guids[i], 0);
+                packet.ReadSingle("Position X", i);
+                packet.ReadXORByte(guids[i], 2);
+                packet.ReadXORByte(guids[i], 5);
+                packet.ReadByte("Unk Byte", i);
+                packet.ReadXORByte(guids[i], 7);
+                packet.ReadByte("Unk Byte", i);
+
+                packet.WriteGuid("Player GUID", guids[i], i);
             }
         }
 

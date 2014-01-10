@@ -34,7 +34,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
                 guid1[7] = packet.ReadBit();
 
-                packet.ReadUInt32("unk 32 1");
+                packet.ReadUInt32("Emblem Style");
 
                 for (var i = 0; i < rankCount; ++i)
                 {
@@ -45,12 +45,12 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
 
                 packet.ReadXORByte(guid2, 1);
 
-                packet.ReadUInt32("unk flags ?");
-                packet.ReadUInt32("Emblem Color ?");
-                packet.ReadUInt32("BackGround Color ?");
-                packet.ReadUInt32("Border Style ?");
+                packet.ReadUInt32("Realm ID");
+                packet.ReadUInt32("Emblem Color");
+                packet.ReadUInt32("BackGround Color");
+                packet.ReadUInt32("Border Style");
                 packet.ReadXORByte(guid2, 0);
-                packet.ReadUInt32("Border Color ?");
+                packet.ReadUInt32("Border Color");
                 packet.ReadXORByte(guid2, 6);
                 packet.ReadWoWString("Guild Name", nameLen);
                 packet.ReadXORByte(guid2, 5);

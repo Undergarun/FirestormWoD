@@ -37,8 +37,32 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         [Parser(Opcode.SMSG_SET_PROFICIENCY)]
         public static void HandleSetProficency(Packet packet)
         {
-            packet.ReadEnum<UnknownFlags>("Mask", TypeCode.UInt32);
-            packet.ReadEnum<ItemClass>("Class", TypeCode.Byte);
+            var guid = new byte[8];
+
+            guid[0] = packet.ReadBit();
+            guid[1] = packet.ReadBit();
+            guid[5] = packet.ReadBit();
+            var strLen = packet.ReadBits("strLen", 7);
+            guid[7] = packet.ReadBit();
+            guid[6] = packet.ReadBit();
+            guid[3] = packet.ReadBit();
+            guid[4] = packet.ReadBit();
+            guid[2] = packet.ReadBit();
+
+            packet.ReadXORByte(guid, 1);
+            packet.ReadXORByte(guid, 3);
+            packet.ReadXORByte(guid, 5);
+            packet.ReadXORByte(guid, 2);
+            packet.ReadWoWString("String", strLen);
+            packet.ReadXORByte(guid, 4);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(guid, 0);
+            packet.ReadXORByte(guid, 6);
+            packet.ReadByte("Unk Byte");
+            packet.ReadByte("Unk Byte");
+            packet.ReadXORByte(guid, 7);
+
+            packet.WriteGuid("Guid", guid);
         }
 
         [Parser(Opcode.SMSG_ITEM_ENCHANT_TIME_UPDATE)]
