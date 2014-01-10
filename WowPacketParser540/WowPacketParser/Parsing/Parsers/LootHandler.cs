@@ -10,6 +10,15 @@ namespace WowPacketParser.Parsing.Parsers
 {
     public static class LootHandler
     {
+        [Parser(Opcode.SMSG_COIN_REMOVED)]
+        public static void HandleCoinRemoved(Packet packet)
+        {
+            var guid = packet.StartBitStream(1, 3, 4, 0, 5, 6, 2, 7);
+            packet.ParseBitStream(guid, 1, 4, 0, 6, 3, 7, 5, 2);
+
+            packet.WriteGuid("Npc GUID", guid);
+        }
+
         [Parser(Opcode.SMSG_LOOT_MONEY_NOTIFY)]
         public static void HandleLootMoneyNotify(Packet packet)
         {

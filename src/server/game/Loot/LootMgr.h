@@ -273,6 +273,13 @@ struct LootView;
 ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
 ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
+struct LinkedLootInfo
+{
+    uint64 creatureGUID;
+    uint32 slot;
+    PermissionTypes permission;
+};
+
 struct Loot
 {
     friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
@@ -283,6 +290,9 @@ struct Loot
 
     bool alreadyAskedForRoll;
 
+    uint32 maxLinkedSlot;
+    uint32 additionalLinkedGold;
+    std::map<uint32, LinkedLootInfo> linkedLoot;
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
     uint32 gold;
@@ -290,7 +300,7 @@ struct Loot
     uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), alreadyAskedForRoll(false) {}
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), alreadyAskedForRoll(false), maxLinkedSlot(0), additionalLinkedGold(0) {}
     ~Loot() { clear(); }
 
     // if loot becomes invalid this reference is used to inform the listener
@@ -320,7 +330,32 @@ struct Loot
         gold = 0;
         unlootedCount = 0;
         roundRobinPlayer = 0;
+        additionalLinkedGold = 0;
         i_LootValidatorRefManager.clearReferences();
+    }
+
+    void addLinkedLoot(uint32 slot, uint64 linkedCreature, uint32 linkedSlot, PermissionTypes perm)
+    {
+        linkedLoot[slot].creatureGUID = linkedCreature;
+        linkedLoot[slot].slot = linkedSlot;
+        linkedLoot[slot].permission = perm;
+
+        if (maxLinkedSlot < slot)
+            maxLinkedSlot = slot;
+    }
+
+    bool isLinkedLoot(uint32 slot)
+    {
+        if (linkedLoot.find(slot) != linkedLoot.end())
+            return true;
+
+        return false;
+    }
+
+    // Must used only AFTER isLinkedLoot check
+    LinkedLootInfo& getLinkedLoot(uint32 slot)
+    {
+        return linkedLoot[slot];
     }
 
     bool empty() const { return items.empty() && gold == 0; }
@@ -331,6 +366,7 @@ struct Loot
     void NotifyMoneyRemoved(uint64);
     void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
+    bool IsLooter(uint64 GUID) { return PlayersLooting.find(GUID) != PlayersLooting.end(); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);

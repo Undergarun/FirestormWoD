@@ -10453,6 +10453,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         }
 
         loot = &creature->loot;
+        loot->linkedLoot.clear();
 
         if (loot_type == LOOT_PICKPOCKETING)
         {
@@ -10473,74 +10474,119 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         }
         else
         {
-            // the player whose group may loot the corpse
-            Player* recipient = creature->GetLootRecipient();
-            if (!recipient)
-                return;
+            // Check all creature around, to see if we can loot it too
+            std::list<Creature*> linkedLootCreature;
+            linkedLootCreature.push_back(creature);
 
-            if (!creature->lootForBody)
+            if (loot_type == LOOT_CORPSE)
             {
-                creature->lootForBody = true;
+                CellCoord p(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
+                Cell cell(p);
+                cell.SetNoCreate();
 
-                // for creature, loot is filled when creature is killed.
+                JadeCore::AllDeadCreaturesInRange check(this, 25.0f, creature->GetGUID());
+                JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange> searcher(this, linkedLootCreature, check);
+                TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange>, GridTypeMapContainer> cSearcher(searcher);
+                cell.Visit(p, cSearcher, *(GetMap()), *this,  25.0f);
+            }
 
-                if (Group* group = recipient->GetGroup())
+            uint32 maxSlot = loot->items.size() + loot->quest_items.size();
+            loot->additionalLinkedGold = 0;
+            for (auto itr : linkedLootCreature)
+            {
+                // the player whose group may loot the corpse
+                Player* recipient = itr->GetLootRecipient();
+                if (!recipient)
                 {
-                    switch (group->GetLootMethod())
-                    {
-                        case GROUP_LOOT:
-                            // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
-                            group->GroupLoot(loot, creature);
-                            break;
-                        case NEED_BEFORE_GREED:
-                            group->NeedBeforeGreed(loot, creature);
-                            break;
-                        case MASTER_LOOT:
-                            group->MasterLoot(loot, creature);
-                            break;
-                        default:
-                            break;
-                    }
+                    if (creature != itr)
+                        continue;
+
+                    return;
                 }
-            }
 
-            // possible only if creature->lootForBody && loot->empty() at spell cast check
-            if (loot_type == LOOT_SKINNING)
-            {
-                loot->clear();
-                loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
-                permission = OWNER_PERMISSION;
-            }
-            // set group rights only for loot_type != LOOT_SKINNING
-            else
-            {
-                if (Group* group = GetGroup())
+                Loot* linkedLoot = &itr->loot;
+
+                if (!itr->lootForBody)
                 {
-                    if (group == recipient->GetGroup())
+                    itr->lootForBody = true;
+
+                    // for creature, loot is filled when creature is killed.
+
+                    if (Group* group = recipient->GetGroup())
                     {
                         switch (group->GetLootMethod())
                         {
+                            case GROUP_LOOT:
+                                // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
+                                group->GroupLoot(linkedLoot, itr);
+                                break;
+                            case NEED_BEFORE_GREED:
+                                group->NeedBeforeGreed(linkedLoot, itr);
+                                break;
                             case MASTER_LOOT:
-                                permission = MASTER_PERMISSION;
-                                break;
-                            case FREE_FOR_ALL:
-                                permission = ALL_PERMISSION;
-                                break;
-                            case ROUND_ROBIN:
-                                permission = ROUND_ROBIN_PERMISSION;
+                                group->MasterLoot(linkedLoot, itr);
                                 break;
                             default:
-                                permission = GROUP_PERMISSION;
                                 break;
                         }
                     }
-                    else
-                        permission = NONE_PERMISSION;
                 }
-                else if (recipient == this)
-                    permission = OWNER_PERMISSION;
+
+                PermissionTypes perm = NONE_PERMISSION;
+
+                // TODO: handle this case with new radius loot system
+                // possible only if creature->lootForBody && loot->empty() at spell cast check
+                if (loot_type == LOOT_SKINNING)
+                {
+                    linkedLoot->clear();
+                    linkedLoot->FillLoot(itr->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
+                    perm = OWNER_PERMISSION;
+                }
+                // set group rights only for loot_type != LOOT_SKINNING
                 else
-                    permission = NONE_PERMISSION;
+                {
+                    if (Group* group = GetGroup())
+                    {
+                        if (group == recipient->GetGroup())
+                        {
+                            switch (group->GetLootMethod())
+                            {
+                                case MASTER_LOOT:
+                                    perm = MASTER_PERMISSION;
+                                    break;
+                                case FREE_FOR_ALL:
+                                    perm = ALL_PERMISSION;
+                                    break;
+                                case ROUND_ROBIN:
+                                    perm = ROUND_ROBIN_PERMISSION;
+                                    break;
+                                default:
+                                    perm = GROUP_PERMISSION;
+                                    break;
+                            }
+                        }
+                        else
+                            perm = NONE_PERMISSION;
+                    }
+                    else if (recipient == this)
+                        perm = OWNER_PERMISSION;
+                    else
+                        perm = NONE_PERMISSION;
+                }
+
+                if (itr == creature)
+                    permission = perm;
+                else
+                {
+                    if (perm != NONE_PERMISSION)
+                    {
+                        linkedLoot->AddLooter(GetGUID());
+                        loot->additionalLinkedGold += linkedLoot->gold;
+                    }
+
+                    for (uint32 i = 0; i < linkedLoot->items.size(); i++)
+                        loot->addLinkedLoot(maxSlot++, itr->GetGUID(), i, perm);
+                }
             }
         }
     }
@@ -27389,7 +27435,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
     }
 }
 
-void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
+void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 {
     QuestItem* qitem = NULL;
     QuestItem* ffaitem = NULL;
@@ -27422,7 +27468,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(lootSlot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -27432,14 +27478,14 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(lootSlot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             }
             else
             {
                 //not freeforall, notify everyone
                 if (conditem)
                     conditem->is_looted = true;
-                loot->NotifyItemRemoved(lootSlot);
+                loot->NotifyItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             }
         }
 

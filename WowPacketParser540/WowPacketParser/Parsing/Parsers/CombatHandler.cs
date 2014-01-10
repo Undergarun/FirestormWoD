@@ -105,11 +105,58 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_ENVIRONMENTALDAMAGELOG)]
         public static void HandleEnvirenmentalDamageLog(Packet packet)
         {
-            packet.ReadGuid("GUID");
+            var playerGuid = new byte[8];
+            var playerPowerGuid = new byte[8];
+
+            packet.StartBitStream(playerGuid, 6, 1, 5, 0, 3, 7, 2);
+            var hasPowerData = packet.ReadBit("hasPowerData");
+            playerGuid[4] = packet.ReadBit();
+
+            if (hasPowerData)
+            {
+                packet.StartBitStream(playerPowerGuid, 6, 5, 2, 1, 0, 7);
+                var counter = packet.ReadBits("counter", 21);
+                packet.StartBitStream(playerPowerGuid, 4, 3);
+
+                if (hasPowerData)
+                {
+                    packet.ReadXORByte(playerPowerGuid, 1);
+                    packet.ReadUInt32("Unk UInt32");
+                    packet.ReadXORByte(playerPowerGuid, 2);
+                    packet.ReadUInt32("Unk UInt32");
+                    packet.ReadXORByte(playerPowerGuid, 5);
+
+                    for (int i = 0; i < counter; ++i)
+                    {
+                        packet.ReadEnum<PowerType>("Power type", TypeCode.UInt32, i);
+                        packet.ReadUInt32("Power Amount", i);
+                    }
+                    
+                    packet.ReadXORByte(playerPowerGuid, 7);
+                    packet.ReadXORByte(playerPowerGuid, 6);
+                    packet.ReadXORByte(playerPowerGuid, 3);
+                    packet.ReadXORByte(playerPowerGuid, 4);
+                    packet.ReadXORByte(playerPowerGuid, 0);
+                    packet.ReadUInt32("Unk UInt32");
+
+                    packet.WriteGuid("Player Power GUID", playerPowerGuid);
+                }
+            }
+            
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(playerGuid, 4);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 5);
+            packet.ReadXORByte(playerGuid, 7);
+            packet.ReadXORByte(playerGuid, 1);
+            packet.ReadUInt32("Unk UInt32");
+            packet.ReadXORByte(playerGuid, 3);
+            packet.ReadXORByte(playerGuid, 6);
             packet.ReadEnum<EnvironmentDamage>("Type", TypeCode.Byte);
-            packet.ReadInt32("Damage");
-            packet.ReadInt32("Absorb");
-            packet.ReadInt32("Resist");
+            packet.ReadXORByte(playerGuid, 0);
+
+            packet.WriteGuid("Player GUID", playerGuid);
         }
 
         [Parser(Opcode.SMSG_CANCEL_AUTO_REPEAT)]

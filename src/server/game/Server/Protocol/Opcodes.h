@@ -373,7 +373,7 @@ enum Opcodes
     CMSG_OFFER_PETITION                               = 0x170B, // 5.4.0 17399
     CMSG_OPENING_CINEMATIC                            = 0x000,  // 5.0.5 16048
     CMSG_OPEN_ITEM                                    = 0x1A01, // 5.4.0 17399
-    CMSG_OPT_OUT_OF_LOOT                              = 0x000,  // 5.0.5 16048
+    CMSG_OPT_OUT_OF_LOOT                              = 0x1277, // 5.4.0 17399
     CMSG_PAGE_TEXT_QUERY                              = 0x1082, // 5.4.0 17399
     CMSG_PETITION_BUY                                 = 0x13AE, // 5.4.0 17399
     CMSG_PETITION_DECLINE                             = 0x1A3B, // 5.4.0 17399

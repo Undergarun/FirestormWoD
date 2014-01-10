@@ -1148,43 +1148,19 @@ namespace WowPacketParser.Parsing.Parsers
             */
         }
 
-        [Parser(Opcode.SMSG_UPDATE_CURRENCY, ClientVersionBuild.Zero, ClientVersionBuild.V4_3_0_15005)]
-        public static void HandleUpdateCurrency(Packet packet)
-        {
-            packet.ReadUInt32("Currency ID");
-            packet.ReadUInt32("Week Count");
-            packet.ReadUInt32("Total Count");
-        }
-
-        [Parser(Opcode.SMSG_UPDATE_CURRENCY, ClientVersionBuild.V4_3_0_15005, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleUpdateCurrency430(Packet packet)
-        {
-            packet.ReadInt32("Currency ID");
-            packet.ReadInt32("Total Count");
-
-            var hasSeasonCount = packet.ReadBit();
-            var hasWeekCap = packet.ReadBit();
-            packet.ReadBit("Print in log");
-
-            if (hasWeekCap)
-                packet.ReadInt32("Week Count");
-
-            if (hasSeasonCount)
-                packet.ReadInt32("Season Total Earned");
-        }
-
         [Parser(Opcode.SMSG_UPDATE_CURRENCY, ClientVersionBuild.V4_3_4_15595)]
         public static void HandleUpdateCurrency434(Packet packet)
         {
-            var hasWeekCap = packet.ReadBit();
-            var hasSeasonCount = packet.ReadBit();
+            var hasWeekCap = packet.ReadBit("hasWeekCap");
             packet.ReadBit("Print in log");
+            var hasSeasonCount = packet.ReadBit("hasSeasonCount");
 
             if (hasSeasonCount)
                 packet.ReadInt32("Season Total Earned");
 
-            packet.ReadInt32("Total Count");
             packet.ReadInt32("Currency ID");
+            packet.ReadInt32("Total Count");
+            packet.ReadUInt32("Unk UInt32");
 
             if (hasWeekCap)
                 packet.ReadInt32("Week Count");
