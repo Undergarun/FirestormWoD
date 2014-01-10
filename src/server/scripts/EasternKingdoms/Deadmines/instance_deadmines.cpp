@@ -237,17 +237,33 @@ class instance_deadmines : public InstanceMapScript
 
             void DoPlaySound(GameObject* unit, uint32 sound)
             {
-                WorldPacket data;
-                data.SetOpcode(SMSG_PLAY_SOUND);
+                WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+                ObjectGuid guid = unit->GetGUID();
+
+                uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
+                data.WriteBitInOrder(guid, bits);
+
+                uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+                data.WriteBytesSeq(guid, bytes);
+
                 data << uint32(sound);
+
                 unit->SendMessageToSet(&data, false);
             }
 
             void DoPlaySoundCreature(Unit* unit, uint32 sound)
             {
-                WorldPacket data;
-                data.SetOpcode(SMSG_PLAY_SOUND);
+                WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+                ObjectGuid guid = unit->GetGUID();
+
+                uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
+                data.WriteBitInOrder(guid, bits);
+
+                uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+                data.WriteBytesSeq(guid, bytes);
+
                 data << uint32(sound);
+
                 unit->SendMessageToSet(&data, false);
             }
         };

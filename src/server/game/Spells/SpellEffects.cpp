@@ -7186,8 +7186,17 @@ void Spell::EffectPlaySound(SpellEffIndex effIndex)
     if (!sSoundEntriesStore.LookupEntry(soundId))
         return;
 
-    WorldPacket data(SMSG_PLAY_SOUND, 4);
+    WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+    ObjectGuid guid = unitTarget->GetGUID();
+
+    uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
+    data.WriteBitInOrder(guid, bits);
+
+    uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+    data.WriteBytesSeq(guid, bytes);
+
     data << uint32(soundId);
+
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
