@@ -286,7 +286,7 @@ enum Opcodes
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x000,  // 5.0.5 16048
     CMSG_ITEM_REFUND                                  = 0x136F, // 5.4.0 17399
     CMSG_ITEM_REFUND_INFO                             = 0x1A76, // 5.4.0 17399
-    CMSG_ITEM_TEXT_QUERY                              = 0x000,  // 5.0.5 16048
+    CMSG_ITEM_TEXT_QUERY                              = 0x1F58, // 5.4.0 17399
     CMSG_JOIN_CHANNEL                                 = 0x1C14, // 5.4.0 17399
     CMSG_KEEP_ALIVE                                   = 0x131A, // 5.4.0 17399
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x10AE, // 5.4.0 17399
@@ -1056,7 +1056,7 @@ enum Opcodes
     SMSG_ITEM_REFUND_RESULT                           = 0x197,  // 5.4.0 17399
     SMSG_ITEM_REMOVE_PASSIVE                          = 0x58F,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_SEND_PASSIVE                            = 0x000,  // 5.0.5 16048
-    SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x000,  // 5.0.5 16048
+    SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x1B80, // 5.4.0 17399
     SMSG_ITEM_TIME_UPDATE                             = 0x53D,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x000,  // 5.0.5 16048
