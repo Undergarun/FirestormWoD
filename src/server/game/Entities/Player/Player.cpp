@@ -20804,38 +20804,14 @@ void Player::SendRaidInfo()
 {
     uint32 counter = 0;
     WorldPacket data(SMSG_RAID_INSTANCE_INFO);
+    ByteBuffer dataBuffer;
 
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             if (itr->second.perm)
                 counter++;
 
-    data.WriteBits(counter, 22);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
-            if (itr->second.perm)
-            {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
-
-                data.WriteBit(instanceGUID[3]);
-                data.WriteBit(0); // extended
-                data.WriteBit(instanceGUID[6]);
-                data.WriteBit(instanceGUID[2]);
-                data.WriteBit(instanceGUID[0]);
-                data.WriteBit(instanceGUID[1]);
-                data.WriteBit(instanceGUID[7]);
-                data.WriteBit(instanceGUID[5]);
-                data.WriteBit(instanceGUID[4]);
-                data.WriteBit(1); // not expire
-            }
-        }
-    }
-
-    data.FlushBits();
+    data.WriteBits(counter, 20);
 
     time_t now = time(NULL);
 
@@ -20848,27 +20824,36 @@ void Player::SendRaidInfo()
                 InstanceSave* save = itr->second.save;
                 ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
 
-                data.WriteByteSeq(instanceGUID[1]);
-                data.WriteByteSeq(instanceGUID[0]);
+                data.WriteBit(instanceGUID[0]);
+                data.WriteBit(instanceGUID[7]);
+                data.WriteBit(instanceGUID[5]);
+                data.WriteBit(1);                                   // Not Expired
+                data.WriteBit(instanceGUID[2]);
+                data.WriteBit(instanceGUID[1]);
+                data.WriteBit(0);                                   // Extended
+                data.WriteBit(instanceGUID[3]);
+                data.WriteBit(instanceGUID[4]);
+                data.WriteBit(instanceGUID[6]);
 
-                data << uint32(save->GetEncounterMask()); // mask boss killed
-                data << uint32(save->GetResetTime() - now);  // reset time
-
-                data.WriteByteSeq(instanceGUID[6]);
-                data.WriteByteSeq(instanceGUID[7]);
-                data.WriteByteSeq(instanceGUID[3]);
-                data.WriteByteSeq(instanceGUID[4]);
-
-                data << uint32(save->GetMapId());           // map id
-
-                data.WriteByteSeq(instanceGUID[5]);
-                data << uint32(save->GetDifficulty());      // difficulty
-
-                data.WriteByteSeq(instanceGUID[2]);
-
+                dataBuffer << uint32(save->GetDifficulty());        // Difficulty
+                dataBuffer.WriteByteSeq(instanceGUID[5]);
+                dataBuffer << uint32(save->GetResetTime() - now);   // Reset Time
+                dataBuffer.WriteByteSeq(instanceGUID[1]);
+                dataBuffer.WriteByteSeq(instanceGUID[4]);
+                dataBuffer.WriteByteSeq(instanceGUID[6]);
+                dataBuffer.WriteByteSeq(instanceGUID[3]);
+                dataBuffer << uint32(save->GetMapId());             // Map ID
+                dataBuffer.WriteByteSeq(instanceGUID[2]);
+                dataBuffer.WriteByteSeq(instanceGUID[0]);
+                dataBuffer << uint32(save->GetEncounterMask());     // Mask boss killed
+                dataBuffer.WriteByteSeq(instanceGUID[7]);
             }
         }
     }
+
+    data.FlushBits();
+    if (dataBuffer.size())
+        data.append(dataBuffer);
 
     GetSession()->SendPacket(&data);
 }

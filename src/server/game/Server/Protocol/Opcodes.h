@@ -1039,7 +1039,6 @@ enum Opcodes
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x000,  // 5.0.5 16048
     SMSG_INSPECT_TALENT                               = 0x901,  // 5.4.0 17399
     SMSG_INSTANCE_DIFFICULTY                          = 0x000,  // 5.0.5 16048
-    SMSG_INSTANCE_INFO                                = 0x4B3,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0x000,  // 5.0.5 16048
     SMSG_INSTANCE_RESET                               = 0x5AF,  // 5.4.0 17399
     SMSG_INSTANCE_RESET_FAILED                        = 0x137,  // 5.4.0 17399
@@ -1303,7 +1302,7 @@ enum Opcodes
     SMSG_QUEST_POI_QUERY_RESPONSE                     = 0x183F, // 5.4.0 17399
     SMSG_QUEST_QUERY_RESPONSE                         = 0x19AB, // 5.4.0 17399
     SMSG_RAID_GROUP_ONLY                              = 0x000,  // 5.0.5 16048
-    SMSG_RAID_INSTANCE_INFO                           = 0x000,  // 5.0.5 16048
+    SMSG_RAID_INSTANCE_INFO                           = 0x4B3,  // 5.4.0 17399
     SMSG_RAID_INSTANCE_MESSAGE                        = 0x41F,  // 5.4.0 17399
     SMSG_RAID_MARKERS_CHANGED                         = 0x094,  // 5.4.0 17399 (JamList)
     SMSG_RAID_READY_CHECK_COMPLETED                   = 0x085,  // 5.4.0 17399
