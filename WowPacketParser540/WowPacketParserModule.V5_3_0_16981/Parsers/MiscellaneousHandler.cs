@@ -295,5 +295,173 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             packet.ReadBits("String length", 9);
             packet.ReadCString("File");
         }
+
+        [Parser(Opcode.SMSG_LOOT_START_ROLL)]
+        public static void HandleLootStartRool540(Packet packet)
+        {
+            var guid = new byte[8];
+            var unk64 = packet.ReadBits("unk 64 (2bits)", 2); // 1
+            guid[6] = packet.ReadBit();
+            guid[4] = packet.ReadBit();
+            var unk60 = !packet.ReadBit();
+            var unk68 = packet.ReadBits("unk 68 (3bits)", 3); // 3
+            guid[5] = packet.ReadBit();
+            var itemSlot = !packet.ReadBit();
+            guid[1] = packet.ReadBit();
+            guid[0] = packet.ReadBit();
+            guid[2] = packet.ReadBit();
+            guid[7] = packet.ReadBit();
+            guid[3] = packet.ReadBit();
+            var unk72 = packet.ReadBit();
+            var unkInt = packet.ReadUInt32("unk uint32");
+            packet.ReadBytes((int)unkInt);
+            // 
+            packet.ReadXORByte(guid, 6);
+            if (itemSlot)
+                packet.ReadByte("itemSlot");
+            packet.ReadXORByte(guid, 2);
+            packet.ReadXORByte(guid, 3);
+            packet.ReadUInt32("itemcount");
+            packet.ReadXORByte(guid, 0);
+            packet.ReadUInt32("coutdown ?");
+            packet.ReadXORByte(guid, 7);
+            if (unk60)
+                packet.ReadByte("unk60");
+
+
+            packet.ReadXORByte(guid, 5);
+            packet.ReadByte("rollVoteMask");
+            packet.ReadUInt32("itemRandomSuffix");
+            packet.ReadInt32("itemRandomPropId");
+            packet.ReadXORByte(guid, 4);
+            packet.ReadByte("totalPlayersRolling");
+            packet.ReadUInt32("mapEntry");
+            packet.ReadXORByte(guid, 1);
+            packet.ReadUInt32("item Entry");
+            packet.ReadUInt32("coutdown");
+        }
+
+        [Parser(Opcode.SMSG_LOOT_ROLL)]
+        public static void HandleLootRollResponse540(Packet packet)
+        {
+            var target = new byte[8];
+            var lootedGUID = new byte[8];
+
+            target[7] = packet.ReadBit();
+            lootedGUID[1] = packet.ReadBit();
+            var unk76 = packet.ReadBit();
+            lootedGUID[2] = packet.ReadBit();
+            lootedGUID[5] = packet.ReadBit();
+            target[6] = packet.ReadBit();
+            target[3] = packet.ReadBit();
+            var unk65 = !packet.ReadBit();
+            lootedGUID[0] = packet.ReadBit();
+            target[5] = packet.ReadBit();
+            target[2] = packet.ReadBit();
+            var unk72 = packet.ReadBits("unk 3bits", 3);
+            lootedGUID[4] = packet.ReadBit();
+            var unk68 = packet.ReadBits("unk 2bits", 2);
+            lootedGUID[3] = packet.ReadBit();
+            target[4] = packet.ReadBit();
+            lootedGUID[6] = packet.ReadBit();
+            target[0] = packet.ReadBit();
+            var unk40 = packet.ReadBit();
+            lootedGUID[7] = packet.ReadBit();
+            var unkBit64 = !packet.ReadBit();
+            target[1] = packet.ReadBit();
+
+            var unk48 = packet.ReadUInt32("unk");
+            packet.ReadXORByte(target, 0);
+            packet.ReadXORByte(target, 5);
+            packet.ReadXORByte(target, 4);
+            packet.ReadXORByte(lootedGUID, 5);
+            packet.ReadXORByte(target, 7);
+            packet.ReadXORByte(target, 2);
+            var unk56 = packet.ReadUInt32("itemRandomSuffix");
+            var unk44 = packet.ReadUInt32("itemEntry");
+            var unk28 = packet.ReadUInt32("rollNumber");
+            packet.ReadXORByte(lootedGUID, 7);
+            packet.ReadXORByte(lootedGUID, 4);
+            packet.ReadEnum<LootRollType>("Roll Type", TypeCode.Byte);
+            var unk60 = packet.ReadInt32("itemRandomPropId");
+            if (unk65)
+                packet.ReadByte("itemSlot");
+            packet.ReadXORByte(lootedGUID, 6);
+            packet.ReadXORByte(lootedGUID, 3);
+            packet.ReadXORByte(target, 6);
+            packet.ReadXORByte(target, 3);
+            packet.ReadXORByte(lootedGUID, 0);
+            packet.ReadXORByte(lootedGUID, 1);
+            var unkBytes = packet.ReadUInt32();
+            packet.ReadBytes((int)unkBytes);
+            packet.ReadXORByte(lootedGUID, 2);
+            packet.ReadXORByte(target, 1);
+            var unk52 = packet.ReadUInt32("itemCount");
+            if (unkBit64)
+                packet.ReadByte("unk64");
+            packet.WriteGuid(target);
+            packet.WriteGuid(lootedGUID);
+        }
+
+        [Parser(Opcode.SMSG_LOOT_ROLL_WON)]
+        public static void HandleLootRollWon540(Packet packet)
+        {
+            var lootedGUID = new byte[8]; // 104 - 111
+            var target = new byte[8]; // 88 - 95
+
+            lootedGUID[7] = packet.ReadBit();
+            target[0] = packet.ReadBit();
+            target[5] = packet.ReadBit();
+            target[7] = packet.ReadBit();
+            target[6] = packet.ReadBit();
+            var unk36 = !packet.ReadBit("unk36");
+            lootedGUID[2] = packet.ReadBit();
+            lootedGUID[3] = packet.ReadBit();
+            var unk37 = !packet.ReadBit("itemSlot");
+            var unk48 = packet.ReadBit("unk48");
+            lootedGUID[5] = packet.ReadBit();
+            lootedGUID[6] = packet.ReadBit();
+            target[1] = packet.ReadBit();
+            lootedGUID[1] = packet.ReadBit();
+            lootedGUID[4] = packet.ReadBit();
+            target[3] = packet.ReadBit();
+            lootedGUID[0] = packet.ReadBit();
+            target[4] = packet.ReadBit();
+            var unk40 = packet.ReadBits("unk40", 2);
+            var unk44 = packet.ReadBits("unk44", 3);
+            target[2] = packet.ReadBit();
+
+            packet.ReadXORByte(target, 0);
+            packet.ReadXORByte(lootedGUID, 0);
+            packet.ReadXORByte(lootedGUID, 1);
+            packet.ReadXORByte(target, 5);
+            packet.ReadXORByte(lootedGUID, 4);
+            packet.ReadXORByte(lootedGUID, 2);
+            packet.ReadEnum<LootRollType>("Roll Type", TypeCode.Byte);
+            if (unk36)
+                packet.ReadByte("36");
+            packet.ReadXORByte(target, 6);
+            if (unk37)
+                packet.ReadByte("itemSlot");
+            packet.ReadXORByte(target, 1);
+            packet.ReadUInt32("rollNumber");
+            var unkBytesCounter = packet.ReadUInt32();
+            packet.ReadBytes((int)unkBytesCounter);
+            packet.ReadXORByte(lootedGUID, 6);
+            packet.ReadUInt32("unknow");
+            packet.ReadXORByte(lootedGUID, 3);
+            packet.ReadXORByte(target, 7);
+            packet.ReadXORByte(lootedGUID, 5);
+            packet.ReadUInt32("itemEntry");
+            packet.ReadXORByte(lootedGUID, 7);
+            packet.ReadXORByte(target, 3);
+            packet.ReadUInt32("itemRandomSuffix");
+            packet.ReadXORByte(target, 2);
+            packet.ReadUInt32("itemCount");
+            packet.ReadUInt32("itemRandomPropId");
+            packet.ReadXORByte(target, 4);
+            packet.WriteGuid(lootedGUID);
+            packet.WriteGuid(target);
+        }
     }
 }

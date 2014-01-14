@@ -313,7 +313,7 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadEnum<LootRollType>("Roll Type", TypeCode.Byte);
         }
 
-        [Parser(Opcode.SMSG_LOOT_START_ROLL)]
+        //[Parser(Opcode.SMSG_LOOT_START_ROLL)]
         public static void HandleStartLoot(Packet packet)
         {
             packet.ReadGuid("GUID");
