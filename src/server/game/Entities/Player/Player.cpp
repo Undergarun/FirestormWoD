@@ -6252,8 +6252,15 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 */
 void Player::BuildPlayerRepop()
 {
-    WorldPacket data(SMSG_PRE_RESURRECT, GetPackGUID().size());
-    data.append(GetPackGUID());
+    WorldPacket data(SMSG_PRE_RESURRECT, 8);
+    ObjectGuid guid = GetGUID();
+
+    uint8 bits[8] = { 0, 3, 5, 4, 6, 7, 1, 2 };
+    data.WriteBitInOrder(guid, bits);
+
+    uint8 bytes[8] = { 4, 6, 7, 0, 2, 5, 1, 3 };
+    data.WriteBytesSeq(guid, bytes);
+
     GetSession()->SendPacket(&data);
 
     if (getRace() == RACE_NIGHTELF)

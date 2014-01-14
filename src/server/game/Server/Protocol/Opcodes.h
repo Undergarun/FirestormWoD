@@ -1268,7 +1268,7 @@ enum Opcodes
     SMSG_PLAY_TIME_WARNING                            = 0x18A,  // 5.4.0 17399 (JamList)
     SMSG_PONG                                         = 0x043,  // 5.4.0 17399
     SMSG_POWER_UPDATE                                 = 0x4AD,  // 5.4.0 17399
-    SMSG_PRE_RESURRECT                                = 0x000,  // 5.0.5 16048
+    SMSG_PRE_RESURRECT                                = 0x4AA,  // 5.4.0 17399
     SMSG_PRINT_NOTIFICATION                           = 0x42E,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PROCRESIST                                   = 0x000,  // 5.0.5 16048
     SMSG_PROPOSE_LEVEL_GRANT                          = 0x834,  // 5.4.0 17399 (JamList)
