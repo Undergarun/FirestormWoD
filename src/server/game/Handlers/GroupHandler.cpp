@@ -678,10 +678,10 @@ void WorldSession::HandleLootRoll(WorldPacket& recvData)
     recvData >> itemSlot; //always 0
     recvData >> rollType;              // 0: pass, 1: need, 2: greed
 
-    uint8 bitOrder[8] = {4, 5, 3, 2, 6, 1, 0, 7};
+    uint8 bitOrder[8] = {5, 7, 2, 3, 4, 0, 6, 7};
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {5, 6, 1, 3, 2, 4, 7, 0};
+    uint8 byteOrder[8] = {2, 3, 7, 0, 6, 5, 1, 4};
     recvData.ReadBytesSeq(guid, byteOrder);
 
     Group* group = GetPlayer()->GetGroup();
@@ -1564,8 +1564,8 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_OPT_OUT_OF_LOOT");
 
-    bool passOnLoot;
-    recvData >> passOnLoot; // 1 always pass, 0 do not pass
+    bool passOnLoot = recvData.ReadBit();
+    recvData.FlushBits();
 
     // ignore if player not loaded
     if (!GetPlayer())                                        // needed because STATUS_AUTHED

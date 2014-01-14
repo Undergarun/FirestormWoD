@@ -23,29 +23,42 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         [Parser(Opcode.SMSG_GAMEOBJECT_QUERY_RESPONSE)]
         public static void HandleGameObjectQueryResponse(Packet packet)
         {
+            var gameObject = new GameObjectTemplate();
             packet.ReadByte("Unk byte"); // 128 in sniff of Guild Vault
             packet.ResetBitReader();
 
-            packet.ReadUInt32("Entry");
+            var entry = packet.ReadEntry("Entry");
             packet.ReadUInt32("data size");
-            packet.ReadEnum<GameObjectType>("Type", TypeCode.UInt32);
-            packet.ReadUInt32("Display ID");
+            gameObject.Type = packet.ReadEnum<GameObjectType>("Type", TypeCode.UInt32);
+            gameObject.DisplayId = packet.ReadUInt32("Display ID");
 
-            packet.ReadCString("Name");
+            gameObject.Name = packet.ReadCString("Name");
             packet.ReadUInt32("Unk uint32 2");
-            packet.ReadCString("Cast Caption");
-            packet.ReadCString("Icon Name");
+            gameObject.CastCaption = packet.ReadCString("Cast Caption");
+            gameObject.IconName = packet.ReadCString("Icon Name");
 
-            for (var i = 0; i < 32; i++)
-                packet.ReadUInt32("Data", i);
+            gameObject.Data = new int[32];
+            for (var i = 0; i < gameObject.Data.Length; i++)
+                gameObject.Data[i] = packet.ReadInt32("Data", i);
 
-            packet.ReadSingle("Size");
+            gameObject.Size = packet.ReadSingle("Size");
 
-            var questItemCount = packet.ReadByte("questItemCount");
-            for (var i = 0; i < questItemCount; i++)
-                packet.ReadUInt32("QuestItem", i);
+            gameObject.QuestItems = new uint[packet.ReadByte("QuestItems Length")]; // correct?
+
+            for (var i = 0; i < gameObject.QuestItems.Length; i++)
+                gameObject.QuestItems[i] = (uint)packet.ReadEntryWithName<Int32>(StoreNameType.Item, "Quest Item", i);
 
             packet.ReadUInt32("Unk uint32 3");
+
+            Storage.GameObjectTemplates.Add((uint)entry.Key, gameObject, packet.TimeSpan);
+
+            var objectName = new ObjectName
+            {
+                ObjectType = ObjectType.GameObject,
+                Name = gameObject.Name,
+            };
+            Storage.ObjectNames.Add((uint)entry.Key, objectName, packet.TimeSpan);
+
         }
 
         /*[HasSniffData]

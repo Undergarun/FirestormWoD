@@ -17972,15 +17972,21 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
             if (creature)
             {
                 WorldPacket data2(SMSG_LOOT_LIST);
-
                 ObjectGuid creatureGuid = creature->GetGUID();
 
-                uint8 bitsOrder2[8] = { 6, 7, 3, 5, 1, 2, 0, 4 };
-                data2.WriteBitInOrder(creatureGuid, bitsOrder2);
+                data.WriteBit(creatureGuid[4]);
+                data.WriteBit(creatureGuid[5]);
+                data.WriteBit(creatureGuid[2]);
+                data.WriteBit(creatureGuid[3]);
+                data.WriteBit(creatureGuid[7]);
+                data.WriteBit(false); // groupLooterGuid
+                data.WriteBit(false); // unk guid
+                data.WriteBit(creatureGuid[1]);
+                data.WriteBit(creatureGuid[6]);
+                data.WriteBit(creatureGuid[0]);
 
-                uint8 bytesOrder2[8] = { 5, 6, 2, 0, 1, 3, 4, 7 };
-                data2.WriteBytesSeq(creatureGuid, bytesOrder2);
-
+                uint8 byteOrder[8] = {0, 2, 5, 4, 3, 1, 6, 7};
+                data.WriteBytesSeq(creatureGuid, byteOrder);
                 player->SendMessageToSet(&data2, true);
             }
         }

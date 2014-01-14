@@ -270,51 +270,29 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadGuid("Item GUID");
         }
 
-        [Parser(Opcode.SMSG_ITEM_REFUND_INFO_RESPONSE, ClientVersionBuild.Zero, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleItemRefundInfoResponse(Packet packet)
-        {
-            packet.ReadGuid("Item GUID");
-            packet.ReadUInt32("Money Cost");
-            packet.ReadUInt32("Honor Cost");
-            packet.ReadUInt32("Arena Cost");
-            for (var i = 0; i < 5; ++i)
-            {
-                packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Extended Cost Entry", i);
-                packet.ReadUInt32("Extended Cost Count", i);
-            }
-            packet.ReadUInt32("Unk UInt32 1");
-            packet.ReadUInt32("Time Left");
-        }
-
-        [Parser(Opcode.SMSG_ITEM_REFUND_INFO_RESPONSE, ClientVersionBuild.V4_3_4_15595)]
+        [Parser(Opcode.SMSG_ITEM_REFUND_INFO_RESPONSE)]
         public static void HandleItemRefundInfoResponse434(Packet packet)
         {
-            var guid = packet.StartBitStream(3, 5, 7, 6, 2, 4, 0, 1);
-
-            packet.ReadXORByte(guid, 7);
             packet.ReadUInt32("Time Left");
-            for (var i = 0; i < 5; ++i)
-            {
-                packet.ReadUInt32("Item Count", i);
-                packet.ReadEntryWithName<UInt32>(StoreNameType.Item, "Item Cost Entry", i);
-            }
-
-            packet.ReadXORByte(guid, 6);
-            packet.ReadXORByte(guid, 4);
-            packet.ReadXORByte(guid, 3);
-            packet.ReadXORByte(guid, 2);
-            for (var i = 0; i < 5; ++i)
-            {
-                packet.ReadUInt32("Currency Count", i);
-                packet.ReadUInt32("Currency Entry", i);
-            }
-
-            packet.ReadXORByte(guid, 1);
-            packet.ReadXORByte(guid, 5);
-            packet.ReadUInt32("Unk UInt32 1");
-            packet.ReadXORByte(guid, 0);
+            packet.ReadUInt32("Unk UInt32");
             packet.ReadUInt32("Money Cost");
-            packet.WriteGuid("Item Guid", guid);
+
+            for (int i = 0; i < 5; ++i)
+            {
+                packet.ReadUInt32("Required Item Count");
+                packet.ReadUInt32("Required Item ID");
+            }
+
+            for (int i = 0; i < 5; ++i)
+            {
+                packet.ReadUInt32("Required Currency ID");
+                packet.ReadUInt32("Required Currency Count");
+            }
+
+            var guid = packet.StartBitStream(1, 0, 7, 2, 3, 6, 4, 5);
+            packet.ParseBitStream(guid, 6, 1, 0, 2, 5, 3, 4, 7);
+
+            packet.WriteGuid("Item GUID", guid);
         }
 
         [Parser(Opcode.SMSG_ITEM_REFUND_RESULT, ClientVersionBuild.Zero, ClientVersionBuild.V4_2_2_14545)]
@@ -393,9 +371,46 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_SELL_ITEM)]
         public static void HandleSellItemResponse(Packet packet)
         {
-            packet.ReadGuid("Vendor GUID");
-            packet.ReadGuid("Item GUID");
+            var playerGuid = new byte[8];
+            var npcGuid = new byte[8];
+
+            playerGuid[6] = packet.ReadBit();
+            playerGuid[3] = packet.ReadBit();
+            npcGuid[3] = packet.ReadBit();
+            npcGuid[5] = packet.ReadBit();
+            npcGuid[2] = packet.ReadBit();
+            playerGuid[7] = packet.ReadBit();
+            npcGuid[0] = packet.ReadBit();
+            npcGuid[1] = packet.ReadBit();
+            playerGuid[5] = packet.ReadBit();
+            npcGuid[6] = packet.ReadBit();
+            playerGuid[4] = packet.ReadBit();
+            npcGuid[7] = packet.ReadBit();
+            playerGuid[0] = packet.ReadBit();
+            playerGuid[2] = packet.ReadBit();
+            npcGuid[4] = packet.ReadBit();
+            playerGuid[1] = packet.ReadBit();
+
             packet.ReadEnum<SellResult>("Sell Result", TypeCode.Byte);
+            packet.ReadXORByte(npcGuid, 6);
+            packet.ReadXORByte(playerGuid, 3);
+            packet.ReadXORByte(playerGuid, 4);
+            packet.ReadXORByte(npcGuid, 7);
+            packet.ReadXORByte(npcGuid, 4);
+            packet.ReadXORByte(playerGuid, 0);
+            packet.ReadXORByte(npcGuid, 2);
+            packet.ReadXORByte(npcGuid, 1);
+            packet.ReadXORByte(playerGuid, 1);
+            packet.ReadXORByte(npcGuid, 0);
+            packet.ReadXORByte(playerGuid, 7);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 6);
+            packet.ReadXORByte(npcGuid, 3);
+            packet.ReadXORByte(npcGuid, 5);
+            packet.ReadXORByte(playerGuid, 5);
+
+            packet.WriteGuid("Player GUID", playerGuid);
+            packet.WriteGuid("Npc GUID", npcGuid);
         }
 
         [Parser(Opcode.CMSG_BUY_ITEM)]

@@ -952,10 +952,11 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_REQUEST_CEMETERY_LIST_RESPONSE)] // 4.3.4
         public static void HandleRequestCemeteryListResponse(Packet packet)
         {
-            packet.ReadBit("Is MicroDungeon"); // Named in WorldMapFrame.lua
-            var count = packet.ReadBits("Count", 24);
+            var bit32 = packet.ReadBit("bit32");
+            var count = packet.ReadBits("cimetery Count", 22);
+
             for (int i = 0; i < count; ++i)
-                packet.ReadInt32("Cemetery Id", i);
+                packet.ReadUInt32("Safe Loc ID");
         }
 
         [Parser(Opcode.SMSG_FORCE_SET_VEHICLE_REC_ID)] // 4.3.4
@@ -1228,6 +1229,75 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_ROLE_POLL_BEGIN)]
         public static void HandleZeroLengthPackets(Packet packet)
         {
+        }
+
+        [Parser(Opcode.CMSG_CHAR_FACTION_CHANGE)]
+        public static void HandleCharFactionChangePacket(Packet packet)
+        {
+            var playerGuid = new byte[8];
+
+            packet.ReadEnum<Gender>("Gender", TypeCode.Byte);
+            packet.ReadEnum<Race>("Race", TypeCode.Byte);
+
+            var unkBit = packet.ReadBit("unkBit");
+            var hasFace = packet.ReadBit("hasFace");
+            playerGuid[7] = packet.ReadBit();
+            playerGuid[3] = packet.ReadBit();
+            var nameLen = packet.ReadBits("nameLen", 6);
+            var hasHairStyle = packet.ReadBit("hasHairStyle");
+            playerGuid[0] = packet.ReadBit();
+            var hasHairColor = packet.ReadBit("hasHairColor");
+            playerGuid[2] = packet.ReadBit();
+            playerGuid[5] = packet.ReadBit();
+            var hasFacialHair = packet.ReadBit("hasFacialHair");
+            playerGuid[4] = packet.ReadBit();
+            playerGuid[1] = packet.ReadBit();
+            var hasSkin = packet.ReadBit("hasSkin");
+            playerGuid[6] = packet.ReadBit();
+
+            packet.ResetBitReader();
+
+            packet.ReadXORByte(playerGuid, 0);
+            packet.ReadXORByte(playerGuid, 3);
+            packet.ReadXORByte(playerGuid, 7);
+            packet.ReadWoWString("newName", nameLen);
+            packet.ReadXORByte(playerGuid, 5);
+            packet.ReadXORByte(playerGuid, 4);
+            packet.ReadXORByte(playerGuid, 6);
+            packet.ReadXORByte(playerGuid, 2);
+            packet.ReadXORByte(playerGuid, 1);
+
+            if (hasHairStyle)
+                packet.ReadByte("Hair Style");
+            if (hasHairColor)
+                packet.ReadByte("Hair Color");
+            if (hasFace)
+                packet.ReadByte("Face");
+            if (hasSkin)
+                packet.ReadByte("Skin");
+            if (hasFacialHair)
+                packet.ReadByte("Facial Hair");
+
+            packet.WriteGuid("Player GUID", playerGuid);
+        }
+
+        [Parser(Opcode.SMSG_CHAR_FACTION_CHANGE)]
+        public static void HandleCharFactionChangeResultPacket(Packet packet)
+        {
+            var result = packet.ReadByte("Result");
+            packet.ReadGuid("Guid");
+
+            if (result == 0)
+            {
+                packet.ReadCString("newName");
+                packet.ReadEnum<Gender>("Gender", TypeCode.Byte);
+                packet.ReadByte("Skin");
+                packet.ReadByte("Hair Color");
+                packet.ReadByte("Hair Style");
+                packet.ReadByte("Facial Hair");
+                packet.ReadByte("Face");
+                packet.ReadEnum<Race>("Race", TypeCode.Byte);
+            }
         }
     }
 }

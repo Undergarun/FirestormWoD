@@ -39,7 +39,7 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
             }
 
             var qItemCount = packet.ReadBits("itemCount", 22);
-            uint sLenght1 = packet.ReadBits(6) ^ 1;
+            uint sLenght1 = packet.ReadBits(6);
             System.Console.WriteLine("sLength1: " + sLenght1);
             uint sLenght2 = packet.ReadBits("sLength2", 11);
             uint sLenght3 = packet.ReadBits("sLength3", 11);
@@ -541,19 +541,17 @@ namespace WowPacketParserModule.V5_3_0_16981.Parsers
         {
             var pageText = new PageText();
 
-            var entry = packet.ReadUInt32("Entry");
-            var hasData = packet.ReadBit();
-            if (!hasData)
-                return; // nothing to do
+            var hasData = packet.ReadBit("hasData");
 
-            var textLen = (int)packet.ReadBits(12);
-            packet.ResetBitReader();
-            pageText.Text = packet.ReadWoWString("Page Text", textLen);
-            pageText.NextPageId = packet.ReadUInt32("Next Page");
-            packet.ReadUInt32("Entry");
+            if (hasData)
+            {
+                var textLen = packet.ReadBits("textLen", 12);
+                packet.ReadWoWString("Text", textLen);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+            }
 
-            packet.AddSniffData(StoreNameType.PageText, (int)entry, "QUERY_RESPONSE");
-            Storage.PageTexts.Add(entry, pageText, packet.TimeSpan);
+            packet.ReadUInt32("Unk UInt32");
         }
 
         [HasSniffData]

@@ -2015,7 +2015,6 @@ void Battleground::RewardXPAtKill(Player* killer, Player* victim)
 
 void Battleground::SendFlagsPositions()
 {
-    return;
     uint32 count = 0;
     std::list<Player*> players;
 
@@ -2035,48 +2034,34 @@ void Battleground::SendFlagsPositions()
         return;
 
     WorldPacket data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
-    data.WriteBits(count, 22);
+    ByteBuffer dataBuffer;
+
+    data.WriteBits(count, 20);
 
     for (auto itr : players)
     {
         ObjectGuid guid = itr->GetGUID();
 
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[7]);
+        uint8 bits[8] = { 6, 7, 3, 1, 2, 0, 5, 4 };
+        data.WriteBitInOrder(guid, bits);
+
+        dataBuffer.WriteByteSeq(guid[6]);
+        dataBuffer.WriteByteSeq(guid[3]);
+        dataBuffer.WriteByteSeq(guid[1]);
+        dataBuffer << float(itr->GetPositionY());
+        dataBuffer.WriteByteSeq(guid[4]);
+        dataBuffer.WriteByteSeq(guid[0]);
+        dataBuffer << float(itr->GetPositionX());
+        dataBuffer.WriteByteSeq(guid[2]);
+        dataBuffer.WriteByteSeq(guid[5]);
+        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);
+        dataBuffer.WriteByteSeq(guid[7]);
+        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);
     }
 
     data.FlushBits();
-
-    for (auto itr : players)
-    {
-        ObjectGuid guid = itr->GetGUID();
-
-        data.WriteByteSeq(guid[2]);
-
-        data << uint8(0); // unk
-
-        data.WriteByteSeq(guid[3]);
-
-        data << float(itr->GetPositionX());
-
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[5]);
-
-        data << uint8(0); // unk
-
-        data << float(itr->GetPositionY());
-
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[6]);
-    }
+    if (dataBuffer.size())
+        data.append(dataBuffer);
 
     SendPacketToAll(&data);
 }

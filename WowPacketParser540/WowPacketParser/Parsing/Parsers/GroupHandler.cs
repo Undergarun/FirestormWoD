@@ -112,22 +112,22 @@ namespace WowPacketParser.Parsing.Parsers
             for (int i = 0; i < membersCount; i++)
             {
                 packet.ReadXORByte(membersGuid[i], 5);
-                packet.ReadByte("member flag");
-                packet.ReadByte("member role flags");
+                packet.ReadEnum<MemberFlags>("Member Flags", TypeCode.Byte, i);
+                packet.ReadEnum<LfgRoleFlag>("Member Role", TypeCode.Byte, i);
                 packet.ReadXORByte(membersGuid[i], 3);
                 packet.ReadXORByte(membersGuid[i], 6);
-                packet.ReadByte("group");
-                packet.ReadWoWString("member name", (int)nameLenght[i], i);
+                packet.ReadByte("Group ID", i);
+                packet.ReadWoWString("Member Name", (int)nameLenght[i], i);
                 packet.ReadXORByte(membersGuid[i], 0);
                 packet.ReadXORByte(membersGuid[i], 2);
-                packet.ReadByte("member statut");
+                packet.ReadEnum<MemberStatus>("Member Status", TypeCode.Byte, i);
                 packet.ReadXORByte(membersGuid[i], 7);
                 packet.ReadXORByte(membersGuid[i], 1);
                 packet.ReadXORByte(membersGuid[i], 4);
-                packet.WriteGuid("member guid", membersGuid[i], i);
+                packet.WriteGuid("Member GUID", membersGuid[i], i);
             }
 
-            packet.ReadUInt32("Counter");
+            packet.ReadUInt32("Party Update Counter");
 
             if (hasLooterdata)
             {
@@ -137,34 +137,34 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.ReadXORByte(looterGUID, 7);
                 packet.ReadXORByte(looterGUID, 6);
                 packet.ReadXORByte(looterGUID, 2);
-                packet.ReadByte("m_lootMethod"); // may swap with m_lootThreshold
+                packet.ReadEnum<LootMethod>("Loot Method", TypeCode.Byte);
                 packet.ReadXORByte(looterGUID, 5);
-                packet.ReadByte("m_lootThreshold"); // may swap with m_lootMethod
+                packet.ReadByte("m_lootThreshold");
                 packet.ReadXORByte(looterGUID, 4);
                 packet.WriteGuid("looterGUID", looterGUID);
             }
 
             packet.ReadXORByte(groupdGuid, 3);
-            packet.ReadByte("unk byte 11");
+            packet.ReadByte("isLFGGroup");
             packet.ReadXORByte(leaderGuid, 7);
 
             if (sendDifficultyInfo)
             {
-                packet.ReadUInt32("raid difficulty");
-                packet.ReadUInt32("dungeon difficulty");
+                packet.ReadEnum<DifficultyTypes>("Raid Difficulty", TypeCode.UInt32);
+                packet.ReadEnum<DifficultyTypes>("Dungeon Difficulty", TypeCode.UInt32);
             }
 
             packet.ReadXORByte(groupdGuid, 0);
             packet.ReadXORByte(groupdGuid, 6);
             packet.ReadXORByte(leaderGuid, 3);
-            packet.ReadByte("unk byte 12"); //unk, always 1
+            packet.ReadEnum<GroupTypes>("GroupType", TypeCode.Byte);
             packet.ReadXORByte(leaderGuid, 1);
             packet.ReadXORByte(leaderGuid, 0);
             packet.ReadXORByte(leaderGuid, 2);
             packet.ReadXORByte(leaderGuid, 4);
             packet.ReadXORByte(leaderGuid, 6);
             packet.ReadByte("group type");
-            packet.ReadUInt32("unk uint32");
+            packet.ReadUInt32("MemberCount (-1)");
             packet.ReadXORByte(groupdGuid, 2);
             packet.ReadXORByte(groupdGuid, 1);
             packet.ReadXORByte(groupdGuid, 4);
@@ -174,6 +174,54 @@ namespace WowPacketParser.Parsing.Parsers
 
             packet.WriteGuid("Group guid", groupdGuid);
             packet.WriteGuid("Leader guid", leaderGuid);
+        }
+
+        [Parser(Opcode.SMSG_ROLE_CHANGED_INFORM)]
+        public static void HandleRoleChanedInform(Packet packet)
+        {
+            var assignerGuid = new byte[8];
+            var targetGuid = new byte[8];
+
+            packet.ReadEnum<LfgRoleFlag>("Old role", TypeCode.UInt32);
+            packet.ReadByte("Unk Byte");
+            packet.ReadEnum<LfgRoleFlag>("New role", TypeCode.UInt32);
+
+            targetGuid[0] = packet.ReadBit();
+            targetGuid[3] = packet.ReadBit();
+            assignerGuid[1] = packet.ReadBit();
+            assignerGuid[7] = packet.ReadBit();
+            targetGuid[5] = packet.ReadBit();
+            assignerGuid[4] = packet.ReadBit();
+            assignerGuid[3] = packet.ReadBit();
+            targetGuid[2] = packet.ReadBit();
+            targetGuid[7] = packet.ReadBit();
+            targetGuid[6] = packet.ReadBit();
+            assignerGuid[6] = packet.ReadBit();
+            targetGuid[4] = packet.ReadBit();
+            assignerGuid[0] = packet.ReadBit();
+            targetGuid[1] = packet.ReadBit();
+            assignerGuid[5] = packet.ReadBit();
+            assignerGuid[2] = packet.ReadBit();
+
+            packet.ReadXORByte(assignerGuid, 3);
+            packet.ReadXORByte(targetGuid, 2);
+            packet.ReadXORByte(targetGuid, 6);
+            packet.ReadXORByte(assignerGuid, 1);
+            packet.ReadXORByte(targetGuid, 4);
+            packet.ReadXORByte(assignerGuid, 0);
+            packet.ReadXORByte(targetGuid, 1);
+            packet.ReadXORByte(assignerGuid, 6);
+            packet.ReadXORByte(assignerGuid, 2);
+            packet.ReadXORByte(targetGuid, 7);
+            packet.ReadXORByte(targetGuid, 5);
+            packet.ReadXORByte(targetGuid, 3);
+            packet.ReadXORByte(assignerGuid, 4);
+            packet.ReadXORByte(assignerGuid, 7);
+            packet.ReadXORByte(targetGuid, 0);
+            packet.ReadXORByte(targetGuid, 5);
+
+            packet.WriteGuid("Target GUID", targetGuid);
+            packet.WriteGuid("Assigner GUID", assignerGuid);
         }
 
         [Parser(Opcode.SMSG_PARTY_MEMBER_STATS)]
@@ -462,37 +510,23 @@ namespace WowPacketParser.Parsing.Parsers
         {
             var guid = new byte[8];
 
-            var bit353 = packet.ReadBit() != 0;
-            Console.WriteLine("bit353: " + bit353);
-
-            var bit297 = packet.ReadBit() != 0;
-            Console.WriteLine("bit297: " + bit297);
-
+            var isAlreadyInGroup = packet.ReadBit("isAlreadyInGroup");
+            var bit297 = packet.ReadBit("bit297");
             guid[4] = packet.ReadBit();
-
             var nameLen = packet.ReadBits("NameLen", 6);
-
-            var bit304 = packet.ReadBit("bit304");
-
             guid[2] = packet.ReadBit();
-
-            var bit33 = packet.ReadBit() != 0;
-            Console.WriteLine("bit33: " + bit33);
-            var bit32 = packet.ReadBit() != 0;
-            Console.WriteLine("bit32: " + bit32);
-
+            var bit33 = packet.ReadBit("bit33");
+            var bit32 = packet.ReadBit("bit32");
             guid[3] = packet.ReadBit();
             guid[7] = packet.ReadBit();
-
-            var realmLen = packet.ReadBits("RealmNameLen", 8);
-            var bit40 = realmLen | packet.ReadBit();
-            Console.WriteLine("bit40: " + bit40);
-
+            var realmLen = 2 * packet.ReadBits(8);
+            Console.WriteLine("realmLen: " + realmLen);
+            var pair = packet.ReadBit("pair");
+            if (pair)
+                realmLen++;
             guid[0] = packet.ReadBit();
             guid[5] = packet.ReadBit();
-
             var counter = packet.ReadBits("Counter", 22);
-
             guid[6] = packet.ReadBit();
             guid[1] = packet.ReadBit();
 
@@ -501,12 +535,10 @@ namespace WowPacketParser.Parsing.Parsers
 
             packet.ReadXORByte(guid, 3);
             packet.ReadXORByte(guid, 5);
-
             packet.ReadUInt32("Unk uint32");
             packet.ReadWoWString("RealmName", realmLen);
             packet.ReadWoWString("Name", nameLen);
             packet.ReadUInt32("Unk uint32");
-
             packet.ReadXORByte(guid, 7);
             packet.ReadXORByte(guid, 4);
             packet.ReadXORByte(guid, 1);

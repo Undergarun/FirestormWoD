@@ -327,31 +327,13 @@ namespace WowPacketParser.Parsing.Parsers
             packet.WriteGuid("Guild Guid", guid);
         }
 
-        [Parser(Opcode.SMSG_GUILD_PARTY_STATE_RESPONSE, ClientVersionBuild.Zero, ClientVersionBuild.V4_3_0_15005)]
-        public static void HandleGuildUpdatePartyStateResponse(Packet packet)
-        {
-            packet.ReadByte("Unk byte");
-            packet.ReadUInt32("Unk UInt32 1");
-            packet.ReadUInt32("Unk UInt32 2");
-            packet.ReadUInt32("Unk UInt32 3");
-        }
-
-        [Parser(Opcode.SMSG_GUILD_PARTY_STATE_RESPONSE, ClientVersionBuild.V4_3_0_15005, ClientVersionBuild.V4_3_4_15595)]
-        public static void HandleGuildUpdatePartyStateResponse430(Packet packet)
-        {
-            packet.ReadSingle("Guild XP multiplier");
-            packet.ReadUInt32("Current guild members"); // TODO: Check this.
-            packet.ReadUInt32("Needed guild members");  // TODO: Check this.
-            packet.ReadBit("Is guild group");
-        }
-
         [Parser(Opcode.SMSG_GUILD_PARTY_STATE_RESPONSE, ClientVersionBuild.V4_3_4_15595)]
         public static void HandleGuildPartyStateResponse434(Packet packet)
         {
-            packet.ReadBit("Is guild group");
             packet.ReadSingle("Guild XP multiplier");
             packet.ReadUInt32("Current guild members");
             packet.ReadUInt32("Needed guild members");
+            packet.ReadBit("Is guild group");
         }
 
         [Parser(Opcode.CMSG_GUILD_QUERY)]
@@ -1283,15 +1265,15 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_GUILD_PERMISSIONS_QUERY_RESULTS)]
         public static void HandleGuildPermissionsQueryResult(Packet packet)
         {
-            packet.ReadUInt32("Rank Id");
             packet.ReadInt32("Purchased Tab size");
             packet.ReadEnum<GuildRankRightsFlag>("Rights", TypeCode.UInt32);
+            packet.ReadUInt32("Rank Id");
             packet.ReadInt32("Remaining Money");
-            packet.ReadBits("Tab size", 23);
+            packet.ReadBits("Tab size", 21);
             for (var i = 0; i < 8; i++)
             {
-                packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.Int32, i);
                 packet.ReadInt32("Tab Slots", i);
+                packet.ReadEnum<GuildBankRightsFlag>("Tab Rights", TypeCode.Int32, i);
             }
         }
 
@@ -1640,28 +1622,61 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_PETITION_QUERY_RESPONSE)]
         public static void HandlePetitionQueryResponse(Packet packet)
         {
-            packet.ReadUInt32("Guild/Team GUID");
-            packet.ReadGuid("Owner GUID");
-            packet.ReadCString("Name");
-            packet.ReadCString("Text");
-            packet.ReadUInt32("Signs Needed");
-            packet.ReadUInt32("Signs Needed");
-            packet.ReadUInt32("Unk UInt32 4");
-            packet.ReadUInt32("Unk UInt32 5");
-            packet.ReadUInt32("Unk UInt32 6");
-            packet.ReadUInt32("Unk UInt32 7");
-            packet.ReadUInt32("Unk UInt32 8");
-            packet.ReadUInt16("Unk UInt16 1");
-            packet.ReadUInt32("Unk UInt32 (Level?)");
-            packet.ReadUInt32("Unk UInt32 (Level?)");
-            packet.ReadUInt32("Unk UInt32 11");
+            var ownerGuid = new byte[8];
 
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_2_0_10192))
-                for (var i = 0; i < 10; i++)
-                    packet.ReadCString("Unk String", i);
+            var isGuild = packet.ReadBit("isGuild");
 
-            packet.ReadUInt32("Client Index");
-            packet.ReadUInt32("Petition Type (0: Guild / 1: Arena)");
+            if (isGuild)
+            {
+                ownerGuid[5] = packet.ReadBit();
+                var nameLen = (int)packet.ReadBits("nameLen", 7);
+                ownerGuid[3] = packet.ReadBit();
+                ownerGuid[6] = packet.ReadBit();
+                ownerGuid[1] = packet.ReadBit();
+
+                var unkLens = new int[10];
+                for (int i = 0; i < 10; ++i)
+                    unkLens[i] = (int)packet.ReadBits("unkLens", 6, i);
+
+                ownerGuid[0] = packet.ReadBit();
+                var unkLen = (int)packet.ReadBits("unkLen", 12);
+                ownerGuid[2] = packet.ReadBit();
+                ownerGuid[7] = packet.ReadBit();
+                ownerGuid[4] = packet.ReadBit();
+
+                packet.ReadXORByte(ownerGuid, 0);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadWoWString("unkString", unkLen);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(ownerGuid, 5);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(ownerGuid, 6);
+                packet.ReadXORByte(ownerGuid, 4);
+                packet.ReadWoWString("name", nameLen);
+                packet.ReadXORByte(ownerGuid, 3);
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(ownerGuid, 2);
+                packet.ReadUInt16("Unk UInt16");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadXORByte(ownerGuid, 7);
+                packet.ReadXORByte(ownerGuid, 1);
+
+                for (int i = 0; i < 10; ++i)
+                    packet.ReadWoWString("unkStrings", unkLens[i], i);
+
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+                packet.ReadUInt32("Unk UInt32");
+
+                packet.WriteGuid("Creator GUID", ownerGuid);
+            }
+
+            packet.ReadUInt32("Unk UInt32");
         }
 
         [Parser(Opcode.MSG_PETITION_RENAME)]
