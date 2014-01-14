@@ -386,7 +386,7 @@ class WorldSession
         void SendPetitionSignResult(ObjectGuid ownerGuid, ObjectGuid petitionGuid, uint8 result);
         void SendAlreadySigned(ObjectGuid playerGuid);
 
-        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data);
+        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data, uint16 mask, uint64 guid, bool full = false);
 
         void DoLootRelease(uint64 lguid);
 

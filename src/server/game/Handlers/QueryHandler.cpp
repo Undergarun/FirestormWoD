@@ -39,9 +39,10 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
 
     ObjectGuid pGuid = guid;
-    uint8 guidOrder[8] = {5, 7, 3, 0, 4, 1, 6, 2};
 
+    uint8 guidOrder[8] = { 5, 7, 3, 0, 4, 1, 6, 2 };
     data.WriteBitInOrder(guid, guidOrder);
+
     data.WriteByteSeq(pGuid[7]);
     data.WriteByteSeq(pGuid[4]);
     data.WriteByteSeq(pGuid[3]);
@@ -52,7 +53,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
     {
         data << uint32(0);
         data << uint8(nameData->m_race);
-        data << uint8(!nameData->m_gender);
+        data << uint8(nameData->m_gender);
         data << uint8(nameData->m_level);
         data << uint8(nameData->m_class);
         data << uint32(realmID);
@@ -99,8 +100,11 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         data.WriteBit(false); // unk
         data.WriteBit(unkGuid[2]);
         data.WriteBit(unkGuid[6]);
+
         data.FlushBits();
-        data.WriteString(nameData->m_name);
+        if (nameData->m_name.size())
+            data.append(nameData->m_name.c_str(), nameData->m_name.size());
+
         data.WriteByteSeq(pGuid2[4]);
         data.WriteByteSeq(unkGuid[3]);
         data.WriteByteSeq(pGuid2[6]);
@@ -114,7 +118,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         {
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
                 if (names->name[i].size())
-                    data.WriteString(names->name[i]);
+                    data.append(names->name[i].c_str(), names->name[i].size());
         }
         else
         {

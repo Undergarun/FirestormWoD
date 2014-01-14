@@ -1202,7 +1202,7 @@ enum Opcodes
     SMSG_PAGE_TEXT                                    = 0x116,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PARTY_COMMAND_RESULT                         = 0x16A5, // 5.4.0 17399
     SMSG_PARTY_KILL_LOG                               = 0x000,  // 5.0.5 16048
-    SMSG_PARTY_MEMBER_STATS                           = 0x000,  // 5.0.5 16048
+    SMSG_PARTY_MEMBER_STATS                           = 0x13C,  // 5.4.0 17399
     SMSG_PARTY_MEMBER_STATS_FULL                      = 0x000,  // 5.0.5 16048
     SMSG_PARTY_UPDATE                                 = 0x13D,  // 5.4.0 17399
     SMSG_PAUSE_MIRROR_TIMER                           = 0x488,  // 5.4.0 17399 (JamList)
@@ -1276,7 +1276,7 @@ enum Opcodes
     SMSG_PROPOSE_LEVEL_GRANT                          = 0x834,  // 5.4.0 17399 (JamList)
     SMSG_PROFILE_DATA_RESPONSE                        = 0x498,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0x000,  // 5.0.5 16048
-    SMSG_PVP_CREDIT                                   = 0x0BC,  // 5.4.0 17399 (JamList)
+    SMSG_PVP_CREDIT                                   = 0x0BC,  // 5.4.0 17399
     SMSG_PVP_LOG_DATA                                 = 0x480,  // 5.4.0 17399 (JamList)
     SMSG_PVP_OPTIONS_ENABLED                          = 0x5A9,  // 5.4.0 17399 (JamList)
     SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0x000,  // 5.0.5 16048 Deprecated
@@ -1413,7 +1413,7 @@ enum Opcodes
     SMSG_SPELL_ENERGIZE_LOG                           = 0x1492, // 5.4.0 17399
     SMSG_SPELL_HEAL_LOG                               = 0x1594, // 5.4.0 17399
     SMSG_SPELLINSTAKILLLOG                            = 0x000,  // 5.0.5 16048
-    SMSG_SPELL_INTERRUPT_LOG                            = 0x1980, // 5.4.0 17399
+    SMSG_SPELL_INTERRUPT_LOG                          = 0x1980, // 5.4.0 17399
     SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGMISS                                 = 0x000,  // 5.0.5 16048
     SMSG_SPELL_NON_MELEE_DAMAGE_LOG                   = 0x1085, // 5.4.0 17399

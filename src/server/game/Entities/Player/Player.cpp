@@ -8442,9 +8442,16 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
     WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
+    ObjectGuid guid = victim_guid;
+
     data << uint32(honor);
-    data << uint64(victim_guid);
     data << uint32(victim_rank);
+
+    uint8 bits[8] = { 4, 3, 0, 2, 1, 5, 6, 7 };
+    data.WriteBitInOrder(guid, bits);
+
+    uint8 bytes[8] = { 1, 7, 6, 5, 2, 4, 3, 0 };
+    data.WriteBytesSeq(guid, bytes);
 
     GetSession()->SendPacket(&data);
 

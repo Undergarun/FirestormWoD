@@ -30,7 +30,8 @@
 #include "World.h"
 #include "Util.h"
 #include "GuildMgr.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 {

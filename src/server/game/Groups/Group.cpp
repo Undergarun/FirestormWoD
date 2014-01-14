@@ -2096,6 +2096,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     bool sendDifficulty = true;
     bool hasLooterData = true;
 
+    std::string playerName = player->GetName();
     uint32 memberCount = GetMembersCount();
     ObjectGuid* memberGuids = NULL;
     memberGuids = new ObjectGuid[memberCount];
@@ -2118,7 +2119,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteBits(memberCount, 21);
 
     // Send self first
-    data.WriteBits(strlen(player->GetName()), 6);
+    data.WriteBits(playerName.size(), 6);
     uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
     data.WriteBitInOrder(playerGUID, bitsSelfOrder);
 
@@ -2191,7 +2192,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteByteSeq(plrGuid[3]);
     data.WriteByteSeq(plrGuid[6]);
     data << uint8(slot->group);
-    data.append(slot->name.c_str(), slot->name.size());
+    data.append(playerName.c_str(), playerName.size());
     data.WriteByteSeq(plrGuid[0]);
     data.WriteByteSeq(plrGuid[2]);
     data << uint8(onlineState);
@@ -2278,7 +2279,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
         return;
 
     WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, player->GetGroupUpdateFlag(), player->GetGUID());
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
