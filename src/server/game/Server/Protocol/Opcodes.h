@@ -203,7 +203,7 @@ enum Opcodes
     CMSG_GAMETIME_SET                                 = 0x000,  // 5.0.5 16048
     CMSG_GETDEATHBINDZONE                             = 0x000,  // 5.0.5 16048
     CMSG_GET_MAIL_LIST                                = 0x1ABB, // 5.4.0 17399
-    CMSG_GET_MIRRORIMAGE_DATA                         = 0x000,  // 5.0.5 16048
+    CMSG_GET_MIRRORIMAGE_DATA                         = 0x18AB, // 5.4.0 17399
     CMSG_GHOST                                        = 0x000,  // 5.0.5 16048
     CMSG_GMRESPONSE_RESOLVE                           = 0x000,  // 5.0.5 16048
     CMSG_GMSURVEY_SUBMIT                              = 0x000,  // 5.0.5 16048
@@ -1129,7 +1129,7 @@ enum Opcodes
     SMSG_MINIGAME_SETUP                               = 0x000,  // 5.0.5 16048
     SMSG_MINIGAME_STATE                               = 0x000,  // 5.0.5 16048
     SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_MIRROR_IMAGE_DATA                            = 0x000,  // 5.0.5 16048
+    SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.0.5 16048
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
     SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
     SMSG_MONEY_NOTIFY                                 = 0x4B2,  // 5.4.0 17399 (JamList)
