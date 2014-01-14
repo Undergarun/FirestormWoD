@@ -156,7 +156,7 @@ public:
             { "entry",          SEC_ADMINISTRATOR,  false, &HandleNpcSetEntryCommand,          "", NULL },
             { "factionid",      SEC_GAMEMASTER,     false, &HandleNpcSetFactionIdCommand,      "", NULL },
             { "flag",           SEC_GAMEMASTER,     false, &HandleNpcSetFlagCommand,           "", NULL },
-            { "flag2",           SEC_GAMEMASTER,     false, &HandleNpcSetFlag2Command,         "", NULL },
+            { "flag2",          SEC_GAMEMASTER,     false, &HandleNpcSetFlag2Command,          "", NULL },
             { "level",          SEC_GAMEMASTER,     false, &HandleNpcSetLevelCommand,          "", NULL },
             { "link",           SEC_GAMEMASTER,     false, &HandleNpcSetLinkCommand,           "", NULL },
             { "model",          SEC_GAMEMASTER,     false, &HandleNpcSetModelCommand,          "", NULL },
