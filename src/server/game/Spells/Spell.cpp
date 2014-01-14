@@ -7834,24 +7834,22 @@ SpellCastResult Spell::CheckItems()
     return SPELL_CAST_OK;
 }
 
-void Spell::Delayed() // only called in DealDamage()
+// Called only in Unit::DealDamage
+void Spell::Delayed()
 {
-    if (!m_caster)// || m_caster->GetTypeId() != TYPEID_PLAYER)
+    // Spell is active and can't be time-backed
+    if (!m_caster)
         return;
 
-    //if (m_spellState == SPELL_STATE_DELAYED)
-    //    return;                                             // spell is active and can't be time-backed
-
-    if (isDelayableNoMore())                                 // Spells may only be delayed twice
+    // Spells may only be delayed twice
+    if (isDelayableNoMore())
         return;
 
-    // spells not loosing casting time (slam, dynamites, bombs..)
-    //if (!(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_DAMAGE))
-    //    return;
-
-    //check pushback reduce
-    int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
-    int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
+    // Check pushback reduce
+    // Spellcasting delay is normally 500ms
+    int32 delaytime = 500;
+    // Must be initialized to 100 for percent modifiers
+    int32 delayReduce = 100;
     m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
@@ -7868,8 +7866,20 @@ void Spell::Delayed() // only called in DealDamage()
         m_timer += delaytime;
 
     WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    data.append(m_caster->GetPackGUID());
+    ObjectGuid casterGuid = m_caster->GetGUID();
+
+    uint8 bits[8] = { 4, 6, 3, 7, 2, 5, 0, 1 };
+    data.WriteBitInOrder(casterGuid, bits);
+
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(casterGuid[1]);
+    data.WriteByteSeq(casterGuid[4]);
+    data.WriteByteSeq(casterGuid[6]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(casterGuid[5]);
     data << uint32(delaytime);
+    data.WriteByteSeq(casterGuid[3]);
 
     m_caster->SendMessageToSet(&data, true);
 }
