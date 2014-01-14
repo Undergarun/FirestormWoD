@@ -1129,7 +1129,7 @@ enum Opcodes
     SMSG_MINIGAME_SETUP                               = 0x000,  // 5.0.5 16048
     SMSG_MINIGAME_STATE                               = 0x000,  // 5.0.5 16048
     SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.0.5 16048
+    SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.4.0 17399
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
     SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
     SMSG_MONEY_NOTIFY                                 = 0x4B2,  // 5.4.0 17399 (JamList)
