@@ -4534,6 +4534,20 @@ enum VoidTransferError
     VOID_TRANSFER_ERROR_TRANSFER_UNKNOWN  = 9
 };
 
+enum MountResult
+{
+    ERROR_YOU_CANT_MOUNT_THIS_CREATURE        = 0,
+    ERROR_THIS_CREATURE_IS_TO_FAR             = 1,
+    ERROR_YOU_ALREADY_MOUNTED                 = 2,
+    ERROR_THIS_IS_NOT_MOUNT                   = 3,
+    ERROR_THIS_MOUNT_NOT_YOURS                = 4,
+    ERROR_UNKNOWN_MOUNT_ERROR                 = 5,
+    ERROR_YOU_CANT_RIDE_WHILE_LOOTING         = 6,
+    ERROR_YOUR_RACE_CANT_RIDE                 = 7,
+    ERROR_YOU_CANT_RIDE_WHILE_IN_ANOTHER_FORM = 8,
+    ERROR_YOU_CANT_CONTINUE                   = 9,
+};
+
 #define CURRENCY_PRECISION 100
 
 #endif

@@ -862,7 +862,7 @@ enum Opcodes
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x1A3,  // 5.4.0 17399 (JamList)
     SMSG_DISENCHANT_CREDIT                            = 0x8B0,  // 5.4.0 17399 (JamList)
     SMSG_DISMOUNT                                     = 0x03E,  // 5.4.0 17399
-    SMSG_DISMOUNTRESULT                               = 0x001,  // 5.4.0 17399 (JamList)
+    SMSG_DISMOUNTRESULT                               = 0x001,  // 5.4.0 17399
     SMSG_DISPEL_FAILED                                = 0x000,  // 5.0.5 16048
     SMSG_DISPLAY_GAME_ERROR                           = 0x8BE,  // 5.4.0 17399 (JamList)
     SMSG_DISPLAY_PROMOTION                            = 0x809,  // 5.4.0 17399 - uint32(idPromotion)
@@ -952,7 +952,7 @@ enum Opcodes
     SMSG_GM_TICKET_RESPONSE_ERROR                     = 0x1AB,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_RESOLVE_RESPONSE                   = 0x111,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_SYSTEM_STATUS                      = 0x803,  // 5.4.0 17399
-    SMSG_GM_TICKET_STATUS_UPDATE                      = 0x426,  // 5.4.0 17399 (JamList)
+    SMSG_GM_TICKET_STATUS_UPDATE                      = 0x426,  // 5.4.0 17399
     SMSG_GM_TICKET_UPDATE                             = 0x12E,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_TICKET_UPDATE_TEXT                        = 0x000,  // 5.0.5 16048
     SMSG_GM_UNSQUELCH                                 = 0x915,  // 5.4.0 17399 (JamList) (NYI)
@@ -1062,7 +1062,6 @@ enum Opcodes
     SMSG_KICK_REASON                                  = 0x920,  // 5.4.0 17399 (JamList)
     SMSG_LEARNED_DANCE_MOVES                          = 0x000,  // 5.0.5 16048
     SMSG_LEARNED_SPELL                                = 0x830,  // 5.4.0 17399
-    SMSG_LEARN_TALENT_FAILED                          = 0x897,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_LEVELUP_INFO                                 = 0x402,  // 5.4.0 17399
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
     SMSG_LFG_BOOT_PLAYER                              = 0x583,  // 5.4.0 17399 (JamList) -- Not correct, it's exploration experience
@@ -1135,7 +1134,7 @@ enum Opcodes
     SMSG_MONEY_NOTIFY                                 = 0x4B2,  // 5.4.0 17399 (JamList)
     SMSG_MONSTER_MOVE                                 = 0x137A, // 5.4.0 17399
     SMSG_MOTD                                         = 0x82A,  // 5.4.0 17399
-    SMSG_MOUNT_RESULT                                 = 0x531,  // 5.4.0 17399 (JamList)
+    SMSG_MOUNT_RESULT                                 = 0x531,  // 5.4.0 17399
     SMSG_MOUNT_SPECIAL_ANIM                           = 0x000,  // 5.0.5 16048
     SMSG_MOVE_COLLISION_DISABLE                       = 0x000,  // 5.0.5 16048
     SMSG_MOVE_COLLISION_ENABLE                        = 0x000,  // 5.0.5 16048

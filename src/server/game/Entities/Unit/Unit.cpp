@@ -13610,6 +13610,16 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     return NULL;
 }
 
+void Unit::SendMountResult(MountResult error)
+{
+    if (!ToPlayer())
+        return;
+
+    WorldPacket data(SMSG_MOUNT_RESULT, 4);
+    data << uint32(error);
+    ToPlayer()->SendDirectMessage(&data);
+}
+
 void Unit::SetInCombatWith(Unit* enemy)
 {
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
