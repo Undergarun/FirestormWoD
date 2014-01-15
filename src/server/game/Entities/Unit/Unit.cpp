@@ -20488,6 +20488,41 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     }
 }
 
+void Unit::SendTeleportPacket(Position &oldPos)
+{
+    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
+    ObjectGuid guid = GetGUID();
+
+    data << float(GetOrientation());
+    data << float(GetPositionY());
+    data << float(GetPositionX());
+    data << float(GetPositionZMinusOffset());
+    data << uint32(0);                  //  mask ? 0x180 on retail sniff
+
+    data.WriteBit(false);                 // unk bit
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(false);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[5]);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+
+    Relocate(&oldPos);
+    SendMessageToSet(&data, false);
+}
+
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
