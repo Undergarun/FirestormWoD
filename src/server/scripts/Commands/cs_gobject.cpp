@@ -451,16 +451,8 @@ public:
             return false;
         }
 
-        char* orientation = strtok(NULL, " ");
-        float o;
-
-        if (orientation)
-            o = (float)atof(orientation);
-        else
-        {
-            Player* player = handler->GetSession()->GetPlayer();
-            o = player->GetOrientation();
-        }
+        Player* player = handler->GetSession()->GetPlayer();
+        float o = player->GetOrientation();
 
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
         object->UpdateRotationFields();
