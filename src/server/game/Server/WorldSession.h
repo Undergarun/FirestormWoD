@@ -1036,6 +1036,14 @@ class WorldSession
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
         int32 HandleEnableNagleAlgorithm();
 
+        // Black Market
+        void HandleBlackMarketHello(WorldPacket& recvData);
+        void SendBlackMarketHello(uint64 npcGuid);
+        void HandleBlackMarketRequestItems(WorldPacket& recvData);
+        void SendBlackMarketRequestItemsResult();
+        void HandleBlackMarketBid(WorldPacket& recvData);
+        void SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();

@@ -1,0 +1,1 @@
+ALTER TABLE `blackmarket` ADD COLUMN `bidderCount` INT(10) NOT NULL DEFAULT 0;

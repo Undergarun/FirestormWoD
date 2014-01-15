@@ -98,6 +98,7 @@ class debug_commandscript : public CommandScript
                 { "backward",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveBackward,           "", NULL },
                 { "load_z",         SEC_ADMINISTRATOR,  false, &HandleDebugLoadZ,                  "", NULL },
                 { "packet",         SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,          "", NULL },
+                { "guildevent",     SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -107,6 +108,125 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugGuildEventCommand(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+                return false;
+
+            char* result = strtok((char*)args, " ");
+            if (!result)
+                return false;
+
+            uint32 opcodeId = uint32(atoi(result));
+            if (opcodeId == 0 && *result != '0')
+                return false;
+
+            switch (opcodeId)
+            {
+                case 0x20:
+                {
+                    // La migration de votre guilde est terminée. Rendez-vous sur [cette page Internet] pour de plus amples informations.
+                    Player* player = handler->GetSession()->GetPlayer();
+                    WorldPacket data(Opcodes(1346), 20);
+                    ObjectGuid playerGuid = player->GetGUID();
+
+                    data.WriteBit(playerGuid[3]);
+                    data.WriteBit(playerGuid[2]);
+                    data.WriteBit(playerGuid[6]);
+                    data.WriteBit(playerGuid[1]);
+                    data.WriteBits(strlen(player->GetName()), 8);
+                    data.WriteBit(playerGuid[5]);
+                    data.WriteBit(playerGuid[7]);
+                    data.WriteBit(playerGuid[0]);
+                    data.WriteBit(playerGuid[4]);
+
+                    data.WriteByteSeq(playerGuid[0]);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[3]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[6]);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    if (strlen(player->GetName()))
+                        data.append(player->GetName(), strlen(player->GetName()));
+
+                    player->GetSession()->SendPacket(&data, true);
+
+                    break;
+                }
+                case 0x2F:
+                {
+                    // ??
+                    Player* player = handler->GetSession()->GetPlayer();
+                    WorldPacket data(Opcodes(1375), 20);
+                    ObjectGuid playerGuid = player->GetGUID();
+
+                    data.WriteBit(playerGuid[3]);
+                    data.WriteBit(playerGuid[1]);
+                    data.WriteBit(playerGuid[0]);
+                    data.WriteBit(playerGuid[5]);
+                    data.WriteBits(strlen(player->GetName()), 8);
+                    data.WriteBit(playerGuid[2]);
+                    data.WriteBit(playerGuid[4]);
+                    data.WriteBit(playerGuid[7]);
+                    data.WriteBit(1);               // Unk
+                    data.WriteBit(playerGuid[6]);
+
+                    data.WriteByteSeq(playerGuid[3]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    if (strlen(player->GetName()))
+                        data.append(player->GetName(), strlen(player->GetName()));
+                    data.WriteByteSeq(playerGuid[6]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[0]);
+
+                    player->GetSession()->SendPacket(&data, true);
+
+                    break;
+                }
+                case 0x55:
+                {
+                    // ??
+                    Player* player = handler->GetSession()->GetPlayer();
+                    WorldPacket data(Opcodes(3179), 20);
+                    ObjectGuid playerGuid = player->GetGUID();
+
+                    data.WriteBit(playerGuid[4]);
+                    data.WriteBit(playerGuid[0]);
+                    data.WriteBit(playerGuid[7]);
+                    data.WriteBit(playerGuid[3]);
+                    data.WriteBits(strlen(player->GetName()), 7);
+                    data.WriteBit(playerGuid[6]);
+                    data.WriteBit(playerGuid[5]);
+                    data.WriteBit(playerGuid[1]);
+                    data.WriteBit(playerGuid[2]);
+
+                    data.WriteByteSeq(playerGuid[0]);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    data.WriteByteSeq(playerGuid[2]);
+                    if (strlen(player->GetName()))
+                        data.append(player->GetName(), strlen(player->GetName()));
+                    data.WriteByteSeq(playerGuid[3]);
+                    data.WriteByteSeq(playerGuid[6]);
+
+                    player->GetSession()->SendPacket(&data, true);
+
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            return true;
         }
 
         static bool HandleDebugPacketCommand(ChatHandler* handler, char const* args)

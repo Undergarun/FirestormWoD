@@ -22,6 +22,7 @@
 #include "Common.h"
 #include <map>
 
+struct BMAuctionEntry;
 struct AuctionEntry;
 class Item;
 class Object;
@@ -88,6 +89,7 @@ class MailSender
         }
         MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
         MailSender(AuctionEntry* sender);
+        MailSender(BMAuctionEntry* sender);
         MailSender(Player* sender);
     public:                                                 // Accessors
         MailMessageType GetMailMessageType() const { return m_messageType; }

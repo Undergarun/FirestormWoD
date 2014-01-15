@@ -93,6 +93,9 @@ enum Opcodes
     CMSG_BATTLEMASTER_JOIN_RATED                      = 0x000,  // 5.0.5 16048
     CMSG_BEGIN_TRADE                                  = 0x1806, // 5.4.0 17399
     CMSG_BINDER_ACTIVATE                              = 0x1AE2, // 5.4.0 17399
+    CMSG_BLACK_MARKET_HELLO                           = 0x1AFF, // 5.4.0 17399
+    CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x12A2, // 5.4.0 17399
+    CMSG_BLACK_MARKET_PLACE_BID                       = 0x13FF, // 5.4.0 17399
     CMSG_BOT_DETECTED2                                = 0x000,  // 5.0.5 16048
     CMSG_BUG                                          = 0x000,  // 5.0.5 16048
     CMSG_BUSY_TRADE                                   = 0x000,  // 5.0.5 16048
@@ -729,11 +732,11 @@ enum Opcodes
     SMSG_BINDER_CONFIRM                               = 0x894,  // 5.4.0 17399
     SMSG_BIND_POINT_UPDATE                            = 0x404,  // 5.4.0 17399
     SMSG_BIND_ZONE_REPLY                              = 0x000,  // 5.0.5 16048
-    SMSG_BLACKMARKET_OPEN_RESULT                      = 0x4A6,  // 5.4.0 17399 (JamList) BLACKMARKET System (NYI)
-    SMSG_BLACKMARKET_OUT_BID                          = 0x195,  // 5.4.0 17399 (JamList) BLACKMARKET System (NYI)
-    SMSG_BLACKMARKET_ITEM_RESULT                      = 0x481,  // 5.4.0 17399 (JamList) BLACKMARKET System (NYI)
-    SMSG_BLACKMARKET_BID_ON_ITEM_RESULT               = 0x92C,  // 5.4.0 17399 (JamList) BLACKMARKET System (NYI)
-    SMSG_BLACKMARKET_WON                              = 0x5AB,  // 5.4.0 17399 (JamList) BLACKMARKET System (NYI)
+    SMSG_BLACK_MARKET_OPEN_RESULT                     = 0x4A6,  // 5.4.0 17399
+    SMSG_BLACK_MARKET_OUT_BID                         = 0x195,  // 5.4.0 17399
+    SMSG_BLACK_MARKET_ITEM_RESULT                     = 0x481,  // 5.4.0 17399
+    SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT              = 0x92C,  // 5.4.0 17399
+    SMSG_BLACK_MARKET_WON                             = 0x5AB,  // 5.4.0 17399
     SMSG_BONUS_ROLL_EMPTY                             = 0x184,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_BREAK_TARGET                                 = 0x423,  // 5.4.0 17399
     SMSG_BUY_BANK_SLOT_RESULT                         = 0x000,  // 5.0.5 16048
