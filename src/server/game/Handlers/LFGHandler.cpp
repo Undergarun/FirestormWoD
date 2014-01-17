@@ -212,7 +212,6 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& recvData)
     groupPacket = recvData.ReadBit();
 
     ObjectGuid guid = GetPlayer()->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFD_LOCK_INFO_REQUEST [" UI64FMTD "]", guid);
 
     // Get Random dungeons that can be done at a certain level and expansion
     LfgDungeonSet randomDungeons;
@@ -242,7 +241,6 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& recvData)
     uint32 rsize = uint32(randomDungeons.size());
     uint32 lsize = uint32(lock.size());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_PLAYER_INFO [" UI64FMTD "]", guid);
     WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
 
     bool hasGuid = true;
@@ -686,7 +684,6 @@ void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
 {
     uint8 bytesOrder[8] = { 4, 2, 5, 1, 6, 3, 0, 7 };
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_ROLE_CHOSEN [" UI64FMTD "] guid: [" UI64FMTD "] roles: %u", GetPlayer()->GetGUID(), guid, roles);
 
     WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 12);
 
