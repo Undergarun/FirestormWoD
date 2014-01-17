@@ -498,17 +498,19 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     bool hasMovement = recvPacket.ReadBit();
     bool hasUnk4 = !(recvPacket.ReadBit());
 
-    uint8* archeologyType;
-    uint32* entry;
-    uint32* usedCount;
+    uint8* archeologyType = NULL;
+    uint32* entry = NULL;
+    uint32* usedCount = NULL;
+    if (archeologyCounter > 0)
+    {
+        archeologyType = new uint8[archeologyCounter];
+        entry = new uint32[archeologyCounter];
+        usedCount = new uint32[archeologyCounter];
+    }
 
     uint32 targetFlags = 0;
 
-    archeologyType = new uint8[archeologyCounter];
-    entry = new uint32[archeologyCounter];
-    usedCount = new uint32[archeologyCounter];
-
-    for (int i = 0; i < archeologyCounter; i++)
+    for (int i = 0; i < archeologyCounter; ++i)
         archeologyType[i] = recvPacket.ReadBits(2);
 
     if (hasMovement)
@@ -624,6 +626,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         recvPacket >> elevation;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got cast spell packet, castCount: %u, spellId: %u, targetFlags: %u, data length = %u", castCount, spellId, targetFlags, (uint32)recvPacket.size());
+
+    if (archeologyType != NULL)
+        delete[] archeologyType;
+    if (entry != NULL)
+        delete[] entry;
+    if (usedCount != NULL)
+        delete[] usedCount;
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;

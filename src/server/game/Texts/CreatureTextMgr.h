@@ -126,8 +126,6 @@ class CreatureTextLocalizer
         {
             for (size_t i = 0; i < _packetCache.size(); ++i)
             {
-                if (_packetCache[i])
-                    delete _packetCache[i]->first;
                 delete _packetCache[i];
             }
         }
@@ -136,37 +134,34 @@ class CreatureTextLocalizer
         {
             LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
             WorldPacket* messageTemplate;
-            size_t whisperGUIDpos;
 
-            // create if not cached yet
-            if (!_packetCache[loc_idx])
-            {
-                messageTemplate = new WorldPacket(SMSG_MESSAGE_CHAT, 200);
-                whisperGUIDpos = _builder(messageTemplate, loc_idx);
-                _packetCache[loc_idx] = new std::pair<WorldPacket*, size_t>(messageTemplate, whisperGUIDpos);
-            }
-            else
-            {
-                messageTemplate = _packetCache[loc_idx]->first;
-                whisperGUIDpos = _packetCache[loc_idx]->second;
-            }
-
-            WorldPacket data(*messageTemplate);
+            uint64 tguid = 0LL;
             switch (_msgType)
             {
                 case CHAT_MSG_MONSTER_WHISPER:
                 case CHAT_MSG_RAID_BOSS_WHISPER:
-                    data.put<uint64>(whisperGUIDpos, player->GetGUID());
+                    tguid = player->GetGUID();
                     break;
                 default:
                     break;
             }
+            // create if not cached yet
+            if (!_packetCache[loc_idx])
+            {
+                messageTemplate = new WorldPacket(SMSG_MESSAGE_CHAT, 200);
+                _builder(messageTemplate, loc_idx, tguid);
+                _packetCache[loc_idx] = messageTemplate;
+            }
+            else
+                messageTemplate = _packetCache[loc_idx];
+
+            WorldPacket data(*messageTemplate);
 
             player->SendDirectMessage(&data);
         }
 
     private:
-        std::vector<std::pair<WorldPacket*, size_t>* > _packetCache;
+        std::vector<WorldPacket*> _packetCache;
         Builder const& _builder;
         ChatMsg _msgType;
 };

@@ -909,7 +909,7 @@ enum Opcodes
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0x895,  // 5.4.0 17399 (JamList)
     SMSG_FORGE_MASTER_SET                             = 0x0B2,  // 5.4.0 17399 (JamList)
     SMSG_FRIEND_STATUS                                = 0x1B29, // 5.4.0 17399
-    SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x19A,  // 5.4.0 17399 (JamList)
+    SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x19A,  // 5.4.0 17399
     SMSG_GAMEOBJECT_DESPAWN_ANIM                      = 0x000,  // 5.0.5 16048
     SMSG_GAMEOBJECT_PAGETEXT                          = 0x000,  // 5.0.5 16048
     SMSG_GAMEOBJECT_QUERY_RESPONSE                    = 0x015,  // 5.4.0 17399
@@ -1038,7 +1038,7 @@ enum Opcodes
     SMSG_INIT_WORLD_STATES                            = 0x929,  // 5.4.0 17399 (JamList)
     SMSG_INSPECT                                      = 0x000,  // 5.0.5 16048
     SMSG_INSPECT_RATED_BG_STATS                       = 0x000,  // unk
-    SMSG_INSPECT_HONOR_STATS                          = 0x584,  // 5.4.0 17399 (JamList)
+    SMSG_INSPECT_HONOR_STATS                          = 0x0A5,  // 5.4.0 17399
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x000,  // 5.0.5 16048
     SMSG_INSPECT_TALENT                               = 0x901,  // 5.4.0 17399
     SMSG_INSTANCE_DIFFICULTY                          = 0x000,  // 5.0.5 16048

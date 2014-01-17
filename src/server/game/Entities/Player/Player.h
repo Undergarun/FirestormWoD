@@ -178,7 +178,9 @@ struct PlayerCurrency
    uint32 totalCount;
    uint32 weekCount;
    uint32 seasonTotal;
+   uint32 weekCap;
    uint8 flags;
+   bool needResetCap;
 };
 
 typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
@@ -1459,11 +1461,11 @@ class Player : public Unit, public GridObject<Player>
         void DeleteRefundReference(uint32 it);
 
         /// send initialization of new currency for client
-        void SendNewCurrency(uint32 id) const;
+        void SendNewCurrency(uint32 id);
         /// send full data about all currencies to client
         void ModifyCurrencyFlags(uint32 currencyId, uint8 flags);
-        void SendCurrencies() const;
-        void SendPvpRewards() const;
+        void SendCurrencies();
+        void SendPvpRewards();
         /// return count of currency witch has plr
         uint32 GetCurrency(uint32 id, bool usePrecision) const;
         uint32 GetCurrencyOnWeek(uint32 id, bool usePrecision) const;
@@ -1472,9 +1474,9 @@ class Player : public Unit, public GridObject<Player>
         bool HasCurrency(uint32 id, uint32 count) const;
         /// @todo: not understand why it subtract from total count and for what it used. It should be remove and replaced by ModifyCurrency
         void SetCurrency(uint32 id, uint32 count, bool printLog = true);
-        uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
+        uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision = false);
         void ResetCurrencyWeekCap();
-        uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const;
+        uint32 CalculateCurrencyWeekCap(uint32 id);
         uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
         void UpdateConquestCurrencyCap(uint32 currency);
 

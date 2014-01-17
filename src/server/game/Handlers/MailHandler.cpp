@@ -47,9 +47,8 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[3] = recvData.ReadBit();
     receiverLength = recvData.ReadBits(8);
     receiverLength *= 2;
-    bool pair = recvData.ReadBit();
-    if (pair)
-        receiverLength++;
+    receiverLength <<= 1;
+    receiverLength |= (uint32)recvData.ReadBit();
 
     mailbox[0] = recvData.ReadBit();
     mailbox[7] = recvData.ReadBit();
@@ -58,12 +57,10 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[6] = recvData.ReadBit();
     mailbox[5] = recvData.ReadBit();
     subjectLength = recvData.ReadBits(8);
-    subjectLength *= 2;
-    pair = recvData.ReadBit();
-    if (pair)
-        subjectLength++;
+    subjectLength <<= 1;
+    subjectLength |= (uint32)recvData.ReadBit();
 
-    bodyLength = recvData.ReadBits(12);
+    bodyLength = recvData.ReadBits(11);
     uint8 items_count = recvData.ReadBits(5);
 
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
@@ -99,7 +96,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     receiver = recvData.ReadString(receiverLength);
     recvData.ReadByteSeq(mailbox[6]);
     subject = recvData.ReadString(subjectLength);
-    body = recvData.ReadString(bodyLength / 2);
+    body = recvData.ReadString(bodyLength);
     recvData.ReadByteSeq(mailbox[0]);
     recvData.ReadByteSeq(mailbox[4]);
     recvData.ReadByteSeq(mailbox[7]);

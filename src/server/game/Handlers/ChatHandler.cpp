@@ -555,32 +555,31 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
     Player* sender = GetPlayer();
     ChatMsg type;
 
-    /*switch (recvData.GetOpcode())
+    switch (recvData.GetOpcode())
     {
-        case CMSG_MESSAGECHAT_ADDON_BATTLEGROUND:
+        /*case CMSG_MESSAGECHAT_ADDON_BATTLEGROUND:
             type = CHAT_MSG_BATTLEGROUND;
-            break;
+            break;*/
         case CMSG_MESSAGECHAT_ADDON_GUILD:
             type = CHAT_MSG_GUILD;
             break;
         case CMSG_MESSAGECHAT_ADDON_OFFICER:
             type = CHAT_MSG_OFFICER;
             break;
-        case CMSG_MESSAGECHAT_ADDON_PARTY:
+        /*case CMSG_MESSAGECHAT_ADDON_PARTY:
             type = CHAT_MSG_PARTY;
-            break;
-        case CMSG_MESSAGECHAT_ADDON_RAID:
+            break;*/
+        /*case CMSG_MESSAGECHAT_ADDON_RAID:
             type = CHAT_MSG_RAID;
-            break;
-        case CMSG_MESSAGECHAT_ADDON_WHISPER:
+            break;*/
+        /*case CMSG_MESSAGECHAT_ADDON_WHISPER:
             type = CHAT_MSG_WHISPER;
-            break;
+            break;*/
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
             return;
-    }*/
-
+    }
     std::string message;
     std::string prefix;
     std::string targetName;
@@ -599,7 +598,6 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         }
         case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
-        case CHAT_MSG_OFFICER:
         {
             uint32 prefixLen = recvData.ReadBits(5);
             uint32 msgLen = recvData.ReadBits(9);
@@ -607,13 +605,14 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             message = recvData.ReadString(msgLen);
             break;
         }
+        case CHAT_MSG_OFFICER:
         case CHAT_MSG_GUILD:
         case CHAT_MSG_INSTANCE_CHAT:
         {
-            uint32 msgLen = recvData.ReadBits(9);
+            uint32 msgLen = recvData.ReadBits(8);
             uint32 prefixLen = recvData.ReadBits(5);
-            message = recvData.ReadString(msgLen);
             prefix = recvData.ReadString(prefixLen);
+            message = recvData.ReadString(msgLen);
             break;
         }
         default:

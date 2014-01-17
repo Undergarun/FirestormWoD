@@ -3449,10 +3449,10 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
             {
                 // update personal rating
                 int32 mod = Arena::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-                p->SetArenaPersonalRating(mod, slot);
+                p->SetArenaPersonalRating(p->GetArenaPersonalRating(slot) + mod, slot);
 
                 // update matchmaker rating
-                p->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
+                p->SetArenaMatchMakerRating(p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange, slot);
 
                 // update personal played stats
                 p->IncrementWeekGames(slot);
@@ -3472,10 +3472,10 @@ void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slo
         {
             // Update personal rating
             int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-            player->SetArenaPersonalRating(mod, slot);
+            player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
 
             // Update matchmaker rating
-            player->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
+            player->SetArenaMatchMakerRating(player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange, slot);
 
             // Update personal played stats
             player->IncrementWeekGames(slot);
@@ -3518,8 +3518,14 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            player->SetArenaPersonalRating(slot, (player->GetArenaPersonalRating(slot) + rating_change) > 0 ? (player->GetArenaPersonalRating(slot) + rating_change) : 0);
-            player->SetArenaMatchMakerRating(slot, (player->GetArenaMatchMakerRating(slot) + mod) > 0 ? (player->GetArenaMatchMakerRating(slot) + mod) : 0);
+            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
+                rating_change = 0;
+
+            if (player->GetArenaPersonalRating(slot) < 1500)
+                rating_change = 92;
+
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
 
             player->IncrementWeekWins(slot);
             player->IncrementSeasonWins(slot);
@@ -3542,8 +3548,14 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            player->SetArenaPersonalRating(slot, (player->GetArenaPersonalRating(slot) + rating_change) > 0 ? (player->GetArenaPersonalRating(slot) + rating_change) : 0);
-            player->SetArenaMatchMakerRating(slot, (player->GetArenaMatchMakerRating(slot) + mod) > 0 ? (player->GetArenaMatchMakerRating(slot) + mod) : 0);
+            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
+                rating_change = 0;
+
+            if (player->GetArenaPersonalRating(slot) < 1500)
+                rating_change = 92;
+
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
 
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);

@@ -51,6 +51,7 @@
 #include "Group.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "MoveSpline.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -203,8 +204,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
-    else if (GetTypeId() == TYPEID_PLAYER)
-        valCount = PLAYER_END_NOT_SELF;
+    //else if (GetTypeId() == TYPEID_PLAYER && target != this)
+        //valCount = PLAYER_END_NOT_SELF;
 
     switch (GetGUIDHigh())
     {
@@ -255,12 +256,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf.append(GetPackGUID());
     buf << uint8(m_objectTypeId);
 
-    _BuildMovementUpdate(&buf, flags);
-
-    UpdateMask updateMask;
-    updateMask.SetCount(valCount);
-    _SetCreateBits(&updateMask, target);
-    _BuildValuesUpdate(updateType, &buf, &updateMask, target);
+    BuildMovementUpdate(&buf, flags);
+    BuildValuesUpdate(updateType, &buf, target);
+    BuildDynamicValuesUpdate(&buf);
 
     data->AddUpdateBlock(buf);
 }
@@ -283,16 +281,8 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
-    UpdateMask updateMask;
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    updateMask.SetCount(valCount);
-
-    _SetUpdateBits(&updateMask, target);
-    _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, &updateMask, target);
-
+    BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    BuildDynamicValuesUpdate(&buf);
     data->AddUpdateBlock(buf);
 }
 
@@ -334,7 +324,7 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
     target->GetSession()->SendPacket(&data);
 }
 
-void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
+void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 {
     const Player* player = ToPlayer();
     const Unit* unit = ToUnit();
@@ -346,11 +336,11 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         unit ? (const WorldObject*)unit : (
         go ? (const WorldObject*)go : dob ? (const WorldObject*)dob : (const WorldObject*)ToCorpse()));
 
-    uint32 transportPause = 0;
+    bool isTransport = false;
     if (go)
         if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(go->GetEntry()))
             if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT && goinfo->transport.pause)
-                transportPause = goinfo->transport.pause;
+                isTransport = true;
 
     uint32 bitCounter2 = 0;
     bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER) && ((AreaTrigger*)this)->GetVisualRadius() != 0.0f;
@@ -364,7 +354,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(flags & UPDATEFLAG_ANIMKITS);                                    // HasAnimKits
     data->WriteBit(flags & UPDATEFLAG_SELF);                                        // unk bit 680
     data->WriteBit(0);                                                              // unk bit 1044
-    data->WriteBits(uint32(transportPause ? 1 : 0), 22);
+    data->WriteBits(uint32(isTransport ? 1 : 0), 22);
     data->WriteBit(0);                                                              // unk bit
     data->WriteBit(0);                                                              // unk bit
     data->WriteBit((flags & UPDATEFLAG_LIVING) && unit);                            // isAlive
@@ -377,6 +367,9 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(0);                                                              // unk bit
     data->WriteBit(0);	                                                            // isSelf
     data->WriteBit((flags & UPDATEFLAG_VEHICLE) && unit);                           // hasVehicleData
+
+    if (unit)
+        const_cast<Unit*>(unit)->m_movementInfo.Normalize();
 
     if ((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo)
     {
@@ -411,23 +404,24 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (GetTypeId() == TYPEID_UNIT)
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
 
+        bool isSplineEnabled = unit->movespline->Initialized() && !unit->movespline->Finalized();
+
         data->WriteBit(guid[5]);
-        data->WriteBit(unit->IsSplineEnabled());                                    // self->IsSplineEnabled()
+        data->WriteBit(isSplineEnabled);
         data->WriteBit(0);                                                          // unk
         data->WriteBit(guid[1]);
         data->WriteBit(guid[3]);
         data->WriteBit(G3D::fuzzyEq(unit->GetOrientation(), 0.0f));                 // Has Orientation bit
         data->WriteBit(0);                                                          // unk
 
-        if (unit->IsSplineEnabled())
+        if (isSplineEnabled)
             Movement::PacketBuilder::WriteCreateBits(*unit->movespline, *data);
 
         data->WriteBits(0, 22);
         data->WriteBit(guid[6]);
         data->WriteBit(guid[7]);
-        data->WriteBit(unit->m_movementInfo.t_guid);                                // Has transport data
-        data->WriteBit(!((movementFlags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) ||
-            (movementFlagsExtra & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)));
+        data->WriteBit(unit->m_movementInfo.t_guid != 0LL);         // Has transport data
+        data->WriteBit(!unit->m_movementInfo.HavePitch);
 
         if (unit->m_movementInfo.t_guid)
         {
@@ -454,20 +448,20 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (movementFlags)
             data->WriteBits(movementFlags, 30);
 
-        data->WriteBit(movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING);    // IsInterpolated ?
+        data->WriteBit(unit->m_movementInfo.hasFallData); // IsInterpolated ?
 
         if (movementFlagsExtra)
             data->WriteBits(movementFlagsExtra, 13);
 
         data->WriteBit(guid[4]);
 
-        if (movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING)
-            data->WriteBit(movementFlags & MOVEMENTFLAG_FALLING);
+        if (unit->m_movementInfo.hasFallData)
+            data->WriteBit(unit->m_movementInfo.hasFallDirection);
 
         data->WriteBit(guid[0]);
         data->WriteBit(0);                                                          // Unk
         data->WriteBit(1);                                                          // Unk
-        data->WriteBit(!(movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION));
+        data->WriteBit(!unit->m_movementInfo.HaveSplineElevation);
     }
 
     if ((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim())
@@ -487,25 +481,19 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     data->FlushBits();
 
-    if (transportPause)
-        *data << uint32(transportPause);
+    if (isTransport)
+        if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(go->GetEntry()))
+            if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+                (*data) << (uint32)goinfo->transport.pause;
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
     {
         ObjectGuid guid = GetGUID();
 
-        // At creation, we need to send clean movement flags (0)
-        // Movement flags are sended later with update, not with create_object
-        uint32 movementFlags = unit->m_movementInfo.GetMovementFlags();
-        uint16 movementFlagsExtra = unit->m_movementInfo.GetExtraMovementFlags();
-
-        if (GetTypeId() == TYPEID_UNIT)
-            movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
-
-        if (unit->IsSplineEnabled())
+        if (unit->movespline->Initialized() && !unit->movespline->Finalized())
             Movement::PacketBuilder::WriteCreateData(*unit->movespline, *data, (Unit*)unit);
 
-        if (unit->m_movementInfo.t_guid)
+        if (unit->m_movementInfo.t_guid != 0LL)
         {
             ObjectGuid transGuid = unit->m_movementInfo.t_guid;
 
@@ -533,13 +521,13 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteByteSeq(guid[6]);
         data->WriteByteSeq(guid[0]);
 
-        if (movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING)
+        if (unit->m_movementInfo.hasFallData)
         {
-            if (movementFlags & MOVEMENTFLAG_FALLING)
+            if (unit->m_movementInfo.hasFallDirection)
             {
+                *data << float(unit->m_movementInfo.j_cosAngle);
                 *data << float(unit->m_movementInfo.j_sinAngle);
                 *data << float(unit->m_movementInfo.j_xyspeed);
-                *data << float(unit->m_movementInfo.j_cosAngle);
             }
 
             *data << float(unit->m_movementInfo.j_zspeed);
@@ -565,8 +553,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         *data << float(unit->GetPositionZMinusOffset());
 
-        if ((movementFlags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) ||
-            (movementFlagsExtra & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+        if (unit->m_movementInfo.HavePitch)
             *data << float(unit->m_movementInfo.pitch);
 
         data->WriteByteSeq(guid[4]);
@@ -582,7 +569,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteByteSeq(guid[5]);
         data->WriteByteSeq(guid[3]);
 
-        if (movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION)
+        if (unit->m_movementInfo.HaveSplineElevation)
             *data << float(unit->m_movementInfo.splineElevation);
 
         *data << unit->GetSpeed(MOVE_WALK);
@@ -666,7 +653,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << uint16(1);                                                      // Missing AnimKit3
     }
 
-    if ((flags & UPDATEFLAG_LIVING) && unit && unit->IsSplineEnabled())
+    if ((flags & UPDATEFLAG_LIVING) && unit && unit->movespline->Initialized() && !unit->movespline->Finalized())
         Movement::PacketBuilder::WriteCreateGuid(*unit->movespline, *data);
 
     /*
@@ -725,301 +712,47 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }*/
 }
 
-void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* updateMask, Player* target) const
+void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
 {
     if (!target)
         return;
 
-    bool IsActivateToQuest = false;
-    if (updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2)
+    ByteBuffer fieldBuffer;
+    UpdateMask updateMask;
+    updateMask.SetCount(m_valuesCount);
+
+    uint32* flags = NULL;
+    uint32 visibleFlag = GetUpdateFieldData(target, flags);
+
+    int sendedCount = 0;
+
+    for (uint16 index = 0; index < m_valuesCount; ++index)
     {
-        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsDynTransport())
+        if (_fieldNotifyFlags & flags[index] ||
+            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
         {
-            if (((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
-                IsActivateToQuest = true;
+            updateMask.SetBit(index);
+            fieldBuffer << m_uint32Values[index];
 
-            updateMask->SetBit(OBJECT_FIELD_DYNAMIC_FLAGS);
-
-            if (((GameObject*)this)->GetGoArtKit())
-                updateMask->SetBit(GAMEOBJECT_BYTES_1);
-        }
-        else if (isType(TYPEMASK_UNIT))
-        {
-            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
-
-            updateMask->SetBit(UNIT_FIELD_BYTES_0);
-        }
-    }
-    else                                                    // case UPDATETYPE_VALUES
-    {
-        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
-        {
-            if (((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
-                IsActivateToQuest = true;
-
-            updateMask->SetBit(OBJECT_FIELD_DYNAMIC_FLAGS);
-            updateMask->SetBit(GAMEOBJECT_BYTES_1);
-
-            if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST && ToGameObject()->GetGOInfo()->chest.groupLootRules &&
-                ToGameObject()->HasLootRecipient())
-                updateMask->SetBit(GAMEOBJECT_FLAGS);
-        }
-        else if (isType(TYPEMASK_UNIT))
-        {
-            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
+            ++sendedCount;
         }
     }
 
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    WPAssert(updateMask && updateMask->GetCount() == valCount);
-
-    *data << (uint8)updateMask->GetBlockCount();
-    data->append(updateMask->GetMask(), updateMask->GetLength());
-
-    // 2 specialized loops for speed optimization in non-unit case
-    if (isType(TYPEMASK_UNIT))                               // unit (creature/player) case
+    for (uint16 index = 0; index < m_valuesCount; ++index)
     {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
-            {
-                if (index == UNIT_NPC_FLAGS)
-                {
-                    // remove custom flag before sending
-                    uint32 appendValue = m_uint32Values[index];
-
-                    if (GetTypeId() == TYPEID_UNIT)
-                    {
-                        if (!target->canSeeSpellClickOn(this->ToCreature()))
-                            appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
-
-                        if (appendValue & UNIT_NPC_FLAG_TRAINER)
-                        {
-                            if (!this->ToCreature()->isCanTrainingOf(target, false))
-                                appendValue &= ~(UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_TRAINER_CLASS | UNIT_NPC_FLAG_TRAINER_PROFESSION);
-                        }
-                    }
-
-                    *data << uint32(appendValue);
-                }
-                else if (index == UNIT_FIELD_AURASTATE)
-                {
-                    // Check per caster aura states to not enable using a pell in client if specified aura is not by target
-                    *data << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
-                }
-                // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
-                else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
-                {
-                    // convert from float to uint32 and send
-                    *data << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
-                }
-                // there are some float values which may be negative or can't get negative due to other checks
-                else if ((index >= UNIT_FIELD_NEGSTAT0   && index <= UNIT_FIELD_NEGSTAT0+4) ||
-                    (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6)) ||
-                    (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)) ||
-                    (index >= UNIT_FIELD_POSSTAT0   && index <= UNIT_FIELD_NEGSTAT0+4))
-                {
-                    *data << uint32(m_floatValues[index]);
-                }
-                // Gamemasters should be always able to select units - remove not selectable flag
-                else if (index == UNIT_FIELD_FLAGS)
-                {
-                    if (target->isGameMaster())
-                        *data << (m_uint32Values[index] & ~UNIT_FLAG_NOT_SELECTABLE);
-                    else
-                        *data << m_uint32Values[index];
-                }
-                // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
-                else if (index == UNIT_FIELD_DISPLAYID)
-                {
-                    if (GetTypeId() == TYPEID_UNIT)
-                    {
-                        CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
-
-                        // this also applies for transform auras
-                        if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(ToUnit()->getTransForm()))
-                            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                                if (transform->Effects[i].IsAura(SPELL_AURA_TRANSFORM))
-                                    if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(transform->Effects[i].MiscValue))
-                                    {
-                                        cinfo = transformInfo;
-                                        break;
-                                    }
-
-                        if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
-                        {
-                            if (target->isGameMaster())
-                            {
-                                if (cinfo->Modelid1)
-                                    *data << cinfo->Modelid1;//Modelid1 is a visible model for gms
-                                else
-                                    *data << 17519; // world invisible trigger's model
-                            }
-                            else
-                            {
-                                if (cinfo->Modelid2)
-                                    *data << cinfo->Modelid2;//Modelid2 is an invisible model for players
-                                else
-                                    *data << 11686; // world invisible trigger's model
-                            }
-                        }
-                        else
-                            *data << m_uint32Values[index];
-                    }
-                    else
-                        *data << m_uint32Values[index];
-                }
-                // hide lootable animation for unallowed players
-                else if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
-                {
-                    uint32 dynamicFlags = m_uint32Values[index];
-
-                    if (Creature const* creature = ToCreature())
-                    {
-                        if (creature->hasLootRecipient())
-                        {
-                            if (creature->isTappedBy(target))
-                            {
-                                dynamicFlags |= (UNIT_DYNFLAG_TAPPED | UNIT_DYNFLAG_TAPPED_BY_PLAYER);
-                            }
-                            else
-                            {
-                                dynamicFlags |= UNIT_DYNFLAG_TAPPED;
-                                dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
-                            }
-                        }
-                        else
-                        {
-                            dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
-                            dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
-                        }
-
-                        if (!target->isAllowedToLoot(creature))
-                            dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
-                    }
-
-                    // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
-                    if (Unit const* unit = ToUnit())
-                        if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
-                            if (!unit->HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
-                                dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
-                    *data << dynamicFlags;
-                }
-                // FG: pretend that OTHER players in own group are friendly ("blue")
-                else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
-                {
-                    Unit const* unit = ToUnit();
-                    if (!unit->HasAura(119626) && !unit->HasAura(117708) && unit->IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(target))
-                    {
-                        FactionTemplateEntry const* ft1 = unit->getFactionTemplateEntry();
-                        FactionTemplateEntry const* ft2 = target->getFactionTemplateEntry();
-                        if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
-                        {
-                            if (index == UNIT_FIELD_BYTES_2)
-                            {
-                                // Allow targetting opposite faction in party when enabled in config
-                                *data << (m_uint32Values[index] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8)); // this flag is at uint8 offset 1 !!
-                            }
-                            else
-                            {
-                                // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
-                                uint32 faction = target->getFaction();
-                                *data << uint32(faction);
-                            }
-                        }
-                        else
-                            *data << m_uint32Values[index];
-                    }
-                    else
-                        *data << m_uint32Values[index];
-                }
-                else
-                {
-                    // send in current format (float as float, uint32 as uint32)
-                    *data << m_uint32Values[index];
-                }
-            }
-        }
-    }
-    else if (isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
-    {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
-            {
-                // send in current format (float as float, uint32 as uint32)
-                if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
-                {
-                    if (IsActivateToQuest)
-                    {
-                        switch (ToGameObject()->GetGoType())
-                        {
-                            case GAMEOBJECT_TYPE_CHEST:
-                                if (target->isGameMaster())
-                                    *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
-                                else
-                                    *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
-                                break;
-                            case GAMEOBJECT_TYPE_GENERIC:
-                                if (target->isGameMaster())
-                                    *data << uint16(0);
-                                else
-                                    *data << uint16(GO_DYNFLAG_LO_SPARKLE);
-                                break;
-                            case GAMEOBJECT_TYPE_GOOBER:
-                                if (target->isGameMaster())
-                                    *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
-                                else
-                                    *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
-                                break;
-                            default:
-                                *data << uint16(0); // unknown, not happen.
-                                break;
-                        }
-                    }
-                    else
-                        *data << uint16(0);         // disable quest object
-
-                    *data << uint16(-1);
-                }
-                else if (index == GAMEOBJECT_FLAGS)
-                {
-                    uint32 flags = m_uint32Values[index];
-                    if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                        if (ToGameObject()->GetGOInfo()->chest.groupLootRules && !ToGameObject()->IsLootAllowedFor(target))
-                            flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
-
-                    *data << flags;
-                }
-                else if (index == GAMEOBJECT_BYTES_1)
-                {
-                    if (((GameObject*)this)->GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT)
-                        *data << uint32(m_uint32Values[index] | 0x18);
-                    else
-                        *data << uint32(m_uint32Values[index]);
-                }
-                else
-                    *data << m_uint32Values[index];                // other cases
-            }
-        }
-    }
-    else                                                    // other objects case (no special index checks)
-    {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
-            {
-                // send in current format (float as float, uint32 as uint32)
-                *data << m_uint32Values[index];
-            }
-        }
+        if (updateMask.GetBit(index))
+            --sendedCount;
     }
 
+    ASSERT(sendedCount == 0);
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
+}
+
+void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
+{
     // Crashfix, prevent use of bag with dynamic field
     if (GetTypeId() == TYPEID_ITEM && ((Item*)this)->ToBag())
     {
@@ -1090,7 +823,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
 
         for (size_t i = 0; i < m_dynamicTab.size(); i++)
         {
-            if (dynamicTabMask & (1 << i))
+            if (dynamicTabMask & (1 << i)) //if ( (1 << (v16 & 31)) & *(&dest + (v16 >> 5)) )
             {
                 *data << uint8(1);
                 *data << uint32(dynamicFieldsMask[i]);
@@ -1151,37 +884,50 @@ void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 cou
     }
 }
 
-void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const
+uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 {
-    // This function assumes updatefield index is always valid
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
     switch (GetTypeId())
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
             flags = ItemUpdateFieldFlags;
-            isOwner = isItemOwner = ((Item*)this)->GetOwnerGUID() == target->GetGUID();
+            if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitUpdateFieldFlags;
-            isOwner = ToUnit()->GetOwnerGUID() == target->GetGUID();
-            hasSpecialInfo = ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID());
-            isPartyMember = plr && plr->IsInSameGroupWith(target);
+            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
+
+            if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+                if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
+
+            if (plr && plr->IsInSameRaidWith(target))
+                visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
         case TYPEID_GAMEOBJECT:
             flags = GameObjectUpdateFieldFlags;
-            isOwner = ToGameObject()->GetOwnerGUID() == target->GetGUID();
+            if (ToGameObject()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_DYNAMICOBJECT:
             flags = DynamicObjectUpdateFieldFlags;
-            isOwner = ((DynamicObject*)this)->GetCasterGUID() == target->GetGUID();
+            if (((DynamicObject*)this)->GetCasterGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_CORPSE:
             flags = CorpseUpdateFieldFlags;
-            isOwner = ToCorpse()->GetOwnerGUID() == target->GetGUID();
+            if (ToCorpse()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_AREATRIGGER:
             flags = AreaTriggerUpdateFieldFlags;
@@ -1189,71 +935,8 @@ void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOw
         case TYPEID_OBJECT:
             break;
     }
-}
 
-bool Object::IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const
-{
-    if (flags == UF_FLAG_NONE)
-        return false;
-
-    if (flags & UF_FLAG_PUBLIC)
-        return true;
-
-    if (flags & UF_FLAG_PRIVATE && isSelf)
-        return true;
-
-    if (flags & UF_FLAG_OWNER && isOwner)
-        return true;
-
-    if (flags & UF_FLAG_ITEM_OWNER && isItemOwner)
-        return true;
-
-    if (flags & UF_FLAG_PARTY_MEMBER && isPartyMember)
-        return true;
-
-    return false;
-}
-
-void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
-{
-    bool* indexes = _changedFields;
-    uint32* flags = NULL;
-    bool isSelf = target == this;
-    bool isOwner = false;
-    bool isItemOwner = false;
-    bool hasSpecialInfo = false;
-    bool isPartyMember = false;
-
-    GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
-
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    for (uint16 index = 0; index < valCount; ++index, ++indexes)
-        if (this == target || _fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*indexes && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
-            updateMask->SetBit(index);
-}
-
-void Object::_SetCreateBits(UpdateMask* updateMask, Player* target) const
-{
-    uint32* value = m_uint32Values;
-    uint32* flags = NULL;
-    bool isSelf = target == this;
-    bool isOwner = false;
-    bool isItemOwner = false;
-    bool hasSpecialInfo = false;
-    bool isPartyMember = false;
-
-    GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
-
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    for (uint16 index = 0; index < valCount; ++index, ++value)
-        if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*value && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
-            updateMask->SetBit(index);
+    return visibleFlag;
 }
 
 void Object::SetInt32Value(uint16 index, int32 value)
@@ -1658,6 +1341,16 @@ void MovementInfo::OutDebug()
 
     if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
         sLog->outInfo(LOG_FILTER_GENERAL, "splineElevation: %f", splineElevation);
+}
+
+void MovementInfo::Normalize()
+{
+    pos.m_orientation = Position::NormalizeOrientation(pos.m_orientation);
+    t_pos.m_orientation = Position::NormalizeOrientation(t_pos.m_orientation);
+
+    pitch = Position::NormalizePitch(pitch);
+    if (hasFallDirection && !hasFallData)
+        hasFallDirection = false;
 }
 
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
@@ -2545,7 +2238,7 @@ void WorldObject::MonsterYellToZone(int32 textId, uint32 language, uint64 Target
 
 void WorldObject::MonsterTextEmote(const char* text, uint64 TargetGuid, bool IsBossEmote)
 {
-    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
+    WorldPacket data;
     BuildMonsterChat(&data, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, text, LANG_UNIVERSAL, GetName(), TargetGuid);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
 }
@@ -2572,7 +2265,7 @@ void WorldObject::MonsterWhisper(const char* text, uint64 receiver, bool IsBossW
 
     LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
 
-    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
+    WorldPacket data;
     BuildMonsterChat(&data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, text, LANG_UNIVERSAL, GetNameForLocaleIdx(loc_idx), receiver);
 
     player->GetSession()->SendPacket(&data);
@@ -2587,7 +2280,7 @@ void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisp
     LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     char const* text = sObjectMgr->GetTrinityString(textId, loc_idx);
 
-    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
+    WorldPacket data;
     BuildMonsterChat(&data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, text, LANG_UNIVERSAL, GetNameForLocaleIdx(loc_idx), receiver);
 
     player->GetSession()->SendPacket(&data);
@@ -2612,6 +2305,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     bool bit5256 = false;
     bool bit5264 = false;
 
+    data->Initialize(SMSG_MESSAGE_CHAT, 200);
     data->WriteBit(0);                                          // Unk bit 5269
     data->WriteBit(messageLength ? 0 : 1);
     data->WriteBit(!bit5256);                                   // !Unk bit 5256

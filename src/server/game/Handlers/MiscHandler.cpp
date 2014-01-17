@@ -1671,30 +1671,40 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
         return;
     }
 
-    ObjectGuid playerGuid = player->GetGUID();
+    ObjectGuid playerGuid = guid;
     WorldPacket data(SMSG_INSPECT_HONOR_STATS);
-    
-    uint8 bitOrder2[8] = { 7, 0, 5, 6, 3, 1, 4, 2 };
+
+    uint8 bitOrder2[8] = { 5, 3, 7, 2, 1, 6, 0, 4 };
     data.WriteBitInOrder(playerGuid, bitOrder2);
-
-    uint8 byteOrder2[8] = { 3, 1, 7, 5, 2, 6, 0, 4 };
-    data.WriteBytesSeq(playerGuid, byteOrder2);
-
-    /*data << uint16(4);
-    data.WriteByteSeq(playerGuid[3]);
-    data << uint8(3);                                               // rank
-    data << uint16(6);
-    data.WriteByteSeq(playerGuid[2]);
+    
+    const uint32 cycleCount = 3; // MAX_ARENA_SLOT
+    data.WriteBits(cycleCount, 3);
+    
     data.WriteByteSeq(playerGuid[7]);
+
+    for (int i = 0; i < cycleCount; ++i)
+    {
+        // Client display only this two fields
+
+        data << uint32(player->GetSeasonWins(i));
+        data << uint32(0);
+        data << uint32(0);
+        
+        data << uint8(i);
+        
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(player->GetArenaPersonalRating(i));
+        data << uint32(0);
+    }
+
+    data.WriteByteSeq(playerGuid[1]);
     data.WriteByteSeq(playerGuid[5]);
     data.WriteByteSeq(playerGuid[0]);
-    data << uint32(5);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[2]);
     data.WriteByteSeq(playerGuid[6]);
-
-    //data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 1));  // yesterday kills
-    //data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));  // today kills*/
+    data.WriteByteSeq(playerGuid[4]);
 
     SendPacket(&data);
 }
@@ -2349,8 +2359,8 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
                 break;
             default:
                 sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
-                recvPacket.rfinish();
-                break;
+                delete[] guids;
+                return;
         }
     }
 

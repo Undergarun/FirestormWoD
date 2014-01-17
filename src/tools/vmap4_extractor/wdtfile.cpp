@@ -69,6 +69,7 @@ bool WDTFile::init(char *map_id, unsigned int mapID)
 
         if (!strcmp(fourcc,"MAIN"))
         {
+			WDT.read(adt_list, sizeof(adt_list));
         }
         if (!strcmp(fourcc,"MWMO"))
         {
@@ -124,6 +125,9 @@ ADTFile* WDTFile::GetMap(int x, int z)
 {
     if(!(x>=0 && z >= 0 && x<64 && z<64))
         return NULL;
+		
+    if (!(adt_list[z][x].flag & 0x1))
+        return NULL;		
 
     char name[512];
 

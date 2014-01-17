@@ -1,0 +1,1 @@
+UPDATE creature_text SET type = 10 WHERE type = 2;

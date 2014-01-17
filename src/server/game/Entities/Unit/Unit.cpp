@@ -11369,11 +11369,15 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, int32 damage, Powers po
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
+    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+    {
+        int32 basepoint0 = -55;
+        int32 basepoint1 = -55;
+        CastCustomSpell(victim, 134735, &basepoint0, &basepoint1, 0, true);
+    }
+
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
-
-    if (victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
-        CastSpell(victim, 134735, true);
 
     // Some spells don't benefit from done mods
     if (spellProto->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)
@@ -12929,11 +12933,15 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 
 uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
 {
+    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+    {
+        int32 basepoint0 = -55;
+        int32 basepoint1 = -55;
+        CastCustomSpell(victim, 134735, &basepoint0, &basepoint1, 0, true);
+    }
+
     if (!victim || pdamage == 0)
         return 0;
-
-    if (victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
-        CastSpell(victim, 134735, true);
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
@@ -20399,7 +20407,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
     bool interPolatedTurning = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING;
     bool jumping = GetUnitMovementFlags() & MOVEMENTFLAG_FALLING;
-    bool splineElevation = GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION;
+    bool splineElevation = m_movementInfo.HaveSplineElevation;
     bool splineData = false;
 
     data->WriteBits(GetUnitMovementFlags(), 30);
@@ -21349,4 +21357,178 @@ Unit* Unit::GetDarkSimulacrum()
     }
     else
         return NULL;
+}
+
+void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+{
+    if (!target)
+        return;
+
+    ByteBuffer fieldBuffer;
+
+    UpdateMask updateMask;
+    updateMask.SetCount(m_valuesCount);
+
+    uint32* flags = UnitUpdateFieldFlags;
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
+    Player* plr = GetCharmerOrOwnerPlayerOrPlayerItself();
+    if (GetOwnerGUID() == target->GetGUID())
+        visibleFlag |= UF_FLAG_OWNER;
+
+    if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+        if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+            visibleFlag |= UF_FLAG_SPECIAL_INFO;
+
+    if (plr && plr->IsInSameRaidWith(target))
+        visibleFlag |= UF_FLAG_PARTY_MEMBER;
+
+    Creature const* creature = ToCreature();
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+    {
+        if (_fieldNotifyFlags & flags[index] ||
+            ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) ||
+            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == UNIT_FIELD_AURASTATE && HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK)))
+        {
+            updateMask.SetBit(index);
+
+            if (index == UNIT_NPC_FLAGS)
+            {
+                uint32 appendValue = m_uint32Values[UNIT_NPC_FLAGS];
+
+                if (creature)
+                    if (!target->canSeeSpellClickOn(creature))
+                        appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
+
+                fieldBuffer << uint32(appendValue);
+            }
+            else if (index == UNIT_FIELD_AURASTATE)
+            {
+                // Check per caster aura states to not enable using a spell in client if specified aura is not by target
+                fieldBuffer << BuildAuraStateUpdateForTarget(target);
+            }
+            // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
+            else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
+            {
+                // convert from float to uint32 and send
+                fieldBuffer << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
+            }
+            // there are some float values which may be negative or can't get negative due to other checks
+            else if ((index >= UNIT_FIELD_NEGSTAT0 && index <= UNIT_FIELD_POSSTAT0+4) ||
+                (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6)) ||
+                (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)) ||
+                (index >= UNIT_FIELD_POSSTAT0 && index <= UNIT_FIELD_POSSTAT0+4))
+            {
+                fieldBuffer << uint32(m_floatValues[index]);
+            }
+            // Gamemasters should be always able to select units - remove not selectable flag
+            else if (index == UNIT_FIELD_FLAGS)
+            {
+                uint32 appendValue = m_uint32Values[UNIT_FIELD_FLAGS];
+                if (target->isGameMaster())
+                    appendValue &= ~UNIT_FLAG_NOT_SELECTABLE;
+
+                fieldBuffer << uint32(appendValue);
+            }
+            // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
+            else if (index == UNIT_FIELD_DISPLAYID)
+            {
+                uint32 displayId = m_uint32Values[UNIT_FIELD_DISPLAYID];
+                if (creature)
+                {
+                    CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
+
+                    // this also applies for transform auras
+                    if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(getTransForm()))
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                            if (transform->Effects[i].IsAura(SPELL_AURA_TRANSFORM))
+                                if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(transform->Effects[i].MiscValue))
+                                {
+                                    cinfo = transformInfo;
+                                    break;
+                                }
+
+                    if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                    {
+                        if (target->isGameMaster())
+                        {
+                            if (cinfo->Modelid1)
+                                displayId = cinfo->Modelid1; // Modelid1 is a visible model for gms
+                            else
+                                displayId = 17519; // world visible trigger's model
+                        }
+                        else
+                        {
+                            if (cinfo->Modelid2)
+                                displayId = cinfo->Modelid2; // Modelid2 is an invisible model for players
+                            else
+                                displayId = 11686; // world invisible trigger's model
+                        }
+                    }
+                }
+
+                fieldBuffer << uint32(displayId);
+            }
+            // hide lootable animation for unallowed players
+            else if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
+            {
+                uint32 dynamicFlags = m_uint32Values[OBJECT_FIELD_DYNAMIC_FLAGS] & ~(UNIT_DYNFLAG_TAPPED | UNIT_DYNFLAG_TAPPED_BY_PLAYER);
+
+                if (creature)
+                {
+                    if (creature->hasLootRecipient())
+                    {
+                        dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+                        if (creature->isTappedBy(target))
+                            dynamicFlags |= UNIT_DYNFLAG_TAPPED_BY_PLAYER;
+                    }
+
+                    if (!target->isAllowedToLoot(creature))
+                        dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
+                }
+
+                // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
+                if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
+                    if (!HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
+                        dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
+
+                fieldBuffer << dynamicFlags;
+            }
+            // FG: pretend that OTHER players in own group are friendly ("blue")
+            else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
+            {
+                if (IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && IsInRaidWith(target))
+                {
+                    FactionTemplateEntry const* ft1 = getFactionTemplateEntry();
+                    FactionTemplateEntry const* ft2 = target->getFactionTemplateEntry();
+                    if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
+                    {
+                        if (index == UNIT_FIELD_BYTES_2)
+                            // Allow targetting opposite faction in party when enabled in config
+                            fieldBuffer << (m_uint32Values[UNIT_FIELD_BYTES_2] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8)); // this flag is at uint8 offset 1 !!
+                        else
+                            // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
+                            fieldBuffer << uint32(target->getFaction());
+                    }
+                    else
+                        fieldBuffer << m_uint32Values[index];
+                }
+                else
+                    fieldBuffer << m_uint32Values[index];
+            }
+            else
+            {
+                // send in current format (float as float, uint32 as uint32)
+                fieldBuffer << m_uint32Values[index];
+            }
+        }
+    }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
 }

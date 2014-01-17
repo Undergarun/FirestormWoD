@@ -349,14 +349,12 @@ class Object
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
-        void GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const;
+        uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
 
         bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
-
-        void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
-        void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
-        void _BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
-        void _BuildValuesUpdate(uint8 updatetype, ByteBuffer *data, UpdateMask* updateMask, Player* target) const;
+        void BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
+        virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
+        void BuildDynamicValuesUpdate(ByteBuffer* data) const;
 
         uint16 m_objectType;
 
@@ -497,16 +495,28 @@ struct Position
     // modulos a radian orientation to the range of 0..2PI
     static float NormalizeOrientation(float o)
     {
+        if (o >= 0.0f && o < 6.2831864f)
+            return o;
         // fmod only supports positive numbers. Thus we have
         // to emulate negative numbers
         if (o < 0)
         {
-            float mod = o *-1;
+            float mod = -o;
             mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
             mod = -mod + 2.0f * static_cast<float>(M_PI);
             return mod;
         }
         return fmod(o, 2.0f * static_cast<float>(M_PI));
+    }
+
+    static float NormalizePitch(float o)
+    {
+        if (o > -M_PI && o < M_PI)
+            return o;
+
+        o = NormalizeOrientation(o + M_PI) - M_PI;
+
+        return o;
     }
 };
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
@@ -530,13 +540,21 @@ struct MovementInfo
     uint32 t_time2;
     uint32 t_time3;
     // swimming/flying
-    float pitch;
+    union
+    {
+        float pitch;
+        uint32 HavePitch;
+    };
     // falling
     uint32 fallTime;
     // jumping
     float j_zspeed, j_cosAngle, j_sinAngle, j_xyspeed;
     // spline
-    float splineElevation;
+    union
+    {
+        float splineElevation;
+        uint32 HaveSplineElevation;
+    };
     // BitClientData
     bool hasFallData;
     bool hasFallDirection;
@@ -549,7 +567,7 @@ struct MovementInfo
         flags = 0;
         flags2 = 0;
         time = t_time = t_time2 = t_time3 = fallTime = 0;
-        splineElevation = 0;
+        splineElevation = 0.0f;
         pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
         t_guid = 0;
         t_pos.Relocate(0, 0, 0, 0);
@@ -572,6 +590,7 @@ struct MovementInfo
     void SetFallTime(uint32 time) { fallTime = time; }
 
     void OutDebug();
+    void Normalize();
 };
 
 #define MAPID_INVALID 0xFFFFFFFF

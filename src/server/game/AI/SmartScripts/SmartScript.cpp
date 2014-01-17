@@ -43,29 +43,12 @@ class TrinityStringTextBuilder
         {
         }
 
-        size_t operator()(WorldPacket* data, LocaleConstant locale) const
+        void operator()(WorldPacket* data, LocaleConstant locale, uint64 tguid) const
         {
             std::string text = sObjectMgr->GetTrinityString(_textId, locale);
             char const* localizedName = _source->GetNameForLocaleIdx(locale);
 
-            *data << uint8(_msgType);
-            *data << uint32(_language);
-            *data << uint64(_source->GetGUID());
-            *data << uint32(1);                                      // 2.1.0
-            *data << uint32(strlen(localizedName)+1);
-            *data << localizedName;
-            size_t whisperGUIDpos = data->wpos();
-            *data << uint64(_targetGUID);                           // Unit Target
-            if (_targetGUID && !IS_PLAYER_GUID(_targetGUID))
-            {
-                *data << uint32(1);                                  // target name length
-                *data << uint8(0);                                   // target name
-            }
-            *data << uint32(text.length() + 1);
-            *data << text;
-            *data << uint8(0);                                       // ChatTag
-
-            return whisperGUIDpos;
+            _source->BuildMonsterChat(data, _msgType, text.c_str(), _language, localizedName, tguid > 0 ? tguid : _targetGUID);
         }
 
         WorldObject* _source;
