@@ -29354,7 +29354,7 @@ void Player::SendMovementSetCollisionHeight(float height)
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[0]);
-    data.WriteBit(mountDisplayInfo ? 0 : 1);
+    data.WriteBit(true); // mountDisplayInfo scale, inverse
     data.WriteBit(guid[2]);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[3]);
@@ -29371,7 +29371,7 @@ void Player::SendMovementSetCollisionHeight(float height)
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[2]);
-    data << float(mountDisplayInfo ? mountDisplayInfo->scale : 1.0f);
+    //data << float(mountDisplayInfo ? mountDisplayInfo->scale : 1.0f);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[4]);
