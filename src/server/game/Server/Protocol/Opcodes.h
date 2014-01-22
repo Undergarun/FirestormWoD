@@ -957,7 +957,7 @@ enum Opcodes
     SMSG_GOD_MODE                                     = 0x533,  // 5.4.0 17399 (JamList)
     SMSG_GOSSIP_COMPLETE                              = 0x153C, // 5.4.0 17399
     SMSG_GOSSIP_MESSAGE                               = 0x1508, // 5.4.0 17399
-    SMSG_GOSSIP_POI                                   = 0x000,  // 5.0.5 16048
+    SMSG_GOSSIP_POI                                   = 0x1E0C, // 5.4.0 17399
     SMSG_GROUP_ACTION_THROTTLED                       = 0x429,  // 5.4.0 17399 (JamList)
     SMSG_GROUP_CANCEL                                 = 0x000,  // 5.0.5 16048
     SMSG_GROUP_DECLINE                                = 0x12D1, // 5.4.0 17399
