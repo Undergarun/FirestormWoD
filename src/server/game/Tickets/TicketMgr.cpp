@@ -31,37 +31,34 @@ inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 // GM ticket
 GmTicket::GmTicket() { }
 
-GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _closedBy(0), _assignedTo(0), _completed(false), _escalatedStatus(TICKET_UNASSIGNED)
+GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _closedBy(0), _assignedTo(0), _completed(false),
+                                                            _escalatedStatus(TICKET_UNASSIGNED), _needResponse(false), _haveTicket(false), _viewed(false)
 {
     _id = sTicketMgr->GenerateTicketId();
     _playerName = player->GetName();
     _playerGuid = player->GetGUID();
 
-    uint32 mapId;
+    uint32 mapId, unkLen;
+    uint32 needResponse = 0;
+
     recvData >> mapId; // Map is sent as UInt32!
     _mapId = mapId;
 
     recvData >> _posX;
     recvData >> _posY;
     recvData >> _posZ;
-    recvData >> _message;
-    uint32 needResponse;
-    recvData >> needResponse;
+    recvData >> _haveTicket; // Requests further GM interaction on a ticket to which a GM has already responded
+
+    recvData >> unkLen;
     _needResponse = (needResponse == 17); // Requires GM response. 17 = true, 1 = false (17 is default)
-    uint8 unk1;
-    recvData >> unk1; // Requests further GM interaction on a ticket to which a GM has already responded
 
-    recvData.rfinish();
-    /*
-    recvData >> count; // text lines
-    for (int i = 0; i < count; i++)
-        recvData >> uint32();
+    _message = recvData.ReadString(unkLen);
 
-    if (something)
-        recvData >> uint32();
-    else
-        compressed uint32 + string;
-    */
+    bool unkBit = recvData.ReadBit();
+    uint32 length = (recvData.ReadBits(12) - 1) / 2;
+    bool unkBit2 = recvData.ReadBit();
+    recvData.FlushBits();
+    _message = recvData.ReadString(length);
 }
 
 GmTicket::~GmTicket() { }
@@ -87,6 +84,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     _completed          = fields[++index].GetBool();
     _escalatedStatus    = GMTicketEscalationStatus(fields[++index].GetUInt8());
     _viewed             = fields[++index].GetBool();
+    _haveTicket         = fields[++index].GetBool();
     return true;
 }
 
@@ -112,6 +110,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setBool  (++index, _completed);
     stmt->setUInt8 (++index, uint8(_escalatedStatus));
     stmt->setBool  (++index, _viewed);
+    stmt->setBool  (++index, _haveTicket);
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -125,51 +124,53 @@ void GmTicket::DeleteFromDB()
 
 void GmTicket::WritePacket(WorldPacket& data) const
 {
-    data << uint32(GetId());
+    data << uint32(GetAge(_lastModifiedTime));
 
     if (GetMessage().size())
         data.append(GetMessage().c_str(), GetMessage().size());
-
-    data << uint8(_viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED); // whether or not it has been viewed
+    
+    data << uint8(_haveTicket);
 
     if (GetMessage().size())
         data.append(GetMessage().c_str(), GetMessage().size());
 
     data << uint8(std::min(_escalatedStatus, TICKET_IN_ESCALATION_QUEUE));                              // escalated data
-    data << uint32(GetAge(_lastModifiedTime));
     if (GmTicket* ticket = sTicketMgr->GetOldestOpenTicket())
         data << uint32(GetAge(ticket->GetLastModifiedTime()));
     else
         data << uint32(float(0));
+
+    data << uint32(0); // waitTimeOverrideMinutes
     // I am not sure how blizzlike this is, and we don't really have a way to find out
     data << uint32(GetAge(sTicketMgr->GetLastChange()));
-    data << uint8(0);
+    data << uint8(_viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED); // whether or not it has been viewed
     data << uint32(GetId());
 }
 
 void GmTicket::SendResponse(WorldSession* session) const
 {
     WorldPacket data(SMSG_GM_RESPONSE_RECEIVED);
+
+    uint32 msgLen = _message.size();
+    uint32 rspLen = _response.size();
+
+    data.WriteBit(msgLen ? 0 : 1);
+    if (msgLen)
+        data.WriteBits(msgLen, 11);
+    data.WriteBit(rspLen ? 0 : 1);
+    if (rspLen)
+        data.WriteBits(rspLen, 14);
+
+    data.FlushBits();
+
+    if (rspLen)
+        data.append(_response.c_str(), rspLen);
+
+    if (msgLen)
+        data.append(_message.c_str(), msgLen);
+
     data << uint32(1);          // responseID
     data << uint32(_id);        // ticketID
-    data << _message.c_str();
-
-    size_t len = _response.size();
-    char const* s = _response.c_str();
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (len)
-        {
-            size_t writeLen = std::min<size_t>(len, 3999);
-            data.append(s, writeLen);
-
-            len -= writeLen;
-            s += writeLen;
-        }
-
-        data << uint8(0);
-    }
 
     session->SendPacket(&data);
 }
@@ -379,22 +380,21 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 {
     uint32 status = GMTICKET_STATUS_DEFAULT;
     std::string message;
+
     if (ticket)
     {
         message = ticket->GetMessage();
         status = GMTICKET_STATUS_HASTEXT;
     }
 
-    WorldPacket data(SMSG_GM_TICKET_GET_TICKET_RESPONSE, (4 + (ticket ? 4 + message.length() + 1 + 4 + 4 + 4 + 1 + 1 : 0)));
-    data.WriteBit(status == GMTICKET_STATUS_HASTEXT);                         // standard 0x0A, 0x06 if text present
+    WorldPacket data(SMSG_GM_TICKET_GET_TICKET_RESPONSE);
 
-    if (ticket)
+    data.WriteBit(status == GMTICKET_STATUS_HASTEXT);
+
+    if (status == GMTICKET_STATUS_HASTEXT)
     {
         data.WriteBits(message.size(), 10);
         data.WriteBits(message.size(), 11);
-        //data << uint32(ticket->GetId());            // ticketID
-        //data << message.c_str();                    // ticket text
-        //data << uint8(0x7);                         // ticket category; why is this hardcoded? does it make a diff re: client?
 
         // we've got the easy stuff done by now.
         // Now we need to go through the client logic for displaying various levels of ticket load

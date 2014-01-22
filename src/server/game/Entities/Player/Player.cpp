@@ -81,6 +81,7 @@
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
+#include "TicketMgr.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -25541,6 +25542,15 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (getClass() == CLASS_HUNTER)
         GetSession()->SendStablePet(0);
+
+    // Notify player if he has a ticket in progress
+    if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetGUID()))
+    {
+        if (ticket->IsCompleted())
+            ticket->SendResponse(GetSession());
+        else
+            sTicketMgr->SendTicket(GetSession(), ticket);
+    }
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
