@@ -22059,7 +22059,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && (spell->IsAbilityOfSkillType(SKILL_MOUNT) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0)) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
@@ -22081,7 +22081,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !SPELL_ATTR10_MOUNT_CHARACTER) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0)) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
