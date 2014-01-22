@@ -1001,6 +1001,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     bool travelPass = true;
     bool webTicketFeature = false;
     bool ingameStoreFeature = true;
+    bool itemRestorationFeature = false;
     data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
 
     data << uint32(1);                  // SoR remaining ?
@@ -1009,14 +1010,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     data << uint32(43);                 // Unk
     data << uint32(1);                  // SoR per day ?
     
-    data.WriteBit(0);                   // Session Time Alert ?
+    data.WriteBit(0);                   // Unk
     data.WriteBit(1);                   // Is Voice Chat allowed ?
     data.WriteBit(ingameStoreFeature);
     data.WriteBit(sessionTimeAlert);
     data.WriteBit(1);                   // Europa Ticket System Enabled ?
     data.WriteBit(travelPass);          // Has Travel Pass
     data.WriteBit(1);                   // Unk
-    data.WriteBit(1);                   // Unk
+    data.WriteBit(itemRestorationFeature);
     data.WriteBit(webTicketFeature);
 
     if (sessionTimeAlert)
