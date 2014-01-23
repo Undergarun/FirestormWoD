@@ -412,7 +412,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REPAIR_ITEM,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRepairItemOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_REPOP_REQUEST,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRepopRequestOpcode        );
     DEFINE_OPCODE_HANDLER(CMSG_REPORT_BUG,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportBugOpcode           );
-    //DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK              );
+    DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK              );
     DEFINE_OPCODE_HANDLER(CMSG_REPORT_SUGGESTION,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportSuggestionOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                    STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData        );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_BATTLEPET_JOURNAL,               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestBattlePetJournal   );
