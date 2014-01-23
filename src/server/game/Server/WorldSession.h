@@ -537,6 +537,8 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
+        void HandleReportBugOpcode(WorldPacket& recvPacket);
+        void HandleReportSuggestionOpcode(WorldPacket& recvPacket);
 
         void HandleSendDuelRequest(WorldPacket& recvPacket);
 

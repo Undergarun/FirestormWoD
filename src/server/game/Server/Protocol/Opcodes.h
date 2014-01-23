@@ -437,7 +437,9 @@ enum Opcodes
     CMSG_REORDER_CHARACTERS                           = 0x171F, // 5.4.0 17399
     CMSG_REPAIR_ITEM                                  = 0x1B7B, // 5.4.0 17399
     CMSG_REPOP_REQUEST                                = 0x163A, // 5.4.0 17399
+    CMSG_REPORT_BUG                                   = 0x1217, // 5.4.0 17399
     CMSG_REPORT_PVP_AFK                               = 0x000,  // 5.0.5 16048
+    CMSG_REPORT_SUGGESTION                            = 0x1A8A, // 5.4.0 17399
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
     CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x1203, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x1183, // 5.4.0 17399

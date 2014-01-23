@@ -888,28 +888,45 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
     _player->GetSocial()->SetFriendNote(GUID_LOPART(guid), note);
 }
 
-void WorldSession::HandleBugOpcode(WorldPacket& recvData)
+void WorldSession::HandleReportBugOpcode(WorldPacket& recvData)
 {
-    uint32 suggestion, contentlen, typelen;
-    std::string content, type;
+    float posX, posY, posZ, orientation;
+    uint32 contentlen, mapId;
+    std::string content;
 
-    recvData >> suggestion >> contentlen >> content;
+    recvData >> posX >> posY >> orientation >> posZ;
+    recvData >> mapId;
 
-    recvData >> typelen >> type;
+    contentlen = recvData.ReadBits(10);
+    recvData.FlushBits();
+    content = recvData.ReadString(contentlen);
 
-    if (suggestion == 0)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Bug Report]");
-    else
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Suggestion]");
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-
-    stmt->setString(0, type);
+    stmt->setString(0, "Bug");
     stmt->setString(1, content);
+    CharacterDatabase.Execute(stmt);
+}
 
+void WorldSession::HandleReportSuggestionOpcode(WorldPacket& recvData)
+{
+    float posX, posY, posZ, orientation;
+    uint32 contentlen, mapId;
+    std::string content;
+
+    recvData >> mapId;
+    recvData >> posZ >> orientation >> posY >> posX;
+
+    contentlen = recvData.ReadBits(10);
+    recvData.FlushBits();
+    content = recvData.ReadString(contentlen);
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    stmt->setString(0, "Suggestion");
+    stmt->setString(1, content);
     CharacterDatabase.Execute(stmt);
 }
 
