@@ -156,7 +156,7 @@ enum Opcodes
     CMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x1786, // 5.4.0 17399
     CMSG_CHAR_RENAME                                  = 0x1AD6, // 5.4.0 17399
     CMSG_CHAT_FILTERED                                = 0x000,  // 5.0.5 16048
-    CMSG_CHAT_IGNORED                                 = 0x000,  // 5.0.5 16048
+    CMSG_CHAT_IGNORED                                 = 0x181E, // 5.4.0 17399
     CMSG_CLEAR_CHANNEL_WATCH                          = 0x000,  // 5.0.5 16048
     CMSG_CLEAR_RAID_MARKER                            = 0x000,  // 5.0.5 16048
     CMSG_CLEAR_TRADE_ITEM                             = 0x1500, // 5.4.0 17399

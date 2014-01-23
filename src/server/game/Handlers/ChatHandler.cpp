@@ -841,10 +841,12 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
     recvData >> unk;                                       // probably related to spam reporting
 
-    uint8 bitOrder[8] = {5, 7, 3, 1, 4, 0, 6, 2};
+    uint8 bitOrder[8] = { 7, 1, 5, 3, 2, 6, 0, 4 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {3, 7, 0, 5, 2, 6, 1, 4};
+    recvData.FlushBits();
+
+    uint8 byteOrder[8] = { 5, 0, 1, 2, 3, 6, 4, 7 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
