@@ -596,6 +596,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
         auctionHouse->RemoveAuction(auction, itemEntry);
     }
+
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 }
