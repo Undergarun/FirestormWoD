@@ -397,7 +397,7 @@ enum Opcodes
     CMSG_PLAYED_TIME                                  = 0x10AA, // 5.4.0 17399
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x000,  // 5.0.5 16048
     CMSG_PLAYER_LOGIN                                 = 0x1BC7, // 5.4.0 17399
-    CMSG_PLAYER_LOGOUT                                = 0x000,  // 5.0.5 16048
+    CMSG_PLAYER_LOGOUT                                = 0x336,  // 5.4.0 17399
     CMSG_PLAYER_VEHICLE_ENTER                         = 0x15A1, // 5.4.0 17399
     CMSG_PLAY_DANCE                                   = 0x000,  // 5.0.5 16048
     CMSG_PUSHQUESTTOPARTY                             = 0x12AA, // 5.4.0 17399

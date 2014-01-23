@@ -585,8 +585,16 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     LogoutRequest(time(NULL));
 }
 
-void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 {
+    bool unkBit = !recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    uint32 unk = 0;
+    if (unkBit)
+        unk = recvData.read<uint32>();
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
 }
 
