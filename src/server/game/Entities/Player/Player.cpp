@@ -10676,6 +10676,7 @@ void Player::SendNotifyLootMoneyRemoved(uint64 gold)
 {
     WorldPacket data(SMSG_COIN_REMOVED);
     ObjectGuid guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
+    sObjectMgr->setLootViewGUID(guid, GetLootGUID());
 
     uint8 bitOrder[8] = { 1, 3, 4, 0, 5, 6, 2, 7 };
     data.WriteBitInOrder(guid, bitOrder);
@@ -10692,6 +10693,7 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot)
 
     ObjectGuid guid = GetLootGUID();
     ObjectGuid lootGuid = MAKE_NEW_GUID(GUID_LOPART(guid), 0, HIGHGUID_LOOT);
+    sObjectMgr->setLootViewGUID(lootGuid, guid);
 
     data.WriteBit(guid[7]);
     data.WriteBit(guid[0]);

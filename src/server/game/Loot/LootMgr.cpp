@@ -840,6 +840,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 
     ObjectGuid creatureGuid = lv._guid;
     ObjectGuid lootViewGuid = MAKE_NEW_GUID(GUID_LOPART(creatureGuid), 0, HIGHGUID_LOOT);
+    sObjectMgr->setLootViewGUID(lootViewGuid, creatureGuid);
 
     bool unkBit69 = false;
     bool unkBit48 = true;
@@ -874,20 +875,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         // item shall not be displayed.
                         continue;
 
-                    bitsItemBuffer.WriteBit(!slot_type);
+                    bitsItemBuffer.WriteBit(true); // unk, inverse
                     bitsItemBuffer.WriteBit(!i);
                     bitsItemBuffer.WriteBits(1, 2);
                     bitsItemBuffer.WriteBit(0);
-                    bitsItemBuffer.WriteBits(2, 3);
+                    bitsItemBuffer.WriteBits(slot_type, 3);
 
                     if (i)
                         dataBuffer << uint8(i);
 
                     dataBuffer << uint32(l.items[i].count);
-
-                    if (slot_type)
-                        dataBuffer << uint8(slot_type);
-
                     dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
                     dataBuffer << uint32(l.items[i].randomSuffix);
                     dataBuffer << uint32(l.items[i].randomPropertyId);
@@ -909,11 +906,11 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         // item shall not be displayed.
                         continue;
 
-                    bitsItemBuffer.WriteBit(!LOOT_SLOT_TYPE_ALLOW_LOOT);
+                    bitsItemBuffer.WriteBit(true); // unk, inverse
                     bitsItemBuffer.WriteBit(!i);
                     bitsItemBuffer.WriteBits(1, 2);
                     bitsItemBuffer.WriteBit(0);
-                    bitsItemBuffer.WriteBits(2, 3);
+                    bitsItemBuffer.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);
 
                     if (i)
                         dataBuffer << uint8(i);
@@ -951,19 +948,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
                 {
-                    bitsItemBuffer.WriteBit(!slot_type);
+                    bitsItemBuffer.WriteBit(true); // unk inverse
                     bitsItemBuffer.WriteBit(!i);
                     bitsItemBuffer.WriteBits(1, 2);
                     bitsItemBuffer.WriteBit(0);
-                    bitsItemBuffer.WriteBits(2, 3);
+                    bitsItemBuffer.WriteBits(slot_type, 3);
 
                     if (i)
                         dataBuffer << uint8(i);
 
                     dataBuffer << uint32(l.items[i].count);
-
-                    if (slot_type)
-                        dataBuffer << uint8(slot_type);
 
                     dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
                     dataBuffer << uint32(l.items[i].randomSuffix);
@@ -1016,20 +1010,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             // item shall not be displayed.
                             continue;
 
-                        bitsItemBuffer.WriteBit(!slot_type);
+                        bitsItemBuffer.WriteBit(true); // unk, inverse
                         bitsItemBuffer.WriteBit(!slot);
                         bitsItemBuffer.WriteBits(1, 2);
                         bitsItemBuffer.WriteBit(0);
-                        bitsItemBuffer.WriteBits(2, 3);
+                        bitsItemBuffer.WriteBits(slot_type, 3);
 
                         if (slot)
                             dataBuffer << uint8(slot);
 
                         dataBuffer << uint32(linkedLoot.items[loot.slot].count);
-
-                        if (slot_type)
-                            dataBuffer << uint8(slot_type);
-
                         dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
                         dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
                         dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
@@ -1048,11 +1038,11 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             // item shall not be displayed.
                             continue;
 
-                        bitsItemBuffer.WriteBit(!LOOT_SLOT_TYPE_ALLOW_LOOT);
+                        bitsItemBuffer.WriteBit(true); // unk, inverse
                         bitsItemBuffer.WriteBit(!slot);
                         bitsItemBuffer.WriteBits(1, 2);
                         bitsItemBuffer.WriteBit(0);
-                        bitsItemBuffer.WriteBits(2, 3);
+                        bitsItemBuffer.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);
 
                         if (slot)
                             dataBuffer << uint8(slot);
@@ -1087,20 +1077,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 
                     if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
-                        bitsItemBuffer.WriteBit(!slot_type);
+                        bitsItemBuffer.WriteBit(true); // unk, inverse
                         bitsItemBuffer.WriteBit(!slot);
                         bitsItemBuffer.WriteBits(1, 2);
                         bitsItemBuffer.WriteBit(0);
-                        bitsItemBuffer.WriteBits(2, 3);
+                        bitsItemBuffer.WriteBits(slot_type, 3);
 
                         if (slot)
                             dataBuffer << uint8(slot);
 
                         dataBuffer << uint32(linkedLoot.items[loot.slot].count);
-
-                        if (slot_type)
-                            dataBuffer << uint8(slot_type);
-
                         dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
                         dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
                         dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
@@ -1151,20 +1137,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 else
                    slottype = uint8(slotType);
 
-                bitsItemBuffer.WriteBit(!slottype);
+                bitsItemBuffer.WriteBit(true); // unk, inverse
                 bitsItemBuffer.WriteBit(!(l.items.size() + (qi - q_list->begin())));
                 bitsItemBuffer.WriteBits(1, 2);
                 bitsItemBuffer.WriteBit(0);
-                bitsItemBuffer.WriteBits(2, 3);
+                bitsItemBuffer.WriteBits(slottype, 3);
 
                 if (l.items.size() + (qi - q_list->begin()))
                     dataBuffer << uint8(l.items.size() + (qi - q_list->begin()));
 
                 dataBuffer << uint32(item.count);
-
-                if (slottype)
-                    dataBuffer << uint8(slottype);
-
                 dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
                 dataBuffer << uint32(item.randomSuffix);
                 dataBuffer << uint32(item.randomPropertyId);
@@ -1186,20 +1168,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             LootItem &item = l.items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
-                bitsItemBuffer.WriteBit(!slotType);
+                bitsItemBuffer.WriteBit(true); // unk, inverse
                 bitsItemBuffer.WriteBit(!fi->index);
                 bitsItemBuffer.WriteBits(1, 2);
                 bitsItemBuffer.WriteBit(0);
-                bitsItemBuffer.WriteBits(2, 3);
+                bitsItemBuffer.WriteBits(slotType, 3);
 
                 if (fi->index)
                     dataBuffer << uint8(fi->index);
 
                 dataBuffer << uint32(item.count);
-
-                if (slotType)
-                    dataBuffer << uint8(slotType);
-
                 dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
                 dataBuffer << uint32(item.randomSuffix);
                 dataBuffer << uint32(item.randomPropertyId);
@@ -1245,20 +1223,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 else
                     slottype = uint8(slotType);
 
-                bitsItemBuffer.WriteBit(!slottype);
+                bitsItemBuffer.WriteBit(true); // unk, inverse
                 bitsItemBuffer.WriteBit(!ci->index);
                 bitsItemBuffer.WriteBits(1, 2);
                 bitsItemBuffer.WriteBit(0);
-                bitsItemBuffer.WriteBits(2, 3);
+                bitsItemBuffer.WriteBits(slottype, 3);
 
                 if (ci->index)
                     dataBuffer << uint8(ci->index);
 
                 dataBuffer << uint32(item.count);
-
-                if (slottype)
-                    dataBuffer << uint8(slottype);
-
                 dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
                 dataBuffer << uint32(item.randomSuffix);
                 dataBuffer << uint32(item.randomPropertyId);
@@ -1305,7 +1279,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     b.WriteBit(0);
 
     if (lv.permission != ROUND_ROBIN_PERMISSION)
-        b << uint8(0);
+        b << uint8(2);
 
     for (uint8 i = 0; i < currenciesShown; i++)
     {

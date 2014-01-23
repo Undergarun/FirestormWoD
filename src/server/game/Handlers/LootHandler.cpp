@@ -638,15 +638,26 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
         if (IS_CRE_OR_VEH_GUID(GetPlayer()->GetLootGUID()))
         {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
+            Creature* creature = GetPlayer()->GetMap()->GetCreature(sObjectMgr->GetCreatureGUIDByLootViewGUID(lootguid));
             if (!creature)
                 return;
 
             loot = &creature->loot;
+            if (loot->isLinkedLoot(slotid))
+            {
+                LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(slotid);
+                creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
+                if (!creature)
+                    return;
+
+                loot = &creature->loot;
+                slotid = linkedLootInfo.slot;
+            }
+
         }
         else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
         {
-            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
+            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(GetPlayer()->GetLootGUID());
             if (!pGO)
                 return;
 
