@@ -2024,6 +2024,13 @@ void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
         _player->ResetInstances(INSTANCE_RESET_ALL, false);
 }
 
+void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*recvData*/)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_CHALLENGE_MODE");
+
+    // @TODO: Do something about challenge mode ...
+}
+
 void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_SET_DUNGEON_DIFFICULTY");

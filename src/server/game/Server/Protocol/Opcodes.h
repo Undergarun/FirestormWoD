@@ -97,7 +97,6 @@ enum Opcodes
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x12A2, // 5.4.0 17399
     CMSG_BLACK_MARKET_PLACE_BID                       = 0x13FF, // 5.4.0 17399
     CMSG_BOT_DETECTED2                                = 0x000,  // 5.0.5 16048
-    CMSG_BUSY_TRADE                                   = 0x000,  // 5.0.5 16048
     CMSG_BUYBACK_ITEM                                 = 0x16FE, // 5.4.0 17399
     CMSG_BUY_BANK_SLOT                                = 0x13A3, // 5.4.0 17399
     CMSG_BUY_ITEM                                     = 0x1663, // 5.4.0 17399
@@ -461,6 +460,7 @@ enum Opcodes
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_VEHICLE_PREV_SEAT                    = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x14AB, // 5.4.0 17399
+    CMSG_RESET_CHALLENGE_MODE                         = 0x110E, // 5.4.0 17399
     CMSG_RESET_FACTION_CHEAT                          = 0x000,  // 5.0.5 16048
     CMSG_RESET_INSTANCES                              = 0x1383, // 5.4.0 17399
     CMSG_RESURRECT_RESPONSE                           = 0x128F, // 5.4.0 17399
