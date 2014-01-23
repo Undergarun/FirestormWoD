@@ -743,7 +743,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     data->WriteBit(!targetGuid);                                // Has receiver
 
-    bool hasChatTag = true;
+    bool hasChatTag = false;
     if (speakerPlayer)
         hasChatTag = speakerPlayer->GetChatTag();
 
@@ -756,7 +756,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     // Must be inversed
     if (hasChatTag)
-        data->WriteBits(session->GetPlayer()->GetChatTag(), 9);
+        data->WriteBits(speakerPlayer->GetChatTag(), 9);
 
     data->WriteBit(guildGuid);                                  // Has guild GUID - FAKE GUID
 
