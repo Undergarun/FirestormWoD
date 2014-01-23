@@ -356,6 +356,7 @@ enum Opcodes
     CMSG_MESSAGECHAT_WHISPER                          = 0x19B6, // 5.4.0 17399
     CMSG_MESSAGECHAT_YELL                             = 0x1015, // 5.4.0 17399
     CMSG_MINIGAME_MOVE                                = 0x000,  // 5.0.5 16048
+    CMSG_MINIMAP_PING                                 = 0x1283, // 5.4.0 17399
     CMSG_MOUNTSPECIAL_ANIM                            = 0x000,  // 5.0.5 16048
     CMSG_MOVE_CHARM_TELEPORT_CHEAT                    = 0x000,  // 5.0.5 16048
     CMSG_MOVE_CHNG_TRANSPORT                          = 0x000,  // 5.0.5 16048
@@ -590,7 +591,6 @@ enum Opcodes
     MSG_GM_BIND_OTHER                                 = 0x000,  // 5.0.5 16048
     MSG_GM_SHOWLABEL                                  = 0x000,  // 5.0.5 16048
     MSG_GM_SUMMON                                     = 0x000,  // 5.0.5 16048
-    MSG_MINIMAP_PING                                  = 0x000,  // 5.0.5 16048
     MSG_MOVE_CHARM_TELEPORT_CHEAT                     = 0,      // Client patched
     MSG_MOVE_FALL_LAND                                = 0,      // Client patched
     MSG_MOVE_FEATHER_FALL                             = 0,      // Client patched
@@ -1128,7 +1128,7 @@ enum Opcodes
     SMSG_MESSAGE_BOX                                  = 0x8BD,  // 5.4.0 17399 (JamList)
     SMSG_MINIGAME_SETUP                               = 0x000,  // 5.0.5 16048
     SMSG_MINIGAME_STATE                               = 0x000,  // 5.0.5 16048
-    SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399
     SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.4.0 17399
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
     SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
