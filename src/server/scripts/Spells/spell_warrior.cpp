@@ -1112,6 +1112,9 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (target->GetGUID() == _player->GetGUID())
+                            return;
+
                         if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
                             _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
                         else

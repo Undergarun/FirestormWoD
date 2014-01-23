@@ -154,7 +154,7 @@ enum CharterTypes
     ARENA_TEAM_CHARTER_5v5_TYPE                   = 5,
 };
 
-enum DB2Types
+enum DB2Types : uint32
 {
     DB2_REPLY_SPARSE                          = 2442913102,           // hash of item-sparse.db2
     DB2_REPLY_ITEM                            = 1344507586,           // hash of item.db2

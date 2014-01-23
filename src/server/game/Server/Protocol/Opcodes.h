@@ -172,8 +172,8 @@ enum Opcodes
     CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND           = 0x000,  // 5.0.5 16048
     CMSG_COMMENTATOR_START_WARGAME                    = 0x000,  // 5.0.5 16048
     CMSG_COMPLAIN                                     = 0x13C7, // 5.4.0 17399
-    CMSG_COMPLETE_CINEMATIC                           = 0x132A, // 5.4.0 17399
-    CMSG_COMPLETE_MOVIE                               = 0x000,  // 5.0.5 16048
+    CMSG_COMPLETE_CINEMATIC                           = 0x12F8, // 5.4.0 17399
+    CMSG_COMPLETE_MOVIE                               = 0x132A, // 5.4.0 17399
     CMSG_CONFIRM_RESPEC_WIPE                          = 0x142E, // 5.4.0 17399
     CMSG_CONNECT_TO_FAILED                            = 0x000,  // 5.0.5 16048
     CMSG_CONTACT_LIST                                 = 0x1351, // 5.4.0 17399
@@ -369,7 +369,7 @@ enum Opcodes
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x000,  // 5.0.5 16048
     CMSG_NAME_QUERY                                   = 0x16DB, // 5.4.0 17399
     CMSG_NEW_SPELL_SLOT                               = 0x000,  // 5.0.5 16048
-    CMSG_NEXT_CINEMATIC_CAMERA                        = 0x000,  // 5.0.5 16048
+    CMSG_NEXT_CINEMATIC_CAMERA                        = 0x17C4, // 5.4.0 17399
     CMSG_NPC_TEXT_QUERY                               = 0x108B, // 5.4.0 17399
     CMSG_OBJECT_UPDATE_FAILED                         = 0x1926, // 5.4.0 17399
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x1526, // 5.4.0 17399
@@ -1022,9 +1022,8 @@ enum Opcodes
     SMSG_GUILD_XP_UPDATE                              = 0x000,  // 5.0.5 16048
     SMSG_HEALTH_UPDATE                                = 0x018,  // 5.4.0 17399 (JamList)
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x00B,  // 5.4.0 17399
-    SMSG_HOTFIX_INFO                                  = 0x000,  // 5.0.5 16048
+    SMSG_HOTFIX_INFO                                  = 0x416,  // 5.0.5 16048
     SMSG_HOTFIX_NOTIFY                                = 0x432,  // 5.4.0 17399 (JamList)
-    SMSG_HOTFIX_NOTIFY_BLOB                           = 0x416,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x819,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_INITIALIZE_FACTIONS                          = 0x90F,  // 5.4.0 17399
     SMSG_INITIAL_SPELLS                               = 0x000,  // 5.0.5 16048 Deprecated
@@ -1092,7 +1091,7 @@ enum Opcodes
     SMSG_LIST_TARGETS                                 = 0x418,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_LOAD_CUF_PROFILES                            = 0x09D,  // 5.4.0 17399
     SMSG_LOGIN_SET_TIME_SPEED                         = 0x1AF,  // 5.4.0 17399
-    SMSG_LOGIN_VERIFY_WORLD                           = 0x000,  // 5.0.5 16048
+    SMSG_LOGIN_VERIFY_WORLD                           = 0x896,  // 5.4.0 17399
     SMSG_LOGOUT_CANCEL_ACK                            = 0x417,  // 5.4.0 17399
     SMSG_LOGOUT_COMPLETE                              = 0x0A8,  // 5.4.0 17399
     SMSG_LOGOUT_RESPONSE                              = 0x8AD,  // 5.4.0 17399
@@ -1182,7 +1181,7 @@ enum Opcodes
     SMSG_NAME_QUERY_RESPONSE                          = 0x0B7,  // 5.4.0 17399
     SMSG_NEW_TAXI_PATH                                = 0x431,  // 5.4.0 17399
     SMSG_NEW_WORLD                                    = 0x1AE,  // 5.4.0 17399
-    SMSG_NEW_WORLD_ABORT                              = 0x896,  // 5.4.0 17399
+    SMSG_NEW_WORLD_ABORT                              = 0x000,  // 5.4.0 17399
     SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x918,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_NOTIFICATION                                 = 0x42E,  // 5.4.0 17399
     SMSG_NOTIFY_DANCE                                 = 0x000,  // 5.0.5 16048
@@ -1373,7 +1372,7 @@ enum Opcodes
     SMSG_SET_ARENA_SEASON                             = 0x189,  // 5.4.0 17399 (JamList)
     SMSG_SETUP_RESEARCH_HISTORY                       = 0x000,  // 5.0.5 16048
     SMSG_SET_AI_ANIM_KIT                              = 0x1B9,  // 5.4.0 17399 (JamList)
-    SMSG_SET_ANIM_TIMER                               = 0x12C,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_SET_ANIM_TIMER                               = 0x000,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x1B0,  // 5.4.0 17399 (JamList)
     SMSG_SET_DUNGEON_DIFFICULTY                       = 0x40C,  // 5.4.0 17399
     SMSG_SET_FACTION_ATWAR                            = 0x1A0,  // 5.4.0 17399 (JamList)
@@ -1390,7 +1389,7 @@ enum Opcodes
     SMSG_SET_PHASE_SHIFT                              = 0x000,  // 5.0.5 16048
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0x586,  // 5.4.0 17399 (JamList)
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x196,  // 5.4.0 17399 (JamList)
-    SMSG_SET_PROFICIENCY                              = 0x921,  // 5.4.0 17399 (JamList)
+    SMSG_SET_PROFICIENCY                              = 0x12C,  // 5.4.0 17399
     SMSG_SET_PROJECTILE_POSITION                      = 0x000,  // 5.0.5 16048
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0A6,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_SERVER_WOW_TIME                          = 0x594,  // 5.4.0 17399 (JamList) (NYI)

@@ -329,8 +329,8 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     if (!proto)
     {
         data << uint32(0);          // size of next block
-        data << uint32(time(NULL)); // hotfix date
         data << uint32(DB2_REPLY_SPARSE);
+        data << uint32(time(NULL)); // hotfix date
         data << uint32(-1);         // entry
         return;
     }
@@ -340,6 +340,7 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << uint32(proto->Quality);
     buff << uint32(proto->Flags);
     buff << uint32(proto->Flags2);
+    buff << uint32(proto->Flags3);
     buff << float(proto->Unk430_1);
     buff << float(proto->Unk430_2);
     buff << uint32(proto->BuyCount);
@@ -443,7 +444,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << float(proto->StatScalingFactor);    // StatScalingFactor
     buff << uint32(proto->CurrencySubstitutionId);
     buff << uint32(proto->CurrencySubstitutionCount);
-    buff << uint32(0); // unk 5.0.5
 
     data << uint32(buff.size());
     data.append(buff);

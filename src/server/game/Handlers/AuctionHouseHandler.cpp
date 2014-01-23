@@ -610,12 +610,12 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 
     recvData >> auctionId;
 
-    uint8 bitOrder[8] = {1, 2, 4, 2, 7, 6, 0, 3};
+    uint8 bitOrder[8] = { 1, 5, 4, 2, 7, 6, 0, 3 };
     recvData.ReadBitInOrder(auctioneer, bitOrder);
 
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {3, 5, 2, 7, 1, 0, 6, 4};
+    uint8 byteOrder[8] = { 3, 5, 2, 7, 1, 0, 6, 4 };
     recvData.ReadBytesSeq(auctioneer, byteOrder);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);

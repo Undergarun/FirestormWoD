@@ -751,8 +751,8 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
         *data << uint32(itr2->second->DamageDone);              // damage done
         data->WriteByteSeq(guid[2]);
-        if(isArena)
-            *data << int32(/*bg->GetArenaTeamRatingChangeByIndex(bg->GetPlayerTeam(guid) == HORDE)*/0);
+        if (isArena)
+            *data << int32(bg->GetArenaTeamRatingChangeByIndex(bg->GetPlayerTeam(guid) == HORDE));
     }
 
     if (isRated)                                             // arena TODO : Fix Order on Rated Implementation
@@ -760,13 +760,13 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         // it seems this must be according to BG_WINNER_A/H and _NOT_ BG_TEAM_A/H
         for (int8 i = BG_TEAMS_COUNT - 1; i >= 0; --i)
         {
-            int32 rating_change = /*bg->GetArenaTeamRatingChangeByIndex(i)*/0;
+            int32 rating_change = bg->GetArenaTeamRatingChangeByIndex(i);
 
             uint32 pointsLost = rating_change < 0 ? -rating_change : 0;
             uint32 pointsGained = rating_change > 0 ? rating_change : 0;
-            uint32 MatchmakerRating = /*bg->GetArenaMatchmakerRatingByIndex(i)*/0;
+            uint32 MatchmakerRating = bg->GetArenaMatchmakerRatingByIndex(i);
 
-            if(i == 1)
+            if (i == 1)
             {
                 *data << uint32(pointsLost);                    // Rating Lost
                 *data << uint32(MatchmakerRating);              // Matchmaking Value

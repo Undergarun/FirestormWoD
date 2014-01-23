@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,6 @@
 #include "Dynamic/UnorderedMap.h"
 #include "Define.h"
 #include <ace/Thread_Mutex.h>
-#include <LockedMap.h>
 
 //===========================================================
 
@@ -54,7 +53,7 @@ namespace VMAP
     class ManagedModel
     {
         public:
-            ManagedModel() : iModel(0), iRefCount(0) {}
+            ManagedModel() : iModel(0), iRefCount(0) { }
             void setModel(WorldModel* model) { iModel = model; }
             WorldModel* getModel() { return iModel; }
             void incRefCount() { ++iRefCount; }
@@ -64,8 +63,8 @@ namespace VMAP
             int iRefCount;
     };
 
-    typedef ACE_Based::LockedMap<uint32, StaticMapTree*> InstanceTreeMap;
-    typedef ACE_Based::LockedMap<std::string, ManagedModel> ModelFileMap;
+    typedef UNORDERED_MAP<uint32, StaticMapTree*> InstanceTreeMap;
+    typedef UNORDERED_MAP<std::string, ManagedModel> ModelFileMap;
 
     class VMapManager2 : public IVMapManager
     {
@@ -113,6 +112,8 @@ namespace VMAP
                 return getMapFileName(mapId);
             }
             virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y);
+        public:
+            void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
     };
 }
 

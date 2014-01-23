@@ -31,6 +31,7 @@
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
 #include "GroupMgr.h"
+#include "Chat.h"
 
 Battlefield::Battlefield()
 {
@@ -483,19 +484,8 @@ void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
 
 WorldPacket Battlefield::BuildWarningAnnPacket(std::string msg)
 {
-    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
-
-    data << uint8(CHAT_MSG_RAID_BOSS_EMOTE);
-    data << uint32(LANG_UNIVERSAL);
-    data << uint64(0);
-    data << uint32(0);                                      // 2.1.0
-    data << uint32(1);
-    data << uint8(0);
-    data << uint64(0);
-    data << uint32(msg.length()+ 1);
-    data << msg;
-    data << uint16(0);
-
+    WorldPacket data;
+    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, NULL, 0, msg.c_str(), NULL);
     return data;
 }
 
