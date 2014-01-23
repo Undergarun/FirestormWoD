@@ -336,11 +336,11 @@ enum Opcodes
     CMSG_MAIL_TAKE_MONEY                              = 0x16EE, // 5.4.0 17399
     CMSG_MANEUVER_START                               = 0x1696, // 5.4.0 17399
     CMSG_MEETINGSTONE_INFO                            = 0x000,  // 5.0.5 16048
-    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0x000,  // 5.0.5 16048
+    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0x10B6, // 5.4.0 17399
     CMSG_MESSAGECHAT_ADDON_GUILD                      = 0x149A, // 5.4.0 17399
     CMSG_MESSAGECHAT_ADDON_OFFICER                    = 0x1990, // 5.4.0 17399
-    CMSG_MESSAGECHAT_ADDON_PARTY                      = 0x000,  // 5.0.5 16048
-    CMSG_MESSAGECHAT_ADDON_RAID                       = 0x000,  // 5.0.5 16048
+    CMSG_MESSAGECHAT_ADDON_PARTY                      = 0x11B6, // 5.4.0 17399
+    CMSG_MESSAGECHAT_ADDON_RAID                       = 0x1439, // 5.4.0 17399
     CMSG_MESSAGECHAT_ADDON_WHISPER                    = 0x1532, // 5.4.0 17399
     CMSG_MESSAGECHAT_AFK                              = 0x15B9, // 5.4.0 17399
     CMSG_MESSAGECHAT_BATTLEGROUND                     = 0x159D, // 5.4.0 17399
@@ -350,7 +350,7 @@ enum Opcodes
     CMSG_MESSAGECHAT_GUILD                            = 0x109F, // 5.4.0 17399
     CMSG_MESSAGECHAT_OFFICER                          = 0x159C, // 5.4.0 17399
     CMSG_MESSAGECHAT_PARTY                            = 0x15B0, // 5.4.0 17399
-    CMSG_MESSAGECHAT_RAID                             = 0x000,  // 5.0.5 16048
+    CMSG_MESSAGECHAT_RAID                             = 0x1410, // 5.4.0 17399
     CMSG_MESSAGECHAT_RAID_WARNING                     = 0x101E, // 5.4.0 17399
     CMSG_MESSAGECHAT_SAY                              = 0x10BE, // 5.4.0 17399
     CMSG_MESSAGECHAT_WHISPER                          = 0x19B6, // 5.4.0 17399
