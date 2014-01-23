@@ -94,15 +94,54 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
 {
-    uint64 itemguid;
+    ObjectGuid itemGuid;
     uint8 dstslot;
-    recvData >> itemguid >> dstslot;
+
+    recvData >> dstslot;
+
+    itemGuid[3] = recvData.ReadBit();
+    itemGuid[2] = recvData.ReadBit();
+    itemGuid[1] = recvData.ReadBit();
+    uint8 itemCount = recvData.ReadBits(2);
+    itemGuid[4] = recvData.ReadBit();
+
+    bool* hasBag = NULL;
+    bool* hasSlot = NULL;
+    hasBag = new bool[itemCount];
+    hasSlot = new bool[itemCount];
+    for (uint8 i = 0; i < itemCount; ++i)
+    {
+        hasBag[i] = !recvData.ReadBit();
+        hasSlot[i] = !recvData.ReadBit();
+    }
+
+    itemGuid[6] = recvData.ReadBit();
+    itemGuid[0] = recvData.ReadBit();
+    itemGuid[5] = recvData.ReadBit();
+    itemGuid[7] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    uint8 bytes[8] = { 0, 3, 6, 2, 5, 7, 1, 4 };
+    recvData.ReadBytesSeq(itemGuid, bytes);
+
+    uint8* inventoryBags = NULL;
+    uint8* inventorySlots = NULL;
+    inventoryBags = new uint8[itemCount];
+    inventorySlots = new uint8[itemCount];
+    for (uint8 i = 0; i < itemCount; ++i)
+    {
+        if (hasSlot[i])
+            recvData >> inventorySlots[i];
+        if (hasBag[i])
+            recvData >> inventoryBags[i];
+    }
 
     // cheating attempt, client should never send opcode in that case
     if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, dstslot))
         return;
 
-    Item* item = _player->GetItemByGuid(itemguid);
+    Item* item = _player->GetItemByGuid(itemGuid);
     uint16 dstpos = dstslot | (INVENTORY_SLOT_BAG_0 << 8);
 
     if (!item || item->GetPos() == dstpos)

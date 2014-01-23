@@ -70,7 +70,7 @@ enum Opcodes
     CMSG_AUTOBANK_ITEM                                = 0x164,  // 5.4.0 17399
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x000,  // 5.0.5 16048
     CMSG_AUTOEQUIP_ITEM                               = 0x564,  // 5.4.0 17399
-    CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x000,  // 5.0.5 16048
+    CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x865,  // 5.4.0 17399
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x863,  // 5.4.0 17399
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x465,  // 5.4.0 17399
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x000,  // 5.0.5 16048
