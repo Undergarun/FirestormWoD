@@ -97,7 +97,6 @@ enum Opcodes
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x12A2, // 5.4.0 17399
     CMSG_BLACK_MARKET_PLACE_BID                       = 0x13FF, // 5.4.0 17399
     CMSG_BOT_DETECTED2                                = 0x000,  // 5.0.5 16048
-    CMSG_BUG                                          = 0x000,  // 5.0.5 16048
     CMSG_BUSY_TRADE                                   = 0x000,  // 5.0.5 16048
     CMSG_BUYBACK_ITEM                                 = 0x16FE, // 5.4.0 17399
     CMSG_BUY_BANK_SLOT                                = 0x13A3, // 5.4.0 17399
@@ -444,6 +443,7 @@ enum Opcodes
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x1183, // 5.4.0 17399
     CMSG_REQUEST_CEMETERY_LIST                        = 0x18AE, // 5.4.0 17399
     CMSG_REQUEST_FORCED_REACTIONS                     = 0x14A0, // 5.4.0 17399
+    CMSG_REQUEST_GM_TICKET                            = 0x134F, // 5.4.0 17399
     CMSG_REQUEST_HOTFIX                               = 0x1A8B, // 5.4.0 17399
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x1757, // 5.4.0 17399
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399

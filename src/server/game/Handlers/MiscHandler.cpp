@@ -55,6 +55,7 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "TicketMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -917,6 +918,18 @@ void WorldSession::HandleRequestBattlePetJournal(WorldPacket& /*recvPacket*/)
     WorldPacket data;
     GetPlayer()->GetBattlePetMgr().BuildBattlePetJournal(&data);
     SendPacket(&data);
+}
+
+void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
+{
+    // Notify player if he has a ticket in progress
+    if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
+    {
+        if (ticket->IsCompleted())
+            ticket->SendResponse(this);
+        else
+            sTicketMgr->SendTicket(this, ticket);
+    }
 }
 
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
@@ -2510,15 +2523,17 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTradeInfo (WorldPacket& recvPacket)
+void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 {
     uint32 skillId = recvPacket.read<uint32>();
     uint32 spellId = recvPacket.read<uint32>();
 
     ObjectGuid guid;
-    uint8 bitOrder[8] = {5, 4, 7, 1, 3, 6, 0, 2};
+
+    uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
     recvPacket.ReadBitInOrder(guid, bitOrder);
-    uint8 byteOrder[8] = {7, 3, 4, 6, 1, 5, 0, 2};
+
+    uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     Player* plr = sObjectAccessor->FindPlayer(guid);

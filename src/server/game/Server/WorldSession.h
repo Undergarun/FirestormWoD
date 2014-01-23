@@ -537,7 +537,6 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
-        void HandleBugOpcode(WorldPacket& recvPacket);
 
         void HandleSendDuelRequest(WorldPacket& recvPacket);
 
@@ -778,6 +777,7 @@ class WorldSession
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
         void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
+        void HandleRequestGmTicket(WorldPacket& recvPakcet);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCemeteryListOpcode(WorldPacket& recvData);
