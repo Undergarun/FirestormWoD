@@ -25439,8 +25439,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << uint32(secsToTimeBitFields(time(NULL)));            // local hour
     GetSession()->SendPacket(&data);
 
-    GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
-
     data.Initialize(SMSG_WORLD_SERVER_INFO, 4 * 5);
     data << uint32(0);
     data << uint32(1380070800);

@@ -442,6 +442,7 @@ enum Opcodes
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x1183, // 5.4.0 17399
     CMSG_REQUEST_CEMETERY_LIST                        = 0x18AE, // 5.4.0 17399
+    CMSG_REQUEST_FORCED_REACTIONS                     = 0x14A0, // 5.4.0 17399
     CMSG_REQUEST_HOTFIX                               = 0x1A8B, // 5.4.0 17399
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x1757, // 5.4.0 17399
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
@@ -1477,7 +1478,7 @@ enum Opcodes
     SMSG_THREAT_UPDATE                                = 0x012,  // 5.4.0 17399
     SMSG_TIME_ADJUSTMENT                              = 0x49A,  // 5.4.0 17399 (JamList)
     SMSG_TIME_SYNC_REQUEST                            = 0x8A6,  // 5.4.0 17399
-    SMSG_TIME_ZONE_INFORMATION                        = 0x883,  // 5.4.0 17399 - Read7Bits x2 + ReadWoWString x2 : Sniffed "Europe/Paris" x 2
+    SMSG_TIME_ZONE_INFORMATION                        = 0x883,  // 5.4.0 17399
     SMSG_TITLE_EARNED                                 = 0x91B,  // 5.4.0 17399
     SMSG_TITLE_LOST                                   = 0x839,  // 5.4.0 17399
     SMSG_TOGGLE_XP_GAIN                               = 0x1279, // 5.4.0 17399

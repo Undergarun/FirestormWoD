@@ -487,6 +487,11 @@ void WorldSession::HandleCemeteryListOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->SendCemeteryList(false);
 }
 
+void WorldSession::HandleForcedReactionsOpcode(WorldPacket& /*recvData*/)
+{
+    GetPlayer()->GetReputationMgr().SendForceReactions();
+}
+
 void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 {
     uint32 textID;
