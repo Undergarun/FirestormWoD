@@ -25555,10 +25555,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
         SendRaidDifficulty(GetGroup() != NULL);
 
-    WorldPacket data;
-    GetBattlePetMgr().BuildBattlePetJournal(&data);
-    GetSession()->SendPacket(&data);
-
     SendDeathRuneUpdate();
 
     if (getClass() == CLASS_HUNTER)

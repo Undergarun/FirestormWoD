@@ -440,6 +440,7 @@ enum Opcodes
     CMSG_REPOP_REQUEST                                = 0x163A, // 5.4.0 17399
     CMSG_REPORT_PVP_AFK                               = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
+    CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x1203, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x1183, // 5.4.0 17399
     CMSG_REQUEST_CEMETERY_LIST                        = 0x18AE, // 5.4.0 17399
     CMSG_REQUEST_FORCED_REACTIONS                     = 0x14A0, // 5.4.0 17399

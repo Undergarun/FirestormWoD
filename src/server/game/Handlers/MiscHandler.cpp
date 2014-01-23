@@ -912,6 +912,13 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
+void WorldSession::HandleRequestBattlePetJournal(WorldPacket& /*recvPacket*/)
+{
+    WorldPacket data;
+    GetPlayer()->GetBattlePetMgr().BuildBattlePetJournal(&data);
+    SendPacket(&data);
+}
+
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RECLAIM_CORPSE");

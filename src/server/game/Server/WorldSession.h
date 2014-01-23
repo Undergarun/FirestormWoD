@@ -777,6 +777,7 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
+        void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCemeteryListOpcode(WorldPacket& recvData);
