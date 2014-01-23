@@ -175,7 +175,7 @@ enum Opcodes
     CMSG_CONFIRM_RESPEC_WIPE                          = 0x142E, // 5.4.0 17399
     CMSG_CONNECT_TO_FAILED                            = 0x000,  // 5.0.5 16048
     CMSG_CONTACT_LIST                                 = 0x1351, // 5.4.0 17399
-    CMSG_CORPSE_MAP_POSITION_QUERY                    = 0x000,  // 5.0.5 16048
+    CMSG_CORPSE_MAP_POSITION_QUERY                    = 0x1313, // 5.4.0 17399
     CMSG_CREATURE_QUERY                               = 0x1585, // 5.4.0 17399
     CMSG_DANCE_QUERY                                  = 0x000,  // 5.0.5 16048
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x1C16, // 5.4.0 17399

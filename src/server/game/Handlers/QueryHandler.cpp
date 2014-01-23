@@ -715,10 +715,19 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
 void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
+    ObjectGuid guid;
 
-    // Read guid, useless
-    recvData.rfinish();
+    uint8 bits[8] = { 2, 7, 4, 1, 0, 5, 3, 6 };
+    recvData.ReadBitInOrder(guid, bits);
 
+    recvData.FlushBits();
+
+    uint8 bytes[8] = { 5, 2, 3, 0, 4, 1, 7, 6 };
+    recvData.ReadBytesSeq(guid, bytes);
+
+    return;
+
+    // @TODO: Find me !
     WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
     data << float(0);
     data << float(0);
