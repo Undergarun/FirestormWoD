@@ -154,7 +154,7 @@ enum CharterTypes
     ARENA_TEAM_CHARTER_5v5_TYPE                   = 5,
 };
 
-enum DB2Types
+enum DB2Types : uint32
 {
     DB2_REPLY_SPARSE                          = 2442913102,           // hash of item-sparse.db2
     DB2_REPLY_ITEM                            = 1344507586,           // hash of item.db2
@@ -537,7 +537,8 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
-        void HandleBugOpcode(WorldPacket& recvPacket);
+        void HandleReportBugOpcode(WorldPacket& recvPacket);
+        void HandleReportSuggestionOpcode(WorldPacket& recvPacket);
 
         void HandleSendDuelRequest(WorldPacket& recvPacket);
 
@@ -681,7 +682,6 @@ class WorldSession
 
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);
-        void HandleBusyTradeOpcode(WorldPacket& recvPacket);
         void HandleCancelTradeOpcode(WorldPacket& recvPacket);
         void HandleClearTradeItemOpcode(WorldPacket& recvPacket);
         void HandleIgnoreTradeOpcode(WorldPacket& recvPacket);
@@ -777,9 +777,12 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
+        void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
+        void HandleRequestGmTicket(WorldPacket& recvPakcet);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCemeteryListOpcode(WorldPacket& recvData);
+        void HandleForcedReactionsOpcode(WorldPacket& recvData);
         void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
@@ -863,6 +866,7 @@ class WorldSession
         void HandleTimeSyncResp(WorldPacket& recvData);
         void HandleWhoisOpcode(WorldPacket& recvData);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
+        void HandleResetChallengeModeOpcode(WorldPacket& recvData);
         void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 

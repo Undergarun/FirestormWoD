@@ -985,11 +985,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
-    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << pCurrChar->GetMapId();
-    data << pCurrChar->GetPositionX();
-    data << pCurrChar->GetPositionY();
+    WorldPacket data(SMSG_RESUME_TOKEN, 5);
+    data << uint32(0);
+    data << uint8(0x80);
+    SendPacket(&data);
+
+    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
     data << pCurrChar->GetPositionZ();
+    data << pCurrChar->GetMapId();
+    data << pCurrChar->GetPositionY();
+    data << pCurrChar->GetPositionX();
     data << pCurrChar->GetOrientation();
     SendPacket(&data);
 
@@ -997,15 +1002,43 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    bool featureBit4 = true;
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // sent in 5.0.5
-    uint8 fss[35] =
+    bool sessionTimeAlert = false;
+    bool travelPass = true;
+    bool webTicketFeature = false;
+    bool ingameStoreFeature = true;
+    bool itemRestorationFeature = false;
+    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
+
+    data << uint32(1);                  // SoR remaining ?
+    data << uint32(realmID);
+    data << uint8(2);                   // Complain System Status ?
+    data << uint32(43);                 // Unk
+    data << uint32(1);                  // SoR per day ?
+    
+    data.WriteBit(0);                   // Unk
+    data.WriteBit(1);                   // Is Voice Chat allowed ?
+    data.WriteBit(ingameStoreFeature);
+    data.WriteBit(sessionTimeAlert);
+    data.WriteBit(1);                   // Europa Ticket System Enabled ?
+    data.WriteBit(travelPass);          // Has Travel Pass
+    data.WriteBit(1);                   // Unk
+    data.WriteBit(itemRestorationFeature);
+    data.WriteBit(webTicketFeature);
+
+    if (sessionTimeAlert)
     {
-        0x01, 0x00, 0x00, 0x00, 0x62, 0x04, 0x00, 0x00, 0x02, 0x2B, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x4F,
-        0x80, 0x60, 0xEA, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x02, 0x1E, 0x14, 0x08, 0x01, 0x00, 0x00, 0x00
-    };
-    for (int i = 0; i < 35; i++)
-        data << fss[i];
+        data << uint32(0);              // Session Alert Period
+        data << uint32(0);              // Session Alert DisplayTime
+        data << uint32(0);              // Session Alert Delay
+    }
+
+    if (travelPass)
+    {
+        data << uint32(60000);          // Unk
+        data << uint32(10);             // Unk
+        data << uint32(114194674);      // Unk
+        data << uint32(1);              // Unk
+    }
    
     SendPacket(&data);
 
@@ -1055,6 +1088,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
 
+    const static std::string timeZoneName = "Europe/Paris";
+
+    data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
+    data.WriteBits(timeZoneName.size(), 7);
+    data.WriteBits(timeZoneName.size(), 7);
+    data << timeZoneName;
+    data << timeZoneName;
+
+    SendPacket(&data);
+
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
     {
         data.Initialize(SMSG_SET_ARENA_SEASON, 8);
@@ -1085,13 +1128,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 22);
+    data.WriteBits(hotfix.size(), 20);
     data.FlushBits();
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
-        data << uint32(hotfix[i].Type);
-        data << uint32(hotfix[i].Timestamp);
         data << uint32(hotfix[i].Entry);
+        data << uint32(hotfix[i].Timestamp);
+        data << uint32(hotfix[i].Type);
     }
     SendPacket(&data);
 

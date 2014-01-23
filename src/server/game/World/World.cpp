@@ -1207,7 +1207,7 @@ void World::LoadConfigSettings(bool reload)
 
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
-    VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
+    //VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight:%i, getHeight:%i, indoorCheck:%i PetLOS:%i", enableLOS, enableHeight, enableIndoor, enablePetLOS);
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap data directory is: %svmaps", m_dataPath.c_str());
 
@@ -2402,19 +2402,7 @@ namespace JadeCore
                 while (char* line = lineFromMessage(pos))
                 {
                     WorldPacket* data = new WorldPacket();
-
-                    uint32 lineLength = (line ? strlen(line) : 0) + 1;
-
-                    data->Initialize(SMSG_MESSAGE_CHAT, 100);                // guess size
-                    *data << uint8(CHAT_MSG_SYSTEM);
-                    *data << uint32(LANG_UNIVERSAL);
-                    *data << uint64(0);
-                    *data << uint32(0);                                     // can be chat msg group or something
-                    *data << uint64(0);
-                    *data << uint32(lineLength);
-                    *data << line;
-                    *data << uint16(0);
-
+                    ChatHandler::FillMessageData(data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, line, NULL);
                     data_list.push_back(data);
                 }
             }

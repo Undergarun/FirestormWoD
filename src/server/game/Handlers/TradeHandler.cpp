@@ -70,11 +70,6 @@ void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
     SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
 }
 
-void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Busy Trade %u", _player->GetGUIDLow());
-}
-
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 {
     TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();

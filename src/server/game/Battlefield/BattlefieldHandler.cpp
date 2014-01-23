@@ -317,7 +317,6 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     }
 }
 
-
 void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
 {
     ObjectGuid guid;
@@ -346,12 +345,19 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
          bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 
-void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
+void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 {
-    uint64 playerGuid;
-    recvData >> playerGuid;
-    Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
+    ObjectGuid playerGuid;
 
+    uint8 bits[8] = { 7, 6, 3, 0, 4, 5, 1, 2 };
+    recvData.ReadBitInOrder(playerGuid, bits);
+
+    recvData.FlushBits();
+
+    uint8 bytes[8] = { 2, 4, 5, 7, 0, 1, 6, 3 };
+    recvData.ReadBytesSeq(playerGuid, bytes);
+
+    Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
     if (!reportedPlayer)
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: player not found");

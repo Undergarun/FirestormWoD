@@ -40,6 +40,7 @@
 #include "Map.h"
 #include "InstanceScript.h"
 #include "Group.h"
+#include "Chat.h"
 
 namespace JadeCore
 {
@@ -52,15 +53,7 @@ namespace JadeCore
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
 
-                data << uint8(i_msgtype);
-                data << uint32(LANG_UNIVERSAL);
-                data << uint64(i_player.GetGUID());
-                data << uint32(5);
-                data << uint64(i_player.GetGUID());
-                data << uint32(strlen(text)+1);
-                data << text;
-                data << uint8(0);
-                data << uint32(i_achievementId);
+                ChatHandler::FillMessageData(&data, i_player.GetSession(), i_msgtype, LANG_UNIVERSAL, NULL, i_player.GetGUID(), text, NULL, NULL, i_achievementId);
             }
 
         private:

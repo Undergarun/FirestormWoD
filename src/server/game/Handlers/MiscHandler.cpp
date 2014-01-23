@@ -55,6 +55,7 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "TicketMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -585,8 +586,16 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     LogoutRequest(time(NULL));
 }
 
-void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 {
+    bool unkBit = !recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    uint32 unk = 0;
+    if (unkBit)
+        unk = recvData.read<uint32>();
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
 }
 
@@ -879,29 +888,65 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
     _player->GetSocial()->SetFriendNote(GUID_LOPART(guid), note);
 }
 
-void WorldSession::HandleBugOpcode(WorldPacket& recvData)
+void WorldSession::HandleReportBugOpcode(WorldPacket& recvData)
 {
-    uint32 suggestion, contentlen, typelen;
-    std::string content, type;
+    float posX, posY, posZ, orientation;
+    uint32 contentlen, mapId;
+    std::string content;
 
-    recvData >> suggestion >> contentlen >> content;
+    recvData >> posX >> posY >> orientation >> posZ;
+    recvData >> mapId;
 
-    recvData >> typelen >> type;
+    contentlen = recvData.ReadBits(10);
+    recvData.FlushBits();
+    content = recvData.ReadString(contentlen);
 
-    if (suggestion == 0)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Bug Report]");
-    else
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Suggestion]");
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-
-    stmt->setString(0, type);
+    stmt->setString(0, "Bug");
     stmt->setString(1, content);
-
     CharacterDatabase.Execute(stmt);
+}
+
+void WorldSession::HandleReportSuggestionOpcode(WorldPacket& recvData)
+{
+    float posX, posY, posZ, orientation;
+    uint32 contentlen, mapId;
+    std::string content;
+
+    recvData >> mapId;
+    recvData >> posZ >> orientation >> posY >> posX;
+
+    contentlen = recvData.ReadBits(10);
+    recvData.FlushBits();
+    content = recvData.ReadString(contentlen);
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    stmt->setString(0, "Suggestion");
+    stmt->setString(1, content);
+    CharacterDatabase.Execute(stmt);
+}
+
+void WorldSession::HandleRequestBattlePetJournal(WorldPacket& /*recvPacket*/)
+{
+    WorldPacket data;
+    GetPlayer()->GetBattlePetMgr().BuildBattlePetJournal(&data);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
+{
+    // Notify player if he has a ticket in progress
+    if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
+    {
+        if (ticket->IsCompleted())
+            ticket->SendResponse(this);
+        else
+            sTicketMgr->SendTicket(this, ticket);
+    }
 }
 
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
@@ -1979,6 +2024,13 @@ void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
         _player->ResetInstances(INSTANCE_RESET_ALL, false);
 }
 
+void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*recvData*/)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_CHALLENGE_MODE");
+
+    // @TODO: Do something about challenge mode ...
+}
+
 void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_SET_DUNGEON_DIFFICULTY");
@@ -2495,15 +2547,17 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTradeInfo (WorldPacket& recvPacket)
+void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 {
     uint32 skillId = recvPacket.read<uint32>();
     uint32 spellId = recvPacket.read<uint32>();
 
     ObjectGuid guid;
-    uint8 bitOrder[8] = {5, 4, 7, 1, 3, 6, 0, 2};
+
+    uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
     recvPacket.ReadBitInOrder(guid, bitOrder);
-    uint8 byteOrder[8] = {7, 3, 4, 6, 1, 5, 0, 2};
+
+    uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     Player* plr = sObjectAccessor->FindPlayer(guid);

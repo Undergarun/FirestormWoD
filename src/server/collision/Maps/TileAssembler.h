@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,6 @@
 #include <G3D/Matrix3.h>
 #include <map>
 #include <set>
-#include <LockedVector.h>
 
 #include "ModelInstance.h"
 #include "WorldModel.h"
@@ -72,21 +71,21 @@ namespace VMAP
 
         G3D::AABox bounds;
         uint32 liquidflags;
-        ACE_Based::LockedVector<MeshTriangle> triangles;
-        ACE_Based::LockedVector<G3D::Vector3> vertexArray;
-        class WmoLiquid *liquid;
+        std::vector<MeshTriangle> triangles;
+        std::vector<G3D::Vector3> vertexArray;
+        class WmoLiquid* liquid;
 
-         GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0),
-            liquid(NULL) {}
+        GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0),
+            liquid(NULL) { }
         ~GroupModel_Raw();
 
-        bool Read(FILE * f);
+        bool Read(FILE* f);
     };
 
     struct WorldModel_Raw
     {
         uint32 RootWMOID;
-        ACE_Based::LockedVector<GroupModel_Raw> groupsArray;
+        std::vector<GroupModel_Raw> groupsArray;
 
         bool Read(const char * path);
     };

@@ -340,7 +340,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (go)
         if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(go->GetEntry()))
             if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT && goinfo->transport.pause)
-                isTransport = true;
+                isTransport = false;
 
     uint32 bitCounter2 = 0;
     bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER) && ((AreaTrigger*)this)->GetVisualRadius() != 0.0f;

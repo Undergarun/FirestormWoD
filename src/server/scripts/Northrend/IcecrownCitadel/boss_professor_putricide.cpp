@@ -1339,7 +1339,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 SpellCastResult result = CheckRequirementInternal(extension);
                 if (result != SPELL_CAST_OK)
                 {
-                    Spell::SendCastResult(GetExplTargetUnit()->ToPlayer(), GetSpellInfo(), 0, result, extension);
+                    Spell::SendCastResult(GetExplTargetUnit()->ToPlayer(), GetSpellInfo(), NULL, 0, result, extension);
                     return result;
                 }
 
@@ -1436,7 +1436,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 if (putricide->AI()->GetData(DATA_ABOMINATION))
                 {
                     if (Player* player = caster->ToPlayer())
-                        Spell::SendCastResult(player, GetSpellInfo(), 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
+                        Spell::SendCastResult(player, GetSpellInfo(), NULL, 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
                     return;
                 }
 

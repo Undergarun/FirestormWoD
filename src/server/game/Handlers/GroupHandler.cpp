@@ -711,19 +711,30 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
         return;
 
     float x, y;
-    recvData >> x;
+    uint8 unk;
+
     recvData >> y;
-
-    //sLog->outDebug(LOG_FILTER_GENERAL, "Received opcode MSG_MINIMAP_PING X: %f, Y: %f", x, y);
-
-    /** error handling **/
-    /********************/
+    recvData >> x;
+    recvData >> unk;
 
     // everything's fine, do it
-    WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
-    data << uint64(GetPlayer()->GetGUID());
+    ObjectGuid plrGuid = GetPlayer()->GetGUID();
+    WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
+
+    uint8 bits[8] = { 6, 5, 1, 2, 4, 0, 3, 7 };
+    data.WriteBitInOrder(plrGuid, bits);
+
+    data.WriteByteSeq(plrGuid[0]);
+    data.WriteByteSeq(plrGuid[5]);
+    data.WriteByteSeq(plrGuid[2]);
     data << float(x);
+    data.WriteByteSeq(plrGuid[4]);
+    data.WriteByteSeq(plrGuid[1]);
+    data.WriteByteSeq(plrGuid[7]);
+    data.WriteByteSeq(plrGuid[3]);
     data << float(y);
+    data.WriteByteSeq(plrGuid[6]);
+
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
 

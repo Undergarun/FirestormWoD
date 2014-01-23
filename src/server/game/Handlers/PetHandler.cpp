@@ -454,7 +454,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             else
             {
                 if (pet->isPossessed() || pet->IsVehicle())
-                    Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
+                    Spell::SendCastResult(GetPlayer(), spellInfo, NULL, 0, result);
                 else
                     pet->SendPetCastFail(spellid, result);
 
