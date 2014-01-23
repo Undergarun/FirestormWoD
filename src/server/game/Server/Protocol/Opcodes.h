@@ -38,7 +38,7 @@ enum Opcodes
     CMSG_ACCEPT_TRADE                                 = 0x1501, // 5.4.0 17399
     CMSG_ACTIVATETAXI                                 = 0x1B6E, // 5.4.0 17399
     CMSG_ACTIVATETAXIEXPRESS                          = 0x176E, // 5.4.0 17399
-    CMSG_ADDON_REGISTERED_PREFIXES                    = 0x000,  // 5.0.5 16048
+    CMSG_ADDON_REGISTERED_PREFIXES                    = 0x10BD, // 5.4.0 17399
     CMSG_ADD_FRIEND                                   = 0x16BD, // 5.4.0 17399
     CMSG_ADD_IGNORE                                   = 0x1224, // 5.4.0 17399
     CMSG_ADD_VOICE_IGNORE                             = 0x000,  // 5.0.5 16048
