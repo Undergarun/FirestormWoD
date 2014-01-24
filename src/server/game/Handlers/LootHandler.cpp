@@ -546,6 +546,16 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
             return;
 
         loot = &creature->loot;
+        if (loot->isLinkedLoot(slot))
+        {
+            LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(slot);
+            creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
+            if (!creature)
+                return;
+
+            loot = &creature->loot;
+            slot = linkedLootInfo.slot;
+        }
     }
     else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
     {

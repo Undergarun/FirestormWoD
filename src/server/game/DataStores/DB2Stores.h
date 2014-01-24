@@ -34,6 +34,8 @@ extern DB2Storage <SpellReagentsEntry> sSpellReagentsStore;
 extern DB2Storage <ItemUpgradeEntry> sItemUpgradeStore;
 extern DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore;
 
+SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
+
 void LoadDB2Stores(const std::string& dataPath);
 
 #endif

@@ -1871,7 +1871,6 @@ struct SpellEffectScalingEntry
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 4294967295
-#define MAX_SPELL_REAGENTS 8
 
 // SpellAuraOptions.dbc
 // @author Selenium: 5.4 valid
@@ -2219,33 +2218,6 @@ struct SpellTargetRestrictionsEntry
     uint32  TargetCreatureType;                             // 7 m_targetCreatureType
     uint32  Targets;                                        // 8 m_targets
 };
-
-// SpellReagents.dbc
-// @author Selenium: 5.4 valid
-struct SpellReagentsEntry
-{
-    //uint32    Id;                                         // 0        m_ID
-    int32     Reagent[MAX_SPELL_REAGENTS];                  // 1-9      m_reagent
-    uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 10-18    m_reagentCount
-};
-
-struct SpellReagent
-{
-    SpellReagent()
-    {
-        reagents[0] = NULL;
-        reagents[1] = NULL;
-        reagents[2] = NULL;
-        reagents[3] = NULL;
-        reagents[4] = NULL;
-        reagents[5] = NULL;
-        reagents[6] = NULL;
-        reagents[7] = NULL;
-    }
-    SpellReagentsEntry const* reagents[MAX_SPELL_REAGENTS];
-};
-
-typedef std::map<uint32, SpellReagent> SpellReagentMap;
 
 // SpellScaling.dbc
 // @author Selenium: 5.4 valid

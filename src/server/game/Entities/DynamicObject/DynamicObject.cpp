@@ -17,6 +17,7 @@
  */
 
 #include "Common.h"
+#include "ByteBuffer.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
