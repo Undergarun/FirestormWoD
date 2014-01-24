@@ -1262,6 +1262,16 @@ class ObjectMgr
             return _overwriteExtendedCosts;
         }
 
+        uint64 GetCreatureGUIDByLootViewGUID(uint64 lootview)
+        {
+            return _lootViewGUID.find(lootview) != _lootViewGUID.end() ? _lootViewGUID[lootview] : 0;
+        }
+
+        void setLootViewGUID(uint64 lootview, uint64 creature)
+        {
+            _lootViewGUID[lootview] = creature;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1339,6 +1349,7 @@ class ObjectMgr
         SpellPhaseStore _SpellPhaseStore;
 
         uint32 _skipUpdateCount;
+        std::map<uint64, uint64> _lootViewGUID;
 
     private:
         void LoadScripts(ScriptsType type);

@@ -985,11 +985,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
-    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << pCurrChar->GetMapId();
-    data << pCurrChar->GetPositionX();
-    data << pCurrChar->GetPositionY();
+    WorldPacket data(SMSG_RESUME_TOKEN, 5);
+    data << uint32(0);
+    data << uint8(0x80);
+    SendPacket(&data);
+
+    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
     data << pCurrChar->GetPositionZ();
+    data << pCurrChar->GetMapId();
+    data << pCurrChar->GetPositionY();
+    data << pCurrChar->GetPositionX();
     data << pCurrChar->GetOrientation();
     SendPacket(&data);
 
@@ -1083,6 +1088,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
 
+    const static std::string timeZoneName = "Europe/Paris";
+
+    data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
+    data.WriteBits(timeZoneName.size(), 7);
+    data.WriteBits(timeZoneName.size(), 7);
+    data << timeZoneName;
+    data << timeZoneName;
+
+    SendPacket(&data);
+
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
     {
         data.Initialize(SMSG_SET_ARENA_SEASON, 8);
@@ -1113,13 +1128,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 22);
+    data.WriteBits(hotfix.size(), 20);
     data.FlushBits();
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
-        data << uint32(hotfix[i].Type);
-        data << uint32(hotfix[i].Timestamp);
         data << uint32(hotfix[i].Entry);
+        data << uint32(hotfix[i].Timestamp);
+        data << uint32(hotfix[i].Type);
     }
     SendPacket(&data);
 

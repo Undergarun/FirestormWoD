@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@
 #include <iomanip>
 #include <sstream>
 #include <iomanip>
-#include <LockedVector.h>
 
 using G3D::Vector3;
 using G3D::AABox;
@@ -55,7 +54,7 @@ namespace VMAP
     //=================================================================
 
     TileAssembler::TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName)
-    : iDestDir(pDestDirName), iSrcDir(pSrcDirName), iFilterMethod(NULL), iCurrentUniqueNameId(0)
+        : iDestDir(pDestDirName), iSrcDir(pSrcDirName), iFilterMethod(NULL), iCurrentUniqueNameId(0)
     {
         //mkdir(iDestDir);
         //init();
@@ -76,7 +75,7 @@ namespace VMAP
         for (MapData::iterator map_iter = mapData.begin(); map_iter != mapData.end() && success; ++map_iter)
         {
             // build global map tree
-            ACE_Based::LockedVector<ModelSpawn*> mapSpawns;
+            std::vector<ModelSpawn*> mapSpawns;
             UniqueEntryMap::iterator entry;
             printf("Calculating model bounds for map %u...\n", map_iter->first);
             for (entry = map_iter->second->UniqueEntries.begin(); entry != map_iter->second->UniqueEntries.end(); ++entry)
@@ -89,7 +88,7 @@ namespace VMAP
                 }
                 else if (entry->second.flags & MOD_WORLDSPAWN) // WMO maps and terrain maps use different origin, so we need to adapt :/
                 {
-                    // TODO: remove extractor hack and uncomment below line:
+                    /// @todo remove extractor hack and uncomment below line:
                     //entry->second.iPos += Vector3(533.33333f*32, 533.33333f*32, 0.f);
                     entry->second.iBound = entry->second.iBound + Vector3(533.33333f*32, 533.33333f*32, 0.f);
                 }
@@ -99,7 +98,16 @@ namespace VMAP
 
             printf("Creating map tree for map %u...\n", map_iter->first);
             BIH pTree;
-            pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
+
+            try
+            {
+                pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
+            }
+            catch (std::exception& e)
+            {
+                printf("Exception ""%s"" when calling pTree.build", e.what());
+                return false;
+            }
 
             // ===> possibly move this code to StaticMapTree class
             std::map<uint32, uint32> modelNodeIdx;
@@ -264,7 +272,7 @@ namespace VMAP
 
         for (uint32 g=0; g<groups; ++g) // should be only one for M2 files...
         {
-            ACE_Based::LockedVector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
+            std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
 
             if (vertices.empty())
             {
@@ -314,7 +322,7 @@ namespace VMAP
         model.setRootWmoID(raw_model.RootWMOID);
         if (!raw_model.groupsArray.empty())
         {
-            ACE_Based::LockedVector<GroupModel> groupsArray;
+            std::vector<GroupModel> groupsArray;
 
             uint32 groups = raw_model.groupsArray.size();
             for (uint32 g = 0; g < groups; ++g)
@@ -348,10 +356,13 @@ namespace VMAP
 
         uint32 name_length, displayId;
         char buff[500];
-        while (!feof(model_list))
+        while (true)
         {
-            if (fread(&displayId, sizeof(uint32), 1, model_list) != 1
-                || fread(&name_length, sizeof(uint32), 1, model_list) != 1
+            if (fread(&displayId, sizeof(uint32), 1, model_list) != 1)
+                if (feof(model_list))   // EOF flag is only set after failed reading attempt
+                    break;
+
+            if (fread(&name_length, sizeof(uint32), 1, model_list) != 1
                 || name_length >= sizeof(buff)
                 || fread(&buff, sizeof(char), name_length, model_list) != name_length)
             {
@@ -362,7 +373,7 @@ namespace VMAP
             std::string model_name(buff, name_length);
 
             WorldModel_Raw raw_model;
-            if ( !raw_model.Read((iSrcDir + "/" + model_name).c_str()) )
+            if (!raw_model.Read((iSrcDir + "/" + model_name).c_str()) )
                 continue;
 
             spawnedModelFiles.insert(model_name);
@@ -370,7 +381,7 @@ namespace VMAP
             bool boundEmpty = true;
             for (uint32 g = 0; g < raw_model.groupsArray.size(); ++g)
             {
-                ACE_Based::LockedVector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
+                std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
 
                 uint32 nvectors = vertices.size();
                 for (uint32 i = 0; i < nvectors; ++i)
@@ -383,23 +394,24 @@ namespace VMAP
                 }
             }
 
-            fwrite(&displayId,sizeof(uint32),1,model_list_copy);
-            fwrite(&name_length,sizeof(uint32),1,model_list_copy);
-            fwrite(&buff,sizeof(char),name_length,model_list_copy);
-            fwrite(&bounds.low(),sizeof(Vector3),1,model_list_copy);
-            fwrite(&bounds.high(),sizeof(Vector3),1,model_list_copy);
+            fwrite(&displayId, sizeof(uint32), 1, model_list_copy);
+            fwrite(&name_length, sizeof(uint32), 1, model_list_copy);
+            fwrite(&buff, sizeof(char), name_length, model_list_copy);
+            fwrite(&bounds.low(), sizeof(Vector3), 1, model_list_copy);
+            fwrite(&bounds.high(), sizeof(Vector3), 1, model_list_copy);
         }
 
         fclose(model_list);
         fclose(model_list_copy);
     }
-        // temporary use defines to simplify read/check code (close file and return at fail)
-        #define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
-        #define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
-        #define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
-                                        fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
+
+// temporary use defines to simplify read/check code (close file and return at fail)
+#define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
+                                fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
+#define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
+                                fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
+#define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
+                                fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
 
     bool GroupModel_Raw::Read(FILE* rf)
     {
@@ -500,7 +512,8 @@ namespace VMAP
             return false;
         }
 
-        char ident[8];
+        char ident[9];
+        ident[8] = '\0';
         int readOperation = 0;
 
         READ_OR_RETURN(&ident, 8);
@@ -519,7 +532,8 @@ namespace VMAP
         for (uint32 g = 0; g < groups && succeed; ++g)
             succeed = groupsArray[g].Read(rf);
 
-        fclose(rf);
+        if (succeed) /// rf will be freed inside Read if the function had any errors.
+            fclose(rf);
         return succeed;
     }
 

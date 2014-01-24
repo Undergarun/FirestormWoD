@@ -4074,10 +4074,10 @@ void Spell::SendCastResult(SpellCastResult result)
     if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
         return;
 
-    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
+    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_spellPowerData, m_cast_count, result, m_customError);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellPowerEntry const* powerData, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
 {
     if (result == SPELL_CAST_OK)
         return;
@@ -4089,6 +4089,13 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
 
     switch (result)
     {
+        case SPELL_FAILED_NO_POWER:
+        {
+            data.WriteBit(0);
+            data.WriteBit(1);
+            data << uint32(powerData->powerType);
+            break;
+        }
         case SPELL_FAILED_NOT_READY:
         {
             data.WriteBit(0);
@@ -4786,8 +4793,8 @@ void Spell::SendSpellGo()
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
     // triggered spells with spell visual != 0
-    if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
-        castFlags |= CAST_FLAG_PENDING;
+    /*if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
+        castFlags |= CAST_FLAG_PENDING;*/
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
@@ -6353,7 +6360,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 // Hackfix for Raigonn
                 if (m_caster->GetEntry() != WORLD_TRIGGER && target->GetEntry() != 56895) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
-                    if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
+                    if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) /*&& VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id)*/ && !m_caster->IsWithinLOSInMap(target))
                         return SPELL_FAILED_LINE_OF_SIGHT;
 
                 if (m_caster->IsVisionObscured(target))
@@ -6368,7 +6375,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         float x, y, z;
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOS(x, y, z))
+        if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) /*&& VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id)*/ && !m_caster->IsWithinLOS(x, y, z))
             return SPELL_FAILED_LINE_OF_SIGHT;
     }
 

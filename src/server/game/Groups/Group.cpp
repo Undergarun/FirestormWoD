@@ -1848,7 +1848,20 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_MASTER_LOOT_CANDIDATE_LIST)");
     uint32 real_count = 0;
-    ObjectGuid guid_looted = pLootedObject->GetGUID();
+
+    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* looter = itr->getSource();
+        if (!looter->IsInWorld())
+            continue;
+
+        if (looter->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+            ++real_count;
+    }
+
+    ObjectGuid guid_looted = MAKE_NEW_GUID(pLootedObject->GetGUIDLow(), 0, HIGHGUID_LOOT);
+    sObjectMgr->setLootViewGUID(guid_looted, pLootedObject->GetGUID());
+
     WorldPacket data(SMSG_MASTER_LOOT_CANDIDATE_LIST);
     data.WriteBit(guid_looted[2]);
     data.WriteBit(guid_looted[4]);
@@ -1857,8 +1870,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     data.WriteBit(guid_looted[5]);
     data.WriteBit(guid_looted[6]);
     data.WriteBit(guid_looted[7]);
-    uint32 pos = data.bitwpos();
-    data.WriteBits(0, 24);
+    data.WriteBits(real_count, 24);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1878,8 +1890,6 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
             data.WriteBit(guid[2]);
             data.WriteBit(guid[7]);
             data.WriteBit(guid[0]);
-
-            ++real_count;
         }
     }
 
@@ -1913,8 +1923,6 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     data.WriteByteSeq(guid_looted[6]);
     data.WriteByteSeq(guid_looted[5]);
     data.WriteByteSeq(guid_looted[3]);
-
-    data.PutBits<uint32>(pos, real_count, 26);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {

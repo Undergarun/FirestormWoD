@@ -35,6 +35,7 @@
 #include "Util.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Chat.h"
 
 namespace JadeCore
 {
@@ -68,14 +69,7 @@ namespace JadeCore
             {
                 uint64 target_guid = _source ? _source->GetGUID() : 0;
 
-                data << uint8 (_msgtype);
-                data << uint32(LANG_UNIVERSAL);
-                data << uint64(target_guid);                // there 0 for BG messages
-                data << uint32(0);                          // can be chat msg group or something
-                data << uint64(target_guid);
-                data << uint32(strlen(text) + 1);
-                data << text;
-                data << uint8 (_source ? _source->GetChatTag() : 0);
+                ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : NULL, _msgtype, LANG_UNIVERSAL, NULL, _source ? _source->GetGUID() : 0, text, NULL, NULL);
             }
 
             ChatMsg _msgtype;
@@ -101,14 +95,7 @@ namespace JadeCore
 
                 uint64 target_guid = _source  ? _source->GetGUID() : 0;
 
-                data << uint8 (_msgtype);
-                data << uint32(LANG_UNIVERSAL);
-                data << uint64(target_guid);                // there 0 for BG messages
-                data << uint32(0);                          // can be chat msg group or something
-                data << uint64(target_guid);
-                data << uint32(strlen(str) + 1);
-                data << str;
-                data << uint8 (_source ? _source->GetChatTag() : uint8(0));
+                ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : NULL, _msgtype, LANG_UNIVERSAL, NULL, _source ? _source->GetGUID() : 0, str, NULL, NULL);
             }
 
         private:
@@ -796,6 +783,11 @@ void Battleground::EndBattleground(uint32 winner)
 
             winner_arena_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
             loser_arena_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, slot);
+
+            SetArenaMatchmakerRating(winner, winner_matchmaker_rating + winner_matchmaker_change);
+            SetArenaMatchmakerRating(GetOtherTeam(winner), loser_matchmaker_rating + loser_matchmaker_change);
+            SetArenaTeamRatingChangeForTeam(winner, winner_change);
+            SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
 
             if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                 for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
@@ -1755,20 +1747,8 @@ void Battleground::SendWarningToAll(int32 entry, ...)
     va_end(ap);
     std::string msg(str);
 
-    WorldPacket data(SMSG_MESSAGE_CHAT, 200);
-
-    data << (uint8)CHAT_MSG_RAID_BOSS_EMOTE;
-    data << (uint32)LANG_UNIVERSAL;
-    data << (uint64)0;
-    data << (uint32)0;                                     // 2.1.0
-    data << (uint32)1;
-    data << (uint8)0;
-    data << (uint64)0;
-    data << (uint32)(msg.length() + 1);
-    data << msg.c_str();
-    data << (uint16)0;
-    data << (float)0.0f;                                   // added in 4.2.0, unk
-    data << (uint8)0;                                      // added in 4.2.0, unk
+    WorldPacket data;
+    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, NULL, 0, msg.c_str(), NULL);
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
             if (player->GetSession())
