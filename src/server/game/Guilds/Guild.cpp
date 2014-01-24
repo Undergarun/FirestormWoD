@@ -1350,7 +1350,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         memberData << uint64(0); // Total activity
         memberData << uint64(0); // Weekly activity
         memberData << uint32(player ? player->GetZoneId() : member->GetZone());
-        memberData << uint32(0); // RealmID
+        memberData << uint32(realmID);
 
         if (offNoteLength)
             memberData.append(member->GetOfficerNote().c_str(), offNoteLength);
