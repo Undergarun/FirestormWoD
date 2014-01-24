@@ -4102,9 +4102,12 @@ void Player::InitSpellForLevel()
 
     // Only for Worgens - Darkflight
     if (getRace() != RACE_WORGEN)
+    {
         if (HasSpell(68992))
             removeSpell(68992, false, false);
-
+        if (HasSpell(97709))
+            removeSpell(97709, false, false); 
+    }
     // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
     if (level == 90 && getClass() == CLASS_MAGE)
     {
