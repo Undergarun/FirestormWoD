@@ -28023,8 +28023,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
 
         data->WriteBits(specCount, 19);
 
-        uint8* talentCount = 0;
-        talentCount = new uint8[specCount];
+        uint8* talentCount = new uint8[specCount];
 
         // loop through all specs to set talent counter
         for (uint8 specIdx = 0; specIdx < specCount; ++specIdx)
@@ -28061,6 +28060,9 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
         }
 
         *data << uint8(activeSpec);
+
+        delete[] talentCount;
+        talentCount = NULL;
     }
 }
 

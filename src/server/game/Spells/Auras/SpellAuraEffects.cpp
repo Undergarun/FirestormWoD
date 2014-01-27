@@ -477,7 +477,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
     &AuraEffect::HandleAuraModIncreaseEnergyPercent,              //419 SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
-    &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_421
+    &AuraEffect::HandleNoImmediateEffect,                         //421 SPELL_AURA_MOD_ABSORPTION_PCT implemented in Spell::EffectApplyAura
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422
     &AuraEffect::HandleNULL,                                      //423 SPELL_AURA_423
     &AuraEffect::HandleNULL,                                      //424 SPELL_AURA_424
@@ -2199,7 +2199,9 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     {
         // drop flag at stealth in bg
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        target->RemoveFlagsAuras();
     }
+
     target->UpdateObjectVisibility();
 }
 
@@ -6108,6 +6110,9 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
         return;
 
     uint32 runes = m_amount;
+    RuneType rune = RuneType(GetMiscValueB());
+    bool permanently = GetId() == 54637; // Find the better way
+
     // convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb
     if (apply)
     {
@@ -6115,9 +6120,13 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
         {
             if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
+
             if (!player->GetRuneCooldown(i))
             {
-                player->AddRuneBySpell(i, RuneType(GetMiscValueB()), GetId());
+                player->AddRuneBySpell(i, rune, GetId());
+                if (permanently)
+                    player->SetRuneConvertType(i, permanently);
+
                 --runes;
             }
         }

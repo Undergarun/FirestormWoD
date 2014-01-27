@@ -2300,11 +2300,8 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     std::string playerName = player->GetName();
     uint32 memberCount = GetMembersCount();
-    ObjectGuid* memberGuids = NULL;
-    memberGuids = new ObjectGuid[memberCount];
-
-    uint32* memberNameLength;
-    memberNameLength = new uint32[memberCount];
+    ObjectGuid* memberGuids = new ObjectGuid[memberCount];
+    uint32* memberNameLength = new uint32[memberCount];
 
     uint8 count = 0;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
@@ -2473,6 +2470,12 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteByteSeq(leaderGuid[5]);
 
     player->GetSession()->SendPacket(&data);
+
+    delete[] memberGuids;
+    delete[] memberNameLength;
+
+    memberGuids = NULL;
+    memberNameLength = NULL;
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)

@@ -360,8 +360,8 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(player_guid[1]);
             data->WriteByteSeq(player_guid[2]);
             data->WriteByteSeq(bg_guid[7]);
-            *data << uint32(bg->GetRemainingTime());
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID            
+            *data << uint32(Time2);                     // Elasped Time
+            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
             *data << uint32(bg->GetMapId());            // Map Id
             data->WriteByteSeq(bg_guid[4]);
             data->WriteByteSeq(bg_guid[3]);
@@ -369,7 +369,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(QueueSlot + 1);
             data->WriteByteSeq(player_guid[3]);
             data->WriteByteSeq(player_guid[4]);
-            *data << uint32(0); // dword4C
+            *data << uint32(Time1);                     // Time before close
             data->WriteByteSeq(bg_guid[2]);
             data->WriteByteSeq(player_guid[5]);
             data->WriteByteSeq(bg_guid[6]);
@@ -645,9 +645,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
         if (!isArena) // HaveBonusData
         {
+            *data << uint32(itr2->second->BonusHonor / 100);
             *data << uint32(itr2->second->Deaths);
             *data << uint32(itr2->second->HonorableKills);
-            *data << uint32(itr2->second->BonusHonor / 100);
         }
 
         *data << uint32(itr2->second->HealingDone);             // healing done

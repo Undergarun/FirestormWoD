@@ -75,7 +75,7 @@ enum AccountDataType
 #define NUM_ACCOUNT_DATA_TYPES        8
 
 #define GLOBAL_CACHE_MASK           0x15
-#define PER_CHARACTER_CACHE_MASK    0xEA
+#define PER_CHARACTER_CACHE_MASK    0xAA
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
 

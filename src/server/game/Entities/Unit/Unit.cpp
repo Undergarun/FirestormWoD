@@ -1027,7 +1027,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
             {
                 if (damagetype != DOT)
+                {
                     if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                    {
                         if (spell->getState() == SPELL_STATE_PREPARING)
                         {
                             uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
@@ -1036,14 +1038,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                             else if (interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
                                 spell->Delayed();
                         }
-
-                if (Spell* spell = victim->m_currentSpells[CURRENT_CHANNELED_SPELL])
-                    if (spell->getState() == SPELL_STATE_CASTING)
-                    {
-                        uint32 channelInterruptFlags = spell->m_spellInfo->ChannelInterruptFlags;
-                        if (((channelInterruptFlags & CHANNEL_FLAG_DELAY) != 0) && (damagetype != DOT))
-                            spell->DelayedChannel();
                     }
+                }
             }
         }
 
@@ -4153,6 +4149,18 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
             InterruptNonMeleeSpells(false);
 
     UpdateInterruptMask();
+}
+
+void Unit::RemoveFlagsAuras()
+{
+    RemoveAura(131528); // Horde Insigna
+    RemoveAura(131527); // Alliance Insigna
+    RemoveAura(121177); // Orb 4
+    RemoveAura(121176); // Orb 3
+    RemoveAura(121175); // Orb 2
+    RemoveAura(121164); // Orb 1
+    RemoveAura(23335);  // Silverwing Flag
+    RemoveAura(23333);  // Warsong Flag
 }
 
 void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID)

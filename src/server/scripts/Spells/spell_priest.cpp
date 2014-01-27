@@ -1435,17 +1435,20 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     {
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            uint8 powerUsed = _player->GetPower(POWER_SHADOW_ORB) + 1; // Don't forget PowerCost
+                            if (AuraPtr devouringPlague = target->GetAura(PRIEST_DEVOURING_PLAGUE))
+                            {
+                                uint32 powerUsed = devouringPlague->GetEffect(2) ? devouringPlague->GetEffect(2)->GetAmount() : 1;
 
-                            // Shadow Orb visual
-                            if (_player->HasAura(77487))
-                                _player->RemoveAura(77487);
-                            // Glyph of Shadow Ravens
-                            else if (_player->HasAura(127850))
-                                _player->RemoveAura(127850);
+                                // Shadow Orb visual
+                                if (_player->HasAura(77487))
+                                    _player->RemoveAura(77487);
+                                // Glyph of Shadow Ravens
+                                else if (_player->HasAura(127850))
+                                    _player->RemoveAura(127850);
 
-                            // Instant damage equal to amount of shadow orb
-                            SetHitDamage(int32(GetHitDamage() * powerUsed / 3));
+                                // Instant damage equal to amount of shadow orb
+                                SetHitDamage(int32(GetHitDamage() * powerUsed / 3));
+                            }
                         }
                     }
                 }

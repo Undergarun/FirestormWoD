@@ -840,7 +840,7 @@ enum Opcodes
     SMSG_COMSAT_RECONNECT_TRY                         = 0x000,  // 5.0.5 16048
     SMSG_CONSOLE_WRITE                                = 0x410,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CONTACT_LIST                                 = 0x13F5, // 5.4.0 17399
-    SMSG_CONVERT_RUNE                                 = 0x000,  // 5.0.5 16048
+    SMSG_CONVERT_RUNE                                 = 0x0AC,  // 5.4.0 17399
     SMSG_COOLDOWN_CHEAT                               = 0x120,  // 5.4.0 17399 (JamList)
     SMSG_COOLDOWN_EVENT                               = 0x185,  // 5.4.0 17399
     SMSG_CORPSE_QUERY                                 = 0x903,  // 5.4.0 17399

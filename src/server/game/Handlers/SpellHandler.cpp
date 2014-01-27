@@ -70,13 +70,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     bool hasSpellID = !recvPacket.ReadBit();
     uint8 archeologyCounter = recvPacket.ReadBits(2);
 
-    uint8* archeologyType;
-    uint32* entry;
-    uint32* usedCount;
-
-    archeologyType = new uint8[archeologyCounter];
-    entry = new uint32[archeologyCounter];
-    usedCount = new uint32[archeologyCounter];
+    uint8* archeologyType = new uint8[archeologyCounter];
+    uint32* entry = new uint32[archeologyCounter];
+    uint32* usedCount = new uint32[archeologyCounter];
 
     bool hasDstTransport = recvPacket.ReadBit();
     bool hasMovement = recvPacket.ReadBit();
@@ -151,6 +147,13 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
                 break;
         }
     }
+
+    delete[] archeologyType;
+    archeologyType = NULL;
+    delete[] usedCount;
+    usedCount = NULL;
+    delete[] entry;
+    entry = NULL;
 
     recvPacket.ReadByteSeq(itemGuid[3]);
     recvPacket.ReadByteSeq(itemGuid[6]);
