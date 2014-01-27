@@ -1482,7 +1482,8 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB);
+                // Don't forget power cost
+                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
 
                 amount *= powerUsed;
