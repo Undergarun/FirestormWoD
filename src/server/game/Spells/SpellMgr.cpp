@@ -4277,6 +4277,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 34490:
                     spellInfo->Speed = 0;
                     break;
+                case 1543: // Flare
+                    spellInfo->Effects[0].TriggerSpell = 94528;
+                    break;
                 default:
                     break;
             }

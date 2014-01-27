@@ -78,11 +78,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
-    SetUInt64Value(AREATRIGGER_CASTER, caster->GetGUID());
-    SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
-    SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-
     switch (spell->Id)
     {
         case 116011:// Rune of Power
@@ -91,9 +86,18 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
         case 116235:// Amethyst Pool
             SetVisualRadius(3.5f);
             break;
+        case 115460:// Healing Sphere
+            SetVisualRadius(3.f);
+            break;
         default:
             break;
     }
+
+    SetUInt64Value(AREATRIGGER_CASTER, caster->GetGUID());
+    SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
+    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
+    SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
+    SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, 1.f);
 
     if (!GetMap()->AddToMap(this))
         return false;

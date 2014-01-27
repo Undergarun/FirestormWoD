@@ -2253,4 +2253,5 @@ uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END] =
     UF_FLAG_PUBLIC,                                         // AREATRIGGER_DURATION
     UF_FLAG_PUBLIC,                                         // AREATRIGGER_SPELLID
     UF_FLAG_PUBLIC,                                         // AREATRIGGER_SPELLVISUALID
+    UF_FLAG_PUBLIC,                                         // AREATRIGGER_FIELD_EXPLICIT_SCALE
 };

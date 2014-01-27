@@ -330,11 +330,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     const Unit* unit = ToUnit();
     const GameObject* go = ToGameObject();
     const DynamicObject* dob = ToDynObject();
+    const AreaTrigger *atr = ToAreaTrigger();
 
     const WorldObject* wo =
         player ? (const WorldObject*)player : (
         unit ? (const WorldObject*)unit : (
-        go ? (const WorldObject*)go : dob ? (const WorldObject*)dob : (const WorldObject*)ToCorpse()));
+        go ? (const WorldObject*)go : dob ? (const WorldObject*)dob : (
+        atr ? (const WorldObject*)atr : (const WorldObject*)ToCorpse())));
 
     bool isTransport = false;
     if (go)
@@ -346,7 +348,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER) && ((AreaTrigger*)this)->GetVisualRadius() != 0.0f;
     bool isSceneObject = false;
 
-    data->WriteBit(0);                                                              // unk flags
+    data->WriteBit(hasAreaTriggerData);                                             // isAreaTrigger
     data->WriteBit(isSceneObject);                                                  // isScenario
     data->WriteBit(0);                                                              // unk bit 676
     data->WriteBit(flags & UPDATEFLAG_TRANSPORT);                                   // isTransport
@@ -392,6 +394,22 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         /*
         @TODO: Scenarios
         */
+    }
+
+    if (hasAreaTriggerData)
+    {
+        data->WriteBit(true);   // scale
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);   // unk, always true on retail sniff
+        data->WriteBit(false);
+        data->WriteBit(false);
+        data->WriteBit(false);
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
@@ -485,6 +503,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(go->GetEntry()))
             if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
                 (*data) << (uint32)goinfo->transport.pause;
+
+    if (hasAreaTriggerData)
+    {
+        *data << uint32(8);
+        *data << float(((AreaTrigger*)this)->GetVisualRadius()); // scale
+        *data << float(((AreaTrigger*)this)->GetVisualRadius()); // scale
+    }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
     {
@@ -931,6 +956,8 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_AREATRIGGER:
             flags = AreaTriggerUpdateFieldFlags;
+            if (((AreaTrigger*)this)->GetCasterGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_OBJECT:
             break;
