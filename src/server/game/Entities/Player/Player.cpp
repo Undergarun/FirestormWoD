@@ -23176,8 +23176,16 @@ void Player::CharmSpellInitialize()
         //if (cinfo && cinfo->type == CREATURE_TYPE_DEMON && getClass() == CLASS_WARLOCK)
         {
             for (uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
+            {
                 if (charmInfo->GetCharmSpell(i)->GetAction())
+                {
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(charmInfo->GetCharmSpell(i)->packedData & 0x00FFFFFF);
+                    if (spellInfo && !spellInfo->CannotBeAddedToCharm())
+                        continue;
+
                     ++addlist;
+                }
+            }
         }
     }
 
@@ -23218,6 +23226,10 @@ void Player::CharmSpellInitialize()
         for (uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
         {
             CharmSpellInfo* cspell = charmInfo->GetCharmSpell(i);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cspell->packedData & 0x00FFFFFF);
+            if (spellInfo && !spellInfo->CannotBeAddedToCharm())
+                continue;
+
             if (cspell->GetAction())
                 data << uint32(cspell->packedData);
         }

@@ -3503,3 +3503,17 @@ bool SpellInfo::CanTriggerHotStreak() const
 
     return false;
 }
+
+bool SpellInfo::CannotBeAddedToCharm() const
+{
+    switch (Id)
+    {
+        case 121087: // Ground Slam
+        case 121224: // Spirit Bolt
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+}

@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
 
 /*####
 ## npc_drakuru_shackles
@@ -1450,41 +1451,43 @@ enum StormCloud
 
 class npc_storm_cloud : public CreatureScript
 {
-public:
-    npc_storm_cloud() : CreatureScript("npc_storm_cloud") { }
+    public:
+        npc_storm_cloud() : CreatureScript("npc_storm_cloud") { }
 
-    struct npc_storm_cloudAI : public ScriptedAI
-    {
-        npc_storm_cloudAI(Creature* creature) : ScriptedAI(creature) {}
-
-        void Reset()
+        struct npc_storm_cloudAI : public ScriptedAI
         {
-            me->CastSpell(me, STORM_VISUAL, true);
-        }
+            npc_storm_cloudAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void JustRespawned()
-        {
-            Reset();
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spell)
-        {
-            if (spell->Id != GYMERS_GRAB)
-                return;
-
-            if (Vehicle* veh = caster->GetVehicleKit())
-                if (veh->GetAvailableSeatCount() != 0)
+            void Reset()
             {
-                me->CastSpell(caster, RIDE_VEHICLE, true);
-                me->CastSpell(caster, HEALING_WINDS, true);
+                me->CastSpell(me, STORM_VISUAL, true);
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature)
-    {
-        return new npc_storm_cloudAI(creature);
-    }
+            void JustRespawned()
+            {
+                Reset();
+            }
+
+            void SpellHit(Unit* caster, const SpellInfo* spell)
+            {
+                if (spell->Id != GYMERS_GRAB)
+                    return;
+
+                if (Vehicle* veh = caster->GetVehicleKit())
+                {
+                    if (veh->GetAvailableSeatCount() != 0)
+                    {
+                        me->CastSpell(caster, RIDE_VEHICLE, true);
+                        me->CastSpell(caster, HEALING_WINDS, true);
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature)
+        {
+            return new npc_storm_cloudAI(creature);
+        }
 };
 
 void AddSC_zuldrak()
