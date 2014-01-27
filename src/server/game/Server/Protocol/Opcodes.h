@@ -778,7 +778,7 @@ enum Opcodes
     SMSG_CANCEL_SCENE                                 = 0x589,  // 5.4.0 17399 (JamList) SCENE System (NYI)
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x42C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CANCEL_SPELL_VISUAL                          = 0x8A2,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_CANCEL_SPELL_VISUAL_KIT                      = 0x58D,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_CANCEL_SPELL_VISUAL_KIT                      = 0x000,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CAST_FAILED                                  = 0x039,  // 5.4.0 17399
     SMSG_CAN_DUEL_RESULT                              = 0x801,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE              = 0x183,  // 5.4.0 17399 (JamList) Challenge mode (NYI)
@@ -1057,7 +1057,7 @@ enum Opcodes
     SMSG_ITEM_REMOVE_PASSIVE                          = 0x58F,  // 5.4.0 17399 (JamList)
     SMSG_ITEM_SEND_PASSIVE                            = 0x000,  // 5.0.5 16048
     SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x1B80, // 5.4.0 17399
-    SMSG_ITEM_TIME_UPDATE                             = 0x53D,  // 5.4.0 17399 (JamList)
+    SMSG_ITEM_TIME_UPDATE                             = 0x58D,  // 5.4.0 17399
     SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x000,  // 5.0.5 16048
     SMSG_KICK_REASON                                  = 0x920,  // 5.4.0 17399 (JamList)
@@ -1065,7 +1065,7 @@ enum Opcodes
     SMSG_LEARNED_SPELL                                = 0x830,  // 5.4.0 17399
     SMSG_LEVELUP_INFO                                 = 0x402,  // 5.4.0 17399
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
-    SMSG_LFG_BOOT_PLAYER                              = 0x583,  // 5.4.0 17399 (JamList) -- Not correct, it's exploration experience
+    SMSG_LFG_BOOT_PLAYER                              = 0x000,  // 5.4.0 17399 (JamList)
     SMSG_LFG_DISABLED                                 = 0x105,  // 5.4.0 17399
     SMSG_LFG_JOIN_RESULT                              = 0x017,  // 5.4.0 17399
     SMSG_LFG_OFFER_CONTINUE                           = 0x8AB,  // 5.4.0 17399

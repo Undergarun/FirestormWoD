@@ -1,0 +1,1 @@
+UPDATE npc_spellclick_spells SET cast_flags = cast_flags | 0x02 WHERE npc_entry = 58767;

@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "Object.h"
 
 class Unit;
@@ -566,6 +567,7 @@ public:
     bool IsAffectedByResilience() const;
     bool IsLethalPoison() const;
     bool CanTriggerHotStreak() const;
+    bool CannotBeAddedToCharm() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;

@@ -16268,7 +16268,24 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
 void CharmInfo::BuildActionBar(WorldPacket* data)
 {
     for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(PetActionBar[i].packedData & 0x00FFFFFF);
+        if (!spellInfo)
+        {
+            // Pet actions are not spell ID
+            *data << uint32(PetActionBar[i].packedData);
+            continue;
+        }
+
+        // This prevent to add spells with no cooldown - cheating !
+        if (!spellInfo->CannotBeAddedToCharm())
+        {
+            *data << uint32(0x00FFFFFF);
+            continue;
+        }
+
         *data << uint32(PetActionBar[i].packedData);
+    }
 }
 
 void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
