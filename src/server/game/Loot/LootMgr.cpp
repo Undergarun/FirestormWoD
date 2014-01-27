@@ -980,26 +980,26 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         if (!l.isLinkedLoot(slot))
             continue;
 
-        LinkedLootInfo loot = l.getLinkedLoot(slot);
+        LinkedLootInfo& loot = l.getLinkedLoot(slot);
         {
             Creature* c = lv.viewer->GetCreature(*lv.viewer, loot.creatureGUID);
             if (!c)
                 continue;
 
-            Loot linkedLoot = c->loot;
+            Loot* linkedLoot = &c->loot;
             switch (loot.permission)
             {
                 case GROUP_PERMISSION:
                 {
                     // if you are not the round-robin group looter, you can only see
                     // blocked rolled items and quest items, and !ffa items
-                    if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
+                    if (!linkedLoot->items[loot.slot].is_looted && !linkedLoot->items[loot.slot].freeforall && linkedLoot->items[loot.slot].conditions.empty() && linkedLoot->items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
                         uint8 slot_type;
 
-                        if (linkedLoot.items[loot.slot].is_blocked)
+                        if (linkedLoot->items[loot.slot].is_blocked)
                             slot_type = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                        else if (linkedLoot.roundRobinPlayer == 0 || !linkedLoot.items[loot.slot].is_underthreshold || lv.viewer->GetGUID() == linkedLoot.roundRobinPlayer)
+                        else if (linkedLoot->roundRobinPlayer == 0 || !linkedLoot->items[loot.slot].is_underthreshold || lv.viewer->GetGUID() == linkedLoot->roundRobinPlayer)
                         {
                             // no round robin owner or he has released the loot
                             // or it IS the round robin group owner
@@ -1019,12 +1019,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         if (slot)
                             dataBuffer << uint8(slot);
 
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].count);
-                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].count);
+                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot->items[loot.slot].itemid)->DisplayInfoID);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
                         dataBuffer << uint32(0);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].itemid);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
                         ++itemsShown;
                         ++index;
                     }
@@ -1032,9 +1032,9 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 }
                 case ROUND_ROBIN_PERMISSION:
                 {
-                    if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
+                    if (!linkedLoot->items[loot.slot].is_looted && !linkedLoot->items[loot.slot].freeforall && linkedLoot->items[loot.slot].conditions.empty() && linkedLoot->items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
-                        if (linkedLoot.roundRobinPlayer != 0 && lv.viewer->GetGUID() != linkedLoot.roundRobinPlayer)
+                        if (linkedLoot->roundRobinPlayer != 0 && lv.viewer->GetGUID() != linkedLoot->roundRobinPlayer)
                             // item shall not be displayed.
                             continue;
 
@@ -1047,12 +1047,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         if (slot)
                             dataBuffer << uint8(slot);
 
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].count);
-                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].count);
+                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot->items[loot.slot].itemid)->DisplayInfoID);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
                         dataBuffer << uint32(0);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].itemid);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
                         ++itemsShown;
                         ++index;
                     }
@@ -1075,7 +1075,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             break;
                     }
 
-                    if (!linkedLoot.items[loot.slot].is_looted && !linkedLoot.items[loot.slot].freeforall && linkedLoot.items[loot.slot].conditions.empty() && linkedLoot.items[loot.slot].AllowedForPlayer(lv.viewer))
+                    if (!linkedLoot->items[loot.slot].is_looted && !linkedLoot->items[loot.slot].freeforall && linkedLoot->items[loot.slot].conditions.empty() && linkedLoot->items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
                         bitsItemBuffer.WriteBit(true); // unk, inverse
                         bitsItemBuffer.WriteBit(!slot);
@@ -1086,12 +1086,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         if (slot)
                             dataBuffer << uint8(slot);
 
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].count);
-                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot.items[loot.slot].itemid)->DisplayInfoID);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomSuffix);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].randomPropertyId);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].count);
+                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot->items[loot.slot].itemid)->DisplayInfoID);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
                         dataBuffer << uint32(0);
-                        dataBuffer << uint32(linkedLoot.items[loot.slot].itemid);
+                        dataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
                         ++itemsShown;
                         ++index;
                     }
