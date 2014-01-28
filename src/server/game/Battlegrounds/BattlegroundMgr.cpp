@@ -189,13 +189,14 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         {
             data->Initialize(SMSG_BATTLEFIELD_STATUS);
 
-            if (bg)
-                *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
-            else
-                *data << uint32(0);
+            *data << uint32(QueueSlot+1);                // Queue slot
 
-            *data << uint32(QueueSlot + 1);            // Queue slot
-            *data << uint32(Time1);                    // Join Time
+            if (bg)
+            	*data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                         // unk, always 1
+            else
+            	*data << uint32(1);
+
+             *data << uint32(Time1);                     // Join Time
 
             uint8 bitOrder[8] = {1, 2, 4, 6, 5, 7, 0, 3};
             data->WriteBitInOrder(player_guid, bitOrder);
@@ -240,8 +241,8 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(bg_guid[1]);
             *data << uint32(Time1);                     // Estimated Wait Time
             *data << uint8(0); // byte32
+            *data << uint32(Time2);                     //Time of the join
             *data << uint32(GetMSTimeDiffToNow(Time2));
-            *data << uint32(Time2); //Time of the join
             data->WriteByteSeq(player_guid[2]);
             data->WriteByteSeq(player_guid[3]);
             data->WriteByteSeq(bg_guid[5]);
@@ -250,10 +251,10 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint8(bg->GetMinLevel()); //BG Min level
             *data << uint8(0); // byte30
             data->WriteByteSeq(bg_guid[4]);
-            *data << uint32(QueueSlot + 1);
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
+            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
+            *data << uint32(QueueSlot+1);
             data->WriteByteSeq(bg_guid[2]);
-            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 0);
+            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID            
             data->WriteByteSeq(player_guid[1]);
             data->WriteByteSeq(player_guid[0]);
             data->WriteByteSeq(player_guid[4]);
@@ -301,13 +302,13 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
                     *data << uint8(1);
             }
 
-            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
+            *data << uint32(bg->GetClientInstanceID());
             data->WriteByteSeq(bg_guid[5]);
             *data << uint8(0); // byte32
-            *data << uint32(bg->GetClientInstanceID());
+            *data << uint32(QueueSlot +1);
             data->WriteByteSeq(player_guid[0]);
             data->WriteByteSeq(player_guid[6]);
-            *data << uint32(GetMSTimeDiffToNow(Time2));
+            *data << uint32(Time2);                     // Time until closed
             *data << uint8(bg->GetMinLevel());
             data->WriteByteSeq(player_guid[1]);
             data->WriteByteSeq(player_guid[5]);
@@ -317,14 +318,14 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(bg_guid[1]);
             data->WriteByteSeq(bg_guid[7]);
             data->WriteByteSeq(bg_guid[0]);
-            *data << uint32(Time1);
+             *data << uint32(Time1);
             data->WriteByteSeq(bg_guid[6]);
             data->WriteByteSeq(bg_guid[2]);
             *data << uint8(0); // byte30
             data->WriteByteSeq(player_guid[3]);
             data->WriteByteSeq(player_guid[4]);
-            *data << uint32(Time2);                     // Time until closed
-            *data << uint32(QueueSlot + 1);
+            *data << uint32(bg->GetMapId());
+            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
             data->WriteByteSeq(bg_guid[3]);
             break;
         }
