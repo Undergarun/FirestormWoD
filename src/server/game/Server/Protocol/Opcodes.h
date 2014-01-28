@@ -494,6 +494,7 @@ enum Opcodes
     CMSG_UNSET_FACTION_ATWAR                          = 0x12FE, // 5.4.0 17399
     CMSG_SET_FACTION_CHEAT                            = 0x000,  // 5.0.5 16048
     CMSG_SET_FACTION_INACTIVE                         = 0x1ABF, // 5.4.0 17399
+    CMSG_SET_LOOT_SPECIALIZATION                      = 0x1AFB, // 5.4.0 17399
     CMSG_SET_GUILD_BANK_TEXT                          = 0x231,  // 5.4.0 17399
     CMSG_SET_LFG_COMMENT                              = 0x000,  // 5.0.5 16048
     CMSG_SET_PET_SLOT                                 = 0x140F, // 5.4.0 17399

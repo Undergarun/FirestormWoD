@@ -1012,6 +1012,9 @@ class WorldSession
         void HandleUpgradeItemOpcode(WorldPacket& recvData);
         void SendItemUpgradeResult(bool success);
 
+        // Loot specialization
+        void HandleSetLootSpecialization(WorldPacket& recvData);
+
         // Miscellaneous
         void HandleTradeInfo (WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);

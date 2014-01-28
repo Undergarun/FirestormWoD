@@ -462,6 +462,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_ATWAR,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionAtWar           );
     DEFINE_OPCODE_HANDLER(CMSG_UNSET_FACTION_ATWAR,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUnSetFactionAtWar         );
     DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_INACTIVE,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionInactiveOpcode  );
+    DEFINE_OPCODE_HANDLER(CMSG_SET_LOOT_SPECIALIZATION,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetLootSpecialization     );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_PLAYER_DECLINED_NAMES,               STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSetPlayerDeclinedNames    );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_PREFERED_CEMETERY,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_RELATIVE_POSITION,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
