@@ -4767,8 +4767,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     WorldPacket data(SMSG_SUPERCEDED_SPELL);
                     data.WriteBits(1, 22);
                     data.WriteBits(1, 22);
-                    data << uint32(spellId);
                     data << uint32(next_active_spell_id);
+                    data << uint32(spellId);
                     GetSession()->SendPacket(&data);
                 }
                 else
@@ -4838,8 +4838,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         {
             WorldPacket data(SMSG_SUPERCEDED_SPELL);
             uint32 bitCount = 0;
-            ByteBuffer dataBuffer1;
-            ByteBuffer dataBuffer2;
+            ByteBuffer dataBuffer;
             for (PlayerSpellMap::iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
             {
                 if (itr2->second->state == PLAYERSPELL_REMOVED)
@@ -4858,8 +4857,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
                                 bitCount++;
-                                dataBuffer1 << uint32(itr2->first);
-                                dataBuffer2 << uint32(spellId);
+                                dataBuffer << uint32(spellId);
+                                dataBuffer << uint32(itr2->first);
                             }
 
                             // mark old spell as disable (SMSG_SUPERCEDED_SPELL replace it in client by new)
@@ -4873,8 +4872,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
                                 bitCount++;
-                                dataBuffer1 << uint32(spellId);
-                                dataBuffer2 << uint32(itr2->first);
+                                dataBuffer << uint32(itr2->first);
+                                dataBuffer << uint32(spellId);
                             }
 
                             // mark new spell as disable (not learned yet for client and will not learned)
@@ -4887,8 +4886,9 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             }
             data.WriteBits(bitCount, 22);
             data.WriteBits(bitCount, 22);
-            data.append(dataBuffer1);
-            data.append(dataBuffer2);
+            data.FlushBits();
+            if (dataBuffer.size())
+                data.append(dataBuffer);
             GetSession()->SendPacket(&data);
         }
 
@@ -5287,8 +5287,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                         WorldPacket data(SMSG_SUPERCEDED_SPELL);
                         data.WriteBits(1, 22);
                         data.WriteBits(1, 22);
-                        data << uint32(spell_id);
                         data << uint32(prev_id);
+                        data << uint32(spell_id);
                         GetSession()->SendPacket(&data);
                         prev_activate = true;
                     }
