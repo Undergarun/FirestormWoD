@@ -21121,16 +21121,21 @@ void Unit::SendMovementHover(bool apply)
 
     if (apply)
     {
-        WorldPacket data(MSG_MOVE_HOVER, 64);
-        data.append(GetPackGUID());
-        BuildMovementPacket(&data);
+        WorldPacket data(SMSG_SPLINE_MOVE_SET_HOVER, 8);
+        ObjectGuid guid = GetGUID();
+
+        uint8 bits[8] = { 4, 1, 5, 7, 6, 2, 0, 3 };
+        data.WriteBitInOrder(guid, bits);
+
+        uint8 bytes[8] = { 3, 7, 2, 5, 6, 1, 0, 4 };
+        data.WriteBytesSeq(guid, bytes);
+
         SendMessageToSet(&data, false);
     }
 }
 
 void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
 {
-
     // already focused
     if (_focusSpell)
         return;
@@ -21139,6 +21144,7 @@ void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         AddUnitState(UNIT_STATE_ROTATING);
 }
+
 void Unit::ReleaseFocus(Spell const* focusSpell)
 {
     // focused to something else
@@ -21152,6 +21158,7 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         ClearUnitState(UNIT_STATE_ROTATING);
 }
+
 void Unit::SendMovementWaterWalking()
 {
     if (GetTypeId() == TYPEID_PLAYER)
@@ -21174,9 +21181,15 @@ void Unit::SendMovementFeatherFall()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
 
-    WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WorldPacket data(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
+    ObjectGuid guid = GetGUID();
+
+    uint8 bitOrder[8] = { 5, 6, 3, 0, 2, 7, 1, 4 };
+    data.WriteBitInOrder(guid, bitOrder);
+
+    uint8 bytes[8] = { 4, 3, 5, 6, 7, 0, 2, 1 };
+    data.WriteBytesSeq(guid, bytes);
+
     SendMessageToSet(&data, false);
 }
 

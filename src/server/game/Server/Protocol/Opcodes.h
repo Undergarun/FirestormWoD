@@ -593,10 +593,8 @@ enum Opcodes
     MSG_GM_SUMMON                                     = 0x000,  // 5.0.5 16048
     MSG_MOVE_CHARM_TELEPORT_CHEAT                     = 0,      // Client patched
     MSG_MOVE_FALL_LAND                                = 0,      // Client patched
-    MSG_MOVE_FEATHER_FALL                             = 0,      // Client patched
     MSG_MOVE_GRAVITY_CHNG                             = 0,      // Client patched
     MSG_MOVE_HEARTBEAT                                = 0,      // Client patched
-    MSG_MOVE_HOVER                                    = 0,      // Client patched
     MSG_MOVE_JUMP                                     = 0,      // Client patched
     MSG_MOVE_SET_ALL_SPEED_CHEAT                      = 0,      // Client patched
     MSG_MOVE_SET_COLLISION_HEIGHT                     = 0,      // Client patched
@@ -1140,11 +1138,9 @@ enum Opcodes
     SMSG_MOVE_COLLISION_ENABLE                        = 0x000,  // 5.0.5 16048
     SMSG_MOVE_CHARACTER_CHEAT_FAILURE                 = 0x932,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                 = 0x506,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_MOVE_FEATHER_FALL                            = 0x000,  // 5.0.5 16048
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x000,  // 5.0.5 16048 probably 6087
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x000,  // 5.0.5 16048
     SMSG_MOVE_KNOCK_BACK                              = 0x16FA, // 5.4.0 17371
-    SMSG_MOVE_NORMAL_FALL                             = 0x000,  // 5.0.5 16048
     SMSG_MOVE_ROOT                                    = 0x1747, // 5.4.0 17399
     SMSG_MOVE_UPDATE                                  = 0x139F, // 5.4.0 17399
     SMSG_MOVE_SET_ACTIVE_MOVER                        = 0x12E3, // 5.4.0 17399
@@ -1154,7 +1150,6 @@ enum Opcodes
     SMSG_MOVE_SET_COMPOUND_STATE                      = 0x000,  // 5.0.5 16048
     SMSG_MOVE_SET_FLIGHT_BACK_SPEED                   = 0x1A2B, // 5.4.0 17399
     SMSG_MOVE_SET_FLIGHT_SPEED                        = 0x179F, // 5.4.0 17399
-    SMSG_MOVE_SET_HOVER                               = 0x000,  // 5.0.5 16048
     SMSG_MOVE_SET_PITCH_RATE                          = 0x1247, // 5.4.0 17371
     SMSG_MOVE_SET_RUN_BACK_SPEED                      = 0x1782, // 5.4.0 17371
     SMSG_MOVE_SET_RUN_SPEED                           = 0x12D6, // 5.4.0 17371
@@ -1167,7 +1162,6 @@ enum Opcodes
     SMSG_MOVE_UNROOT                                  = 0x1247, // 5.4.0 17399
     SMSG_MOVE_UNSET_CAN_FLY                           = 0x16CE, // 5.4.0 17371
     SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x000,// 5.0.5 16048
-    SMSG_MOVE_UNSET_HOVER                             = 0x000,  // 5.0.5 16048
     SMSG_MOVE_UPDATE_COLLISION_HEIGHT                 = 0x000,  // 5.0.5 16048
     SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED                = 0x000,  // 5.0.5 16048
     SMSG_MOVE_UPDATE_KNOCK_BACK                       = 0x000,  // 5.0.5 16048

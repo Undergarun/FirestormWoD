@@ -29269,38 +29269,31 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 
 void Player::SendMovementSetHover(bool apply)
 {
+    WorldPacket data;
     ObjectGuid guid = GetGUID();
+
     if (apply)
     {
-        WorldPacket data(SMSG_MOVE_SET_HOVER, 12);
+        data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 8);
     
-        uint8 bitOrder[8] = {5, 0, 2, 3, 1, 7, 6, 0};
+        uint8 bitOrder[8] = { 4, 1, 5, 7, 6, 2, 0, 3 };
         data.WriteBitInOrder(guid, bitOrder);
 
-        data.WriteByteSeq(guid[7]);
-        data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[4]);
-        SendDirectMessage(&data);
+        uint8 bytes[8] = { 3, 7, 2, 5, 6, 1, 0, 4 };
+        data.WriteBytesSeq(guid, bytes);
     }
     else
     {
-        WorldPacket data(SMSG_MOVE_UNSET_HOVER, 12);
-        data << uint32(0);          //! movement counter
+        data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 8);
     
-        uint8 bitOrder[8] = {7, 4, 1, 6, 2, 0, 3, 5};
+        uint8 bitOrder[8] = { 7, 2, 1, 4, 3, 0, 6, 5 };
         data.WriteBitInOrder(guid, bitOrder);
     
-        uint8 byteOrder[8] = {7, 0, 1, 6, 5, 4, 3, 2};
+        uint8 byteOrder[8] = { 3, 0, 7, 1, 6, 2, 4, 5 };
         data.WriteBytesSeq(guid, byteOrder);
-
-        SendDirectMessage(&data);
     }
+
+    SendDirectMessage(&data);
 }
 
 void Player::SendMovementSetWaterWalking(bool apply)
@@ -29320,7 +29313,7 @@ void Player::SendMovementSetWaterWalking(bool apply)
     }
     else
     {
-        data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 1 + 4 + 8);
+        data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 8);
     
         uint8 bitOrder[8] = { 7, 0, 5, 6, 3, 1, 4, 2};
         data.WriteBitInOrder(guid, bitOrder);
@@ -29339,31 +29332,22 @@ void Player::SendMovementSetFeatherFall(bool apply)
 
     if (apply)
     {
-        data.Initialize(SMSG_MOVE_FEATHER_FALL, 1 + 4 + 8);
+        data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
     
-        uint8 bitOrder[8] = {7, 3, 2, 1, 6, 0, 4, 5};
+        uint8 bitOrder[8] = { 5, 6, 3, 0, 2, 7, 1, 4 };
         data.WriteBitInOrder(guid, bitOrder);
 
-        data.WriteByteSeq(guid[7]);
-        data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
+        uint8 bytes[8] = { 4, 3, 5, 6, 7, 0, 2, 1 };
+        data.WriteBytesSeq(guid, bytes);
     }
     else
     {
-        data.Initialize(SMSG_MOVE_NORMAL_FALL, 1 + 4 + 8);
+        data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 8);
     
-        uint8 bitOrder[8] = {2, 1, 5, 0, 6, 4, 7, 3};
+        uint8 bitOrder[8] = { 7, 3, 0, 6, 4, 5, 1, 2 };
         data.WriteBitInOrder(guid, bitOrder);
-
-        data << uint32(0);          //! movement counter
     
-        uint8 byteOrder[8] = {2, 6, 4, 5, 7, 3, 1, 0};
+        uint8 byteOrder[8] = { 4, 1, 7, 5, 0, 6, 3, 2 };
         data.WriteBytesSeq(guid, byteOrder);
     }
 
