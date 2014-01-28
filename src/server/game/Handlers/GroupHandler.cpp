@@ -1502,16 +1502,11 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-/*!*/void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
 {
     // every time the player checks the character screen
     _player->SendRaidInfo();
 }
-
-/*void WorldSession::HandleGroupCancelOpcode(WorldPacket & recvData)
-{
-sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got CMSG_GROUP_CANCEL.");
-}*/
 
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
 {
@@ -1571,4 +1566,23 @@ void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
     uint8 unk;
 
     recvData >> unk;
+}
+
+void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recvData)
+{
+    // Not needed
+    uint8 markerId = recvData.read<uint8>();
+
+    Player* plr = GetPlayer();
+    if (!plr)
+        return;
+
+    Group* group = plr->GetGroup();
+    if (!group)
+        return;
+
+    if (markerId < 5)
+        group->RemoveRaidMarker(markerId);
+    else
+        group->RemoveAllRaidMarkers();
 }

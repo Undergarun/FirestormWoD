@@ -5752,13 +5752,46 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     uint32 go_id = m_spellInfo->Effects[effIndex].MiscValue;
 
     uint8 slot = 0;
+
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1: slot = m_spellInfo->Effects[effIndex].MiscValueB; break;
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2: slot = 1; break;
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3: slot = 2; break;
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4: slot = 3; break;
-        default: return;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            slot = m_spellInfo->Effects[effIndex].MiscValueB;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            slot = 1;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            slot = 2;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            slot = 3;
+            break;
+        default:
+            return;
+    }
+
+    switch (m_spellInfo->Id)
+    {
+        case 84996: // Raid Marker 1
+        case 84997: // Raid Marker 2
+        case 84998: // Raid Marker 3
+        case 84999: // Raid Marker 4
+        case 85000: // Raid Marker 5
+        {
+            if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            float x, y, z;
+            if (m_targets.HasDst())
+                destTarget->GetPosition(x, y, z);
+
+            if (Group* group = m_caster->ToPlayer()->GetGroup())
+                group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
+            return;
+        }
+        default:
+            break;
     }
 
     uint64 guid = m_caster->m_ObjectSlot[slot];

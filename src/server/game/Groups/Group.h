@@ -147,6 +147,15 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FULL = GROUP_UPDATE_PLAYER | GROUP_UPDATE_PET // all known flags, except UNK100 and VEHICLE_SEAT
 };
 
+enum GroupRaidMarkersFlags
+{
+    RAID_MARKER_NONE    = 0x00,
+    RAID_MARKER_BLUE    = 0x01,
+    RAID_MARKER_GREEN   = 0x02,
+    RAID_MARKER_PURPLE  = 0x04,
+    RAID_MARKER_RED     = 0x08,
+    RAID_MARKER_YELLOW  = 0x10
+};
 
 #define GROUP_UPDATE_FLAGS_COUNT          20
                                                                 // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
@@ -199,8 +208,20 @@ class Group
             uint8       flags;
             uint8       roles;
         };
+
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
+
+        struct RaidMarker
+        {
+            float  posX;
+            float  posY;
+            float  posZ;
+            uint32 mapId;
+            uint32 mask;
+        };
+
+        typedef std::list<RaidMarker> RaidMarkerList;
 
         typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
@@ -266,6 +287,12 @@ class Group
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
+
+        RaidMarkerList const& GetRaidMarkers() const { return m_raidMarkers; }
+        void SendRaidMarkersUpdate();
+        void AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z);
+        void RemoveRaidMarker(uint8 markerId);
+        void RemoveAllRaidMarkers();
 
         uint8 GetMemberGroup(uint64 guid) const;
 
@@ -369,6 +396,7 @@ class Group
         void ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply);
 
         MemberSlotList      m_memberSlots;
+        RaidMarkerList      m_raidMarkers;
         GroupRefManager     m_memberMgr;
         InvitesList         m_invitees;
         uint64              m_leaderGuid;

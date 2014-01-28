@@ -2852,6 +2852,8 @@ class spell_dru_frenzied_regeneration : public SpellScriptLoader
                             else
                                 healAmount = rageused * healAmount / 600;
 
+                            healAmount = GetCaster()->SpellHealingBonusTaken(GetCaster(), GetSpellInfo(), healAmount, SPELL_DIRECT_DAMAGE);
+
                             SetHitHeal(healAmount);
                             _player->EnergizeBySpell(_player, 22842, -rageused, POWER_RAGE);
                         }

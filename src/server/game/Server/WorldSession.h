@@ -606,6 +606,7 @@ class WorldSession
         void HandlePartyAssignmentOpcode(WorldPacket& recvData);
         void HandleRolePollBegin(WorldPacket& recvData);
         void HandleRequestJoinUpdates(WorldPacket& recvData);
+        void HandleClearRaidMarkerOpcode(WorldPacket& recvData);
 
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);

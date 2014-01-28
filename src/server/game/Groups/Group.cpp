@@ -3254,6 +3254,128 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
 
+void Group::SendRaidMarkersUpdate()
+{
+    uint32 mask = RAID_MARKER_NONE;
+
+    for (auto itr : GetRaidMarkers())
+        mask |= itr.mask;
+
+    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, 10);
+    ByteBuffer dataBuffer;
+
+    data << uint8(0);
+    data << uint32(mask);
+
+    data.WriteBits(GetRaidMarkers().size(), 3);
+
+    for (auto itr : GetRaidMarkers())
+    {
+        ObjectGuid guid = NULL;
+
+        uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
+        data.WriteBitInOrder(guid, bits);
+
+        dataBuffer << float(itr.posZ);
+        dataBuffer.WriteByteSeq(guid[6]);
+        dataBuffer << uint32(itr.mapId);
+        dataBuffer.WriteByteSeq(guid[4]);
+        dataBuffer << float(itr.posX);
+        dataBuffer << float(itr.posY);
+        dataBuffer.WriteByteSeq(guid[1]);
+        dataBuffer.WriteByteSeq(guid[2]);
+        dataBuffer.WriteByteSeq(guid[7]);
+        dataBuffer.WriteByteSeq(guid[0]);
+        dataBuffer.WriteByteSeq(guid[5]);
+        dataBuffer.WriteByteSeq(guid[3]);
+    }
+
+    data.FlushBits();
+    if (dataBuffer.size())
+        data.append(dataBuffer);
+
+    BroadcastPacket(&data, true);
+}
+
+void Group::AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z)
+{
+    uint32 mask = RAID_MARKER_NONE;
+
+    RaidMarker marker;
+    marker.mapId = mapId;
+    marker.posX  = x;
+    marker.posY  = y;
+    marker.posZ  = z;
+
+    switch (spellId)
+    {
+        case 84996: // Raid Marker 1
+            mask = RAID_MARKER_BLUE;
+            break;
+        case 84997: // Raid Marker 2
+            mask = RAID_MARKER_GREEN;
+            break;
+        case 84998: // Raid Marker 3
+            mask = RAID_MARKER_PURPLE;
+            break;
+        case 84999: // Raid Marker 4
+            mask = RAID_MARKER_RED;
+            break;
+        case 85000: // Raid Marker 5
+            mask = RAID_MARKER_YELLOW;
+            break;
+        default:
+            break;
+    }
+
+    marker.mask = mask;
+
+    m_raidMarkers.push_back(marker);
+    SendRaidMarkersUpdate();
+}
+
+void Group::RemoveRaidMarker(uint8 markerId)
+{
+    uint32 mask = RAID_MARKER_NONE;
+
+    switch (markerId)
+    {
+        case 0: // Blue
+            mask = RAID_MARKER_BLUE;
+            break;
+        case 1: // Green
+            mask = RAID_MARKER_GREEN;
+            break;
+        case 2: // Purple
+            mask = RAID_MARKER_PURPLE;
+            break;
+        case 3: // Red
+            mask = RAID_MARKER_RED;
+            break;
+        case 4: // Yellow
+            mask = RAID_MARKER_YELLOW;
+            break;
+        default:
+            break;
+    }
+
+    for (RaidMarkerList::iterator itr = m_raidMarkers.begin(); itr != m_raidMarkers.end();)
+    {
+        if (mask == (*itr).mask)
+            m_raidMarkers.erase(itr++);
+        else
+            ++itr;
+    }
+
+    SendRaidMarkersUpdate();
+}
+
+void Group::RemoveAllRaidMarkers()
+{
+    m_raidMarkers.clear();
+    SendRaidMarkersUpdate();
+}
+
 uint8 Group::GetMemberGroup(uint64 guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
@@ -3476,6 +3598,9 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
 
 void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
 {
+    if (!player)
+        return;
+
     // Called for each participant of a match after losing
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {

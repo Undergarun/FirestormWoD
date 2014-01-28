@@ -808,7 +808,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     ObjectGuid guid;
 
     recvData.read_skip<uint8>(); // f18_0
-    recvData >> quality >> auctionMainCategory >> auctionSlotID >> auctionSubCategory;
+    recvData >> quality >> auctionSubCategory >> auctionSlotID >> auctionMainCategory;
     recvData >> levelmax >> levelmin >> listfrom >> dword148;
 
     // this block looks like it uses some lame byte packing or similar...

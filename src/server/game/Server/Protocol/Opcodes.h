@@ -158,7 +158,7 @@ enum Opcodes
     CMSG_CHAT_FILTERED                                = 0x000,  // 5.0.5 16048
     CMSG_CHAT_IGNORED                                 = 0x181E, // 5.4.0 17399
     CMSG_CLEAR_CHANNEL_WATCH                          = 0x000,  // 5.0.5 16048
-    CMSG_CLEAR_RAID_MARKER                            = 0x000,  // 5.0.5 16048
+    CMSG_CLEAR_RAID_MARKER                            = 0x1101, // 5.4.0 17399
     CMSG_CLEAR_TRADE_ITEM                             = 0x1500, // 5.4.0 17399
     CMSG_COMMENTATOR_ENABLE                           = 0x000,  // 5.0.5 16048
     CMSG_COMMENTATOR_ENTER_INSTANCE                   = 0x000,  // 5.0.5 16048
@@ -1296,7 +1296,7 @@ enum Opcodes
     SMSG_RAID_GROUP_ONLY                              = 0x000,  // 5.0.5 16048
     SMSG_RAID_INSTANCE_INFO                           = 0x4B3,  // 5.4.0 17399
     SMSG_RAID_INSTANCE_MESSAGE                        = 0x41F,  // 5.4.0 17399
-    SMSG_RAID_MARKERS_CHANGED                         = 0x094,  // 5.4.0 17399 (JamList)
+    SMSG_RAID_MARKERS_CHANGED                         = 0x094,  // 5.4.0 17399
     SMSG_RAID_READY_CHECK_COMPLETED                   = 0x085,  // 5.4.0 17399
     SMSG_RAID_READY_CHECK_RESPONSE                    = 0x529,  // 5.4.0 17399
     SMSG_RAID_READY_CHECK_STARTED                     = 0x12D,  // 5.4.0 17399
