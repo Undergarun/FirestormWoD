@@ -360,8 +360,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         spellCooldownResult = holder->GetPreparedResult(PET_LOGIN_QUERY_LOADSPELLCOOLDOWN);
     }
 
-
-
     _LoadAuras(auraResult, auraEffectResult, timediff, login);
 
     if (owner->GetTypeId() == TYPEID_PLAYER && owner->ToPlayer()->InArena())
@@ -1615,6 +1613,10 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 continue;
             }
 
+            // Does not need to load Spirit Bond - reapplied at update
+            if (spellInfo->Id == 118694)
+                continue;
+
             // negative effects should continue counting down after logout
             if (remaintime != -1 && !spellInfo->IsPositive())
             {
@@ -1677,8 +1679,11 @@ void Pet::_SaveAuras(SQLTransaction& trans)
 
         AuraPtr aura = itr->second;
         AuraApplication * foundAura = GetAuraApplication(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID());
-
         if (!foundAura)
+            continue;
+
+        // Hack fix for Spirit Bond - Does not need to be saved, reapplied at update
+        if (foundAura->GetBase()->GetId() == 118694)
             continue;
 
         int32 damage[MAX_SPELL_EFFECTS];

@@ -362,7 +362,7 @@ class LFGMgr
         void RemoveFromCompatibles(uint64 guid);
 
         // Generic
-        const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon);
+        const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon, bool check = false);
         LfgType GetDungeonType(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
 

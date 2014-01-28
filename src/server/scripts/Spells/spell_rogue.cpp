@@ -831,6 +831,18 @@ class spell_rog_redirect : public SpellScriptLoader
         }
 };
 
+enum battleGroundsFlagsSpells
+{
+    BG_WS_SPELL_WARSONG_FLAG    = 23333,
+    BG_WS_SPELL_SILVERWING_FLAG = 23335,
+    BG_KT_SPELL_ORB_PICKED_UP_1 = 121164,
+    BG_KT_SPELL_ORB_PICKED_UP_2 = 121175,
+    BG_KT_SPELL_ORB_PICKED_UP_3 = 121176,
+    BG_KT_SPELL_ORB_PICKED_UP_4 = 121177,
+    BG_KT_ALLIANCE_INSIGNIA     = 131527,
+    BG_KT_HORDE_INSIGNIA        = 131528
+};
+
 // Shroud of Concealment - 115834
 class spell_rog_shroud_of_concealment : public SpellScriptLoader
 {
@@ -840,6 +852,32 @@ class spell_rog_shroud_of_concealment : public SpellScriptLoader
         class spell_rog_shroud_of_concealment_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_shroud_of_concealment_SpellScript);
+
+            void SelectTargets(std::list<WorldObject*>& targets)
+            {
+                std::list<WorldObject*> targetsToRemove;
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_WARSONG_FLAG));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_SILVERWING_FLAG));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_1));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_2));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_3));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_4));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_ALLIANCE_INSIGNIA));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_HORDE_INSIGNIA));
+
+                for (auto itr : targets)
+                {
+                    if (Unit* target = itr->ToUnit())
+                    {
+                        if ((!target->IsInRaidWith(GetCaster()) && !target->IsInPartyWith(GetCaster())) ||
+                            target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING))
+                            targetsToRemove.push_back(itr);
+                    }
+                }
+
+                for (auto itr : targetsToRemove)
+                    targets.remove(itr);
+            }
 
             void HandleOnHit()
             {
@@ -852,6 +890,7 @@ class spell_rog_shroud_of_concealment : public SpellScriptLoader
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_shroud_of_concealment_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_rog_shroud_of_concealment_SpellScript::HandleOnHit);
             }
         };

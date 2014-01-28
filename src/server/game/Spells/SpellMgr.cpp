@@ -3905,8 +3905,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[2].SpellClassMask[0] |= 0x1000;
                     break;
                 case 109259:// Powershot
-                    spellInfo->Effects[1].BasePoints = 60;
-                    spellInfo->Effects[2].BasePoints = 800;
+                    spellInfo->Effects[1].BasePoints = 70;
+                    spellInfo->Effects[2].BasePoints = 90;
+                    spellInfo->Effects[2].Effect = SPELL_EFFECT_WEAPON_PERCENT_DAMAGE;
                     break;
                 case 82926: // Fire ! (for Master Marksman)
                     spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;

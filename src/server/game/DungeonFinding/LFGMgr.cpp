@@ -546,24 +546,30 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
             continue;
 
+        LfgLockStatus lockData;
+        lockData.lockstatus = LFG_LOCKSTATUS_OK;
+
         AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
 
-        LfgLockStatus lockData;
-
-        lockData.lockstatus = LFG_LOCKSTATUS_OK;
+        uint8 LevelMin = 0;
+        uint8 LevelMax = 0;
+        if (ar)
+        {
+            if (ar->levelMin && level < ar->levelMin)
+                LevelMin = ar->levelMin;
+            if (ar->levelMax && level > ar->levelMax)
+                LevelMax = ar->levelMax;
+        }
 
         if (dungeon->expansion > expansion)
             lockData.lockstatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > REGULAR_DIFFICULTY && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
-        {
-            //if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
-        }
-        else if (dungeon->minlevel > level)
+        else if (dungeon->minlevel > level || LevelMin)
             lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-        else if (dungeon->maxlevel < level)
+        else if (dungeon->maxlevel < level || LevelMax)
             lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (dungeon->flags & LFG_FLAG_SEASONAL)
         {
@@ -764,7 +770,7 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
         {
             // Expand random dungeons and check restrictions
             if (rDungeonId)
-                dungeons = GetDungeonsByRandom(rDungeonId);
+                dungeons = GetDungeonsByRandom(rDungeonId, true);
 
             // if we have lockmap then there are no compatible dungeons
             GetCompatibleDungeons(dungeons, players, joinData.lockmap);
@@ -2352,11 +2358,38 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
    @returns Set of dungeons that can be done.
 */
-const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
+const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool check)
 {
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(randomdungeon);
     uint32 groupType = dungeon ? dungeon->grouptype : 0;
-    return m_CachedDungeonMap[groupType];
+
+    if (!check)
+        return m_CachedDungeonMap[groupType];
+
+    LfgDungeonSet& cachedDungeon = m_CachedDungeonMap[groupType];
+    for (LfgDungeonSet::const_iterator it = cachedDungeon.begin(); it != cachedDungeon.end(); ++it)
+    {
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
+        if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
+            continue;
+
+        LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
+        if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
+        {
+            cachedDungeon.erase(it);
+            continue;
+        }
+
+        if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+        {
+            if (ar->levelMin > 90 || ar->levelMax > 90)
+            {
+                cachedDungeon.erase(it);
+                continue;
+            }
+        }
+    }
+    return cachedDungeon;
 }
 
 /**

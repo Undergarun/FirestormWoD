@@ -602,13 +602,21 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             break;
         }
         case CHAT_MSG_PARTY:
-        case CHAT_MSG_RAID:
         {
             uint32 prefixLen = recvData.ReadBits(5);
             uint32 msgLen = recvData.ReadBits(8);
             recvData.FlushBits();
             message = recvData.ReadString(msgLen);
             prefix = recvData.ReadString(prefixLen);
+            break;
+        }
+        case CHAT_MSG_RAID:
+        {
+            uint32 msgLen = recvData.ReadBits(8);
+            uint32 prefixLen = recvData.ReadBits(5);
+            recvData.FlushBits();
+            prefix = recvData.ReadString(prefixLen);
+            message = recvData.ReadString(msgLen);
             break;
         }
         case CHAT_MSG_OFFICER:

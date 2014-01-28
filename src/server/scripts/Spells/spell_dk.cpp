@@ -451,6 +451,9 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
                                 if (uint32 spell = _player->GetRuneConvertSpell(i))
                                     takePower = spell != 54637;
 
+                                if (_player->IsRunePermanentlyConverted(i))
+                                    takePower = false;
+
                                 // keep Death Rune type if player has Blood of the North
                                 if (takePower)
                                 {

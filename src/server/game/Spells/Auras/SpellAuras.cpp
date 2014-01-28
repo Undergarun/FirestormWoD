@@ -889,8 +889,8 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                     else
                     {
-                        if (int32(caster->CountPctFromMaxPower(manaPerSecond, powertype)) <= caster->GetPower(powertype))
-                            caster->ModifyPower(powertype, -1 * int32(caster->CountPctFromMaxPower(manaPerSecond, powertype)));
+                        if (int32(caster->GetPower(powertype)) >= manaPerSecond)
+                            caster->ModifyPower(powertype, -manaPerSecond);
                         else
                         {
                             Remove();
@@ -1137,6 +1137,10 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
+    // Blood of the North
+    if (GetId() == 54637)
+        return true;
+
     if (IsPassive())
         return false;
 
@@ -1697,27 +1701,33 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAurasDueToSpell(131369, target->GetGUID());
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
-                // Reaping
-                // Blood Rites
-                if (GetSpellInfo()->Id == 56835 || GetSpellInfo()->Id == 54637)
+            {
+                switch (GetSpellInfo()->Id)
                 {
-                    if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
-                        break;
-                    if (target->GetTypeId() != TYPEID_PLAYER)
-                        break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
-                        break;
+                    case 56835: // Reaping
+                    {
+                        if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
+                            break;
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            break;
+                        if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
+                            break;
 
-                     // aura removed - remove death runes
-                    target->ToPlayer()->RemoveRunesBySpell(GetId());
+                            // aura removed - remove death runes
+                        target->ToPlayer()->RemoveRunesBySpell(GetId());
+                        break;
+                    }
+                    case 81256: // Dancing Rune Weapon
+                        // Item - Death Knight T12 Tank 4P Bonus
+                        if (target->HasAura(98966) && (removeMode == AURA_REMOVE_BY_EXPIRE))
+                            target->CastSpell(target, 101162, true); // +15% parry
+                        break;
+                    default:
+                        break;
                 }
-                else if (GetId() == 81256) // Dancing Rune Weapon
-                {
-                    // Item - Death Knight T12 Tank 4P Bonus
-                    if (target->HasAura(98966) && (removeMode == AURA_REMOVE_BY_EXPIRE))
-                        target->CastSpell(target, 101162, true); // +15% parry
-                }
+
                 break;
+            }
             case SPELLFAMILY_HUNTER:
                 // Glyph of Freezing Trap
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000008)
@@ -1739,7 +1749,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Grownding Totem effect
                     case 89523:
                     case 8178:
-                        if (caster == target && removeMode != AURA_REMOVE_NONE)
+                        if (caster != target && removeMode != AURA_REMOVE_NONE)
                             caster->setDeathState(JUST_DIED);
                         break;
                     default:

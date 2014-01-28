@@ -371,6 +371,17 @@ struct RuneInfo
     uint32 Cooldown;
     uint32 spell_id;
     bool DeathUsed;
+    bool Permanently;
+
+    RuneInfo()
+    {
+        BaseRune    = 0;
+        CurrentRune = 0;
+        Cooldown    = 0;
+        spell_id    = 0;
+        DeathUsed   = false;
+        Permanently = false;
+    }
 };
 
 struct Runes
@@ -2795,10 +2806,12 @@ class Player : public Unit, public GridObject<Player>
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         void SetDeathRuneUsed(uint8 index, bool apply) { m_runes.runes[index].DeathUsed = apply; }
         bool IsDeathRuneUsed(uint8 index) { return m_runes.runes[index].DeathUsed; }
+        bool IsRunePermanentlyConverted(uint8 index) { return m_runes.runes[index].Permanently; }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes.runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes.runes[index].CurrentRune = currentRune; }
-        void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes.runes[index].Cooldown = cooldown; m_runes.SetRuneState(index, (cooldown == 0) ? true : false); }
+        void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes.runes[index].Cooldown = cooldown; m_runes.SetRuneState(index, cooldown == 0); }
         void SetRuneConvertSpell(uint8 index, uint32 spell_id) { m_runes.runes[index].spell_id = spell_id; }
+        void SetRuneConvertType(uint8 index, bool permanently) { m_runes.runes[index].Permanently = permanently; }
         void AddRuneBySpell(uint8 index, RuneType newType, uint32 spell_id) { SetRuneConvertSpell(index, spell_id); ConvertRune(index, newType); }
         void RemoveRunesBySpell(uint32 spell_id);
         void RestoreBaseRune(uint8 index);

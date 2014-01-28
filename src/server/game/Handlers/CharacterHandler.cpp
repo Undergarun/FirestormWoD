@@ -1977,6 +1977,9 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     eqSet.state     = EQUIPMENT_SET_NEW;
 
     _player->SetEquipmentSet(index, eqSet);
+
+    delete[] itemGuid;
+    itemGuid = NULL;
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
@@ -2000,13 +2003,9 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
 
-    uint8* srcbag;
-    uint8* srcslot;
-    srcbag = new uint8[EQUIPMENT_SLOT_END];
-    srcslot = new uint8[EQUIPMENT_SLOT_END];
-
-    ObjectGuid* itemGuid = NULL;
-    itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
+    uint8* srcbag = new uint8[EQUIPMENT_SLOT_END];
+    uint8* srcslot = new uint8[EQUIPMENT_SLOT_END];
+    ObjectGuid* itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
 
     EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
 
@@ -2082,6 +2081,13 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     WorldPacket data(SMSG_DUMP_OBJECTS_DATA);
     data << uint8(0);   // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
+
+    delete[] srcbag;
+    srcbag = NULL;
+    delete[] srcslot;
+    srcslot = NULL;
+    delete[] itemGuid;
+    itemGuid = NULL;
 }
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)

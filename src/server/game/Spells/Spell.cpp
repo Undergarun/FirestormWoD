@@ -4780,6 +4780,13 @@ void Spell::SendSpellStart()
     }*/
 
     m_caster->SendMessageToSet(&data, true);
+
+    delete[] unkGuids1;
+    unkGuids1 = NULL;
+    delete[] unkGuids2;
+    unkGuids2 = NULL;
+    delete[] unkGuids3;
+    unkGuids3 = NULL;
 }
 
 void Spell::SendSpellGo()
@@ -5368,6 +5375,9 @@ void Spell::SendSpellGo()
     }*/
 
     m_caster->SendMessageToSet(&data, true);
+
+    delete[] Guids2;
+    Guids2 = NULL;
 }
 
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet
@@ -5949,7 +5959,10 @@ void Spell::TakeRunePower(bool didHit)
                 if (uint32 spell = player->GetRuneConvertSpell(i))
                     takePower = spell != 54637;
 
-                // keep Death Rune type if missed or player has Blood of the North
+                if (player->IsRunePermanentlyConverted(i))
+                    takePower = false;
+
+                // keep Death Rune type if missed or player has Blood of the North or rune is permanently converted
                 if (takePower)
                 {
                     player->RestoreBaseRune(i);
