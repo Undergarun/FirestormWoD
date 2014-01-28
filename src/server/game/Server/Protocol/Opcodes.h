@@ -558,7 +558,7 @@ enum Opcodes
     CMSG_UNLEARN_SPECIALIZATION                       = 0x000,  // 5.0.5 16048
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x143C, // 5.4.0 17399
     CMSG_UPDATE_ACCOUNT_DATA                          = 0x12DF, // 5.4.0 17399
-    CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x000,  // 5.0.5 16048
+    CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x152A, // 5.4.0 17399
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x000,  // 5.0.5 16048
     CMSG_UPGRADE_ITEM                                 = 0x11A0, // 5.4.0 17399
     CMSG_USED_FOLLOW                                  = 0x000,  // 5.0.5 16048

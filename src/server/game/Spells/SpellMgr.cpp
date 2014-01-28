@@ -4084,6 +4084,10 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
                     spellInfo->Effects[1].BasePoints = -30;
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
+                    spellInfo->OverrideSpellList.push_back(116847);
+                    break;
+                case 125084: // Charging Ox Wave
+                    spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // radius 30
                     break;
                 case 107270:// Spinning Crane Kick - Radius
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
