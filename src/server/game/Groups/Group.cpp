@@ -3269,7 +3269,7 @@ void Group::SendRaidMarkersUpdate()
 
     data.WriteBits(GetRaidMarkers().size(), 3);
 
-    // @TODO: Send in classic order instead of summon order /!\
+    // @TODO: Send in classic order instead of summon order
     for (auto itr : GetRaidMarkers())
     {
         ObjectGuid guid = NULL;
