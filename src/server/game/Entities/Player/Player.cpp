@@ -6275,7 +6275,7 @@ void Player::BuildPlayerRepop()
     if (GetGuild() && GetGuild()->GetLevel() >= 15)
         CastSpell(this, 84559, true); // The Quick and the Dead
 
-    // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
+    // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE
     // there must be SMSG.STOP_MIRROR_TIMER
     // there we must send 888 opcode
 
@@ -29307,36 +29307,28 @@ void Player::SendMovementSetWaterWalking(bool apply)
 {
     ObjectGuid guid = GetGUID();
     WorldPacket data;
+
     if (apply)
     {
-        data.Initialize(SMSG_MOVE_WATER_WALK, 1 + 4 + 8);
+        data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 8);
     
-        uint8 bitOrder[8] = {7, 6, 0, 1, 5, 4, 3, 2};
+        uint8 bitOrder[8] = { 6, 5, 0, 3, 1, 7, 4, 2 };
         data.WriteBitInOrder(guid, bitOrder);
 
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[2]);
-        data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[0]);
+        uint8 bytes[8] = { 7, 6, 5, 1, 4, 3, 2, 0 };
+        data.WriteBytesSeq(guid, bytes);
     }
     else
     {
-        data.Initialize(SMSG_MOVE_LAND_WALK, 1 + 4 + 8);
-        data << uint32(0);          //! movement counter
+        data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 1 + 4 + 8);
     
-        uint8 bitOrder[8] = {5, 4, 3, 2, 0, 7, 1, 6};
+        uint8 bitOrder[8] = { 7, 0, 5, 6, 3, 1, 4, 2};
         data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
     
-        uint8 byteOrder[8] = {1, 0, 2, 6, 3, 4, 5, 7};
+        uint8 byteOrder[8] = { 3, 1, 7, 5, 2, 6, 0, 4 };
         data.WriteBytesSeq(guid, byteOrder);
     }
+
     SendDirectMessage(&data);
 }
 

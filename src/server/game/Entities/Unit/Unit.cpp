@@ -21157,9 +21157,15 @@ void Unit::SendMovementWaterWalking()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
 
-    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WorldPacket data(SMSG_SPLINE_MOVE_SET_WATER_WALK, 64);
+    ObjectGuid guid = GetGUID();
+
+    uint8 bitOrder[8] = { 6, 5, 0, 3, 1, 7, 4, 2 };
+    data.WriteBitInOrder(guid, bitOrder);
+
+    uint8 bytes[8] = { 7, 6, 5, 1, 4, 3, 2, 0 };
+    data.WriteBytesSeq(guid, bytes);
+
     SendMessageToSet(&data, false);
 }
 

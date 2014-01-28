@@ -627,7 +627,6 @@ enum Opcodes
     MSG_MOVE_UPDATE_MOUSE                             = 0,      // Client patched
     MSG_MOVE_UPDATE_RUN_SPEED                         = 0,      // Client patched
     MSG_MOVE_UPDATE_TELEPORT                          = 0,      // Client patched
-    MSG_MOVE_WATER_WALK                               = 0,      // Client patched
     MSG_MOVE_WORLDPORT_ACK                            = 0x1752, // 5.4.0 17399
     MSG_NOTIFY_PARTY_SQUELCH                          = 0x000,  // 5.0.5 16048
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x1F61, // 5.4.0 17399
@@ -1145,7 +1144,6 @@ enum Opcodes
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x000,  // 5.0.5 16048 probably 6087
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x000,  // 5.0.5 16048
     SMSG_MOVE_KNOCK_BACK                              = 0x16FA, // 5.4.0 17371
-    SMSG_MOVE_LAND_WALK                               = 0x000,  // 5.0.5 16048
     SMSG_MOVE_NORMAL_FALL                             = 0x000,  // 5.0.5 16048
     SMSG_MOVE_ROOT                                    = 0x1747, // 5.4.0 17399
     SMSG_MOVE_UPDATE                                  = 0x139F, // 5.4.0 17399
@@ -1180,7 +1178,6 @@ enum Opcodes
     SMSG_MOVE_UPDATE_TELEPORT                         = 0x000,  // 5.0.5 16048
     SMSG_MOVE_UPDATE_TURN_RATE                        = 0x000,  // 5.0.5 16048
     SMSG_MOVE_UPDATE_WALK_SPEED                       = 0x000,  // 5.0.5 16048
-    SMSG_MOVE_WATER_WALK                              = 0x000,  // 5.0.5 16048
     SMSG_MULTIPLE_PACKETS                             = 0x000,  // 5.0.5 16048
     SMSG_NAME_QUERY_RESPONSE                          = 0x0B7,  // 5.4.0 17399
     SMSG_NEW_TAXI_PATH                                = 0x431,  // 5.4.0 17399
@@ -1455,7 +1452,6 @@ enum Opcodes
     SMSG_SPLINE_MOVE_UNROOT                           = 0x1AC7, // 5.4.0 17399
     SMSG_SPLINE_MOVE_UNSET_FLYING                     = 0x1343, // 5.4.0 17399
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x122A, // 5.4.0 17399
-    SMSG_SPLINE_MOVE_WATER_WALK                       = 0x000,  // 5.0.5 16048
     SMSG_STABLE_RESULT                                = 0x4B6,  // 5.4.0 17399
     SMSG_STANDSTATE_UPDATE                            = 0x00D,  // 5.4.0 17399
     SMSG_START_ELAPSED_TIMER                          = 0x038,  // 5.4.0 17399 (JamList)
