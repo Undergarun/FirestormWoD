@@ -1407,7 +1407,7 @@ enum Opcodes
     SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048
     SMSG_SPELLLOGMISS                                 = 0x000,  // 5.0.5 16048
     SMSG_SPELL_NON_MELEE_DAMAGE_LOG                   = 0x1085, // 5.4.0 17399
-    SMSG_SPELLORDAMAGE_IMMUNE                         = 0x000,  // 5.0.5 16048
+    SMSG_SPELL_OR_DAMAGE_IMMUNE                       = 0x1837, // 5.4.0 17399
     SMSG_SPELLSTEALLOG                                = 0x000,  // 5.0.5 16048
     SMSG_SPELL_CATEGORY_COOLDOWN                      = 0x1434, // 5.4.0 17399
     SMSG_SPELL_CHANNEL_START                          = 0x1195, // 5.4.0 17399

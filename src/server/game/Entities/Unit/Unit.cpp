@@ -5470,11 +5470,48 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
-    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
-    data << uint64(GetGUID());
-    data << uint64(target->GetGUID());
+    ObjectGuid unitGuid = GetGUID();
+    ObjectGuid targetGuid = target->GetGUID();
+    WorldPacket data(SMSG_SPELL_OR_DAMAGE_IMMUNE, 21);
+
     data << uint32(spellId);
-    data << uint8(0); // bool - log format: 0-default, 1-debug
+
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(unitGuid[2]);
+    data.WriteBit(unitGuid[1]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(unitGuid[5]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[0]);
+    data.WriteBit(unitGuid[0]);
+    data.WriteBit(unitGuid[7]);
+    data.WriteBit(unitGuid[3]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(false);           // Has Power data
+    data.WriteBit(unitGuid[4]);
+    data.WriteBit(false);           // bool - log format: 0-default, 1-debug
+    data.WriteBit(unitGuid[6]);
+
+    data.WriteByteSeq(unitGuid[0]);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(unitGuid[7]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(unitGuid[4]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(unitGuid[3]);
+    data.WriteByteSeq(unitGuid[5]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[5]);
+    data.WriteByteSeq(unitGuid[6]);
+    data.WriteByteSeq(unitGuid[2]);
+    data.WriteByteSeq(unitGuid[1]);
+
     SendMessageToSet(&data, true);
 }
 

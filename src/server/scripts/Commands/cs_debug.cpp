@@ -241,48 +241,6 @@ class debug_commandscript : public CommandScript
                     data.WriteByteSeq(playerGuid[6]);
                     break;
                 }
-                case 6199:
-                {
-                    // Display 'Insensible'
-                    data << uint32(100784);
-
-                    data.WriteBit(playerGuid[4]);
-                    data.WriteBit(playerGuid[1]);
-                    data.WriteBit(playerGuid[5]);
-                    data.WriteBit(playerGuid[2]);
-                    data.WriteBit(playerGuid[1]);
-                    data.WriteBit(playerGuid[3]);
-                    data.WriteBit(playerGuid[5]);
-                    data.WriteBit(playerGuid[7]);
-                    data.WriteBit(playerGuid[0]);
-                    data.WriteBit(playerGuid[0]);
-                    data.WriteBit(playerGuid[7]);
-                    data.WriteBit(playerGuid[3]);
-                    data.WriteBit(playerGuid[6]);
-                    data.WriteBit(playerGuid[2]);
-                    data.WriteBit(0);               // Has Power data
-                    data.WriteBit(playerGuid[4]);
-                    data.WriteBit(urand(0, 1));     // Unk
-                    data.WriteBit(playerGuid[6]);
-
-                    data.WriteByteSeq(playerGuid[0]);
-                    data.WriteByteSeq(playerGuid[1]);
-                    data.WriteByteSeq(playerGuid[3]);
-                    data.WriteByteSeq(playerGuid[2]);
-                    data.WriteByteSeq(playerGuid[6]);
-                    data.WriteByteSeq(playerGuid[7]);
-                    data.WriteByteSeq(playerGuid[7]);
-                    data.WriteByteSeq(playerGuid[4]);
-                    data.WriteByteSeq(playerGuid[0]);
-                    data.WriteByteSeq(playerGuid[3]);
-                    data.WriteByteSeq(playerGuid[5]);
-                    data.WriteByteSeq(playerGuid[4]);
-                    data.WriteByteSeq(playerGuid[5]);
-                    data.WriteByteSeq(playerGuid[6]);
-                    data.WriteByteSeq(playerGuid[2]);
-                    data.WriteByteSeq(playerGuid[1]);
-                    break;
-                }
                 default:
                     break;
             }
