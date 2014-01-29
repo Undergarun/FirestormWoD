@@ -1344,7 +1344,7 @@ enum Opcodes
     SMSG_RESPEC_WIPE_CONFIRM                          = 0x59B,  // 5.4.0 17399
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x084,  // 5.4.0 17399
     SMSG_RESURRECT_REQUEST                            = 0x511,  // 5.4.0 17399
-    SMSG_RESUME_TOKEN                                 = 0x0AA,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_RESUME_TOKEN                                 = 0x0AA,  // 5.4.0 17399
     SMSG_RESYNC_RUNES                                 = 0x52C,  // 5.4.0 17399
     SMSG_ROLE_CHANGED_INFORM                          = 0x88B,  // 5.4.0 17399
     SMSG_ROLL_POLL_INFORM                             = 0x80F,  // 5.4.0 17399

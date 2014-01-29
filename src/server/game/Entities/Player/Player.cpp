@@ -2370,7 +2370,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     bitBuffer->WriteBit(guildGuid[3]);
     bitBuffer->WriteBit(atLoginFlags & AT_LOGIN_FIRST);
     bitBuffer->WriteBit(guildGuid[7]);
-    bitBuffer->WriteBits(uint32(name.length()), 6);
+    bitBuffer->WriteBits(name.size(), 6);
     bitBuffer->WriteBit(guildGuid[1]);
     bitBuffer->WriteBit(guid[6]);
     bitBuffer->WriteBit(guid[1]);
@@ -2386,42 +2386,22 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
 
     *dataBuffer << uint32(charFlags);                           // Character flags
     *dataBuffer << uint32(zone);                                // Zone id
-
-    if (guid[0] != 0)
-        *dataBuffer << uint8(guid[0] ^ 1);
-    if (guildGuid[5] != 0)
-        *dataBuffer << uint8(guildGuid[5] ^ 1);
-    if (guid[1] != 0)
-        *dataBuffer << uint8(guid[1] ^ 1);
-    if (guildGuid[1] != 0)
-        *dataBuffer << uint8(guildGuid[1] ^ 1);
-    if (guid[3] != 0)
-        *dataBuffer << uint8(guid[3] ^ 1);
-
+    dataBuffer->WriteByteSeq(guid[0]);
+    dataBuffer->WriteByteSeq(guildGuid[5]);
+    dataBuffer->WriteByteSeq(guid[1]);
+    dataBuffer->WriteByteSeq(guildGuid[1]);
+    dataBuffer->WriteByteSeq(guid[3]);
     *dataBuffer << uint32(petFamily);                           // Pet family
-
-    if (guildGuid[2] != 0)
-        *dataBuffer << uint8(guildGuid[2] ^ 1);
-
+    dataBuffer->WriteByteSeq(guildGuid[2]);
     *dataBuffer << uint8(hairStyle);                            // Hair style
-
-    if (guildGuid[0] != 0)
-        *dataBuffer << uint8(guildGuid[0] ^ 1);
-    if (guildGuid[7] != 0)
-        *dataBuffer << uint8(guildGuid[7] ^ 1);
-
+    dataBuffer->WriteByteSeq(guildGuid[0]);
+    dataBuffer->WriteByteSeq(guildGuid[7]);
     *dataBuffer << float(y);                                    // Y
-
-    if (guid[6] != 0)
-        *dataBuffer << uint8(guid[6] ^ 1);
-
+    dataBuffer->WriteByteSeq(guid[6]);
     *dataBuffer << uint32(petLevel);                            // Pet level
-
-    if (guid[7] != 0)
-        *dataBuffer << uint8(guid[7] ^ 1);
-
-    if (name.length())
-        dataBuffer->append(name.c_str(), name.length());        // Name
+    dataBuffer->WriteByteSeq(guid[7]);
+    if (name.size())
+        dataBuffer->append(name.c_str(), name.size());          // Name
     *dataBuffer << uint8(level);                                // Level
     *dataBuffer << float(x);                                    // X
     *dataBuffer << uint8(plrClass);                             // Class
@@ -2429,14 +2409,9 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     *dataBuffer << uint8(slot);                                 // List order
     *dataBuffer << uint8(facialHair);                           // Facial hair
     *dataBuffer << float(z);                                    // Z
-
-    if (guildGuid[3] != 0)
-        *dataBuffer << uint8(guildGuid[3] ^ 1);
-
+    dataBuffer->WriteByteSeq(guildGuid[3]);
     *dataBuffer << uint8(plrRace);                              // Race
-
-    if (guid[4] != 0)
-        *dataBuffer << uint8(guid[4] ^ 1);
+    dataBuffer->WriteByteSeq(guid[4]);
 
     // Character data
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
@@ -2446,9 +2421,9 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
         if (!proto)
         {
-            *dataBuffer << uint32(0);
-            *dataBuffer << uint32(0);
             *dataBuffer << uint8(0);
+            *dataBuffer << uint32(0);
+            *dataBuffer << uint32(0);
             continue;
         }
 
@@ -2472,20 +2447,13 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
         *dataBuffer << uint32(proto->DisplayInfoID);
     }
 
-    if (guildGuid[6] != 0)
-        *dataBuffer << uint8(guildGuid[6] ^ 1);
-    if (guid[2] != 0)
-        *dataBuffer << uint8(guid[2] ^ 1);
-    if (guid[5] != 0)
-        *dataBuffer << uint8(guid[5] ^ 1);
-
+    dataBuffer->WriteByteSeq(guildGuid[6]);
+    dataBuffer->WriteByteSeq(guid[2]);
+    dataBuffer->WriteByteSeq(guid[5]);
     *dataBuffer << uint8(skin);                                 // Skin
     *dataBuffer << uint8(hairColor);                            // Hair color
     *dataBuffer << uint8(face);                                 // Face
-
-    if (guildGuid[4] != 0)
-        *dataBuffer << uint8(guildGuid[4] ^ 1);
-
+    dataBuffer->WriteByteSeq(guildGuid[4]);
     *dataBuffer << uint32(customizationFlag);                   // Character customization flags
     *dataBuffer << uint8(gender);                               // Gender
     *dataBuffer << uint32(mapId);                               // Map Id

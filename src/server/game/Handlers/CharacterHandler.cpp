@@ -263,7 +263,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     bitBuffer.FlushBits();
 
     data.append(bitBuffer);
-    if (charCount)
+    if (dataBuffer.size())
         data.append(dataBuffer);
 
     SendPacket(&data);
@@ -1093,9 +1093,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
     data.WriteBits(timeZoneName.size(), 7);
     data.WriteBits(timeZoneName.size(), 7);
-    data << timeZoneName;
-    data << timeZoneName;
-
+    data.FlushBits();
+    data.append(timeZoneName.c_str(), timeZoneName.size());
+    data.append(timeZoneName.c_str(), timeZoneName.size());
     SendPacket(&data);
 
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
