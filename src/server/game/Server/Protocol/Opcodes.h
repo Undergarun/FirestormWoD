@@ -150,7 +150,7 @@ enum Opcodes
     CMSG_CHANNEL_VOICE_OFF                            = 0x000,  // 5.0.5 16048
     CMSG_CHANNEL_VOICE_ON                             = 0x000,  // 5.0.5 16048
     CMSG_CHAR_CREATE                                  = 0x17CF, // 5.4.0 17399
-    CMSG_CHAR_CUSTOMIZE                               = 0x000,  // 5.0.5 16048
+    CMSG_CHAR_CUSTOMIZE                               = 0x1B8E, // 5.4.0 17399
     CMSG_CHAR_DELETE                                  = 0x1783, // 5.4.0 17399
     CMSG_CHAR_ENUM                                    = 0x1B9E, // 5.4.0 17399
     CMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x1786, // 5.4.0 17399
@@ -682,9 +682,9 @@ enum Opcodes
     SMSG_ATTACK_SWING_NOT_IN_RANGE                    = 0x000,  // 5.0.5 16048
     SMSG_AUCTION_BIDDER_LIST_RESULT                   = 0x1F3C, // 5.4.0 17399
     SMSG_AUCTION_BIDDER_NOTIFICATION                  = 0x000,  // 5.0.5 16048
-    SMSG_AUCTION_COMMAND_RESULT                       = 0x12F,  // 5.4.0 17399 (JamList)
+    SMSG_AUCTION_COMMAND_RESULT                       = 0x12F,  // 5.4.0 17399
     SMSG_AUCTION_CLOSED_NOTIFICATION                  = 0x930,  // 5.4.0 17399 (JamList) (NYI)
-    SMSG_AUCTION_HELLO_RESPONSE                       = 0x186,  // 5.4.0 17399 (JamList)
+    SMSG_AUCTION_HELLO_RESPONSE                       = 0x186,  // 5.4.0 17399
     SMSG_AUCTION_LIST_PENDING_SALES                   = 0x16CD, // 5.4.0 17399
     SMSG_AUCTION_LIST_RESULT                          = 0x1B4D, // 5.4.0 17399
     SMSG_AUCTION_OUTBID_NOTIFICATION                  = 0x581,  // 5.4.0 17399 (JamList) (NYI)
@@ -795,7 +795,7 @@ enum Opcodes
     SMSG_CHANNEL_NOTIFY                               = 0x1760, // 5.4.0 17399
     SMSG_CHARACTER_LOGIN_FAILED                       = 0x815,  // 5.4.0 17399 (JamList)
     SMSG_CHAR_CREATE                                  = 0x914,  // 5.4.0 17399
-    SMSG_CHAR_CUSTOMIZE                               = 0x832,  // 5.4.0 17399 (JamList)
+    SMSG_CHAR_CUSTOMIZE                               = 0x832,  // 5.4.0 17399
     SMSG_CHAR_DELETE                                  = 0x806,  // 5.4.0 17399
     SMSG_CHAR_ENUM                                    = 0x193,  // 5.4.0 17399
     SMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x1788, // 5.4.0 17399
@@ -1374,7 +1374,7 @@ enum Opcodes
     SMSG_SERVER_INFO_RESPONSE                         = 0x01A,  // 5.4.0 17399 (JamList)
     SMSG_SERVER_MESSAGE                               = 0x13A9, // 5.4.0 17399
     SMSG_SERVER_PERF                                  = 0x58C,  // 5.4.0 17399 (JamList)
-    SMSG_SET_ARENA_SEASON                             = 0x189,  // 5.4.0 17399 (JamList)
+    SMSG_SET_ARENA_SEASON                             = 0x189,  // 5.4.0 17399
     SMSG_SETUP_RESEARCH_HISTORY                       = 0x000,  // 5.0.5 16048
     SMSG_SET_AI_ANIM_KIT                              = 0x1B9,  // 5.4.0 17399 (JamList)
     SMSG_SET_ANIM_TIMER                               = 0x000,  // 5.4.0 17399 (JamList) (NYI)
@@ -1447,7 +1447,7 @@ enum Opcodes
     SMSG_SPLINE_MOVE_SET_RUN_SPEED                    = 0x16FB, // 5.4.0 17399
     SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED              = 0x173B, // 5.4.0 17399
     SMSG_SPLINE_MOVE_SET_SWIM_SPEED                   = 0x1662, // 5.4.0 17399
-    SMSG_SPLINE_MOVE_SET_TURN_RATE                    = 0x138A, // 5.4.0 17371
+    SMSG_SPLINE_MOVE_SET_TURN_RATE                    = 0x138A, // 5.4.0 17399
     SMSG_SPLINE_MOVE_SET_WALK_MODE                    = 0x1AA3, // 5.4.0 17399
     SMSG_SPLINE_MOVE_SET_WALK_SPEED                   = 0x166A, // 5.4.0 17399
     SMSG_SPLINE_MOVE_SET_WATER_WALK                   = 0x1386, // 5.4.0 17399
@@ -1471,7 +1471,7 @@ enum Opcodes
     SMSG_SUPERCEDED_SPELL                             = 0x117,  // 5.4.0 17399
     SMSG_SUPPRESS_NPC_GREETINGS                       = 0x8A7,  // 5.4.0 17399 (JamList)
     SMSG_SUSPEND_COMMS                                = 0x000,  // 5.0.5 16048
-    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x422,  // 5.4.0 17399 (JamList)
+    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x422,  // 5.4.0 17399
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x083,  // 5.4.0 17399 (JamList)
     SMSG_TAXI_NODE_STATUS                             = 0x09F,  // 5.4.0 17399
     SMSG_TEST_DROP_RATE_RESULT                        = 0x000,  // 5.0.5 16048 Unused
