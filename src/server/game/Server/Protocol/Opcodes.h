@@ -1062,7 +1062,7 @@ enum Opcodes
     SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x000,  // 5.0.5 16048
     SMSG_KICK_REASON                                  = 0x920,  // 5.4.0 17399 (JamList)
-    SMSG_LEARNED_DANCE_MOVES                          = 0x000,  // 5.0.5 16048
+    SMSG_LEARNED_DANCE_MOVES                          = 0x585,  // 5.4.0 17399
     SMSG_LEARNED_SPELL                                = 0x830,  // 5.4.0 17399
     SMSG_LEVELUP_INFO                                 = 0x402,  // 5.4.0 17399
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
