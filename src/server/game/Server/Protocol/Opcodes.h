@@ -1062,7 +1062,7 @@ enum Opcodes
     SMSG_ITEM_UPGRADE_RESULT                          = 0x91F,  // 5.4.0 17399
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x000,  // 5.0.5 16048
     SMSG_KICK_REASON                                  = 0x920,  // 5.4.0 17399 (JamList)
-    SMSG_LEARNED_DANCE_MOVES                          = 0x585,  // 5.4.0 17399
+    SMSG_LEARNED_DANCE_MOVES                          = 0x000,  // 5.0.5 16048
     SMSG_LEARNED_SPELL                                = 0x830,  // 5.4.0 17399
     SMSG_LEVELUP_INFO                                 = 0x402,  // 5.4.0 17399
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x000,  // 5.0.5 16048
@@ -1133,7 +1133,7 @@ enum Opcodes
     SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.4.0 17399
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
     SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
-    SMSG_MONEY_NOTIFY                                 = 0x4B2,  // 5.4.0 17399 (JamList)
+    SMSG_MONEY_NOTIFY                                 = 0x585,  // 5.4.0 17399 - "Received %u." - 1xUInt64
     SMSG_MONSTER_MOVE                                 = 0x137A, // 5.4.0 17399
     SMSG_MOTD                                         = 0x82A,  // 5.4.0 17399
     SMSG_MOUNT_RESULT                                 = 0x531,  // 5.4.0 17399
