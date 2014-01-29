@@ -420,6 +420,7 @@ enum Opcodes
     CMSG_QUESTGIVER_STATUS_QUERY                      = 0x17AE, // 5.4.0 17399
     CMSG_QUESTLOG_REMOVE_QUEST                        = 0x17AF, // 5.4.0 17399
     CMSG_QUEST_CONFIRM_ACCEPT                         = 0x1237, // 5.4.0 17399
+    CMSG_QUEST_NPC_QUERY                              = 0x1287, // 5.4.0 17399
     CMSG_QUEST_POI_QUERY                              = 0x1084, // 5.4.0 17399
     CMSG_QUEST_QUERY                                  = 0x1507, // 5.4.0 17399
     CMSG_RAID_LEADER_READY_CHECK                      = 0x1307, // 5.4.0 17399
