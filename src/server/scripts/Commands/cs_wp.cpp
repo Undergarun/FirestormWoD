@@ -1144,7 +1144,7 @@ public:
 
         if (!entry)
         {
-            handler->PSendSysMessage("Mauvais id");
+            handler->PSendSysMessage("Wrong id");
             return true;
         }
 
@@ -1157,7 +1157,7 @@ public:
 
         WorldDatabase.PExecute("INSERT INTO script_waypoint VALUES (%u, %u, %f, %f, %f, %u, '');", entry, oldMax + 1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), waitTime);
 
-        handler->PSendSysMessage("Point %u de l'entry %u ajoute aux coordonnee %f %f %f avec un temps d'attente de %u",
+        handler->PSendSysMessage("Point %u of entry u% u added to the coordinated %f f% f% with a wait time of u%",
                                   entry, oldMax + 1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), waitTime);
         return true;
     }
