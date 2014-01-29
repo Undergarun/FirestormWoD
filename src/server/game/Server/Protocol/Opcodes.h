@@ -1231,7 +1231,7 @@ enum Opcodes
     SMSG_PET_BATTLE_REPLACEMENTS_MADE                 = 0x5BF,  // 5.4.0 17399 PET_BATTLE NYI
     SMSG_PET_BATTLE_REQUEST_FAILED                    = 0x80D,  // 5.4.0 17399 PET_BATTLE NYI
     SMSG_PET_BATTLE_SLOT_UPDATE                       = 0x0AF,  // 5.4.0 17399 PET_BATTLE NYI
-    SMSG_PET_CAST_FAILED                              = 0x138,  // 5.4.0 17399 (JamList)
+    SMSG_PET_CAST_FAILED                              = 0x138,  // 5.4.0 17399
     SMSG_PET_DISMISS_SOUND                            = 0x82B,  // 5.4.0 17399
     SMSG_PET_GOD_MODE                                 = 0x0A7,  // 5.4.0 17399 (JamList)
     SMSG_PET_GUIDS                                    = 0x132,  // 5.4.0 17399 (JamList)

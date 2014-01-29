@@ -26025,7 +26025,6 @@ void Player::ResetWeeklyQuestStatus()
     m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
-
 }
 
 void Player::ResetSeasonalQuestStatus(uint16 event_id)
@@ -27250,7 +27249,6 @@ uint32 rand_number(uint32 value1, uint32 value2, uint32 value3 = 0, uint32 value
         default:    return 0;
     }
 }
-
 
 void Player::UpdateCharmedAI()
 {

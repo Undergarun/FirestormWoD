@@ -17120,7 +17120,9 @@ void Unit::SendPetCastFail(uint32 spellid, SpellCastResult result)
         return;
 
     WorldPacket data(SMSG_PET_CAST_FAILED, 1 + 4 + 1);
-    data << uint8(0);                                       // cast count
+    data.WriteBit(false);
+    data.WriteBit(false);
+    data << uint32(0);                                      // cast count
     data << uint32(spellid);
     data << uint8(result);
     owner->ToPlayer()->GetSession()->SendPacket(&data);
