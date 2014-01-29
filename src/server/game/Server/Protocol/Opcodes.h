@@ -1157,7 +1157,7 @@ enum Opcodes
     SMSG_MOVE_SET_FLIGHT_BACK_SPEED                   = 0x1A2B, // 5.4.0 17399
     SMSG_MOVE_SET_FLIGHT_SPEED                        = 0x179F, // 5.4.0 17399
     SMSG_MOVE_SET_HOVER                               = 0x136B, // 5.4.0 17399
-    SMSG_MOVE_SET_PITCH_RATE                          = 0x1247, // 5.4.0 17399
+    SMSG_MOVE_SET_PITCH_RATE                          = 0x17C2, // 5.4.0 17399
     SMSG_MOVE_SET_RUN_BACK_SPEED                      = 0x1782, // 5.4.0 17399
     SMSG_MOVE_SET_RUN_SPEED                           = 0x12D6, // 5.4.0 17399
     SMSG_MOVE_SET_SWIM_BACK_SPEED                     = 0x13D7, // 5.4.0 17399

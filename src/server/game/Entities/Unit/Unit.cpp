@@ -14717,16 +14717,17 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data << float(GetSpeed(mtype));
                 data << uint32(0);
     
-                uint8 bitOrder[8] = {0, 5, 3, 2, 7, 4, 6, 1};
+                uint8 bitOrder[8] = { 0, 5, 3, 2, 7, 4, 6, 1 };
                 data.WriteBitInOrder(guid, bitOrder);
 
-                uint8 byteOrder[8] = {1, 3, 2, 4, 6, 7, 5, 0};
+                uint8 byteOrder[8] = { 1, 3, 2, 4, 6, 7, 5, 0 };
                 data.WriteBytesSeq(guid, byteOrder);
                 break;
             }
             default:
                 return;
         }
+
         SendMessageToSet(&data, true);
     }
 }
@@ -18392,10 +18393,10 @@ void Unit::SendMoveUnroot(uint32 value)
     WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
     data << uint32(value);
     
-    uint8 bitOrder[8] = {2, 7, 1, 3, 5, 6, 4, 0};
+    uint8 bitOrder[8] = { 2, 7, 1, 3, 5, 6, 4, 0 };
     data.WriteBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = {4, 2, 1, 6, 5, 7, 0, 3};
+    uint8 byteOrder[8] = { 4, 2, 1, 6, 5, 7, 0, 3 };
     data.WriteBytesSeq(guid, byteOrder);
 
     SendMessageToSet(&data, true);
