@@ -21158,15 +21158,9 @@ void Unit::SendMovementHover(bool apply)
 
     if (apply)
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_SET_HOVER, 8);
-        ObjectGuid guid = GetGUID();
-
-        uint8 bits[8] = { 4, 1, 5, 7, 6, 2, 0, 3 };
-        data.WriteBitInOrder(guid, bits);
-
-        uint8 bytes[8] = { 3, 7, 2, 5, 6, 1, 0, 4 };
-        data.WriteBytesSeq(guid, bytes);
-
+        WorldPacket data(MSG_MOVE_HOVER, 64);
+        data.append(GetPackGUID());
+        BuildMovementPacket(&data);
         SendMessageToSet(&data, false);
     }
 }
@@ -21201,15 +21195,9 @@ void Unit::SendMovementWaterWalking()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
 
-    WorldPacket data(SMSG_SPLINE_MOVE_SET_WATER_WALK, 64);
-    ObjectGuid guid = GetGUID();
-
-    uint8 bitOrder[8] = { 6, 5, 0, 3, 1, 7, 4, 2 };
-    data.WriteBitInOrder(guid, bitOrder);
-
-    uint8 bytes[8] = { 7, 6, 5, 1, 4, 3, 2, 0 };
-    data.WriteBytesSeq(guid, bytes);
-
+    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
 }
 
