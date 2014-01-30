@@ -352,13 +352,21 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     // if player leaves queue and he is invited to rated arena match, then he have to lose
     if (groupInfo->IsInvitedToBGInstanceGUID && groupInfo->IsRated && decreaseInvitedCount)
     {
-        if (groupInfo->group)
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
         {
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "UPDATING memberLost's personal arena rating for %u by opponents rating: %u", GUID_LOPART(guid), groupInfo->OpponentsTeamRating);
-            if (Player* player = ObjectAccessor::FindPlayer(guid))
-                groupInfo->group->MemberLost(player, groupInfo->OpponentsMatchmakerRating, Arena::GetSlotByType(groupInfo->ArenaType));
-            else
-                groupInfo->group->OfflineMemberLost(guid, groupInfo->OpponentsMatchmakerRating, Arena::GetSlotByType(groupInfo->ArenaType));
+            
+            // Update personal rating
+            uint8 slot = Arena::GetSlotByType(groupInfo->ArenaType);
+            int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), groupInfo->OpponentsMatchmakerRating, false);
+            player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
+
+            // Update matchmaker rating
+            player->SetArenaMatchMakerRating(player->GetArenaMatchMakerRating(slot) -12, slot);
+
+            // Update personal played stats
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
         }
     }
 

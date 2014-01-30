@@ -383,8 +383,10 @@ class Item : public Object
 
         int32 GetReforgableStat(ItemModType statType) const;
 
+        bool CanUpgrade() const;
         bool IsPvPItem() const;
         bool IsStuffItem() const;
+        bool IsLegendaryCloak() const;
 
     private:
         std::string m_text;

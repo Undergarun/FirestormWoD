@@ -208,15 +208,15 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     uint32 level_min, level_max, racemask, classmask, zones_count, str_count;
     uint32 zoneids[10];                                     // 10 is client limit
 
-    bool unk1, unk2, unk3, unk4, unk5, bit740;
+    bool unk1, unk2, bit725, bit740;
     uint8 playerLen = 0, guildLen = 0;
     uint8 unkLen2, unkLen3;
     std::string player_name, guild_name;
 
-    recvData >> racemask;                                   // race mask
+    recvData >> classmask;                                  // class mask
     recvData >> level_max;                                  // minimal player level, default 100 (MAX_LEVEL)
     recvData >> level_min;                                  // maximal player level, default 0
-    recvData >> classmask;                                  // class mask
+    recvData >> racemask;                                   // race mask
 
     guildLen = recvData.ReadBits(7);
     playerLen = recvData.ReadBits(6);
@@ -232,19 +232,17 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     if (zones_count > 10)                                   // can't be received from real client or broken packet
         return;
 
-    unkLen2 = recvData.ReadBits(8);
-    unk5 = recvData.ReadBit();
-    unkLen3 = recvData.ReadBits(8);
-    unk3 = recvData.ReadBit();
-    unk4 = recvData.ReadBit();
+    unkLen2 = recvData.ReadBits(8) << 1;
+    unkLen2 += recvData.ReadBit();
+    unkLen3 = recvData.ReadBits(8) << 1;
+    unkLen3 += recvData.ReadBit();
+    bit725 = recvData.ReadBit();
 
-    uint8* unkLens;
-    unkLens = new uint8[str_count];
-    std::string* unkStrings;
-    unkStrings = new std::string[str_count];
+    uint8* unkLens = new uint8[str_count];
+    std::string* unkStrings = new std::string[str_count];
 
     for (uint8 i = 0; i < str_count; i++)
-        unkLens[i] = recvData.ReadBits(8);
+        unkLens[i] = recvData.ReadBits(7);
 
     bit740 = recvData.ReadBit();
     recvData.FlushBits();
@@ -255,16 +253,16 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     std::wstring str[4];                                    // 4 is client limit
     for (uint32 i = 0; i < str_count; ++i)
     {
-        std::string temp;
-        recvData >> temp;                                   // user entered string, it used as universal search pattern(guild+player name)?
-
+        std::string temp = recvData.ReadString(unkLens[i]); // user entered string, it used as universal search pattern(guild+player name)?
         if (!Utf8toWStr(temp, str[i]))
             continue;
 
         wstrToLower(str[i]);
-
         sLog->outDebug(LOG_FILTER_NETWORKIO, "String %u: %s", i, temp.c_str());
     }
+
+    if (guildLen > 0)
+        guild_name = recvData.ReadString(guildLen); // guild name, case sensitive ...
 
     for (uint32 i = 0; i < zones_count; ++i)
     {
@@ -274,8 +272,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Zone %u: %u", i, zoneids[i]);
     }
 
-    if (guildLen > 0)
-        guild_name = recvData.ReadString(guildLen);         // guild name, case sensitive...
+    if (unkLen3 > 0)
+        std::string unkString = recvData.ReadString(unkLen3);
 
     if (unkLen2 > 0)
         std::string unkString = recvData.ReadString(unkLen2);
@@ -1831,8 +1829,10 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WHOIS");
-    std::string charname;
-    recvData >> charname;
+
+    uint32 textLength = recvData.ReadBits(6);
+    recvData.FlushBits();
+    std::string charname = recvData.ReadString(textLength);
 
     if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {

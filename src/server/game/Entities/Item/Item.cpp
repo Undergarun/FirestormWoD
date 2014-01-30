@@ -293,21 +293,24 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     // For Item Upgrade
     if (itemProto->ItemLevel >= 458 && IsStuffItem())
     {
-        if (IsPvPItem())
+        if (CanUpgrade())
         {
-            if (itemProto->Quality == ITEM_QUALITY_EPIC)
-                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
+            if (IsPvPItem())
+            {
+                if (itemProto->Quality == ITEM_QUALITY_EPIC)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
+                else
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
+            }
             else
-                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
-        }
-        else
-        {
-            if (itemProto->Quality == ITEM_QUALITY_EPIC)
-                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
-            else if (itemProto->Quality == ITEM_QUALITY_LEGENDARY)
-                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
-            else
-                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
+            {
+                if (itemProto->Quality == ITEM_QUALITY_EPIC)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
+                else if (itemProto->Quality == ITEM_QUALITY_LEGENDARY)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
+                else
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
+            }
         }
 
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
@@ -503,29 +506,35 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 upgradeId = fields[10].GetUInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+        if (CanUpgrade())
+        {
+            SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+        }
     }
     else
     {
         // For Item Upgrade
         if (proto->ItemLevel >= 458 && IsStuffItem())
         {
-            if (IsPvPItem())
+            if (CanUpgrade())
             {
-                if (proto->Quality == ITEM_QUALITY_EPIC)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
+                if (IsPvPItem())
+                {
+                    if (proto->Quality == ITEM_QUALITY_EPIC)
+                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
+                    else
+                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
+                }
                 else
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
-            }
-            else
-            {
-                if (proto->Quality == ITEM_QUALITY_EPIC)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
-                else if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
-                else
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
+                {
+                    if (proto->Quality == ITEM_QUALITY_EPIC)
+                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
+                    else if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
+                    else
+                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
+                }
             }
 
             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
@@ -1622,6 +1631,54 @@ bool Item::IsStuffItem() const
             return false;
         default:
             return true;
+    }
+
+    return false;
+}
+
+bool Item::CanUpgrade() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+        return false;
+
+    // August Celestials's cloaks can be upgraded
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY && !IsLegendaryCloak())
+        return false;
+
+    if (!IsStuffItem())
+        return false;
+
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    if (!HasStats())
+        return false;
+
+    // PvP item can't be upgraded after Season 12
+    if (IsPvPItem() && proto->ItemLevel > 483)
+        return false;
+
+    return true;
+}
+
+bool Item::IsLegendaryCloak() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+        return false;
+
+    switch (proto->ItemId)
+    {
+        case 102245: // Qian-Le, Courage of Niuzao
+        case 102246: // Xing-Ho, Breath of Yu'lon
+        case 102247: // Jina-Kang, Kindness of Chi-Ji
+        case 102248: // Fen-Yu, Fury of Xuen
+        case 102249: // Gong-Lu, Strength of Xuen
+        case 102250: // Qian-Ying, Fortitude of Niuzao
+            return true;
+        default:
+            break;
     }
 
     return false;

@@ -507,6 +507,35 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
     float value = float(basePoints);
 
+    if (ApplyAuraName == SPELL_AURA_MOD_STAT)
+    {
+        if (BasePoints == 0 && !DeltaScalingMultiplier)
+        {
+            switch (_spellInfo->Id)
+            {
+                case 105697: // Virmen's Bite
+                case 105702: // Potion of the Jade Serpent
+                case 105706: // Potion of the Mogu Power
+                    value = 4000.0f;
+                    break;
+                case 105698: // Potion of the Mountains
+                    value = 12000.0f;
+                    break;
+                case 105694: // Flask of the Earth
+                    value = 1500.0f;
+                    break;
+                case 105689: // Flask of Spring Blossoms
+                case 105691: // Flask of the Warm Sun
+                case 105693: // Flask of Falling Leaves
+                case 105696: // Flask of Winter's Bite
+                    value = 1000.0f;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     // random damage
     if (caster)
     {

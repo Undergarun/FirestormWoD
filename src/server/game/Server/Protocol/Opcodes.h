@@ -575,7 +575,7 @@ enum Opcodes
     CMSG_WARGAME_ACCEPT                               = 0x000,  // 5.0.5 16048
     CMSG_WARGAME_START                                = 0x000,  // 5.0.5 16048
     CMSG_WHO                                          = 0x1E06, // 5.4.0 17399
-    CMSG_WHOIS                                        = 0x000,  // 5.0.5 16048
+    CMSG_WHOIS                                        = 0x1A53, // 5.4.0 17399
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x1646, // 5.4.0 17399
     CMSG_WORLD_TELEPORT                               = 0x000,  // 5.0.5 16048
     CMSG_WRAP_ITEM                                    = 0x041,  // 5.4.0 17399
