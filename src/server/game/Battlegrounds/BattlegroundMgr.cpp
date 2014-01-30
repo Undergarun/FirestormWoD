@@ -898,7 +898,13 @@ void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint6
 void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, uint64 guid)
 {
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
-    *data << uint64(guid);
+    ObjectGuid playerGuid = guid;
+
+    uint8 bits[8] = { 0, 1, 7, 2, 4, 3, 5, 6 };
+    data->WriteBitInOrder(playerGuid, bits);
+
+    uint8 bytes[8] = { 2, 3, 1, 0, 5, 4, 7, 6 };
+    data->WriteBytesSeq(playerGuid, bytes);
 }
 
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
