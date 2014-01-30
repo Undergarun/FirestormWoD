@@ -2454,7 +2454,8 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
         {
-            m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
+            if (m_bgData.bgQueuesJoinedTime.find(bgTypeId) != m_bgData.bgQueuesJoinedTime.end())
+                m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
         }
 
         bool InBattlegroundQueue() const
