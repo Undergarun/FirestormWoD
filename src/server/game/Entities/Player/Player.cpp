@@ -25475,6 +25475,10 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (getClass() == CLASS_HUNTER)
         GetSession()->SendStablePet(0);
+
+    // Hack fix for remove flags auras after crash
+    if (!GetMap()->IsBattlegroundOrArena())
+        RemoveFlagsAuras();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
