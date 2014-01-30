@@ -1027,7 +1027,7 @@ enum Opcodes
     SMSG_GUILD_XP_UPDATE                              = 0x000,  // 5.0.5 16048
     SMSG_HEALTH_UPDATE                                = 0x018,  // 5.4.0 17399 (JamList)
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x00B,  // 5.4.0 17399
-    SMSG_HOTFIX_INFO                                  = 0x416,  // 5.0.5 16048
+    SMSG_HOTFIX_INFO                                  = 0x416,  // 5.4.0 17399
     SMSG_HOTFIX_NOTIFY                                = 0x432,  // 5.4.0 17399 (JamList)
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x819,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_INITIALIZE_FACTIONS                          = 0x90F,  // 5.4.0 17399
@@ -1276,8 +1276,8 @@ enum Opcodes
     SMSG_PROFILE_DATA_RESPONSE                        = 0x498,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0x000,  // 5.0.5 16048
     SMSG_PVP_CREDIT                                   = 0x0BC,  // 5.4.0 17399
-    SMSG_PVP_LOG_DATA                                 = 0x480,  // 5.4.0 17399 (JamList)
-    SMSG_PVP_OPTIONS_ENABLED                          = 0x5A9,  // 5.4.0 17399 (JamList)
+    SMSG_PVP_LOG_DATA                                 = 0x480,  // 5.4.0 17399
+    SMSG_PVP_OPTIONS_ENABLED                          = 0x5A9,  // 5.4.0 17399
     SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0x000,  // 5.0.5 16048 Deprecated
     SMSG_QUERY_OBJECT_POSITION                        = 0x910,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_QUERY_OBJECT_ROTATION                        = 0x104,  // 5.4.0 17399 (JamList) (NYI)
