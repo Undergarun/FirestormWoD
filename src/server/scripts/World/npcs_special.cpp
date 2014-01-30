@@ -4738,6 +4738,56 @@ class npc_shadowy_apparition : public CreatureScript
         };
 };
 
+/*######
+## npc_force_of_nature
+######*/
+
+class npc_force_of_nature : public CreatureScript
+{
+    public:
+        npc_force_of_nature() : CreatureScript("npc_force_of_nature") { }
+
+        struct npc_force_of_natureAI : public ScriptedAI
+        {
+            npc_force_of_natureAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+            void Reset()
+            {
+                Player* owner = me->GetOwner() ? me->GetOwner()->ToPlayer() : NULL;
+                Unit* target = owner ? owner->getVictim() : NULL;
+
+                if (!owner || !target)
+                    return;
+
+                switch (me->GetEntry())
+                {
+                    case ENTRY_TREANT_GUARDIAN:
+                        me->CastSpell(target, PROVOKE, true); // Taunt
+                        me->AI()->AttackStart(target);
+                        break;
+                    case ENTRY_TREANT_FERAL:
+                    case ENTRY_TREANT_BALANCE:
+                        me->CastSpell(target, 113770, true); // Root
+                        me->AI()->AttackStart(target);
+                        break;
+                    case ENTRY_TREANT_RESTO:
+                        if (target->IsHostileTo(me->ToUnit()))
+                            me->CastSpell(owner, 18562, true); // Heal
+                        else
+                            me->CastSpell(target, 18562, true);
+                        break;
+                }
+            }
+
+            void UpdateAI(const uint32 diff) { }
+        };
+
+        CreatureAI* GetAI(Creature* pCreature) const
+        {
+            return new npc_force_of_natureAI(pCreature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4798,4 +4848,5 @@ void AddSC_npcs_special()
     new npc_psyfiend();
     new npc_spectral_guise();
     new npc_shadowy_apparition();
+    new npc_force_of_nature();
 }

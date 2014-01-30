@@ -38,7 +38,7 @@ enum ShamanSpells
     SPELL_SHA_ASCENDANCE_RESTORATION        = 114052,
     SPELL_SHA_ASCENDANCE_ENHANCED           = 114051,
     SPELL_SHA_ASCENDANCE                    = 114049,
-    SPELL_SHA_HEALING_RAIN                  = 73920,
+    SPELL_SHA_HEALING_RAIN                  = 142923,
     SPELL_SHA_HEALING_RAIN_TICK             = 73921,
     SPELL_SHA_EARTHQUAKE                    = 61882,
     SPELL_SHA_EARTHQUAKE_TICK               = 77478,
@@ -1514,6 +1514,27 @@ class spell_sha_healing_rain : public SpellScriptLoader
 {
     public:
         spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
+
+        class spell_sha_healing_rain_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_healing_rain_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (WorldLocation const* loc = GetExplTargetDest())
+                    GetCaster()->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_healing_rain_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_healing_rain_SpellScript();
+        }
 
         class spell_sha_healing_rain_AuraScript : public AuraScript
         {

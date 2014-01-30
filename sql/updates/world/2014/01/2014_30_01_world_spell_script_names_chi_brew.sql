@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (115399, 'spell_monk_chi_brew');
