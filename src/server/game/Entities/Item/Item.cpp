@@ -291,26 +291,23 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         return false;
 
     // For Item Upgrade
-    if (itemProto->ItemLevel >= 458 && IsStuffItem())
+    if (CanUpgrade())
     {
-        if (CanUpgrade())
+        if (IsPvPItem())
         {
-            if (IsPvPItem())
-            {
-                if (itemProto->Quality == ITEM_QUALITY_EPIC)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
-                else
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
-            }
+            if (itemProto->Quality == ITEM_QUALITY_EPIC)
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
             else
-            {
-                if (itemProto->Quality == ITEM_QUALITY_EPIC)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
-                else if (itemProto->Quality == ITEM_QUALITY_LEGENDARY)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
-                else
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
-            }
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
+        }
+        else
+        {
+            if (itemProto->Quality == ITEM_QUALITY_EPIC)
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
+            else if (itemProto->Quality == ITEM_QUALITY_LEGENDARY)
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
+            else
+                SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
         }
 
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
@@ -515,26 +512,23 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     else
     {
         // For Item Upgrade
-        if (proto->ItemLevel >= 458 && IsStuffItem())
+        if (CanUpgrade())
         {
-            if (CanUpgrade())
+            if (IsPvPItem())
             {
-                if (IsPvPItem())
-                {
-                    if (proto->Quality == ITEM_QUALITY_EPIC)
-                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
-                    else
-                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
-                }
+                if (proto->Quality == ITEM_QUALITY_EPIC)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
                 else
-                {
-                    if (proto->Quality == ITEM_QUALITY_EPIC)
-                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
-                    else if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
-                    else
-                        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
-                }
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
+            }
+            else
+            {
+                if (proto->Quality == ITEM_QUALITY_EPIC)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
+                else if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
+                else
+                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
             }
 
             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
@@ -1640,6 +1634,9 @@ bool Item::CanUpgrade() const
 {
     ItemTemplate const* proto = GetTemplate();
     if (!proto)
+        return false;
+
+    if (proto->ItemLevel < 458)
         return false;
 
     // August Celestials's cloaks can be upgraded
