@@ -676,6 +676,14 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         // not have spell in spellbook or spell passive and not casted by client
         if ((!mover->ToPlayer()->HasActiveSpell(spellId) || spellInfo->IsPassive()) && !spellInfo->IsRaidMarker())
         {
+            // Since 5.4.x, somes time client send CMSG_CAST_SPELL instead of CMSG_GAMEOBJECT_USE ...
+            if (IS_GAMEOBJECT_GUID(targetGuid))
+            {
+                GameObject* go = sObjectAccessor->GetGameObject(*mover, targetGuid);
+                if (go)
+                    go->Use(_player);
+            }
+
             //cheater? kick? ban?
             recvPacket.rfinish(); // prevent spam at ignore packet
             return;
