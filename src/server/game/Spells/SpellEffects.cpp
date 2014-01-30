@@ -2213,19 +2213,23 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
 
     switch (m_spellInfo->Id)
     {
-        case 6262:  // Healthstone
+        case 6262:   // Healthstone
             if (m_caster->HasAura(56224)) // Glyph of Healthstone
                 return;
             break;
-        case 59754: // Rune Tap - Party
+        case 59754:  // Rune Tap - Party
             if (unitTarget == m_caster)
                 return;
             break;
-        case 53353: // Chimera Shot - Heal
+        case 53353:  // Chimera Shot - Heal
             if (m_caster->HasAura(119447)) // Glyph of Chimera Shot
                 damage += 2;
             break;
-        case 118340:// Impending Victory - Heal
+        case 115450: // Detox
+            if (!m_caster->HasAura(146954))
+                return;
+            break;
+        case 118340: // Impending Victory - Heal
             // Victorious State causes your next Impending Victory to heal for 20% of your maximum health.
             if (m_caster->HasAura(32216))
             {

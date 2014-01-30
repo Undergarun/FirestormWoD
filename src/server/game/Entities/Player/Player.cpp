@@ -4037,6 +4037,10 @@ void Player::InitSpellForLevel()
         if (!IsSpellFitByClassAndRace(spellId))
             continue;
 
+        // Hack fix - Dual Wield cannot be on MistWeaver monks
+        if (specializationId == SPEC_MONK_MISTWEAVER && (spellId == 674 || spellId == 124146))
+            continue;
+
         if (spell->SpellLevel <= level)
             learnSpell(spellId, false);
     }

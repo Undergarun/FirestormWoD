@@ -80,6 +80,39 @@ enum RogueSpells
     ROGUE_SPELL_WEAKENED_ARMOR                   = 113746,
     ROGUE_SPELL_DEADLY_BREW                      = 51626,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGE              = 56807,
+    ROGUE_SPELL_CLOAK_AND_DAGGER                 = 138106,
+    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY         = 128766
+};
+
+// Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
+// Cloak and Dagger - 138106
+class spell_rog_cloak_and_dagger : public SpellScriptLoader
+{
+    public:
+        spell_rog_cloak_and_dagger() : SpellScriptLoader("spell_rog_cloak_and_dagger") { }
+
+        class spell_rog_cloak_and_dagger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (Unit* target = GetHitUnit())
+                        if (_player->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER))
+                            _player->CastSpell(target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_cloak_and_dagger_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_cloak_and_dagger_SpellScript();
+        }
 };
 
 // Called by Expose Armor - 8647
@@ -1453,6 +1486,7 @@ class spell_rog_shadowstep : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_cloak_and_dagger();
     new spell_rog_glyph_of_expose_armor();
     new spell_rog_cheat_death();
     new spell_rog_blade_flurry();
