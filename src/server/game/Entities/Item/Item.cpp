@@ -1649,9 +1649,6 @@ bool Item::CanUpgrade() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (!HasStats())
-        return false;
-
     // PvP item can't be upgraded after Season 12
     if (IsPvPItem() && proto->ItemLevel > 483)
         return false;
