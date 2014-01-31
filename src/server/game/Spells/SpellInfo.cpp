@@ -442,7 +442,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     // base amount modification based on spell lvl vs caster lvl
     if (ScalingMultiplier != 0.0f)
     {
-        if (caster && _spellInfo->Id != 113344) // Hack Fix Bloodbath
+        if (caster && !_spellInfo->IsCustomCalculated())
         {
             int32 level = caster->getLevel();
             if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA) && _spellInfo->Id != 774) // Hack Fix Rejuvenation, doesn't use the target level for basepoints
@@ -3321,6 +3321,7 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 3409:  // Crippling Poison
         case 5760:  // Mind-Numbling Poison
         case 8680:  // Wound Poison
+        case 79136: // Venomous Wound (damage)
         case 89775: // Hemorrhage (DoT)
         case 112961:// Leeching Poison
         case 113780:// Deadly Poison (direct damage)
@@ -3525,6 +3526,23 @@ bool SpellInfo::CanTriggerHotStreak() const
         case 30455: // Ice Lance
         case 44614: // Frostfire Bolt
         case 108853:// Inferno Blast
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool SpellInfo::IsCustomCalculated() const
+{
+    switch (Id)
+    {
+        case 113344:// Bloodbath
+        case 124464:// Mastery: Shadowy Recall - Shadow Word: Pain
+        case 124465:// Mastery: Shadowy Recall - Vampiric Touch
+        case 124467:// Mastery: Shadowy Recall - Devouring Plague
+        case 124468:// Mastery: Shadowy Recall - Mind Flay
             return true;
         default:
             break;

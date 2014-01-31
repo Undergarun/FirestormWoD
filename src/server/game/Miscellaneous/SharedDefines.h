@@ -217,6 +217,13 @@ enum Classes
     (1<<(CLASS_MAGE-1))    |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
     (1<<(CLASS_DEATH_KNIGHT-1)) |(1<<(CLASS_MONK-1)))
 
+enum eclipseState
+{
+    ECLIPSE_NONE,
+    ECLIPSE_LUNAR,
+    ECLIPSE_SOLAR
+};
+
 // valid classes for creature_template.unit_class
 enum UnitClass
 {
@@ -3671,7 +3678,7 @@ enum SkillType
     SKILL_DESTRUCTION              = 593,
     SKILL_HOLY2                    = 594,
     SKILL_DISCIPLINE               = 613,
-    SKILL_LOCKPICKING              = 633,
+    SKILL_OLD_ROGUE                = 633,    // Old SKILL_LOCKPICKING
     SKILL_PET_BAT                  = 653,
     SKILL_PET_HYENA                = 654,
     SKILL_PET_BIRD_OF_PREY         = 655,
@@ -3744,7 +3751,7 @@ enum SkillType
     SKILL_LANG_PANDAREN_N          = 905, // 5.0.5
     SKILL_LANG_PANDAREN_A          = 906, // 5.0.5
     SKILL_LANG_PANDAREN_H          = 907, // 5.0.5
-    SKILL_NEW_ROGUE                = 921, // New in MoP 5.0.5
+    SKILL_LOCKPICKING              = 921, // New LOCKPICKING in MoP 5.0.5
     SKILL_NEW_SHAMAN               = 924, // New in MoP 5.0.5
     SKILL_NEW_PET_IMP              = 927, // New in MoP 5.0.5
     SKILL_NEW_PET_VOIDWALKER       = 928, // New in MoP 5.0.5
@@ -4039,6 +4046,7 @@ enum DiminishingGroup
     DIMINISHING_DRAGONS_BREATH      = 20,
     DIMINISHING_DEEP_FREEZE         = 21,
     DIMINISHING_RING_OF_FROST       = 22,
+    DIMINISHING_PARALYTIC_POISON    = 23
 };
 
 enum SummonCategory

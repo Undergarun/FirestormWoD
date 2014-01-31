@@ -65,8 +65,6 @@ enum HunterSpells
     HUNTER_SPELL_BINDING_SHOT_LINK                  = 117405,
     HUNTER_SPELL_BINDING_SHOT_STUN                  = 117526,
     HUNTER_SPELL_BINDING_SHOT_IMMUNE                = 117553,
-    HUNTER_SPELL_PIERCIG_SHOTS                      = 53238,
-    HUNTER_SPELL_PIERCIG_SHOTS_EFFECT               = 63468,
     HUNTER_SPELL_MASTERS_CALL                       = 62305,
     HUNTER_SPELL_MASTERS_CALL_TRIGGERED             = 54216,
     HUNTER_SPELL_COBRA_STRIKES_AURA                 = 53260,
@@ -119,6 +117,7 @@ enum HunterSpells
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT  = 120761,
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT = 121414,
     HUNTER_SPELL_ASPECT_OF_THE_BEAST                = 61648,
+    HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301
 };
 
 // Glyph of Aspect of the Beast - 125042
@@ -517,6 +516,25 @@ class spell_hun_glyph_of_marked_for_die : public SpellScriptLoader
         {
             return new spell_hun_glyph_of_marked_for_die_SpellScript();
         }
+
+        class spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript);
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (GetCaster())
+                    if (Unit* target = aurEff->GetBase()->GetUnitOwner())
+                        if (target->HasAura(HUNTER_SPELL_EXPLOSIVE_SHOT, GetCaster()->GetGUID()))
+                            amount += target->GetRemainingPeriodicAmount(GetCaster()->GetGUID(), HUNTER_SPELL_EXPLOSIVE_SHOT, SPELL_AURA_PERIODIC_DAMAGE, 1);
+            }
+
+            void Register()
+            {
+                if (m_scriptSpellId == HUNTER_SPELL_EXPLOSIVE_SHOT)
+                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
 };
 
 // Stampede - 121818
@@ -549,6 +567,11 @@ class spell_hun_stampede : public SpellScriptLoader
                                     if (!pet)
                                         return;
 
+                                    if (!pet->isAlive())
+                                        pet->setDeathState(ALIVE);
+
+                                    // Set pet at full health
+                                    pet->SetHealth(pet->GetMaxHealth());
                                     pet->SetReactState(REACT_AGGRESSIVE);
                                     pet->m_Stampeded = true;
 
@@ -570,6 +593,11 @@ class spell_hun_stampede : public SpellScriptLoader
                                     if (!pet)
                                         return;
 
+                                    if (!pet->isAlive())
+                                        pet->setDeathState(ALIVE);
+
+                                    // Set pet at full health
+                                    pet->SetHealth(pet->GetMaxHealth());
                                     pet->SetReactState(REACT_AGGRESSIVE);
                                     pet->m_Stampeded = true;
 

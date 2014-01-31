@@ -360,6 +360,7 @@ void AddSC_thousand_needles();
 void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
+void AddSC_uldum();
 
 //northrend
 void AddSC_boss_slad_ran();
@@ -1044,6 +1045,7 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
+    AddSC_uldum();
 #endif
 }
 

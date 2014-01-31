@@ -417,20 +417,16 @@ class spell_pri_spirit_of_redemption : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (!caster->ToPlayer())
-                        return;
-
                     if (dmgInfo.GetDamage() < caster->GetHealth())
                         return;
 
-                    if (caster->ToPlayer()->HasSpellCooldown(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_TALENT))
+                    if (caster->HasAura(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT))
                         return;
 
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_FORM, true);
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY, true);
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_ROOT, true);
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT, true);
-                    caster->ToPlayer()->AddSpellCooldown(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_TALENT, 0, time(NULL) + 90);
 
                     absorbAmount = caster->GetHealth() - 1;
                 }
@@ -701,8 +697,16 @@ class spell_pri_shadowfiend : public SpellScriptLoader
                         if (Guardian* pet = _player->GetGuardianPet())
                         {
                             pet->InitCharmInfo();
-                            pet->SetReactState(REACT_DEFENSIVE);
-                            pet->ToCreature()->AI()->AttackStart(target);
+                            pet->SetReactState(REACT_AGGRESSIVE);
+
+                            if (pet->IsValidAttackTarget(target))
+                                pet->ToCreature()->AI()->AttackStart(target);
+                            else
+                            {
+                                Unit* victim = _player->GetSelectedUnit();
+                                if (victim && pet->IsValidAttackTarget(target))
+                                    pet->ToCreature()->AI()->AttackStart(target);
+                            }
                         }
                     }
                 }

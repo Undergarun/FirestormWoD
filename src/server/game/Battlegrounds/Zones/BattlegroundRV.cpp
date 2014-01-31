@@ -169,7 +169,7 @@ void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
     }
 }
 
-void BattlegroundRV::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundRV::FillInitialWorldStates(ByteBuffer &data)
 {
     data << uint32(BG_RV_WORLD_STATE_A) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));
     data << uint32(BG_RV_WORLD_STATE_H) << uint32(GetAlivePlayersCountByTeam(HORDE));

@@ -1020,15 +1020,36 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             uint32 val  = (fire > shadow) ? fire : shadow;
             SetBonusDamage(int32 (val));
 
-            // Hardcode : Ghoul Base HP
-            if (IsPetGhoul() && getLevel() > 86)
-            {
-                SetCreateHealth(GetCreateHealth() / 7);
-                CastSpell(this, 47466, true);
-            }
-
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+
+            switch (GetEntry())
+            {
+                case ENTRY_GHOUL:
+                    SetCreateHealth(GetCreateHealth() / 7);
+                    CastSpell(this, 47466, true);
+                    break;
+                case ENTRY_FEL_IMP:
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_VOIDLORD:
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_SHIVARRA:
+                    CastSpell(this, 114355, true); // Dual-Wield
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_OBSERVER:
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_WRATHGUARD:
+                    CastSpell(this, 114355, true); // Dual-Wield
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                default:
+                    break;
+            }
+
             break;
         }
         case HUNTER_PET:
@@ -1158,6 +1179,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 }
                 case 63508: // Xuen, the White Tiger
                 {
+                    if (m_owner->GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
                     if (!pInfo)
                     {
                         SetCreateMana(28 + 10*petlevel);
@@ -1169,6 +1193,15 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel + bonus_dmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel + bonus_dmg));
                     SetAttackTime(BASE_ATTACK, 1 * IN_MILLISECONDS);
+
+                    float crit_chance = 5.0f;
+                    crit_chance += m_owner->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    crit_chance += m_owner->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, SPELL_SCHOOL_MASK_NORMAL);
+                    m_baseSpellCritChance = crit_chance;
+
+                    m_modMeleeHitChance = float(m_owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE));
+                    m_modMeleeHitChance += m_owner->ToPlayer()->GetRatingBonusValue(CR_HIT_MELEE);
+                    m_modSpellHitChance = m_modMeleeHitChance;
 
                     break;
                 }

@@ -557,9 +557,9 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
+    // Instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
-        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
+        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)) || IsPremium())
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint32(reason);
@@ -2504,7 +2504,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
         _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_HORDE);
         _player->setFactionForRace(RACE_PANDAREN_HORDE);
         _player->SaveToDB();
-        WorldLocation location(1, -618.518f, -4251.67f, 38.718f, M_PI);
+        WorldLocation location(1, -1379.194f, -4369.913f, 26.0255f, 0.1223f);
         _player->TeleportTo(location);
         _player->SetHomebind(location, 363);
         _player->learnSpell(669, false); // Language Orcish
@@ -2515,7 +2515,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
         _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLI);
         _player->setFactionForRace(RACE_PANDAREN_ALLI);
         _player->SaveToDB();
-        WorldLocation location(0, -8914.57f, -133.909f, 80.5378f, M_PI);
+        WorldLocation location(0, -9064.97f, -432.403f, 93.055f, 0.6296f);
         _player->TeleportTo(location);
         _player->SetHomebind(location, 9);
         _player->learnSpell(668, false); // Language Common

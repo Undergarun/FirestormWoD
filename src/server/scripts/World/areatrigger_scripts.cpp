@@ -496,6 +496,26 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
         std::map<uint32, time_t> _triggerTimes;
 };
 
+enum BaelModan
+{
+    KILL_CREDIT     = 38251,
+    SABOTAGE_QUEST  = 24747
+};
+
+class AreaTrigger_at_bael_modan : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_bael_modan() : AreaTriggerScript("AreaTrigger_at_bael_modan") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(SABOTAGE_QUEST) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(KILL_CREDIT, 0);
+
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -508,4 +528,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_bring_your_orphan_to();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
+    new AreaTrigger_at_bael_modan();
 }

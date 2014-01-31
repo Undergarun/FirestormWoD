@@ -90,7 +90,8 @@ enum ShamanSpells
     SPELL_SHA_SOLAR_BEAM_SILENCE            = 113288,
     SPELL_SHA_GHOST_WOLF                    = 2645,
     SPELL_SHA_ITEM_T14_4P                   = 123124,
-    SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM = 55456
+    SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM = 55456,
+    SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS = 131554
 };
 
 // Hex - 51514
@@ -1800,8 +1801,13 @@ class spell_sha_lava_lash : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         int32 hitDamage = GetHitDamage();
-                        if (_player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                        if (Item* weapon = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                         {
+                            // Damage increased by 40% if off-hand weapon enchanted by Frostbrand weapon.
+                            if (_player->HasAura(SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS) &&
+                                weapon->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT) == 2)
+                                AddPct(hitDamage, 40);
+
                             // Damage is increased by 40% if your off-hand weapon is enchanted with Flametongue.
                             if (_player->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000, 0, 0))
                                 AddPct(hitDamage, 40);

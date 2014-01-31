@@ -2592,8 +2592,8 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
                 }
 
             
-                //Permanent ban
-                stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED);
+                // Permanent ban
+                stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT);
                 stmtt->setUInt32(0, account);
                 PreparedQueryResult resultCheckBan = LoginDatabase.Query(stmtt);
 
@@ -3056,31 +3056,21 @@ void World::InitRandomBGResetTime()
 
 void World::InitCurrencyResetTime()
 {
-    time_t currencytime = uint64(sWorld->getWorldState(WS_CURRENCY_RESET_TIME));
-    if (!currencytime)
-        m_NextCurrencyReset = time_t(time(NULL));         // game time not yet init
+    uint32 nextResetDay = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
+    if (!nextResetDay)
+    {
+        uint32 baseDay = 16022; // mercredi 13 novembre 2013
+        uint32 currentDay = (time(NULL) + 3600) / 86400;
+        nextResetDay = baseDay;
 
-    // generate time by config
-    time_t curTime = time(NULL);
-    tm localTm = *localtime(&curTime);
+        while (nextResetDay < currentDay)
+            nextResetDay += 7;
 
-    localTm.tm_wday = getIntConfig(CONFIG_CURRENCY_RESET_DAY);
-    localTm.tm_hour = getIntConfig(CONFIG_CURRENCY_RESET_HOUR);
-    localTm.tm_min = 0;
-    localTm.tm_sec = 0;
+        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, nextResetDay);
+    }
 
-    // current week reset time
-    time_t nextWeekResetTime = mktime(&localTm);
-
-    // next reset time before current moment
-    if (curTime >= nextWeekResetTime)
-        nextWeekResetTime += getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY;
-
-    // normalize reset time
-    m_NextCurrencyReset = currencytime < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
-
-    if (!currencytime)
-        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
+    m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
+    sLog->OutPandashan("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
 }
 
 void World::InitServerAutoRestartTime()
@@ -3140,8 +3130,8 @@ void World::ResetCurrencyWeekCap()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
-    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL));
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
+    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
+    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 
     sLog->OutPandashan("World::ResetCurrencyWeekCap()");
 }

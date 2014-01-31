@@ -157,7 +157,8 @@ namespace JadeCore
     struct ObjectUpdater
     {
         uint32 i_timeDiff;
-        explicit ObjectUpdater(const uint32 diff) : i_timeDiff(diff) {}
+        uint32 i_startTime;
+        explicit ObjectUpdater(const uint32 diff, const uint32 startTime) : i_timeDiff(diff), i_startTime(startTime) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void Visit(PlayerMapType &) {}
         void Visit(CorpseMapType &) {}

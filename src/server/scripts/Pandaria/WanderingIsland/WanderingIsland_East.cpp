@@ -326,7 +326,7 @@ class spell_shu_benediction: public SpellScriptLoader
         class spell_shu_benediction_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_shu_benediction_AuraScript);
-
+            
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -398,7 +398,7 @@ class spell_grab_carriage: public SpellScriptLoader
 
                 Creature* carriage = NULL;
                 Creature* yak      = NULL;
-
+                
                 if (caster->GetAreaId() == 5826) // Bassins chantants
                 {
                     carriage = caster->SummonCreature(57208, 979.06f, 2863.87f, 87.88f, 4.7822f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
@@ -441,7 +441,7 @@ public:
     npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
 
     struct npc_nourished_yakAI : public npc_escortAI
-    {
+    {        
         npc_nourished_yakAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -496,12 +496,12 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_nourished_yakAI(creature);
     }
-
+    
 };
 
 class npc_water_spirit_dailo : public CreatureScript
@@ -628,11 +628,11 @@ public:
                             {
                                 owner->KilledMonsterCredit(55547);
                                 owner->RemoveAurasDueToSpell(59074); // Remove phase 4, asleep wugou disappear
-
+                                
                                 if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                                     if (Creature* newWugou = owner->SummonCreature(60916, wugou->GetPositionX(), wugou->GetPositionY(), wugou->GetPositionZ(), wugou->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0, owner->GetGUID()))
                                         newWugou->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-
+                            
                                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
                             }
                             break;
@@ -669,6 +669,65 @@ class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
         }
 };
 
+#define ACTION_TALK_1 1
+#define ACTION_TALK_2 2
+
+class mob_delivery_cart_tender : public CreatureScript
+{
+public:
+    mob_delivery_cart_tender() : CreatureScript("mob_delivery_cart_tender") { }
+
+    struct mob_delivery_cart_tenderAI : public ScriptedAI
+    {
+        mob_delivery_cart_tenderAI(Creature* creature) : ScriptedAI(creature)
+        {
+            hasSaidIntro  = false;
+            hasSaidIntro2 = false;
+        }
+
+        bool hasSaidIntro;
+        bool hasSaidIntro2;
+
+        void DoAction(const int32 actionId)
+        {
+            if (actionId == ACTION_TALK_1)
+            {
+                if (!hasSaidIntro)
+                {
+                    Talk(0);
+                    hasSaidIntro = true;
+                }
+            }
+            else if (actionId == ACTION_TALK_2)
+                if (!hasSaidIntro2)
+                {
+                    Talk(1);
+                    hasSaidIntro2 = true;
+                }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, me, 15.0f);
+
+            for (auto player: playerList)
+            {
+                if (me->GetPositionX() == 974.718994f && me->GetPositionY() == 2863.25)
+                    DoAction(ACTION_TALK_1);
+                else if (player->GetQuestStatus(29775) == QUEST_STATUS_COMPLETE)
+                    DoAction(ACTION_TALK_2);
+            }
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_delivery_cart_tenderAI(creature);
+    }
+};
+
 void AddSC_WanderingIsland_East()
 {
     new AreaTrigger_at_bassin_curse();
@@ -680,4 +739,5 @@ void AddSC_WanderingIsland_East()
     new spell_grab_carriage();
     new npc_nourished_yak();
     new npc_water_spirit_dailo();
+    new mob_delivery_cart_tender();
 }

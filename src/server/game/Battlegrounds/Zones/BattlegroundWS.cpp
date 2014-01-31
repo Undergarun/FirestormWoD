@@ -806,7 +806,7 @@ WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
     }
 }
 
-void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundWS::FillInitialWorldStates(ByteBuffer& data)
 {
     data << uint32(BG_WS_FLAG_CAPTURES_ALLIANCE) << uint32(GetTeamScore(ALLIANCE));
     data << uint32(BG_WS_FLAG_CAPTURES_HORDE) << uint32(GetTeamScore(HORDE));

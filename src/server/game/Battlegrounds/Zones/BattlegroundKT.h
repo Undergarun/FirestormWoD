@@ -172,7 +172,7 @@ const uint32 BG_KT_ORBS_AURA[MAX_ORBS] =
 };
 
 //tick point according to which zone
-const uint32 BG_KT_TickPoints[3] = {5, 10, 20};
+const uint32 BG_KT_TickPoints[3] = { 1, 3, 5 };
 
 class BattlegroundKT : public Battleground
 {
@@ -207,7 +207,7 @@ class BattlegroundKT : public Battleground
         void UpdateOrbState(Team team, uint32 value);
         void UpdateTeamScore(Team team);
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        virtual void FillInitialWorldStates(WorldPacket& data, uint32& count);
+        virtual void FillInitialWorldStates(ByteBuffer& data, uint32& count);
 
         /* Scorekeeping */
         uint32 GetTeamScore(Team team) const            { return m_TeamScores[GetTeamIndexByTeamId(team)]; }

@@ -28,6 +28,7 @@
 #include "UpdateFields.h"
 #include "ObjectMgr.h"
 #include "AccountMgr.h"
+#include "zlib.h"
 
 #define DUMP_TABLE_COUNT 30
 
@@ -419,6 +420,7 @@ DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
 
     fprintf(fout, "%s\n", dump.c_str());
     fclose(fout);
+
     return ret;
 }
 
@@ -439,7 +441,7 @@ void fixNULLfields(std::string &line)
 DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, uint32 guid, bool onlyBoundedItems)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
-    if (charcount >= 10)
+    if (charcount >= 11)
         return DUMP_TOO_MANY_CHARS;
 
     FILE* fin = fopen(file.c_str(), "r");
@@ -465,21 +467,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     else
         guid = sObjectMgr->_hiCharGuid;
 
-    // normalize the name if specified and check if it exists
-    if (!normalizePlayerName(name))
-        name = "";
-
-    if (ObjectMgr::CheckPlayerName(name, true) == CHAR_NAME_SUCCESS)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
-        stmt->setString(0, name);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (result)
-            name = "";                                      // use the one from the dump
-    }
-    else
-        name = "";
+    name = "transfertCha";
 
     // name encoded or empty
 
@@ -502,8 +490,12 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     while (!feof(fin))
     {
         if (!fgets(buf, 32000, fin))
-            if (feof(fin)) break;
-                ROLLBACK(DUMP_FILE_BROKEN);
+        {
+            if (feof(fin)) 
+                break;
+
+            ROLLBACK(DUMP_FILE_BROKEN);
+        }
 
         std::string line; line.assign(buf);
 
@@ -567,20 +559,14 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 if (!changenth(line, 2, chraccount))// characters.account update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (name == "")
-                {
-                    // check if the original name already exists
-                    name = getnth(line, 3);
+                // Avoid MySQL error (Data too long for column 'name' at row 1)
+                if (name.size() > 12)
+                    name = name.substr(0, 11);
 
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
-                    stmt->setString(0, name);
-                    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+                if (!changenth(line, 3, name.c_str())) // characters.name
+                    ROLLBACK(DUMP_FILE_BROKEN);
 
-                    if (result)
-                        if (!changenth(line, 41, "1"))       // characters.at_login set to "rename on login"
-                            ROLLBACK(DUMP_FILE_BROKEN);
-                }
-                else if (!changenth(line, 3, name.c_str())) // characters.name
+                if (!changenth(line, 41, "1"))       // characters.at_login set to "rename on login"
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 const char null[5] = "NULL";
@@ -660,14 +646,14 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 if (!changenth(line, 3, newguid))// item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                std::string oldReforgeId = getnth(line, 11).c_str();
-                if (oldReforgeId == "''")
-                    if (!changenth(line, 11, "0"))
+                std::string oldReforgeId = getnth(line, 12).c_str();
+                if (oldReforgeId.size() == 0)
+                    if (!changenth(line, 12, "0"))
                         ROLLBACK(DUMP_FILE_BROKEN);
 
-                std::string oldTransmogrificationId = getnth(line, 12).c_str();
-                if (oldTransmogrificationId == "''")
-                    if (!changenth(line, 12, "0"))
+                std::string oldTransmogrificationId = getnth(line, 13).c_str();
+                if (oldTransmogrificationId.size() == 0)
+                    if (!changenth(line, 13, "0"))
                         ROLLBACK(DUMP_FILE_BROKEN);
 
                 if (onlyBoundedItems)
@@ -751,7 +737,11 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         }
     }
 
-    CharacterDatabase.CommitTransaction(trans);
+    fclose(fin);
+
+    if (!CharacterDatabase.DirectCommitTransaction(trans))
+        return DUMP_FILE_BROKEN;
+
     //CharacterDatabase.DirectCommitTransaction(trans);
 
     sObjectMgr->_hiItemGuid += items.size();
@@ -759,8 +749,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     if (incHighest)
         ++sObjectMgr->_hiCharGuid;
-
-    fclose(fin);
 
     //result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
 

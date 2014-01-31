@@ -64,7 +64,7 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25  // @todo: remove me (removed since 5.0.4)
+#define PLAYER_MAX_DAILY_QUESTS     25  // Fake big number
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -2641,6 +2641,8 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        uint32 m_lastEclipseState;
+
         // current pet slot
         PetSlot m_currentPetSlot;
         uint32 m_petSlotUsed;
@@ -3295,6 +3297,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
+        uint8 m_storeCallbackCounter;
 
         uint32 m_lastPlayedEmote;
 

@@ -1050,7 +1050,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_ASSAULTS:AV_SOUND_HORDE_ASSAULTS);
 }
 
-void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundAV::FillInitialWorldStates(ByteBuffer& data)
 {
     bool stateok;
     //graveyards
