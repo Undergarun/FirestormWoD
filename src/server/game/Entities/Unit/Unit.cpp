@@ -12416,7 +12416,7 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                     case 82928: // Aimed Shot (Master Marksman)
                     case 56641: // Steady Shot
                         if (HasAura(34483)) // Careful Aim
-                            if (victim->GetHealthPct() > 90.0f)
+                            if (victim->GetHealthPct() > 80.0f)
                                 crit_chance += 75.0f;
                         break;
                     default:
