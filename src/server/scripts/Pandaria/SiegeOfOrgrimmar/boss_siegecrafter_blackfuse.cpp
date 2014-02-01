@@ -23,10 +23,10 @@
 
 enum eSpells
 {
-    SPELL_ELECTROSTATIC_CHARGE        = 143385, // Inflicts 250000 Nature damage to the current target. Increases damage taken from Electrostatic Charge by 100% and damage inflicted on targets with Reactive Armor by 200% for 1 min.
-    SPELL_OVERCHARGE                  = 145774, // pas de spécification sur la techinque
-    SPELL_LAUNCH_SAWBLADE             = 143265, // Fires a sawblade at a target, inflciting 416250 to 483750 Physical damage to any enemies in the path of the blade and knocking them back.
-    SPELL_PROTECTIVE_FRENZY           = 145365  // Increases the caster's attack speed by 100%.
+    SPELL_ELECTROSTATIC_CHARGE        = 143385,
+    SPELL_OVERCHARGE                  = 145774,
+    SPELL_LAUNCH_SAWBLADE             = 143265,
+    SPELL_PROTECTIVE_FRENZY           = 145365
 };
 
 enum eEvents

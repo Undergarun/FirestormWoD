@@ -23,24 +23,19 @@
 
 enum eSpells
 {
-    /*
-    SPELL_ACCELERATION	           =143411,	 // Rate of energy regeneration increased.
-    SPELL_ACID_BREATH	           =143780,  // Inflicts 487500 to 512500 Nature damage in a frontal cone. The acid coats the armor of enemies, reducing its effectiveness by 20% per stack.
-    SPELL_BERSERK	               =26662,   // Increases the caster's attack and movement speeds by 150% and all damage it deals by 500%.  Also grants immunity to Taunt effects
-    SPELL_BLOOD_FRENZY             =143442,	 // This unit is in a frenzy for blood! Movement speed periodically increasing.
-    SPELL_BLOOD_FRENZY             =143440,  // The caster grows more powerful over time, increasing damage done and movement speed. Stacks.
-    SPELL_DEAFENING_SCREECH	       =143343,  // Inflicts 292500 to 307500 Physical damage to all enemies and interrupts spellcasting for 2 sec.
-    SPELL_FEARSOME_ROAR            =143426,  // Inflicts 195000 to 205000 Physical damage in a frontal cone. The roar incites terror in the heart of enemies, causing them to take 25% more damage per stack.
-    SPELL_FIXATE                   =146540,  // Fixated
-    SPELL_FIXATE                   =146581,  // Gul'rok smells your blood and pursues you!
-    SPELL_FIXATE	               =143445,  // Fixating.
-    SPELL_FREEZING_BREATH          =143773,  // Inflicts 195000 to 205000 Frost damage in a frontal cone. After 5 stacks, the target will be frozen in a tomb of ice.
-    SPELL_MENDING                  =149569,  // Heals the caster for 8% of their maximum life
-    SPELL_PANIC                    =143766,  // Inflicts 195000 to 205000 Sonic damage in a frontal cone. The roar incites terror in the heart of enemies, this panic causes them to take 25% more damage per stack.
-    SPELL_SCORCHING_BREATH         =143767,  // Inflicts 195000 to 205000 Fire damage in a frontal cone. The flames sear enemy flesh, causing 75000 Fire damage every 2 seconds.
-    SPELL_SUMMON_PLAYER            =25104,   // Summons an enemy player.
-    SPELL_TAIL_LASH                =143428,  // A sweeping tail strike hits all enemies behind the caster, inflicting 195000 to 205000 damage and stunning them for 2 sec.
-    */
+    SPELL_ACCELERATION	           =143411,
+    SPELL_ACID_BREATH	           =143780,
+    SPELL_BERSERK	               =26662,
+    SPELL_BLOOD_FRENZY             =143442,
+    SPELL_DEAFENING_SCREECH	       =143343,
+    SPELL_FEARSOME_ROAR            =143426,
+    SPELL_FIXATE                   =146540,
+    SPELL_FREEZING_BREATH          =143773,
+    SPELL_MENDING                  =149569,
+    SPELL_PANIC                    =143766,
+    SPELL_SCORCHING_BREATH         =143767,
+    SPELL_SUMMON_PLAYER            =25104,
+    SPELL_TAIL_LASH                =143428
 };
 
 enum eEvents

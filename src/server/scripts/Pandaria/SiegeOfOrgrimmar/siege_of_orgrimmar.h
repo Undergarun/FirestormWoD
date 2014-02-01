@@ -76,6 +76,7 @@ enum eCreatures
 
     // Sha of Pride
     NPC_SHA_OF_PRIDE                    = 71734,
+    NPC_REFLECTION                      = 72172,
 
     // Galakras
     NPC_GALAKRAS                        = 72249,

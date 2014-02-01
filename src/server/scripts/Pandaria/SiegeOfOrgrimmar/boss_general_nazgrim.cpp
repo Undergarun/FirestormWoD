@@ -21,171 +21,21 @@
 #include "ScriptedCreature.h"
 #include "siege_of_orgrimmar.h"
 
-/*
-         phase 1 
-{ 
-  SPELL_HEROIC_SHOCKWAVE    =143716, 
-  SPELL_AFRTERSHOCK         =143712 
-  SPELL_KOR_'_KRON_BANNER   =143501 
-  SPELL_RAVAGER             =143872, 
-  PELL_COOLING_OFF          =143484, 
-} 
-
-                    // Spawn Orgrimmar_Faithul 
-                        switch (rand() % 4) { 
-                        case 0: 
-                            me->SummonCreature(NPC_ORGRIMMAR_FAITHFUL , LR_X, LR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 1: 
-                            me->SummonCreature(NPC_ORGRIMMAR_FAITHFUL , LL_X, LL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 2: 
-                            me->SummonCreature(NPC_ORGRIMMAR_FAITHFUL, UR_X, UR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 3: 
-                            me->SummonCreature(NPC_ORGRIMMAR_FAITHFUL, UL_X, UL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        } 
-  
-  
-                        // Spawn Ironblade 
-                        switch (rand() % 4) { 
-                        case 0: 
-                            me->SummonCreature(NPC_KOR_'_KRON_IRONBLADE, LR_X, LR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 1: 
-                            me->SummonCreature(NPC_KOR_'_KRON_IRONBLADE, LL_X, LL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 2: 
-                            me->SummonCreature(NPC_KOR_'_KRON_IRONBLADE , UR_X, UR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 3: 
-                            me->SummonCreature(NPC_KOR_'_KRON_IRONBLADE, UL_X, UL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        } 
-  
-                        // Spawn Arcweaver 
-                        switch (rand() % 4) { 
-                        case 0: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ARCWEAVER  , LR_X, LR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 1: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ARCWEAVER , LL_X, LL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 2: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ARCWEAVER , UR_X, UR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 3: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ARCWEAVER  , UL_X, UL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        } 
-  
-                        // Spawn Assassin 
-                        switch (rand() % 4) { 
-                        case 0: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ASSASSIN , LR_X, LR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 1: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ASSASSIN , LL_X, LL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 2: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ASSASSIN , UR_X, UR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 3: 
-                            me->SummonCreature(NPC_KOR_'_KRON_ASSASSIN , UL_X, UL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        } 
-  
-                        // Spawn Warshaman 
-                        switch (rand() % 4) { 
-                        case 0: 
-                            me->SummonCreature(NPC_KOR_'_KRON_WARSHAMAN, LR_X, LR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 1: 
-                            me->SummonCreature(NPC_KOR_'_KRON_WARSHAMAN, LL_X, LL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 2: 
-                            me->SummonCreature(NPC_KOR_'_KRON_WARSHAMAN, UR_X, UR_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        case 3: 
-                            me->SummonCreature(NPC_KOR_'_KRON_WARSHAMAN, UL_X, UL_Y, 
-                                    SPAWN_Z, 0, 
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 
-                                    60000); 
-                            break; 
-                        } 
-*/
-
 enum eSpells
 {
-    SPELL_BATTLE_STANCE       = 143589, // A balanced stance that generates 1 rage every 1 sec. 
-    SPELL_BERSERK             = 47008,  // Increases the caster's attack speed by 150% and all damage it deals by 900% for 30 min. 
-    SPELL_BERSERKER_STANCE    = 143594, // A wild stance that increases damage dealt by 25%, damage taken by 25%, and rage generation by 100%. 
-    SPELL_BONECRACKER         = 143638, // Crack the target's bones, reducing maximum health by 10% and causing the target to bleed for 40000 Physical damage every 1 sec. 
-    SPELL_COOLING_OFF         = 143484, // General Nazgrim needs to cool down after using a rage-dependent ability, and is unable to use additional abilities that cost rage for 15 sec.  
-    SPELL_DEFENSIVE_STANCE    = 143593, // A defensive stance that reduces damage taken by 10% and grants rage when struck. 
-    SPELL_EXECUTE             = 143502, // Executes the enemy for 3000000 Physical damage. This attack pierces immunities and cannot be dodged, blocked, or parried. 
-    SPELL_HEROIC_SHOCKWAVE    = 143716, // Inflicts 300000 Physical damage within 10 yards of the impact location. 
-    SPELL_RAVAGER             = 143872, // Throw a whirling blade, inflicting  370000 to 430000 Physical damage to enemies within 6 yards every 1 sec. and granting General Nazgrim 5 rage for each enemy struck. 
-    SPELL_SUNDERING_BLOW      = 143494, // Inflicts 600000 Physical damage and sunders the target's armor, reducing armor by 10% for 30 sec. Generates 5 rage per stack of Sundering Blow on the target. 
-    SPELL_WAR_SONG            = 143503  // A powerful war cry inflicts 50% of enemies' maximum health as damage. 
+    SPELL_BATTLE_STANCE     = 143589,
+    SPELL_BERSERK           = 47008,
+    SPELL_BERSERKER_STANCE  = 143594,
+    SPELL_BONECRACKER       = 143638,
+    SPELL_COOLING_OFF       = 143484,
+    SPELL_DEFENSIVE_STANCE  = 143593,
+    SPELL_EXECUTE           = 143502,
+    SPELL_HEROIC_SHOCKWAVE  = 143716,
+    SPELL_RAVAGER           = 143872,
+    SPELL_SUNDERING_BLOW    = 143494,
+    SPELL_WAR_SONG          = 143503,
+    SPELL_AFRTERSHOCK       = 143712,
+    SPELL_KORKRON_BANNER    = 143501
 };
 
 enum eEvents
@@ -194,25 +44,6 @@ enum eEvents
 
 enum eSays
 {
-    /*
-    General Nazgrim yells: All Kor'kron... under my command... kill them... NOW!
-    General Nazgrim yells: Defend the gate!
-    General Nazgrim yells: Don't be foolish, Vol'jin! You have no siege weapons left! You cannot win this battle!
-    General Nazgrim yells: I am Nazgrim, fist of the Warchief and General of the Horde Army. If I must die today, I will die with honor, in battle, for the horde!
-    General Nazgrim yells: It is an honor to finally face you in combat. Lok'tar Ogar, for Honor, and for the Horde!
-    General Nazgrim yells: Kor'kron, at my side!
-    General Nazgrim yells: Next squad, to the front!
-    General Nazgrim yells: No alliance hand has ever struck me down. Do you think you are seasoned enough?
-    General Nazgrim yells: Rally the forces!
-    General Nazgrim yells: So, it has come to this. Together, we have learned and grown over the years, and now we find ourselves face to face on the battlefield. Do not think I will go easy on you, nor do I expect any quarter. What we do now, we do for the horde, both of us.
-    General Nazgrim yells: Warriors, on the double!
-    General Nazgrim yells: What? Kor'kron, to the gates! Now!
-    General Nazgrim yells: You may have defeated my war machine, but the gate still stands. You will not take Orgrimmar today.
-    General Nazgrim yells: You should have trained harder.
-    General Nazgrim says: Ah... you have learned much... and learned well... an honorable battle.
-    General Nazgrim says: I die... with honor... Lok'tar Ogar...
-    General Nazgrim says: In the end, I stood by the warchief, because it was my duty, and I am glad that it was you who struck me down. May your strength... lead the horde... into a new era of prosperity...
-    */
 };
 
 class boss_general_nazgrim : public CreatureScript

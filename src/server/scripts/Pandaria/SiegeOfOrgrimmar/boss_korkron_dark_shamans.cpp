@@ -23,57 +23,26 @@
 
 enum eSays
 {
-    /*
-    Earthbreaker Haromm yells: And fire!
-    Earthbreaker Haromm yells: Anguished water, stagnant and poisonous!
-    Earthbreaker Haromm yells: Bend to our will!
-    Earthbreaker Haromm yells: Crumbling earth, plagued with rust!
-    Earthbreaker Haromm yells: Storm!
-    Earthbreaker Haromm yells: The blood of the True Horde lusts for power!
-    Earthbreaker Haromm yells: The True Horde takes what it wants!
-    Earthbreaker Haromm yells: Your skull will adorn my necklace.
-    Earthbreaker Haromm says: The elements... what have we done...
-    */
 };
 
 enum eSpells
 {
-    SPEll_ASHEN_WALL          = 144070, // Summons a wall of Ash Elementals
-    SPEll_ASHFLAR_TOTEM       = 144290, // Grants the Falling Ash and Ashen Wall abilities.
-    SPEll_BERSERK             = 47008,  // Increases the caster's attack speed by 150% and all damage it deals by 900% for 30 min.
-    SPEll_BLOODLUST           = 144302, // The Dark Shaman go into a blood frenzy, increasing all damage dealt by 25% and haste by 25%.
-    SPEll_FOUL_STREAM         = 144090, // Deals 300000 Nature damage to all enemies on a line.
-    SPEll_FOULSTREAM_TOTEM    = 144289, // Grants the Foul Stream and Foul Geyser abilities.
-    SPEll_FROSTSTORM_STRIKE   = 144215, // Deals 300000 Frost damage and causes the target to take 25% additional Froststorm Strike damage for 30 sec.  
-    SPEll_IRON_TOMB           = 144328, // Inflicts 500000 Physical damage to players within 3 yards and creates an Iron Tomb
-    SPEll_POISONMIST_TOTEM    = 144288, // Grants the Toxic Mist and Toxic Storm abilities
-    SPEll_RUSTED_IRON_TOTEM   = 144291, // Grants the Iron Tomb and Iron Prison abilities.
-    SPEll_TOXIC_MIST          = 144089  // Deals 80000 Nature damage every 3 sec. for 30 sec and causes growing toxicity in the target.
+    SPEll_ASHEN_WALL          = 144070,
+    SPEll_ASHFLAR_TOTEM       = 144290,
+    SPEll_BERSERK             = 47008,
+    SPEll_BLOODLUST           = 144302,
+    SPEll_FOUL_STREAM         = 144090,
+    SPEll_FOULSTREAM_TOTEM    = 144289,
+    SPEll_FROSTSTORM_STRIKE   = 144215,
+    SPEll_IRON_TOMB           = 144328,
+    SPEll_POISONMIST_TOTEM    = 144288,
+    SPEll_RUSTED_IRON_TOTEM   = 144291,
+    SPEll_TOXIC_MIST          = 144089
 };
 
 enum eEvents
 {
 };
-
-/*
-         phase 1
-{
-	SPELL_FROSTSTORM_STRIKE    =144215,
-    SPELL_TOXIC_MIST           =144089,
-	SPELL_TOXICITY             =144107
-	SPELL_FOUL_STREAM          =144090,
-	SPELL_ASHEN_WALL           =144070,
-};
-    
-         phase 2
-{
-	SPELL_FROSTSTORM_BOLT   =144214,
-    SPELL_TOXIC_STORM       =144005,
-	SPELL_TOXIC_TORNADO     =144029,
-	SPELL_FOUL_GEYSER       =143990,  
-	SPELL_FALLING_ASH       =143973,
-}
-*/
 
 class boss_earthbreaker_haromm : public CreatureScript
 {
@@ -107,180 +76,6 @@ class boss_earthbreaker_haromm : public CreatureScript
             return new boss_earthbreaker_harommAI(creature);
         }
 };
-                  
-/*
-				// Darkfang and Bloodclaw, wolves riding dark shamans, will fight fiercely to defend their masters.
-				// Spawn Darkfang
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_DARKFANG, LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_DARKFANG, LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_DARKFANG , UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_DARKFANG, UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-
-						 // Spawn Bloodclaw
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_BLOODCLAW, LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_BLOODCLAW , LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_BLOODCLAW  , UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_BLOODCLAW , UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-
-						//During the battle, the dark shaman totems pose giving them new Spell
-						 
-						// Spawn Poisonmist_totem
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_POISONMIST_TOTEM, LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_POISONMIST_TOTEM, LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_POISONMIST_TOTEM, UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_POISONMIST_TOTEM, UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-
-						 // Spawn Foulstream_Totem
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_FOULSTREAM_TOTEM, LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_FOULSTREAM_TOTEM, LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_FOULSTREAM_TOTEM, UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_FOULSTREAM_TOTEM, UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-
-						// Spawn Ashflare_Totem
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_ASHFLARE_TOTEM, LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_ASHFLARE_TOTEM, LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_ASHFLARE_TOTEM, UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_ASHFLARE_TOTEM, UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-						 }
-
-					    // Spawn Foul_Slim
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_FOUL_SLIME, LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_FOUL_SLIME, LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_FOUL_SLIME, UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_FOUL_SLIME, UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-*/
 
 class boss_bloodclaw : public CreatureScript
 {

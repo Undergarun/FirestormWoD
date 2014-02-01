@@ -23,12 +23,12 @@
 
 enum eSpells
 {
-    SPELL_BERSERK             = 26662,  // Increases the caster's attack and movement speeds by 150% and all damage it deals by 500%.  Also grants immunity to Taunt effects.
+    SPELL_BERSERK             = 26662,
     SPELL_EXPLOSIVE_TAR       = 144492,
-    SPELL_FLAME_VENTS         = 144464, // Inflicts 292500 to 307500 Fire damage in a frontal cone, searing the target's flesh for 29250 to 30750 damage every 1 second.
-    SPELL_IGNITE_ARMOR        = 144467, // Melts an enemy's armor, increasing Fire damage taken by 10% for 30 sec. This sears the target's flesh for 29250 to 30750 damage every 1 second.
-    SPELL_SEISMIC_ACTIVITY    = 144483, // A mighty drill bores into the earth, causing an earthquake that deals 39000 to 41000 Nature damage every 1 second.
-    SPELL_SHOCK_PULSE         = 144485, // A mighty seismic eruption knocks enemies back and inflicts 73125 to 76875 Nature damage.
+    SPELL_FLAME_VENTS         = 144464,
+    SPELL_IGNITE_ARMOR        = 144467,
+    SPELL_SEISMIC_ACTIVITY    = 144483,
+    SPELL_SHOCK_PULSE         = 144485
 };
 
 enum eEvents
@@ -65,36 +65,6 @@ class boss_iron_juggernaut : public CreatureScript
             return new boss_iron_juggernautAI(creature);
         }
 };
-
-/*
-                         // Spawn Mine
-                        switch (rand() % 4) {
-                        case 0:
-                            me->SummonCreature(NPC_CRAWLER_MINE , LR_X, LR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 1:
-                            me->SummonCreature(NPC_CRAWLER_MINE  , LL_X, LL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 2:
-                            me->SummonCreature(NPC_CRAWLER_MINE  , UR_X, UR_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        case 3:
-                            me->SummonCreature(NPC_CRAWLER_MINE  , UL_X, UL_Y,
-                                    SPAWN_Z, 0,
-                                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                    60000);
-                            break;
-                        }
-*/
 
 class mob_crawler_mine : public CreatureScript
 {
