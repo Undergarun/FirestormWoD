@@ -31,7 +31,7 @@ class ChannelMgr
 {
     public:
         uint32 team;
-        typedef std::map<std::wstring, Channel*> ChannelMap;
+        typedef ACE_Based::LockedMap<std::wstring, Channel*> ChannelMap;
         ChannelMgr() {team = 0;}
         ~ChannelMgr();
 

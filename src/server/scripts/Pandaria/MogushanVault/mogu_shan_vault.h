@@ -57,7 +57,39 @@ enum eActions
     ACTION_CONTINUE_ESCORT                  = 10,
     ACTION_RUN                              = 11,
     ACTION_SAY_ZANDALARI_BEGIN              = 12,
-    ACTION_SAY_ZANDALARI_DEATH              = 13
+    ACTION_SAY_ZANDALARI_DEATH              = 13,
+
+    ACTION_SET_GHOST_VISUAL                 = 14,
+    ACTION_SET_NATIVE_DISPLAYID             = 15,
+
+    ACTION_SETDISPLAYID_QIANG               = 16,
+    ACTION_SETDISPLAYID_SUBETAI             = 17,
+    ACTION_SETDISPLAYID_ZIAN                = 18,
+    ACTION_SETDISPLAYID_MENG                = 19,
+
+    ACTION_BEFORE_COMBAT                    = 20,
+    ACTION_START_FIRST_COMBAT               = 21,
+    ACTION_END_FIRST_COMBAT                 = 22,
+    ACTION_START_SECOND_COMBAT              = 23,
+    ACTION_END_SECOND_COMBAT                = 24,
+    ACTION_START_THIRD_COMBAT               = 25,
+    ACTION_END_THIRD_COMBAT                 = 26,
+    ACTION_START_FOURTH_COMBAT              = 27,
+    ACTION_END_FOURTH_COMBAT                = 28,
+
+    ACTION_KEEPER_ENTER_COMBAT              = 29,
+    ACTION_KEEPER_DIED                      = 30,
+    ACTION_ELEGON_GOB_ACTIVATION            = 31,
+    ACTION_TALK_WILL_OF_EMPEROR             = 32,
+    ACTION_EMPERORS_DEATH                   = 33,
+    ACTION_ACTIVATE_SPIRIT                  = 34,
+
+    // Heroic Feng
+    ACTION_SCHEDULE_SHIELD                  = 35,
+
+    // Heroic Stone Guard
+    ACTION_POWER_DOWN                       = 36,
+    ACTION_TILING                           = 37,
 };
 
 enum eCreatures
@@ -69,12 +101,21 @@ enum eCreatures
     NPC_AMETHYST                    = 60047,
     NPC_COBALT                      = 60051,
     NPC_COBALT_MINE                 = 65803,
+    NPC_TILING_CREATURE             = 62026,
+    NPC_LIVING_COBALT_CRYSTAL       = 60304,
+    NPC_LIVING_JADE_CRYSTAL         = 60306,
+    NPC_LIVING_JASPER_CRYSTAL       = 60307,
+    NPC_LIVING_AMETHYST_CRYSTAL     = 60308,
 
     // Feng
-    NPC_CURSED_MOGU_SCULPTURE       = 61989,
+    NPC_CURSED_MOGU_SCULPTURE_1     = 61989,
+    NPC_CURSED_MOGU_SCULPTURE_2     = 61334,
+    NPC_GHOST_ESSENCE               = 62004,
     NPC_FENG                        = 60009,
     NPC_PHASE_CONTROLER             = 61124,
     NPC_WILDFIRE_SPARK              = 60438,
+    NPC_SIPHONING_SHIELD            = 60627,
+    NPC_SOUL_FRAGMENT               = 60781,
 
     // Garajal
     NPC_GARAJAL                     = 60143,
@@ -114,7 +155,22 @@ enum eCreatures
     NPC_EMPEROR_RAGE                = 60396,
     NPC_EMPEROR_STRENGHT            = 60397,
     NPC_EMPEROR_COURAGE             = 60398,
-    NPC_LOREWALKER_CHO              = 61348
+    NPC_TITAN_SPARK                 = 60480,
+    NPC_LOREWALKER_CHO              = 61348,
+    NPC_MOGUSHAN_WARDEN             = 64947,
+
+    NPC_SORCERER_MOGU               = 61250,
+    NPC_MOGU_ARCHER                 = 61345,
+    NPC_KINGSGUARD                  = 61347,
+    NPC_MOUNTED_MOGU                = 61341,
+
+    MOB_SUBETAI                     = 61427,
+    MOB_MENG                        = 61429,
+    MOB_ZIAN                        = 61421,
+    MOB_QIANG                       = 61423,
+
+    NPC_GENERAL_PURPOSE_BUNNY_JMF	= 55091,
+    NPC_ANCIENT_MOGU_MACHINE		= 60648
 };
 
 enum eGameObjects
@@ -133,6 +189,8 @@ enum eGameObjects
     GOB_ELEGON_DOOR_ENTRANCE        = 213244,
     GOB_ELEGON_CELESTIAL_DOOR       = 214412,
     GOB_WILL_OF_EMPEROR_ENTRANCE    = 213258,
+    GOB_ELEGON_CHEST                = 214383,
+    GOB_ELEGON_CHEST_HEROIC         = 470000, // Custom entry
 
     // Feng
     GOB_SPEAR_STATUE                = 213245,
@@ -149,6 +207,7 @@ enum eGameObjects
     GOB_ENERGY_TITAN_CIRCLE_1       = 213528,
     GOB_ENERGY_TITAN_CIRCLE_2       = 213527,
     GOB_ENERGY_TITAN_CIRCLE_3       = 213529,
+    GOB_CELESTIAL_COMMAND           = 211650,
 
     GOB_MOGU_RUNE_FIRST             = 213937,
     GOB_MOGU_RUNE_END               = 213955,

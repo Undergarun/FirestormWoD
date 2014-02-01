@@ -168,15 +168,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Blind
             else if (spellproto->SpellFamilyFlags[0] & 0x1000000)
                 return DIMINISHING_FEAR;
-            // Cheap Shot
-            else if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return DIMINISHING_CONTROLLED_STUN;
             // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
             else if (spellproto->SpellIconID == 163)
                 return DIMINISHING_LIMITONLY;
-            // Paralytic Poison
+            // Paralytic Poison (own DR)
             else if (spellproto->Id == 3609)
-                return DIMINISHING_STUN;
+                return DIMINISHING_PARALYTIC_POISON;
             break;
         }
         case SPELLFAMILY_HUNTER:
@@ -3287,6 +3284,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 yards
                     break;
                 case 117829:// Cowardice (DoT)
+                case 117006:// Devastating Arc
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     break;
                 case 117833:// Crazy Thought
@@ -3299,6 +3297,34 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                     break;
                 // SPELLS
+                case 688:   // Summon Imp
+                    spellInfo->OverrideSpellList.push_back(112866); // Summon Fel Imp
+                    break;
+                case 697:   // Summon Voidwalker
+                    spellInfo->OverrideSpellList.push_back(112867); // Summon Voidlord
+                    break;
+                case 712:   // Summon Succubus
+                    spellInfo->OverrideSpellList.push_back(112868); // Summon Shivarra
+                    break;
+                case 691:   // Summon Felhunter
+                    spellInfo->OverrideSpellList.push_back(112869); // Summon Observer
+                    break;
+                case 30146: // Summon Felguard
+                    spellInfo->OverrideSpellList.push_back(112870); // Summon Wrathguard
+                    break;
+                case 1122:  // Summon Infernal
+                    spellInfo->OverrideSpellList.push_back(112921); // Summon Abyssal
+                    break;
+                case 18540: // Summon Doomguard
+                    spellInfo->OverrideSpellList.push_back(112927); // Summon Terrorguard
+                    break;
+                case 120517:// Halo (Holy)
+                case 120644:// Halo (shadow)
+                    spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+                    break;
+                case 80240: // Havoc
+                    spellInfo->ProcCharges = 3;
+                    break;
                 case 128997:// Spirit Beast Blessing
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                     break;
@@ -3692,8 +3718,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // -1s
                     break;
                 case 53257: // Cobra Strikes
-                    spellInfo->Effects[0].ApplyAuraName = 0;
-                    spellInfo->Effects[0].Effect = 0;
                     spellInfo->Effects[0].BasePoints = 0;
                     spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
                     break;
@@ -3820,6 +3844,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 102355:// Faerie Swarm
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                     break;
+                case 3411:  // Intervene
+                    spellInfo->OverrideSpellList.push_back(114029); // Add Safeguard to override spell list of Intervene
+                    break;
                 case 1784:  // Stealth
                     spellInfo->OverrideSpellList.push_back(115191); // Add Stealth (talent) to override spell list of Stealth
                     break;
@@ -3843,7 +3870,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 117895:// Eminence (statue)
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
-                    spellInfo->Effects[0].TargetB = NULL;
+                    spellInfo->Effects[0].TargetB = 0;
                     break;
                 case 115294:// Mana Tea
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
@@ -4000,6 +4027,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 132566:// Seed of Corruption (Malefic Grasp)
                 case 131737:// Agony (Malefic Grasp)
                 case 42463: // Seal of Truth
+                case 124464:// Shadow Word: Pain (Mastery instant damage)
+                case 124465:// Vampiric Touch (Mastery instant damage)
+                case 124467:// Devouring Plague (Mastery instant damage)
+                case 124468:// Mind Flay (Mastery instant damage)
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                     break;
                 case 131116:// Allow to use Raging Blow
@@ -4056,6 +4087,10 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_DAMAGE;
                     spellInfo->Effects[0].Amplitude = 1000;
                     spellInfo->Effects[0].BasePoints = 0;
+                    break;
+                case 108937:// Baby Elephant Takes a Bath
+                    spellInfo->Effects[1].BasePoints = 40;
+                    spellInfo->Effects[1].MiscValue = 100;
                     break;
                 case 126451:// Clash - Impact
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(29);

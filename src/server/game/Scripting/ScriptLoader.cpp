@@ -360,6 +360,7 @@ void AddSC_thousand_needles();
 void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
+void AddSC_uldum();
 
 //northrend
 void AddSC_boss_slad_ran();
@@ -643,6 +644,22 @@ void AddSC_boss_garajal();
 void AddSC_boss_spirit_kings();
 void AddSC_boss_elegon();
 void AddSC_boss_will_of_emperor();
+void AddSC_instance_siege_of_orgrimmar();
+void AddSC_siege_of_orgrimmar();
+void AddSC_immerseus();
+void AddSC_fallen_protectors();
+void AddSC_norushen();
+void AddSC_sha_of_pride();
+void AddSC_galakras();
+void AddSC_iron_juggernaut();
+void AddSC_korkron_dark_shamans();
+void AddSC_general_nazgrim();
+void AddSC_malkorok();
+void AddSC_spoils_of_pandaria();
+void AddSC_thok_the_bloodthirsty();
+void AddSC_siegecrafter_blackfuse();
+void AddSC_paragons_of_the_klaxxi();
+void AddSC_Garrosh_Hellscream();
 
 void AddSC_townlong_steppes();
 void AddSC_dread_wastes();
@@ -1044,6 +1061,7 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
+    AddSC_uldum();
 #endif
 }
 
@@ -1339,6 +1357,22 @@ void AddPandarieScripts()
     AddSC_boss_spirit_kings();
     AddSC_boss_elegon();
     AddSC_boss_will_of_emperor();
+    AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
+    AddSC_siege_of_orgrimmar();
+    AddSC_immerseus();
+    AddSC_fallen_protectors();
+    AddSC_norushen();
+    AddSC_sha_of_pride();
+    AddSC_galakras();
+    AddSC_iron_juggernaut();
+    AddSC_korkron_dark_shamans();
+    AddSC_general_nazgrim();
+    AddSC_malkorok();
+    AddSC_spoils_of_pandaria();
+    AddSC_thok_the_bloodthirsty();
+    AddSC_siegecrafter_blackfuse();
+    AddSC_paragons_of_the_klaxxi();
+    AddSC_Garrosh_Hellscream();
 
     AddSC_townlong_steppes();
     AddSC_dread_wastes();

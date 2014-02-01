@@ -56,7 +56,8 @@ enum eSpells
     SPELL_LIFE_FRAGILE_THREAD   = 116227,
     SPELL_CROSSED_OVER          = 116161, // Todo : virer le summon
 
-    SPELL_FRAIL_SOUL            = 117723,
+    SPELL_FRAIL_SOUL            = 117723, // Heroic
+    SPELL_SOUL_EXPLOSION        = 120639,
     SPELL_ROOT_FOR_EVER         = 31366,
 
     // Death Event
@@ -91,6 +92,7 @@ enum eEvents
 
     // Enrage
     EVENT_FINAL_DESTINATION     = 12,
+    EVENT_SOUL_EXPLOSION        = 13,
 };
 
 enum GarajalTalk
@@ -105,6 +107,7 @@ enum GarajalGhostTalk
     TALK_DEATH  = 0
 };
 
+// 60143 - Gara'jal the Spiritbinder
 class boss_garajal : public CreatureScript
 {
     public:
@@ -143,7 +146,7 @@ class boss_garajal : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_SHADOWY_MINION,   urand(10000, 15000));
                 events.ScheduleEvent(EVENT_BANISHMENT,              90000);
                 events.ScheduleEvent(EVENT_VOODOO_DOLL,             2500);
-                events.ScheduleEvent(EVENT_FINAL_DESTINATION,       360000); // 6 min
+                events.ScheduleEvent(EVENT_FINAL_DESTINATION,       361000); // 6 min & 10s
 
                 me->AddAura(SPELL_STRONG_MOJO, me);
                 me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
@@ -151,6 +154,8 @@ class boss_garajal : public CreatureScript
 
             void JustDied(Unit* attacker)
             {
+                pInstance->SetBossState(DATA_GARAJAL, DONE);
+                _JustDied();
                 me->CastSpell(me, SPELL_RELEASE_SPIRIT, false);
 
                 events.Reset();
@@ -165,7 +170,7 @@ class boss_garajal : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CROSSED_OVER);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIFE_FRAGILE_THREAD);
 
-                if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, 61348, 200.0f, true))
+                if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
                 {
                     if (lorewalkerCho->AI())
                     {
@@ -179,6 +184,9 @@ class boss_garajal : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
+                if (!pInstance->CheckRequiredBosses(DATA_GARAJAL))
+                    return;
+
                 pInstance->SetBossState(DATA_GARAJAL, IN_PROGRESS);
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 Talk(TALK_AGGRO);
@@ -215,7 +223,7 @@ class boss_garajal : public CreatureScript
                     if (me->HealthBelowPctDamaged(20, damage))
                     {
                         me->CastSpell(me, SPELL_FRENESIE, true);
-                        me->MonsterTextEmote("Gara'jal casts Frenzy !", 0, true);
+                        me->MonsterTextEmote("Gara'jal casts |cffba2200|Hspell:117752|h[Frenzy]|h|r !", 0, true);
                     }
                 }
             }
@@ -265,7 +273,7 @@ class boss_garajal : public CreatureScript
                         {
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
-                            me->MonsterTextEmote("Gara'jal selects random players to become Voodoo Dolls !", 0, true);
+                            me->MonsterTextEmote("Gara'jal selects random players to become |cffba2200|Hspell:116000|h[Voodoo Dolls]|h|r !", 0, true);
 
                             int32 mobCount = Is25ManRaid() ? 4 : 3;
 
@@ -274,7 +282,7 @@ class boss_garajal : public CreatureScript
                                 if (Unit* target = SelectTarget(i == 0 ? SELECT_TARGET_TOPAGGRO : SELECT_TARGET_RANDOM, 0, 0, true, -SPELL_VOODOO_DOLL_VISUAL))
                                 {
                                     voodooTargets[i] = target->GetGUID();
-                                    me->MonsterTextEmote("You are a Voodoo Doll ! Damage you take is copied to the other Voodoo Dolls in your raid !", target->GetGUID(), true);
+                                    me->MonsterTextEmote("You are a |cffba2200|Hspell:116000|h[Voodoo Doll]|h|r ! Damage you take is copied to the other Voodoo Dolls in your raid !", target->GetGUID(), true);
                                     target->AddAura(SPELL_VOODOO_DOLL_VISUAL, target);
                                 }
                             }
@@ -336,6 +344,7 @@ class boss_garajal : public CreatureScript
         }
 };
 
+// 61140 - Gara'jal the Spiritbinder
 class mob_garajal_ghost : public CreatureScript
 {
     public:
@@ -420,6 +429,7 @@ class mob_garajal_ghost : public CreatureScript
         }
 };
 
+// 60240 - Spirit Totem
 class mob_spirit_totem : public CreatureScript
 {
     public:
@@ -487,6 +497,8 @@ class mob_spirit_totem : public CreatureScript
         }
 };
 
+// 60184 - Shadowy Minion
+// 60940 - Shadowy Minion
 class mob_shadowy_minion : public CreatureScript
 {
     public:
@@ -593,6 +605,7 @@ class mob_shadowy_minion : public CreatureScript
         }
 };
 
+// 62003 - Severer of Souls
 class mob_soul_cutter : public CreatureScript
 {
     public:
@@ -608,7 +621,10 @@ class mob_soul_cutter : public CreatureScript
             InstanceScript* pInstance;
 
             void Reset()
-            {}
+            {
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_SOUL_EXPLOSION, 30000);
+            }
 
             void JustDied(Unit* attacker)
             {
@@ -632,6 +648,36 @@ class mob_soul_cutter : public CreatureScript
                     if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
                         me->DespawnOrUnsummon();
 
+                events.Update(diff);
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        case EVENT_SOUL_EXPLOSION:
+                        {
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 300.0f);
+                            bool hasCast = false;
+
+                            while (!hasCast)
+                            {
+                                for (auto player : playerList)
+                                {
+                                    if (urand(0, 1))
+                                    {
+                                        me->CastSpell(player, SPELL_SOUL_EXPLOSION, false);
+                                        hasCast = true;
+                                    }
+                                }
+                            }
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_SOUL_EXPLOSION, 30000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -642,6 +688,8 @@ class mob_soul_cutter : public CreatureScript
         }
 };
 
+// 60512 - Spirit Totem
+// 60513 - Spirit Totem
 class mob_spirit_totem_intro : public CreatureScript
 {
     public:
@@ -694,7 +742,8 @@ class spell_soul_back : public SpellScriptLoader
                     // SPELL_LIFE_FRAGILE_THREAD removed by default effect
                     target->RemoveAurasDueToSpell(SPELL_CLONE_VISUAL);
                     target->RemoveAurasDueToSpell(SPELL_CROSSED_OVER);
-                    target->AddAura(SPELL_FRAIL_SOUL, target);
+                    if (target->GetMap()->IsHeroic())
+                        target->AddAura(SPELL_FRAIL_SOUL, target);
                     target->SetHealth(target->CountPctFromCurHealth(30));
 
                     // Todo : Jump le joueur là ou était son corps

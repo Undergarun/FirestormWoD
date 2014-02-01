@@ -457,6 +457,37 @@ class mob_eshelon : public CreatureScript
         };
 };
 
+class mob_restless_leng : public CreatureScript
+{
+    public:
+        mob_restless_leng() : CreatureScript("mob_restless_leng")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_restless_lengAI(creature);
+        }
+
+        struct mob_restless_lengAI : public ScriptedAI
+        {
+            mob_restless_lengAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                std::list<Player*> playerList;
+                playerList.clear();
+                GetPlayerListInGrid(playerList, me, 20.0f);
+
+                for (auto player: playerList)
+                    if (player->GetQuestStatus(31688) == QUEST_STATUS_INCOMPLETE)
+                        player->KilledMonsterCredit(65586);
+            }
+        };
+};
+
 void AddSC_townlong_steppes()
 {
     //Rare mobs
@@ -466,4 +497,6 @@ void AddSC_townlong_steppes()
     //Elite mobs
     new mob_darkwoods_faerie();
     new mob_hei_feng();
+    // Standard Mobs
+    new mob_restless_leng();
 }

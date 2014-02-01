@@ -94,7 +94,7 @@ class OPvPCapturePoint
 
         virtual ~OPvPCapturePoint() {}
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(ByteBuffer & /*data*/) {}
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -204,7 +204,7 @@ class OutdoorPvP : public ZoneScript
 
         typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(ByteBuffer & /*data*/) {}
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* player, uint32 trigger);

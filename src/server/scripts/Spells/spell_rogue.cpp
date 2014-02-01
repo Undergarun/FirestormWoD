@@ -471,7 +471,7 @@ class spell_rog_nightstalker : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -702,10 +702,19 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (_player->HasAura(ROGUE_SPELL_CUT_TO_THE_CHASE_AURA))
+                        {
                             if (AuraPtr sliceAndDice = _player->GetAura(ROGUE_SPELL_SLICE_AND_DICE, _player->GetGUID()))
-                                sliceAndDice->SetDuration(sliceAndDice->GetMaxDuration());
+                            {
+                                sliceAndDice->SetDuration(36 * IN_MILLISECONDS);
+                                sliceAndDice->SetMaxDuration(36 * IN_MILLISECONDS);
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -916,10 +925,22 @@ class spell_rog_shroud_of_concealment : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (AuraPtr shroudOfConcealment = target->GetAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, _player->GetGUID()))
-                            if (!target->IsInRaidWith(_player) && !target->IsInPartyWith(_player))
+                        {
+                            if ((!target->IsInRaidWith(_player) && !target->IsInPartyWith(_player)) ||
+                                target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING) ||
+                                target->HasAura(BG_WS_SPELL_WARSONG_FLAG) || target->HasAura(BG_WS_SPELL_SILVERWING_FLAG) ||
+                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_1) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_2) ||
+                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_3) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_4))
+                            {
                                 target->RemoveAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, _player->GetGUID());
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -1469,6 +1490,9 @@ class spell_rog_shadowstep : public SpellScriptLoader
             {
                 if (GetCaster()->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
+                if (GetExplTargetUnit() && GetExplTargetUnit() == GetCaster())
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 return SPELL_CAST_OK;
             }
 

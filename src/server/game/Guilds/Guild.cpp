@@ -1987,8 +1987,7 @@ void Guild::HandleSwapRanks(WorldSession* session, uint32 id, bool up)
     if (!rankinfo || !rankinfo2)
         return;
 
-    RankInfo tmp = NULL;
-    tmp = *rankinfo2;
+    RankInfo tmp = *rankinfo2;
     rankinfo2->SetName(rankinfo->GetName());
     rankinfo2->SetRights(rankinfo->GetRights());
     rankinfo->SetName(tmp.GetName());

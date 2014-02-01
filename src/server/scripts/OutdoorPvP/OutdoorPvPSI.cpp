@@ -34,7 +34,7 @@ OutdoorPvPSI::OutdoorPvPSI()
     m_LastController = 0;
 }
 
-void OutdoorPvPSI::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPSI::FillInitialWorldStates(ByteBuffer &data)
 {
     data << SI_GATHERED_A << m_Gathered_A;
     data << SI_GATHERED_H << m_Gathered_H;

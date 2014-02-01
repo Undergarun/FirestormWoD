@@ -293,6 +293,9 @@ class mob_sha_of_anger_bunny : public CreatureScript
                 if (who->GetTypeId() != TYPEID_PLAYER)
                     return;
 
+                if (!who->IsWithinDist(me, 30.0f))
+                    return;
+
                 if (who->IsWithinDist(me, 20.0f))
                     who->AddAura(SPELL_OVERCOME_BY_ANGER, who);
                 else if (who->HasAura(SPELL_OVERCOME_BY_ANGER))
@@ -372,9 +375,45 @@ class spell_sha_of_anger_aggressive_behaviour : public SpellScriptLoader
         }
 };
 
+// Overcome by Anger - 129356
+ class spell_sha_of_anger_overcome_by_anger : public SpellScriptLoader
+ {
+    public:
+        spell_sha_of_anger_overcome_by_anger() : SpellScriptLoader("spell_sha_of_anger_overcome_by_anger") { }
+ 
+        class spell_sha_of_anger_overcome_by_anger_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_of_anger_overcome_by_anger_AuraScript);
+ 
+            void OnUpdate(uint32 diff)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        if (target->GetMapId() != caster->GetMapId() ||
+                            !target->IsWithinDist(caster, 30.0f))
+                            target->RemoveAura(SPELL_OVERCOME_BY_ANGER);
+                    }
+                }
+            }
+ 
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_sha_of_anger_overcome_by_anger_AuraScript::OnUpdate);
+            }
+        };
+ 
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_of_anger_overcome_by_anger_AuraScript();
+        }
+ };
+
 void AddSC_boss_sha_of_anger()
 {
     new boss_sha_of_anger();
     new mob_sha_of_anger_bunny();
     new spell_sha_of_anger_aggressive_behaviour();
+    new spell_sha_of_anger_overcome_by_anger();
 }

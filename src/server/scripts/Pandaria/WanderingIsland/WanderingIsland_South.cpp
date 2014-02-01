@@ -24,7 +24,7 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
 
             if (!Aysa || !Ji || !Jojo)
                 return true;
-
+            
             Aysa->AI()->SetGUID(playerGuid);
               Ji->AI()->SetGUID(playerGuid);
             Jojo->AI()->SetGUID(playerGuid);
@@ -42,7 +42,7 @@ class mob_mandori_escort : public CreatureScript
         mob_mandori_escort() : CreatureScript("mob_mandori_escort") { }
 
     struct mob_mandori_escortAI : public npc_escortAI
-    {
+    {        
         mob_mandori_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -52,7 +52,7 @@ class mob_mandori_escort : public CreatureScript
             NPC_JI      = 59988,
             NPC_JOJO    = 59989
         };
-
+        
         uint32 IntroTimer;
         uint32 doorEventTimer;
 
@@ -60,7 +60,7 @@ class mob_mandori_escort : public CreatureScript
         uint8  doorEventState;
 
         uint64 playerGuid;
-
+        
         uint64 mandoriDoorGuid;
         uint64 peiwuDoorGuid;
 
@@ -121,7 +121,7 @@ class mob_mandori_escort : public CreatureScript
             if (Is(NPC_JI))
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                     player->AddAura(68482, player); // Phase 8192
-
+            
             if (Is(NPC_AYSA))
             {
                 if (GameObject* mandoriDoor = me->GetMap()->GetGameObject(mandoriDoorGuid))
@@ -218,7 +218,7 @@ class mob_mandori_escort : public CreatureScript
             npc_escortAI::UpdateAI(diff);
         }
     };
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_mandori_escortAI(creature);
@@ -246,7 +246,7 @@ public:
     mob_ji_forest_escort() : CreatureScript("mob_ji_forest_escort") { }
 
     struct mob_ji_forest_escortAI : public npc_escortAI
-    {
+    {        
         mob_ji_forest_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -265,7 +265,7 @@ public:
         {
             playerGuid = guid;
         }
-
+        
         void WaypointReached(uint32 waypointId)
         {}
 
@@ -291,10 +291,12 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_ji_forest_escortAI(creature);
     }
+    
 };
 
 class AreaTrigger_at_rescue_soldiers : public AreaTriggerScript
@@ -459,7 +461,7 @@ class mob_aysa_gunship_crash : public CreatureScript
         }
 
         struct mob_aysa_gunship_crashAI : public ScriptedAI
-        {
+        {        
             mob_aysa_gunship_crashAI(Creature* creature) : ScriptedAI(creature)
             {}
 
@@ -469,7 +471,7 @@ class mob_aysa_gunship_crash : public CreatureScript
                     damage = 0;
             }
         };
-
+    
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_aysa_gunship_crashAI(creature);
@@ -482,7 +484,7 @@ public:
     mob_aysa_gunship_crash_escort() : CreatureScript("mob_aysa_gunship_crash_escort") { }
 
     struct mob_aysa_gunship_crash_escortAI : public npc_escortAI
-    {
+    {        
         mob_aysa_gunship_crash_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -544,7 +546,7 @@ public:
                 else
                     IntroTimer -= diff;
             }
-
+            
             if (discussTimer)
             {
                 if (discussTimer <= diff)
@@ -577,8 +579,10 @@ public:
                             break;
                         case 6:
                             SetEscortPaused(false);
+                            
                             if (Creature* ji = getJi())
                                 ji->GetMotionMaster()->MovePoint(0, 227.21f, 3981.09f, 85.92f);
+
                             discussTimer = 1000;
                             break;
                         case 7:
@@ -592,7 +596,7 @@ public:
                         case 8:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
                                 player->NearTeleportTo(249.38f, 3939.55f, 65.61f, 1.501471f);
-
+                            
                             if (Creature* ji = getJi())
                                 ji->DespawnOrUnsummon();
 
@@ -610,12 +614,12 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_aysa_gunship_crash_escortAI(creature);
     }
-
+    
 };
 
 #define MAX_ENNEMIES_POS   2
@@ -631,7 +635,7 @@ Position ennemiesPositions[MAX_ENNEMIES_POS] =
 enum eEnums
 {
     QUEST_HEALING_SHEN      = 29799,
-
+            
     NPC_HEALER_A            = 60878,
     NPC_HEALER_H            = 60896,
     NPC_ENNEMY              = 60858,
@@ -839,7 +843,7 @@ class npc_shen_healer : public CreatureScript
         npc_shen_healer() : CreatureScript("npc_shen_healer") { }
 
         struct npc_shen_healerAI : public ScriptedAI
-        {
+        {        
             npc_shen_healerAI(Creature* creature) : ScriptedAI(creature)
             {}
 
@@ -854,7 +858,7 @@ class npc_shen_healer : public CreatureScript
                 return;
             }
         };
-
+    
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_shen_healerAI(creature);

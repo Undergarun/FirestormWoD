@@ -567,6 +567,7 @@ public:
     bool IsAffectedByResilience() const;
     bool IsLethalPoison() const;
     bool CanTriggerHotStreak() const;
+    bool IsCustomCalculated() const;
     bool CannotBeAddedToCharm() const;
 
     // loading helpers

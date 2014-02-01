@@ -39,7 +39,7 @@
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, AuraPtr aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
-_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(NULL)
+_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(0)
 {
     ASSERT(GetTarget() && GetBase());
 
@@ -1713,7 +1713,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
                             break;
 
-                            // aura removed - remove death runes
+                        // aura removed - remove death runes
                         target->ToPlayer()->RemoveRunesBySpell(GetId());
                         break;
                     }

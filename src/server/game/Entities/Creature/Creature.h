@@ -72,26 +72,35 @@ enum CreatureFlagsExtra
 #endif
 
 // Creature Pet entries
+// Warlock
 #define ENTRY_INFERNAL          89
 #define ENTRY_IMP               416
 #define ENTRY_VOIDWALKER        1860
 #define ENTRY_SUCCUBUS          1863
 #define ENTRY_FELHUNTER         417
 #define ENTRY_FELGUARD          17252
-#define ENTRY_WATER_ELEMENTAL   510
-#define ENTRY_TREANT_GUARDIAN   54985
-#define ENTRY_TREANT_FERAL      54984
-#define ENTRY_TREANT_RESTO      54983
-#define ENTRY_TREANT_BALANCE    1964
-#define ENTRY_FIRE_ELEMENTAL    15438
-#define ENTRY_GHOUL             26125
-#define ENTRY_BLOODWORM         28017
-#define ENTRY_GARGOYLE          27829
 #define ENTRY_FEL_IMP           58959
 #define ENTRY_VOIDLORD          58960
 #define ENTRY_SHIVARRA          58963
 #define ENTRY_OBSERVER          58964
 #define ENTRY_WRATHGUARD        58965
+
+// Mage
+#define ENTRY_WATER_ELEMENTAL   510
+
+// Druid
+#define ENTRY_TREANT_GUARDIAN   54985
+#define ENTRY_TREANT_FERAL      54984
+#define ENTRY_TREANT_RESTO      54983
+#define ENTRY_TREANT_BALANCE    1964
+
+// Shaman
+#define ENTRY_FIRE_ELEMENTAL    15438
+
+// Death Knight
+#define ENTRY_GHOUL             26125
+#define ENTRY_BLOODWORM         28017
+#define ENTRY_GARGOYLE          27829
 
 #define MAX_KILL_CREDIT 2
 #define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
@@ -759,6 +768,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void SetLockAI(bool lock) { m_AI_locked = lock; }
 
+        inline bool IsAlreadyUpdated() const { return m_alreadyUpdated; }
+        inline void SetUpdated(bool value) { m_alreadyUpdated = value; }
+        inline uint32 GetLastUpdateTime() const { return m_lastUpdateTime; }
+        inline void SetLastUpdateTime(uint32 time) { m_lastUpdateTime = time; }
+
         uint32 m_LOSCheckTimer;
         bool m_LOSCheck_creature;
         bool m_LOSCheck_player;
@@ -776,10 +790,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 m_lootRecipientGroup;
 
         /// Timers
-        time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
-        time_t m_respawnTime;                               // (secs) time of next respawn
-        uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
-        uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
+        uint32 m_lastUpdateTime;                            // (msecs) timestamp of last call of Creature::Update
+        time_t m_corpseRemoveTime;                          // (msecs) timer for death or corpse disappearance
+        time_t m_respawnTime;                               // (secs)  time of next respawn
+        uint32 m_respawnDelay;                              // (secs)  delay between corpse disappearance and respawning
+        uint32 m_corpseDelay;                               // (secs)  delay between death and corpse disappearance
         float m_respawnradius;
 
         ReactStates m_reactState;                           // for AI, not charmInfo
@@ -794,6 +809,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool m_AlreadySearchedAssistance;
         bool m_regenHealth;
         bool m_AI_locked;
+        bool m_alreadyUpdated;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;

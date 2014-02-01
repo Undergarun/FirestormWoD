@@ -184,21 +184,23 @@ void Totem::UnSummon(uint32 msTime)
                 pct = 50.0f;
 
             Player* _player = m_owner->ToPlayer();
-            uint32 spellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
-            if (_player && spellId)
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            if (_player && spellInfo)
             {
-                if (_player->HasSpellCooldown(spellId))
+                if (_player->HasSpellCooldown(spellInfo->Id))
                 {
-                    uint32 newCooldownDelay = _player->GetSpellCooldownDelay(spellId);
-                    uint32 totalCooldown = sSpellMgr->GetSpellInfo(spellId)->RecoveryTime;
+                    uint32 newCooldownDelay = _player->GetSpellCooldownDelay(spellInfo->Id);
+                    uint32 totalCooldown = spellInfo->RecoveryTime;
+                    if (!totalCooldown)
+                        totalCooldown = spellInfo->CategoryRecoveryTime;
                     int32 lessCooldown = CalculatePct(totalCooldown, int32(pct));
 
                     newCooldownDelay -= lessCooldown;
 
-                    _player->AddSpellCooldown(spellId, 0, uint32(time(NULL) + newCooldownDelay));
+                    _player->AddSpellCooldown(spellInfo->Id, 0, uint32(time(NULL) + newCooldownDelay));
 
                     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                    data << uint32(spellId);                  // Spell ID
+                    data << uint32(spellInfo->Id);                  // Spell ID
                     data << uint64(GetGUID());                // Player GUID
                     data << int32(-lessCooldown);             // Cooldown mod in milliseconds
                     _player->GetSession()->SendPacket(&data);

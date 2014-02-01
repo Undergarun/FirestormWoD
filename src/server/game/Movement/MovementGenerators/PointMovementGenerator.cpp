@@ -86,6 +86,14 @@ void PointMovementGenerator<T>::Reset(T &unit)
     unit.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 }
 
+enum specialSpells
+{
+    BABY_ELEPHANT_TAKES_A_BATH  = 108938,
+    BABY_ELEPHANT_TAKES_A_BATH_2= 108937,
+    MONK_CLASH                  = 126452,
+    MONK_CLASH_IMPACT           = 126451,
+};
+
 template<class T>
 void PointMovementGenerator<T>::MovementInform(T & /*unit*/)
 {
@@ -95,13 +103,16 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit
 {
     if (unit.AI())
         unit.AI()->MovementInform(POINT_MOTION_TYPE, id);
-}
 
-enum specialSpells
-{
-    MONK_CLASH                  = 126452,
-    MONK_CLASH_IMPACT           = 126451,
-};
+    switch (id)
+    {
+        case BABY_ELEPHANT_TAKES_A_BATH:
+            unit.CastSpell(&unit, BABY_ELEPHANT_TAKES_A_BATH_2, true);
+            break;
+        default:
+            break;
+    }
+}
 
 template <> void PointMovementGenerator<Player>::MovementInform(Player& unit)
 {

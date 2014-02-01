@@ -64,7 +64,7 @@ class OutdoorPvPSI : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(ByteBuffer &data);
 
         void SendRemoveWorldStates(Player* player);
 

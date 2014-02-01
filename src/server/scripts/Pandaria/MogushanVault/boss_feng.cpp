@@ -54,7 +54,7 @@ enum eSpells
     SPELL_WILDFIRE_INFUSION             = 116817,
     SPELL_ARCHIMONDES_FIRE              = 116787,
 
-    // Spirit of the Staff
+    // Spirit of the Staff 
     SPELL_ARCANE_SHOCK                  = 131790,
     SPELL_ARCANE_VELOCITY               = 116364,
     SPELL_ARCANE_RESONANCE              = 116417,
@@ -86,7 +86,21 @@ enum eSpells
     // Inversion bouclier siphon        = 118471,
     SPELL_SHADOWBURN_INVERSION          = 132296,
     SPELL_LIGHTNING_LASH_INVERSION      = 132297,
-    SPELL_ARCANE_SHOCK_INVERSION        = 132298
+    SPELL_ARCANE_SHOCK_INVERSION        = 132298,
+
+    // Siphon Shield
+    SPELL_SUMMON_SHIELD                 = 117203,
+    SPELL_TOGGLE_SHIELD                 = 121296,
+    SPELL_SHIELD_DISPLAYED              = 117763,
+    SPELL_SHIELD_VISUAL                 = 117240,
+    SPELL_SOUL_FRAGMENT                 = 45537,
+    SPELL_SUMMON_SOUL_FRAGMENT          = 117717,
+    SPELL_BACK_TO_FENG                  = 117781,
+    SPELL_LINKED_SHIELD                 = 45537,
+
+    // Soul Fragment
+    SPELL_SOUL_DISPLAY                  = 32395,
+    SPELL_ICE_TRAP                      = 135382,
 };
 
 enum eEvents
@@ -103,6 +117,17 @@ enum eEvents
     EVENT_ARCANE_VELOCITY       = 7,
     EVENT_ARCANE_VELOCITY_END   = 8,
     EVENT_ARCANE_RESONANCE      = 9,
+    EVENT_SPIRIT_BOLTS          = 10,
+
+    EVENT_SIPHONING_SHIELD      = 11,
+    EVENT_CHAINS_OF_SHADOW      = 12,
+
+    EVENT_SHIELD_CASTSOULS      = 13,
+    EVENT_SHIELD_CHECKSOULS     = 14,
+    EVENT_SHIELD_BACK           = 15,
+    EVENT_SHIELD_DESTROY        = 16,
+    EVENT_SOUL_WALK             = 17,
+    EVENT_SOUL_GROW             = 18,
 };
 
 enum eFengPhases
@@ -127,11 +152,30 @@ enum eTalk
 
 enum EquipId
 {
-    EQUIP_ID_FISTS  = 82769,
-    EQUIP_ID_SPEAR  = 82770,
-    EQUIP_ID_STAFF  = 82771,
-    EQUIP_ID_SHIELD = 82772, // ????
+    EQUIP_ID_FISTS      = 82769,
+    EQUIP_ID_SPEAR      = 82770,
+    EQUIP_ID_STAFF      = 82771,
+    EQUIP_ID_HAXE       = 61887, // Not exactly the right weapon... - not found in [82760, 82780]
+    EQUIP_ID_SHIELD     = 82767, // Shield
 };
+
+enum eShieldPhases
+{
+    PHASE_INACTIVE      = 0, // Feng isn't using Siphoning Shield
+    PHASE_THROWN        = 1, // Feng has just thrown the shield, but it's not on the floor yet
+    PHASE_LANDED        = 2, // Shield on the ground, casting
+    PHASE_INTERRUPTED   = 3, // Shield has been recalled by Feng, stop casting on the ground
+    PHASE_BACK          = 4, // Shield is flying back to Feng
+};
+
+enum eSoulActions
+{
+    ACTION_SOUL_HOME    = 20,
+    ACTION_SOUL_KILLED  = 21,
+};
+
+#define SHIELD_ON_FENG 5
+#define DISPLAYID_SHIELD 11686
 
 Position modPhasePositions[4] =
 {
@@ -140,6 +184,7 @@ Position modPhasePositions[4] =
     {4021.17f, 1362.80f, 466.30f, 2.0378f}, // Phase Staff
     {4063.26f, 1362.80f, 466.30f, 0.7772f}, // Phase Shield
 };
+
 
 uint32 statueEntryInOrder[4] = {GOB_FIST_STATUE,   GOB_SPEAR_STATUE,   GOB_STAFF_STATUE,   GOB_SHIELD_STATUE};
 uint32 controlerVisualId[4]  = {SPELL_VISUAL_FIST, SPELL_VISUAL_SPEAR, SPELL_VISUAL_STAFF, SPELL_VISUAL_SHIELD};
@@ -162,6 +207,17 @@ uint32 inversionMatching[MAX_INVERSION_SPELLS][2] =
 #define MAX_DIST    60
 Position centerPos = {4041.979980f, 1341.859985f, 466.388000f, 3.140160f};
 
+// Positions for Siphoning Shield
+Position shieldPositions[3] =
+{
+    {4067.59f, 1326.71f, 466.30f, 2.579275f},
+    {4020.77f, 1363.22f, 466.30f, 5.500957f},
+    {4036.06f, 1362.29f, 466.30f, 4.253744f},
+};
+
+#define SHIELD_POSITIONS_COUNT 3;
+
+// Feng The Accursed - 60009
 class boss_feng : public CreatureScript
 {
     public:
@@ -185,6 +241,10 @@ class boss_feng : public CreatureScript
             std::list<uint32> phaseList;
 
             std::list<uint64> sparkList;
+            uint8 availablePos[4];
+
+            // Available positions -- Heroic mode purpose
+            // uint8 availablePos[4];
 
             void Reset()
             {
@@ -204,6 +264,14 @@ class boss_feng : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NULLIFICATION_BARRIER_PLAYERS);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INVERSION);
 
+                isWaitingForPhase = false;
+                actualPhase  = PHASE_NONE;
+                nextPhasePct = 95;
+                dotSpellId = 0;
+
+                for(uint8 i = 1; i < 5; i++)
+                    availablePos[i - 1] = i;
+
                 // Desactivate old statue
                 if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
                 {
@@ -216,16 +284,12 @@ class boss_feng : public CreatureScript
 
                 if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CANCEL)))
                     cancelGob->Respawn();
-
-                isWaitingForPhase = false;
-                actualPhase  = PHASE_NONE;
-                nextPhasePct = 95;
-                dotSpellId = 0;
             }
 
             void JustDied(Unit* attacker)
             {
                 Talk(TALK_DEATH);
+                pInstance->SetBossState(DATA_FENG, DONE);
                 _JustDied();
 
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -238,7 +302,7 @@ class boss_feng : public CreatureScript
                 if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CANCEL)))
                     cancelGob->Delete();
 
-                if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, 61348, 100.0f, true))
+                if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
                 {
                     if (lorewalkerCho->AI())
                     {
@@ -255,12 +319,15 @@ class boss_feng : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
+                if (!pInstance->CheckRequiredBosses(DATA_STONE_GUARD))
+                    return;
+
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 pInstance->SetBossState(DATA_FENG, IN_PROGRESS);
                 Talk(TALK_AGGRO);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform (uint32 type, uint32 id)
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -273,6 +340,9 @@ class boss_feng : public CreatureScript
             {
                 if (action == ACTION_SPARK)
                     me->AddAura(SPELL_WILDFIRE_INFUSION_STACK, me);
+
+                if (action == ACTION_SCHEDULE_SHIELD)
+                    events.ScheduleEvent(EVENT_SIPHONING_SHIELD, 30000);
             }
 
             void PrepareNewPhase(uint8 newPhase)
@@ -283,6 +353,9 @@ class boss_feng : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->Clear();
+
+                if (IsHeroic())
+                    me->CastSpell(me, SPELL_STRENGHT_OF_SPIRIT, false);
 
                 if (Creature* controler = GetClosestCreatureWithEntry(me, NPC_PHASE_CONTROLER, 20.0f))
                     controler->DespawnOrUnsummon();
@@ -344,7 +417,9 @@ class boss_feng : public CreatureScript
                     case PHASE_SHIELD:
                     {
                         dotSpellId = SPELL_SHADOWBURN;
-                        SetEquipmentSlots(false, 0, EQUIP_ID_SHIELD, EQUIP_NO_CHANGE);
+                        SetEquipmentSlots(false, EQUIP_ID_HAXE, EQUIP_ID_SHIELD, EQUIP_NO_CHANGE);
+                        events.ScheduleEvent(EVENT_SIPHONING_SHIELD, 5000, PHASE_SHIELD);
+                        events.ScheduleEvent(EVENT_CHAINS_OF_SHADOW, 45000, PHASE_SHIELD);
                         Talk(TALK_PHASE_4);
                         break;
                     }
@@ -416,20 +491,55 @@ class boss_feng : public CreatureScript
                 if (!pInstance)
                     return;
 
+                if (attacker->GetEntry() == NPC_WILDFIRE_SPARK)
+                {
+                    damage = 0;
+                    return;
+                }
+
                 if (nextPhasePct)
                 {
                     if (me->HealthBelowPctDamaged(nextPhasePct, damage))
                     {
                         events.Reset();
-                        uint8  newPhase = actualPhase + 1;
-                        isWaitingForPhase = true;
 
-                        if (Creature* controler = me->SummonCreature(NPC_PHASE_CONTROLER, modPhasePositions[newPhase - 1].GetPositionX(), modPhasePositions[newPhase - 1].GetPositionY(), modPhasePositions[newPhase - 1].GetPositionZ()))
-                            controler->AddAura(controlerVisualId[newPhase - 1], controler);
+                        uint8 newPhase = 9;
+                        isWaitingForPhase = true;
 
                         me->InterruptNonMeleeSpells(true);
 
-                        me->GetMotionMaster()->MovePoint(newPhase, modPhasePositions[newPhase - 1].GetPositionX(), modPhasePositions[newPhase - 1].GetPositionY(), modPhasePositions[newPhase - 1].GetPositionZ());
+                        // In normal mode, Feng reaches the statue in predetermined order
+                        if (!IsHeroic())
+                        {
+                            newPhase = actualPhase + 1;
+                            me->GetMotionMaster()->MovePoint(newPhase, modPhasePositions[newPhase - 1].GetPositionX(), modPhasePositions[newPhase - 1].GetPositionY(), modPhasePositions[newPhase - 1].GetPositionZ());
+                        }
+                        // In Heroic mode, Feng reaches the nearest statue he hasn't siphonned yet
+                        else
+                        {
+                            float dist = 300.0f;
+                            uint32 statue = 0;
+
+                            // Looking for the closest available statue
+                            for (uint8 i = 0; i < 4; i++)
+                            {
+                                if (availablePos[i])
+                                {
+                                    if (me->GetDistance(modPhasePositions[i]) < dist)
+                                    {
+                                        dist = me->GetDistance(modPhasePositions[i]);
+                                        statue = i;
+                                    }
+                                }
+                            }
+                            // Statue selected
+                            newPhase = statue + 1;
+                            availablePos[statue] = 0;
+                            me->GetMotionMaster()->MovePoint(newPhase, modPhasePositions[statue]);
+                        }
+
+                        if (Creature* controler = me->SummonCreature(NPC_PHASE_CONTROLER, modPhasePositions[newPhase - 1].GetPositionX(), modPhasePositions[newPhase - 1].GetPositionY(), modPhasePositions[newPhase - 1].GetPositionZ()))
+                            controler->AddAura(controlerVisualId[newPhase - 1], controler);
 
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -460,7 +570,11 @@ class boss_feng : public CreatureScript
                     // All Phases
                     case EVENT_DOT_ATTACK:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        if (dotSpellId == SPELL_SHADOWBURN)
+                            if (Unit* target = me->getVictim())
+                                me->CastSpell(target, dotSpellId, false);
+
+                        else if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, dotSpellId, false);
 
                         events.ScheduleEvent(EVENT_DOT_ATTACK, 12500);
@@ -470,7 +584,7 @@ class boss_feng : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->GetMotionMaster()->MoveChase(target);
-
+                        
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     }
@@ -483,7 +597,7 @@ class boss_feng : public CreatureScript
                     }
                     case EVENT_EPICENTER:
                     {
-                        me->MonsterTextEmote("Feng the Accursed begins to channel a violent Epicenter !", 0, true);
+                        me->MonsterTextEmote("Feng the Accursed begins to channel a violent |cffba2200|Hspell:116018|h[Epicenter]|h|r !", 0, true);
                         me->CastSpell(me, SPELL_EPICENTER, false);
                         events.ScheduleEvent(EVENT_EPICENTER, 35000);
                         break;
@@ -493,15 +607,15 @@ class boss_feng : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            me->MonsterTextEmote("You have been affected by Wildfire Spark !", target->GetGUID(), true);
+                            me->MonsterTextEmote("You have been affected by |cffba2200|Hspell:116784|h[Wildfire Spark]|h|r !", target->GetGUID(), true);
                             me->CastSpell(target, SPELL_WILDFIRE_SPARK, false);
                         }
                         events.ScheduleEvent(EVENT_WILDFIRE_SPARK, urand(25000, 35000));
                         break;
                     }
-                    case EVENT_DRAW_FLAME:
+                    case EVENT_DRAW_FLAME: 
                     {
-                        me->MonsterTextEmote("Feng the Accursed begins to Draw Flame to his weapon !", 0, true);
+                        me->MonsterTextEmote("Feng the Accursed begins to |cffba2200|Hspell:116711|h[Draw Flame]|h|r to his weapon !", 0, true);
                         me->CastSpell(me, SPELL_DRAW_FLAME, false);
 
                         events.ScheduleEvent(EVENT_DRAW_FLAME, 60000);
@@ -528,7 +642,41 @@ class boss_feng : public CreatureScript
                         events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 40000);
                         break;
                     }
-                    // Shield Phase : TODO
+                    case EVENT_SPIRIT_BOLTS:
+                    {
+                        std::list<Player*> potenTargets;
+                        GetPlayerListInGrid(potenTargets, me, 100.0f);
+
+                        int count = 0;
+                        int max = IsHeroic() ? 8 : 3;
+
+                        while (count < max)
+                        {
+                            for (auto target : potenTargets)
+                            {
+                                if (urand(0, 1))
+                                {
+                                    me->CastSpell(me, SPELL_SPIRIT_BOLT, true);
+                                    if (++count == max)
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    // Shield Phase
+                    case EVENT_SIPHONING_SHIELD:
+                    {
+                        me->CastSpell(me, 117203, true);
+                        break;
+                    }
+                    case EVENT_CHAINS_OF_SHADOW:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_CHAINS_OF_SHADOW, true);
+                        events.ScheduleEvent(EVENT_CHAINS_OF_SHADOW, urand(30000, 40000));
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -563,6 +711,7 @@ enum eLightningFistSpell
     SPELL_FIST_VISUAL       = 116225
 };
 
+// Lightning Charge - 60241
 class mob_lightning_fist : public CreatureScript
 {
     public:
@@ -624,6 +773,238 @@ class mob_lightning_fist : public CreatureScript
         }
 };
 
+// Siphoning Shield - 60627
+class mob_siphon_shield : public CreatureScript
+{
+    public :
+        mob_siphon_shield() : CreatureScript("mob_siphon_shield") { }
+
+        struct mob_siphon_shieldAI : public ScriptedAI
+        {
+            mob_siphon_shieldAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+                // Set invisible
+                me->SetDisplayId(DISPLAYID_SHIELD);
+                if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                    me->SetFacingToObject(feng);
+            }
+
+            InstanceScript* pInstance;
+            uint8 soulsCount;
+            std::map<uint32, uint32> soulsMap;
+
+            void Reset()
+            {
+                events.Reset();
+                soulsCount = 0;
+                // Display shield
+                me->AddAura(SPELL_SHIELD_DISPLAYED, me);
+                // Activate Visual
+                me->AddAura(SPELL_SHIELD_VISUAL, me);
+                events.ScheduleEvent(EVENT_SHIELD_CASTSOULS, 2000);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action == ACTION_SOUL_HOME)
+                    if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                        feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
+                soulsCount--;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventID = events.ExecuteEvent())
+                {
+                    switch (eventID)
+                    {
+                        case EVENT_SHIELD_CASTSOULS:
+                        {
+                            // Retrieving targets
+                            std::list<Player*> potenTargets;
+                            GetPlayerListInGrid(potenTargets, me, 150.0f);
+
+                            uint8 maxTargets = Is25ManRaid() ? 10 : 5;
+
+                            // Selecting targets
+                            while (potenTargets.size() > maxTargets)
+                            {
+                                for (auto player : potenTargets)
+                                    if (potenTargets.size() > maxTargets && urand(0, 1)) // We can have enough targets during the for loop
+                                        potenTargets.remove(player);
+                            }
+
+                            soulsCount = potenTargets.size();
+                            
+                            // Attacking targets -- Souls are summoned by player
+                            for (auto target : potenTargets)
+                                target->CastSpell(target, SPELL_SUMMON_SOUL_FRAGMENT, false);
+
+                            // Check if there are souls remainings
+                            events.ScheduleEvent(EVENT_SHIELD_CHECKSOULS, 10000);
+                            break;
+                        }
+                        case EVENT_SHIELD_CHECKSOULS:
+                        {
+                            if (!soulsCount)
+                            {
+                                // Remove visual effect
+                                me->RemoveAura(SPELL_SHIELD_VISUAL);
+                                // Scheduling end of action
+                                events.ScheduleEvent(EVENT_SHIELD_BACK, 2000);
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_SHIELD_CHECKSOULS, 1000);
+                            break;
+                        }
+                        case EVENT_SHIELD_BACK:
+                        {
+                            if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                            {
+                                // Making Feng moves his arm
+                                feng->CastSpell(me, SPELL_BACK_TO_FENG, true);
+                                // Making shield returning to feng
+                                me->CastSpell(feng, SPELL_BACK_TO_FENG, false);
+                                // Visual effect
+                                me->CastSpell(feng, SPELL_LINKED_SHIELD, false);
+                            }
+                            events.ScheduleEvent(EVENT_SHIELD_DESTROY, 200);
+                            break;
+                        }
+                        case EVENT_SHIELD_DESTROY:
+                        {
+                            if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                            {
+                                // Become invisible
+                                me->RemoveAura(SPELL_SHIELD_DISPLAYED);
+                                // Make the shield on Feng's arm
+                                feng->RemoveAura(SPELL_TOGGLE_SHIELD);
+                                // No more visual link between Feng & shield, as shield is on Feng
+                                feng->RemoveAura(SPELL_LINKED_SHIELD);
+                                // Scheduling next siphoning shield in 30 secs
+                                feng->AI()->DoAction(ACTION_SCHEDULE_SHIELD);
+                                // Bye !
+                                me->DespawnOrUnsummon();
+                            }
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_siphon_shieldAI(creature);
+        }
+};
+
+// Soul Fragment - 60781
+class mob_soul_fragment : public CreatureScript
+{
+    public:
+        mob_soul_fragment() : CreatureScript("mob_soul_fragment") { }
+
+        struct mob_soul_fragmentAI : public ScriptedAI
+        {
+            mob_soul_fragmentAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            InstanceScript* pInstance;
+            Player* bound;
+            float scale;
+
+            void Reset()
+            {
+                // Set dark aspect
+                me->AddAura(SPELL_SOUL_DISPLAY, me);
+                bound = me->SelectNearestPlayerNotGM(0.0f);
+                scale = 0.1f;
+                me->SetObjectScale(scale);
+                // Display with display of player
+                me->SetDisplayId(bound->GetDisplayId());
+                if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
+                    shield->CastSpell(me, SPELL_SOUL_FRAGMENT, false);
+                me->AddAura(SPELL_FIST_BARRIER, me);
+                events.ScheduleEvent(EVENT_SOUL_WALK, 2000);
+                events.ScheduleEvent(EVENT_SOUL_GROW, 100);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                // We send negative guid to tell shield the soul has been killed
+                if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
+                    shield->AI()->DoAction(ACTION_SOUL_KILLED);
+            }
+
+            // Prevent the NPC to chase after the players
+            void MoveInLineOfSight(Unit* /*who*/)
+            {
+                return;
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (id == 1)
+                {
+                    // We send positive GUID to tell shield the soul has reached it, and the player should be killed
+                    if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
+                        shield->AI()->DoAction(ACTION_SOUL_HOME);
+
+                    me->DespawnOrUnsummon();
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventID = events.ExecuteEvent())
+                {
+                    switch (eventID)
+                    {
+                        case EVENT_SOUL_WALK:
+                        {
+                            me->CastSpell(me, SPELL_ICE_TRAP, false);
+                            if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
+                            {
+                                me->SetSpeed(MOVE_RUN, 0.1f);
+                                me->GetMotionMaster()->MovePoint(1, shield->GetPositionX(), shield->GetPositionY(), shield->GetPositionZ());
+                                me->SetWalk(true);
+                            }
+                            break;
+                        }
+                        case EVENT_SOUL_GROW:
+                        {
+                            if (scale < 1.5f)
+                            {
+                                scale += 0.1f;
+                                me->SetObjectScale(scale);
+                                events.ScheduleEvent(EVENT_SOUL_GROW, 100);
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_soul_fragmentAI(creature);
+        }
+};
+
+// Wildfire Spark - 60438
 class mob_wild_spark : public CreatureScript
 {
     public:
@@ -647,7 +1028,7 @@ class mob_wild_spark : public CreatureScript
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveRandom(5.0f);
             }
-
+    
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_DRAW_FLAME)
@@ -704,7 +1085,7 @@ class spell_mogu_epicenter : public SpellScriptLoader
 
                 if (!caster || !target)
                     return;
-
+                
                 float distance = caster->GetExactDist2d(target);
 
                 if (distance >= 0 && distance <= 60)
@@ -879,7 +1260,7 @@ class spell_mogu_arcane_velocity : public SpellScriptLoader
 
                 if (!caster || !target)
                     return;
-
+                
                 float distance = caster->GetExactDist2d(target);
 
                 if (distance >= 0 && distance <= 60)
@@ -971,7 +1352,7 @@ class spell_mogu_inversion : public SpellScriptLoader
         }
 };
 
-// GameObject - 211628
+// GameObject - 211628 - Shroud of reversal
 class go_inversion : public GameObjectScript
 {
     public:
@@ -999,7 +1380,7 @@ class go_inversion : public GameObjectScript
         }
 };
 
-// GameObject - 211626
+// GameObject - 211626 - Nullification Barrier
 class go_cancel : public GameObjectScript
 {
     public:
@@ -1032,6 +1413,8 @@ void AddSC_boss_feng()
     new boss_feng();
     new mob_lightning_fist();
     new mob_wild_spark();
+    new mob_siphon_shield();
+    new mob_soul_fragment();
     new spell_mogu_epicenter();
     new spell_mogu_wildfire_spark();
     new spell_wildfire_infusion_stacks();

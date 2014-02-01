@@ -176,7 +176,7 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 
         void SendChangePhase();
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(ByteBuffer & data);
 
         // used when player is activated/inactivated in the area
         bool HandlePlayerEnter(Player* player);
@@ -207,7 +207,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void ChangeState() {}
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(ByteBuffer & data);
 
         void UpdateTowerState();
 
@@ -247,7 +247,7 @@ class OutdoorPvPZM : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(ByteBuffer &data);
 
         void SendRemoveWorldStates(Player* player);
 

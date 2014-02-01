@@ -1516,7 +1516,7 @@ public:
             return false;
 
         uint32 accId            = 0;
-        uint32 money            = 0;
+        uint64 money            = 0;
         uint32 totalPlayerTime  = 0;
         uint8 level             = 0;
         uint32 latency          = 0;
@@ -1564,7 +1564,7 @@ public:
             Field* fields     = result->Fetch();
             totalPlayerTime = fields[0].GetUInt32();
             level             = fields[1].GetUInt8();
-            money             = fields[2].GetUInt32();
+            money             = fields[2].GetUInt64();
             accId             = fields[3].GetUInt32();
             race              = fields[4].GetUInt8();
             Class             = fields[5].GetUInt8();

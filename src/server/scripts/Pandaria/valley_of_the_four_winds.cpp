@@ -276,10 +276,90 @@ class mob_blackhoof : public CreatureScript
         };
 };
 
+enum eIkThikWarriorSpells
+{
+    SPELL_PIERCE_ARMOR      = 6016,
+    SPELL_SHOCK_AND_AWE		= 118538,
+};
+
+enum eIkThikWarriorEvents
+{
+    EVENT_PIERCE_ARMOR          = 1,
+    EVENT_SHOCK_AND_AWE			= 2,
+};
+
+class mob_ik_thik_warrior : public CreatureScript
+{
+    public:
+        mob_ik_thik_warrior() : CreatureScript("mob_ik_thik_warrior") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_ik_thik_warriorAI(creature);
+        }
+
+        struct mob_ik_thik_warriorAI : public ScriptedAI
+        {
+            mob_ik_thik_warriorAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_PIERCE_ARMOR,		 5000);
+                events.ScheduleEvent(EVENT_SHOCK_AND_AWE,		15000);
+            }
+
+            void JustDied(Unit* /*killer*/) { }
+
+            void JustSummoned(Creature* summon)
+            {
+                summon->DespawnOrUnsummon(12000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PIERCE_ARMOR:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_PIERCE_ARMOR, false);
+                            events.ScheduleEvent(EVENT_PIERCE_ARMOR,       25000);
+                            break;
+                        case EVENT_SHOCK_AND_AWE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_SHOCK_AND_AWE, false);
+                            events.ScheduleEvent(EVENT_SHOCK_AND_AWE, 40000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_valley_of_the_four_winds()
 {
     // Rare Mobs
     new mob_bonobos();
     new mob_sele_na();
     new mob_blackhoof();
+
+    // Standard Mobs
+    new mob_ik_thik_warrior();
 }

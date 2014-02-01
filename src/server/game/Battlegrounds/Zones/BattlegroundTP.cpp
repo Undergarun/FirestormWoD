@@ -69,7 +69,7 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
             if (GetTeamScore(ALLIANCE) == 0)
             {
                 if (GetTeamScore(HORDE) == 0)        // No one scored - result is tie
-                    EndBattleground(NULL);
+                    EndBattleground(0);
                 else                                 // Horde has more points and thus wins
                     EndBattleground(HORDE);
             }
@@ -872,7 +872,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
     }
 }
 
-void BattlegroundTP::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundTP::FillInitialWorldStates(ByteBuffer& data)
 {
     data << uint32(BG_TP_FLAG_CAPTURES_ALLIANCE) << uint32(GetTeamScore(ALLIANCE));
     data << uint32(BG_TP_FLAG_CAPTURES_HORDE) << uint32(GetTeamScore(HORDE));

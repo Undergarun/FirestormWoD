@@ -518,7 +518,7 @@ void Map::Update(const uint32 t_diff)
     /// update active cells around players and active objects
     resetMarkedCells();
 
-    JadeCore::ObjectUpdater updater(t_diff);
+    JadeCore::ObjectUpdater updater(t_diff, getMSTime());
     // for creature
     TypeContainerVisitor<JadeCore::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
     // for pets

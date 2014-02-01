@@ -26,6 +26,7 @@
 #include "UpdateData.h"
 #include "CreatureAI.h"
 #include "SpellAuras.h"
+#include "MapManager.h"
 
 template<class T>
 inline void JadeCore::VisibleNotifier::Visit(GridRefManager<T> &m)
@@ -39,9 +40,35 @@ inline void JadeCore::VisibleNotifier::Visit(GridRefManager<T> &m)
 
 inline void JadeCore::ObjectUpdater::Visit(CreatureMapType &m)
 {
+    if (!sMapMgr->HaveMaxDiff())
+    {
+        for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        {
+            if (iter->getSource()->IsInWorld())
+                iter->getSource()->Update(i_timeDiff);
+        }
+        return;
+    }
+
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->getSource()->IsInWorld())
-            iter->getSource()->Update(i_timeDiff);
+    {
+        if (!iter->getSource()->IsAlreadyUpdated() && iter->getSource()->IsInWorld())
+        {
+            uint32 now = getMSTime();
+
+            // 100 ms max per Map::Update
+            if (i_startTime + 100 < now)
+                return;
+
+            iter->getSource()->Update(now - iter->getSource()->GetLastUpdateTime());
+            iter->getSource()->SetUpdated(true);
+            iter->getSource()->SetLastUpdateTime(now);
+        }
+    }
+
+    // Reset updated state
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->SetUpdated(false);
 }
 
 // SEARCHERS & LIST SEARCHERS & WORKERS

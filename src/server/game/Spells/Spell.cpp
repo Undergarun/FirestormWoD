@@ -1191,6 +1191,19 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             return;
         }
+        case 120764: // Ghost Essence
+        {
+            // remove existing targets
+            CleanupTargetList();
+
+            if (!targets.empty())
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if ((*itr) && (*itr)->ToUnit())
+                        if ((*itr)->GetEntry() == 61334 || (*itr)->GetEntry() == 61989)
+                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
+
+            return;
+        }
         default:
             break;
     }
@@ -1273,34 +1286,116 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 }
                 break;
             case SPELLFAMILY_PALADIN:
-                // Holy Wrath
-                if (m_spellInfo->Id == 119072 && effIndex == 1)
+            {
+                switch (m_spellInfo->Id)
                 {
-                    static const uint8 types_noglyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, 0};
-                    static const uint8 types_glyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, CREATURE_TYPE_ELEMENTAL, CREATURE_TYPE_DRAGONKIN, 0};
-                    const uint8 *types = m_caster->HasAura(54923) ? types_glyph: types_noglyph;
-
-                    for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
+                    case 119072:// Holy Wrath
                     {
-                        bool found = false;
-                        uint8 types_i = 0;
-                        do
+                        static const uint8 types_noglyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, 0};
+                        static const uint8 types_glyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, CREATURE_TYPE_ELEMENTAL, CREATURE_TYPE_DRAGONKIN, 0};
+                        const uint8 *types = m_caster->HasAura(54923) ? types_glyph: types_noglyph;
+
+                        // Normal case
+                        if (effIndex == 1 && !m_caster->HasAura(115738))
                         {
-                            if ((*itr)->GetCreatureType() == types[types_i])
+                            for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
                             {
-                                found = true;
-                                break;
+                                bool found = false;
+                                uint8 types_i = 0;
+                                do
+                                {
+                                    if ((*itr)->GetCreatureType() == types[types_i])
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                while (types[++types_i]);
+
+                                if (found)
+                                    itr++;
+                                else
+                                    itr = unitTargets.erase(itr);
                             }
                         }
-                        while (types[++types_i]);
+                        // Glyph of Focused Wrath
+                        else if (m_caster->HasAura(115738))
+                        {
+                            if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                                break;
 
-                        if (found)
-                            itr++;
-                        else
-                            itr = unitTargets.erase(itr);
+                            Player* player = m_caster->ToPlayer();
+                            if (!player)
+                                break;
+
+                            if (Unit* target = player->GetSelectedUnit())
+                            {
+                                if (effIndex == 1)
+                                {
+                                    bool found = false;
+                                    uint8 types_i = 0;
+                                    do
+                                    {
+                                        if (target->GetCreatureType() == types[types_i])
+                                        {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    while (types[++types_i]);
+
+                                    unitTargets.clear();
+                                    if (found)
+                                        unitTargets.push_back(target);
+                                }
+                                else
+                                {
+                                    unitTargets.clear();
+                                    unitTargets.push_back(target);
+                                }
+                            }
+                            else
+                            {
+                                unitTargets.sort(JadeCore::UnitDistanceCompareOrderPred(m_caster));
+                                Unit* victim = (*unitTargets.begin())->ToUnit();
+
+                                if (victim)
+                                {
+                                    if (effIndex == 1)
+                                    {
+                                        bool found = false;
+                                        uint8 types_i = 0;
+                                        do
+                                        {
+                                            if (victim->GetCreatureType() == types[types_i])
+                                            {
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        while (types[++types_i]);
+
+                                        unitTargets.clear();
+                                        if (found)
+                                            unitTargets.push_back(victim);
+                                    }
+                                    else
+                                    {
+                                        unitTargets.clear();
+                                        unitTargets.push_back(victim);
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
                     }
+                    default:
+                        break;
                 }
+
                 break;
+            }
             case SPELLFAMILY_DRUID:
                 if (m_spellInfo->SpellFamilyFlags[1] == 0x04000000) // Wild Growth
                 {
@@ -1585,6 +1680,52 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     uint32 maxTargets = m_spellInfo->Effects[effIndex].ChainTarget;
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, maxTargets, this);
+
+    // Havoc
+    if (AuraPtr havoc = m_caster->GetAura(80240))
+    {
+        if (havoc->GetCharges() > 0 && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+        {
+            std::list<Unit*> targets;
+            Unit* secondTarget = NULL;
+            m_caster->GetAttackableUnitListInRange(targets, 40.0f);
+
+            if (target->ToUnit())
+                targets.remove(target->ToUnit());
+            targets.remove(m_caster);
+
+            for (auto itr : targets)
+            {
+                if (itr->IsWithinLOSInMap(m_caster) && itr->IsWithinDist(m_caster, 40.0f) &&
+                    target->GetGUID() != itr->GetGUID() && itr->HasAura(80240, m_caster->GetGUID()))
+                {
+                    secondTarget = itr;
+                    break;
+                }
+            }
+
+            if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
+            {
+                // Allow only one Chaos Bolt to be duplicated ...
+                if (m_spellInfo->Id == 116858 && havoc->GetCharges() >= 3)
+                {
+                    m_caster->RemoveAura(80240);
+                    secondTarget->RemoveAura(80240);
+                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
+                }
+                // ... or allow three next single target spells to be duplicated
+                else if (targetType.GetTarget() == TARGET_UNIT_TARGET_ENEMY && havoc->GetCharges() > 0)
+                {
+                    havoc->DropCharge();
+
+                    if (AuraPtr secondHavoc = secondTarget->GetAura(80240, m_caster->GetGUID()))
+                        secondHavoc->DropCharge();
+
+                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
+                }
+            }
+        }
+    }
 
     if (maxTargets > 1)
     {
@@ -2706,6 +2847,10 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;
 
+    // Hack fix for Deterrence and charge stun effect
+    if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
+        return SPELL_MISS_MISS;
+
     // disable effects to which unit is immune
     SpellMissInfo returnVal = SPELL_MISS_IMMUNE;
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
@@ -3793,9 +3938,9 @@ void Spell::SendSpellCooldown()
 
     // Heroic Strike and Cleave share cooldowns, prevent cheat by using macro for bypass cooldown
     if (m_spellInfo->Id == 78)
-        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(845), NULL, this);
+        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(845), 0, this);
     else if (m_spellInfo->Id == 845)
-        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(78), NULL, this);
+        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(78), 0, this);
 
     _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : 0, this);
 }
@@ -5939,6 +6084,29 @@ void Spell::TakeRunePower(bool didHit)
         uint32 cooldown = ((m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE) > 0 || didHit) ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN);
         player->SetRuneCooldown(i, cooldown);
         player->SetDeathRuneUsed(i, false);
+
+        switch (m_spellInfo->Id)
+        {
+            case 45477: // Icy Touch
+            case 45902: // Blood Strike
+            case 48721: // Blood Boil
+            case 50842: // Pestilence
+            case 85948: // Festering Strike
+            {
+                // Reaping
+                player->AddRuneBySpell(i, RUNE_DEATH, 56835);
+                break;
+            }
+            case 49998: // Death Strike
+            {
+                // Blood Rites
+                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
+                break;
+            }
+            default:
+                break;
+        }
+
         runeCost[rune]--;
     }
 
@@ -5967,6 +6135,28 @@ void Spell::TakeRunePower(bool didHit)
                 {
                     player->RestoreBaseRune(i);
                     player->SetDeathRuneUsed(i, true);
+                }
+
+                switch (m_spellInfo->Id)
+                {
+                    case 45477: // Icy Touch
+                    case 45902: // Blood Strike
+                    case 48721: // Blood Boil
+                    case 50842: // Pestilence
+                    case 85948: // Festering Strike
+                    {
+                        // Reaping
+                        player->AddRuneBySpell(i, RUNE_DEATH, 56835);
+                        break;
+                    }
+                    case 49998: // Death Strike
+                    {
+                        // Blood Rites
+                        player->AddRuneBySpell(i, RUNE_DEATH, 50034);
+                        break;
+                    }
+                    default:
+                        break;
                 }
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -6366,7 +6556,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_INFRONT;
 
             // Gouge and Glyph of Gouge
-            if (m_spellInfo->Id == 1770 && !m_caster->HasAura(56809) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
+            if (m_spellInfo->Id == 1776 && !m_caster->HasAura(56809) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
                 return SPELL_FAILED_NOT_INFRONT;
 
             if (!IsTriggered())
@@ -7169,7 +7359,7 @@ SpellCastResult Spell::CheckCasterAuras() const
         prevented_reason = SPELL_FAILED_PACIFIED;
     else if (unitflag & UNIT_FLAG_PACIFIED &&
         (m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK2 ||
-        m_spellInfo->Id == 1850)) // THIS ... IS ... HACKYYYY !
+        m_spellInfo->Id == 1850) && m_spellInfo->Id != 781) // THIS ... IS ... HACKYYYY !
         prevented_reason = SPELL_FAILED_PACIFIED;
 
     // Attr must make flag drop spell totally immune from all effects
