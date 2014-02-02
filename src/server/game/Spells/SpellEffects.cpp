@@ -2642,6 +2642,9 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
 
 void Spell::SendLoot(uint64 guid, LootType loottype)
 {
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     Player* player = m_caster->ToPlayer();
     if (!player)
         return;
