@@ -1033,10 +1033,10 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
                         // Update personal rating
                         int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), GetArenaMatchmakerRating(GetOtherTeam(team), slot), false);
-                        player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
+                        player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
 
                         // Update matchmaker rating
-                        player->SetArenaMatchMakerRating(player->GetArenaMatchMakerRating(slot) -12, slot);
+                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
 
                         // Update personal played stats
                         player->IncrementWeekGames(slot);
