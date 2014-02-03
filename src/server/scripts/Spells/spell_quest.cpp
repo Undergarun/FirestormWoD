@@ -1844,15 +1844,9 @@ class spell_q24861_funeral_offering: public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (GetCaster())
-                {
                     if (Player* caster = GetCaster()->ToPlayer())
-                    {
                         if (Creature* target = GetClosestCreatureWithEntry(caster, GREATMOTHER_HAWKWIND, 3.0f))
-                        {
                             caster->KilledMonsterCredit(MULGORE_OFFERING_KILL_CREDIT, 0);
-                        }
-                    }
-                }
             }
 
             void Register()
@@ -1980,6 +1974,127 @@ class spell_quests_spell_hit : public SpellScriptLoader
         }
 };
 
+#define BATHRAN_S_CORPSE     33183
+
+class spell_q13595_bottle_of_wildfire: public SpellScriptLoader
+{
+    public:
+        spell_q13595_bottle_of_wildfire() : SpellScriptLoader("spell_q13595_bottle_of_wildfire") { }
+
+        class spell_q13595_bottle_of_wildfire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13595_bottle_of_wildfire_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (GetCaster())
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        if (Creature* target = GetClosestCreatureWithEntry(caster, BATHRAN_S_CORPSE, 5.0f))
+                            caster->KilledMonsterCredit(BATHRAN_S_CORPSE, 0);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q13595_bottle_of_wildfire_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q13595_bottle_of_wildfire_SpellScript();
+        }
+};
+
+#define TIDAL_SPIRIT_KILL_CREDIT     32937
+
+class spell_q13523_elune_s_presence_dummy: public SpellScriptLoader
+{
+    public:
+        spell_q13523_elune_s_presence_dummy() : SpellScriptLoader("spell_q13523_elune_s_presence_dummy") { }
+
+        class spell_q13523_elune_s_presence_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13523_elune_s_presence_dummy_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (GetCaster())
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        caster->KilledMonsterCredit(TIDAL_SPIRIT_KILL_CREDIT, 0);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q13523_elune_s_presence_dummy_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q13523_elune_s_presence_dummy_SpellScript();
+        }
+};
+
+#define ZORAM_GAR_LIGHTHOUSE_KILL_CREDIT     34329
+
+class spell_q13890_throw_oil: public SpellScriptLoader
+{
+    public:
+        spell_q13890_throw_oil() : SpellScriptLoader("spell_q13890_throw_oil") { }
+
+        class spell_q13890_throw_oil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13890_throw_oil_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (GetCaster())
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        caster->KilledMonsterCredit(ZORAM_GAR_LIGHTHOUSE_KILL_CREDIT, 0);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q13890_throw_oil_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+           return new spell_q13890_throw_oil_SpellScript();
+        }
+};
+
+#define DWARVEN_ARTILLERY_GEARS_KILL_CREDIT     38250
+
+class spell_q24747_custom_kill_credit: public SpellScriptLoader
+{
+    public:
+        spell_q24747_custom_kill_credit() : SpellScriptLoader("spell_q24747_custom_kill_credit") { }
+
+        class spell_q24747_custom_kill_credit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q24747_custom_kill_credit_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (GetCaster())
+                    if (Player* player = GetCaster()->ToPlayer())
+                        player->KilledMonsterCredit(DWARVEN_ARTILLERY_GEARS_KILL_CREDIT, 0);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q24747_custom_kill_credit_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q24747_custom_kill_credit_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2029,4 +2144,8 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_grab();
     new spell_q12919_gymers_throw();
     new spell_quests_spell_hit();
+    new spell_q13595_bottle_of_wildfire();
+    new spell_q13523_elune_s_presence_dummy();
+    new spell_q13890_throw_oil();
+    new spell_q24747_custom_kill_credit();
 }

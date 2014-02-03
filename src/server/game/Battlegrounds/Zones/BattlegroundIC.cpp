@@ -366,7 +366,7 @@ void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     }
 }
 
-void BattlegroundIC::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundIC::FillInitialWorldStates(ByteBuffer& data)
 {
     data << uint32(BG_IC_ALLIANCE_RENFORT_SET) << uint32(1);
     data << uint32(BG_IC_HORDE_RENFORT_SET) << uint32(1);

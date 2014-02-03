@@ -3583,10 +3583,10 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
             {
                 // update personal rating
                 int32 mod = Arena::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-                p->SetArenaPersonalRating(p->GetArenaPersonalRating(slot) + mod, slot);
+                p->SetArenaPersonalRating(slot, p->GetArenaPersonalRating(slot) + mod);
 
                 // update matchmaker rating
-                p->SetArenaMatchMakerRating(p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange, slot);
+                p->SetArenaMatchMakerRating(slot, p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
 
                 // update personal played stats
                 p->IncrementWeekGames(slot);
@@ -3609,10 +3609,10 @@ void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slo
         {
             // Update personal rating
             int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-            player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
 
             // Update matchmaker rating
-            player->SetArenaMatchMakerRating(player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange, slot);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
 
             // Update personal played stats
             player->IncrementWeekGames(slot);

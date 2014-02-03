@@ -239,6 +239,9 @@ public:
         void JustSummoned(Creature* summoned)
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
+            if (!target)
+                return;
+
             switch (summoned->GetEntry())
             {
                 case NPC_BURROW:

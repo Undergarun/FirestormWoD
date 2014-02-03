@@ -392,6 +392,9 @@ class spell_gen_leeching_swarm : public SpellScriptLoader
             void HandleEffectPeriodic(constAuraEffectPtr aurEff)
             {
                 Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
                 if (Unit* target = GetTarget())
                 {
                     int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
@@ -923,7 +926,7 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
                     case SPELL_COPY_OFFHAND_AURA:
                     case SPELL_COPY_OFFHAND_2_AURA:
                     {
-                        prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) + 1;
+                        prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1);
 
                         if (Player* player = caster->ToPlayer())
                         {
@@ -936,7 +939,7 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
                     }
                     case SPELL_COPY_RANGED_AURA:
                     {
-                        prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) + 2;
+                        prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2);
 
                         if (Player* player = caster->ToPlayer())
                         {
@@ -3277,7 +3280,7 @@ class spell_gen_blood_fury : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (GetCaster()->HasAura(GetSpellInfo()->Id))
+                if (GetCaster()->HasAura(GetSpellInfo()->Id) && GetCaster()->getClass() != CLASS_HUNTER)
                 {
                     GetCaster()->RemoveAura(GetSpellInfo()->Id);
                     GetCaster()->CastSpell(GetCaster(), 33697, true);
@@ -3446,6 +3449,76 @@ class spell_gen_hardened_shell : public SpellScriptLoader
         }
 };
 
+class spell_gen_ds_flush_knockback : public SpellScriptLoader
+{
+    public:
+        spell_gen_ds_flush_knockback() : SpellScriptLoader("spell_gen_ds_flush_knockback") {}
+
+        class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript);
+
+            void HandleOnHit()
+            {
+                // Here the target is the water spout and determines the position where the player is knocked from
+                if (Unit* caster = GetCaster())
+                {
+                    if (!GetHitUnit())
+                        return;
+
+                    if (Player* player = GetHitUnit()->ToPlayer())
+                    {
+                        float horizontalSpeed = 20.0f + (40.0f - GetCaster()->GetDistance(caster));
+                        float verticalSpeed = 8.0f;
+                        // This method relies on the Dalaran Sewer map disposition and Water Spout position
+                        // What we do is knock the player from a position exactly behind him and at the end of the pipe
+                        player->KnockbackFrom(caster->GetPositionX(), player->GetPositionY(), horizontalSpeed, verticalSpeed);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_ds_flush_knockback_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_ds_flush_knockback_SpellScript();
+        }
+};
+
+// Battle Fatigue - 134735
+class spell_gen_battle_fatigue : public SpellScriptLoader
+{
+    public:
+        spell_gen_battle_fatigue() : SpellScriptLoader("spell_gen_battle_fatigue") { }
+
+        class spell_gen_battle_fatigue_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_battle_fatigue_AuraScript);
+
+            void HandleRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->ToPlayer()->GetBattleground())
+                                target->CastSpell(target, 134735, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_battle_fatigue_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_battle_fatigue_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3523,4 +3596,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gobelin_gumbo();
     new spell_mage_polymorph_cast_visual();
     new spell_gen_hardened_shell();
+    new spell_gen_ds_flush_knockback();
+    new spell_gen_battle_fatigue();
 }

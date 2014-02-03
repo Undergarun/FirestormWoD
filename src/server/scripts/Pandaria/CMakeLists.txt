@@ -60,6 +60,24 @@ set(scripts_STAT_SRCS
   Pandaria/MogushanVault/boss_elegon.cpp
   Pandaria/MogushanVault/boss_will_of_emperor.cpp
 
+  Pandaria/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp
+  Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.cpp
+  Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.h
+  Pandaria/SiegeOfOrgrimmar/boss_immerseus.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_fallen_protectors.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_norushen.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_sha_of_pride.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_galakras.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_iron_juggernaut.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_korkron_dark_shamans.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_general_nazgrim.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_malkorok.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_spoils_of_pandaria.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_thok_the_bloodthirsty.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_siegecrafter_blackfuse.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_paragons_of_the_klaxxi.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_garrosh_hellscream.cpp
+
   Pandaria/WanderingIsland/WanderingIsland_North.cpp
   Pandaria/WanderingIsland/WanderingIsland_East.cpp
   Pandaria/WanderingIsland/WanderingIsland_West.cpp

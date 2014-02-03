@@ -20,9 +20,9 @@ enum eShadowOfDoubtEvents
 class mob_shadow_of_doubt : public CreatureScript
 {
     public:
-        mob_shadow_of_doubt() : CreatureScript("mob_shadow_of_doubt")
-        {
-        }
+        mob_shadow_of_doubt() : CreatureScript("mob_shadow_of_doubt") 
+		{ 
+		}
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -40,10 +40,10 @@ class mob_shadow_of_doubt : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
+                
                 events.ScheduleEvent(EVENT_DEAFENED,      30000);
                 events.ScheduleEvent(EVENT_GROWING_DOUBT,  9000);
-                events.ScheduleEvent(EVENT_SHA_BOLT,      15000);
+                events.ScheduleEvent(EVENT_SHA_BOLT,	  15000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -56,7 +56,7 @@ class mob_shadow_of_doubt : public CreatureScript
                     return;
 
                 events.Update(diff);
-
+                
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -271,15 +271,15 @@ class mob_krax_ik : public CreatureScript
 enum eMisterFerociousSpells
 {
     SPELL_GOING_BANANAS     = 125363,
-    SPELL_BANANARANG        = 125311,
-    SPELL_TOSS_FILTH        = 125365
+    SPELL_BANANARANG		= 125311,
+    SPELL_TOSS_FILTH		= 125365,
 };
 
 enum eMisterFerociousEvents
 {
     EVENT_GOING_BANANAS         = 1,
-    EVENT_BANANARANG            = 2,
-    EVENT_TOSS_FILTH            = 3
+    EVENT_BANANARANG			= 2,
+    EVENT_TOSS_FILTH		    = 3,
 };
 
 class mob_mister_ferocious : public CreatureScript
@@ -306,9 +306,9 @@ class mob_mister_ferocious : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_GOING_BANANAS,       12000);
-                events.ScheduleEvent(EVENT_BANANARANG,           8000);
-                events.ScheduleEvent(EVENT_TOSS_FILTH,          15000);
+                events.ScheduleEvent(EVENT_GOING_BANANAS,		12000);
+                events.ScheduleEvent(EVENT_BANANARANG,			 8000);
+                events.ScheduleEvent(EVENT_TOSS_FILTH,			15000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -362,19 +362,19 @@ class mob_mister_ferocious : public CreatureScript
 enum eAkkalarSpells
 {
     SPELL_BOUCLIER_D_EAU        = 79892,
-    SPELL_BOUCLIER_D_EAU_2      = 34828,
-    SPELL_BOUCLIER_DE_TERRE     = 79927,
-    SPELL_CARAPACE_BOUCLIER     = 83488,
-    SPELL_MOT_DE_POUVOIR        = 11835
+    SPELL_BOUCLIER_D_EAU_2		= 34828,
+    SPELL_BOUCLIER_DE_TERRE		= 79927,
+    SPELL_CARAPACE_BOUCLIER		= 83488,
+    SPELL_MOT_DE_POUVOIR		= 11835,
 };
 
 enum eAkkalarEvents
 {
     EVENT_BOUCLIER_D_EAU            = 1,
-    EVENT_BOUCLIER_D_EAU_2          = 2,
-    EVENT_BOUCLIER_DE_TERRE         = 3,
-    EVENT_CARAPACE_BOUCLIER         = 4,
-    EVENT_MOT_DE_POUVOIR            = 5
+    EVENT_BOUCLIER_D_EAU_2			= 2,
+    EVENT_BOUCLIER_DE_TERRE		    = 3,
+    EVENT_CARAPACE_BOUCLIER			= 4,
+    EVENT_MOT_DE_POUVOIR		    = 5,
 };
 
 class mob_akkalar : public CreatureScript
@@ -401,11 +401,11 @@ class mob_akkalar : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_BOUCLIER_D_EAU,      10000);
+                events.ScheduleEvent(EVENT_BOUCLIER_D_EAU,		10000);
                 events.ScheduleEvent(EVENT_BOUCLIER_D_EAU_2,    20000);
-                events.ScheduleEvent(EVENT_BOUCLIER_DE_TERRE,   30000);
-                events.ScheduleEvent(EVENT_CARAPACE_BOUCLIER,   40000);
-                events.ScheduleEvent(EVENT_MOT_DE_POUVOIR,      50000);
+                events.ScheduleEvent(EVENT_BOUCLIER_DE_TERRE,	30000);
+                events.ScheduleEvent(EVENT_CARAPACE_BOUCLIER,	40000);
+                events.ScheduleEvent(EVENT_MOT_DE_POUVOIR,		50000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -463,14 +463,14 @@ class mob_akkalar : public CreatureScript
 
 enum eGrookinOutrunnerSpells
 {
-    SPELL_SHOOT     = 23337,
-    SPELL_CLEAVE    = 40505
+    SPELL_SHOOT		= 23337,
+    SPELL_CLEAVE 	= 40505,
 };
 
 enum eGrookinOutrunnerEvents
 {
     EVENT_SHOOT             = 1,
-    EVENT_CLEAVE            = 2
+    EVENT_CLEAVE		    = 2,
 };
 
 class mob_grookin_outrunner : public CreatureScript
@@ -541,12 +541,12 @@ class mob_grookin_outrunner : public CreatureScript
 
 enum eBambooPythonSpells
 {
-    SPELL_SWAMP_FEVER            = 116026
+    SPELL_SWAMP_FEVER		= 116026,
 };
 
 enum eBambooPythonEvents
 {
-    EVENT_SWAMP_FEVER             = 1
+    EVENT_SWAMP_FEVER             = 1,
 };
 
 class mob_bamboo_python : public CreatureScript
@@ -610,7 +610,7 @@ class mob_bamboo_python : public CreatureScript
         };
 };
 
-#define    SPELL_STEALTH    77806
+#define    SPELL_STEALTH	77806
 
 class mob_lurking_tiger : public CreatureScript
 {
@@ -652,20 +652,20 @@ class mob_lurking_tiger : public CreatureScript
 
 enum eRakiraSpells
 {
-    SPELL_BLOODY_PREY               = 131145,
-    SPELL_CLAW_RIP                  = 131130,
-    SPELL_GROWL                     = 2649,
-    SPELL_HOWL_OF_THE_DENMOTHER     = 131199,
-    SPELL_ROAR_OF_COURAGE           = 93435
+    SPELL_BLOODY_PREY	        	= 131145,
+    SPELL_CLAW_RIP              	= 131130,
+    SPELL_GROWL 	                = 2649,
+    SPELL_HOWL_OF_THE_DENMOTHER 	= 131199,
+    SPELL_ROAR_OF_COURAGE	        = 93435,
 };
 
 enum eRakiraEvents
 {
     EVENT_BLOODY_PREY               = 1,
-    EVENT_CLAW_RIP                  = 2,
+    EVENT_CLAW_RIP		            = 2,
     EVENT_GROWL                     = 3,
-    EVENT_HOWL_OF_THE_DENMOTHER     = 4,
-    EVENT_ROAR_OF_COURAGE           = 5
+    EVENT_HOWL_OF_THE_DENMOTHER	    = 4,
+    EVENT_ROAR_OF_COURAGE		    = 5,
 };
 
 class mob_rakira : public CreatureScript
@@ -692,11 +692,11 @@ class mob_rakira : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_BLOODY_PREY,                  8000);
-                events.ScheduleEvent(EVENT_CLAW_RIP,                    15000);
-                events.ScheduleEvent(EVENT_GROWL,                       22000);
-                events.ScheduleEvent(EVENT_HOWL_OF_THE_DENMOTHER,       30000);
-                events.ScheduleEvent(EVENT_ROAR_OF_COURAGE,             40000);
+                events.ScheduleEvent(EVENT_BLOODY_PREY,		             8000);
+                events.ScheduleEvent(EVENT_CLAW_RIP,	                15000);
+                events.ScheduleEvent(EVENT_GROWL,	                  	22000);
+                events.ScheduleEvent(EVENT_HOWL_OF_THE_DENMOTHER,	    30000);
+                events.ScheduleEvent(EVENT_ROAR_OF_COURAGE,	            40000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -755,17 +755,17 @@ class mob_rakira : public CreatureScript
 enum eRoShenSpells
 {
     SPELL_CLAW_SLASH                = 131133,
-    SPELL_BLOOD_CRAZED              = 131150,
-    SPELL_BLOODTHIRST               = 131141,
-    SPELL_FRENZY                    =  19615
+    SPELL_BLOOD_CRAZED	        	= 131150,
+    SPELL_BLOODTHIRST              	= 131141,
+    SPELL_FRENZY	                =  19615,
 };
 
 enum eRoShenEvents
 {
     EVENT_BLOOD_CRAZED              = 6,
-    EVENT_BLOODTHIRST               = 7,
+    EVENT_BLOODTHIRST		        = 7,
     EVENT_CLAW_SLASH                = 8,
-    EVENT_FRENZY                    = 9
+    EVENT_FRENZY		            = 9,
 };
 
 class mob_ro_shen : public CreatureScript
@@ -944,6 +944,610 @@ class mob_sha_reminant : public CreatureScript
         };
 };
 
+#define GOSSIP_CHOICE_1 "Challenge the Patriarch."
+
+enum ePandriarchWindfurSpells
+{
+    SPELL_THUNDERING_PALM   = 109497,
+    SPELL_WIND_SWORD      	= 113504,
+//    SPELL_WINDFUR_PUNCH     = 105497, <-- Needs to be scritped
+};
+
+enum ePandriarchWindfurEvents
+{
+    EVENT_THUNDERING_PALM      = 1,
+    EVENT_WIND_SWORD           = 2,
+//    EVENT_WINDFUR_PUNCH        = 3,
+};
+
+class mob_pandriarch_windfur : public CreatureScript
+{
+    public:
+        mob_pandriarch_windfur() : CreatureScript("mob_pandriarch_windfur")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(75009, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                if (player->GetQuestStatus(29920) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->setFaction(14);
+                    creature->SetReactState(REACT_DEFENSIVE);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->AI()->Reset();
+                    creature->CombatStart(player, true);
+                }
+                player->CLOSE_GOSSIP_MENU();
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_pandriarch_windfurAI(creature);
+        }
+
+        struct mob_pandriarch_windfurAI : public ScriptedAI
+        {
+            mob_pandriarch_windfurAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_THUNDERING_PALM, urand (3000, 7000));
+                events.ScheduleEvent(EVENT_WIND_SWORD, urand (8000, 10000));
+//                events.ScheduleEvent(EVENT_WINDFUR_PUNCH, urand (13000, 17000));
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (me->HealthBelowPctDamaged(10, damage))
+                    {
+                        damage = 0;
+                        me->CombatStop();
+                        me->GetMotionMaster()->MovePoint(0, 1996.76001f, -2216.780029f, 247.725006f);
+                        me->setFaction(35);
+                        me->SetFullHealth();
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        player->KilledMonsterCredit(56206);
+                    }
+
+                    if (damage > me->GetHealth())
+                        damage = 0;
+                }
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                if (Player* player = who->ToPlayer())
+                {
+                    if (player->GetQuestStatus(29920) == QUEST_STATUS_INCOMPLETE)
+                        return;
+                    else
+                    {
+                        me->CombatStop();
+                        me->setFaction(35);
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_THUNDERING_PALM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_THUNDERING_PALM, false);
+                            events.ScheduleEvent(EVENT_THUNDERING_PALM,      10000);
+                            break;
+                        case EVENT_WIND_SWORD:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_WIND_SWORD, false);
+                            events.ScheduleEvent(EVENT_WIND_SWORD,      15000);
+                            break;
+/*                        case EVENT_WINDFUR_PUNCH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_WINDFUR_PUNCH, false);
+                            events.ScheduleEvent(EVENT_WINDFUR_PUNCH,      15000);
+                            break;*/
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+enum ePandriarchBramblestaffSpells
+{
+    SPELL_ROLL                   = 113512,
+    SPELL_STAFF_STRIKE      	 = 84647,
+    SPELL_THROW_BRAMBLESTAFF     = 106763,
+//    SPELL_WHIRLWIND              = 15576,  <-- Needs to be scripted
+//    SPELL_WHIRLWIND_2            = 17207,  <-- Needs to be scripted
+};
+
+enum ePandriarchBramblestaffEvents
+{
+    EVENT_ROLL                 = 1,
+    EVENT_STAFF_STRIKE         = 2,
+    EVENT_THROW_BRAMBLESTAFF   = 3,
+//    EVENT_WHIRLWIND            = 4,
+//    EVENT_WHIRLWIND_2          = 5,
+};
+
+class mob_pandriarch_bramblestaff : public CreatureScript
+{
+    public:
+        mob_pandriarch_bramblestaff() : CreatureScript("mob_pandriarch_bramblestaff")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(75010, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                if (player->GetQuestStatus(29920) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->setFaction(14);
+                    creature->SetReactState(REACT_DEFENSIVE);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->AI()->Reset();
+                    creature->CombatStart(player, true);
+                }
+                player->CLOSE_GOSSIP_MENU();
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_pandriarch_bramblestaffAI(creature);
+        }
+
+        struct mob_pandriarch_bramblestaffAI : public ScriptedAI
+        {
+            mob_pandriarch_bramblestaffAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_ROLL, urand (3000, 7000));
+                events.ScheduleEvent(EVENT_STAFF_STRIKE, urand (8000, 10000));
+                events.ScheduleEvent(EVENT_THROW_BRAMBLESTAFF, urand (13000, 17000));
+//                events.ScheduleEvent(EVENT_WHIRLWIND, urand (20000, 23000));
+//                events.ScheduleEvent(EVENT_WHIRLWIND_2, urand (24000, 27000));
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (me->HealthBelowPctDamaged(10, damage) || damage > me->GetHealth())
+                    {
+                        damage = 0;
+                        me->CombatStop();
+                        me->GetMotionMaster()->MovePoint(0, 1862.300049f, -2325.060059f, 257.062012f);
+                        me->setFaction(35);
+                        me->SetFullHealth();
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        player->KilledMonsterCredit(56209);
+                    }
+                }
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                if (Player* player = who->ToPlayer())
+                {
+                    if (player->GetQuestStatus(29920) == QUEST_STATUS_INCOMPLETE)
+                        return;
+                    else
+                    {
+                        me->CombatStop();
+                        me->setFaction(35);
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ROLL:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_ROLL, false);
+                            events.ScheduleEvent(EVENT_ROLL,      10000);
+                            break;
+                        case EVENT_STAFF_STRIKE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_STAFF_STRIKE, false);
+                            events.ScheduleEvent(EVENT_STAFF_STRIKE,      10000);
+                            break;
+                        case EVENT_THROW_BRAMBLESTAFF:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_THROW_BRAMBLESTAFF, false);
+                            events.ScheduleEvent(EVENT_THROW_BRAMBLESTAFF,      10000);
+                            break;
+/*                        case EVENT_WHIRLWIND:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_WHIRLWIND, false);
+                            events.ScheduleEvent(EVENT_WHIRLWIND,      10000);
+                            break;
+                        case EVENT_WHIRLWIND_2:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_WHIRLWIND_2, false);
+                            events.ScheduleEvent(EVENT_WHIRLWIND_2,      10000);
+                            break;*/
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+enum ePandriarchGoldendraftSpells
+{
+    SPELL_EXPLOSIVE_LAGER    = 104909,
+    SPELL_FIRE_ALE      	 = 105091,
+};
+
+enum ePandriarchGoldendraftEvents
+{
+    EVENT_EXPLOSIVE_LAGER    = 1,
+    EVENT_FIRE_ALE           = 2,
+};
+
+class mob_pandriarch_goldendraft : public CreatureScript
+{
+    public:
+        mob_pandriarch_goldendraft() : CreatureScript("mob_pandriarch_goldendraft")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(75010, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                if (player->GetQuestStatus(29920) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->setFaction(14);
+                    creature->SetReactState(REACT_DEFENSIVE);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->AI()->Reset();
+                    creature->CombatStart(player, true);
+                }
+                player->CLOSE_GOSSIP_MENU();
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_pandriarch_goldendraftAI(creature);
+        }
+
+        struct mob_pandriarch_goldendraftAI : public ScriptedAI
+        {
+            mob_pandriarch_goldendraftAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_EXPLOSIVE_LAGER, urand (3000, 7000));
+                events.ScheduleEvent(EVENT_FIRE_ALE, urand (8000, 10000));
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (me->HealthBelowPctDamaged(10, damage) || damage > me->GetHealth())
+                    {
+                        damage = 0;
+                        me->CombatStop();
+                        me->GetMotionMaster()->MovePoint(0, 1942.630005f, -2290.530029f, 240.429001f);
+                        me->setFaction(35);
+                        me->SetFullHealth();
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        player->KilledMonsterCredit(56210);
+                    }
+                }
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                if (Player* player = who->ToPlayer())
+                {
+                    if (player->GetQuestStatus(29920) == QUEST_STATUS_INCOMPLETE)
+                        return;
+                    else
+                    {
+                        me->CombatStop();
+                        me->setFaction(35);
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_EXPLOSIVE_LAGER:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_EXPLOSIVE_LAGER, false);
+                            events.ScheduleEvent(EVENT_EXPLOSIVE_LAGER,      10000);
+                            break;
+                        case EVENT_FIRE_ALE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_FIRE_ALE, false);
+                            events.ScheduleEvent(EVENT_FIRE_ALE,      10000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+enum eBigBaoSpells
+{
+    SPELL_FORCE_BURST               = 129858,
+    SPELL_KNOCK_AWAY                = 129837,
+    SPELL_PULL_CLOSE                = 129839,
+    SPELL_RACE_AGAINST_THE_CLOCK    = 129772,
+    SPELL_WAR_STOMP                 = 129831
+};
+
+enum eBigBaoEvents
+{
+    EVENT_FORCE_BURST                   = 1,
+    EVENT_KNOCK_AWAY                    = 2,
+    EVENT_PULL_CLOSE                    = 3,
+    EVENT_WAR_STOMP                     = 4
+};
+
+#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel !"
+
+class mob_big_bao : public CreatureScript
+{
+    public:
+        mob_big_bao() : CreatureScript("mob_big_bao")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(75012, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                if (player->GetQuestStatus(31718) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->setFaction(14);
+                    creature->SetReactState(REACT_DEFENSIVE);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->AI()->Reset();
+                    creature->CombatStart(player, true);
+                }
+                player->CLOSE_GOSSIP_MENU();
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_big_baoAI(creature);
+        }
+
+        struct mob_big_baoAI : public ScriptedAI
+        {
+            mob_big_baoAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_FORCE_BURST, 3000);
+                events.ScheduleEvent(EVENT_KNOCK_AWAY, 8000);
+                events.ScheduleEvent(EVENT_PULL_CLOSE, 13000);
+                events.ScheduleEvent(EVENT_WAR_STOMP, 18000);
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                if (Player* player = who->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31718) == QUEST_STATUS_INCOMPLETE)
+                        player->CastSpell(player, SPELL_RACE_AGAINST_THE_CLOCK);
+                    else
+                    {
+                        me->CombatStop();
+                        me->setFaction(35);
+                    }
+                }
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (me->HealthBelowPctDamaged(10, damage) || damage > me->GetHealth())
+                    {
+                        damage = 0;
+                        me->CombatStop();
+                        me->GetMotionMaster()->MovePoint(0, 1604.75f, -2562.139893f, 153.134003f);
+                        me->setFaction(35);
+                        me->SetFullHealth();
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        player->KilledMonsterCredit(58508);
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FORCE_BURST:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_FORCE_BURST, false);
+                            events.ScheduleEvent(EVENT_FORCE_BURST,      10000);
+                            break;
+                        case EVENT_KNOCK_AWAY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_KNOCK_AWAY, false);
+                            events.ScheduleEvent(EVENT_KNOCK_AWAY,      10000);
+                            break;
+                        case EVENT_PULL_CLOSE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_PULL_CLOSE, false);
+                            events.ScheduleEvent(EVENT_PULL_CLOSE,      10000);
+                            break;
+                        case EVENT_WAR_STOMP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_FIRE_ALE, false);
+                            events.ScheduleEvent(SPELL_WAR_STOMP,      10000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_jade_forest()
 {
     //Rare mobs
@@ -959,4 +1563,9 @@ void AddSC_jade_forest()
     new mob_rakira();
     new mob_ro_shen();
     new mob_sha_reminant();
+    //Standard Mobs
+    new mob_pandriarch_windfur();
+    new mob_pandriarch_bramblestaff();
+    new mob_pandriarch_goldendraft();
+    new mob_big_bao();
 }

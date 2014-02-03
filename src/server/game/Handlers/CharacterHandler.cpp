@@ -476,7 +476,28 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 // SELECT SUM(x) is MYSQL_TYPE_NEWDECIMAL - needs to be read as string
                 const char* ch = fields[0].GetCString();
                 if (ch)
-                    acctCharCount = atoi(ch);
+                {
+                    // Try crashfix, atoi -> std::stoi with handling of exception
+                    // We have log in Pandashan.log to make better fix
+                    try
+                    {
+                        acctCharCount = std::stoi(ch);
+                    }
+                    catch(std::invalid_argument& e)
+                    {
+                        acctCharCount = 0;
+                        sLog->OutPandashan("Exception (invalid argument) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
+                        KickPlayer();
+                        return;
+                    }
+                    catch(std::out_of_range)
+                    {
+                        acctCharCount = 0;
+                        sLog->OutPandashan("Exception (out of range) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
+                        KickPlayer();
+                        return;
+                    }
+                }
             }
 
             if (acctCharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
@@ -1323,18 +1344,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
 
-    // Send CUF profiles (new raid UI 4.2)
-    // 5.4.0 17399 packet dump
-    data.Initialize(SMSG_LOAD_CUF_PROFILES);
-
-    uint8 cufProfilesRawData[] =
-    { 0x00, 0x00, 0x22, 0x01, 0x29, 0x13, 0x80, 0x00, 0x00, 0x24, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x50, 0x72, 0x69, 0x6E, 0x63, 0x69, 0x70, 0x61, 0x6C, 0x00, 0x00 };
-
-    for (int i = 0; i < 31; i++)
-        data << cufProfilesRawData[i];
-
-    SendPacket(&data);
+    pCurrChar->SendCUFProfiles();
 
     uint32 time8 = getMSTime() - time7;
 
@@ -2251,6 +2261,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         recvData >> facialHair;
 
     uint32 lowGuid = GUID_LOPART(guid);
+    CharacterNameData const* oldData = sWorld->GetCharacterNameData(lowGuid);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
 
@@ -2428,6 +2439,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
     stmt->setUInt32(0, lowGuid);
     trans->Append(stmt);
+
+    // CHECK PTR
+    if (oldData)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
+        stmt->setUInt32(0, lowGuid);
+        stmt->setString(1, oldData->m_name);
+        stmt->setString(2, newname);
+        trans->Append(stmt);
+    }
 
     sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
 
@@ -2819,8 +2840,8 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
 
     std::string const* name = GetRandomCharacterName(race, gender);
     WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    data.WriteBits(name->size(), 6);
     data.WriteBit(0); // unk
-    data.WriteBits(name->size(), 7);
     data.WriteString(name->c_str());
     SendPacket(&data);
 }

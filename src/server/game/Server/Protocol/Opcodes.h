@@ -467,7 +467,7 @@ enum Opcodes
     CMSG_RESURRECT_RESPONSE                           = 0x128F, // 5.4.0 17399
     CMSG_RETURN_TO_GRAVEYARD                          = 0x122A, // 5.4.0 17399
     CMSG_ROLE_POLL_BEGIN                              = 0x1A1E, // 5.4.0 17399
-    CMSG_SAVE_CUF_PROFILES                            = 0x000,  // 5.0.5 16048
+    CMSG_SAVE_CUF_PROFILES                            = 0x158D, // 5.4.0 17399
     CMSG_SAVE_PLAYER                                  = 0x000,  // 5.0.5 16048
     CMSG_SEARCH_LFG_JOIN                              = 0x000,  // 5.0.5 16048
     CMSG_SEARCH_LFG_LEAVE                             = 0x000,  // 5.0.5 16048
@@ -700,7 +700,7 @@ enum Opcodes
     SMSG_AVAILABLE_VOICE_CHANNEL                      = 0x101,  // 5.4.0 17399 (JamList)
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x53A,  // 5.4.0 17399 (JamList)
     SMSG_BARBER_SHOP_RESULT                           = 0x59D,  // 5.4.0 17399
-    SMSG_BATTLEFIELD_LIST                             = 0x1B5,  // 5.4.0 17399 (JamList)
+    SMSG_BATTLEFIELD_LIST                             = 0x1B5,  // 5.4.0 17399
     SMSG_BATTLEFIELD_MGR_EJECTED                      = 0x528,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEFIELD_MGR_EJECT_PENDING                = 0x582,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEFIELD_MGR_ENTERING                     = 0x428,  // 5.4.0 17399 (JamList)
@@ -711,12 +711,12 @@ enum Opcodes
     SMSG_BATTLEFIELD_MGR_STATE_CHANGED                = 0x02C,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEFIELD_PORT_DENIED                      = 0x482,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEFIELD_RATED_INFO                       = 0x827,  // 5.4.0 17399 (JamList)
-    SMSG_BATTLEFIELD_STATUS                           = 0x59C,  // 5.4.0 17399 (JamList)
-    SMSG_BATTLEFIELD_STATUS_QUEUED                    = 0x10D,  // 5.4.0 17399 (JamList)
-    SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION         = 0x507,  // 5.4.0 17399 (JamList)
+    SMSG_BATTLEFIELD_STATUS                           = 0x59C,  // 5.4.0 17399
+    SMSG_BATTLEFIELD_STATUS_QUEUED                    = 0x10D,  // 5.4.0 17399
+    SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION         = 0x507,  // 5.4.0 17399
     SMSG_BATTLEFIELD_STATUS_ACTIVE                    = 0x52B,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS           = 0x814,  // 5.4.0 17399 (JamList)
-    SMSG_BATTLEFIELD_STATUS_FAILED                    = 0x5B9,  // 5.4.0 17399 (JamList)
+    SMSG_BATTLEFIELD_STATUS_FAILED                    = 0x5B9,  // 5.4.0 17399
     SMSG_BATTLEGROUND_INIT                            = 0x13B,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_BATTLEGROUND_INFO_THROTTLED                  = 0x484,  // 5.4.0 17399 (JamList)
     SMSG_BATTLEGROUND_POINTS                          = 0x518,  // 5.4.0 17399 (JamList) (NYI)
@@ -1027,7 +1027,7 @@ enum Opcodes
     SMSG_GUILD_XP_UPDATE                              = 0x000,  // 5.0.5 16048
     SMSG_HEALTH_UPDATE                                = 0x018,  // 5.4.0 17399 (JamList)
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x00B,  // 5.4.0 17399
-    SMSG_HOTFIX_INFO                                  = 0x416,  // 5.0.5 16048
+    SMSG_HOTFIX_INFO                                  = 0x416,  // 5.4.0 17399
     SMSG_HOTFIX_NOTIFY                                = 0x432,  // 5.4.0 17399 (JamList)
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x819,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_INITIALIZE_FACTIONS                          = 0x90F,  // 5.4.0 17399
@@ -1071,7 +1071,7 @@ enum Opcodes
     SMSG_LFG_JOIN_RESULT                              = 0x017,  // 5.4.0 17399
     SMSG_LFG_OFFER_CONTINUE                           = 0x8AB,  // 5.4.0 17399
     SMSG_LFG_OPEN_FROM_GOSSIP                         = 0x000,  // 5.0.5 16048
-    SMSG_LFG_PARTY_INFO                               = 0x5A0,  // 5.4.0 17399 (JamList)
+    SMSG_LFG_PARTY_INFO                               = 0x000,  // 5.4.0 17399 (JamList)
     SMSG_LFG_PLAYER_INFO                              = 0x1A2,  // 5.4.0 17399
     SMSG_LFG_PLAYER_REWARD                            = 0x5A2,  // 5.4.0 17399
     SMSG_LFG_PROPOSAL_UPDATE                          = 0x49F,  // 5.4.0 17399
@@ -1276,8 +1276,8 @@ enum Opcodes
     SMSG_PROFILE_DATA_RESPONSE                        = 0x498,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0x000,  // 5.0.5 16048
     SMSG_PVP_CREDIT                                   = 0x0BC,  // 5.4.0 17399
-    SMSG_PVP_LOG_DATA                                 = 0x480,  // 5.4.0 17399 (JamList)
-    SMSG_PVP_OPTIONS_ENABLED                          = 0x5A9,  // 5.4.0 17399 (JamList)
+    SMSG_PVP_LOG_DATA                                 = 0x480,  // 5.4.0 17399
+    SMSG_PVP_OPTIONS_ENABLED                          = 0x5A9,  // 5.4.0 17399
     SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0x000,  // 5.0.5 16048 Deprecated
     SMSG_QUERY_OBJECT_POSITION                        = 0x910,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_QUERY_OBJECT_ROTATION                        = 0x104,  // 5.4.0 17399 (JamList) (NYI)

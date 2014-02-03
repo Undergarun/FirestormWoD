@@ -39,6 +39,7 @@
 #include "Util.h"                                           // for Tokenizer typedef
 #include "WorldSession.h"
 #include "PhaseMgr.h"
+#include "CUFProfiles.h"
 
 // for template
 #include "SpellMgr.h"
@@ -64,7 +65,7 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25  // @todo: remove me (removed since 5.0.4)
+#define PLAYER_MAX_DAILY_QUESTS     25  // Fake big number
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -861,7 +862,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS    = 36,
     PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE              = 37,
     PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 38,
-    //PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES          = 39, //id on TC.
+    PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 39,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2454,7 +2455,8 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
         {
-            m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
+            if (m_bgData.bgQueuesJoinedTime.find(bgTypeId) != m_bgData.bgQueuesJoinedTime.end())
+                m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
         }
 
         bool InBattlegroundQueue() const
@@ -2639,6 +2641,8 @@ class Player : public Unit, public GridObject<Player>
         float m_homebindZ;
 
         WorldLocation GetStartPosition() const;
+
+        uint32 m_lastEclipseState;
 
         // current pet slot
         PetSlot m_currentPetSlot;
@@ -2935,6 +2939,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendBattlePetJournal();
 
+        void SendCUFProfiles();
+
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
@@ -3019,6 +3025,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
+        void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
 
         /*********************************************************/
@@ -3294,6 +3301,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
+        uint8 m_storeCallbackCounter;
 
         uint32 m_lastPlayedEmote;
 
@@ -3316,6 +3324,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonWins[MAX_ARENA_SLOT];
         uint32 m_WeekGames[MAX_ARENA_SLOT];
         uint32 m_SeasonGames[MAX_ARENA_SLOT];
+
+        CUFProfiles m_cufProfiles;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

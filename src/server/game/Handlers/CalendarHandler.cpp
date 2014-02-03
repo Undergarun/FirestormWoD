@@ -47,6 +47,10 @@ SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ Structure unkown ]
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
+    // Look like that function make random crashs ...
+    // @TODO: Check the code
+    return;
+    
     uint64 guid = _player->GetGUID();
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GET_CALENDAR [" UI64FMTD "]", guid);
 

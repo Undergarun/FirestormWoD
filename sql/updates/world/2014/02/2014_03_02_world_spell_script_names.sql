@@ -1,0 +1,1 @@
+DELETE FROM spell_script_names WHERE spell_script_names.`spell_id` = 104232;

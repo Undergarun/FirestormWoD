@@ -461,9 +461,25 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     }
                     case 46968: // Shockwave
                     {
-                        int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
-                        if (pct > 0)
-                            damage += int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                            break;
+
+                        int32 pct = 0;
+
+                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
+                        {
+                            case SPEC_WARRIOR_ARMS:
+                                pct = 90;
+                                break;
+                            case SPEC_WARRIOR_FURY:
+                            case SPEC_WARRIOR_PROTECTION:
+                                pct = 75;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
 
                         break;
                     }
@@ -639,7 +655,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                             if (combo)
                             {
-                                damage += int32(0.112f * combo * ap + damage * combo);
+                                damage = int32(0.112f * combo * ap + damage * combo);
 
                                 // Eviscerate and Envenom Bonus Damage (item set effect)
                                 if (m_caster->HasAura(37169))
@@ -781,7 +797,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             if (unitTarget)
                             {
                                 uint32 damage = unitTarget->GetHealth();
-                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), NULL, NULL, false, NULL, false);
+                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
                                 m_caster->DealDamageMods(unitTarget, damage, NULL);
                                 m_caster->DealDamage(unitTarget, damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
                             }
@@ -2626,6 +2642,9 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
 
 void Spell::SendLoot(uint64 guid, LootType loottype)
 {
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     Player* player = m_caster->ToPlayer();
     if (!player)
         return;
@@ -2942,13 +2961,14 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     {
         Item* mainItem = m_originalCaster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
-        if (mainItem && (mainItem->GetEntry() == 86335 || mainItem->GetEntry() == 86227))
+        if (mainItem && (mainItem->GetEntry() == 86335 || mainItem->GetEntry() == 86893 || mainItem->GetEntry() == 87170 ||
+            mainItem->GetEntry() == 86227 || mainItem->GetEntry() == 86990 || mainItem->GetEntry() == 86865))
         {
             entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
-            properties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
+            SummonPropertiesEntry const* newProperties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
 
-            if (!properties)
-                return;
+            if (newProperties)
+                properties = newProperties;
         }
     }
 
@@ -5254,15 +5274,15 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_targets.GetUnitTarget()->GetAura(55078))
                     {
                         m_caster->CastSpell(unitTarget, 55078, true);
-                        m_caster->CastSpell(unitTarget, 63687, true); // Cosmetic - Pestilence State
-                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true); // Cosmetic - Send Diseases on target
+                        m_caster->AddAura(63687, unitTarget);                           // Cosmetic - Pestilence State
+                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true);  // Cosmetic - Send Diseases on target
                     }
                     // Frost Fever
                     if (m_targets.GetUnitTarget()->GetAura(55095))
                     {
                         m_caster->CastSpell(unitTarget, 55095, true);
-                        m_caster->CastSpell(unitTarget, 63687, true); // Cosmetic - Pestilence State
-                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true); // Cosmetic - Send Diseases on target
+                        m_caster->AddAura(63687, unitTarget);                           // Cosmetic - Pestilence State
+                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true);  // Cosmetic - Send Diseases on target
                     }
                 }
             }

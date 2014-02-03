@@ -22,6 +22,7 @@
 #include "WorldPacket.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "CUFProfiles.h"
 #include "Player.h"
 #include "GossipDef.h"
 #include "World.h"
@@ -557,9 +558,9 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
+    // Instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
-        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
+        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)) || IsPremium())
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint32(reason);
@@ -2504,7 +2505,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
         _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_HORDE);
         _player->setFactionForRace(RACE_PANDAREN_HORDE);
         _player->SaveToDB();
-        WorldLocation location(1, -618.518f, -4251.67f, 38.718f, M_PI);
+        WorldLocation location(1, -1379.194f, -4369.913f, 26.0255f, 0.1223f);
         _player->TeleportTo(location);
         _player->SetHomebind(location, 363);
         _player->learnSpell(669, false); // Language Orcish
@@ -2515,7 +2516,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
         _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLI);
         _player->setFactionForRace(RACE_PANDAREN_ALLI);
         _player->SaveToDB();
-        WorldLocation location(0, -8914.57f, -133.909f, 80.5378f, M_PI);
+        WorldLocation location(0, -9064.97f, -432.403f, 93.055f, 0.6296f);
         _player->TeleportTo(location);
         _player->SetHomebind(location, 9);
         _player->learnSpell(668, false); // Language Common
@@ -2612,4 +2613,102 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
     data.WriteByteSeq(guid[2]);
     data << uint32(plr->GetMaxSkillValue(skillId));
     SendPacket(&data);
+}
+
+void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
+{
+    uint32 count = recvPacket.ReadBits(19);
+    if (count > MAX_CUF_PROFILES)
+    {
+        recvPacket.rfinish();
+        return;
+    }
+
+    CUFProfiles& profiles = GetPlayer()->m_cufProfiles;
+    profiles.resize(count);
+    for (uint32 i = 0; i < count; ++i)
+    {
+        CUFProfile& profile = profiles[i];
+        CUFProfileData& data = profile.data;
+
+        data.displayMainTankAndAssistant = recvPacket.ReadBit();
+        data.keepGroupsTogether = recvPacket.ReadBit();
+        data.auto5 = recvPacket.ReadBit();
+        data.auto15 = recvPacket.ReadBit();
+        data.displayPowerBar = recvPacket.ReadBit();
+        data.displayBorder = recvPacket.ReadBit();
+        data.autoPvP = recvPacket.ReadBit();
+        data.auto40 = recvPacket.ReadBit();
+        data.autoSpec1 = recvPacket.ReadBit();
+        data.auto3 = recvPacket.ReadBit();
+        data.auto2 = recvPacket.ReadBit();
+        data.useClassColors = recvPacket.ReadBit();
+        data.bit13 = recvPacket.ReadBit();
+        data.autoSpec2 = recvPacket.ReadBit();
+        data.horizontalGroups = recvPacket.ReadBit();
+        data.bit16 = recvPacket.ReadBit();
+        data.displayOnlyDispellableDebuffs = recvPacket.ReadBit();
+
+        profile.nameLen = recvPacket.ReadBits(7);
+        if (profile.nameLen > MAX_CUF_PROFILE_NAME_LENGTH)
+        {
+            recvPacket.rfinish();
+            return;
+        }
+
+        data.displayNonBossDebuffs = recvPacket.ReadBit();
+        data.displayPets = recvPacket.ReadBit();
+        data.auto25 = recvPacket.ReadBit();
+        data.displayHealPrediction = recvPacket.ReadBit();
+        data.displayAggroHighlight = recvPacket.ReadBit();
+        data.auto10 = recvPacket.ReadBit();
+        data.bit24 = recvPacket.ReadBit();
+        data.autoPvE = recvPacket.ReadBit();
+    }
+
+    recvPacket.FlushBits();
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        CUFProfile& profile = profiles[i];
+        CUFProfileData& data = profile.data;
+
+        data.unk5 = recvPacket.read<uint8>();
+        data.unk6 = recvPacket.read<uint8>();
+        data.unk0 = recvPacket.read<uint16>();
+        data.unk7 = recvPacket.read<uint8>();
+        data.unk1 = recvPacket.read<uint16>();
+        data.sortType = recvPacket.read<uint8>();
+        data.frameWidth = recvPacket.read<uint16>();
+        data.healthText = recvPacket.read<uint8>();
+        data.frameHeight = recvPacket.read<uint16>();
+
+        profile.name = recvPacket.ReadString(profile.nameLen);
+
+        data.unk4 = recvPacket.read<uint16>();
+    }
+
+    _player->SendCUFProfiles();
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CUF_PROFILE);
+    stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+    trans->Append(stmt);
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        CUFProfile& profile = profiles[i];
+        CUFProfileData& data = profile.data;
+
+        auto sdata = std::string((const char*)&data);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
+        stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+        stmt->setString(1, profile.name);
+        stmt->setString(2, sdata);
+        trans->Append(stmt);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
 }

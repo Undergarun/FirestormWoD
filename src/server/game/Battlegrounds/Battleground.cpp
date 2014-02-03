@@ -853,10 +853,10 @@ void Battleground::EndBattleground(uint32 winner)
         // per player calculation
         if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
         {
+            uint8 slot = Arena::GetSlotByType(GetArenaType());
+
             if (team == winner)
             {
-                uint8 slot = Arena::GetSlotByType(GetArenaType());
-
                 // update achievement BEFORE personal rating update
                 uint32 rating = player->GetArenaPersonalRating(slot);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
@@ -865,7 +865,17 @@ void Battleground::EndBattleground(uint32 winner)
             }
             else
             {
-                loser_arena_team->MemberLost(player, winner_matchmaker_rating, loser_matchmaker_change);
+                // Member lost
+                // Update personal rating
+                /*int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), winner_matchmaker_rating, false);
+                player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
+
+                // Update matchmaker rating
+                player->SetArenaMatchMakerRating(player->GetArenaMatchMakerRating(slot) + loser_matchmaker_change, slot);
+
+                // Update personal played stats
+                player->IncrementWeekGames(slot);
+                player->IncrementSeasonGames(slot);*/
 
                 // Arena lost => reset the win_rated_arena having the "no_lose" condition
                 player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
@@ -996,12 +1006,13 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         {
             player->ClearAfkReports();
 
-            if (!team) team = player->GetTeam();
+            if (!team)
+                team = player->GetTeam();
 
             // if arena, remove the specific arena auras
             if (isArena())
             {
-                bgTypeId=BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
+                bgTypeId = BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
                 // unsummon current and summon old pet if there was one and there isn't a current pet
                 if (Pet* pet = player->GetPet())
@@ -1017,7 +1028,20 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                     Group* winner_group = GetBgRaid(GetOtherTeam(team));
                     Group* loser_group = GetBgRaid(team);
                     if (winner_group && loser_group && winner_group != loser_group)
-                        loser_group->MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(team), Arena::GetSlotByType(GetArenaType())), Arena::GetSlotByType(GetArenaType()));
+                    {
+                        uint8 slot = Arena::GetSlotByType(GetArenaType());
+
+                        // Update personal rating
+                        int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), GetArenaMatchmakerRating(GetOtherTeam(team), slot), false);
+                        player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+
+                        // Update matchmaker rating
+                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
+
+                        // Update personal played stats
+                        player->IncrementWeekGames(slot);
+                        player->IncrementSeasonGames(slot);
+                    }
                 }
             }
             if (SendPacket)
@@ -1247,6 +1271,8 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+
+    player->CastSpell(player, 134735, true);
 
     // Log
     sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Player %s joined the battle.", player->GetName());

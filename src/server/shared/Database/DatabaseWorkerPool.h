@@ -213,6 +213,17 @@ class DatabaseWorkerPool
             delete stmt;
         }
 
+        bool DirectExecuteWithReturn(PreparedStatement* stmt)
+        {
+            T* t = GetFreeConnection();
+            bool result = t->Execute(stmt);
+            t->Unlock();
+
+            //! Delete proxy-class. Not needed anymore
+            delete stmt;
+            return result;
+        }
+
         /**
             Synchronous query (with resultset) methods.
         */
@@ -374,14 +385,16 @@ class DatabaseWorkerPool
 
         //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void DirectCommitTransaction(SQLTransaction& transaction)
+        bool DirectCommitTransaction(SQLTransaction& transaction)
         {
             MySQLConnection* con = GetFreeConnection();
             if (con->ExecuteTransaction(transaction))
             {
                 con->Unlock();      // OK, operation succesful
-                return;
+                return true;
             }
+
+            bool error = false;
 
             //! Handle MySQL Errno 1213 without extending deadlock to the core itself
             //! TODO: More elegant way
@@ -391,7 +404,10 @@ class DatabaseWorkerPool
                 for (uint8 i = 0; i < loopBreaker; ++i)
                 {
                     if (con->ExecuteTransaction(transaction))
+                    {
+                        error = true;
                         break;
+                    }
                 }
             }
 
@@ -399,6 +415,7 @@ class DatabaseWorkerPool
             transaction->Cleanup();
 
             con->Unlock();
+            return error;
         }
 
         //! Method used to execute prepared statements in a diverse context.

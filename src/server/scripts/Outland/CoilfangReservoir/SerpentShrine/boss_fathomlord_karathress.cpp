@@ -650,11 +650,8 @@ public:
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
-
                 if (target)
-                {
                     AttackStart(target);
-                }
             }
 
             //Return since we have no target
@@ -673,16 +670,23 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_WATER_BOLT_VOLLEY);
                 WaterBoltVolley_Timer = 30000;
-            } else WaterBoltVolley_Timer -= diff;
+            }
+            else
+                WaterBoltVolley_Timer -= diff;
 
             //TidalSurge_Timer
             if (TidalSurge_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TIDAL_SURGE);
-                // Hacky way to do it - won't trigger elseways
-                me->getVictim()->CastSpell(me->getVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
+                if (Unit* victim = me->getVictim())
+                {
+                    DoCast(me->getVictim(), SPELL_TIDAL_SURGE);
+                    // Hacky way to do it - won't trigger elseways
+                    me->getVictim()->CastSpell(me->getVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
+                }
                 TidalSurge_Timer = 15000+rand()%5000;
-            } else TidalSurge_Timer -= diff;
+            }
+            else
+                TidalSurge_Timer -= diff;
 
             //Cyclone_Timer
             if (Cyclone_Timer <= diff)
@@ -698,11 +702,11 @@ public:
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target)
-                    {
                         Cyclone->AI()->AttackStart(target);
-                    }
                 }
-            } else Cyclone_Timer -= diff;
+            }
+            else
+                Cyclone_Timer -= diff;
 
             //Heal_Timer
             if (Heal_Timer <= diff)
@@ -711,14 +715,14 @@ public:
                 Unit* unit = NULL;
 
                 while (unit == NULL || !unit->isAlive())
-                {
                     unit = selectAdvisorUnit();
-                }
 
                 if (unit && unit->isAlive())
                     DoCast(unit, SPELL_HEAL);
                 Heal_Timer = 60000;
-            } else Heal_Timer -= diff;
+            }
+            else
+                Heal_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -730,20 +734,22 @@ public:
             {
                 switch (rand()%4)
                 {
-                case 0:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
-                    break;
-                case 1:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
-                    break;
-                case 2:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
-                    break;
-                case 3:
-                    unit = me;
-                    break;
+                    case 0:
+                        unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
+                        break;
+                    case 1:
+                        unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
+                        break;
+                    case 2:
+                        unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
+                        break;
+                    case 3:
+                        unit = me;
+                        break;
                 }
-            } else unit = me;
+            }
+            else
+                unit = me;
             return unit;
         }
     };

@@ -47,6 +47,7 @@ enum eSpells
     SPELL_PINNED_DOWN_DOT       = 118135,
     SPELL_PINNING_ARROW_VISUAL  = 118141,
     SPELL_SLEIGHT_OF_HAND       = 118162, // Heroic
+    SPELL_ROBBED_BLIND          = 118163, // Heroic
 
     // Zian
     SPELL_UNDYING_SHADOWS       = 117506, // Also when vanquished
@@ -57,6 +58,7 @@ enum eSpells
     SPELL_SHADOW_BLAST          = 117628,
     SPELL_CHARGED_SHADOWS       = 117685,
     SPELL_SHIELD_OF_DARKNESS    = 117697, // Heroic
+    SPELL_DARKNESS              = 117701, // Heroic
 
     // Meng
     SPELL_MADDENING_SHOUT       = 117708, // Also when vanquished
@@ -102,7 +104,13 @@ enum eEvents
     // Meng
     EVENT_MADDENING_SHOUT       = 13,
     EVENT_CRAZED                = 14,
-    EVENT_CRAZY_THOUGHT         = 15
+    EVENT_CRAZY_THOUGHT         = 15,
+
+    // Heroic
+    EVENT_IMPERVIOUS_SHIELD     = 16,
+    EVENT_DELIRIOUS             = 17,
+    EVENT_SLEIGHT_OF_HAND       = 18,
+    EVENT_SHIELD_OF_DARKNESS    = 19,
 };
 
 enum equipId
@@ -218,14 +226,15 @@ uint32 volleySpells[3] =
     SPELL_VOLLEY_3
 };
 
-uint32 randomSpirits[4] =
+uint32 spiritsOrder[4] =
 {
     NPC_QIANG,
     NPC_SUBETAI,
-    NPC_ZIAN,
-    NPC_MENG
+    NPC_MENG,
+    NPC_ZIAN
 };
 
+// 60984 - Controller
 class boss_spirit_kings_controler : public CreatureScript
 {
     public:
@@ -240,9 +249,7 @@ class boss_spirit_kings_controler : public CreatureScript
                 spiritKingsEntry.resize(4, 0);
 
                 for (uint8 i = 0; i < 4; i++)
-                    spiritKingsEntry[i] = randomSpirits[i];
-
-                std::random_shuffle(spiritKingsEntry.begin()++, spiritKingsEntry.end());
+                    spiritKingsEntry[i] = spiritsOrder[i];
             }
 
             InstanceScript* pInstance;
@@ -255,6 +262,7 @@ class boss_spirit_kings_controler : public CreatureScript
             bool _introMengDone;
 
             uint8 vanquishedCount;
+            uint8 nextSpirit;
 
             void Reset()
             {
@@ -265,6 +273,7 @@ class boss_spirit_kings_controler : public CreatureScript
                 _introSubetaiDone = false;
                 _introMengDone    = false;
                 vanquishedCount   = 0;
+                nextSpirit        = 0;
 
                 for (uint8 i = 0; i < MAX_FLANKING_MOGU; ++i)
                     flankingGuid[i] = 0;
@@ -360,12 +369,39 @@ class boss_spirit_kings_controler : public CreatureScript
                         }
                         break;
                     }
+                    case ACTION_ACTIVATE_SPIRIT:
+                    {
+                        if (IsHeroic())
+                            nextSpirit = vanquishedCount + 1;
+
+                        if (nextSpirit < 4)
+                        {
+                            if (!IsHeroic())
+                                nextSpirit = vanquishedCount;
+
+                            if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritKingsEntry[nextSpirit])))
+                            {
+                                spirit->AI()->DoAction(ACTION_ENTER_COMBAT);
+
+                                if (nextSpirit < 3)
+                                {
+                                    nextSpirit++;
+
+                                    if (Creature* incomingSpirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritKingsEntry[nextSpirit])))
+                                        me->AddAura(SPELL_ACTIVATION_VISUAL, incomingSpirit);
+                                }
+                            }
+                        }
+                        break;
+                    }
                     case ACTION_SPIRIT_KILLED:
                     {
-                        uint8 nextSpirit = ++vanquishedCount;
+                        nextSpirit = ++vanquishedCount;
+
                         if (nextSpirit >= 4)
                         {
                             pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
+                            _JustDied();
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
 
                             for (auto entry: spiritKingsEntry)
@@ -388,18 +424,9 @@ class boss_spirit_kings_controler : public CreatureScript
                         }
                         else
                         {
-                            if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritKingsEntry[nextSpirit])))
-                            {
-                                spirit->AI()->DoAction(ACTION_ENTER_COMBAT);
-
-                                if (nextSpirit < 3)
-                                {
-                                    nextSpirit++;
-
-                                    if (Creature* incomingSpirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritKingsEntry[nextSpirit])))
-                                        me->AddAura(SPELL_ACTIVATION_VISUAL, incomingSpirit);
-                                }
-                            }
+                            // In heroic difficulty, next spirit has been activated before current spirit is killed
+                            if (!IsHeroic())
+                                DoAction(ACTION_ACTIVATE_SPIRIT);
                         }
                         break;
                     }
@@ -495,6 +522,10 @@ class boss_spirit_kings_controler : public CreatureScript
         }
 };
 
+// 60701 - Zian of the Endless Shadow
+// 60708 - Meng the Demented
+// 60709 - Qiang the Merciless
+// 60710 - Subetai the Swift
 class boss_spirit_kings : public CreatureScript
 {
     public:
@@ -514,6 +545,7 @@ class boss_spirit_kings : public CreatureScript
 
             bool vanquished;
             bool _introQiangDone;
+            bool lowLife;
 
             uint8 shadowCount;
             uint8 maxShadowCount;
@@ -525,6 +557,7 @@ class boss_spirit_kings : public CreatureScript
 
                 vanquished        = false;
                 _introQiangDone   = false;
+                lowLife           = false;
 
                 summons.DespawnAll();
 
@@ -542,6 +575,8 @@ class boss_spirit_kings : public CreatureScript
                         events.ScheduleEvent(EVENT_FLANKING_MOGU,       40000);
                         events.ScheduleEvent(EVENT_MASSIVE_ATTACK,      3500);
                         events.ScheduleEvent(EVENT_ANNIHILATE,          urand(15000, 20000));
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_IMPERVIOUS_SHIELD, 50000);
                         SetEquipmentSlots(false, EQUIP_QIANG_POLEARM, 0, EQUIP_NO_CHANGE);
 
                         if (_introQiangDone)
@@ -554,18 +589,24 @@ class boss_spirit_kings : public CreatureScript
                         events.ScheduleEvent(EVENT_PILLAGE,             30000);
                         events.ScheduleEvent(EVENT_VOLLEY_1,            urand(15000, 20000));
                         events.ScheduleEvent(EVENT_RAIN_OF_ARROWS,      45000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_SLEIGHT_OF_HAND, 50000);
                         SetEquipmentSlots(false, EQUIP_SUBETAI_SWORD, EQUIP_SUBETAI_SWORD, EQUIP_SUBETAI_BOW);
                         break;
                     case NPC_ZIAN:
                         events.ScheduleEvent(EVENT_UNDYING_SHADOWS,     30000);
                         events.ScheduleEvent(EVENT_SHADOW_BLAST,        15000);
                         events.ScheduleEvent(EVENT_CHARGED_SHADOWS,     10000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_SHIELD_OF_DARKNESS, 50000);
                         SetEquipmentSlots(false, EQUIP_ZIAN_STAFF, 0, EQUIP_NO_CHANGE);
                         break;
                     case NPC_MENG:
                         events.ScheduleEvent(EVENT_MADDENING_SHOUT,     21000);
                         events.ScheduleEvent(EVENT_CRAZED,              1000);
                         events.ScheduleEvent(EVENT_CRAZY_THOUGHT,       10000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_DELIRIOUS,       50000);
                         me->RemoveAurasDueToSpell(SPELL_CRAZED);
                         me->RemoveAurasDueToSpell(SPELL_COWARDICE);
                         me->setPowerType(POWER_RAGE);
@@ -609,6 +650,9 @@ class boss_spirit_kings : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
+                if (!pInstance->CheckRequiredBosses(DATA_SPIRIT_KINGS))
+                    return;
+
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -660,6 +704,18 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
+            void JustDied(Unit* killer)
+            {
+                if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
+                {
+                    if (lorewalkerCho->AI())
+                    {
+                        lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                        lorewalkerCho->AI()->DoAction(ACTION_RUN);
+                    }
+                }
+            }
+
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -696,6 +752,14 @@ class boss_spirit_kings : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+                if (me->HealthBelowPctDamaged(30, damage) && IsHeroic() && !lowLife)
+                {
+                    // Triggered once only
+                    lowLife = true;
+                    if (Creature* controler = GetControler())
+                        controler->AI()->DoAction(ACTION_ACTIVATE_SPIRIT);
+                }
+
                 if (me->HealthBelowPctDamaged(5, damage) && !vanquished)
                 {
                     vanquished = true;
@@ -837,6 +901,13 @@ class boss_spirit_kings : public CreatureScript
                             events.ScheduleEvent(EVENT_ANNIHILATE, urand(15000, 20000));
                             break;
                         }
+                        case EVENT_IMPERVIOUS_SHIELD:
+                        {
+                            me->CastSpell(me, SPELL_IMPERVIOUS_SHIELD, true);
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_IMPERVIOUS_SHIELD, urand(45000, 50000));
+                            break;
+                        }
                         // Subetai
                         case EVENT_PILLAGE:
                         {
@@ -863,6 +934,13 @@ class boss_spirit_kings : public CreatureScript
                                 me->CastSpell(target, SPELL_RAIN_OF_ARROWS, false);
 
                             events.ScheduleEvent(EVENT_RAIN_OF_ARROWS, 45000);
+                            break;
+                        }
+                        case EVENT_SLEIGHT_OF_HAND:
+                        {
+                            me->CastSpell(me, SPELL_SLEIGHT_OF_HAND, true);
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_SLEIGHT_OF_HAND, urand(45000, 55000));
                             break;
                         }
                         // Zian
@@ -897,6 +975,13 @@ class boss_spirit_kings : public CreatureScript
                             events.ScheduleEvent(EVENT_CHARGED_SHADOWS, 15000);
                             break;
                         }
+                        case EVENT_SHIELD_OF_DARKNESS:
+                        {
+                            me->CastSpell(me, SPELL_SHIELD_OF_DARKNESS, true);
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_SHIELD_OF_DARKNESS, urand(45000, 55000));
+                            break;
+                        }
                         // Meng
                         case EVENT_MADDENING_SHOUT:
                         {
@@ -916,6 +1001,13 @@ class boss_spirit_kings : public CreatureScript
                             events.ScheduleEvent(EVENT_CRAZY_THOUGHT, 15000);
                             break;
                         }
+                        case EVENT_DELIRIOUS:
+                        {
+                            me->CastSpell(me, SPELL_DELIRIOUS, true);
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_DELIRIOUS, urand(45000, 55000));
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -932,6 +1024,7 @@ class boss_spirit_kings : public CreatureScript
         }
 };
 
+// 60958 - Pinning Arrow
 class mob_pinning_arrow : public CreatureScript
 {
     public:
@@ -997,6 +1090,7 @@ class mob_pinning_arrow : public CreatureScript
 #define PHASE_UNDYING_SHADOW    true
 #define PHASE_COALESCING_SHADOW false
 
+// 60731 - Undying Shadows
 class mob_undying_shadow : public CreatureScript
 {
     public:
@@ -1283,7 +1377,7 @@ class spell_crazed_cowardice : public SpellScriptLoader
             void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 PreventDefaultAction();
-
+                
                 if (Unit* caster = GetCaster())
                 {
                     if (AuraPtr aura = GetAura())

@@ -58,8 +58,8 @@ enum WarriorSpells
     WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK        = 118895,
     WARRIOR_SPELL_MEAT_CLEAVER_PROC             = 85739,
     WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326,
-    WARRIOR_SPELL_STORM_BOLT_STUN               = 132169,
-    WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED       = 132404,
+    WARRIOR_SPELL_STORM_BOLT_STUN               = 145585,
+    WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED        = 132404,
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
@@ -207,7 +207,7 @@ class spell_warr_shield_block : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED, true);
+                    _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
             }
 
             void Register()
@@ -236,12 +236,15 @@ class spell_warr_storm_bolt : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN))
                     {
-                        if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), 0))
-                            SetHitDamage(GetHitDamage() * 4);
+                        if (Unit* unitTarget = GetHitUnit())
+                        {
+                            if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), 0))
+                                SetHitDamage(GetHitDamage() * 4);
 
-                        _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                            _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                        }
                     }
                 }
             }
@@ -327,7 +330,7 @@ class spell_warr_dragon_roar : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
@@ -336,7 +339,7 @@ class spell_warr_dragon_roar : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleAfterHit);
             }
         };
 
@@ -1115,10 +1118,13 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                         if (target->GetGUID() == _player->GetGUID())
                             return;
 
-                        if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                            _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                        else
-                            _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                        if (_player->getLevel() >= 32)
+                        {
+                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
+                                _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                            else
+                                _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                        }
                     }
                 }
             }
@@ -1143,6 +1149,7 @@ enum Charge
     SPELL_CHARGE_WARBRINGER_STUN            = 105771
 };
 
+// Charge - 100
 class spell_warr_charge : public SpellScriptLoader
 {
     public:
@@ -1159,7 +1166,7 @@ class spell_warr_charge : public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnHit()
+            void HandleCharge(SpellEffIndex /*effIndex*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1178,7 +1185,7 @@ class spell_warr_charge : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_charge_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
             }
         };
 

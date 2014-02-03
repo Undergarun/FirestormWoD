@@ -221,7 +221,7 @@ class InstanceScript : public ZoneScript
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
 
         void UpdatePhasing();
 

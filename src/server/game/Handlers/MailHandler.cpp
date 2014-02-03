@@ -300,13 +300,17 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
+    // If theres is an item, there is a one hour delivery delay if sent to another account's character.
+    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
+
     // Guild Mail
     if (receive && receive->GetGuildId() && player->GetGuildId())
         if (player->HasAura(83951) && (player->GetGuildId() == receive->GetGuildId()))
-            needItemDelay = false;
+            deliver_delay = 0;
 
-    // If theres is an item, there is a one hour delivery delay if sent to another account's character.
-    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
+    // VIP Accounts receive mails instantly
+    if (receive && receive->GetSession()->IsPremium())
+        deliver_delay = 0;
 
     // will delete item or place to receiver mail list
     draft
