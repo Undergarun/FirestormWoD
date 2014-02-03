@@ -1,0 +1,1 @@
+UPDATE `trinity_string` SET `content_default` = '%s has earned the achievement $a!', `content_loc2` = '%s a accompli le haut fait $a !', `content_loc3` = '%s hat den Erfolg $a errungen!' WHERE entry = 810;
