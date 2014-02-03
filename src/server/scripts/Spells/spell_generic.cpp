@@ -3489,6 +3489,36 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
         }
 };
 
+// Battle Fatigue - 134735
+class spell_gen_battle_fatigue : public SpellScriptLoader
+{
+    public:
+        spell_gen_battle_fatigue() : SpellScriptLoader("spell_gen_battle_fatigue") { }
+
+        class spell_gen_battle_fatigue_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_battle_fatigue_AuraScript);
+
+            void HandleRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->ToPlayer()->GetBattleground())
+                                target->CastSpell(target, 134735, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_battle_fatigue_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_battle_fatigue_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3567,4 +3597,5 @@ void AddSC_generic_spell_scripts()
     new spell_mage_polymorph_cast_visual();
     new spell_gen_hardened_shell();
     new spell_gen_ds_flush_knockback();
+    new spell_gen_battle_fatigue();
 }

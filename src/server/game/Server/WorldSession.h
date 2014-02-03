@@ -1018,7 +1018,8 @@ class WorldSession
         void HandleSetLootSpecialization(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleTradeInfo (WorldPacket& recvData);
+        void HandleTradeInfo(WorldPacket& recvData);
+        void HandleSaveCUFProfiles(WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleAlterAppearance(WorldPacket& recvData);

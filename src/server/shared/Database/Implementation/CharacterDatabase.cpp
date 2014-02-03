@@ -290,6 +290,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_INS_AURA_EFFECT, "INSERT INTO character_aura_effect (guid, slot, effect, baseamount, amount) "
     "VALUES (?, ?, ?, ?, ?)",  CONNECTION_ASYNC)
 
+    PREPARE_STATEMENT(CHAR_DEL_CUF_PROFILE, "DELETE FROM cuf_profile WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_CUF_PROFILE, "INSERT INTO cuf_profile (guid, name, data) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_CUF_PROFILE, "SELECT name, data FROM cuf_profile WHERE guid = ?", CONNECTION_ASYNC);
+
     // Currency
     PREPARE_STATEMENT(CHAR_SEL_PLAYER_CURRENCY, "SELECT currency, week_count, total_count, season_total, flags, weekCap, needResetCap FROM character_currency WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_PLAYER_CURRENCY, "UPDATE character_currency SET week_count = ?, total_count = ?, season_total = ?, flags = ?, weekCap = ?, needResetCap = ? WHERE guid = ? AND currency = ?", CONNECTION_ASYNC);

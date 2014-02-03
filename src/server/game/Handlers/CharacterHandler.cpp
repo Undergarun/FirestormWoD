@@ -1344,18 +1344,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
 
-    // Send CUF profiles (new raid UI 4.2)
-    // 5.4.0 17399 packet dump
-    data.Initialize(SMSG_LOAD_CUF_PROFILES);
-
-    uint8 cufProfilesRawData[] =
-    { 0x00, 0x00, 0x22, 0x01, 0x29, 0x13, 0x80, 0x00, 0x00, 0x24, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x50, 0x72, 0x69, 0x6E, 0x63, 0x69, 0x70, 0x61, 0x6C, 0x00, 0x00 };
-
-    for (int i = 0; i < 31; i++)
-        data << cufProfilesRawData[i];
-
-    SendPacket(&data);
+    pCurrChar->SendCUFProfiles();
 
     uint32 time8 = getMSTime() - time7;
 
@@ -2851,8 +2840,8 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
 
     std::string const* name = GetRandomCharacterName(race, gender);
     WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    data.WriteBits(name->size(), 6);
     data.WriteBit(0); // unk
-    data.WriteBits(name->size(), 7);
     data.WriteString(name->c_str());
     SendPacket(&data);
 }

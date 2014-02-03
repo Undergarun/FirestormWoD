@@ -204,7 +204,11 @@ void AuraApplication::BuildBitsUpdatePacket(ByteBuffer& data, bool remove) const
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
 
-    uint8 count = (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT) ? MAX_SPELL_EFFECTS : 0;
+    uint8 count = 0;
+    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (aura->GetEffect(i))
+                ++count;
 
     data.WriteBit(flags & AFLAG_DURATION); // duration
     data.WriteBits(count, 22);
@@ -250,7 +254,7 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
 
     data << uint8(flags);
 
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
         {
@@ -258,11 +262,6 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
                 data << float(eff->GetAmount());
 
             mask |= 1 << i;
-        }
-        else
-        {
-            if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                data << float(0.00f);
         }
     }
 

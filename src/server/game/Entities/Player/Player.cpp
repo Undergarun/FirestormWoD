@@ -19094,6 +19094,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES));
     _LoadArenaData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENADATA));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
+    _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
@@ -28909,6 +28910,109 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
         _instanceResetTimes.insert(InstanceTimeMap::value_type(fields[0].GetUInt32(), fields[1].GetUInt64()));
     }
     while (result->NextRow());
+}
+void Player::_LoadCUFProfiles(PreparedQueryResult result)
+{
+    if (result)
+    {
+        uint32 count = result->GetRowCount();
+        if (count > MAX_CUF_PROFILES)
+            count = MAX_CUF_PROFILES;
+
+        m_cufProfiles.resize(count);
+
+        uint32 i = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            CUFProfile& profile = m_cufProfiles[i];
+
+            std::string name = fields[0].GetString();
+            if (name.length() > MAX_CUF_PROFILE_NAME_LENGTH)
+                continue;
+
+            profile.name = name;
+            profile.nameLen = name.length();
+
+            const char* data = fields[1].GetCString();
+            {
+                uint32 copyCount = std::min(sizeof(profile.data), strlen(data));
+
+                memcpy(&profile.data, data, copyCount);
+                memset((char*)(&profile.data)+copyCount, 0, strlen(data) - copyCount);
+            }
+
+            ++i;
+        }
+        while (i < count && result->NextRow());
+    }
+    else
+        m_cufProfiles.clear();
+}
+
+void Player::SendCUFProfiles()
+{
+    WorldPacket data(SMSG_LOAD_CUF_PROFILES);
+
+    data.WriteBits(m_cufProfiles.size(), 19);
+
+    for (uint32 i = 0; i < m_cufProfiles.size(); ++i)
+    {
+        CUFProfile& profile = m_cufProfiles[i];
+        CUFProfileData& cdata = profile.data;
+
+        data.WriteBit(cdata.autoPvE);
+        data.WriteBit(cdata.keepGroupsTogether);
+        data.WriteBit(cdata.useClassColors);
+        data.WriteBit(cdata.displayHealPrediction);
+        data.WriteBit(cdata.displayPets);
+        data.WriteBit(cdata.displayNonBossDebuffs);
+        data.WriteBit(cdata.auto5);
+        data.WriteBit(cdata.autoSpec2);
+        data.WriteBit(cdata.displayOnlyDispellableDebuffs);
+        data.WriteBit(cdata.auto10);
+        data.WriteBit(cdata.auto3);
+        data.WriteBit(cdata.horizontalGroups);
+        data.WriteBit(cdata.displayAggroHighlight);
+        data.WriteBit(cdata.displayMainTankAndAssistant);
+        data.WriteBit(cdata.autoPvP);
+        data.WriteBit(cdata.bit13);
+        data.WriteBit(cdata.auto15);
+        data.WriteBit(cdata.displayBorder);
+        data.WriteBit(cdata.auto2);
+        data.WriteBit(cdata.displayPowerBar);
+        data.WriteBit(cdata.displayNonBossDebuffs);
+
+        data.WriteBits(profile.nameLen, 7);
+
+        data.WriteBit(cdata.bit16);
+        data.WriteBit(cdata.bit24);
+        data.WriteBit(cdata.auto40);
+        data.WriteBit(cdata.autoSpec1);
+    }
+
+    for (uint32 i = 0; i < m_cufProfiles.size(); ++i)
+    {
+        CUFProfile& profile = m_cufProfiles[i];
+        CUFProfileData& cdata = profile.data;
+
+        data << cdata.unk0;
+        data << cdata.frameHeight;
+        data << cdata.sortType;
+        data << cdata.frameWidth;
+        data << cdata.healthText;
+        data << cdata.unk4;
+        data << cdata.unk6;
+        data << cdata.unk7;
+        data << cdata.unk5;
+        
+        data.append(profile.name.c_str(), profile.nameLen);
+
+        data << cdata.unk1;
+    }
+
+    GetSession()->SendPacket(&data);
 }
 
 void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)

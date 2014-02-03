@@ -22,6 +22,7 @@
 #include "WorldPacket.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "CUFProfiles.h"
 #include "Player.h"
 #include "GossipDef.h"
 #include "World.h"
@@ -2612,4 +2613,102 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
     data.WriteByteSeq(guid[2]);
     data << uint32(plr->GetMaxSkillValue(skillId));
     SendPacket(&data);
+}
+
+void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
+{
+    uint32 count = recvPacket.ReadBits(19);
+    if (count > MAX_CUF_PROFILES)
+    {
+        recvPacket.rfinish();
+        return;
+    }
+
+    CUFProfiles& profiles = GetPlayer()->m_cufProfiles;
+    profiles.resize(count);
+    for (uint32 i = 0; i < count; ++i)
+    {
+        CUFProfile& profile = profiles[i];
+        CUFProfileData& data = profile.data;
+
+        data.displayMainTankAndAssistant = recvPacket.ReadBit();
+        data.keepGroupsTogether = recvPacket.ReadBit();
+        data.auto5 = recvPacket.ReadBit();
+        data.auto15 = recvPacket.ReadBit();
+        data.displayPowerBar = recvPacket.ReadBit();
+        data.displayBorder = recvPacket.ReadBit();
+        data.autoPvP = recvPacket.ReadBit();
+        data.auto40 = recvPacket.ReadBit();
+        data.autoSpec1 = recvPacket.ReadBit();
+        data.auto3 = recvPacket.ReadBit();
+        data.auto2 = recvPacket.ReadBit();
+        data.useClassColors = recvPacket.ReadBit();
+        data.bit13 = recvPacket.ReadBit();
+        data.autoSpec2 = recvPacket.ReadBit();
+        data.horizontalGroups = recvPacket.ReadBit();
+        data.bit16 = recvPacket.ReadBit();
+        data.displayOnlyDispellableDebuffs = recvPacket.ReadBit();
+
+        profile.nameLen = recvPacket.ReadBits(7);
+        if (profile.nameLen > MAX_CUF_PROFILE_NAME_LENGTH)
+        {
+            recvPacket.rfinish();
+            return;
+        }
+
+        data.displayNonBossDebuffs = recvPacket.ReadBit();
+        data.displayPets = recvPacket.ReadBit();
+        data.auto25 = recvPacket.ReadBit();
+        data.displayHealPrediction = recvPacket.ReadBit();
+        data.displayAggroHighlight = recvPacket.ReadBit();
+        data.auto10 = recvPacket.ReadBit();
+        data.bit24 = recvPacket.ReadBit();
+        data.autoPvE = recvPacket.ReadBit();
+    }
+
+    recvPacket.FlushBits();
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        CUFProfile& profile = profiles[i];
+        CUFProfileData& data = profile.data;
+
+        data.unk5 = recvPacket.read<uint8>();
+        data.unk6 = recvPacket.read<uint8>();
+        data.unk0 = recvPacket.read<uint16>();
+        data.unk7 = recvPacket.read<uint8>();
+        data.unk1 = recvPacket.read<uint16>();
+        data.sortType = recvPacket.read<uint8>();
+        data.frameWidth = recvPacket.read<uint16>();
+        data.healthText = recvPacket.read<uint8>();
+        data.frameHeight = recvPacket.read<uint16>();
+
+        profile.name = recvPacket.ReadString(profile.nameLen);
+
+        data.unk4 = recvPacket.read<uint16>();
+    }
+
+    _player->SendCUFProfiles();
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CUF_PROFILE);
+    stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+    trans->Append(stmt);
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        CUFProfile& profile = profiles[i];
+        CUFProfileData& data = profile.data;
+
+        auto sdata = std::string((const char*)&data);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
+        stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+        stmt->setString(1, profile.name);
+        stmt->setString(2, sdata);
+        trans->Append(stmt);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
 }
