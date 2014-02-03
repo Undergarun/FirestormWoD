@@ -14510,18 +14510,19 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             {
                 data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
 
-                uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
+                uint8 bitOrder[8] = { 0, 5, 2, 6, 7, 4, 1, 3 };
                 data.WriteBitInOrder(guid, bitOrder);
     
                 data.WriteByteSeq(guid[4]);
-                data << float(GetSpeed(mtype));
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[2]);
                 data.WriteByteSeq(guid[5]);
+                data.WriteByteSeq(guid[3]);
+                data << uint32(0);
+                data.WriteByteSeq(guid[0]);
+                data.WriteByteSeq(guid[6]);
+                data.WriteByteSeq(guid[2]);
+                data.WriteByteSeq(guid[1]);
+                data.WriteByteSeq(guid[7]);
+                data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_SWIM_BACK:
