@@ -27530,35 +27530,25 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 default:
                     break;
             }
-            if (value == 0)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u with value 0. Will be deleted.", GetGUIDLow(), skill);
-
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
-
-                stmt->setUInt32(0, GetGUIDLow());
-                stmt->setUInt16(1, skill);
-
-                CharacterDatabase.Execute(stmt);
-
-                continue;
-            }
 
             uint16 field = count / 2;
             uint8 offset = count & 1;
 
             SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, skill);
             uint16 step = 0;
-
-            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
-                step = max / 75;
-
-            if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
+            
+            if (value != 0)
             {
-                step = max / 75;
+                if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
+                    step = max / 75;
 
-                if (professionCount < 2)
-                    SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + professionCount++, skill);
+                if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
+                {
+                    step = max / 75;
+
+                    if (professionCount < 2)
+                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + professionCount++, skill);
+                }
             }
 
             SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
@@ -27569,7 +27559,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
 
-            learnSkillRewardedSpells(skill, value);
+            if (value != 0)
+                learnSkillRewardedSpells(skill, value);
 
             ++count;
 
@@ -27580,6 +27571,41 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
         }
         while (result->NextRow());
+    }
+
+    // Initialize unknow profession skill, needed since 5.4
+    for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); i++)
+    {
+        SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(i);
+        if (!pSkill || (pSkill->id != 794 && pSkill->unk_1 != 0x1080))
+            continue;
+
+        if (mSkillStatus.find(i) != mSkillStatus.end())
+            continue;
+
+        uint16 value = 0;
+        uint16 max = 0;
+        uint16 step = 0;
+
+        uint16 field = count / 2;
+        uint8 offset = count & 1;
+
+        SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, i);
+        SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
+        SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, value);
+        SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, max);
+        SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
+        SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
+
+        mSkillStatus.insert(SkillStatusMap::value_type(i, SkillStatusData(count, SKILL_UNCHANGED)));
+
+        ++count;
+
+        if (count >= PLAYER_MAX_SKILLS)                      // client limit
+        {
+            sLog->outError(LOG_FILTER_PLAYER, "Character %u has more than %u skills.", GetGUIDLow(), PLAYER_MAX_SKILLS);
+            break;
+        }
     }
 
     for (; count < PLAYER_MAX_SKILLS; ++count)
