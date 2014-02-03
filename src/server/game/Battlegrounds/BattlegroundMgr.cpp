@@ -189,14 +189,12 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         {
             data->Initialize(SMSG_BATTLEFIELD_STATUS);
 
-            *data << uint32(QueueSlot+1);                // Queue slot
-
             if (bg)
             	*data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                         // unk, always 1
             else
             	*data << uint32(1);
-
-             *data << uint32(Time1);                     // Join Time
+            *data << uint32(QueueSlot);                 // Queue slot
+            *data << uint32(Time1);                     // Join Time
 
             uint8 bitOrder[8] = {1, 2, 4, 6, 5, 7, 0, 3};
             data->WriteBitInOrder(player_guid, bitOrder);
@@ -251,8 +249,8 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint8(bg->GetMinLevel()); //BG Min level
             *data << uint8(0); // byte30
             data->WriteByteSeq(bg_guid[4]);
+            *data << uint32(QueueSlot);
             *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
-            *data << uint32(QueueSlot+1);
             data->WriteByteSeq(bg_guid[2]);
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID            
             data->WriteByteSeq(player_guid[1]);
@@ -305,7 +303,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(bg->GetClientInstanceID());
             data->WriteByteSeq(bg_guid[5]);
             *data << uint8(0); // byte32
-            *data << uint32(QueueSlot +1);
+            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
             data->WriteByteSeq(player_guid[0]);
             data->WriteByteSeq(player_guid[6]);
             *data << uint32(Time2);                     // Time until closed
@@ -325,7 +323,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(player_guid[3]);
             data->WriteByteSeq(player_guid[4]);
             *data << uint32(bg->GetMapId());
-            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
+            *data << uint32(QueueSlot);
             data->WriteByteSeq(bg_guid[3]);
             break;
         }
@@ -367,7 +365,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(bg_guid[4]);
             data->WriteByteSeq(bg_guid[3]);
             data->WriteByteSeq(bg_guid[1]);
-            *data << uint32(QueueSlot + 1);
+            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                 // Queue slot
             data->WriteByteSeq(player_guid[3]);
             data->WriteByteSeq(player_guid[4]);
             *data << uint32(Time1);                     // Time before close
@@ -376,7 +374,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(bg_guid[6]);
             *data << uint32(GetMSTimeDiffToNow(Time2));
             data->WriteByteSeq(bg_guid[5]);
-            *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                 // Queue slot
+            *data << uint32(QueueSlot);
             data->WriteByteSeq(bg_guid[0]);
             data->WriteByteSeq(player_guid[6]);
             break;

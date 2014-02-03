@@ -341,8 +341,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
     uint8 byteOrder[8] = { 0, 7, 2, 6, 3, 5, 1, 4 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
-    queueSlot--;
-
     if (!_player->InBattlegroundQueue())
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %u), he is not in bg_queue.", _player->GetName(), _player->GetGUIDLow());
