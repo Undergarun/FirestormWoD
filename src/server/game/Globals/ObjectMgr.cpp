@@ -1656,8 +1656,8 @@ void ObjectMgr::LoadCreatures()
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
 
-            // Update creature table
-            //WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            // @DEV Update creature table
+            WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         ++count;
@@ -1916,14 +1916,15 @@ void ObjectMgr::LoadGameobjects()
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) spawned on a non-existed map (Id: %u), skip", guid, data.id, data.mapid);
             continue;
         }
-
+        
+        // @DEV
         if (!data.zoneId || !data.areaId)
         {
             uint32 zoneId = 0;
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-            //WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
