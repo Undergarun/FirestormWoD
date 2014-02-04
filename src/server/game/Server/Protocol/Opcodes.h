@@ -1321,7 +1321,7 @@ enum Opcodes
     SMSG_REALM_QUERY_RESPONSE                         = 0x42B,  // 5.4.0 17399
     SMSG_REALM_SPLIT                                  = 0x099,  // 5.4.0 17399
     SMSG_REAL_GROUP_UPDATE                            = 0x000,  // 5.0.5 16048 Deprecated
-    SMSG_RECEIVED_MAIL                                = 0x000,  // 5.0.5 16048
+    SMSG_RECEIVED_MAIL                                = 0x1B6,  // 5.4.0 17399
     SMSG_REDIRECT_CLIENT                              = 0x000,  // 5.0.5 16048
     SMSG_REFER_A_FRIEND_EXPIRED                       = 0x50C,  // 5.4.0 17399 (JamList)
     SMSG_REFER_A_FRIEND_FAILURE                       = 0x1BF,  // 5.4.0 17399 (JamList)
