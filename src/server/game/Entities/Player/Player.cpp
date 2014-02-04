@@ -26966,12 +26966,6 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 void Player::InitGlyphsForLevel()
 {
     uint32 slot = 0;
-    /*
-    for (uint32 i = 0; i < sGlyphSlotStore.GetNumRows() && slot < MAX_GLYPH_SLOT_INDEX; ++i)
-        if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(i))
-            SetGlyphSlot(slot++, gs->Id);
-    */
-
     // Hack fix to reorder glyphs
     if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(22))
         SetGlyphSlot(slot++, gs->Id);
