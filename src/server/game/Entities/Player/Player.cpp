@@ -28966,14 +28966,19 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
             CUFProfile& profile = m_cufProfiles[i];
 
             std::string name = fields[0].GetString();
-            uint32 length = fields[0].GetStringLength();
-            if (length > MAX_CUF_PROFILE_NAME_LENGTH)
+            if (name.length() > MAX_CUF_PROFILE_NAME_LENGTH)
                 continue;
 
             profile.name = name;
-            profile.nameLen = length;
+            profile.nameLen = name.length();
 
-            UnpackDBBinary(&profile.data, sizeof(profile.data), fields[1].GetCString(), fields[1].GetStringLength());
+            const char* data = fields[1].GetCString();
+            {
+                uint32 copyCount = std::min(sizeof(profile.data), strlen(data));
+
+                memcpy(&profile.data, data, copyCount);
+                memset((char*)(&profile.data)+copyCount, 0, strlen(data) - copyCount);
+            }
 
             ++i;
         }

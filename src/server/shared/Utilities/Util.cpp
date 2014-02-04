@@ -125,23 +125,6 @@ void stripLineInvisibleChars(std::string &str)
 
 }
 
-void UnpackDBBinary(void* unpackedData, uint32 unpackedCount, void const* packedData, uint32 packedCount)
-{
-    uint32 copyCount = std::min(unpackedCount, packedCount);
-
-    memcpy(unpackedData, packedData, copyCount);
-
-    memset((char*)unpackedData + copyCount, 0, unpackedCount - copyCount);
-}
-
-nullable_string PackDBBinary(void const* unpackedData, uint32 unpackedCount)
-{
-    while (unpackedCount > 0 && !*((char*)unpackedData + unpackedCount - 1))
-        --unpackedCount;
-
-    return nullable_string((char const*)unpackedData, unpackedCount);
-}
-
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
