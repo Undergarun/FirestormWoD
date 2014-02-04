@@ -97,7 +97,37 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC         = 115654,
     PALADIN_SPELL_SANCTIFIED_WRATH_TALENT        = 53376,
     PALADIN_SPELL_SANCTIFIED_WRATH_BONUS         = 114232,
-    PALADIN_SPELL_AVENGING_WRATH                 = 31884
+    PALADIN_SPELL_AVENGING_WRATH                 = 31884,
+    PALADIN_SPELL_EXORCISM_ENERGIZE              = 147715
+};
+
+// Exorcism - 879
+class spell_pal_exorcism_energize : public SpellScriptLoader
+{
+    public:
+        spell_pal_exorcism_energize() : SpellScriptLoader("spell_pal_exorcism_energize") { }
+
+        class spell_pal_exorcism_energize_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_exorcism_energize_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                        _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pal_exorcism_energize_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_exorcism_energize_SpellScript();
+        }
 };
 
 // Called by Avenging Wrath - 31884
@@ -1619,6 +1649,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_exorcism_energize();
     new spell_pal_sanctified_wrath();
     new spell_pal_glyph_of_divine_storm();
     new spell_pal_daybreak();
