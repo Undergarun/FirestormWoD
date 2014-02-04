@@ -3048,7 +3048,7 @@ void Unit::_UpdateSpells(uint32 time)
     {
         AuraPtr i_aura = m_auraUpdateIterator->second;
         ++m_auraUpdateIterator;                            // need shift to next for allow update if need into aura update
-        i_aura->UpdateOwner(time, this);
+        i_aura->UpdateOwner(time, this, i_aura->GetId());
     }
 
     // remove expired auras - do that after updates(used in scripts?)

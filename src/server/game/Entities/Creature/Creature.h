@@ -494,7 +494,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
-        void Update(uint32 time);                         // overwrited Unit::Update
+        void Update(uint32 time, uint32 entry);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
         uint32 GetEquipmentId() const { return GetCreatureTemplate()->equipmentId; }
 

@@ -45,7 +45,7 @@ inline void JadeCore::ObjectUpdater::Visit(CreatureMapType &m)
         for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
             if (iter->getSource()->IsInWorld())
-                iter->getSource()->Update(i_timeDiff);
+                iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
         }
         return;
     }
@@ -60,7 +60,7 @@ inline void JadeCore::ObjectUpdater::Visit(CreatureMapType &m)
             if (i_startTime + 100 < now)
                 return;
 
-            iter->getSource()->Update(now - iter->getSource()->GetLastUpdateTime());
+            iter->getSource()->Update(now - iter->getSource()->GetLastUpdateTime(), iter->getSource()->GetEntry());
             iter->getSource()->SetUpdated(true);
             iter->getSource()->SetLastUpdateTime(now);
         }

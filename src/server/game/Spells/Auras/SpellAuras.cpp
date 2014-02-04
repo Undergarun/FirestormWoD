@@ -809,9 +809,12 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
         }
     }
 }
-void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
+void Aura::UpdateOwner(uint32 diff, WorldObject* owner, uint32 auraId)
 {
     ASSERT(owner == m_owner);
+
+    if (auraId != GetId())
+        auraId = GetId();
 
     Unit* caster = GetCaster();
     // Apply spellmods for channeled auras

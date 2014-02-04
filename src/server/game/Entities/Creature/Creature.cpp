@@ -466,7 +466,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     return true;
 }
 
-void Creature::Update(uint32 diff)
+void Creature::Update(uint32 diff, uint32 entry)
 {
     if (m_LOSCheckTimer <= diff)
     {
@@ -476,6 +476,9 @@ void Creature::Update(uint32 diff)
     }
     else
         m_LOSCheckTimer -= diff;
+
+    if (entry != GetEntry())
+        entry = GetEntry();
 
     // Zone Skip Update
     if ((sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
