@@ -185,7 +185,10 @@ class boss_garajal : public CreatureScript
             void EnterCombat(Unit* attacker)
             {
                 if (!pInstance->CheckRequiredBosses(DATA_GARAJAL))
+                {
+                    EnterEvadeMode();
                     return;
+                }
 
                 pInstance->SetBossState(DATA_GARAJAL, IN_PROGRESS);
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
