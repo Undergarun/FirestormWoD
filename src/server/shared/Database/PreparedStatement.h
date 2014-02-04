@@ -35,6 +35,11 @@ union PreparedStatementDataUnion
     int64 i64;
     float f;
     double d;
+    struct
+    {
+        char* ptr;
+        uint32 len;
+    } str;
 };
 
 //- This enum helps us differ data held in above union
@@ -51,15 +56,17 @@ enum PreparedStatementValueType
     TYPE_I64,
     TYPE_FLOAT,
     TYPE_DOUBLE,
-    TYPE_STRING
+    TYPE_STRING,
+    TYPE_NULL
 };
 
 struct PreparedStatementData
 {
     PreparedStatementDataUnion data;
     PreparedStatementValueType type;
-    std::string str;
 };
+
+struct nullable_string;
 
 //- Forward declare
 class MySQLPreparedStatement;
@@ -87,6 +94,9 @@ class PreparedStatement
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const std::string& value);
+        void setString(const uint8 index, const char* value);
+        void setString(const uint8 index, const char* value, uint32 length);
+        void setString(const uint8 index, const nullable_string& value);
 
     protected:
         void BindParameters();
@@ -120,7 +130,9 @@ class MySQLPreparedStatement
         void setInt64(const uint8 index, const int64 value);
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
-        void setString(const uint8 index, const char* value);
+        void setString(const uint8 index, char* value);
+        void setString(const uint8 index, char* value, uint32 len);
+        void setNull(const uint8 index);
 
     protected:
         MYSQL_STMT* GetSTMT() { return m_Mstmt; }

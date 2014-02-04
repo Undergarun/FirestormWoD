@@ -2699,14 +2699,12 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
     for (uint32 i = 0; i < count; ++i)
     {
         CUFProfile& profile = profiles[i];
-        CUFProfileData& data = profile.data;
-
-        auto sdata = std::string((const char*)&data);
+        CUFProfileData data = profile.data;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
         stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
         stmt->setString(1, profile.name);
-        stmt->setString(2, sdata);
+        stmt->setString(2, PackDBBinary(&data, sizeof(CUFProfileData)));
         trans->Append(stmt);
     }
 

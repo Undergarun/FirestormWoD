@@ -843,15 +843,27 @@ class spell_warr_heroic_leap : public SpellScriptLoader
             SpellCastResult CheckElevation()
             {
                 Unit* caster = GetCaster();
+                if (!caster || !caster->ToPlayer())
+                    return SPELL_FAILED_DONT_REPORT;
+
+                Player* player = caster->ToPlayer();
 
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
                 if (!dest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (dest->GetPositionZ() > caster->GetPositionZ() + 5.0f)
+                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f)
                     return SPELL_FAILED_NOPATH;
-                else if (caster->HasAuraType(SPELL_AURA_MOD_ROOT))
+                else if (player->HasAuraType(SPELL_AURA_MOD_ROOT))
                     return SPELL_FAILED_ROOTED;
+                else if (player->GetMap()->IsBattlegroundOrArena())
+                {
+                    if (Battleground* bg = player->GetBattleground())
+                    {
+                        if (bg->GetStatus() != STATUS_IN_PROGRESS)
+                            return SPELL_FAILED_NOT_READY;
+                    }
+                }
 
                 return SPELL_CAST_OK;
             }

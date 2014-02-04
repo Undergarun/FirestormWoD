@@ -420,7 +420,14 @@ class boss_spirit_kings_controler : public CreatureScript
                                 }
                             }
 
-                            pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
+                            if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
+                            {
+                                if (lorewalkerCho->AI())
+                                {
+                                    lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                                    lorewalkerCho->AI()->DoAction(ACTION_RUN);
+                                }
+                            }
                         }
                         else
                         {
@@ -651,7 +658,10 @@ class boss_spirit_kings : public CreatureScript
             void EnterCombat(Unit* attacker)
             {
                 if (!pInstance->CheckRequiredBosses(DATA_SPIRIT_KINGS))
+                {
+                    EnterEvadeMode();
                     return;
+                }
 
                 if (pInstance)
                 {
@@ -701,18 +711,6 @@ class boss_spirit_kings : public CreatureScript
                         break;
                     default:
                         break;
-                }
-            }
-
-            void JustDied(Unit* killer)
-            {
-                if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
-                {
-                    if (lorewalkerCho->AI())
-                    {
-                        lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
-                        lorewalkerCho->AI()->DoAction(ACTION_RUN);
-                    }
                 }
             }
 

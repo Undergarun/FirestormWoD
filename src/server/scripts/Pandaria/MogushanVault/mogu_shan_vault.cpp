@@ -167,13 +167,12 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 
                 switch (me->GetEntry())
                 {
-                    case NPC_CURSED_MOGU_SCULPTURE_1:
+                    /*case NPC_CURSED_MOGU_SCULPTURE_1:
                         if (Creature* mogu2 = pInstance->instance->GetCreature(pInstance->GetData64(NPC_CURSED_MOGU_SCULPTURE_2)))
                             mogu2->AI()->AttackStart(attacker);
-                        break;
+                        break;*/
                     case NPC_CURSED_MOGU_SCULPTURE_2:
-                        if (Creature* mogu1 = pInstance->instance->GetCreature(pInstance->GetData64(NPC_CURSED_MOGU_SCULPTURE_1)))
-                            mogu1->AI()->AttackStart(attacker);
+                        me->AI()->AttackStart(attacker);
                         break;
                     default:
                         break;
@@ -182,7 +181,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (activationDone || !pInstance)
+                if (!pInstance)
                     return;
 
                 if (!who->IsWithinDist(me, 15.0f))
@@ -190,9 +189,32 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (Creature* ghostEssence = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GHOST_ESSENCE)))
-                        ghostEssence->CastSpell(ghostEssence, SPELL_GHOST_ESSENCE, false);
+                    switch (me->GetEntry())
+                    {
+                        case NPC_CURSED_MOGU_SCULPTURE_2:
+                        {
+                            if (activationDone)
+                                return;
 
+                            if (Creature* ghostEssence = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GHOST_ESSENCE)))
+                                ghostEssence->CastSpell(ghostEssence, SPELL_GHOST_ESSENCE, false);
+                            break;
+                        }
+                        case NPC_CURSED_MOGU_SCULPTURE_1:
+                        {
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveAurasDueToSpell(SPELL_BRONZE);
+                            me->RemoveAurasDueToSpell(SPELL_POSE_2);
+                            me->RemoveAurasDueToSpell(SPELL_POSE_1);
+                            me->RemoveAurasDueToSpell(SPELL_STONE);
+                            DoAction(ACTION_CURSED_MOGU_ATTACK_PLAYER);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    
                     playerActivate = who->GetGUID();
                     activationDone = true;
                 }
@@ -972,11 +994,16 @@ class npc_lorewalker_cho : public CreatureScript
                         }
                             break;
                     case ACTION_ELEGON_GOB_ACTIVATION:
+                    {
+                        if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
+                            break;
+
                         Talk(25);
                         if (GameObject* button = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CELESTIAL_COMMAND)))
                             if (button->GetGoState() == GO_STATE_READY)
                                 button->Use(me);
                         break;
+                    }
                     case ACTION_TALK_WILL_OF_EMPEROR:
                         Talk(39);
                         break;

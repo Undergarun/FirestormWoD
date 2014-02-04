@@ -1157,6 +1157,12 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
     }
 
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    {
+        SetArenaPersonalRating(i, sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING));
+        SetArenaMatchMakerRating(i, sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING));
+    }
+
     //Reputations if "StartAllReputation" is enabled, -- TODO: Fix this in a better way
     if (sWorld->getBoolConfig(CONFIG_START_ALL_REP))
     {
@@ -28960,19 +28966,14 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
             CUFProfile& profile = m_cufProfiles[i];
 
             std::string name = fields[0].GetString();
-            if (name.length() > MAX_CUF_PROFILE_NAME_LENGTH)
+            uint32 length = fields[0].GetStringLength();
+            if (length > MAX_CUF_PROFILE_NAME_LENGTH)
                 continue;
 
             profile.name = name;
-            profile.nameLen = name.length();
+            profile.nameLen = length;
 
-            const char* data = fields[1].GetCString();
-            {
-                uint32 copyCount = std::min(sizeof(profile.data), strlen(data));
-
-                memcpy(&profile.data, data, copyCount);
-                memset((char*)(&profile.data)+copyCount, 0, strlen(data) - copyCount);
-            }
+            UnpackDBBinary(&profile.data, sizeof(profile.data), fields[1].GetCString(), fields[1].GetStringLength());
 
             ++i;
         }
@@ -29028,19 +29029,19 @@ void Player::SendCUFProfiles()
         CUFProfile& profile = m_cufProfiles[i];
         CUFProfileData& cdata = profile.data;
 
-        data << cdata.unk0;
-        data << cdata.frameHeight;
-        data << cdata.sortType;
-        data << cdata.frameWidth;
-        data << cdata.healthText;
-        data << cdata.unk4;
-        data << cdata.unk6;
-        data << cdata.unk7;
-        data << cdata.unk5;
+        data << cdata.unk0; // 150
+        data << cdata.frameHeight; // 128
+        data << cdata.sortType; // 132
+        data << cdata.frameWidth; // 130
+        data << cdata.healthText; // 133
+        data << cdata.unk4; // 154
+        data << cdata.unk6; // 148
+        data << cdata.unk7; // 147
+        data << cdata.unk5; // 146
         
         data.append(profile.name.c_str(), profile.nameLen);
 
-        data << cdata.unk1;
+        data << cdata.unk1; // 152
     }
 
     GetSession()->SendPacket(&data);
