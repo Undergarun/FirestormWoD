@@ -774,7 +774,7 @@ enum Opcodes
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0x000,  // 5.0.5 16048
     SMSG_CAMERA_SHAKE                                 = 0x88E,  // 5.4.0 17399 (JamList)
     SMSG_CANCEL_AUTO_REPEAT                           = 0x41C,  // 5.4.0 17399
-    SMSG_CANCEL_COMBAT                                = 0x000,  // 5.4.0 17399
+    SMSG_CANCEL_COMBAT                                = 0x59E,  // 5.4.0 17399
     SMSG_CANCEL_SCENE                                 = 0x589,  // 5.4.0 17399 (JamList) SCENE System (NYI)
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x42C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CANCEL_SPELL_VISUAL                          = 0x8A2,  // 5.4.0 17399 (JamList) (NYI)
