@@ -1131,7 +1131,7 @@ enum Opcodes
     SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399
     SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.4.0 17399
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
-    SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
+    SMSG_MODIFY_COOLDOWN                              = 0x83D,  // 5.4.0 17399
     SMSG_MONEY_NOTIFY                                 = 0x585,  // 5.4.0 17399 - "Received %u." - 1xUInt64
     SMSG_MONSTER_MOVE                                 = 0x137A, // 5.4.0 17399
     SMSG_MOTD                                         = 0x82A,  // 5.4.0 17399

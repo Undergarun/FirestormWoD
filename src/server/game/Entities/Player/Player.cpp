@@ -5330,10 +5330,20 @@ void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
         newCooldown -= modifyTime;
 
     AddSpellCooldown(spell_id, 0, uint32(time(NULL) + newCooldown / 1000));
+
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+    ObjectGuid guid = GetGUID();
+
+    uint8 bits[8] = { 1, 5, 3, 0, 6, 4, 7, 2 };
+    data.WriteBitInOrder(guid, bits);
+
     data << uint32(spell_id);
-    data << uint64(GetGUID());
+
+    uint8 bytes[8] = { 0, 5, 1, 7, 2, 4, 6, 3 };
+    data.WriteBytesSeq(guid, bytes);
+
     data << int32(-modifyTime);
+
     SendDirectMessage(&data);
 }
 
@@ -24548,23 +24558,6 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             }
         }
     }
-}
-
-void Player::SpellCooldownReduction(uint32 spellid, time_t end_time)
-{
-    uint32 newCooldownDelay = GetSpellCooldownDelay(spellid);
-    if (newCooldownDelay < end_time)
-        newCooldownDelay = 0;
-     else
-        newCooldownDelay -= end_time;
-
-    AddSpellCooldown(spellid, 0, uint32(time(NULL) + newCooldownDelay));
-
-    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-    data << uint32(spellid);
-    data << uint64(GetGUID());
-    data << int32(-end_time);
-    GetSession()->SendPacket(&data);
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)

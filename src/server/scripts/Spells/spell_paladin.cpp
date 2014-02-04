@@ -316,12 +316,7 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
                         if (newCooldownDelay > maxCooldownReduction)
                         {
                             _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-
-                            WorldPacket packet(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            packet << uint32(PALADIN_SPELL_DIVINE_SHIELD);                // Spell ID
-                            packet << uint64(_player->GetGUID());                         // Player GUID
-                            packet << int32(-lessCooldown);                               // Cooldown mod in milliseconds
-                            _player->GetSession()->SendPacket(&packet);
+                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, -lessCooldown);
                         }
                     }
                     if (_player->HasSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS))
@@ -336,12 +331,7 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
                         if (newCooldownDelay > maxCooldownReduction)
                         {
                             _player->AddSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-
-                            WorldPacket packet(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            packet << uint32(PALADIN_SPELL_LAY_ON_HANDS);                 // Spell ID
-                            packet << uint64(_player->GetGUID());                         // Player GUID
-                            packet << int32(-lessCooldown);                               // Cooldown mod in milliseconds
-                            _player->GetSession()->SendPacket(&packet);
+                            _player->ReduceSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, -lessCooldown);
                         }
                     }
                     if (_player->HasSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION))
@@ -356,12 +346,7 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
                         if (newCooldownDelay > maxCooldownReduction)
                         {
                             _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-
-                            WorldPacket packet(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            packet << uint32(PALADIN_SPELL_DIVINE_PROTECTION);                // Spell ID
-                            packet << uint64(_player->GetGUID());                             // Player GUID
-                            packet << int32(-lessCooldown);                                   // Cooldown mod in milliseconds
-                            _player->GetSession()->SendPacket(&packet);
+                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, -lessCooldown);
                         }
                     }
                 }
