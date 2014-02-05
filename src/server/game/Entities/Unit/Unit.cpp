@@ -11299,8 +11299,9 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, int32 damage, Powers po
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
-        Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
+    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
+            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
 
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
@@ -12862,8 +12863,9 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 
 uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
 {
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
-        Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
+    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
+            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
 
     if (!victim || pdamage == 0)
         return 0;
