@@ -7559,7 +7559,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             uint16 field = i / 2;
             uint8 offset = i & 1; // i % 2
 
-            if (!GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset))
+            if (!GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset) || GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset) == id)
             {
                 SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
                 if (!skillEntry)
@@ -27612,8 +27612,6 @@ void Player::_LoadSkills(PreparedQueryResult result)
         SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, max);
         SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
         SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
-
-        mSkillStatus.insert(SkillStatusMap::value_type(i, SkillStatusData(count, SKILL_UNCHANGED)));
 
         ++count;
 
