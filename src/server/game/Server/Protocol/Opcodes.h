@@ -774,7 +774,7 @@ enum Opcodes
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0x000,  // 5.0.5 16048
     SMSG_CAMERA_SHAKE                                 = 0x88E,  // 5.4.0 17399 (JamList)
     SMSG_CANCEL_AUTO_REPEAT                           = 0x41C,  // 5.4.0 17399
-    SMSG_CANCEL_COMBAT                                = 0x000,  // 5.4.0 17399
+    SMSG_CANCEL_COMBAT                                = 0x59E,  // 5.4.0 17399
     SMSG_CANCEL_SCENE                                 = 0x589,  // 5.4.0 17399 (JamList) SCENE System (NYI)
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x42C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CANCEL_SPELL_VISUAL                          = 0x8A2,  // 5.4.0 17399 (JamList) (NYI)
@@ -1131,7 +1131,7 @@ enum Opcodes
     SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399
     SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.4.0 17399
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
-    SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
+    SMSG_MODIFY_COOLDOWN                              = 0x83D,  // 5.4.0 17399
     SMSG_MONEY_NOTIFY                                 = 0x585,  // 5.4.0 17399 - "Received %u." - 1xUInt64
     SMSG_MONSTER_MOVE                                 = 0x137A, // 5.4.0 17399
     SMSG_MOTD                                         = 0x82A,  // 5.4.0 17399
@@ -1321,7 +1321,7 @@ enum Opcodes
     SMSG_REALM_QUERY_RESPONSE                         = 0x42B,  // 5.4.0 17399
     SMSG_REALM_SPLIT                                  = 0x099,  // 5.4.0 17399
     SMSG_REAL_GROUP_UPDATE                            = 0x000,  // 5.0.5 16048 Deprecated
-    SMSG_RECEIVED_MAIL                                = 0x000,  // 5.0.5 16048
+    SMSG_RECEIVED_MAIL                                = 0x1B6,  // 5.4.0 17399
     SMSG_REDIRECT_CLIENT                              = 0x000,  // 5.0.5 16048
     SMSG_REFER_A_FRIEND_EXPIRED                       = 0x50C,  // 5.4.0 17399 (JamList)
     SMSG_REFER_A_FRIEND_FAILURE                       = 0x1BF,  // 5.4.0 17399 (JamList)

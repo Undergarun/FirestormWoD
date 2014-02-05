@@ -3368,8 +3368,12 @@ class npc_guardian_of_ancient_kings : public CreatureScript
         {
             npc_guardian_of_ancient_kingsAI(Creature *creature) : ScriptedAI(creature) {}
 
+            uint32 despawnTimer;
+
             void Reset()
             {
+                despawnTimer = 30 * IN_MILLISECONDS;
+
                 if (me->GetEntry() == NPC_RETRI_GUARDIAN || me->GetEntry() == NPC_HOLY_GUARDIAN)
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
                 else if (me->GetEntry() == NPC_PROTECTION_GUARDIAN)
@@ -3402,6 +3406,17 @@ class npc_guardian_of_ancient_kings : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (despawnTimer)
+                {
+                    if (despawnTimer <= diff)
+                    {
+                        me->DespawnOrUnsummon();
+                        return;
+                    }
+                    else
+                        despawnTimer -= diff;
+                }
+
                 if (!UpdateVictim())
                     return;
 

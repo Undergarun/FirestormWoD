@@ -609,12 +609,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_ADRENALINE_RUSH);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
                             {
@@ -622,12 +617,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_KILLING_SPREE, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_KILLING_SPREE);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_REDIRECT))
                             {
@@ -635,12 +625,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_REDIRECT, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_REDIRECT);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
                             {
@@ -648,12 +633,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_SHADOW_BLADES);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                             {
@@ -661,12 +641,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_SPRINT, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_SPRINT);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, (-1 * comboPoints * 2000));
                             }
 
                             comboPoints = 0;

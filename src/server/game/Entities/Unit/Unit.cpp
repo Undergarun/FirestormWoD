@@ -6783,7 +6783,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         return false;
 
                     // Cooldown of Swiftmen reduced by 1s
-                    ToPlayer()->SpellCooldownReduction(18562, 1000);
+                    ToPlayer()->ReduceSpellCooldown(18562, -1000);
                     break;
                 }
                 case 108373:// Dream of Cenarius
@@ -7917,13 +7917,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                                 newCooldownDelay = 0;
                             else
                                 newCooldownDelay -= 2;
-                            ToPlayer()->AddSpellCooldown(16166, 0, uint32(time(NULL) + newCooldownDelay));
 
-                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            data << uint32(16166);                  // Spell ID
-                            data << uint64(GetGUID());              // Player GUID
-                            data << int32(-2000);                   // Cooldown mod in milliseconds
-                            ToPlayer()->GetSession()->SendPacket(&data);
+                            ToPlayer()->AddSpellCooldown(16166, 0, uint32(time(NULL) + newCooldownDelay));
+                            ToPlayer()->ReduceSpellCooldown(16166, -2000);
                             return true;
                         }
                     }
