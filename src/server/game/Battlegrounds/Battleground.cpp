@@ -1154,7 +1154,7 @@ void Battleground::StartBattleground()
 
 void Battleground::BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team)
 {
-    ByteByffer dataBuffer;
+    ByteBuffer dataBuffer;
     uint8 opponent_count = 0;
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
