@@ -1152,6 +1152,45 @@ void Battleground::StartBattleground()
         sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
 
+void Battleground::BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team)
+{
+    ByteByffer dataBuffer;
+    uint8 opponent_count = 0;
+
+    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        if (_GetPlayer(itr, "BuildArenaOpponentSpecializations") && itr->second.Team == team)
+            opponent_count++;
+
+    data->WriteBits(opponent_count, 21);
+
+    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (Player* pl = _GetPlayer(itr, "BuildArenaOpponentSpecializations"))
+        {
+            if (itr->second.Team == team)
+            {
+                ObjectGuid guid = pl->GetGUID();
+                uint8 bitOrder[8] = { 1, 7, 2, 5, 3, 6, 0, 4 };
+                data->WriteBitInOrder(guid, bitOrder);
+
+                dataBuffer.WriteByteSeq(guid[6]);
+                dataBuffer << uint32(pl->GetSpecializationId(pl->GetActiveSpec()));
+                dataBuffer.WriteByteSeq(guid[3]);
+                dataBuffer.WriteByteSeq(guid[5]);
+                dataBuffer.WriteByteSeq(guid[1]);
+                dataBuffer.WriteByteSeq(guid[2]);
+                dataBuffer.WriteByteSeq(guid[4]);
+                dataBuffer.WriteByteSeq(guid[0]);
+                dataBuffer.WriteByteSeq(guid[7]);
+            }
+        }
+    }
+
+    data->FlushBits();
+    if (dataBuffer.size())
+        data->append(dataBuffer);
+}
+
 void Battleground::AddPlayer(Player* player)
 {
     // remove afk from player
@@ -1242,10 +1281,13 @@ void Battleground::AddPlayer(Player* player)
         // Set arena faction client-side to display arena unit frame
         player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam() == HORDE ? 0 : 1);
 
-        WorldPacket teammate;
-        teammate.Initialize(SMSG_ARENA_OPPONENT_UPDATE, 8);
-        teammate << uint64(player->GetGUID());
-        SendPacketToTeam(team, &teammate, player, false);
+        WorldPacket team_packet(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
+        BuildArenaOpponentSpecializations(&team_packet, player->GetBGTeam());
+        SendPacketToTeam(GetOtherTeam(player->GetBGTeam()), &team_packet, player, false);
+
+        team_packet.Initialize(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
+        BuildArenaOpponentSpecializations(&team_packet, GetOtherTeam(player->GetBGTeam()));
+        player->GetSession()->SendPacket(&team_packet);
     }
     else
     {

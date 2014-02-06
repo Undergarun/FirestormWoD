@@ -2323,7 +2323,10 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
 
     LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
     if (!reward)
+    {
+        sLog->outError(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: dungeon %u have no lfg reward", rDungeonId);
         return;
+    }
 
     uint8 index = 0;
     Quest const* qReward = sObjectMgr->GetQuestTemplate(reward->reward[index].questId);
