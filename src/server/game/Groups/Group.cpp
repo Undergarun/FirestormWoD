@@ -3648,18 +3648,18 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
     // Change in Matchmaker rating
     int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
 
-    // Change in Team Rating
-    rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
-
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
+            // Change in Team Rating
+            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
+
             if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
                 rating_change = 0;
 
             if (player->GetArenaPersonalRating(slot) < 1500)
-                rating_change = 92;
+                rating_change = 96;
 
             player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
             player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
@@ -3678,13 +3678,13 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
     // Change in Matchmaker Rating
     int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
 
-    // Change in Team Rating
-    rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
-
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
+            // Change in Team Rating
+            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
+
             if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
                 rating_change = 0;
 

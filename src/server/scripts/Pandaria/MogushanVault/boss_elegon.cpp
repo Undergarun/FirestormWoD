@@ -295,9 +295,6 @@ class boss_elegon : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
-                if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
-                    return;
-
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
                 {
                     cho->AI()->Talk(27);
@@ -548,12 +545,25 @@ class boss_elegon : public CreatureScript
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveLand(2, middlePos);
 
+                if (pInstance)
+                {
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
+                }
+
                 me->RemoveAurasDueToSpell(SPELL_RADIATING_ENERGIES_VISUAL);
+                me->RemoveAurasDueToSpell(SPELL_OVERCHARGED);
+                me->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                 Talk(TALK_DEATH);
 
                 if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
                     infiniteEnergy->AI()->DoAction(ACTION_INFINITE_LOOT);
                 
+                if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ELEGON_DOOR_ENTRANCE)))
+                    if (door->GetGoState() == GO_STATE_READY)
+                        door->SetGoState(GO_STATE_ACTIVE);
             }
 
             void MoveInLineOfSight(Unit* who)

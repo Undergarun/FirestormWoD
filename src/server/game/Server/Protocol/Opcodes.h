@@ -664,7 +664,7 @@ enum Opcodes
     SMSG_AREA_TRIGGER_RESET                           = 0x8B7,  // 5.4.0 17399 (JamList)
     SMSG_ARENA_ERROR                                  = 0x91C,  // 5.4.0 17399 (JamList)
     SMSG_ARENA_OPPONENT_UPDATE                        = 0x000,  // 5.0.5 16048
-    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0x52A,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0x52A,  // 5.4.0 17399
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED              = 0x000,  // 5.0.5 16048
     SMSG_ARENA_TEAM_COMMAND_RESULT                    = 0x000,  // 5.0.5 16048
     SMSG_ARENA_TEAM_EVENT                             = 0x000,  // 5.0.5 16048
@@ -681,17 +681,16 @@ enum Opcodes
     SMSG_ATTACK_SWING_DEAD_TARGET                     = 0x000,  // 5.0.5 16048
     SMSG_ATTACK_SWING_NOT_IN_RANGE                    = 0x000,  // 5.0.5 16048
     SMSG_AUCTION_BIDDER_LIST_RESULT                   = 0x1F3C, // 5.4.0 17399
-    SMSG_AUCTION_BIDDER_NOTIFICATION                  = 0x000,  // 5.0.5 16048
+    SMSG_AUCTION_BIDDER_NOTIFICATION                  = 0x500,  // 5.4.0 17399
+    SMSG_AUCTION_BUYOUT_NOTIFICATION                  = 0x5BA,  // 5.4.0 17399
     SMSG_AUCTION_COMMAND_RESULT                       = 0x12F,  // 5.4.0 17399
     SMSG_AUCTION_CLOSED_NOTIFICATION                  = 0x930,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AUCTION_HELLO_RESPONSE                       = 0x186,  // 5.4.0 17399
     SMSG_AUCTION_LIST_PENDING_SALES                   = 0x16CD, // 5.4.0 17399
     SMSG_AUCTION_LIST_RESULT                          = 0x1B4D, // 5.4.0 17399
-    SMSG_AUCTION_OUTBID_NOTIFICATION                  = 0x581,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AUCTION_OWNER_LIST_RESULT                    = 0x1B21, // 5.4.0 17399
-    SMSG_AUCTION_OWNER_BID_NOTIFICATION               = 0x02A,  // 5.4.0 17399 (JamList)
+    SMSG_AUCTION_OWNER_BID_NOTIFICATION               = 0x581,  // 5.4.0 17399
     SMSG_AUCTION_REMOVED_NOTIFICATION                 = 0x000,  // 5.0.5 16048
-    SMSG_AUCTION_WON_NOTIFICATION                     = 0x500,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AURA_CAST_LOG                                = 0x000,  // 5.0.5 16048
     SMSG_AURA_POINTS_DEPLETED                         = 0x000,  // 5.0.5 16048
     SMSG_AURA_UPDATE                                  = 0x19B3, // 5.4.0 17399
@@ -775,7 +774,7 @@ enum Opcodes
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0x000,  // 5.0.5 16048
     SMSG_CAMERA_SHAKE                                 = 0x88E,  // 5.4.0 17399 (JamList)
     SMSG_CANCEL_AUTO_REPEAT                           = 0x41C,  // 5.4.0 17399
-    SMSG_CANCEL_COMBAT                                = 0x000,  // 5.4.0 17399
+    SMSG_CANCEL_COMBAT                                = 0x59E,  // 5.4.0 17399
     SMSG_CANCEL_SCENE                                 = 0x589,  // 5.4.0 17399 (JamList) SCENE System (NYI)
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x42C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CANCEL_SPELL_VISUAL                          = 0x8A2,  // 5.4.0 17399 (JamList) (NYI)
@@ -1132,7 +1131,7 @@ enum Opcodes
     SMSG_MINIMAP_PING                                 = 0x408,  // 5.4.0 17399
     SMSG_MIRROR_IMAGE_DATA                            = 0x1936, // 5.4.0 17399
     SMSG_MISSILE_CANCEL                               = 0x882,  // 5.4.0 17399 (JamList)
-    SMSG_MODIFY_COOLDOWN                              = 0x000,  // 5.0.5 16048
+    SMSG_MODIFY_COOLDOWN                              = 0x83D,  // 5.4.0 17399
     SMSG_MONEY_NOTIFY                                 = 0x585,  // 5.4.0 17399 - "Received %u." - 1xUInt64
     SMSG_MONSTER_MOVE                                 = 0x137A, // 5.4.0 17399
     SMSG_MOTD                                         = 0x82A,  // 5.4.0 17399
@@ -1322,7 +1321,7 @@ enum Opcodes
     SMSG_REALM_QUERY_RESPONSE                         = 0x42B,  // 5.4.0 17399
     SMSG_REALM_SPLIT                                  = 0x099,  // 5.4.0 17399
     SMSG_REAL_GROUP_UPDATE                            = 0x000,  // 5.0.5 16048 Deprecated
-    SMSG_RECEIVED_MAIL                                = 0x000,  // 5.0.5 16048
+    SMSG_RECEIVED_MAIL                                = 0x1B6,  // 5.4.0 17399
     SMSG_REDIRECT_CLIENT                              = 0x000,  // 5.0.5 16048
     SMSG_REFER_A_FRIEND_EXPIRED                       = 0x50C,  // 5.4.0 17399 (JamList)
     SMSG_REFER_A_FRIEND_FAILURE                       = 0x1BF,  // 5.4.0 17399 (JamList)

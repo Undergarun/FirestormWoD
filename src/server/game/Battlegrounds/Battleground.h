@@ -607,6 +607,8 @@ class Battleground
         virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
 
     protected:
+        void BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team);
+
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
         void PlayerAddedToBGCheckIfBGIsRunning(Player* player);

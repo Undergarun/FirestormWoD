@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (879, 'spell_pal_exorcism_energize');

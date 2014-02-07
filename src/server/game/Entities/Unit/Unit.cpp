@@ -3048,7 +3048,7 @@ void Unit::_UpdateSpells(uint32 time)
     {
         AuraPtr i_aura = m_auraUpdateIterator->second;
         ++m_auraUpdateIterator;                            // need shift to next for allow update if need into aura update
-        i_aura->UpdateOwner(time, this);
+        i_aura->UpdateOwner(time, this, i_aura->GetId());
     }
 
     // remove expired auras - do that after updates(used in scripts?)
@@ -6783,7 +6783,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         return false;
 
                     // Cooldown of Swiftmen reduced by 1s
-                    ToPlayer()->SpellCooldownReduction(18562, 1000);
+                    ToPlayer()->ReduceSpellCooldown(18562, -1000);
                     break;
                 }
                 case 108373:// Dream of Cenarius
@@ -7917,13 +7917,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                                 newCooldownDelay = 0;
                             else
                                 newCooldownDelay -= 2;
-                            ToPlayer()->AddSpellCooldown(16166, 0, uint32(time(NULL) + newCooldownDelay));
 
-                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            data << uint32(16166);                  // Spell ID
-                            data << uint64(GetGUID());              // Player GUID
-                            data << int32(-2000);                   // Cooldown mod in milliseconds
-                            ToPlayer()->GetSession()->SendPacket(&data);
+                            ToPlayer()->AddSpellCooldown(16166, 0, uint32(time(NULL) + newCooldownDelay));
+                            ToPlayer()->ReduceSpellCooldown(16166, -2000);
                             return true;
                         }
                     }
@@ -11303,8 +11299,9 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, int32 damage, Powers po
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
-        Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
+    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
+            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
 
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
@@ -12866,8 +12863,9 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 
 uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
 {
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
-        Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
+    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
+            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
 
     if (!victim || pdamage == 0)
         return 0;
@@ -14510,18 +14508,19 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             {
                 data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
 
-                uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
+                uint8 bitOrder[8] = { 0, 5, 2, 6, 7, 4, 1, 3 };
                 data.WriteBitInOrder(guid, bitOrder);
     
                 data.WriteByteSeq(guid[4]);
-                data << float(GetSpeed(mtype));
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[2]);
                 data.WriteByteSeq(guid[5]);
+                data.WriteByteSeq(guid[3]);
+                data << uint32(0);
+                data.WriteByteSeq(guid[0]);
+                data.WriteByteSeq(guid[6]);
+                data.WriteByteSeq(guid[2]);
+                data.WriteByteSeq(guid[1]);
+                data.WriteByteSeq(guid[7]);
+                data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_SWIM_BACK:

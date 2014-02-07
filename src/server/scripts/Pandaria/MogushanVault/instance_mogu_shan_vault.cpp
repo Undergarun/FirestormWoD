@@ -213,11 +213,11 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         }
                         break;
                     }
-                    case NPC_CURSED_MOGU_SCULPTURE_1:
-                        cursedMogu1Guid = creature->GetGUID();
-                        break;
                     case NPC_CURSED_MOGU_SCULPTURE_2:
-                        cursedMogu2Guid = creature->GetGUID();
+                        if (!cursedMogu1Guid)
+                            cursedMogu1Guid = creature->GetGUID();
+                        else
+                            cursedMogu2Guid = creature->GetGUID();
                         break;
                     case NPC_GHOST_ESSENCE:
                         ghostEssenceGuid = creature->GetGUID();

@@ -123,7 +123,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         void ApplyForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, true);}
         void _ApplyEffectForTargets(uint8 effIndex);
 
-        void UpdateOwner(uint32 diff, WorldObject* owner);
+        void UpdateOwner(uint32 diff, WorldObject* owner, uint32 auraId);
         void Update(uint32 diff, Unit* caster);
 
         time_t GetApplyTime() const { return m_applyTime; }

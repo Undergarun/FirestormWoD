@@ -37,7 +37,7 @@ Unit* TempSummon::GetSummoner() const
 
 void TempSummon::Update(uint32 diff)
 {
-    Creature::Update(diff);
+    Creature::Update(diff, GetEntry());
 
     if (m_deathState == DEAD)
     {

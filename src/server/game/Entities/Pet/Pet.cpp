@@ -729,7 +729,7 @@ void Pet::Update(uint32 diff)
             }
             break;
     }
-    Creature::Update(diff);
+    Creature::Update(diff, GetEntry());
 }
 
 void Creature::Regenerate(Powers power)

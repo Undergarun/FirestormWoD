@@ -779,7 +779,8 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
 void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
 {
     // Crashfix, prevent use of bag with dynamic field
-    if (GetTypeId() == TYPEID_ITEM && ((Item*)this)->ToBag())
+    Item* temp = ((Item*)this);
+    if (GetTypeId() == TYPEID_ITEM && temp && temp->ToBag())
     {
         *data << uint8(0);
         return;
@@ -1789,7 +1790,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
             if (!ToCreature()->CanFly())
             {
-                bool canSwim = ToCreature()->canSwim();
+                bool canSwim = ToCreature()->isPet() ? true : ToCreature()->canSwim();
                 float ground_z = z;
                 float max_z = canSwim
                     ? GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))

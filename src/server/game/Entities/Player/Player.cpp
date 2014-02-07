@@ -1157,6 +1157,12 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
     }
 
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    {
+        SetArenaPersonalRating(i, sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING));
+        SetArenaMatchMakerRating(i, sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING));
+    }
+
     //Reputations if "StartAllReputation" is enabled, -- TODO: Fix this in a better way
     if (sWorld->getBoolConfig(CONFIG_START_ALL_REP))
     {
@@ -4603,89 +4609,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
-    if (sSpellMgr->GetSpellInfo(spellId)->HasAura(SPELL_AURA_MOUNTED))
-    {
-        SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId);
-
-        for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
-        {
-            if (info->Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
-            {
-                MountTypeEntry const* mountTypeEntry = sMountTypeStore.LookupEntry(info->Effects[i].MiscValueB);
-                if (!mountTypeEntry)
-                    continue;
-
-                for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
-                {
-                    if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(mountTypeEntry->MountCapability[i - 1]))
-                    {
-                        switch (mountCapability->RequiredRidingSkill)
-                        {
-                            case 75:
-                                if (getLevel() < 20)
-                                    break;
-
-                                learnSpell(33388, false);
-                                break;
-                            case 150:
-                                if (getLevel() < 40)
-                                    break;
-
-                                learnSpell(33388, false);
-                                learnSpell(33391, false);
-                                break;
-                            case 225:
-                                if (getLevel() < 60)
-                                    break;
-
-                                learnSpell(33388, false);
-                                learnSpell(33391, false);
-                                learnSpell(34090, false);
-                                break;
-                            case 300:
-                                if (getLevel() < 70)
-                                    break;
-
-                                if (mountCapability->RequiredSpell)
-                                    learnSpell(mountCapability->RequiredSpell, false);
-
-                                learnSpell(33388, false);
-                                learnSpell(33391, false);
-                                learnSpell(34090, false);
-                                learnSpell(34091, false);
-                                break;
-                            case 375:
-                                if (getLevel() < 80)
-                                    break;
-
-                                if (mountCapability->RequiredSpell)
-                                {
-                                    // Wisdom of the Four Winds
-                                    if (mountCapability->RequiredSpell == 115913)
-                                    {
-                                        if (getLevel() >= 90)
-                                            learnSpell(mountCapability->RequiredSpell, false);
-                                    }
-                                    else
-                                        learnSpell(mountCapability->RequiredSpell, false);
-                                }
-
-                                learnSpell(33388, false);
-                                learnSpell(33391, false);
-                                learnSpell(34090, false);
-                                learnSpell(34091, false);
-                                learnSpell(90265, false);
-                                break;
-                            case 0:
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
 
     bool dependent_set = false;
@@ -5324,10 +5247,20 @@ void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
         newCooldown -= modifyTime;
 
     AddSpellCooldown(spell_id, 0, uint32(time(NULL) + newCooldown / 1000));
+
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+    ObjectGuid guid = GetGUID();
+
+    uint8 bits[8] = { 1, 5, 3, 0, 6, 4, 7, 2 };
+    data.WriteBitInOrder(guid, bits);
+
     data << uint32(spell_id);
-    data << uint64(GetGUID());
+
+    uint8 bytes[8] = { 0, 5, 1, 7, 2, 4, 6, 3 };
+    data.WriteBytesSeq(guid, bytes);
+
     data << int32(-modifyTime);
+
     SendDirectMessage(&data);
 }
 
@@ -7553,7 +7486,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             uint16 field = i / 2;
             uint8 offset = i & 1; // i % 2
 
-            if (!GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset))
+            if (!GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset) || GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset) == id)
             {
                 SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
                 if (!skillEntry)
@@ -24544,23 +24477,6 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 }
 
-void Player::SpellCooldownReduction(uint32 spellid, time_t end_time)
-{
-    uint32 newCooldownDelay = GetSpellCooldownDelay(spellid);
-    if (newCooldownDelay < end_time)
-        newCooldownDelay = 0;
-     else
-        newCooldownDelay -= end_time;
-
-    AddSpellCooldown(spellid, 0, uint32(time(NULL) + newCooldownDelay));
-
-    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-    data << uint32(spellid);
-    data << uint64(GetGUID());
-    data << int32(-end_time);
-    GetSession()->SendPacket(&data);
-}
-
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
 {
     SpellCooldown sc;
@@ -26966,7 +26882,12 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 void Player::InitGlyphsForLevel()
 {
     uint32 slot = 0;
-    for (uint32 i = 0; i < sGlyphSlotStore.GetNumRows() && slot < MAX_GLYPH_SLOT_INDEX; ++i)
+    // Hack fix to reorder glyphs
+    if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(22))
+        SetGlyphSlot(slot++, gs->Id);
+    if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(21))
+        SetGlyphSlot(slot++, gs->Id);
+    for (uint32 i = 23; i < sGlyphSlotStore.GetNumRows() && slot < MAX_GLYPH_SLOT_INDEX; ++i)
         if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(i))
             SetGlyphSlot(slot++, gs->Id);
 
@@ -27530,17 +27451,14 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 default:
                     break;
             }
+
             if (value == 0)
             {
                 sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u with value 0. Will be deleted.", GetGUIDLow(), skill);
-
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
-
                 stmt->setUInt32(0, GetGUIDLow());
                 stmt->setUInt16(1, skill);
-
                 CharacterDatabase.Execute(stmt);
-
                 continue;
             }
 
@@ -27549,7 +27467,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, skill);
             uint16 step = 0;
-
+            
             if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
                 step = max / 75;
 
@@ -27568,7 +27486,6 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
-
             learnSkillRewardedSpells(skill, value);
 
             ++count;
@@ -27580,6 +27497,39 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
         }
         while (result->NextRow());
+    }
+
+    // Initialize unknow profession skill, needed since 5.4
+    for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); i++)
+    {
+        SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(i);
+        if (!pSkill || (pSkill->id != 794 && pSkill->unk_1 != 0x1080))
+            continue;
+
+        if (HasSkill(i))
+            continue;
+
+        uint16 value = 0;
+        uint16 max = 0;
+        uint16 step = 0;
+
+        uint16 field = count / 2;
+        uint8 offset = count & 1;
+
+        SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, i);
+        SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
+        SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, value);
+        SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, max);
+        SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
+        SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
+
+        ++count;
+
+        if (count >= PLAYER_MAX_SKILLS)                      // client limit
+        {
+            sLog->outError(LOG_FILTER_PLAYER, "Character %u has more than %u skills.", GetGUIDLow(), PLAYER_MAX_SKILLS);
+            break;
+        }
     }
 
     for (; count < PLAYER_MAX_SKILLS; ++count)
@@ -28997,19 +28947,19 @@ void Player::SendCUFProfiles()
         CUFProfile& profile = m_cufProfiles[i];
         CUFProfileData& cdata = profile.data;
 
-        data << cdata.unk0;
-        data << cdata.frameHeight;
-        data << cdata.sortType;
-        data << cdata.frameWidth;
-        data << cdata.healthText;
-        data << cdata.unk4;
-        data << cdata.unk6;
-        data << cdata.unk7;
-        data << cdata.unk5;
+        data << cdata.unk0; // 150
+        data << cdata.frameHeight; // 128
+        data << cdata.sortType; // 132
+        data << cdata.frameWidth; // 130
+        data << cdata.healthText; // 133
+        data << cdata.unk4; // 154
+        data << cdata.unk6; // 148
+        data << cdata.unk7; // 147
+        data << cdata.unk5; // 146
         
         data.append(profile.name.c_str(), profile.nameLen);
 
-        data << cdata.unk1;
+        data << cdata.unk1; // 152
     }
 
     GetSession()->SendPacket(&data);

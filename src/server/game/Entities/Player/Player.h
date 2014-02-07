@@ -1980,7 +1980,6 @@ class Player : public Unit, public GridObject<Player>
         }
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
-        void SpellCooldownReduction(uint32 spell_id, time_t end_time);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = NULL, bool setCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);

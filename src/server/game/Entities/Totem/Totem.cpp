@@ -48,7 +48,7 @@ void Totem::Update(uint32 time)
     else
         m_duration -= time;
 
-    Creature::Update(time);
+    Creature::Update(time, GetEntry());
 }
 
 void Totem::InitStats(uint32 duration)
@@ -198,12 +198,7 @@ void Totem::UnSummon(uint32 msTime)
                     newCooldownDelay -= lessCooldown;
 
                     _player->AddSpellCooldown(spellInfo->Id, 0, uint32(time(NULL) + newCooldownDelay));
-
-                    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                    data << uint32(spellInfo->Id);                  // Spell ID
-                    data << uint64(GetGUID());                // Player GUID
-                    data << int32(-lessCooldown);             // Cooldown mod in milliseconds
-                    _player->GetSession()->SendPacket(&data);
+                    _player->ReduceSpellCooldown(spellInfo->Id, -lessCooldown);
                 }
             }
         }

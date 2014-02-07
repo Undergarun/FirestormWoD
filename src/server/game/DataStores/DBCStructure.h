@@ -1770,7 +1770,7 @@ struct SkillLineEntry
     //char* alternateVerb;                                  // 5    m_alternateVerb_lang
     uint32 canLink;                                         // 6    m_canLink (prof. with recipes)
     //uint32 skillId;                                       // 7    Only cooking skill id
-    //uint32 unk_1                                          // 8    Unknow, maybe flag ?
+    uint32 unk_1;                                           // 8    Unknow, maybe flag ?
 };
 
 // @author Selenium: 5.4 valid

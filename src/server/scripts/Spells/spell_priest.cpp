@@ -1159,12 +1159,14 @@ class spell_pri_train_of_thought : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_train_of_thought_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        ObjectGuid playerGuid = _player->GetGUID();
+
                         if (_player->HasAura(PRIEST_TRAIN_OF_THOUGHT))
                         {
                             if (GetSpellInfo()->Id == 585)
@@ -1179,22 +1181,12 @@ class spell_pri_train_of_thought : public SpellScriptLoader
                                     if (newCooldownDelay > 0)
                                     {
                                         _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + (newCooldownDelay / IN_MILLISECONDS)));
-
-                                        WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                        data << uint32(PRIEST_SPELL_PENANCE);               // Spell ID
-                                        data << uint64(_player->GetGUID());                 // Player GUID
-                                        data << int32(-500);                                // Cooldown mod in milliseconds
-                                        _player->GetSession()->SendPacket(&data);
+                                        _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -500);
                                     }
                                     else
                                     {
                                         _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + 0));
-
-                                        WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                        data << uint32(PRIEST_SPELL_PENANCE);               // Spell ID
-                                        data << uint64(_player->GetGUID());                 // Player GUID
-                                        data << int32(-newCooldownDelay);                                // Cooldown mod in milliseconds
-                                        _player->GetSession()->SendPacket(&data);
+                                        _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -newCooldownDelay);
                                     }
                                 }
                             }
@@ -1208,12 +1200,7 @@ class spell_pri_train_of_thought : public SpellScriptLoader
                                         newCooldownDelay -= 5;
 
                                     _player->AddSpellCooldown(PRIEST_INNER_FOCUS, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                    data << uint32(PRIEST_INNER_FOCUS);                 // Spell ID
-                                    data << uint64(_player->GetGUID());                 // Player GUID
-                                    data << int32(-5000);                               // Cooldown mod in milliseconds
-                                    _player->GetSession()->SendPacket(&data);
+                                    _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -5000);
                                 }
                             }
                         }
@@ -1223,7 +1210,7 @@ class spell_pri_train_of_thought : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_train_of_thought_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_pri_train_of_thought_SpellScript::HandleAfterHit);
             }
         };
 
