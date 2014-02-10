@@ -2617,6 +2617,23 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 
 void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
 {
+    // Temp disable CUF
+    // Valgrind report : 
+    /*==5870== Thread 25:
+==5870== Conditional jump or move depends on uninitialised value(s)
+==5870==    at 0x4C2C908: strlen (mc_replace_strmem.c:404)
+==5870==    by 0x60AF084: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.19)
+==5870==    by 0x158BC7E: WorldSession::HandleSaveCUFProfiles(WorldPacket&) (MiscHandler.cpp:2704)
+==5870==    by 0x167C6FF: WorldSession::Update(unsigned int, PacketFilter&) (WorldSession.cpp:366)
+==5870==    by 0x15E3144: Map::Update(unsigned int) (Map.cpp:515)
+==5870==    by 0x188EC63: MapUpdateRequest::call() (MapUpdater.cpp:54)
+==5870==    by 0x1917AF6: DelayExecutor::svc() (DelayExecutor.cpp:52)
+==5870==    by 0x5192236: ACE_Task_Base::svc_run(void*) (in /usr/lib/libACE-6.0.3.so)
+==5870==    by 0x5193924: ACE_Thread_Adapter::invoke_i() (in /usr/lib/libACE-6.0.3.so)
+==5870==    by 0x519386E: ACE_Thread_Adapter::invoke() (in /usr/lib/libACE-6.0.3.so)
+==5870==    by 0x6812E0D: start_thread (pthread_create.c:311)
+==5870==    by 0x6B100FC: clone (clone.S:113)*/
+    return;
     uint32 count = recvPacket.ReadBits(19);
     if (count > MAX_CUF_PROFILES)
     {
