@@ -664,7 +664,7 @@ enum Opcodes
     SMSG_AREA_TRIGGER_RESET                           = 0x8B7,  // 5.4.0 17399 (JamList)
     SMSG_ARENA_ERROR                                  = 0x91C,  // 5.4.0 17399 (JamList)
     SMSG_ARENA_OPPONENT_UPDATE                        = 0x000,  // 5.0.5 16048
-    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0x52A,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0x52A,  // 5.4.0 17399
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED              = 0x000,  // 5.0.5 16048
     SMSG_ARENA_TEAM_COMMAND_RESULT                    = 0x000,  // 5.0.5 16048
     SMSG_ARENA_TEAM_EVENT                             = 0x000,  // 5.0.5 16048

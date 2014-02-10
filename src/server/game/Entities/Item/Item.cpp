@@ -259,13 +259,7 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
-    m_dynamicTab.resize(32);
-    m_dynamicChange.resize(32);
-    for (int i = 0; i < 32; i++)
-    {
-        m_dynamicTab[i] = new uint32[32];
-        m_dynamicChange[i] = new bool[32];
-    }
+    _dynamicTabCount = 32;
 }
 
 Item::~Item()
@@ -1596,14 +1590,14 @@ bool Item::IsPvPItem() const
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        auto stat = proto->ItemStat[i].ItemStatType;
+        uint32 stat = proto->ItemStat[i].ItemStatType;
         if (stat == ITEM_MOD_PVP_POWER || stat == ITEM_MOD_RESILIENCE_RATING)
             return true;
     }
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
     {
-        auto spell = proto->Spells[i].SpellId;
+        int32 spell = proto->Spells[i].SpellId;
         if (spell == 132586 || spell == 139891)
             return true;
     }

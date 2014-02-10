@@ -211,9 +211,10 @@ public:
 
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                     {
-                                         if (i->getSource())
-                                         {
+                                        if (i->getSource())
+                                        {
                                             ObjectGuid guid = i->getSource()->GetGUID();
+
                                             WorldPacket packet(SMSG_MESSAGE_CHAT, 200);
                                             unit->BuildMonsterChat(&packet, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, guid);
                                             i->getSource()->GetSession()->SendPacket(&packet);
@@ -229,7 +230,7 @@ public:
                                             data2 << 10986;
 
                                             i->getSource()->GetSession()->SendPacket(&data2);
-                                         }
+                                        }
                                     }
                                 }
                             }

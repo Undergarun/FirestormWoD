@@ -900,7 +900,7 @@ class WorldSession
         void SendLfgUpdatePlayer(const LfgUpdateData& updateData);
         void SendLfgUpdateParty(const LfgUpdateData& updateData, uint32 joinTime = 0);
         void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
-        void SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool updateAll);
+        void SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck);
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(uint64 guid_, const LfgJoinResultData& joinData);
         void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);

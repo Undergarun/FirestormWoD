@@ -594,7 +594,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             uint32 msgLen = recvData.ReadBits(8) << 1;
             msgLen += recvData.ReadBit();
             uint32 prefixLen = recvData.ReadBits(5);
-            uint32 targetLen = recvData.ReadBits(10);
+            uint32 targetLen = recvData.ReadBits(8);
             recvData.FlushBits();
             targetName = recvData.ReadString(targetLen);
             message = recvData.ReadString(msgLen);
