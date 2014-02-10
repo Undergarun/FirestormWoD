@@ -5000,7 +5000,7 @@ void Spell::SendSpellGo()
     bool hasBit102 = false;
     bool hasBit106 = false;
     bool hasRuneStateBefore = m_runesState;
-    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetRunesState();
+    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT &&  m_caster->ToPlayer()->GetRunesState();
     bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;

@@ -286,6 +286,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_VisibilityUpdScheduled = false;
 
     m_SendTransportMoveTimer = 0;
+    m_lastVisibilityUpdPos = *this;
 }
 
 ////////////////////////////////////////////////////////////
