@@ -1244,7 +1244,6 @@ enum Opcodes
     SMSG_PET_SPELLS                                   = 0x1885, // 5.4.0 17399
     SMSG_PET_STABLE_LIST                              = 0x11C,  // 5.4.0 17399
     SMSG_PET_TAME_FAILURE                             = 0x53F,  // 5.4.0 17399
-    SMSG_PHASE_SHIFT_CHANGE                           = 0x919,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PLAYED_TIME                                  = 0x812,  // 5.4.0 17399
     SMSG_PLAYER_BIND_ERROR                            = 0x000,  // 5.0.5 16048
     SMSG_PLAYER_BOUND                                 = 0x808,  // 5.4.0 17399
@@ -1390,7 +1389,7 @@ enum Opcodes
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0x03C,  // 5.4.0 17399 (JamList)
     SMSG_SET_PCT_SPELL_MODIFIER                       = 0x1C06, // 5.4.0 17399
     SMSG_SET_PET_SPECIALIZATION                       = 0x5BE,  // 5.4.0 17399
-    SMSG_SET_PHASE_SHIFT                              = 0x000,  // 5.0.5 16048
+    SMSG_SET_PHASE_SHIFT                              = 0x919,  // 5.4.0 17399
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0x586,  // 5.4.0 17399 (JamList)
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x196,  // 5.4.0 17399 (JamList)
     SMSG_SET_PROFICIENCY                              = 0x12C,  // 5.4.0 17399

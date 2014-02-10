@@ -2237,32 +2237,36 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
 {
     ObjectGuid guid = _player->GetGUID();
     uint32 unkValue = 0;
+    uint32 inactiveSwapsCount = 0;
 
     WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-
-    data << uint32(phaseIds.size()) * 2;        // Phase.dbc ids
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
 
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     data << uint32(0x18); // flags, 0x18 most of time on retail sniff
 
-    data << uint32(0);                          // Inactive terrain swaps, may switch with active terrain
-    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-    //    data << uint16(0);
+    // WorldMapAreaId ?
+    data << unkValue;
+    //for (uint32 i = 0; i < unkValue; i++)
+        //data << uint16(0);
 
-    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps, may switch with inactive terrain
+    // Inactive terrain swaps, may switch with active terrain
+    data << inactiveSwapsCount;
+    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
+        //data << uint16(0);
+
+    // Active terrain swaps, may switch with inactive terrain
+    data << uint32(terrainswaps.size() * 2);
     for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
         data << uint16(*itr);
 
-    data << uint32(unkValue);
-    //for (uint32 i = 0; i < unkValue; i++)
-    //    data << uint16(0); // WorldMapAreaId ?
+    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
+    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
     
-    uint8 bitOrder[8] = {3, 7, 1, 6, 0, 4, 5, 2};
+    uint8 bitOrder[8] = { 0, 2, 1, 5, 3, 7, 4, 6 };
     data.WriteBitInOrder(guid, bitOrder);
     
-    uint8 byteOrder[8] = {4, 3, 0, 6, 2, 7, 5, 1};
+    uint8 byteOrder[8] = { 0, 5, 4, 7, 6, 2, 1, 3 };
     data.WriteBytesSeq(guid, byteOrder);
 
     SendPacket(&data);
