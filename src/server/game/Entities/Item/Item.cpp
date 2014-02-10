@@ -1590,14 +1590,14 @@ bool Item::IsPvPItem() const
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        auto stat = proto->ItemStat[i].ItemStatType;
+        uint32 stat = proto->ItemStat[i].ItemStatType;
         if (stat == ITEM_MOD_PVP_POWER || stat == ITEM_MOD_RESILIENCE_RATING)
             return true;
     }
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
     {
-        auto spell = proto->Spells[i].SpellId;
+        int32 spell = proto->Spells[i].SpellId;
         if (spell == 132586 || spell == 139891)
             return true;
     }
