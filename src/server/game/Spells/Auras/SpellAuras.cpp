@@ -1699,8 +1699,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 break;
             case SPELLFAMILY_ROGUE:
                 // Remove Vanish on stealth remove
-                if (GetId() == 1784)
+                if (GetId() == 1784 || GetId() == 115191)
                     target->RemoveAurasDueToSpell(131369, target->GetGUID());
+                // Add Subterfuge on stealth remove, if player has talent
+                if (GetId() == 115191)
+                    caster->CastSpell(target, 115192, true); // Subterfuge
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
             {

@@ -744,13 +744,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_valuesCount = PLAYER_END;
 
-    m_dynamicTab.resize(PLAYER_DYNAMIC_END);
-    m_dynamicChange.resize(PLAYER_DYNAMIC_END);
-    for (int i = 0; i < PLAYER_DYNAMIC_END; i++)
-    {
-        m_dynamicTab[i] = new uint32[32];
-        m_dynamicChange[i] = new bool[32];
-    }
+    _dynamicTabCount = PLAYER_DYNAMIC_END;
 
     m_session = session;
 
@@ -971,10 +965,10 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
     {
-        m_ArenaPersonalRating[i] = 0;
+        m_ArenaPersonalRating[i] = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
         m_BestRatingOfWeek[i] = 0;
         m_BestRatingOfSeason[i] = 0;
-        m_ArenaMatchMakerRating[i] = 0;
+        m_ArenaMatchMakerRating[i] = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
         m_WeekWins[i] = 0;
         m_PrevWeekWins[i] = 0;
         m_SeasonWins[i] = 0;
@@ -2782,7 +2776,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
 
-                data.WriteBit(false);
+                data.WriteBit(0);
                 data.WriteBit(m_transport != NULL);
                 
                 if (m_transport)
@@ -4337,6 +4331,9 @@ void Player::SendKnownSpells()
     // spell count placeholder
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
+        if (!itr->second)
+            continue;
+
         if (itr->second->state == PLAYERSPELL_REMOVED)
             continue;
 
@@ -21935,6 +21932,9 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
 
     for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end();)
     {
+        if (!itr->second)
+            continue;
+
         if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
@@ -25223,6 +25223,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendTalentsInfoData(false);
 
     SendKnownSpells();
+
+    // 4374 - summon pet spell in packet - 111896, 111895, 111859, 111897, 111898
+    // 5376
 
     data.Initialize(SMSG_UNLEARNED_SPELLS);
     data.WriteBits(0, 22);                         // count, read uint32 spells id

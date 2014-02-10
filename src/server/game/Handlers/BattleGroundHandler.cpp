@@ -150,15 +150,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     // check queue conditions
     if (!joinAsGroup)
     {
-        if (GetPlayer()->isUsingLfg())
-        {
-            // player is using dungeon finder or raid finder
-            WorldPacket data;
-            sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_LFG_CANT_USE_BATTLEGROUND);
-            GetPlayer()->GetSession()->SendPacket(&data);
-            return;
-        }
-
         // check Deserter debuff
         if (!_player->CanJoinToBattleground())
         {

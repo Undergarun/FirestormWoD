@@ -868,10 +868,10 @@ void Battleground::EndBattleground(uint32 winner)
                 // Member lost
                 // Update personal rating
                 /*int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), winner_matchmaker_rating, false);
-                player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
+                player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
 
                 // Update matchmaker rating
-                player->SetArenaMatchMakerRating(player->GetArenaMatchMakerRating(slot) + loser_matchmaker_change, slot);
+                player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + loser_matchmaker_change);
 
                 // Update personal played stats
                 player->IncrementWeekGames(slot);
@@ -902,7 +902,7 @@ void Battleground::EndBattleground(uint32 winner)
                     player->SetRandomWinner(true);
                 }
             }
-            else // 50cp awarded for each non-rated battleground won 
+            else if (!isArena()) // 50cp awarded for each non-rated battleground won
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, BG_REWARD_WINNER_CONQUEST_LAST );
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -1160,6 +1160,9 @@ void Battleground::BuildArenaOpponentSpecializations(WorldPacket* data, uint32 t
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (_GetPlayer(itr, "BuildArenaOpponentSpecializations") && itr->second.Team == team)
             opponent_count++;
+
+    if (!opponent_count)
+        return;
 
     data->WriteBits(opponent_count, 21);
 

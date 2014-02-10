@@ -1462,11 +1462,16 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
         ApplySpellMod(aurApp->GetTarget(), apply);
 
     // call scripts helping/replacing effect handlers
+    AuraPtr auraBase = GetBase();
     bool prevented = false;
-    if (apply)
-        prevented = GetBase()->CallScriptEffectApplyHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
-    else
-        prevented = GetBase()->CallScriptEffectRemoveHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+
+    if (auraBase)
+    {
+        if (apply)
+            prevented = GetBase()->CallScriptEffectApplyHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+        else
+            prevented = GetBase()->CallScriptEffectRemoveHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+    }
 
     // check if script events have removed the aura or if default effect prevention was requested
     if ((apply && aurApp->GetRemoveMode()) || prevented)
@@ -1482,10 +1487,13 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
         return;
 
     // call scripts triggering additional events after apply/remove
-    if (apply)
-        GetBase()->CallScriptAfterEffectApplyHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
-    else
-        GetBase()->CallScriptAfterEffectRemoveHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+    if (auraBase)
+    {
+        if (apply)
+            GetBase()->CallScriptAfterEffectApplyHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+        else
+            GetBase()->CallScriptAfterEffectRemoveHandlers(CONST_CAST(AuraEffect, shared_from_this()), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+    }
 }
 
 void AuraEffect::HandleEffect(Unit* target, uint8 mode, bool apply)
@@ -1556,9 +1564,11 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 
 void AuraEffect::Update(uint32 diff, Unit* caster)
 {
-    GetBase()->CallScriptEffectUpdateHandlers(diff, shared_from_this());
+    AuraPtr baseAura = GetBase();
+    if (baseAura)
+        baseAura->CallScriptEffectUpdateHandlers(diff, shared_from_this());
 
-    if (m_isPeriodic && (GetBase()->GetDuration() >= 0 || GetBase()->IsPassive() || GetBase()->IsPermanent()))
+    if (m_isPeriodic && baseAura && (baseAura->GetDuration() >= 0 || baseAura->IsPassive() || baseAura->IsPermanent()))
     {
         if (m_periodicTimer > int32(diff))
             m_periodicTimer -= diff;
@@ -2221,7 +2231,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     {
         target->m_stealth.AddValue(type, -GetAmount());
 
-        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
+        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH) && !target->HasAura(115192)) // if last SPELL_AURA_MOD_STEALTH
         {
             target->m_stealth.DelFlag(type);
 

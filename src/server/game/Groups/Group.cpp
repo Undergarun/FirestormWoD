@@ -3661,6 +3661,11 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
             if (player->GetArenaPersonalRating(slot) < 1500)
                 rating_change = 96;
 
+            if (player->GetBattleground())
+                for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
+                    if (itr2->first == itr->guid)
+                        itr2->second->RatingChange = rating_change;
+
             player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
             player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
 
@@ -3690,6 +3695,11 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
 
             if (player->GetArenaPersonalRating(slot) < 1500)
                 rating_change = 92;
+
+            if (player->GetBattleground())
+                for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
+                    if (itr2->first == itr->guid)
+                        itr2->second->RatingChange = rating_change;
 
             player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
             player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);

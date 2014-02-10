@@ -3220,7 +3220,10 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
                 procSpell->Id == 2825 ||    // Bloodlust
                 procSpell->Id == 1725 ||    // Distract
                 procSpell->Id == 114198 ||  // Mocking Banner taunt
-                procSpell->Id == 130733)    // and Shadow Word: Insanity allowing Cast
+                procSpell->Id == 130733 ||  // and Shadow Word: Insanity allowing Cast
+                procSpell->Id == 115191 ||  // Stealth
+                procSpell->Id == 115192 ||  // Subterfuge
+                procSpell->Id == 12323)     // Piercing Howl
                 return true;
         }
     }

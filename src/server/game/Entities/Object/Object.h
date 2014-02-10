@@ -122,6 +122,42 @@ class Transport;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
+class DynamicFields
+{
+    public:
+        DynamicFields()
+        {
+            _dynamicValues = new uint32[Count];
+            _dynamicChangedFields = new bool[Count];
+
+            Clear();
+        }
+    
+        ~DynamicFields()
+        {
+            delete[] _dynamicValues;
+            _dynamicValues = NULL;
+            delete[] _dynamicChangedFields;
+            _dynamicChangedFields = NULL;
+        }
+
+        void Clear()
+        {
+            memset(_dynamicValues, 0, sizeof(uint32)*Count);
+            memset(_dynamicChangedFields, 0, sizeof(bool)*Count);
+        }
+
+        void ClearMask()
+        {
+            memset(_dynamicChangedFields, 0, sizeof(bool)*Count);
+        }
+
+        uint32* _dynamicValues;
+        bool* _dynamicChangedFields;
+
+        const static uint32 Count = sizeof(uint32)*8;
+};
+
 class Object
 {
     public:
@@ -302,8 +338,10 @@ class Object
 
         uint32 GetDynamicUInt32Value(uint32 tab, uint16 index) const
         {
-            ASSERT(tab < m_dynamicTab.size() || index < 32);
-            return m_dynamicTab[tab][index];
+            ASSERT(tab < _dynamicTabCount);
+            ASSERT(index < DynamicFields::Count);
+
+            return _dynamicFields[tab]._dynamicValues[index];
         }
 
         void SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value);
@@ -376,8 +414,8 @@ class Object
 
         bool m_objectUpdated;
 
-        std::vector<uint32*> m_dynamicTab;
-        std::vector<bool*> m_dynamicChange;
+        DynamicFields* _dynamicFields;
+        uint32 _dynamicTabCount;
 
     private:
         bool m_inWorld;

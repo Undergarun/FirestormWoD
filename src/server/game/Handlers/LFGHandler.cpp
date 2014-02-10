@@ -276,7 +276,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& recvData)
 
         data.WriteBit(!done);
         data.WriteBits(qRew ? qRew->GetRewItemsCount() : 0, 20);
-        data.WriteBit(false);
+        data.WriteBit(0);
     }
 
     data.WriteBits(lock.size(), 20);
@@ -563,7 +563,7 @@ void WorldSession::SendLfgUpdateParty(const LfgUpdateData& updateData, uint32 jo
     SendPacket(&data);*/
 }
 
-void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool updateAll)
+void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck)
 {
     ASSERT(pRoleCheck);
     LfgDungeonSet dungeons;
@@ -572,27 +572,27 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool u
     else
         dungeons = pRoleCheck->dungeons;
 
-    ObjectGuid guid = 0;
+    ObjectGuid unkGuid = 0;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_ROLE_CHECK_UPDATE [" UI64FMTD "]", GetPlayer()->GetGUID());
     WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
     ByteBuffer dataBuffer;
 
     data.WriteBit(pRoleCheck->state == LFG_ROLECHECK_INITIALITING);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[4]);
+    data.WriteBit(unkGuid[5]);
+    data.WriteBit(unkGuid[3]);
+    data.WriteBit(unkGuid[6]);
+    data.WriteBit(unkGuid[4]);
     data.WriteBits(dungeons.size(), 22);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.WriteBits(updateAll ? pRoleCheck->roles.size() : 1, 21);
+    data.WriteBit(unkGuid[0]);
+    data.WriteBit(unkGuid[1]);
+    data.WriteBits(pRoleCheck->roles.size(), 21);
 
     sLog->outError(LOG_FILTER_NETWORKIO, "RoleCheckUpdate: %u, state: %u", (int)pRoleCheck->roles.size(), pRoleCheck->state);
 
     if (!pRoleCheck->roles.empty())
     {
-        // Player info MUST be sent 1st :S
+        ObjectGuid guid = pRoleCheck->leader;
         uint8 roles = pRoleCheck->roles.find(guid)->second;
         Player* player = ObjectAccessor::FindPlayer(guid);
 
@@ -619,7 +619,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool u
 
         for (LfgRolesMap::const_reverse_iterator it = pRoleCheck->roles.rbegin(); it != pRoleCheck->roles.rend(); ++it)
         {
-            if (it->first == GetPlayer()->GetGUID() || !updateAll)
+            if (it->first == pRoleCheck->leader)
                 continue;
 
             guid = it->first;
@@ -649,22 +649,23 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool u
         }
     }
 
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
-    data.WriteByteSeq(guid[1]);
+    data.WriteBit(unkGuid[7]);
+    data.WriteBit(unkGuid[2]);
+    data.FlushBits();
+    data.WriteByteSeq(unkGuid[1]);
 
     data.append(dataBuffer);
     data << uint8(1);
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(unkGuid[3]);
+    data.WriteByteSeq(unkGuid[4]);
+    data.WriteByteSeq(unkGuid[0]);
+    data.WriteByteSeq(unkGuid[5]);
+    data.WriteByteSeq(unkGuid[6]);
 
     data << uint8(pRoleCheck->state);
 
-    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(unkGuid[7]);
 
     if (!dungeons.empty())
     {
@@ -675,7 +676,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool u
         }
     }
 
-    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(unkGuid[2]);
 
     SendPacket(&data);
 }
@@ -858,7 +859,7 @@ void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntr
             if (!qRew->RewardItemId[i])
                 continue;
 
-            data.WriteBit(false);
+            data.WriteBit(0);
 
             iProto = sObjectMgr->GetItemTemplate(qRew->RewardItemId[i]);
 
@@ -876,7 +877,7 @@ void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntr
             if (!qRew->RewardCurrencyId[i])
                 continue;
 
-            data.WriteBit(true);
+            data.WriteBit(1);
 
             rewards << uint32(0);
             rewards << uint32(qRew->RewardCurrencyId[i]);

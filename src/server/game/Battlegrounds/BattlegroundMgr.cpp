@@ -465,7 +465,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
         count++;
 
-        if (player->GetTeam() == ALLIANCE)
+        if (player->GetBGTeam() == ALLIANCE)
             ++counta2;
         else
             ++counth2;
@@ -655,7 +655,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         //    *data << uint32(dword15);
 
         data->WriteByteSeq(guid[1]);
-        *data << int32(player->GetPrimaryTalentTree(player->GetActiveSpec()));
+        *data << uint32(player->GetPrimaryTalentTree(player->GetActiveSpec()));
         data->WriteByteSeq(guid[7]);
 
         //if (unkbit4)
@@ -751,7 +751,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         *data << uint32(itr2->second->DamageDone);              // damage done
         data->WriteByteSeq(guid[2]);
         if (isArena)
-            *data << int32(bg->GetArenaTeamRatingChangeByIndex(bg->GetPlayerTeam(guid) == HORDE));
+            *data << int32(itr2->second->RatingChange);
     }
 
     if (isRated)                                             // arena TODO : Fix Order on Rated Implementation

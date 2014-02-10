@@ -3850,6 +3850,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 1784:  // Stealth
                     spellInfo->OverrideSpellList.push_back(115191); // Add Stealth (talent) to override spell list of Stealth
                     break;
+                case 115191:// Subterfuge
+                    spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
+                    break;
+                case 115192:// Subterfuge
+                    spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
+                    spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
+                    spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                    break;
                 case 130493:// Nightstalker
                     spellInfo->Effects[1].Effect = 0;
                     spellInfo->Effects[1].ApplyAuraName = 0;
@@ -4248,7 +4256,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                     break;
                 case 104232:
-                    spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                    //spellInfo->Effects[EFFECT_1].BasePoints = 0;
                     break;
                 case 15850: // Chilled
                 case 16927: // Chilled
