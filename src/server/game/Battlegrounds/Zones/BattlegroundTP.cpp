@@ -58,6 +58,8 @@ BattlegroundTP::BattlegroundTP()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_TP_HAS_BEGUN;
 
     m_BothFlagsKept = true;
+    m_FlagDebuffState = 0;
+    m_FlagSpellForceTimer = 0;
 }
 
 BattlegroundTP::~BattlegroundTP() {}
