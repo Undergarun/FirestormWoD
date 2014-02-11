@@ -57,7 +57,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     subjectLength = recvData.ReadBits(8) * 2;
     subjectLength |= (uint32)recvData.ReadBit();
 
-    bodyLength = recvData.ReadBits(11)/* / 2*/;
+    bodyLength = recvData.ReadBits(11);
     uint8 items_count = recvData.ReadBits(5);
 
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
