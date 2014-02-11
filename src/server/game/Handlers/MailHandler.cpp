@@ -45,9 +45,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     mailbox[1] = recvData.ReadBit();
     mailbox[3] = recvData.ReadBit();
-    receiverLength = recvData.ReadBits(8);
-    receiverLength *= 2;
-    receiverLength <<= 1;
+    receiverLength = recvData.ReadBits(8) * 2;
     receiverLength |= (uint32)recvData.ReadBit();
 
     mailbox[0] = recvData.ReadBit();
@@ -56,8 +54,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[2] = recvData.ReadBit();
     mailbox[6] = recvData.ReadBit();
     mailbox[5] = recvData.ReadBit();
-    subjectLength = recvData.ReadBits(8);
-    subjectLength <<= 1;
+    subjectLength = recvData.ReadBits(8) * 2;
     subjectLength |= (uint32)recvData.ReadBit();
 
     bodyLength = recvData.ReadBits(11);
