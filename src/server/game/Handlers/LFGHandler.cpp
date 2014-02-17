@@ -430,7 +430,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_GET_STATUS %s", GetPlayer()->GetGUID());
 
-    uint64 guid = GetPlayer()->GetGUID();
+    /*uint64 guid = GetPlayer()->GetGUID();
     LfgUpdateData updateData = sLFGMgr->GetLfgStatus(guid);
 
     if (GetPlayer()->GetGroup())
@@ -444,7 +444,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
         SendLfgUpdatePlayer(updateData);
         updateData.dungeons.clear();
         SendLfgUpdateParty(updateData);
-    }
+    }*/
 }
 
 void WorldSession::SendLfgUpdatePlayer(const LfgUpdateData& updateData)

@@ -486,6 +486,8 @@ class WorldSession
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
+        void HandleClientReportError(WorldPacket& recvData);
+
         // character view
         void HandleShowAccountAchievement(WorldPacket& recvData);
         void HandleShowingHelmOpcode(WorldPacket& recvData);

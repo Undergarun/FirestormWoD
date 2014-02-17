@@ -501,13 +501,15 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
             break;
         case TYPEID_DYNAMICOBJECT:
             aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID));
+            ASSERT(aura->GetDynobjOwner());
+            ASSERT(aura->GetDynobjOwner()->IsInWorld());
+            ASSERT(aura->GetCaster()->IsInWorld());
+            ASSERT(aura->GetDynobjOwner()->GetMap() == aura->GetCaster()->GetMap());
+
             aura->GetDynobjOwner()->SetAura(aura);
             aura->_InitEffects(effMask, caster, baseAmount);
             
             aura->LoadScripts();
-            ASSERT(aura->GetDynobjOwner());
-            ASSERT(aura->GetDynobjOwner()->IsInWorld());
-            ASSERT(aura->GetDynobjOwner()->GetMap() == aura->GetCaster()->GetMap());
             break;
         default:
             ASSERT(false);
@@ -1701,9 +1703,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 // Remove Vanish on stealth remove
                 if (GetId() == 1784 || GetId() == 115191)
                     target->RemoveAurasDueToSpell(131369, target->GetGUID());
-                // Add Subterfuge on stealth remove, if player has talent
-                if (GetId() == 115191)
-                    caster->CastSpell(target, 115192, true); // Subterfuge
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
             {

@@ -1753,6 +1753,13 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+void WorldSession::HandleClientReportError(WorldPacket& recvData)
+{
+    uint16 len = recvData.ReadBits(9);
+    recvData.FlushBits();
+    std::string str = recvData.ReadString(len);
+}
+
 void WorldSession::HandleInspectRatedBGStatsOpcode(WorldPacket& recvData)
 {
     uint32 unk;

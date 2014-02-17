@@ -2518,7 +2518,7 @@ void Player::SendTeleportPacket(Position &oldPos)
     data << float(GetPositionY());
     data << float(GetPositionX());
     data << float(GetPositionZMinusOffset());
-    data << uint32(0);                  //  mask ? 0x180 on retail sniff
+    data << uint32(0);                  // movement counter
 
     data.WriteBit(unk);                 // unk bit
     data.WriteBit(guid[2]);
@@ -2772,18 +2772,18 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                bool unk = false;
+                bool unk = true;
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
 
-                data.WriteBit(0);
+                data.WriteBit(unk);
                 data.WriteBit(m_transport != NULL);
                 
                 if (m_transport)
-                    data  << GetMapId() << m_transport->GetEntry();
+                    data << GetMapId() << m_transport->GetEntry();
 
                 if (unk)
-                    data << uint32(0);
+                    data << uint32(25649);
                 
                 GetSession()->SendPacket(&data);
             }

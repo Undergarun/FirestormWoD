@@ -3374,7 +3374,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     {
         // stealth must be removed at cast starting (at show channel bar)
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth() &&
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) &&
             (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);

@@ -36,7 +36,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         explicit AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
         ~AuraEffect();
-        Unit* GetCaster() const { return GetBase()->GetCaster(); }
+        Unit* GetCaster() const { return GetBase() ? GetBase()->GetCaster() : NULL; }
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         AuraPtr GetBase() const { return std::const_pointer_cast<Aura>(m_base); }
         void GetTargetList(std::list<Unit*> & targetList) const;

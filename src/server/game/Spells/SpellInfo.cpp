@@ -1300,9 +1300,59 @@ bool SpellInfo::NeedsComboPoints() const
     return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
 }
 
-bool SpellInfo::IsBreakingStealth() const
+bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 {
-    return !(AttributesEx & SPELL_ATTR1_NOT_BREAK_STEALTH);
+    if (m_caster && m_caster->HasAura(115192))
+        return false;
+
+    if (m_caster && m_caster->HasAura(108208) && HasAttribute(SPELL_ATTR0_ONLY_STEALTHED) && !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
+    {
+        m_caster->CastSpell(m_caster, 115192, true);
+        return false;
+    }
+
+    switch (GetSpellSpecific())
+    {
+        case SPELL_SPECIFIC_FOOD:
+        case SPELL_SPECIFIC_FOOD_AND_DRINK:
+        case SPELL_SPECIFIC_WELL_FED:
+            return true;
+    }
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+            return true;
+
+    switch(Id)
+    {
+        case 3600:  // Earthbind Totem
+        case 99:    // Demoralizing Roar
+        case 50256:
+            return false;
+        default:
+            break;
+    }
+
+    if (IsTargetingArea())
+    {
+        // dispel etc spells
+        switch(Effects[EFFECT_0].Effect)
+        {
+            case SPELL_EFFECT_DISPEL:
+            case SPELL_EFFECT_DISPEL_MECHANIC:
+            case SPELL_EFFECT_THREAT:
+            case SPELL_EFFECT_MODIFY_THREAT_PERCENT:
+            case SPELL_EFFECT_DISTRACT:
+                return false;
+            default:
+                break;
+        }
+    }
+
+    if (HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS) || HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH))
+        return false;
+
+    return true;
 }
 
 bool SpellInfo::IsRangedWeaponSpell() const
