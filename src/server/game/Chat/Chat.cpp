@@ -714,13 +714,13 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     data->WriteBit(false);                                      // Unk bit 5269
     data->WriteBit(message ? 0 : 1);                            // Has text
     data->WriteBit(!achievementId);                             // Has achievement
-    data->WriteBit(speakerPlayer == NULL);                      // Has sender
-    data->WriteBit(speakerPlayer != NULL);                      // Has sender GUID - FAKE GUID
+    data->WriteBit(speakerPlayer == nullptr);                   // Has sender
+    data->WriteBit(speakerPlayer != nullptr);                   // Has sender GUID - FAKE GUID
 
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
     data->WriteBitInOrder(speakerGuid, bitsOrder);
 
-    data->WriteBit(groupGuid != NULL);                          // Has group GUID - FAKE GUID
+    data->WriteBit(groupGuid != 0);                             // Has group GUID - FAKE GUID
 
     uint8 bitsOrder2[8] = { 6, 0, 4, 1, 2, 3, 7, 5 };
     data->WriteBitInOrder(groupGuid, bitsOrder2);
@@ -730,7 +730,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     data->WriteBit(!sendRealmId);                               // Send realmId
     data->WriteBit(!bit5264);                                   // (inversed) Unk bit 5264
 
-    if (speakerPlayer != NULL)
+    if (speakerPlayer)
         data->WriteBits(speakerNameLength, 11);
 
     data->WriteBit(targetGuid);                                 // Has receiver GUID - FAKE GUID

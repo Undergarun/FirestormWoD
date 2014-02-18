@@ -1179,7 +1179,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         if (uint32 guildId = player->GetGuildId())
             guild = sGuildMgr->GetGuildById(guildId);
 
-        ObjectGuid guildGuid = guild ?  guild->GetGUID() : 0;
+        ObjectGuid guildGuid = guild ? guild->GetGUID() : 0;
 
         data << uint8(player->GetByteValue(PLAYER_FIELD_BYTES, 3)); // haircolor
         data << uint8(player->GetByteValue(PLAYER_FIELD_BYTES, 2)); // hair
@@ -1258,7 +1258,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     }
     else
     {
-        ObjectGuid guildGuid = NULL;
+        ObjectGuid guildGuid = 0;
 
         data << uint8(0);   // skin
         data << uint8(creator->getRace());

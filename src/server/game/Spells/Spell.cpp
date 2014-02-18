@@ -5123,10 +5123,10 @@ void Spell::SendSpellGo()
         data.WriteBitInOrder(transportDst, bitsOrder);
     }
 
-    data.WriteBit(powerUnit != NULL);                       // hasPowerUnitGuid
+    data.WriteBit(powerUnit != 0);                       // hasPowerUnitGuid
     data.WriteBits(hitCount, 24);                           // hit count
 
-    if (powerUnit != NULL)
+    if (powerUnit != 0)
     {
         data.WriteBit(powerUnit[7]);
         data.WriteBit(powerUnit[4]);
@@ -5187,7 +5187,7 @@ void Spell::SendSpellGo()
 
     data.WriteByteSeq(caster[7]);
 
-    if (powerUnit != NULL)
+    if (powerUnit != 0)
     {
         data.WriteByteSeq(powerUnit[3]);
         data.WriteByteSeq(powerUnit[5]);
