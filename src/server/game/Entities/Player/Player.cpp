@@ -20136,8 +20136,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[13].GetUInt32();
-        uint32 itemTemplate = fields[14].GetUInt32();
+        uint32 itemGuid = fields[14].GetUInt32();
+        uint32 itemTemplate = fields[15].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -20159,7 +20159,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[15].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
 
