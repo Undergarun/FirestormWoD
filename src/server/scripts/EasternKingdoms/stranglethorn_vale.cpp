@@ -18,6 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 class mob_yenniku : public CreatureScript
 {
