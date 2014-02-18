@@ -15029,8 +15029,8 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         // no idea about this one...
         if (msg == EQUIP_ERR_NO_OUTPUT)
         {
-            ObjectGuid itemGuid = NULL;
-            ObjectGuid containerGuid = NULL;
+            ObjectGuid itemGuid = 0;
+            ObjectGuid containerGuid = 0;
 
             data.WriteBit(itemGuid[2]);
             data.WriteBit(itemGuid[5]);
@@ -16077,7 +16077,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     WorldPacket data(SMSG_ITEM_PUSH_RESULT);
 
     ObjectGuid guid = GetGUID();
-    ObjectGuid unkGuid = NULL;
+    ObjectGuid unkGuid = 0;
 
     data.WriteBit(guid[0]);
     data.WriteBit(unkGuid[6]);
