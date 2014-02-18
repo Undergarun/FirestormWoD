@@ -3720,7 +3720,7 @@ void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool re
 {
     WorldPacket data(SMSG_LOG_XP_GAIN);
 
-    ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
+    ObjectGuid victimGuid = victim ? victim->GetGUID() : 0;
 
     data.WriteBit(0);                                       // unk bit28, send 0
     data.WriteBit(victimGuid[3]);
@@ -14962,8 +14962,8 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
         WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE);
 
-        ObjectGuid item1 = pItem ? pItem->GetGUID() : NULL;
-        ObjectGuid item2 = pItem2 ? pItem2->GetGUID() : NULL;
+        ObjectGuid item1 = pItem ? pItem->GetGUID() : 0;
+        ObjectGuid item2 = pItem2 ? pItem2->GetGUID() : 0;
 
         data.WriteBit(item1[2]);
         data.WriteBit(item2[6]);
@@ -15076,7 +15076,7 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
 
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
-    ObjectGuid guid = creature ? creature->GetGUID() : NULL;
+    ObjectGuid guid = creature ? creature->GetGUID() : 0;
 
     uint8 bitsOrder[8] = { 7, 5, 4, 2, 6, 0, 3, 1 };
     data.WriteBitInOrder(guid, bitsOrder);
@@ -15100,7 +15100,7 @@ void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
 
     ObjectGuid itemGuid = guid;
-    ObjectGuid npcGuid = creature ? creature->GetGUID() : NULL;
+    ObjectGuid npcGuid = creature ? creature->GetGUID() : 0;
     WorldPacket data(SMSG_SELL_ITEM);
 
     data.WriteBit(itemGuid[6]);
@@ -22503,9 +22503,9 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     uint32 channelLength = channel.length();
 
     ObjectGuid senderGuid = GetGUID();
-    ObjectGuid groupGuid = NULL;
-    ObjectGuid receiverGuid = NULL;
-    ObjectGuid guildGuid = NULL;
+    ObjectGuid groupGuid = 0;
+    ObjectGuid receiverGuid = 0;
+    ObjectGuid guildGuid = 0;
 
     bool sendRealmID = false;
     bool bit5256 = false;

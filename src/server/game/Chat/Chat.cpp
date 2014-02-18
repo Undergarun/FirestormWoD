@@ -667,13 +667,13 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     else if (session)
         speakerPlayer = session->GetPlayer();
 
-    ObjectGuid speakerGuid = NULL;
+    ObjectGuid speakerGuid = 0;
     if (speaker)
         speakerGuid = speaker->GetGUID();
     else if (session)
         speakerGuid = session->GetPlayer()->GetGUID();
 
-    ObjectGuid groupGuid = NULL;
+    ObjectGuid groupGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGroup())
         groupGuid = speakerPlayer->GetGroup()->GetGUID();
 
@@ -702,7 +702,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     }
 
     ObjectGuid targetGuid = target_guid;
-    ObjectGuid guildGuid = NULL;
+    ObjectGuid guildGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGuild())
         guildGuid = speakerPlayer->GetGuild()->GetGUID();
 

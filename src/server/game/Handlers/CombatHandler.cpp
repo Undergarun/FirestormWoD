@@ -99,7 +99,7 @@ void WorldSession::SendAttackStop(Unit const* enemy)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid victimGUID = enemy ? enemy->GetGUID() : NULL;
+    ObjectGuid victimGUID = enemy ? enemy->GetGUID() : 0;
     ObjectGuid attackerGUID = GetPlayer()->GetGUID();
 
     data.WriteBit(victimGUID[0]);

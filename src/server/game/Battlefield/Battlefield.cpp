@@ -381,7 +381,7 @@ void Battlefield::EndBattle(bool endByTimer)
 void Battlefield::DoPlaySoundToAll(uint32 SoundID)
 {
     WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-    ObjectGuid guid = NULL;
+    ObjectGuid guid = 0;
 
     uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
     data.WriteBitInOrder(guid, bits);

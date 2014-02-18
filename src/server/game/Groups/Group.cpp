@@ -577,7 +577,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = NULL;
+            ObjectGuid memberGuids = 0;
 
             uint32 memberNameLength = 0;
 
@@ -889,7 +889,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = NULL;
+            ObjectGuid memberGuids = 0;
 
             uint32 memberNameLength = 0;
 
@@ -3272,7 +3272,7 @@ void Group::SendRaidMarkersUpdate()
     // @TODO: Send in classic order instead of summon order
     for (auto itr : GetRaidMarkers())
     {
-        ObjectGuid guid = NULL;
+        ObjectGuid guid = 0;
 
         uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
         data.WriteBitInOrder(guid, bits);

@@ -74,7 +74,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*it))
         {
             ObjectGuid creatorGuid = calendarEvent->GetCreatorGUID();
-            ObjectGuid guildGuid = NULL;
+            ObjectGuid guildGuid = 0;
             if (calendarEvent->GetGuildId())
                 guildGuid = MAKE_NEW_GUID(calendarEvent->GetGuildId(), 0, HIGHGUID_GUILD);
             std::string title = calendarEvent->GetTitle();
@@ -190,7 +190,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
 
-            ObjectGuid creatorGuid = invite ? invite->GetSenderGUID() : NULL;
+            ObjectGuid creatorGuid = invite ? invite->GetSenderGUID() : 0;
 
             uint8 bitsOrder[8] = { 1, 6, 2, 3, 5, 7, 4, 0 };
             data.WriteBitInOrder(creatorGuid, bitsOrder);
