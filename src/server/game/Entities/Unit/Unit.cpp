@@ -16577,6 +16577,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         // only auras that has triggered spell should proc from fully absorbed damage
         SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
+        if (!spellProto)
+            continue;
+        
         if ((procExtra & PROC_EX_ABSORB && isVictim) || ((procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG) && spellProto->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
         {
             bool triggerSpell = false;
