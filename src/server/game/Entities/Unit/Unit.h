@@ -1348,7 +1348,7 @@ class Unit : public WorldObject
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        virtual void Update(uint32 time);
+        virtual void Update(uint32 time, uint32 entry = 0);
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);

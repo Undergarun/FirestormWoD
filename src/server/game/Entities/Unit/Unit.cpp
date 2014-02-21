@@ -352,7 +352,7 @@ Unit::~Unit()
     //ASSERT(m_AreaTrigger.empty());
 }
 
-void Unit::Update(uint32 p_time)
+void Unit::Update(uint32 p_time, uint32 entry /*= 0*/)
 {
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.

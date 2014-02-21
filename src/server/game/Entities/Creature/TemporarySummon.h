@@ -42,7 +42,7 @@ class TempSummon : public Creature
     public:
         explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         virtual ~TempSummon() {}
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry);
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
         virtual void UnSummon(uint32 msTime = 0);
@@ -111,7 +111,7 @@ class Puppet : public Minion
         Puppet(SummonPropertiesEntry const* properties, Unit* owner);
         void InitStats(uint32 duration);
         void InitSummon();
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry);
         void RemoveFromWorld();
     protected:
         Player* m_owner;

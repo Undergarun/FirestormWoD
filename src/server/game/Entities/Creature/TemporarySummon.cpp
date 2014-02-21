@@ -35,9 +35,9 @@ Unit* TempSummon::GetSummoner() const
     return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
 }
 
-void TempSummon::Update(uint32 diff)
+void TempSummon::Update(uint32 diff, uint32 entry)
 {
-    Creature::Update(diff, GetEntry());
+    Creature::Update(diff, entry);
 
     if (m_deathState == DEAD)
     {
@@ -372,9 +372,9 @@ void Puppet::InitSummon()
         ASSERT(false);
 }
 
-void Puppet::Update(uint32 time)
+void Puppet::Update(uint32 time, uint32 entry)
 {
-    Minion::Update(time);
+    Minion::Update(time, entry);
     //check if caster is channelling?
     if (IsInWorld())
     {

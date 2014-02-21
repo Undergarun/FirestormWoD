@@ -1815,7 +1815,7 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     SendMessageToSet(&data, true);
 }
 
-void Player::Update(uint32 p_time)
+void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 {
     if (!IsInWorld())
         return;
@@ -28023,7 +28023,7 @@ void Player::SendEquipmentSetList()
             if (itr->second.IgnoreMask & (1 << i))
             {
                 uint8 bytesOrder[8] = { 4, 6, 3, 5, 0, 2, 1, 7 };
-                data.WriteBytesSeq(NULL, bytesOrder);
+                data.WriteBytesSeq(0, bytesOrder);
             }
             else
             {
