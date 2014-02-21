@@ -450,7 +450,7 @@ public:
 
         void Reset()
         {
-            uint8 waypointToEject = 100;
+            waypointToEject = 100;
 
             if (me->isSummon())
             {

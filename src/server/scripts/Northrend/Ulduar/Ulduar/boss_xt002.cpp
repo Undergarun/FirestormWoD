@@ -211,6 +211,7 @@ class boss_xt002 : public CreatureScript
 
                 _phase = 1;
                 _heartExposed = 0;
+                _transferHealth = 0;
 
                 if (!instance)
                     return;
