@@ -849,7 +849,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
         do
         {
             Field* fields = achievementAccountResult->Fetch();
-            uint32 first_guid    = fields[0].GetUInt64();
+            uint32 first_guid    = fields[0].GetUInt32();
             uint32 achievementid = fields[1].GetUInt16();
 
             // Must not happen: cleanup at server startup in sAchievementMgr->LoadCompletedAchievements()
