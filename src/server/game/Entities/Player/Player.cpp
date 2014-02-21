@@ -27984,7 +27984,7 @@ void Player::SendEquipmentSetList()
             if (itr->second.IgnoreMask & (1 << i))
             {
                 uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
-                data.WriteBitInOrder(NULL, bitsOrder);
+                data.WriteBitInOrder(0, bitsOrder);
             }
             else
             {
