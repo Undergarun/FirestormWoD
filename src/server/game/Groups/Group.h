@@ -226,7 +226,7 @@ class Group
         typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
-        typedef std::set<Player*> InvitesList;
+        typedef std::set<uint64> InvitesList;
 
         typedef std::vector<Roll*> Rolls;
 
@@ -398,6 +398,7 @@ class Group
         MemberSlotList      m_memberSlots;
         RaidMarkerList      m_raidMarkers;
         GroupRefManager     m_memberMgr;
+        mutable ACE_Thread_Mutex    m_inviteesLock;
         InvitesList         m_invitees;
         uint64              m_leaderGuid;
         std::string         m_leaderName;
