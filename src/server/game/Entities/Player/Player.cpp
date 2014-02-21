@@ -2518,7 +2518,7 @@ void Player::SendTeleportPacket(Position &oldPos)
     data << float(GetPositionY());
     data << float(GetPositionX());
     data << float(GetPositionZMinusOffset());
-    data << uint32(0);                  //  mask ? 0x180 on retail sniff
+    data << uint32(0);                  // movement counter
 
     data.WriteBit(unk);                 // unk bit
     data.WriteBit(guid[2]);
@@ -2772,18 +2772,18 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                bool unk = false;
+                bool unk = true;
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
 
-                data.WriteBit(0);
+                data.WriteBit(unk);
                 data.WriteBit(m_transport != NULL);
                 
                 if (m_transport)
-                    data  << GetMapId() << m_transport->GetEntry();
+                    data << GetMapId() << m_transport->GetEntry();
 
                 if (unk)
-                    data << uint32(0);
+                    data << uint32(25649);
                 
                 GetSession()->SendPacket(&data);
             }
@@ -3720,7 +3720,7 @@ void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool re
 {
     WorldPacket data(SMSG_LOG_XP_GAIN);
 
-    ObjectGuid victimGuid = victim ? victim->GetGUID() : NULL;
+    ObjectGuid victimGuid = victim ? victim->GetGUID() : 0;
 
     data.WriteBit(0);                                       // unk bit28, send 0
     data.WriteBit(victimGuid[3]);
@@ -14962,8 +14962,8 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
         WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE);
 
-        ObjectGuid item1 = pItem ? pItem->GetGUID() : NULL;
-        ObjectGuid item2 = pItem2 ? pItem2->GetGUID() : NULL;
+        ObjectGuid item1 = pItem ? pItem->GetGUID() : 0;
+        ObjectGuid item2 = pItem2 ? pItem2->GetGUID() : 0;
 
         data.WriteBit(item1[2]);
         data.WriteBit(item2[6]);
@@ -15029,8 +15029,8 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         // no idea about this one...
         if (msg == EQUIP_ERR_NO_OUTPUT)
         {
-            ObjectGuid itemGuid = NULL;
-            ObjectGuid containerGuid = NULL;
+            ObjectGuid itemGuid = 0;
+            ObjectGuid containerGuid = 0;
 
             data.WriteBit(itemGuid[2]);
             data.WriteBit(itemGuid[5]);
@@ -15076,7 +15076,7 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
 
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
-    ObjectGuid guid = creature ? creature->GetGUID() : NULL;
+    ObjectGuid guid = creature ? creature->GetGUID() : 0;
 
     uint8 bitsOrder[8] = { 7, 5, 4, 2, 6, 0, 3, 1 };
     data.WriteBitInOrder(guid, bitsOrder);
@@ -15100,7 +15100,7 @@ void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
 
     ObjectGuid itemGuid = guid;
-    ObjectGuid npcGuid = creature ? creature->GetGUID() : NULL;
+    ObjectGuid npcGuid = creature ? creature->GetGUID() : 0;
     WorldPacket data(SMSG_SELL_ITEM);
 
     data.WriteBit(itemGuid[6]);
@@ -16077,7 +16077,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     WorldPacket data(SMSG_ITEM_PUSH_RESULT);
 
     ObjectGuid guid = GetGUID();
-    ObjectGuid unkGuid = NULL;
+    ObjectGuid unkGuid = 0;
 
     data.WriteBit(guid[0]);
     data.WriteBit(unkGuid[6]);
@@ -20136,8 +20136,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[13].GetUInt32();
-        uint32 itemTemplate = fields[14].GetUInt32();
+        uint32 itemGuid = fields[14].GetUInt32();
+        uint32 itemTemplate = fields[15].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -20159,7 +20159,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[15].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
 
@@ -22503,9 +22503,9 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     uint32 channelLength = channel.length();
 
     ObjectGuid senderGuid = GetGUID();
-    ObjectGuid groupGuid = NULL;
-    ObjectGuid receiverGuid = NULL;
-    ObjectGuid guildGuid = NULL;
+    ObjectGuid groupGuid = 0;
+    ObjectGuid receiverGuid = 0;
+    ObjectGuid guildGuid = 0;
 
     bool sendRealmID = false;
     bool bit5256 = false;
@@ -27984,7 +27984,7 @@ void Player::SendEquipmentSetList()
             if (itr->second.IgnoreMask & (1 << i))
             {
                 uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
-                data.WriteBitInOrder(NULL, bitsOrder);
+                data.WriteBitInOrder(0, bitsOrder);
             }
             else
             {

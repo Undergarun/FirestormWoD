@@ -3374,7 +3374,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     {
         // stealth must be removed at cast starting (at show channel bar)
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth() &&
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) &&
             (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
@@ -4976,7 +4976,7 @@ void Spell::SendSpellGo()
 
     ObjectGuid guid1, guid2, guid6;
     ObjectGuid caster = m_caster->GetGUID();
-    ObjectGuid target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : NULL;
+    ObjectGuid target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : 0;
     ObjectGuid itemGuid = itemTarget ? itemTarget->GetGUID() : 0;
     ObjectGuid itemCaster = m_castItemGUID ? m_castItemGUID : uint64(caster);
     ObjectGuid powerUnit = caster;
@@ -5125,10 +5125,10 @@ void Spell::SendSpellGo()
         data.WriteBitInOrder(transportDst, bitsOrder);
     }
 
-    data.WriteBit(powerUnit != NULL);                       // hasPowerUnitGuid
+    data.WriteBit(powerUnit != 0);                       // hasPowerUnitGuid
     data.WriteBits(hitCount, 24);                           // hit count
 
-    if (powerUnit != NULL)
+    if (powerUnit != 0)
     {
         data.WriteBit(powerUnit[7]);
         data.WriteBit(powerUnit[4]);
@@ -5189,7 +5189,7 @@ void Spell::SendSpellGo()
 
     data.WriteByteSeq(caster[7]);
 
-    if (powerUnit != NULL)
+    if (powerUnit != 0)
     {
         data.WriteByteSeq(powerUnit[3]);
         data.WriteByteSeq(powerUnit[5]);

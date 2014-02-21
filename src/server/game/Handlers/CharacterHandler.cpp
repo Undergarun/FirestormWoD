@@ -949,34 +949,28 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
     // This is Hackypig fix : find a better way
     if (Player* _plr = GetPlayer())
     {
-        Unit::AuraApplicationMap AuraList = _plr->GetAppliedAuras();
-        std::list<AuraPtr> auraModsList;
-        for (Unit::AuraApplicationMap::iterator iter = AuraList.begin(); iter != AuraList.end(); ++iter)
+        std::list<uint32> spellToCast;
+
+        Unit::AuraApplicationMap& auraList = _plr->GetAppliedAuras();
+        for (Unit::AuraApplicationMap::iterator iter = auraList.begin(); iter != auraList.end();)
         {
-            AuraPtr aura = iter->second->GetBase();
-            if (!aura)
+            AuraApplication* aurApp = iter->second;
+            if (!aurApp)
                 continue;
 
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            AuraPtr aura = aurApp->GetBase();
+            if (aura && (aura->HasEffectType(SPELL_AURA_ADD_FLAT_MODIFIER) || aura->HasEffectType(SPELL_AURA_ADD_PCT_MODIFIER)) && aura->GetSpellInfo())
             {
-                if (AuraEffectPtr aurEff = aura->GetEffect(i))
-                {
-                    if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
-                    {
-                        auraModsList.push_back(aura);
-                        break;
-                    }
-                }
+                spellToCast.push_back(aura->GetSpellInfo()->Id);
+                _player->RemoveAura(iter);
             }
+            else
+                ++iter;
         }
 
-        if (!auraModsList.empty())
-            for (auto itr : auraModsList)
-                _plr->RemoveAura(itr->GetSpellInfo()->Id, _plr->GetGUID());
-
-        if (!auraModsList.empty())
-            for (auto itr : auraModsList)
-                _plr->CastSpell(_plr, itr->GetSpellInfo()->Id, true);
+        for (auto id : spellToCast)
+            if (id > 0 && _plr)
+                _plr->CastSpell(_plr, id, true);
     }
 }
 
@@ -2094,7 +2088,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     _player->SetEquipmentSet(index, eqSet);
 
     delete[] itemGuid;
-    itemGuid = NULL;
+    itemGuid = 0;
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
@@ -2202,7 +2196,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     delete[] srcslot;
     srcslot = NULL;
     delete[] itemGuid;
-    itemGuid = NULL;
+    itemGuid = 0;
 }
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)

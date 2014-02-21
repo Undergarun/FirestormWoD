@@ -7493,6 +7493,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
         damage = uint32(target->CountPctFromMaxHealth(damage));
         damage = uint32(damage * TakenTotalMod);
+
+        damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+        damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     }
     else
     {

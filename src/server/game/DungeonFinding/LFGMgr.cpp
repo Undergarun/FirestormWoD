@@ -2139,6 +2139,9 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
                     player->CleanupAfterTaxiFlight();
                 }
 
+                player->SetUnitMovementFlags(0);
+                player->ClearMovementData();
+
                 if (player->TeleportTo(mapid, x, y, z, orientation))
                     // FIXME - HACK - this should be done by teleport, when teleporting far
                     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
@@ -2183,7 +2186,7 @@ void LFGMgr::SendUpdateStatus(Player* player, const LfgUpdateData& updateData)
             queued = true;
             break;
         case LFG_UPDATETYPE_UPDATE_STATUS:
-            join = false;
+            join = true;
             queued = true;
             break;
         case LFG_UPDATETYPE_PROPOSAL_BEGIN:

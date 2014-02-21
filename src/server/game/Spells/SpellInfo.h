@@ -473,7 +473,7 @@ public:
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;
-    bool IsBreakingStealth() const;
+    bool IsBreakingStealth(Unit* m_caster) const;
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
     bool CanBeDarkSimulacrum(Unit* m_caster) const;

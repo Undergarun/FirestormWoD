@@ -502,7 +502,7 @@ enum Opcodes
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0x000,  // 5.0.5 16048
     CMSG_SET_PREFERED_CEMETERY                        = 0x000,  // 5.0.5 16048
     CMSG_SET_RELATIVE_POSITION                        = 0x000,  // 5.0.5 16048
-    CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x000,  // 5.0.5 16048
+    CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x1356, // 5.4.0 17399
     CMSG_SET_SELECTION                                = 0x1B76, // 5.4.0 17399
     CMSG_SET_SKILL_CHEAT                              = 0x000,  // 5.0.5 16048
     CMSG_SET_SPECIALIZATION                           = 0x1104, // 5.4.0 17399
@@ -634,6 +634,7 @@ enum Opcodes
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x1F61, // 5.4.0 17399
     MSG_SET_RAID_DIFFICULTY                           = 0x1F80, // 5.4.0 17399
     MSG_VERIFY_CONNECTIVITY                           = 0x4F57, // 5.4.0 17399
+    CMSG_CLIENT_REPORT_ERROR                          = 0x387,  // 5.4.0 17399
 
     // SMSG
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x82C,  // 5.4.0 17399

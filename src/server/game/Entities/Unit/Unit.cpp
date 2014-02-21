@@ -1272,12 +1272,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     if (damage < 0)
         return;
 
-    if (spellInfo && spellInfo->Id == 48743) // Hack Fix Death Pact - don't suffer from DamageTaken
-    {
-        damageInfo->damage = damage;
-        return;
-    }
-
     Unit* victim = damageInfo->target;
     if (!victim || !victim->isAlive())
         return;
@@ -2481,7 +2475,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid victimGUID = victim ? victim->GetGUID() : NULL;
+    ObjectGuid victimGUID = victim ? victim->GetGUID() : 0;
     ObjectGuid attackerGUID = GetGUID();
 
     data.WriteBit(victimGUID[0]);
@@ -16583,6 +16577,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         // only auras that has triggered spell should proc from fully absorbed damage
         SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
+        if (!spellProto)
+            continue;
+        
         if ((procExtra & PROC_EX_ABSORB && isVictim) || ((procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG) && spellProto->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
         {
             bool triggerSpell = false;

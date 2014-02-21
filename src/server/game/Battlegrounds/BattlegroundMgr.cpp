@@ -869,7 +869,7 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
 void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
 {
     data->Initialize(SMSG_PLAY_SOUND, 4 + 8);
-    ObjectGuid guid = NULL;
+    ObjectGuid guid = 0;
     
     uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
     data->WriteBitInOrder(guid, bits);

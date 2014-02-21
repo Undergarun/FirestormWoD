@@ -2218,6 +2218,13 @@ class Unit : public WorldObject
         uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
         void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
+        void ClearMovementData()
+        {
+            m_movementInfo.Alive32 = 0;
+            m_movementInfo.hasFallData = false;
+            m_movementInfo.hasFallDirection = false;
+        }
+
         void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
         void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
         uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }

@@ -1447,6 +1447,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_EQUIP:
         {
+            bool hasDelete = false;
             ObjectList* targets = GetTargets(e, unit);
             if (!targets)
                 break;
@@ -1463,6 +1464,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);
                             delete targets;
+                            hasDelete = true;
                             break;
                         }
                         npc->SetCurrentEquipmentId(e.action.equip.entry);
@@ -1484,6 +1486,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, slot[2]);
                 }
             }
+
+            if (hasDelete)
+                break;
 
             delete targets;
             break;
