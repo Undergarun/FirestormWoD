@@ -9481,7 +9481,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
                 return false;
 
-
             break;
         }
         case 49572: // Shadow infusion

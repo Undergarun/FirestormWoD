@@ -729,7 +729,9 @@ class spell_warr_raging_blow : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (_player->HasAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                    {
                         if (AuraPtr ragingBlow = _player->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
                         {
                             int32 stacks = ragingBlow->GetStackAmount();
@@ -737,7 +739,9 @@ class spell_warr_raging_blow : public SpellScriptLoader
                                 _player->RemoveAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW);
                             else
                                 ragingBlow->SetStackAmount(stacks - 1);
-                         }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -1137,9 +1141,11 @@ class spell_warr_thunder_clap : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
                     {
-                         _player->CastSpell(target, WARRIOR_SPELL_WEAKENED_BLOWS, true);
+                        _player->CastSpell(target, WARRIOR_SPELL_WEAKENED_BLOWS, true);
+
                         // Glyph of Resonating Power - 58356, increases damage the damage and cooldown by 50%
                         if (_player->HasAura(58356))
                         {
@@ -1147,6 +1153,7 @@ class spell_warr_thunder_clap : public SpellScriptLoader
                             _player->ToPlayer()->AddSpellCooldown(6343, 0, time(NULL) + 12);
                         }
                     }
+                }
             }
 
             void Register()
@@ -1277,7 +1284,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
     new spell_warr_mocking_banner();
-    new spell_warr_raging_blow_proc()
+    new spell_warr_raging_blow_proc();
     new spell_warr_raging_blow();
     new spell_warr_sword_and_board();
     new spell_warr_mortal_strike();

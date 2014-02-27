@@ -2112,65 +2112,65 @@ class npc_training_dummy : public CreatureScript
 
 class npc_fire_elemental : public CreatureScript
 {
-public:
-    npc_fire_elemental() : CreatureScript("npc_fire_elemental") { }
+    public:
+        npc_fire_elemental() : CreatureScript("npc_fire_elemental") { }
 
-    struct npc_fire_elementalAI : public ScriptedAI
-    {
-        npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 FireNova_Timer;
-        uint32 FireShield_Timer;
-        uint32 FireBlast_Timer;
-
-        void Reset()
+        struct npc_fire_elementalAI : public ScriptedAI
         {
-            FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
-            FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
-            FireShield_Timer = 0;
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-        }
+            npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
+            uint32 FireNova_Timer;
+            uint32 FireShield_Timer;
+            uint32 FireBlast_Timer;
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (FireShield_Timer <= diff)
+            void Reset()
             {
-                DoCast(me->getVictim(), SPELL_FIRESHIELD);
-                FireShield_Timer = 2 * IN_MILLISECONDS;
-            }
-            else
-                FireShield_Timer -= diff;
-
-            if (FireBlast_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FIREBLAST);
-                FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
-            }
-            else
-                FireBlast_Timer -= diff;
-
-            if (FireNova_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FIRENOVA);
                 FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                FireShield_Timer = 0;
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
-            else
-                FireNova_Timer -= diff;
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (FireShield_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), 13376);
+                    FireShield_Timer = 2 * IN_MILLISECONDS;
+                }
+                else
+                    FireShield_Timer -= diff;
+
+                if (FireBlast_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), 57984);
+                    FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                }
+                else
+                    FireBlast_Timer -= diff;
+
+                if (FireNova_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), 12470);
+                    FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                }
+                else
+                    FireNova_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
  
-     CreatureAI *GetAI(Creature* creature) const
-    {
-        return new npc_fire_elementalAI(creature);
-    }
+        CreatureAI *GetAI(Creature* creature) const
+        {
+            return new npc_fire_elementalAI(creature);
+        }
 };
 
 /*######
