@@ -1284,7 +1284,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
     new spell_warr_mocking_banner();
-    new spell_warr_raging_blow_proc();
+    new spell_warr_raging_blow_proc()
     new spell_warr_raging_blow();
     new spell_warr_sword_and_board();
     new spell_warr_mortal_strike();
