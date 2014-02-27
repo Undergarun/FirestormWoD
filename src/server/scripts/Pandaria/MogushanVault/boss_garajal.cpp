@@ -652,6 +652,7 @@ class mob_soul_cutter : public CreatureScript
                         me->DespawnOrUnsummon();
 
                 events.Update(diff);
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch(eventId)
@@ -664,6 +665,9 @@ class mob_soul_cutter : public CreatureScript
 
                             while (!hasCast)
                             {
+                                if (playerList.empty())
+                                    break;
+
                                 for (auto player : playerList)
                                 {
                                     if (urand(0, 1))
@@ -673,14 +677,17 @@ class mob_soul_cutter : public CreatureScript
                                     }
                                 }
                             }
+
                             if (IsHeroic())
                                 events.ScheduleEvent(EVENT_SOUL_EXPLOSION, 30000);
+
                             break;
                         }
                         default:
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };

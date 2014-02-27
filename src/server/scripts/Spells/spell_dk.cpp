@@ -1894,7 +1894,7 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-				    if (!_player->isInCombat() && _player->HasAura(DK_SPELL_GLYPH_OF_HORN_OF_WINTER))
+                    if (!_player->isInCombat() && _player->HasAura(DK_SPELL_GLYPH_OF_HORN_OF_WINTER))
                         _player->CastSpell(_player, DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT, true);
             }
 			
