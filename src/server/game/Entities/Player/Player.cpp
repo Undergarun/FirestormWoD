@@ -21149,7 +21149,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
         stmt->setUInt8(index++, m_currentPetSlot);
-        stmt->setUInt8(index++, m_petSlotUsed);
+        stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
     }
     else
@@ -21275,7 +21275,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
         stmt->setUInt8(index++, m_currentPetSlot);
-        stmt->setUInt8(index++, m_petSlotUsed);
+        stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
 
         stmt->setUInt8(index++, IsInWorld() ? 1 : 0);

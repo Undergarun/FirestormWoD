@@ -53,7 +53,10 @@ void Totem::Update(uint32 time)
 
 void Totem::InitStats(uint32 duration)
 {
-    uint32 spellId1, spellId2, spellId3, spellId4;
+    uint32 spellId1 = 0;
+    uint32 spellId2 = 0;
+    uint32 spellId3 = 0;
+    uint32 spellId4 = 0;
 
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (m_owner->GetTypeId() == TYPEID_PLAYER
@@ -79,8 +82,6 @@ void Totem::InitStats(uint32 duration)
         data.WriteByteSeq(totemGuid[5]);
 
         m_owner->ToPlayer()->SendDirectMessage(&data);
-
-        spellId1 = spellId2 = spellId3 = spellId4 = 0;
 
         // set display id depending on caster's race
         SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
