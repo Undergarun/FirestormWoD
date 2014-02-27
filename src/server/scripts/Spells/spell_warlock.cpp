@@ -2954,6 +2954,7 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         }
 };
 
+// Unstable Affliction - 30108
 class spell_warl_unstable_affliction : public SpellScriptLoader
 {
     public:
@@ -2975,7 +2976,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                     {
-                        int32 damage = aurEff->GetAmount() * 7;
+                        int32 damage = aurEff->GetAmount() * 8;
                         // backfire damage and silence
                         caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
                     }

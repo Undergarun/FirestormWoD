@@ -1,0 +1,14 @@
+UPDATE `creature_template` SET `ScriptName`='npc_fire_elemental' WHERE `entry`=15438;
+INSERT INTO `spell_script_names` VALUES (85288,'spell_warr_raging_blow');
+INSERT INTO `spell_linked_spell` VALUES (102280, 768, 0, 'Displacer Beast');
+UPDATE `creature_template` SET `unit_flags`='524' WHERE `entry`='60849';
+INSERT INTO `spell_bonus_data` VALUES (132463, 0, 0, 1, 'Monk - Chi Wave');
+INSERT INTO `spell_bonus_data` VALUES (116995, 1.8, 0, 0, 0, 'Monk - Surging Mist');
+INSERT INTO `spell_script_names` VALUES (115315, 'spell_monk_black_ox_statue');
+INSERT INTO `spell_script_names` (59336, 'spell_dk_glyph_of_corpse_explosion');
+INSERT INTO `spell_script_names` (57330, 'spell_dk_glyph_of_horn_of_winter');
+UPDATE `gameobject_template` SET `data1`='11602', `data6`='0', `data0`='99' WHERE `entry`='187655';
+UPDATE `spell_bonus_data` SET `dot_bonus`='0.207' where `entry`='139';
+DELETE FROM `spell_script_names` WHERE `entry`='114154';
+UPDATE `spell_bonus_data` SET `direct_bonus`='1' WHERE `entry`='51505';
+UPDATE `spell_bonus_data` SET `direct_bonus`='1.36' WHERE `entry`='25912';

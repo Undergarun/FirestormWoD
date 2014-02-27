@@ -6204,8 +6204,8 @@ void Player::BuildPlayerRepop()
         CastSpell(this, 20584, true);
     CastSpell(this, 8326, true);
 
-    if (HasAura(84559))
-        CastSpell(this, 84559, true); // The Quick and the Dead
+    if (GetGuild() && GetGuild()->GetLevel() >= 15 && !InBattleground() && !InArena())
+         CastSpell(this, 84559, true); // The Quick and the Dead
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
@@ -6266,8 +6266,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
-    if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559))
-        RemoveAurasDueToSpell(84559); // The Quick and the Dead
+    if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559) || HasAura(83950))
+         RemoveAurasDueToSpell(84559); // The Quick and the Dead
     if (getClass() == CLASS_MONK && HasAura(131562))
         RemoveAurasDueToSpell(131562);
 
@@ -27007,7 +27007,7 @@ bool Player::isTotalImmunity()
 
 
                                 // inquisition,         Consecration,       Repentir
-#define SPELL_PAL_ATTACK_LIST   35395,                  48819,              20066
+#define SPELL_PAL_ATTACK_LIST   35395,                  26573,              20066
                                 // Eclair Lumineux,     Lumiere sacree
 #define SPELL_PAL_FRIEND_LIST   48785,                  48782,              48785
 

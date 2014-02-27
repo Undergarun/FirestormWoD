@@ -2092,8 +2092,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 break;
             }
             case 115072:// Expel Harm
+            case 147489:// Expel Harm with glyph of Targeted Expulsion
             {
-                if (caster && caster->getClass() == CLASS_MONK && addhealth && m_spellInfo->Id == 115072)
+                if (caster && caster->getClass() == CLASS_MONK && addhealth && (m_spellInfo->Id == 115072 || m_spellInfo->Id == 147489))
                 {
                     addhealth = Spell::CalculateMonkMeleeAttacks(m_caster, 7, 14);
                     addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
@@ -2258,6 +2259,10 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
                 damage = 20;
                 m_caster->RemoveAurasDueToSpell(32216);
             }
+            break;
+        case 137562:// Nimble Brew
+            if (!m_caster->HasAura(146952)) // Glyph of Nimble Brew
+                return;
             break;
         default:
             break;
@@ -4401,10 +4406,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Deadly Throw - Interrupt spell only if used with 5 combo points
+    // Deadly Throw - Interrupt spell only if used with 3 combo points
     if (m_spellInfo->Id == 26679)
         if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            if (m_originalCaster->ToPlayer()->GetComboPoints() < 5)
+            if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
                 return;
 
     // TODO: not all spells that used this effect apply cooldown at school spells

@@ -2207,15 +2207,23 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (AuraApplication* aura = _player->GetAuraApplication(SPELL_MONK_TIGEREYE_BREW_STACKS, _player->GetGUID()))
+                        int32 stacks = 0;
+                        if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                         {
-                            int32 stackAmount = aura->GetBase()->GetStackAmount() * 2;
+                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
+                            stacks = tigereyeBrewStacks->GetStackAmount();
+
+                            if (stacks >= 10)
+                                effectAmount = 60;
 
                             AuraApplication* tigereyeBrew = _player->GetAuraApplication(SPELL_MONK_TIGEREYE_BREW, _player->GetGUID());
                             if (tigereyeBrew)
-                                tigereyeBrew->GetBase()->GetEffect(0)->ChangeAmount(stackAmount);
+                                tigereyeBrew->GetBase()->GetEffect(0)->ChangeAmount(effectAmount);
 
-                            _player->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
+                            if (stacks >= 10)
+                                tigereyeBrewStacks->SetStackAmount(stacks - 10);
+                            else
+                                _player->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
                         }
                     }
                 }

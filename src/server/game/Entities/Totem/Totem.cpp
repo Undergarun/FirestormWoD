@@ -143,6 +143,12 @@ void Totem::InitStats(uint32 duration)
 
     SetLevel(m_owner->getLevel());
 
+    // Totems must receive stamina from owner
+    if (GetEntry() == STONECLAW_TOTEM_ENTRY)
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
+    if (m_owner->HasAura(63298))
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.05f);
+
     if (spellId1)
         m_owner->CastSpell(m_owner, spellId1, true); // Fake Fire Totem
     if (spellId2)

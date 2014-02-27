@@ -201,7 +201,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             if (spellproto->SpellFamilyFlags[0] & 0x100000)
                 return DIMINISHING_LIMITONLY;
             // Turn Evil
-            else if ((spellproto->SpellFamilyFlags[1] & 0x804000) && spellproto->SpellIconID == 309)
+            else if (spellproto->Id == 10326 || spellproto->Id == 145067)
                 return DIMINISHING_FEAR;
             break;
         }
@@ -314,6 +314,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
             // Repentance - limit to 6 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x4)
                 return 6 * IN_MILLISECONDS;
+             // Turn Evil - limit to 8 seconds in PvP
+            else if (spellproto->Id == 145067 || spellproto->Id == 10326)
+                 return 8 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -331,14 +334,12 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
         }
         case SPELLFAMILY_MONK:
         {
-            switch (spellproto->Id)
-            {
-                case 116095:// Disable - limit to 4 seconds in PvP
-                    return 4 * IN_MILLISECONDS;
-                default:
-                    break;
-            }
-
+            // Disable (reduce movement speed) - limit to 8 seconds in PvP
+            if (spellproto->Id == 116095)
+                return 8 * IN_MILLISECONDS;
+            // Disable (root) - limit to 4 seconds in PvP
+            else if (spellproto->Id == 116706)
+                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
@@ -3693,6 +3694,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 31935: // Avenger's Shield
                     spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                     break;
+                case 498:   // Divine Protection
+                case 30823: // Shamanistic Rage
+                case 108416:// Sacrificial Pact
+                    spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                    break;
+                case 81333: // Might of the Frozen Wastes
+                    spellInfo->Effects[1].BasePoints = 30;
+                    break;
                 case 44203: // Tranquility (triggered)
                     spellInfo->MaxAffectedTargets = 5;
                     break;
@@ -4046,6 +4055,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                     break;
                 case 131116:// Allow to use Raging Blow
+                    spellInfo->StackAmount = 2;
+                    break;
                 case 108381:// Dream of Cenarius (first proc)
                     spellInfo->ProcCharges = 2;
                     break;

@@ -6784,8 +6784,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (procSpell->Id != 5185)
                         return false;
 
-                    // Cooldown of Swiftmen reduced by 1s
-                    ToPlayer()->ReduceSpellCooldown(18562, -1000);
+                    // Cooldown of Swiftmen reduced by 3s
+                    ToPlayer()->ReduceSpellCooldown(18562, -3000);
                     break;
                 }
                 case 108373:// Dream of Cenarius
@@ -9478,6 +9478,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!roll_chance_i(15))
                 return false;
 
+            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
+                return false;
+
+
             break;
         }
         case 49572: // Shadow infusion
@@ -9525,6 +9529,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (procSpell->Id != 23922)
+                return false;
+
+            break;
+        }
+        case 57954: // Glyph of Fire From the Heavens
+        {
+            if (!procSpell)
+                return false;
+
+            if ((procSpell->Id != 24275 && procSpell->Id != 20271) || procEx != PROC_EX_CRITICAL_HIT)
                 return false;
 
             break;
@@ -12219,6 +12233,7 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                             case 6353:  // Soul Fire
                             case 104027:// Soul Fire (Metamorphosis)
                             case 116858:// Chaos Bolt ...
+                            case 31117: // Unstable Affliction dispell
                                 // ... are always critical hit
                                 return 100.0f;
                             // Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
@@ -12959,7 +12974,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Sudden Death - 29725
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == BASE_ATTACK || attType == OFF_ATTACK || spellProto))
-        if (roll_chance_i(20))
+        if (roll_chance_i(10))
             CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
 
     // Custom MoP Script
@@ -16412,7 +16427,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 {
                     ToPlayer()->AddComboPoints(target, 1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
-                    CastSpell(this, 119962, true);
+                    CastSpell(this, 60503, true);
                 }
             }
         }
@@ -16910,9 +16925,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             i->aura->DropCharge();
         }
 
-        if (prepare && useCharges && takeCharges && ((i->aura->GetId() == 119962 && procSpell && procSpell->Id == 7384) // Custom MoP Script - Hack Fix for allow Overpower
-            || (i->aura->GetId() == 131116 && procSpell && procSpell->Id == 96103)))                                    // Hack Fix for allow Raging Blow
-            i->aura->DropCharge();
 
         i->aura->CallScriptAfterProcHandlers(aurApp, eventInfo);
 

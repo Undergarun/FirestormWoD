@@ -3293,7 +3293,7 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
         case 79683: // Arcane Missiles !
         case 93400: // Shooting Stars
         case 114637:// Bastion of Glory
-        case 119962:// Overpower !
+        case 60503:// Overpower !
         case 121153:// Blindside
         case 131116:// Raging Blow !
             return true;
@@ -3346,6 +3346,7 @@ bool SpellInfo::IsWrongPrecastSpell(SpellInfo const* m_preCastSpell) const
                 return true;
             break;
         case 115072:// Expel Harm
+        case 147489:// Expel Harm with glyph of Targeted Expulsion
             if (m_preCastSpell->Id == 101545)
                 return true;
             break;

@@ -1858,7 +1858,11 @@ class spell_dru_ravage : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, SPELL_DRUID_INFECTED_WOUNDS, true);
+                    {
+                         _player->CastSpell(target, SPELL_DRUID_INFECTED_WOUNDS, true);
+                        if (_player->HasAura(SPELL_DRUID_STAMPEDE))
+                            _player->RemoveAura(SPELL_DRUID_STAMPEDE);
+                    }
             }
 
             void Register()
