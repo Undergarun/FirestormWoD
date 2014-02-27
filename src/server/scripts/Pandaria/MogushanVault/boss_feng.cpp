@@ -826,6 +826,12 @@ class mob_siphon_shield : public CreatureScript
                             std::list<Player*> potenTargets;
                             GetPlayerListInGrid(potenTargets, me, 150.0f);
 
+                            if (potenTargets.empty())
+                            {
+                                events.ScheduleEvent(EVENT_SHIELD_CHECKSOULS, 10000);
+                                break;
+                            }
+
                             uint8 maxTargets = Is25ManRaid() ? 10 : 5;
 
                             // Selecting targets
@@ -861,6 +867,12 @@ class mob_siphon_shield : public CreatureScript
                         }
                         case EVENT_SHIELD_BACK:
                         {
+                            if (!pInstance)
+                            {
+                                events.ScheduleEvent(EVENT_SHIELD_DESTROY, 200);
+                                break;
+                            }
+
                             if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
                             {
                                 // Making Feng moves his arm
@@ -875,6 +887,9 @@ class mob_siphon_shield : public CreatureScript
                         }
                         case EVENT_SHIELD_DESTROY:
                         {
+                            if (!pInstance)
+                                break;
+
                             if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
                             {
                                 // Become invisible
