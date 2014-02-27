@@ -116,11 +116,12 @@ enum eAddActions
 {
     // Bosses action
     ACTION_ACTIVATE             = 0,
+    ACTION_REACHHOME            = 1,
 
     // Adds actions
-    ACTION_LAND                 = 1,
-    ACTION_COSMECTIC            = 2,
-    ACTION_MOGU_ACTIVATE        = 8
+    ACTION_LAND                 = 2,
+    ACTION_COSMECTIC            = 3,
+    ACTION_MOGU_ACTIVATE        = 4,
 };
 
 enum eDisplayID
@@ -219,9 +220,9 @@ class boss_jin_qin_xi : public CreatureScript
     public:
         boss_jin_qin_xi() : CreatureScript("boss_jin_qin_xi") {}
 
-        struct boss_jin_qin_xiAI : public ScriptedAI
+        struct boss_jin_qin_xiAI : public BossAI
         {
-            boss_jin_qin_xiAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+            boss_jin_qin_xiAI(Creature* creature) : BossAI(creature, DATA_WILL_OF_EMPEROR), summons(creature)
             {
                 pInstance = creature->GetInstanceScript();
                 isActive = false;
@@ -240,6 +241,7 @@ class boss_jin_qin_xi : public CreatureScript
             uint8 janHitCount;
             uint8 qinHitCount;
             bool achievement;
+            Position homePos;
 
             uint8 devastatingComboPhase;
             uint64 victimWithMagneticArmor;
@@ -264,6 +266,7 @@ class boss_jin_qin_xi : public CreatureScript
                 moveTurn = me->GetSpeed(MOVE_TURN_RATE);
                 moveWalk = me->GetSpeed(MOVE_WALK);
                 moveRun  = me->GetSpeed(MOVE_RUN);
+                homePos  = me->GetHomePosition();
                 
                 victimWithMagneticArmor = 0;
 
@@ -279,6 +282,22 @@ class boss_jin_qin_xi : public CreatureScript
                 janHitCount = 0;
                 qinHitCount = 0;
 
+            }
+
+            void JustReachedHome()
+            {
+                _JustReachedHome();
+
+                me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                events.Reset();
+                summons.DespawnAll();
+
+                if (Creature* otherBoss = getOtherBoss())
+                    otherBoss->AI()->DoAction(ACTION_REACHHOME);
+
+                if (pInstance)
+                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -348,8 +367,11 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEVAST_ARC_2);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARC_VISUAL);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_JAN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_QIN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ENERGY_OF_CREATION);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_JAN);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_QIN);
 
                 pInstance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
             }
@@ -364,7 +386,6 @@ class boss_jin_qin_xi : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ACTIVATE:
-                    {
                         if (isActive)
                             return;
 
@@ -373,9 +394,7 @@ class boss_jin_qin_xi : public CreatureScript
                         events.ScheduleEvent(EVENT_BOSS_CAST_SKYBEAM, 90000);
 
                         // 5 or 10 attacks, each combo is made of 2 phases - Using 10 by default
-                        maxCombo = 10;
-                        if (pInstance)
-                            maxCombo = pInstance->instance->IsHeroic() ? 10 : 20;
+                        maxCombo = IsHeroic() ? 20 : 10;
                         devastatingComboPhase = 0;
                         
                         // --- Summoning adds ---
@@ -385,7 +404,10 @@ class boss_jin_qin_xi : public CreatureScript
                         events.ScheduleEvent(EVENT_DEVASTATING_COMBO, 115000);
                         events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 112000);
                         break;
-                    }
+                    case ACTION_REACHHOME:
+                        me->GetMotionMaster()->MovePoint(9, homePos);
+                        me->SetReactState(REACT_PASSIVE);
+                        break;
                 }
             }
 
@@ -551,6 +573,13 @@ class boss_jin_qin_xi : public CreatureScript
                             // reset oppotunistic strikes counters
                             janHitCount = 0;
                             qinHitCount = 0;
+
+                            // Stop looking after victim
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
+                            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                             
                             // Emptying player list from previous combo
                             playerList.clear();
@@ -617,8 +646,16 @@ class boss_jin_qin_xi : public CreatureScript
                             // Ending the attack by reaching a pair number
                             ++devastatingComboPhase;
 
+                            std::list<Player*> aliveList;
+                            std::list<Player*> plyrList;
+                            aliveList.clear();
+                            GetPlayerListInGrid(plyrList, me, 500.0f);
+                            for (auto plyr : plyrList)
+                                if (plyr->isAlive())
+                                    aliveList.push_back(plyr);
+
                             // Scheduling
-                            if (devastatingComboPhase < maxCombo)
+                            if (devastatingComboPhase < maxCombo && !aliveList.empty())
                             {
                                 // Adding Growing Opportunity for remaining players
                                 for (auto playerGuid : playerList)
@@ -631,6 +668,14 @@ class boss_jin_qin_xi : public CreatureScript
                             }
                             else
                             {
+                                if (aliveList.empty())
+                                {
+                                    devastatingComboPhase = 0;
+                                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
+                                    DoAction(ACTION_REACHHOME);
+                                    if (Creature* otherBoss = getOtherBoss())
+                                        otherBoss->AI()->DoAction(ACTION_REACHHOME);
+                                }
                                 // All combo have been done, and each player who has been hit is away from playerList
                                 // If players remains in playerList, they gain Opportunistic Strike
                                 for (auto guid: playerList)
@@ -641,6 +686,13 @@ class boss_jin_qin_xi : public CreatureScript
                                 me->SetSpeed(MOVE_TURN_RATE, moveTurn, false);
                                 me->SetSpeed(MOVE_WALK, moveWalk, false);
                                 me->SetSpeed(MOVE_RUN, moveRun, false);
+                                // Reset attacking to normal
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+                                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+                                
 
                                 events.ScheduleEvent(EVENT_DEVASTATING_COMBO, urand(20000, 30000));
                             }
@@ -723,6 +775,13 @@ class mob_woe_add_generic : public CreatureScript
                 
                 // Wait before casting
                 events.ScheduleEvent(EVENT_CAST_SKYBEAM, 1000);
+
+                if (me->GetEntry() == NPC_EMPEROR_COURAGE || me->GetEntry() == NPC_EMPEROR_RAGE)
+                {
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_THREAT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_PULL, true);
+                }
             }
 
             void MovementInform(uint32 uiType, uint32 id)
@@ -1359,34 +1418,6 @@ class spell_magnetized_jan : public SpellScriptLoader
         }
 };
 
-//  Terracotta spawn visual skybeam small - 118063
-class spell_terracotta_skybeam : public SpellScriptLoader
-{
-    public:
-        spell_terracotta_skybeam() : SpellScriptLoader("spell_terracotta_skybeam") { }
-
-        class spell_terracotta_skybeam_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_terracotta_skybeam_AuraScript);
-
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->AddAura(SPELL_TERRACOTTA_SKYBEAM_S, caster);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_terracotta_skybeam_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_terracotta_skybeam_AuraScript();
-        }
-};
-
 // Arc Left - 116968
 class spell_arc_visual : public SpellScriptLoader
 {
@@ -1494,76 +1525,6 @@ class spell_impeding_thrust : public SpellScriptLoader
         }
 };
 
-// Titan gas - 116779
-class spell_titan_gas_main : public SpellScriptLoader
-{
-    public:
-        spell_titan_gas_main() : SpellScriptLoader("spell_titan_gas_main") { }
-
-        class spell_titan_gas_main_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_titan_gas_main_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    std::list<Player*> targetList;
-                    GetPlayerListInGrid(targetList, caster, 1000.0f);
-
-                    for (auto player : targetList)
-                    {
-                        caster->CastSpell(player, SPELL_TITAN_GAS_AURA, false);
-                        caster->CastSpell(player, SPELL_TITAN_GAS_AURA2, false);
-                        caster->CastSpell(player, 116782, false);
-                    }
-
-                    std::list<Creature*> focus;
-                    std::list<Creature*> tmpList;
-
-                    GetCreatureListWithEntryInGrid(focus, caster, NPC_EMPEROR_STRENGHT, 1000.0f);
-
-                    tmpList.clear();
-                    GetCreatureListWithEntryInGrid(tmpList, caster, NPC_EMPEROR_RAGE, 1000.0f);
-                    for (auto mob : tmpList)
-                        focus.push_back(mob);
-
-                    tmpList.clear();
-                    GetCreatureListWithEntryInGrid(focus, caster, NPC_EMPEROR_COURAGE, 1000.0f);
-                    for (auto mob : tmpList)
-                        focus.push_back(mob);
-
-                    tmpList.clear();
-                    GetCreatureListWithEntryInGrid(focus, caster, NPC_TITAN_SPARK, 1000.0f);
-                    for (auto mob : tmpList)
-                        focus.push_back(mob);
-
-                    if (Creature* jan = caster->GetInstanceScript()->instance->GetCreature(caster->GetInstanceScript()->GetData64(NPC_JAN_XI)))
-                        focus.push_back(jan);
-                    if (Creature* qin = caster->GetInstanceScript()->instance->GetCreature(caster->GetInstanceScript()->GetData64(NPC_QIN_XI)))
-                        focus.push_back(qin);
-
-                    for (auto creature : focus)
-                    {
-                        caster->CastSpell(creature, SPELL_TITAN_GAS_AURA, false);
-                        caster->CastSpell(creature, SPELL_TITAN_GAS_AURA2, false);
-                        caster->CastSpell(creature, 116782, false);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_titan_gas_main_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_titan_gas_main_AuraScript();
-        }
-};
-
 // Titan gas - 116803 - triggered by Titan Gas (116779)
 class spell_titan_gas : public SpellScriptLoader
 {
@@ -1620,6 +1581,7 @@ class spell_titan_gas2 : public SpellScriptLoader
         }
 };
 
+// Energizing smash - 116550
 class spell_energizing_smash : public SpellScriptLoader
 {
     public:
@@ -1782,7 +1744,6 @@ void AddSC_boss_will_of_emperor()
     new mob_woe_titan_spark();
     new mob_general_purpose_bunnyJMF();
     new mob_ancient_mogu_machine();
-    new spell_terracotta_skybeam();
     new spell_cosmetic_lightning();
     new spell_terracota_spawn();
     new spell_devastating_arc();
@@ -1790,7 +1751,6 @@ void AddSC_boss_will_of_emperor()
     new spell_impeding_thrust();
     new spell_magnetized_jan();
     new spell_magnetized_qin();
-    new spell_titan_gas_main();
     new spell_titan_gas();
     new spell_titan_gas2();
     new spell_energizing_smash();

@@ -401,7 +401,6 @@ class boss_spirit_kings_controler : public CreatureScript
                         if (nextSpirit >= 4)
                         {
                             pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
-                            _JustDied();
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
 
                             for (auto entry: spiritKingsEntry)
@@ -418,6 +417,13 @@ class boss_spirit_kings_controler : public CreatureScript
                                     if (Unit* killer = spirit->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
                                         killer->Kill(spirit);
                                 }
+
+                                // Removing Undying Shadows
+                                std::list<Creature*> shadList;
+                                GetCreatureListWithEntryInGrid(shadList, me, NPC_UNDYING_SHADOW, 300.0f);
+
+                                for (auto shadow : shadList)
+                                    shadow->DespawnOrUnsummon();
                             }
 
                             if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
@@ -578,47 +584,16 @@ class boss_spirit_kings : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_QIANG:
-                        DoAction(ACTION_FIRST_FIGHT);
-                        events.ScheduleEvent(EVENT_FLANKING_MOGU,       40000);
-                        events.ScheduleEvent(EVENT_MASSIVE_ATTACK,      3500);
-                        events.ScheduleEvent(EVENT_ANNIHILATE,          urand(15000, 20000));
-                        if (IsHeroic())
-                            events.ScheduleEvent(EVENT_IMPERVIOUS_SHIELD, 50000);
+                        // DoAction(ACTION_FIRST_FIGHT);
                         SetEquipmentSlots(false, EQUIP_QIANG_POLEARM, 0, EQUIP_NO_CHANGE);
-
-                        if (_introQiangDone)
-                            me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        else
-                            me->AddAura(SPELL_ACTIVATION_VISUAL, me);
-
                         break;
                     case NPC_SUBETAI:
-                        events.ScheduleEvent(EVENT_PILLAGE,             30000);
-                        events.ScheduleEvent(EVENT_VOLLEY_1,            urand(15000, 20000));
-                        events.ScheduleEvent(EVENT_RAIN_OF_ARROWS,      45000);
-                        if (IsHeroic())
-                            events.ScheduleEvent(EVENT_SLEIGHT_OF_HAND, 50000);
                         SetEquipmentSlots(false, EQUIP_SUBETAI_SWORD, EQUIP_SUBETAI_SWORD, EQUIP_SUBETAI_BOW);
                         break;
                     case NPC_ZIAN:
-                        events.ScheduleEvent(EVENT_UNDYING_SHADOWS,     30000);
-                        events.ScheduleEvent(EVENT_SHADOW_BLAST,        15000);
-                        events.ScheduleEvent(EVENT_CHARGED_SHADOWS,     10000);
-                        if (IsHeroic())
-                            events.ScheduleEvent(EVENT_SHIELD_OF_DARKNESS, 50000);
                         SetEquipmentSlots(false, EQUIP_ZIAN_STAFF, 0, EQUIP_NO_CHANGE);
                         break;
                     case NPC_MENG:
-                        events.ScheduleEvent(EVENT_MADDENING_SHOUT,     21000);
-                        events.ScheduleEvent(EVENT_CRAZED,              1000);
-                        events.ScheduleEvent(EVENT_CRAZY_THOUGHT,       10000);
-                        if (IsHeroic())
-                            events.ScheduleEvent(EVENT_DELIRIOUS,       50000);
-                        me->RemoveAurasDueToSpell(SPELL_CRAZED);
-                        me->RemoveAurasDueToSpell(SPELL_COWARDICE);
-                        me->setPowerType(POWER_RAGE);
-                        me->SetPower(POWER_RAGE, 0);
-                        break;
                     default:
                         break;
                 }
@@ -676,15 +651,43 @@ class boss_spirit_kings : public CreatureScript
                 {
                     case NPC_ZIAN:
                         Talk(ZIAN_AGGRO);
+                        events.ScheduleEvent(EVENT_UNDYING_SHADOWS,     30000);
+                        events.ScheduleEvent(EVENT_SHADOW_BLAST,        15000);
+                        events.ScheduleEvent(EVENT_CHARGED_SHADOWS,     10000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_SHIELD_OF_DARKNESS, 50000);
                         break;
                     case NPC_MENG:
                         Talk(MENG_AGGRO);
+                        events.ScheduleEvent(EVENT_MADDENING_SHOUT,     21000);
+                        events.ScheduleEvent(EVENT_CRAZED,              1000);
+                        events.ScheduleEvent(EVENT_CRAZY_THOUGHT,       10000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_DELIRIOUS,       50000);
+                        me->RemoveAurasDueToSpell(SPELL_CRAZED);
+                        me->RemoveAurasDueToSpell(SPELL_COWARDICE);
+                        me->setPowerType(POWER_RAGE);
+                        me->SetPower(POWER_RAGE, 0);
                         break;
                     case NPC_QIANG:
                         Talk(QIANG_AGGRO);
+                        events.ScheduleEvent(EVENT_FLANKING_MOGU,       40000);
+                        events.ScheduleEvent(EVENT_MASSIVE_ATTACK,      3500);
+                        events.ScheduleEvent(EVENT_ANNIHILATE,          urand(15000, 20000));
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_IMPERVIOUS_SHIELD, 50000);
+                        if (_introQiangDone)
+                            me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
+                        else
+                            me->AddAura(SPELL_ACTIVATION_VISUAL, me);
                         break;
                     case NPC_SUBETAI:
                         Talk(SUBETAI_AGGRO);
+                        events.ScheduleEvent(EVENT_PILLAGE,             30000);
+                        events.ScheduleEvent(EVENT_VOLLEY_1,            urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_RAIN_OF_ARROWS,      45000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_SLEIGHT_OF_HAND, 50000);
                         break;
                     default:
                         break;
@@ -712,6 +715,10 @@ class boss_spirit_kings : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void JustDied(Unit* killer)
+            {
             }
 
             void JustSummoned(Creature* summon)
@@ -947,7 +954,7 @@ class boss_spirit_kings : public CreatureScript
                             // While in Cowardice personality, Zian is Feared.
                             if (shadowCount < maxShadowCount) // Max 3 undying shadow during the fight
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 {
                                     me->CastSpell(target, SPELL_UNDYING_SHADOWS, false);
                                     Talk(ZIAN_SPELL);

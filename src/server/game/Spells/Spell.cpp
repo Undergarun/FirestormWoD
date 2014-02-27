@@ -4956,6 +4956,10 @@ void Spell::SendSpellGo()
         && m_spellPowerData->powerType != POWER_HEALTH)
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    // Hack fix to avoid wow error
+    if (m_spellInfo->Id == 116803 || m_spellInfo->Id == 118327)
+        castFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
