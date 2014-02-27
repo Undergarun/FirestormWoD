@@ -49,7 +49,7 @@
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
     Opcodes opcode = DropHighBytes(packet->GetOpcode());
-    OpcodeHandler const* opHandle = opcodeTable[opcode];
+    OpcodeHandler const* opHandle = opcodeTable[WOW_CLIENT][opcode];
 
     //let's check if our opcode can be really processed in Map::Update()
     if (opHandle->packetProcessing == PROCESS_INPLACE)
@@ -72,7 +72,7 @@ bool MapSessionFilter::Process(WorldPacket* packet)
 bool WorldSessionFilter::Process(WorldPacket* packet)
 {
     Opcodes opcode = DropHighBytes(packet->GetOpcode());
-    OpcodeHandler const* opHandle = opcodeTable[opcode];
+    OpcodeHandler const* opHandle = opcodeTable[WOW_CLIENT][opcode];
     //check if packet handler is supposed to be safe
     if (opHandle->packetProcessing == PROCESS_INPLACE)
         return true;
@@ -224,7 +224,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (!forced)
     {
-        OpcodeHandler* handler = opcodeTable[packet->GetOpcode()];
+        OpcodeHandler* handler = opcodeTable[WOW_CLIENT][packet->GetOpcode()];
         if (!handler || handler->status == STATUS_UNHANDLED)
         {
             sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerName(false).c_str());
@@ -334,7 +334,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
-        const OpcodeHandler* opHandle = opcodeTable[packet->GetOpcode()];
+        const OpcodeHandler* opHandle = opcodeTable[WOW_CLIENT][packet->GetOpcode()];
         uint32 pktTime = getMSTime();
 
         try

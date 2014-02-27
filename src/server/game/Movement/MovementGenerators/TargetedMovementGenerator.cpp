@@ -87,21 +87,6 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     i_targetReached = false;
     i_recalculateTravel = false;
 
-    float target_z = i_target.getTarget()->GetPositionZ();
-    float ground_z = target_z;
-    float max_z = i_target.getTarget()->GetBaseMap()->GetWaterOrGroundLevel(i_target.getTarget()->GetPositionX(), i_target.getTarget()->GetPositionY(), target_z, &ground_z, !i_target.getTarget()->HasAuraType(SPELL_AURA_WATER_WALK));
-
-    if (max_z > INVALID_HEIGHT)
-    {
-        if (target_z > max_z)
-            target_z = max_z;
-        else if (target_z < ground_z)
-            target_z = ground_z;
-    }
-
-    if (i_target.getTarget()->GetPositionZ() - target_z > 5)
-        return;
-
     owner.UpdateAllowedPositionZ(x, y, z);
 
     Movement::MoveSplineInit init(owner);

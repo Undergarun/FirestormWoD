@@ -4028,6 +4028,10 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
+
+        if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+            continue;
+
         if (aura != except && (!casterGUID || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
         {
@@ -4103,6 +4107,9 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         ++iter;
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
+            if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+                continue;
+
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aura);
             if (m_removedAurasCount > removedAuras + 1)
@@ -13735,7 +13742,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // can't attack own vehicle or passenger
     if (m_vehicle)
-        if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
+        if (IsOnVehicle(target) || (m_vehicle->GetBase() && m_vehicle->GetBase()->IsOnVehicle(target)))
             return false;
 
     // can't attack invisible (ignore stealth for aoe spells) also if the area being looked at is from a spell use the dynamic object created instead of the casting unit.
@@ -13854,7 +13861,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
 
     // can't assist own vehicle or passenger
     if (m_vehicle)
-        if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
+        if (IsOnVehicle(target) || (m_vehicle->GetBase() && m_vehicle->GetBase()->IsOnVehicle(target)))
             return false;
 
     // can't assist invisible
@@ -19951,10 +19958,27 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 }
 
 uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
-    // TODO FIND for Pandaren horde/alliance
 {
     if (totemType == 3211)
         totemType = SUMMON_TYPE_TOTEM_FIRE;
+
+    switch (totemType)
+    {
+        case SUMMON_TYPE_TOTEM_FIRE2:
+        case SUMMON_TYPE_TOTEM_FIRE3:
+            totemType = SUMMON_TYPE_TOTEM_FIRE;
+            break;
+        case SUMMON_TYPE_TOTEM_EARTH2:
+            totemType = SUMMON_TYPE_TOTEM_EARTH;
+            break;
+        case SUMMON_TYPE_TOTEM_WATER2:
+            totemType = SUMMON_TYPE_TOTEM_WATER;
+            break;
+        case SUMMON_TYPE_TOTEM_AIR2:
+        case SUMMON_TYPE_TOTEM_AIR3:
+            totemType = SUMMON_TYPE_TOTEM_AIR;
+            break;
+    }
 
     switch (getRace())
     {

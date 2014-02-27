@@ -978,6 +978,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_initializeCallback = false;
     m_storeCallbackCounter = 0;
+
+    m_needSummonPetAfterStopFlying = false;
 }
 
 Player::~Player()
@@ -2236,6 +2238,17 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
         RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, true, pet->m_Stampeded);
+
+    if (pet && IsFlying() && !pet->isPossessed())
+    {
+        UnsummonPetTemporaryIfAny();
+        m_needSummonPetAfterStopFlying = true;
+    }
+    else if (!IsFlying() && m_needSummonPetAfterStopFlying)
+    {
+        ResummonPetTemporaryUnSummonedIfAny();
+        m_needSummonPetAfterStopFlying = false;
+    }
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
@@ -11426,7 +11439,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
-                    if (mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                    if (!CanTitanGrip() && mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                     {
                         const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                         break;
@@ -11436,7 +11449,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
 
             if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
             {
-                if (proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                if (!CanTitanGrip() && proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                 {
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
@@ -11465,7 +11478,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     break;
                 }
             }
-            if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_POLEARM && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
+            if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
         case INVTYPE_TABARD:
@@ -17653,9 +17666,8 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
     }
 
     bool have_slot = false;
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+    for (auto id : m_dailyQuestStorage)
     {
-        uint32 id = GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx);
         if (qInfo->GetQuestId() == id)
             return false;
 
@@ -20389,8 +20401,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
 void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 {
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-        SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, 0);
+    m_dailyQuestStorage.clear();
 
     m_DFQuests.clear();
 
@@ -20398,8 +20409,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
     if (result)
     {
-        uint32 quest_daily_idx = 0;
-
         do
         {
             Field* fields = result->Fetch();
@@ -20422,8 +20431,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-             SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, quest_id);
-            ++quest_daily_idx;
+            m_dailyQuestStorage.insert(quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -21769,16 +21777,14 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+
+    for (auto id : m_dailyQuestStorage)
     { 
-        if (GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx))
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-            stmt->setUInt32(0, GetGUIDLow());
-            stmt->setUInt32(1, GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx));
-            stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
-            trans->Append(stmt);
-        }
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
+        stmt->setUInt32(0, GetGUIDLow());
+        stmt->setUInt32(1, id);
+        stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
+        trans->Append(stmt);
     }
 
     if (!m_DFQuests.empty())
@@ -22238,11 +22244,8 @@ void Player::SendDungeonDifficulty(bool IsInGroup)
 
 void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
 {
-    uint8 val = 0x00000001;
-    WorldPacket data(MSG_SET_RAID_DIFFICULTY, 12);
+    WorldPacket data(MSG_SET_RAID_DIFFICULTY, 4);
     data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
-    data << uint32(val);
-    data << uint32(IsInGroup);
     GetSession()->SendPacket(&data);
 }
 
@@ -25690,12 +25693,22 @@ void Player::SendAurasForTarget(Unit* target)
     ObjectGuid targetGuid = target->GetGUID();
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
+    uint32 auraCount = 0;
+    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    {
+        AuraApplication* auraApp = itr->second;
+        if (!auraApp || !auraApp->GetBase())
+            continue;
+
+        ++auraCount;
+    }
+
     WorldPacket data(SMSG_AURA_UPDATE);
     data.WriteBit(true); // full update bit
     data.WriteBit(targetGuid[6]);
     data.WriteBit(targetGuid[1]);
     data.WriteBit(targetGuid[0]);
-    data.WriteBits(visibleAuras->size(), 24); // aura counter
+    data.WriteBits(auraCount, 24); // aura counter
     data.WriteBit(targetGuid[2]);
     data.WriteBit(targetGuid[4]);
     data.WriteBit(powerData); // has power data, don't care about it ?
@@ -25711,16 +25724,25 @@ void Player::SendAurasForTarget(Unit* target)
     data.WriteBit(targetGuid[3]);
     data.WriteBit(targetGuid[5]);
 
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    if (auraCount)
     {
-        AuraApplication * auraApp = itr->second;
-        auraApp->BuildBitsUpdatePacket(data, false);
-    }
+        for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+        {
+            AuraApplication* auraApp = itr->second;
+            if (!auraApp || !auraApp->GetBase())
+                continue;
 
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-    {
-        AuraApplication * auraApp = itr->second;
-        auraApp->BuildBytesUpdatePacket(data, false);
+            auraApp->BuildBitsUpdatePacket(data, false);
+        }
+
+        for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+        {
+            AuraApplication* auraApp = itr->second;
+            if (!auraApp || !auraApp->GetBase())
+                continue;
+
+            auraApp->BuildBytesUpdatePacket(data, false);
+        }
     }
 
     if (powerData)
@@ -25753,16 +25775,9 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
     {
         if (!qQuest->IsDFQuest())
         {
-            for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-            {
-                if (!GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx))
-                {
-                    SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, quest_id);
-                    m_lastDailyQuestTime = time(NULL);              // last daily quest time
-                    m_DailyQuestChanged = true;
-                    break;
-                }
-            }
+            m_dailyQuestStorage.insert(quest_id);
+            m_lastDailyQuestTime = time(NULL);              // last daily quest time
+            m_DailyQuestChanged = true;
         }
         else
         {
@@ -25797,8 +25812,7 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
 
 void Player::ResetDailyQuestStatus()
 {
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-        SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, 0);
+    m_dailyQuestStorage.clear();
 
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
