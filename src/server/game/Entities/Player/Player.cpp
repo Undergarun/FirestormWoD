@@ -17665,23 +17665,6 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
         return true;
     }
 
-    bool have_slot = false;
-    for (auto id : m_dailyQuestStorage)
-    {
-        if (qInfo->GetQuestId() == id)
-            return false;
-
-        if (!id)
-            have_slot = true;
-    }
-
-    if (!have_slot)
-    {
-        if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DAILY_QUESTS_REMAINING);
-        return false;
-    }
-
     return true;
 }
 
