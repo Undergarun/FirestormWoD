@@ -2109,6 +2109,9 @@ class npc_training_dummy : public CreatureScript
 /*######
 # npc_fire_elemental
 ######*/
+#define SPELL_FIRENOVA        12470
+#define SPELL_FIRESHIELD      13376
+#define SPELL_FIREBLAST       57984
 
 class npc_fire_elemental : public CreatureScript
 {
