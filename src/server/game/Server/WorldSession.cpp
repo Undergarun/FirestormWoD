@@ -224,7 +224,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (!forced)
     {
-        OpcodeHandler* handler = opcodeTable[WOW_CLIENT][packet->GetOpcode()];
+        OpcodeHandler* handler = opcodeTable[WOW_SERVER][packet->GetOpcode()];
         if (!handler || handler->status == STATUS_UNHANDLED)
         {
             sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerName(false).c_str());
