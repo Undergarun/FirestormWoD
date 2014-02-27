@@ -106,7 +106,7 @@ public:
                 return;
 
             // Make sure our attack is ready and we arn't currently casting
-            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
+            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false) && me->getVictim())
             {
                 //If we are within range melee the target
                 if (me->IsWithinMeleeRange(me->getVictim()))
@@ -142,7 +142,7 @@ public:
                     me->resetAttackTimer();
                 }
             }
-            else
+            else if (me->getVictim())
             {
                 //Only run this code if we arn't already casting
                 if (!me->IsNonMeleeSpellCasted(false))

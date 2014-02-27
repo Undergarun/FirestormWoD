@@ -492,10 +492,10 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
 
     // not allow leave battleground in combat
-    if (_player->isInCombat())
+    /*if (_player->isInCombat())
         if (Battleground* bg = _player->GetBattleground())
             if (bg->GetStatus() != STATUS_WAIT_LEAVE)
-                return;
+                return;*/
 
     _player->LeaveBattleground();
 }

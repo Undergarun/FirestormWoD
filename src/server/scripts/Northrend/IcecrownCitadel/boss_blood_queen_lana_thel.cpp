@@ -324,6 +324,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             if (!targets.empty())
                             {
                                 Unit* target = targets.front();
+                                if (!target)
+                                    break;
+
                                 DoCast(target, SPELL_VAMPIRIC_BITE);
                                 Talk(SAY_VAMPIRIC_BITE);
                                 _vampires.insert(target->GetGUID());
@@ -347,7 +350,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                         if (Item* shadowsEdge = _offtank->GetWeaponForAttack(BASE_ATTACK, true))
                                             if (!_offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !_offtank->HasAura(SPELL_GUSHING_WOUND))
                                                 _offtank->CastSpell(_offtank, SPELL_GUSHING_WOUND, true);
-
                                     }
                                 }
                             }
@@ -369,9 +371,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 ++targetCount;
                             if (Is25ManRaid())
                                 ++targetCount;
-                            JadeCore::Containers::RandomResizeList<Player*>(targets, targetCount);
-                            if (targets.size() > 1)
+                            
+                            if (targets.size())
                             {
+                                JadeCore::Containers::RandomResizeList<Player*>(targets, targetCount);
                                 Talk(SAY_PACT_OF_THE_DARKFALLEN);
                                 for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                     DoCast(*itr, SPELL_PACT_OF_THE_DARKFALLEN);
@@ -392,9 +395,15 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         {
                             std::list<Player*> targets;
                             SelectRandomTarget(false, &targets);
-                            JadeCore::Containers::RandomResizeList<Player*>(targets, uint32(Is25ManRaid() ? 4 : 2));
-                            for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                                DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
+                            
+                            if (targets.size())
+                            {
+                                JadeCore::Containers::RandomResizeList<Player*>(targets, uint32(Is25ManRaid() ? 4 : 2));
+
+                                for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                                    DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
+                            }
+
                             DoCast(me, SPELL_TWILIGHT_BLOODBOLT_TARGET);
                             events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(10000, 15000), EVENT_GROUP_NORMAL);
                             break;

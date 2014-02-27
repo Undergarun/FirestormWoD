@@ -2935,7 +2935,8 @@ class spell_dru_innervate : public SpellScriptLoader
                             mana *= 2;
 
                         if (AuraPtr innervate = target->GetAura(29166))
-                            innervate->GetEffect(0)->ChangeAmount(mana / 10);
+                            if (innervate->GetEffect(0))
+                                innervate->GetEffect(0)->ChangeAmount(mana / 10);
                     }
                 }
             }

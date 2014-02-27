@@ -19,7 +19,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 
-OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS] = { };
+OpcodeHandler* opcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS] = { };
 
 template<bool isInValidRange, bool isNonZero>
 inline void ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
@@ -30,13 +30,45 @@ inline void ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, Sessio
 template<>
 void ValidateAndSetOpcode<true, true>(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
 {
-    if (opcodeTable[opcode] != NULL)
+    OpcodeTransferDirection dir = TRANSFER_DIRECTION_MAX;
+
+    switch (name[0])
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->name, name, opcode);
+        case 'S':
+        case 's':
+            dir = WOW_SERVER; // SMSG
+            break;
+        case 'C':
+        case 'c':
+            dir = WOW_CLIENT; // CMSG
+        default: // MSG
+            break;
+    }
+
+    if (dir == TRANSFER_DIRECTION_MAX)
+    {
+        for (uint8 i = 0; i < 2; ++i)
+        {
+
+            if (opcodeTable[i][opcode] != NULL) // register MSG opcode as client and server
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[i][opcode]->name, name, opcode);
+                return;
+            }
+
+            opcodeTable[i][opcode] = new OpcodeHandler(name, status, processing, handler);
+        }
+
         return;
     }
 
-    opcodeTable[opcode] = new OpcodeHandler(name, status, processing, handler);
+    if (opcodeTable[dir][opcode] != NULL)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[dir][opcode]->name, name, opcode);
+        return;
+    }
+
+    opcodeTable[dir][opcode] = new OpcodeHandler(name, status, processing, handler);
 }
 
 template<>

@@ -553,9 +553,14 @@ template<class Check>
 void JadeCore::PlayerListSearcher<Check>::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->getSource())
+            continue;
+
         if (itr->getSource()->InSamePhase(i_phaseMask))
             if (i_check(itr->getSource()))
                 i_objects.push_back(itr->getSource());
+    }
 }
 
 template<class Check>

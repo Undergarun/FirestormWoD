@@ -65,7 +65,6 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25  // Fake big number
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -1279,7 +1278,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry = 0);
 
         static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
 
@@ -2713,7 +2712,7 @@ class Player : public Unit, public GridObject<Player>
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
         void UnsummonPetTemporaryIfAny();
         void ResummonPetTemporaryUnSummonedIfAny();
-        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive() || IsMounted() /*+in flight*/; }
+        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive(); }
 
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);
@@ -3171,6 +3170,8 @@ class Player : public Unit, public GridObject<Player>
         bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
 
+        bool m_needSummonPetAfterStopFlying;
+
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;
         uint32 inn_pos_mapid;
@@ -3211,6 +3212,9 @@ class Player : public Unit, public GridObject<Player>
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
         uint8 m_grantableLevels;
+
+        typedef std::set<uint32> DailyQuestList;
+        DailyQuestList m_dailyQuestStorage;
 
     private:
         // internal common parts for CanStore/StoreItem functions
