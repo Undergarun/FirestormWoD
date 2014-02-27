@@ -19970,13 +19970,11 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 
 uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
 {
-    if (totemType == 3211)
-        totemType = SUMMON_TYPE_TOTEM_FIRE;
-
     switch (totemType)
     {
         case SUMMON_TYPE_TOTEM_FIRE2:
         case SUMMON_TYPE_TOTEM_FIRE3:
+        case SUMMON_TYPE_TOTEM_FIRE4:
             totemType = SUMMON_TYPE_TOTEM_FIRE;
             break;
         case SUMMON_TYPE_TOTEM_EARTH2:
