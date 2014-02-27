@@ -1371,6 +1371,14 @@ void AddPandarieScripts()
     AddSC_boss_spirit_kings();
     AddSC_boss_elegon();
     AddSC_boss_will_of_emperor();
+    AddSC_instance_heart_of_fear();                 // Heart of fear
+    AddSC_heart_of_fear();
+    AddSC_boss_zorlok();
+    AddSC_boss_tayak();
+    AddSC_boss_garalon();
+    AddSC_boss_meljarak();
+    AddSC_boss_unsok();
+    AddSC_boss_shekzeer();
     AddSC_instance_terrace_of_endless_spring();    // Terrace of Endless Spring
     AddSC_terrace_of_endless_spring();
     AddSC_boss_protectors_of_the_endless();
