@@ -3381,7 +3381,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     // Custom effects
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        // Glyph of Dispel Magic
+        // Glyph of Dispel Magic (discipline and priest) -- Purify
         if (m_spellInfo->Id == 97690)
         {
             if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(55677, 0))
@@ -3392,6 +3392,12 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                     m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true); 
                 }
             }
+        }
+        // Glyph of Dispel Magic
+        if (m_spellInfo->Id == 528)
+        {
+            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(119864, 0))
+                m_caster->CastSpell(unitTarget, 119856, true);
         }
     }
 

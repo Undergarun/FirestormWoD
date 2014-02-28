@@ -3474,8 +3474,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 88767: // Fulmination (triggered)
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                     break;
-                case 33786: // Cyclone
-                case 113506:// Cyclone (Symbiosis)
                 case 51514: // Hex
                 case 130616:// Glyph of Fear effect
                     spellInfo->Dispel = DISPEL_MAGIC;

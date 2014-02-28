@@ -8886,7 +8886,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 // Greater Heal Refund
                 if (auraSpellInfo->Id == 37594)
                     trigger_spell_id = 37595;
-                break;
+                // Glyph of Mass Dispel
+                if (auraSpellInfo->Id == 32375)
+                {
+                    if (HasAura(55691))
+                        trigger_spell_id = 39897;
+                }
+				break;
             }
             case SPELLFAMILY_DRUID:
             {
