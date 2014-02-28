@@ -8892,7 +8892,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                     if (HasAura(55691))
                         trigger_spell_id = 39897;
                 }
-				break;
+                break;
             }
             case SPELLFAMILY_DRUID:
             {
