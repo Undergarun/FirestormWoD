@@ -165,18 +165,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSED_MOGU_SPIRIT_BOLT, 15000);
                 events.ScheduleEvent(EVENT_CURSED_MOGU_GROUND_SLAM, 25000);
 
-                switch (me->GetEntry())
-                {
-                    /*case NPC_CURSED_MOGU_SCULPTURE_1:
-                        if (Creature* mogu2 = pInstance->instance->GetCreature(pInstance->GetData64(NPC_CURSED_MOGU_SCULPTURE_2)))
-                            mogu2->AI()->AttackStart(attacker);
-                        break;*/
-                    case NPC_CURSED_MOGU_SCULPTURE_2:
-                        me->AI()->AttackStart(attacker);
-                        break;
-                    default:
-                        break;
-                }
+                me->AI()->AttackStart(attacker);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -211,10 +200,10 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                             DoAction(ACTION_CURSED_MOGU_ATTACK_PLAYER);
                             break;
                         }
-                        default:
-                            break;
+                    default:
+                        break;
                     }
-                    
+
                     playerActivate = who->GetGUID();
                     activationDone = true;
                 }
@@ -934,15 +923,17 @@ class npc_lorewalker_cho : public CreatureScript
                         events.ScheduleEvent(EVENT_TALK_1, 1000);
                         break;
                     case 79:
-                        if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ELEGON_DOOR_ENTRANCE)))
+                    case 83:
+                        if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(waypointId == 79 ? GOB_ELEGON_DOOR_ENTRANCE : GOB_WILL_OF_EMPEROR_ENTRANCE)))
                             if (door->GetGoState() == GO_STATE_READY)
                                 door->SetGoState(GO_STATE_ACTIVE);
                         break;
-                    case 83:
+                    /*case 83:
                         if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_WILL_OF_EMPEROR_ENTRANCE)))
-                            if (door->GetGoState() == GO_STATE_ACTIVE)
-                                door->Use(me);
-                        break;
+                            if (door->GetGoState() == GO_STATE_READY)
+                                door->SetGoState(GO_STATE_ACTIVE);
+                                // door->Use(me);
+                        break;*/
                     case 86:
                         SetEscortPaused(true);
                         break;

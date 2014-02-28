@@ -1526,6 +1526,9 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 if (Creature* creature = GetCaster()->ToCreature())
                     targets.remove_if (OrderWhelpTargetSelector(creature));
 
+                if (targets.empty())
+                    return;
+
                 JadeCore::Containers::SelectRandomContainerElement(targets)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 

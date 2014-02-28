@@ -59,6 +59,24 @@ set(scripts_STAT_SRCS
   Pandaria/MogushanVault/boss_spirit_kings.cpp
   Pandaria/MogushanVault/boss_elegon.cpp
   Pandaria/MogushanVault/boss_will_of_emperor.cpp
+  
+  Pandaria/HeartOfFear/instance_heart_of_fear.cpp
+  Pandaria/HeartOfFear/heart_of_fear.cpp
+  Pandaria/HeartOfFear/heart_of_fear.h
+  Pandaria/HeartOfFear/boss_zorlok.cpp
+  Pandaria/HeartOfFear/boss_tayak.cpp
+  Pandaria/HeartOfFear/boss_garalon.cpp
+  Pandaria/HeartOfFear/boss_meljarak.cpp
+  Pandaria/HeartOfFear/boss_unsok.cpp
+  Pandaria/HeartOfFear/boss_shekzeer.cpp
+  
+  Pandaria/TerraceOfEndlessSpring/instance_terrace_of_endless_spring.cpp
+  Pandaria/TerraceOfEndlessSpring/terrace_of_endless_spring.cpp
+  Pandaria/TerraceOfEndlessSpring/terrace_of_endless_spring.h
+  Pandaria/TerraceOfEndlessSpring/boss_protectors_of_the_endless.cpp
+  Pandaria/TerraceOfEndlessSpring/boss_tsulong.cpp
+  Pandaria/TerraceOfEndlessSpring/boss_lei_shi.cpp
+  Pandaria/TerraceOfEndlessSpring/boss_sha_of_fear.cpp
 
   Pandaria/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp
   Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.cpp

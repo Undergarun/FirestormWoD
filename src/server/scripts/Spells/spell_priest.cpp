@@ -1382,11 +1382,11 @@ class spell_pri_purify : public SpellScriptLoader
                             if (GetSpellInfo()->Id == 527)
                                 dispelMask = ((1<<DISPEL_MAGIC));
 
-                            DispelChargesList dispelList;
+                            /*DispelChargesList dispelList;
                             target->GetDispellableAuraList(caster, dispelMask, dispelList);
-
+                            
                             if (dispelList.empty())
-                                return SPELL_FAILED_NOTHING_TO_DISPEL;
+                                return SPELL_FAILED_NOTHING_TO_DISPEL;*/
 
                             return SPELL_CAST_OK;
                         }
@@ -1485,7 +1485,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                amount = powerUsed;
+                amount = powerUsed + 1;
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -2486,7 +2486,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
                     // From Darkness, Comes Light
                     if (GetCaster()->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA))
-                        if (roll_chance_i(15))
+                        if (roll_chance_i(20))
                             GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }

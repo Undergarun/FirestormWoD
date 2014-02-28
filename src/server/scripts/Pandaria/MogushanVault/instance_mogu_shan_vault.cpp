@@ -298,8 +298,10 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         break;
                     case GOB_ELEGON_DOOR_ENTRANCE:
                         ancientMoguDoorGuid = go->GetGUID();
+                        break;
                     case GOB_WILL_OF_EMPEROR_ENTRANCE:
                         emperorsDoorGuid = go->GetGUID();
+                        break;
                     case GOB_ENERGY_TITAN_DISK:
                         titanDiskGuid = go->GetGUID();
                         break;

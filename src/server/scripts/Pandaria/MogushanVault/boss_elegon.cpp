@@ -544,7 +544,7 @@ class boss_elegon : public CreatureScript
 
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveLand(2, middlePos);
-
+                
                 if (pInstance)
                 {
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
@@ -560,7 +560,7 @@ class boss_elegon : public CreatureScript
 
                 if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
                     infiniteEnergy->AI()->DoAction(ACTION_INFINITE_LOOT);
-                
+
                 if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ELEGON_DOOR_ENTRANCE)))
                     if (door->GetGoState() == GO_STATE_READY)
                         door->SetGoState(GO_STATE_ACTIVE);

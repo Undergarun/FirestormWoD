@@ -7091,6 +7091,14 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
         }
 
+        // Deep Wounds
+        if (GetSpellInfo()->Id == 115767)
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                    damage *= 2;
+        }
+
         // Curse of Agony damage-per-tick calculation
         if (GetSpellInfo()->Id == 980)
         {
