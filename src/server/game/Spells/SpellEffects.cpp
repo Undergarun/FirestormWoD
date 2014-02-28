@@ -5812,7 +5812,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
             if (m_caster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            float x, y, z;
+            float x = 0.0f, y = 0.0f, z = 0.0f;
             if (m_targets.HasDst())
                 destTarget->GetPosition(x, y, z);
 
