@@ -351,7 +351,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (bgQueueTypeId > MAX_BATTLEGROUND_QUEUE_TYPES)
+    if (bgQueueTypeId >= MAX_BATTLEGROUND_QUEUE_TYPES)
     {
         sLog->OutPandashan("HandleBattleFieldPortOpcode bgQueueTypeId %u", bgQueueTypeId);
         return;
@@ -639,7 +639,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
 
     uint32 avgTime = 0;
-    GroupQueueInfo* ginfo;
+    GroupQueueInfo* ginfo = NULL;
 
     err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, arenatype, arenatype, true, arenaslot);
     if (!err || (err && sBattlegroundMgr->isArenaTesting()))
@@ -666,6 +666,12 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
          // add to queue
         uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
+
+        if (!ginfo)
+        {
+            sLog->OutPandashan("NULL ginfo !!!!");
+            return;
+        }
 
         // add joined time data
         member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);

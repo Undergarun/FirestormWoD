@@ -480,7 +480,8 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId, glyphIndex = 0;
-    uint8  castCount, unkStringLength;
+    uint8  castCount = 0;
+    uint8 unkStringLength = 0;
     float speed = 0.00f, elevation = 0.00f;
     std::string unkString;
 
@@ -937,7 +938,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
-    uint32 spellId;
+    uint32 spellId = 0;
     bool unk, hasSpell;
 
     unk = recvPacket.ReadBit();

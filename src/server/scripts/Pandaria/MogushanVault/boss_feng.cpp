@@ -260,7 +260,7 @@ class boss_feng : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INVERSION);
 
                 isWaitingForPhase = false;
-                actualPhase  = PHASE_NONE;
+                actualPhase  = PHASE_FIST;
                 nextPhasePct = 95;
                 dotSpellId = 0;
 
@@ -273,6 +273,8 @@ class boss_feng : public CreatureScript
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
+
+                actualPhase = PHASE_NONE;
 
                 if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
                     inversionGob->Respawn();

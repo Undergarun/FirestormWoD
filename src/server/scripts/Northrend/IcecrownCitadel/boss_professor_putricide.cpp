@@ -436,7 +436,7 @@ class boss_professor_putricide : public CreatureScript
 
                             GetCreatureListWithEntryInGrid(list, rotface, NPC_PUDDLE_STALKER, 36.0f);
 
-                            if (list.size() > 4)
+                            if (list.size() >= 4)
                             {
                                 list.sort(JadeCore::ObjectDistanceOrderPred(rotface));
                                 do
@@ -446,7 +446,7 @@ class boss_professor_putricide : public CreatureScript
                                     size = size;
                                 }
                                 while
-                                    (list.size() > 4);
+                                    (list.size() >= 4);
                             }
 
                             uint8 size = list.size();
@@ -470,7 +470,9 @@ class boss_professor_putricide : public CreatureScript
                                         if (j < 8)
                                             _oozeFloodDummyUpperGUIDs[j++] = (*triggers_itr)->GetGUID();
 
-                                _oozeFloodDummyGUIDs[i++] = (*itr)->GetGUID();
+
+                                if (i < 3)
+                                    _oozeFloodDummyGUIDs[i++] = (*itr)->GetGUID();
                                 list.erase(itr);
                             }
                         }
