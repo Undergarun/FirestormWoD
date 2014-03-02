@@ -3514,7 +3514,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 108503:// Grimoire of Sacrifice
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                    spellInfo->Effects[6].Effect = 0;
                     break;
                 case 119905:// Cauterize (Command Demon)
                 case 119907:// Disarm (Command Demon)
