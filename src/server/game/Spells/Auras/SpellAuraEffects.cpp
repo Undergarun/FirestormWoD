@@ -3539,6 +3539,9 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
 
     switch (m_spellInfo->Id)
     {
+        case 117436:// Lightning Prison
+            target->RemoveAura(111850);
+            break;
         case 127266:// Amber Prison
             if (target->GetTypeId() == TYPEID_PLAYER)
                 return;
@@ -6987,7 +6990,12 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
         {
             int32 basepoints0 = GetAmount();
-            triggerCaster->CastCustomSpell(target, triggerSpellId, &basepoints0, 0, 0, true, 0, CONST_CAST(AuraEffect, shared_from_this()));
+
+            // Hack fix for Protectors of the Endless - Defiled Ground
+            if (triggerSpellId == 117988)
+                triggerCaster->CastCustomSpell(target, triggerSpellId, 0, &basepoints0, 0, true, 0, CONST_CAST(AuraEffect, shared_from_this()));
+            else
+                triggerCaster->CastCustomSpell(target, triggerSpellId, &basepoints0, 0, 0, true, 0, CONST_CAST(AuraEffect, shared_from_this()));
         }
     }
 }
