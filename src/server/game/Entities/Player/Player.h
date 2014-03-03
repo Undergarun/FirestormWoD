@@ -2138,7 +2138,11 @@ class Player : public Unit, public GridObject<Player>
 
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
-            ASSERT(slot < MAX_ARENA_SLOT);
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
             m_ArenaPersonalRating[slot] = value;
             if (m_BestRatingOfWeek[slot] < value)
                 m_BestRatingOfWeek[slot] = value;
@@ -2146,11 +2150,51 @@ class Player : public Unit, public GridObject<Player>
                 m_BestRatingOfSeason[slot] = value;
         }
 
-        void SetArenaMatchMakerRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaMatchMakerRating[slot] = value; }
-        void IncrementWeekGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekGames[slot]; }
-        void IncrementWeekWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekWins[slot]; }
-        void IncrementSeasonGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonGames[slot]; }
-        void IncrementSeasonWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonWins[slot]; }
+        void SetArenaMatchMakerRating(uint8 slot, uint32 value)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            m_ArenaMatchMakerRating[slot] = value;
+        }
+        void IncrementWeekGames(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_WeekGames[slot];
+        }
+        void IncrementWeekWins(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_WeekWins[slot];
+        }
+        void IncrementSeasonGames(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_SeasonGames[slot];
+        }
+        void IncrementSeasonWins(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_SeasonWins[slot];
+        }
         void FinishWeek();
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
