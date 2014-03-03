@@ -36,6 +36,7 @@ enum eData
 
 enum eSpells
 {
+    SPELL_RITUAL_OF_PURIFICATION = 126848
 };
 
 enum eActions
@@ -44,10 +45,28 @@ enum eActions
 
 enum eCreatures
 {
+    // Protectors of the Endless
+    NPC_ANCIENT_ASANI           = 60586,
+    NPC_ANCIENT_REGAIL          = 60585,
+    NPC_PROTECTOR_KAOLAN        = 60583,
+    NPC_DEFILED_GROUND          = 60906,
+    NPC_COALESCED_CORRUPTION    = 60886,
+
+    // Tsulong
+    NPC_TSULONG                 = 62442,
+
+    // Lei Shi
+    NPC_LEI_SHI                 = 62983,
+
+    // Sha of Fear
+    NPC_SHA_OF_FEAR             = 60999
 };
 
 enum eGameObjects
 {
+    GOB_JINYU_COUNCIL_DOOR  = 214854,
+    GOB_LEI_SHI_DOOR        = 214851,
+    GOB_SHA_OF_FEAR_DOOR    = 214849
 };
 
 enum ePhases

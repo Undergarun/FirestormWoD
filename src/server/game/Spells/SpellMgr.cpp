@@ -3082,6 +3082,23 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 126848:// Ritual of Purification
+                    spellInfo->Effects[0].BasePoints = -10;
+                    spellInfo->Effects[1].BasePoints = -10;
+                    break;
+                case 111850:// Lightning Prison
+                    spellInfo->MaxAffectedTargets = 2;
+                    break;
+                case 117230:// Overpowered
+                    spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                    break;
+                case 117988:// Defiled Ground
+                    spellInfo->Effects[0].Effect = 0;
+                    spellInfo->Effects[1].Mechanic = MECHANIC_NONE;
+                    break;
+                case 117268:// Cleansing Waters (missile)
+                    spellInfo->Speed = 1;
+                    break;
                 case 127424:
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                     spellInfo->Effects[0].TargetB = 0;
@@ -4142,7 +4159,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                     spellInfo->OverrideSpellList.push_back(116847);
                     break;
-                case 125084: // Charging Ox Wave
+                case 125084:// Charging Ox Wave
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // radius 30
                     break;
                 case 107270:// Spinning Crane Kick - Radius
