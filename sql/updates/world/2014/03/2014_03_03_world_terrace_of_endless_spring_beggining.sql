@@ -145,7 +145,7 @@ UPDATE creature_template SET minlevel = 92, maxlevel = 92, `Health_mod` = 2.7, f
 UPDATE creature_template SET ScriptName = 'mob_minion_of_fear_controller' WHERE entry = 60957;
 
 DELETE FROM spell_script_names WHERE spell_id IN
-(117955, 118064, 118040, 118053, 118054, 118055, 118077, 118004, 118005, 118007, 118008, 117988, 125736, 125745, 111850, 118191, 117905);
+(117955, 118064, 118040, 118053, 118054, 118055, 118077, 118004, 118005, 118007, 118008, 117988, 125736, 125745, 111850, 118191, 117905, 117283);
 INSERT INTO spell_script_names VALUES
 (117955, 'spell_expelled_corruption'),
 (118064, 'spell_lightning_storm_aura'),
@@ -163,7 +163,8 @@ INSERT INTO spell_script_names VALUES
 (125745, 'spell_night_terrors_periodic'),
 (111850, 'spell_lightning_prison'),
 (118191, 'spell_corrupted_essence'),
-(117905, 'spell_superior_corrupted_essence');
+(117905, 'spell_superior_corrupted_essence'),
+(117283, 'spell_cleansing_waters_regen');
 
 DELETE FROM spell_target_position WHERE id = 117227;
 INSERT INTO spell_target_position VALUE (117227, 0, 996, -1017.82, -3049.114, 12.8233, 4.675);
