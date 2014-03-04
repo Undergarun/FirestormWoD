@@ -1191,9 +1191,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             return;
         }
-        case 117052: // Sha Corruption
         case 117230: // Overpowered
-        case 127731: // Sha Corruption (triggered)
         {
             // remove existing targets
             CleanupTargetList();
