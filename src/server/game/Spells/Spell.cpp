@@ -1191,6 +1191,19 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             return;
         }
+        case 117230: // Overpowered
+        {
+            // remove existing targets
+            CleanupTargetList();
+
+            if (!targets.empty())
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if ((*itr) && (*itr)->ToUnit())
+                        if ((*itr)->GetEntry() == 60583 || (*itr)->GetEntry() == 60585 || (*itr)->GetEntry() == 60586)
+                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
+
+            return;
+        }
         case 120764: // Ghost Essence
         {
             // remove existing targets
