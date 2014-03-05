@@ -1228,11 +1228,14 @@ class mob_minion_of_fear : public CreatureScript
                     std::list<Creature*> targets;
 
                     if (Creature* asani = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_ASANI)))
-                        targets.push_back(asani);
+                        if (asani->isAlive())
+                            targets.push_back(asani);
                     if (Creature* kaolan = pInstance->instance->GetCreature(pInstance->GetData64(NPC_PROTECTOR_KAOLAN)))
-                        targets.push_back(kaolan);
+                        if (kaolan->isAlive())
+                            targets.push_back(kaolan);
                     if (Creature* regail = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_REGAIL)))
-                        targets.push_back(regail);
+                        if (regail->isAlive())
+                            targets.push_back(regail);
 
                     if (targets.empty())
                     {
