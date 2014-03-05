@@ -417,20 +417,16 @@ class spell_pri_spirit_of_redemption : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (!caster->ToPlayer())
-                        return;
-
                     if (dmgInfo.GetDamage() < caster->GetHealth())
                         return;
 
-                    if (caster->ToPlayer()->HasSpellCooldown(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_TALENT))
+                    if (caster->HasAura(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT))
                         return;
 
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_FORM, true);
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY, true);
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_ROOT, true);
                     caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT, true);
-                    caster->ToPlayer()->AddSpellCooldown(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_TALENT, 0, time(NULL) + 90);
 
                     absorbAmount = caster->GetHealth() - 1;
                 }
@@ -701,8 +697,16 @@ class spell_pri_shadowfiend : public SpellScriptLoader
                         if (Guardian* pet = _player->GetGuardianPet())
                         {
                             pet->InitCharmInfo();
-                            pet->SetReactState(REACT_DEFENSIVE);
-                            pet->ToCreature()->AI()->AttackStart(target);
+                            pet->SetReactState(REACT_AGGRESSIVE);
+
+                            if (pet->IsValidAttackTarget(target))
+                                pet->ToCreature()->AI()->AttackStart(target);
+                            else
+                            {
+                                Unit* victim = _player->GetSelectedUnit();
+                                if (victim && pet->IsValidAttackTarget(target))
+                                    pet->ToCreature()->AI()->AttackStart(target);
+                            }
                         }
                     }
                 }
@@ -1155,12 +1159,14 @@ class spell_pri_train_of_thought : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_train_of_thought_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        ObjectGuid playerGuid = _player->GetGUID();
+
                         if (_player->HasAura(PRIEST_TRAIN_OF_THOUGHT))
                         {
                             if (GetSpellInfo()->Id == 585)
@@ -1175,22 +1181,12 @@ class spell_pri_train_of_thought : public SpellScriptLoader
                                     if (newCooldownDelay > 0)
                                     {
                                         _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + (newCooldownDelay / IN_MILLISECONDS)));
-
-                                        WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                        data << uint32(PRIEST_SPELL_PENANCE);               // Spell ID
-                                        data << uint64(_player->GetGUID());                 // Player GUID
-                                        data << int32(-500);                                // Cooldown mod in milliseconds
-                                        _player->GetSession()->SendPacket(&data);
+                                        _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -500);
                                     }
                                     else
                                     {
                                         _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + 0));
-
-                                        WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                        data << uint32(PRIEST_SPELL_PENANCE);               // Spell ID
-                                        data << uint64(_player->GetGUID());                 // Player GUID
-                                        data << int32(-newCooldownDelay);                                // Cooldown mod in milliseconds
-                                        _player->GetSession()->SendPacket(&data);
+                                        _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -newCooldownDelay);
                                     }
                                 }
                             }
@@ -1204,12 +1200,7 @@ class spell_pri_train_of_thought : public SpellScriptLoader
                                         newCooldownDelay -= 5;
 
                                     _player->AddSpellCooldown(PRIEST_INNER_FOCUS, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                    data << uint32(PRIEST_INNER_FOCUS);                 // Spell ID
-                                    data << uint64(_player->GetGUID());                 // Player GUID
-                                    data << int32(-5000);                               // Cooldown mod in milliseconds
-                                    _player->GetSession()->SendPacket(&data);
+                                    _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -5000);
                                 }
                             }
                         }
@@ -1219,7 +1210,7 @@ class spell_pri_train_of_thought : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_train_of_thought_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_pri_train_of_thought_SpellScript::HandleAfterHit);
             }
         };
 
@@ -1391,11 +1382,11 @@ class spell_pri_purify : public SpellScriptLoader
                             if (GetSpellInfo()->Id == 527)
                                 dispelMask = ((1<<DISPEL_MAGIC));
 
-                            DispelChargesList dispelList;
+                            /*DispelChargesList dispelList;
                             target->GetDispellableAuraList(caster, dispelMask, dispelList);
-
+                            
                             if (dispelList.empty())
-                                return SPELL_FAILED_NOTHING_TO_DISPEL;
+                                return SPELL_FAILED_NOTHING_TO_DISPEL;*/
 
                             return SPELL_CAST_OK;
                         }
@@ -1435,17 +1426,20 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     {
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            uint8 powerUsed = _player->GetPower(POWER_SHADOW_ORB) + 1; // Don't forget PowerCost
+                            if (AuraPtr devouringPlague = target->GetAura(PRIEST_DEVOURING_PLAGUE))
+                            {
+                                uint32 powerUsed = devouringPlague->GetEffect(2) ? devouringPlague->GetEffect(2)->GetAmount() : 1;
 
-                            // Shadow Orb visual
-                            if (_player->HasAura(77487))
-                                _player->RemoveAura(77487);
-                            // Glyph of Shadow Ravens
-                            else if (_player->HasAura(127850))
-                                _player->RemoveAura(127850);
+                                // Shadow Orb visual
+                                if (_player->HasAura(77487))
+                                    _player->RemoveAura(77487);
+                                // Glyph of Shadow Ravens
+                                else if (_player->HasAura(127850))
+                                    _player->RemoveAura(127850);
 
-                            // Instant damage equal to amount of shadow orb
-                            SetHitDamage(int32(GetHitDamage() * powerUsed / 3));
+                                // Instant damage equal to amount of shadow orb
+                                SetHitDamage(int32(GetHitDamage() * powerUsed / 3));
+                            }
                         }
                     }
                 }
@@ -1479,7 +1473,8 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB);
+                // Don't forget power cost
+                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
 
                 amount *= powerUsed;
@@ -1490,7 +1485,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                amount = powerUsed;
+                amount = powerUsed + 1;
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -2491,7 +2486,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
                     // From Darkness, Comes Light
                     if (GetCaster()->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA))
-                        if (roll_chance_i(15))
+                        if (roll_chance_i(20))
                             GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }

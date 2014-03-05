@@ -112,6 +112,55 @@ enum MonkSpells
     SPELL_MONK_ITEM_PVP_GLOVES_BONUS            = 124489,
 };
 
+// Chi Brew - 115399
+class spell_monk_chi_brew : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
+
+        class spell_monk_chi_brew_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_brew_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    switch (_player->GetSpecializationId(_player->GetActiveSpec()))
+                    {
+                        case SPEC_MONK_BREWMASTER:
+                            for (uint8 i = 0; i < 5; ++i)
+                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
+                            break;
+                        case SPEC_MONK_MISTWEAVER:
+                            _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
+                            _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
+                            break;
+                        case SPEC_MONK_WINDWALKER:
+                            _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                            _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_chi_brew_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_brew_SpellScript();
+        }
+};
+
 // Fists of Fury (stun effect) - 120086
 class spell_monk_fists_of_fury_stun : public SpellScriptLoader
 {
@@ -2158,15 +2207,23 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (AuraApplication* aura = _player->GetAuraApplication(SPELL_MONK_TIGEREYE_BREW_STACKS, _player->GetGUID()))
+                        int32 stacks = 0;
+                        if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                         {
-                            int32 stackAmount = aura->GetBase()->GetStackAmount() * 2;
+                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
+                            stacks = tigereyeBrewStacks->GetStackAmount();
+
+                            if (stacks >= 10)
+                                effectAmount = 60;
 
                             AuraApplication* tigereyeBrew = _player->GetAuraApplication(SPELL_MONK_TIGEREYE_BREW, _player->GetGUID());
                             if (tigereyeBrew)
-                                tigereyeBrew->GetBase()->GetEffect(0)->ChangeAmount(stackAmount);
+                                tigereyeBrew->GetBase()->GetEffect(0)->ChangeAmount(effectAmount);
 
-                            _player->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
+                            if (stacks >= 10)
+                                tigereyeBrewStacks->SetStackAmount(stacks - 10);
+                            else
+                                _player->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
                         }
                     }
                 }
@@ -3090,6 +3147,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
     new spell_monk_expel_harm();
     new spell_monk_chi_wave_healing_bolt();

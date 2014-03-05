@@ -86,7 +86,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[7]);
-    data << uint32(ahEntry->houseId); // dword18
+    data << uint32(ahEntry->houseId);
     data.WriteByteSeq(guid[4]);
     SendPacket(&data);
 }
@@ -97,13 +97,13 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
     ObjectGuid guid = 0;
     
     WorldPacket data(SMSG_AUCTION_COMMAND_RESULT);
-    data << uint32(action); // dword30
-    data << uint32(errorCode); // dword28
-    data << uint32(auction ? auction->Id : 0); // dword34
-    data << uint32(bidError); // dword2C
+    data << uint32(action);
+    data << uint32(errorCode);
+    data << uint32(auction ? auction->Id : 0);
+    data << uint32(bidError);
 
     data.WriteBit(!(action == AUCTION_PLACE_BID || action == ERR_AUCTION_HIGHER_BID));
-    data.WriteBit(guid[0]);
+    data.WriteBit(!false);
     data.WriteBit(guid[6]);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[1]);
@@ -125,10 +125,10 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
     data.WriteByteSeq(guid[2]);
 
     if (action == AUCTION_PLACE_BID || action == ERR_AUCTION_HIGHER_BID)
-        data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
+        data << uint64(auction ? (auction->bid ? auction->GetAuctionOutBid() : 0) : 0);
 
     if (action == ERR_AUCTION_HIGHER_BID)
-        data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
+        data << uint64(auction ? (auction->bid ? auction->GetAuctionOutBid() : 0) : 0);
 
     SendPacket(&data);
 }
@@ -136,42 +136,82 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
 //this function sends notification, if bidder is online
 void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 itemEntry)
 {
-    WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, (8*4));
-    data << uint32(location);
-    data << uint32(auctionId);
-    data << uint64(bidder);
-    data << uint64(bidSum);
-    data << uint64(diff);
-    data << uint32(itemEntry);
-    data << uint32(0);
-    SendPacket(&data);
+    ObjectGuid bidderGuid = bidder;
+
+    // Buyout
+    if (!bidSum && !diff)
+    {
+        WorldPacket data(SMSG_AUCTION_BUYOUT_NOTIFICATION, 5 * 4 + 1 + 8);
+
+        data << uint32(itemEntry);
+        data << uint32(location);
+        data << uint32(bidSum);
+        data << uint32(auctionId);
+        data << uint32(diff);
+
+        uint8 bits[8] = { 4, 3, 6, 2, 7, 0, 5, 1 };
+        data.WriteBitInOrder(bidderGuid, bits);
+
+        uint8 bytes[8] = { 3, 1, 4, 6, 5, 7, 0, 2 };
+        data.WriteBytesSeq(bidderGuid, bytes);
+
+        SendPacket(&data);
+    }
+    else
+    {
+        WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, 5 * 4 + 2 * 8 + 1 + 8);
+
+        uint8 bits[8] = { 3, 6, 2, 0, 4, 1, 5, 7 };
+        data.WriteBitInOrder(bidderGuid, bits);
+
+        data << uint32(location);
+        data << uint32(auctionId);
+        data.WriteByteSeq(bidderGuid[3]);
+        data.WriteByteSeq(bidderGuid[2]);
+        data.WriteByteSeq(bidderGuid[1]);
+        data << uint32(itemEntry);
+        data << uint32(0);
+        data.WriteByteSeq(bidderGuid[4]);
+        data << uint64(diff);
+        data.WriteByteSeq(bidderGuid[0]);
+        data.WriteByteSeq(bidderGuid[5]);
+        data << uint64(bidSum);
+        data << uint32(0);
+        data.WriteByteSeq(bidderGuid[7]);
+        data.WriteByteSeq(bidderGuid[6]);
+        SendPacket(&data);
+    }
 }
 
 // this void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 {
     WorldPacket data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 40);
-    data << uint32(auction->Id);
+
     data << uint64(auction->bid);
-    data << uint64(0);                                     //unk
-    data << uint64(0);                                     //unk
+    data << uint32(0);
+    data << uint32(0);                      // Unk
+    data << float(3600);                    // Time in seconds before money received
+    data << uint32(auction->Id);
     data << uint32(auction->itemEntry);
-    data << uint32(0);                                     //unk
-    data << float(0);                                      //unk
+    data.WriteBit(true);
+    data.FlushBits();
+
     SendPacket(&data);
 }
 
 void WorldSession::SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId)
 {
-    WorldPacket data(SMSG_AUCTION_REMOVED_NOTIFICATION, (4+4+4));
+    // No more sended on 5.4.x official
+    /*WorldPacket data(SMSG_AUCTION_REMOVED_NOTIFICATION, (4+4+4));
     data << uint32(auctionId);
     data << uint32(itemEntry);
     data << uint32(randomPropertyId);
-    SendPacket(&data);
+    SendPacket(&data);*/
 }
 
 //this void creates new auction and adds auction to some auctionhouse
-void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
+void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 {
     ObjectGuid auctioneer;
     uint64 bid, buyout;
@@ -472,6 +512,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     auctioneer[1] = recvData.ReadBit();
     auctioneer[0] = recvData.ReadBit();
     auctioneer[2] = recvData.ReadBit();
+
     recvData.FlushBits();
 
     recvData.ReadByteSeq(auctioneer[2]);
@@ -508,15 +549,6 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
         return;
     }
-
-    // impossible have online own another character (use this for speedup check in case online owner)
-    /*Player* auction_owner = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER));
-    if (!auction_owner && sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER)) == player->GetSession()->GetAccountId())
-    {
-        //you cannot bid your another character auction:
-        SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
-        return;
-    }*/
 
     // cheating
     if (price <= auction->bid || price < auction->startbid)
@@ -596,12 +628,13 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
         auctionHouse->RemoveAuction(auction, itemEntry);
     }
+
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 }
 
 //this void is called when auction_owner cancels his auction
-void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
+void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_REMOVE_ITEM");
 
@@ -610,12 +643,12 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 
     recvData >> auctionId;
 
-    uint8 bitOrder[8] = {1, 2, 4, 2, 7, 6, 0, 3};
+    uint8 bitOrder[8] = { 1, 5, 4, 2, 7, 6, 0, 3 };
     recvData.ReadBitInOrder(auctioneer, bitOrder);
 
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {3, 5, 2, 7, 1, 0, 6, 4};
+    uint8 byteOrder[8] = { 3, 5, 2, 7, 1, 0, 6, 4 };
     recvData.ReadBytesSeq(auctioneer, byteOrder);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
@@ -684,7 +717,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 }
 
 //called when player lists his bids
-void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
+void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_BIDDER_ITEMS");
 
@@ -749,12 +782,12 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
     auctionHouse->BuildListBidderItems(data, player, count, totalcount);
     data.put<uint32>(0, count);                           // add count to placeholder
     data << totalcount;
-    data << uint32(300);                                  //unk 2.3.0
+    data << uint32(300);                                  // Official datas
     SendPacket(&data);
 }
 
 //this void sends player info about his auctions
-void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
+void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_OWNER_ITEMS");
 
@@ -797,7 +830,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 }
 
 //this void is called when player clicks on search button
-void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
+void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
 
@@ -807,7 +840,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     ObjectGuid guid;
 
     recvData.read_skip<uint8>(); // f18_0
-    recvData >> quality >> auctionMainCategory >> auctionSlotID >> auctionSubCategory;
+    recvData >> quality >> auctionSubCategory >> auctionSlotID >> auctionMainCategory;
     recvData >> levelmax >> levelmin >> listfrom >> dword148;
 
     // this block looks like it uses some lame byte packing or similar...
@@ -825,6 +858,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     guid[3] = recvData.ReadBit();
     guid[0] = recvData.ReadBit();
     recvData.ReadBit(); // byte135
+
     recvData.FlushBits();
 
     recvData.ReadByteSeq(guid[4]);
@@ -876,21 +910,11 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAuctionListPendingSales(WorldPacket & recvData)
+void WorldSession::HandleAuctionListPendingSales(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_PENDING_SALES");
 
-    uint32 count = 0;
-
     WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES, 4);
-    data << uint32(count);                                  // count
-    /*for (uint32 i = 0; i < count; ++i)
-    {
-        data << "";                                         // string
-        data << "";                                         // string
-        data << uint64(0);
-        data << uint32(0);
-        data << float(0);
-    }*/
+    data << uint32(0);
     SendPacket(&data);
 }

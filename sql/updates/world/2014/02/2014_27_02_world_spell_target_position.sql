@@ -1,0 +1,1 @@
+INSERT INTO spell_target_position VALUE (123073, 0, 1, 2016.96, -4699.158, 28.58, 2.62);

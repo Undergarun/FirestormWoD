@@ -37,6 +37,7 @@
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
+    return;
     uint64 guid;
     recvData >> guid;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
@@ -72,6 +73,7 @@ void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId
 
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 {
+    return;
     ObjectGuid guid;
     uint32 bgTypeId_ = 0;
     uint32 instanceId = 0;
@@ -150,15 +152,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     // check queue conditions
     if (!joinAsGroup)
     {
-        if (GetPlayer()->isUsingLfg())
-        {
-            // player is using dungeon finder or raid finder
-            WorldPacket data;
-            sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_LFG_CANT_USE_BATTLEGROUND);
-            GetPlayer()->GetSession()->SendPacket(&data);
-            return;
-        }
-
         // check Deserter debuff
         if (!_player->CanJoinToBattleground())
         {
@@ -276,6 +269,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 {
+    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
     Battleground* bg = _player->GetBattleground();
@@ -295,6 +289,7 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
+    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
 
     uint32 bgTypeId;
@@ -314,6 +309,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
 {
+    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
 
     uint32 time;
@@ -341,8 +337,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
     uint8 byteOrder[8] = { 0, 7, 2, 6, 3, 5, 1, 4 };
     recvData.ReadBytesSeq(guid, byteOrder);
 
-    queueSlot--;
-
     if (!_player->InBattlegroundQueue())
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %u), he is not in bg_queue.", _player->GetName(), _player->GetGUIDLow());
@@ -362,7 +356,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (bgQueueTypeId > MAX_BATTLEGROUND_QUEUE_TYPES)
+    if (bgQueueTypeId >= MAX_BATTLEGROUND_QUEUE_TYPES)
     {
         sLog->OutPandashan("HandleBattleFieldPortOpcode bgQueueTypeId %u", bgQueueTypeId);
         return;
@@ -451,8 +445,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
                 _player->CleanupAfterTaxiFlight();
             }
 
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueSlot, STATUS_IN_PROGRESS, _player->GetBattlegroundQueueJoinTime(bgTypeId), bg->GetElapsedTime(), bg->GetArenaType());
-            _player->GetSession()->SendPacket(&data);
             // remove battleground queue status from BGmgr
             bgQueue.RemovePlayer(_player->GetGUID(), false);
             // this is still needed here if battleground "jumping" shouldn't add deserter debuff
@@ -505,10 +497,10 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
 
     // not allow leave battleground in combat
-    if (_player->isInCombat())
+    /*if (_player->isInCombat())
         if (Battleground* bg = _player->GetBattleground())
             if (bg->GetStatus() != STATUS_WAIT_LEAVE)
-                return;
+                return;*/
 
     _player->LeaveBattleground();
 }
@@ -580,6 +572,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 {
+    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
     uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
@@ -652,7 +645,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
 
     uint32 avgTime = 0;
-    GroupQueueInfo* ginfo;
+    GroupQueueInfo* ginfo = NULL;
 
     err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, arenatype, arenatype, true, arenaslot);
     if (!err || (err && sBattlegroundMgr->isArenaTesting()))
@@ -679,6 +672,12 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
          // add to queue
         uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
+
+        if (!ginfo)
+        {
+            sLog->OutPandashan("NULL ginfo !!!!");
+            return;
+        }
 
         // add joined time data
         member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);

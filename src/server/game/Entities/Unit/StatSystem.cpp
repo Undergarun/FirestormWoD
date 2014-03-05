@@ -400,28 +400,31 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         }
     }
 
-    if (!HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT) || GetTypeId() != TYPEID_PLAYER)
+    if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
-        SetFloatValue(PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PCT, 0.00f);
-        SetInt32Value(index, uint32(base_attPower + attPowerMod));            //UNIT_FIELD_(RANGED)_ATTACK_POWER field
-        SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+        int32 ApBySpellPct = 0;
+        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus();                    // SpellPower from Weapon
+        spellPower += std::max(0, int32(ToPlayer()->GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
+
+        AuraEffectList const& mAPFromSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT);
+        for (AuraEffectList::const_iterator i = mAPFromSpellPowerPct.begin(); i != mAPFromSpellPowerPct.end(); ++i)
+            ApBySpellPct += CalculatePct(spellPower, (*i)->GetAmount());
+
+        if (ApBySpellPct > 0)
+        {
+            SetInt32Value(index, uint32(ApBySpellPct));     //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+            SetFloatValue(index_mult, attPowerMultiplier);  //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+        }
+        else
+        {
+            SetInt32Value(index, uint32(base_attPower + attPowerMod));  //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+            SetFloatValue(index_mult, attPowerMultiplier);              //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+        }
     }
     else
     {
-        int32 ApBySpellPct = 0;
-        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus(); // SpellPower from Weapon
-        spellPower += std::max(0, int32(ToPlayer()->GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
-
-        AuraEffectList const& APbySpell = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT);
-        for (AuraEffectList::const_iterator iter = APbySpell.begin(); iter != APbySpell.end(); ++iter)
-            ApBySpellPct += (*iter)->GetAmount();
-
-        SetModifierValue(unitMod, BASE_VALUE, (((ApBySpellPct / 100) * spellPower) - 1));
-        SetFloatValue(PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PCT, ApBySpellPct);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MOD_POS field
-        SetInt32Value(index, (((ApBySpellPct / 100) * spellPower) - 1));
-
-        if (attPowerMultiplier < 0)
-            SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+        SetInt32Value(index, uint32(base_attPower + attPowerMod));  //UNIT_FIELD_(RANGED)_ATTACK_POWER field
+        SetFloatValue(index_mult, attPowerMultiplier);              //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
     }
 
     Pet* pet = GetPet();                                //update pet's AP
@@ -762,9 +765,6 @@ void Player::UpdateMasteryPercentage()
 void Player::UpdatePvPPowerPercentage()
 {
     float value = GetRatingBonusValue(CR_PVP_POWER);
-    value /= 400;
-    value = value < 0.0f ? 0.0f : value;
-
     float damage_value = value;
     float heal_value = value;
 
@@ -803,6 +803,7 @@ void Player::UpdatePvPPowerPercentage()
         // Damage specializations for Druids, Monks, Paladins, Priests, and Shaman receive a 70% bonus to healing from PvP Power.
         default:
             heal_value *= 0.7f;
+            break;
     }
 
     SetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE, damage_value);
@@ -1436,10 +1437,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         }
         else if (GetEntry() == ENTRY_WATER_ELEMENTAL) // water elementals benefit from mage's frost damage
         {
-            int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
-            if (frost < 0)
-                frost = 0;
-            SetBonusDamage(int32(frost * 0.4f));
+            SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST)));
         }
         // Summon Gargoyle AP
         else if (GetEntry() == 27829)

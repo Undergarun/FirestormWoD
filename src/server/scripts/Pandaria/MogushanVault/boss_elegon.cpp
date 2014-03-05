@@ -94,6 +94,10 @@ enum eSpells
     SPELL_SPAWN_FLASH_1_PERIODIC    = 127785,
     SPELL_SPAWN_FLASH_2_PERIODIC    = 127783,
     SPELL_SPAWN_FLASH_3_PERIODIC    = 127781,
+
+    // Heroic
+    SPELL_DESTABILIZING_ENERGIES    = 132222,
+    SPELL_CATASTROPHIC_ANOMALY      = 127341,
 };
 
 enum eEvents
@@ -199,6 +203,18 @@ Position empyrealFocusPosition[6] =
     { 3992.02f, 1938.86f, 358.872f, 2.35619f }   // South-West
 };
 
+enum infiniteActions
+{
+    ACTION_INFINITE_GO_DOWN         = 0,
+    ACTION_INFINITE_ACTIVATION_WEST = 1,
+    ACTION_INFINITE_ACTIVATION      = 2,
+    ACTION_INFINITE_ACTIVATION_EAST = 3,
+    ACTION_INFINITE_FLASH_SPAWN     = 4,
+    ACTION_INFINITE_SPAWN_PLATFORM  = 5,
+    ACTION_INFINITE_SPAWN_BOSS      = 6,
+    ACTION_INFINITE_LOOT            = 7,
+};
+
 // Elegon - 60410
 class boss_elegon : public CreatureScript
 {
@@ -225,6 +241,10 @@ class boss_elegon : public CreatureScript
 
             void Reset()
             {
+
+                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
+                    cho->AI()->Talk(26);
+
                 _Reset();
 
                 me->AddAura(SPELL_APPARITION_VISUAL, me);
@@ -275,6 +295,12 @@ class boss_elegon : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
+                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
+                {
+                    cho->AI()->Talk(27);
+                    cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                }
+
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -481,19 +507,63 @@ class boss_elegon : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                if (pInstance)
+                    pInstance->SetBossState(DATA_ELEGON, DONE);
+
                 _JustDied();
+
+                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 400.0f, true))
+                {
+                    cho->AI()->Talk(28);
+                    cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                }
 
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    pInstance->SetBossState(DATA_ELEGON, DONE);
+
+                    Map::PlayerList const& playerList = pInstance->instance->GetPlayers();
+                    if (!playerList.isEmpty())
+                    {
+                        for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        {
+                            if (Player* player = itr->getSource())
+                            {
+                                if (player->isGameMaster())
+                                    continue;
+
+                                if (player->isAlive())
+                                {
+                                    player->CombatStop();
+                                    player->CombatStopWithPets(true);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveLand(2, middlePos);
+                
+                if (pInstance)
+                {
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
+                }
 
                 me->RemoveAurasDueToSpell(SPELL_RADIATING_ENERGIES_VISUAL);
+                me->RemoveAurasDueToSpell(SPELL_OVERCHARGED);
+                me->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                 Talk(TALK_DEATH);
+
+                if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
+                    infiniteEnergy->AI()->DoAction(ACTION_INFINITE_LOOT);
+
+                if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ELEGON_DOOR_ENTRANCE)))
+                    if (door->GetGoState() == GO_STATE_READY)
+                        door->SetGoState(GO_STATE_ACTIVE);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -915,11 +985,13 @@ class mob_celestial_protector : public CreatureScript
         {
             mob_celestial_protectorAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
             bool stabilityFluxCasted;
             bool totalAnnihilationCasted;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -949,10 +1021,12 @@ class mob_celestial_protector : public CreatureScript
                 if (me->GetHealth() < damage)
                 {
                     damage = 0;
-
+                    
                     if (!totalAnnihilationCasted)
                     {
                         me->CastSpell(me, SPELL_TOTAL_ANNIHILATION, false);
+                        if (pInstance->instance->IsHeroic())
+                            me->CastSpell(me, SPELL_DESTABILIZING_ENERGIES, false);
                         totalAnnihilationCasted = true;
                         events.ScheduleEvent(EVENT_KILLED , 4500);
                     }
@@ -963,9 +1037,9 @@ class mob_celestial_protector : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-
+                
                 events.Update(diff);
-
+                
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -1040,6 +1114,7 @@ class mob_cosmic_spark : public CreatureScript
         {
             mob_cosmic_sparkAI(Creature* creature) : ScriptedAI(creature)
             {
+                me->SetReactState(REACT_AGGRESSIVE);
             }
 
             EventMap events;
@@ -1047,7 +1122,7 @@ class mob_cosmic_spark : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
+                
                 events.ScheduleEvent(EVENT_CHECK_UNIT_ON_PLATFORM, 1000);
                 events.ScheduleEvent(EVENT_ICE_TRAP, 10000);
 
@@ -1059,9 +1134,9 @@ class mob_cosmic_spark : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-
+                
                 events.Update(diff);
-
+                
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -1166,17 +1241,6 @@ class mob_energy_charge : public CreatureScript
             {
             }
         };
-};
-
-enum infiniteActions
-{
-    ACTION_INFINITE_GO_DOWN         = 0,
-    ACTION_INFINITE_ACTIVATION_WEST = 1,
-    ACTION_INFINITE_ACTIVATION      = 2,
-    ACTION_INFINITE_ACTIVATION_EAST = 3,
-    ACTION_INFINITE_FLASH_SPAWN     = 4,
-    ACTION_INFINITE_SPAWN_PLATFORM  = 5,
-    ACTION_INFINITE_SPAWN_BOSS      = 6,
 };
 
 enum infiniteEvents
@@ -1331,6 +1395,15 @@ class mob_infinite_energy : public CreatureScript
                         }
                         break;
                     }
+                    case ACTION_INFINITE_LOOT:
+                    {
+                        // Loots chest
+                        if (IsHeroic())
+                            me->SummonGameObject(GOB_ELEGON_CHEST_HEROIC, middlePos.GetPositionX(), middlePos.GetPositionY(), middlePos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                        else
+                            me->SummonGameObject(GOB_ELEGON_CHEST, middlePos.GetPositionX(), middlePos.GetPositionY(), middlePos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1375,7 +1448,6 @@ class mob_infinite_energy : public CreatureScript
                         if (pInstance)
                             if (Creature* elegon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ELEGON)))
                                 elegon->AI()->Talk(TALK_INTRO_2);
-
                         break;
                     }
                     default:
@@ -1391,18 +1463,26 @@ class go_celestial_control_console : public GameObjectScript
     public:
         go_celestial_control_console() : GameObjectScript("go_celestial_control_console") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        void OnGameObjectStateChanged(GameObject* go, uint32 state)
         {
-            if (InstanceScript* pInstance = player->GetInstanceScript())
-            {
-                if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
-                    infiniteEnergy->AI()->DoAction(ACTION_INFINITE_GO_DOWN);
+            std::list<Player*> playerList;
+            playerList.clear();
+            GetPlayerListInGrid(playerList, go, 10.0f);
 
-                if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
-                    titanDisk->SetGoState(GO_STATE_READY);
-            }
+            if (!playerList.empty())
+                for (auto player: playerList)
+                        if (InstanceScript* pInstance = player->GetInstanceScript())
+                        {
+                            if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
+                                infiniteEnergy->AI()->DoAction(ACTION_INFINITE_GO_DOWN);
 
-            return false;
+                            if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
+                                titanDisk->SetGoState(GO_STATE_READY);
+
+                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                            return;
+                        }
         }
 };
 
@@ -1702,6 +1782,89 @@ class spell_grasping_energy_tendrils : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_grasping_energy_tendrils_SpellScript();
+        }
+};
+
+// Destabilizing Energies - 132222
+class spell_destabilizing_energies : public SpellScriptLoader
+{
+    public:
+        spell_destabilizing_energies() : SpellScriptLoader("spell_destabilizing_energies") { }
+
+        class spell_destabilizing_energies_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_destabilizing_energies_AuraScript);
+
+            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> targetList;
+                    GetPlayerListInGrid(targetList, caster, 200.0f);
+                    for (auto target : targetList)
+                        caster->AddAura(SPELL_DESTABILIZING_ENERGIES, target);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_destabilizing_energies_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_destabilizing_energies_AuraScript();
+        }
+};
+
+// Total Annihilation - 127911
+class spell_total_annihilation : public SpellScriptLoader
+{
+    public:
+        spell_total_annihilation() : SpellScriptLoader("spell_total_annihilation") { }
+
+        class spell_total_annihilation_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_total_annihilation_SpellScript);
+
+            uint32 targetCount;
+
+            bool Load()
+            {
+                targetCount = 0;
+                return true;
+            }
+
+            void CountTargets(std::list<WorldObject*>& targets)
+            {
+                targetCount = targets.size();
+            }
+
+            void CheckTargets()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->GetInstanceScript()->instance->IsHeroic())
+                        return;
+
+                    uint8 diffic = caster->GetMap()->GetDifficulty();
+
+                    if ((!targetCount &&  diffic == MAN10_DIFFICULTY) || (targetCount < 3 && diffic == MAN25_DIFFICULTY))
+                        caster->CastSpell(caster, SPELL_CATASTROPHIC_ANOMALY, false);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_total_annihilation_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                AfterCast += SpellCastFn(spell_total_annihilation_SpellScript::CheckTargets);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_total_annihilation_SpellScript();
         }
 };
 

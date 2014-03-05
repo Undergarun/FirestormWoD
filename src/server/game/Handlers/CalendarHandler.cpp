@@ -47,6 +47,10 @@ SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ Structure unkown ]
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
+    // Look like that function make random crashs ...
+    // @TODO: Check the code
+    return;
+    
     uint64 guid = _player->GetGUID();
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GET_CALENDAR [" UI64FMTD "]", guid);
 
@@ -70,9 +74,12 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*it))
         {
             ObjectGuid creatorGuid = calendarEvent->GetCreatorGUID();
-            ObjectGuid guildGuid = MAKE_NEW_GUID(calendarEvent->GetGuildId(), 0, calendarEvent->GetGuildId() ? uint32(HIGHGUID_GUILD) : 0);
+            ObjectGuid guildGuid = 0;
+            if (calendarEvent->GetGuildId())
+                guildGuid = MAKE_NEW_GUID(calendarEvent->GetGuildId(), 0, HIGHGUID_GUILD);
+            std::string title = calendarEvent->GetTitle();
 
-            data.WriteBits(calendarEvent->GetTitle().size(), 8);
+            data.WriteBits(title.size(), 8);
             data.WriteBit(creatorGuid[1]);
             data.WriteBit(guildGuid[7]);
             data.WriteBit(creatorGuid[0]);
@@ -109,8 +116,8 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
             eventsBuffer.WriteByteSeq(creatorGuid[3]);
             eventsBuffer.WriteByteSeq(creatorGuid[0]);
 
-            if (calendarEvent->GetTitle().size() > 0)
-                eventsBuffer.append(calendarEvent->GetTitle().c_str(), calendarEvent->GetTitle().size());
+            if (title.size())
+                eventsBuffer.append(title.c_str(), title.size());
 
             eventsBuffer.WriteByteSeq(creatorGuid[2]);
             eventsBuffer << uint32(calendarEvent->GetFlags());
@@ -138,11 +145,11 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
             data.WriteBit(0);
             data.WriteBit(0);
 
-            eventsBuffer << uint32(calendarEvent->GetTime());
-            eventsBuffer << uint32(calendarEvent->GetDungeonId());
-            eventsBuffer << uint64(calendarEvent->GetEventId());
-            eventsBuffer << uint32(calendarEvent->GetFlags());
-            eventsBuffer << uint8(calendarEvent->GetType());
+            eventsBuffer << uint32(0);
+            eventsBuffer << uint32(0);
+            eventsBuffer << uint64(0);
+            eventsBuffer << uint32(0);
+            eventsBuffer << uint8(0);
         }
     }
 
@@ -183,16 +190,16 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
 
-            ObjectGuid creatorGuid = invite->GetSenderGUID();
+            ObjectGuid creatorGuid = invite ? invite->GetSenderGUID() : 0;
 
             uint8 bitsOrder[8] = { 1, 6, 2, 3, 5, 7, 4, 0 };
             data.WriteBitInOrder(creatorGuid, bitsOrder);
 
-            invitesBuffer << uint8(invite->GetStatus());
-            invitesBuffer << uint8(invite->GetRank());
-            invitesBuffer << uint64(invite->GetEventId());
+            invitesBuffer << uint8(invite ? invite->GetStatus() : 0);
+            invitesBuffer << uint8(invite ? invite->GetRank() : 0);
+            invitesBuffer << uint64(invite ? invite->GetEventId() : 0);
             invitesBuffer << uint8(0);
-            invitesBuffer << uint64(invite->GetInviteId());
+            invitesBuffer << uint64(invite ? invite->GetInviteId() : 0);
         }
     }
 
@@ -213,15 +220,15 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     }
 
     data.WriteBits(raidCounter, 20);
-    data.WriteBits(/*sHolidaysStore.GetNumRows()*/ 0, 16);
+    data.WriteBits(/*sHolidaysStore.GetNumRows()*/0, 16);
 
-    for (uint32 i = 0; i < sHolidaysStore.GetNumRows(); i++)
+    /*for (uint32 i = 0; i < sHolidaysStore.GetNumRows(); i++)
     {
         data.WriteBits(0, 6);   // Name length
 
         for (uint8 j = 0; j < 51; j++)
             holidaysBuffer << uint32(0);
-    }
+    }*/
 
     uint32 instancesCounter = 0;
 
@@ -274,15 +281,15 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
     data.FlushBits();
 
-    if (instancesBuffer.size() > 0)
+    if (instancesBuffer.size())
         data.append(instancesBuffer);
-    if (raidsBuffer.size() > 0)
+    if (raidsBuffer.size())
         data.append(raidsBuffer);
-    if (holidaysBuffer.size() > 0)
+    if (holidaysBuffer.size())
         data.append(holidaysBuffer);
-    if (eventsBuffer.size() > 0)
+    if (eventsBuffer.size())
         data.append(eventsBuffer);
-    if (invitesBuffer.size() > 0)
+    if (invitesBuffer.size())
         data.append(invitesBuffer);
 
     SendPacket(&data);

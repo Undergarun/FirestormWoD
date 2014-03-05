@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "Object.h"
 
 class Unit;
@@ -472,7 +473,7 @@ public:
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;
-    bool IsBreakingStealth() const;
+    bool IsBreakingStealth(Unit* m_caster) const;
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
     bool CanBeDarkSimulacrum(Unit* m_caster) const;
@@ -566,6 +567,8 @@ public:
     bool IsAffectedByResilience() const;
     bool IsLethalPoison() const;
     bool CanTriggerHotStreak() const;
+    bool IsCustomCalculated() const;
+    bool CannotBeAddedToCharm() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;

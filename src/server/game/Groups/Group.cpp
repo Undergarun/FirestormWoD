@@ -324,7 +324,9 @@ bool Group::AddInvite(Player* player)
 
     RemoveInvite(player);
 
-    m_invitees.insert(player);
+    m_inviteesLock.acquire();
+    m_invitees.insert(player->GetGUID());
+    m_inviteesLock.release();
 
     player->SetGroupInvite(this);
 
@@ -348,37 +350,50 @@ void Group::RemoveInvite(Player* player)
 {
     if (player)
     {
-        m_invitees.erase(player);
+        m_inviteesLock.acquire();
+        m_invitees.erase(player->GetGUID());
+        m_inviteesLock.release();
         player->SetGroupInvite(NULL);
     }
 }
 
 void Group::RemoveAllInvites()
 {
+    m_inviteesLock.acquire();
     for (InvitesList::iterator itr=m_invitees.begin(); itr != m_invitees.end(); ++itr)
-        if (*itr)
-            (*itr)->SetGroupInvite(NULL);
+        if (Player* plr = sObjectAccessor->FindPlayer(*itr))
+            plr->SetGroupInvite(NULL);
 
     m_invitees.clear();
+    m_inviteesLock.release();
 }
 
 Player* Group::GetInvited(uint64 guid) const
 {
     for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
-        if ((*itr) && (*itr)->GetGUID() == guid)
-            return (*itr);
+        if ((*itr) == guid)
+            return sObjectAccessor->FindPlayer(*itr);
     }
     return NULL;
 }
 
 Player* Group::GetInvited(const std::string& name) const
 {
+    m_inviteesLock.acquire();
     for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
-        if ((*itr) && (*itr)->GetName() == name)
-            return (*itr);
+        Player* plr = sObjectAccessor->FindPlayer(*itr);
+        if (!plr)
+            continue;
+
+        if (plr->GetName() == name)
+        {
+            m_inviteesLock.release();
+            return plr;
+        }
     }
+    m_inviteesLock.release();
     return NULL;
 }
 
@@ -577,7 +592,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = NULL;
+            ObjectGuid memberGuids = 0;
 
             uint32 memberNameLength = 0;
 
@@ -889,7 +904,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = NULL;
+            ObjectGuid memberGuids = 0;
 
             uint32 memberNameLength = 0;
 
@@ -1848,7 +1863,20 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_MASTER_LOOT_CANDIDATE_LIST)");
     uint32 real_count = 0;
-    ObjectGuid guid_looted = pLootedObject->GetGUID();
+
+    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* looter = itr->getSource();
+        if (!looter->IsInWorld())
+            continue;
+
+        if (looter->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+            ++real_count;
+    }
+
+    ObjectGuid guid_looted = MAKE_NEW_GUID(pLootedObject->GetGUIDLow(), 0, HIGHGUID_LOOT);
+    sObjectMgr->setLootViewGUID(guid_looted, pLootedObject->GetGUID());
+
     WorldPacket data(SMSG_MASTER_LOOT_CANDIDATE_LIST);
     data.WriteBit(guid_looted[2]);
     data.WriteBit(guid_looted[4]);
@@ -1857,8 +1885,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     data.WriteBit(guid_looted[5]);
     data.WriteBit(guid_looted[6]);
     data.WriteBit(guid_looted[7]);
-    uint32 pos = data.bitwpos();
-    data.WriteBits(0, 24);
+    data.WriteBits(real_count, 24);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1878,8 +1905,6 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
             data.WriteBit(guid[2]);
             data.WriteBit(guid[7]);
             data.WriteBit(guid[0]);
-
-            ++real_count;
         }
     }
 
@@ -1913,8 +1938,6 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     data.WriteByteSeq(guid_looted[6]);
     data.WriteByteSeq(guid_looted[5]);
     data.WriteByteSeq(guid_looted[3]);
-
-    data.PutBits<uint32>(pos, real_count, 26);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -2292,11 +2315,8 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     std::string playerName = player->GetName();
     uint32 memberCount = GetMembersCount();
-    ObjectGuid* memberGuids = NULL;
-    memberGuids = new ObjectGuid[memberCount];
-
-    uint32* memberNameLength;
-    memberNameLength = new uint32[memberCount];
+    ObjectGuid* memberGuids = new ObjectGuid[memberCount];
+    uint32* memberNameLength = new uint32[memberCount];
 
     uint8 count = 0;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
@@ -2465,6 +2485,12 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteByteSeq(leaderGuid[5]);
 
     player->GetSession()->SendPacket(&data);
+
+    delete[] memberGuids;
+    delete[] memberNameLength;
+
+    memberGuids = NULL;
+    memberNameLength = NULL;
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)
@@ -3243,6 +3269,129 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
 
+void Group::SendRaidMarkersUpdate()
+{
+    uint32 mask = RAID_MARKER_NONE;
+
+    for (auto itr : GetRaidMarkers())
+        mask |= itr.mask;
+
+    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, 10);
+    ByteBuffer dataBuffer;
+
+    data << uint8(0);
+    data << uint32(mask);
+
+    data.WriteBits(GetRaidMarkers().size(), 3);
+
+    // @TODO: Send in classic order instead of summon order
+    for (auto itr : GetRaidMarkers())
+    {
+        ObjectGuid guid = 0;
+
+        uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
+        data.WriteBitInOrder(guid, bits);
+
+        dataBuffer << float(itr.posZ);
+        dataBuffer.WriteByteSeq(guid[6]);
+        dataBuffer << uint32(itr.mapId);
+        dataBuffer.WriteByteSeq(guid[4]);
+        dataBuffer << float(itr.posX);
+        dataBuffer << float(itr.posY);
+        dataBuffer.WriteByteSeq(guid[1]);
+        dataBuffer.WriteByteSeq(guid[2]);
+        dataBuffer.WriteByteSeq(guid[7]);
+        dataBuffer.WriteByteSeq(guid[0]);
+        dataBuffer.WriteByteSeq(guid[5]);
+        dataBuffer.WriteByteSeq(guid[3]);
+    }
+
+    data.FlushBits();
+    if (dataBuffer.size())
+        data.append(dataBuffer);
+
+    BroadcastPacket(&data, true);
+}
+
+void Group::AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z)
+{
+    uint32 mask = RAID_MARKER_NONE;
+
+    RaidMarker marker;
+    marker.mapId = mapId;
+    marker.posX  = x;
+    marker.posY  = y;
+    marker.posZ  = z;
+
+    switch (spellId)
+    {
+        case 84996: // Raid Marker 1
+            mask = RAID_MARKER_BLUE;
+            break;
+        case 84997: // Raid Marker 2
+            mask = RAID_MARKER_GREEN;
+            break;
+        case 84998: // Raid Marker 3
+            mask = RAID_MARKER_PURPLE;
+            break;
+        case 84999: // Raid Marker 4
+            mask = RAID_MARKER_RED;
+            break;
+        case 85000: // Raid Marker 5
+            mask = RAID_MARKER_YELLOW;
+            break;
+        default:
+            break;
+    }
+
+    marker.mask = mask;
+
+    m_raidMarkers.push_back(marker);
+    SendRaidMarkersUpdate();
+}
+
+void Group::RemoveRaidMarker(uint8 markerId)
+{
+    uint32 mask = RAID_MARKER_NONE;
+
+    switch (markerId)
+    {
+        case 0: // Blue
+            mask = RAID_MARKER_BLUE;
+            break;
+        case 1: // Green
+            mask = RAID_MARKER_GREEN;
+            break;
+        case 2: // Purple
+            mask = RAID_MARKER_PURPLE;
+            break;
+        case 3: // Red
+            mask = RAID_MARKER_RED;
+            break;
+        case 4: // Yellow
+            mask = RAID_MARKER_YELLOW;
+            break;
+        default:
+            break;
+    }
+
+    for (RaidMarkerList::iterator itr = m_raidMarkers.begin(); itr != m_raidMarkers.end();)
+    {
+        if (mask == (*itr).mask)
+            m_raidMarkers.erase(itr++);
+        else
+            ++itr;
+    }
+
+    SendRaidMarkersUpdate();
+}
+
+void Group::RemoveAllRaidMarkers()
+{
+    m_raidMarkers.clear();
+    SendRaidMarkersUpdate();
+}
+
 uint8 Group::GetMemberGroup(uint64 guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
@@ -3449,10 +3598,10 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
             {
                 // update personal rating
                 int32 mod = Arena::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-                p->SetArenaPersonalRating(mod, slot);
+                p->SetArenaPersonalRating(slot, p->GetArenaPersonalRating(slot) + mod);
 
                 // update matchmaker rating
-                p->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
+                p->SetArenaMatchMakerRating(slot, p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
 
                 // update personal played stats
                 p->IncrementWeekGames(slot);
@@ -3465,6 +3614,9 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
 
 void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
 {
+    if (!player)
+        return;
+
     // Called for each participant of a match after losing
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
@@ -3472,10 +3624,10 @@ void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slo
         {
             // Update personal rating
             int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-            player->SetArenaPersonalRating(mod, slot);
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
 
             // Update matchmaker rating
-            player->SetArenaMatchMakerRating(MatchmakerRatingChange, slot);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
 
             // Update personal played stats
             player->IncrementWeekGames(slot);
@@ -3511,15 +3663,26 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
     // Change in Matchmaker rating
     int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
 
-    // Change in Team Rating
-    rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
-
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            player->SetArenaPersonalRating(slot, (player->GetArenaPersonalRating(slot) + rating_change) > 0 ? (player->GetArenaPersonalRating(slot) + rating_change) : 0);
-            player->SetArenaMatchMakerRating(slot, (player->GetArenaMatchMakerRating(slot) + mod) > 0 ? (player->GetArenaMatchMakerRating(slot) + mod) : 0);
+            // Change in Team Rating
+            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
+
+            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
+                rating_change = 0;
+
+            if (player->GetArenaPersonalRating(slot) < 1500)
+                rating_change = 96;
+
+            if (player->GetBattleground())
+                for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
+                    if (itr2->first == itr->guid)
+                        itr2->second->RatingChange = rating_change;
+
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
 
             player->IncrementWeekWins(slot);
             player->IncrementSeasonWins(slot);
@@ -3535,15 +3698,26 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
     // Change in Matchmaker Rating
     int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
 
-    // Change in Team Rating
-    rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
-
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            player->SetArenaPersonalRating(slot, (player->GetArenaPersonalRating(slot) + rating_change) > 0 ? (player->GetArenaPersonalRating(slot) + rating_change) : 0);
-            player->SetArenaMatchMakerRating(slot, (player->GetArenaMatchMakerRating(slot) + mod) > 0 ? (player->GetArenaMatchMakerRating(slot) + mod) : 0);
+            // Change in Team Rating
+            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
+
+            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
+                rating_change = 0;
+
+            if (player->GetArenaPersonalRating(slot) < 1500)
+                rating_change = 92;
+
+            if (player->GetBattleground())
+                for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
+                    if (itr2->first == itr->guid)
+                        itr2->second->RatingChange = rating_change;
+
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
 
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);

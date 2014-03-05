@@ -104,6 +104,80 @@ enum WarlockSpells
     WARLOCK_SOULBURN_OVERRIDE_7             = 114787,
     WARLOCK_SEED_OF_CORRUPTION_DUMMY        = 86664,
     WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE    = 114794,
+    WARLOCK_GRIMOIRE_OF_SUPREMACY_TALENT    = 108499,
+    WARLOCK_SUMMON_FEL_IMP                  = 112866,
+    WARLOCK_SUMMON_VOIDLORD                 = 112867,
+    WARLOCK_SUMMON_SHIVARRA                 = 112868,
+    WARLOCK_SUMMON_OBSERVER                 = 112869,
+    WARLOCK_SUMMON_WRATHGUARD               = 112870,
+    WARLOCK_SUMMON_ABYSSAL                  = 112921,
+    WARLOCK_SUMMON_TERRORGUARD              = 112927
+};
+
+// Grimoire of Supremacy - 108499
+class spell_warl_grimoire_of_supremacy : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_supremacy() : SpellScriptLoader("spell_warl_grimoire_of_supremacy") { }
+
+        class spell_warl_grimoire_of_supremacy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_grimoire_of_supremacy_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                {
+                    _player->learnSpell(WARLOCK_SUMMON_FEL_IMP, false);
+                    _player->learnSpell(WARLOCK_SUMMON_VOIDLORD, false);
+                    _player->learnSpell(WARLOCK_SUMMON_SHIVARRA, false);
+                    _player->learnSpell(WARLOCK_SUMMON_OBSERVER, false);
+                    _player->learnSpell(WARLOCK_SUMMON_ABYSSAL, false);
+                    _player->learnSpell(WARLOCK_SUMMON_TERRORGUARD, false);
+
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        _player->learnSpell(WARLOCK_SUMMON_WRATHGUARD, false);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                {
+                    if (_player->HasSpell(WARLOCK_SUMMON_FEL_IMP))
+                        _player->removeSpell(WARLOCK_SUMMON_FEL_IMP, false, false);
+
+                    if (_player->HasSpell(WARLOCK_SUMMON_VOIDLORD))
+                        _player->removeSpell(WARLOCK_SUMMON_VOIDLORD, false, false);
+
+                    if (_player->HasSpell(WARLOCK_SUMMON_SHIVARRA))
+                        _player->removeSpell(WARLOCK_SUMMON_SHIVARRA, false, false);
+
+                    if (_player->HasSpell(WARLOCK_SUMMON_OBSERVER))
+                        _player->removeSpell(WARLOCK_SUMMON_OBSERVER, false, false);
+
+                    if (_player->HasSpell(WARLOCK_SUMMON_WRATHGUARD))
+                        _player->removeSpell(WARLOCK_SUMMON_WRATHGUARD, false, false);
+
+                    if (_player->HasSpell(WARLOCK_SUMMON_ABYSSAL))
+                        _player->removeSpell(WARLOCK_SUMMON_ABYSSAL, false, false);
+
+                    if (_player->HasSpell(WARLOCK_SUMMON_TERRORGUARD))
+                        _player->removeSpell(WARLOCK_SUMMON_TERRORGUARD, false, false);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_grimoire_of_supremacy_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_grimoire_of_supremacy_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_grimoire_of_supremacy_AuraScript();
+        }
 };
 
 // Soulburn : Drain Life - 89420
@@ -1208,7 +1282,7 @@ class spell_warl_molten_core_dot : public SpellScriptLoader
             {
                 if (GetCaster())
                 {
-                    if (GetCaster()->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                    if (GetCaster()->HasAura(WARLOCK_MOLTEN_CORE_AURA) && GetCaster()->getLevel() >= 69)
                         if (roll_chance_i(8))
                             GetCaster()->CastSpell(GetCaster(), WARLOCK_MOLTEN_CORE, true);
 
@@ -1244,7 +1318,7 @@ class spell_warl_decimate : public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(WARLOCK_DECIMATE_AURA))
+                        if (_player->HasAura(WARLOCK_DECIMATE_AURA) && _player->getLevel() >= 73)
                             if (target->GetHealthPct() < 25.0f)
                                 _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
 
@@ -1353,7 +1427,8 @@ class spell_warl_chaos_wave : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
+                    if (_player->HasAura(WARLOCK_MOLTEN_CORE_AURA) && _player->getLevel() >= 69)
+                        _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
             }
 
             void Register()
@@ -2100,6 +2175,8 @@ class spell_warl_ember_tap : public SpellScriptLoader
                         pct = 0.15f * (1 + Mastery);
 
                         healAmount = int32(_player->GetMaxHealth() * pct);
+                        healAmount = _player->SpellHealingBonusDone(_player, GetSpellInfo(), healAmount, HEAL);
+                        healAmount = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), healAmount, HEAL);
 
                         SetHitHeal(healAmount);
                     }
@@ -2555,25 +2632,10 @@ class spell_warl_harvest_life : public SpellScriptLoader
 
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    std::list<Unit*> targetList;
-                    aurEff->GetTargetList(targetList);
-                    float coeff = 0.03f;
-                    uint8 count = 1;
-                    bool first = true;
+                    // Restoring 3-4.5% of the caster's total health every 1s - With 33% bonus
+                    int32 basepoints = int32(frand(0.03f, 0.045f) * _player->GetMaxHealth());
 
-                    for (auto itr : targetList)
-                    {
-                        if (first)
-                            continue;
-                        else if (count <= 6)
-                        {
-                            coeff += 0.0025f;
-                            ++count;
-                        }
-                    }
-
-                    // Restoring 3-4.5% of the caster's total health every 1s
-                    int32 basepoints = int32(coeff * float(_player->GetMaxHealth()));
+                    AddPct(basepoints, 33);
 
                     if (!_player->HasSpellCooldown(WARLOCK_HARVEST_LIFE_HEAL))
                     {
@@ -2892,6 +2954,7 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         }
 };
 
+// Unstable Affliction - 30108
 class spell_warl_unstable_affliction : public SpellScriptLoader
 {
     public:
@@ -2913,7 +2976,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                     {
-                        int32 damage = aurEff->GetAmount() * 7;
+                        int32 damage = aurEff->GetAmount() * 8;
                         // backfire damage and silence
                         caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
                     }
@@ -2933,6 +2996,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_drain_life();
     new spell_warl_soulburn_health_funnel();
     new spell_warl_soulburn_seed_of_corruption_damage();

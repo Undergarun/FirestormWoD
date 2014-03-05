@@ -75,7 +75,7 @@ enum AccountDataType
 #define NUM_ACCOUNT_DATA_TYPES        8
 
 #define GLOBAL_CACHE_MASK           0x15
-#define PER_CHARACTER_CACHE_MASK    0xEA
+#define PER_CHARACTER_CACHE_MASK    0xAA
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
 
@@ -154,7 +154,7 @@ enum CharterTypes
     ARENA_TEAM_CHARTER_5v5_TYPE                   = 5,
 };
 
-enum DB2Types
+enum DB2Types : uint32
 {
     DB2_REPLY_SPARSE                          = 2442913102,           // hash of item-sparse.db2
     DB2_REPLY_ITEM                            = 1344507586,           // hash of item.db2
@@ -239,7 +239,7 @@ class CharacterCreateInfo
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 premiumType, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -269,6 +269,7 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         bool IsPremium() const { return _ispremium; }
+        uint8 getPremiumType() const { return _premiumType; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         std::string GetPlayerName(bool simple = true) const;
@@ -485,6 +486,8 @@ class WorldSession
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
+        void HandleClientReportError(WorldPacket& recvData);
+
         // character view
         void HandleShowAccountAchievement(WorldPacket& recvData);
         void HandleShowingHelmOpcode(WorldPacket& recvData);
@@ -537,7 +540,8 @@ class WorldSession
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
-        void HandleBugOpcode(WorldPacket& recvPacket);
+        void HandleReportBugOpcode(WorldPacket& recvPacket);
+        void HandleReportSuggestionOpcode(WorldPacket& recvPacket);
 
         void HandleSendDuelRequest(WorldPacket& recvPacket);
 
@@ -605,6 +609,7 @@ class WorldSession
         void HandlePartyAssignmentOpcode(WorldPacket& recvData);
         void HandleRolePollBegin(WorldPacket& recvData);
         void HandleRequestJoinUpdates(WorldPacket& recvData);
+        void HandleClearRaidMarkerOpcode(WorldPacket& recvData);
 
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);
@@ -681,7 +686,6 @@ class WorldSession
 
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);
-        void HandleBusyTradeOpcode(WorldPacket& recvPacket);
         void HandleCancelTradeOpcode(WorldPacket& recvPacket);
         void HandleClearTradeItemOpcode(WorldPacket& recvPacket);
         void HandleIgnoreTradeOpcode(WorldPacket& recvPacket);
@@ -777,9 +781,12 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
+        void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
+        void HandleRequestGmTicket(WorldPacket& recvPakcet);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCemeteryListOpcode(WorldPacket& recvData);
+        void HandleForcedReactionsOpcode(WorldPacket& recvData);
         void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
@@ -863,6 +870,7 @@ class WorldSession
         void HandleTimeSyncResp(WorldPacket& recvData);
         void HandleWhoisOpcode(WorldPacket& recvData);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
+        void HandleResetChallengeModeOpcode(WorldPacket& recvData);
         void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
@@ -894,7 +902,7 @@ class WorldSession
         void SendLfgUpdatePlayer(const LfgUpdateData& updateData);
         void SendLfgUpdateParty(const LfgUpdateData& updateData, uint32 joinTime = 0);
         void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
-        void SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck, bool updateAll);
+        void SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck);
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(uint64 guid_, const LfgJoinResultData& joinData);
         void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
@@ -1008,8 +1016,12 @@ class WorldSession
         void HandleUpgradeItemOpcode(WorldPacket& recvData);
         void SendItemUpgradeResult(bool success);
 
+        // Loot specialization
+        void HandleSetLootSpecialization(WorldPacket& recvData);
+
         // Miscellaneous
-        void HandleTradeInfo (WorldPacket& recvData);
+        void HandleTradeInfo(WorldPacket& recvData);
+        void HandleSaveCUFProfiles(WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleAlterAppearance(WorldPacket& recvData);
@@ -1086,6 +1098,7 @@ class WorldSession
         uint32 _accountId;
         uint8 m_expansion;
         bool _ispremium;
+        uint8 _premiumType;
 
         typedef std::list<AddonInfo> AddonsList;
 

@@ -442,7 +442,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     // base amount modification based on spell lvl vs caster lvl
     if (ScalingMultiplier != 0.0f)
     {
-        if (caster && _spellInfo->Id != 113344) // Hack Fix Bloodbath
+        if (caster && !_spellInfo->IsCustomCalculated())
         {
             int32 level = caster->getLevel();
             if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA) && _spellInfo->Id != 774) // Hack Fix Rejuvenation, doesn't use the target level for basepoints
@@ -506,6 +506,35 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     }
 
     float value = float(basePoints);
+
+    if (ApplyAuraName == SPELL_AURA_MOD_STAT)
+    {
+        if (BasePoints == 0 && !DeltaScalingMultiplier)
+        {
+            switch (_spellInfo->Id)
+            {
+                case 105697: // Virmen's Bite
+                case 105702: // Potion of the Jade Serpent
+                case 105706: // Potion of the Mogu Power
+                    value = 4000.0f;
+                    break;
+                case 105698: // Potion of the Mountains
+                    value = 12000.0f;
+                    break;
+                case 105694: // Flask of the Earth
+                    value = 1500.0f;
+                    break;
+                case 105689: // Flask of Spring Blossoms
+                case 105691: // Flask of the Warm Sun
+                case 105693: // Flask of Falling Leaves
+                case 105696: // Flask of Winter's Bite
+                    value = 1000.0f;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     // random damage
     if (caster)
@@ -1116,7 +1145,7 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-        if (_spell_idx->second->skillId == uint32(skillType))
+        if (_spell_idx->second->skillId == skillType)
             return true;
 
     return false;
@@ -1271,9 +1300,59 @@ bool SpellInfo::NeedsComboPoints() const
     return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
 }
 
-bool SpellInfo::IsBreakingStealth() const
+bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 {
-    return !(AttributesEx & SPELL_ATTR1_NOT_BREAK_STEALTH);
+    if (m_caster && m_caster->HasAura(115192))
+        return false;
+
+    if (m_caster && m_caster->HasAura(108208) && HasAttribute(SPELL_ATTR0_ONLY_STEALTHED) && !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
+    {
+        m_caster->CastSpell(m_caster, 115192, true);
+        return false;
+    }
+
+    switch (GetSpellSpecific())
+    {
+        case SPELL_SPECIFIC_FOOD:
+        case SPELL_SPECIFIC_FOOD_AND_DRINK:
+        case SPELL_SPECIFIC_WELL_FED:
+            return true;
+    }
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+            return true;
+
+    switch(Id)
+    {
+        case 3600:  // Earthbind Totem
+        case 99:    // Demoralizing Roar
+        case 50256:
+            return false;
+        default:
+            break;
+    }
+
+    if (IsTargetingArea())
+    {
+        // dispel etc spells
+        switch(Effects[EFFECT_0].Effect)
+        {
+            case SPELL_EFFECT_DISPEL:
+            case SPELL_EFFECT_DISPEL_MECHANIC:
+            case SPELL_EFFECT_THREAT:
+            case SPELL_EFFECT_MODIFY_THREAT_PERCENT:
+            case SPELL_EFFECT_DISTRACT:
+                return false;
+            default:
+                break;
+        }
+    }
+
+    if (HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS) || HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH))
+        return false;
+
+    return true;
 }
 
 bool SpellInfo::IsRangedWeaponSpell() const
@@ -3191,7 +3270,10 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
                 procSpell->Id == 2825 ||    // Bloodlust
                 procSpell->Id == 1725 ||    // Distract
                 procSpell->Id == 114198 ||  // Mocking Banner taunt
-                procSpell->Id == 130733)    // and Shadow Word: Insanity allowing Cast
+                procSpell->Id == 130733 ||  // and Shadow Word: Insanity allowing Cast
+                procSpell->Id == 115191 ||  // Stealth
+                procSpell->Id == 115192 ||  // Subterfuge
+                procSpell->Id == 12323)     // Piercing Howl
                 return true;
         }
     }
@@ -3211,7 +3293,7 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
         case 79683: // Arcane Missiles !
         case 93400: // Shooting Stars
         case 114637:// Bastion of Glory
-        case 119962:// Overpower !
+        case 60503:// Overpower !
         case 121153:// Blindside
         case 131116:// Raging Blow !
             return true;
@@ -3264,6 +3346,7 @@ bool SpellInfo::IsWrongPrecastSpell(SpellInfo const* m_preCastSpell) const
                 return true;
             break;
         case 115072:// Expel Harm
+        case 147489:// Expel Harm with glyph of Targeted Expulsion
             if (m_preCastSpell->Id == 101545)
                 return true;
             break;
@@ -3292,6 +3375,7 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 3409:  // Crippling Poison
         case 5760:  // Mind-Numbling Poison
         case 8680:  // Wound Poison
+        case 79136: // Venomous Wound (damage)
         case 89775: // Hemorrhage (DoT)
         case 112961:// Leeching Poison
         case 113780:// Deadly Poison (direct damage)
@@ -3502,4 +3586,35 @@ bool SpellInfo::CanTriggerHotStreak() const
     }
 
     return false;
+}
+
+bool SpellInfo::IsCustomCalculated() const
+{
+    switch (Id)
+    {
+        case 113344:// Bloodbath
+        case 124464:// Mastery: Shadowy Recall - Shadow Word: Pain
+        case 124465:// Mastery: Shadowy Recall - Vampiric Touch
+        case 124467:// Mastery: Shadowy Recall - Devouring Plague
+        case 124468:// Mastery: Shadowy Recall - Mind Flay
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool SpellInfo::CannotBeAddedToCharm() const
+{
+    switch (Id)
+    {
+        case 121087: // Ground Slam
+        case 121224: // Spirit Bolt
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
 }

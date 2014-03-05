@@ -1290,10 +1290,21 @@ enum ReactiveType
 
 enum PlayerTotemType
 {
-    SUMMON_TYPE_TOTEM_FIRE  = 63,
-    SUMMON_TYPE_TOTEM_EARTH = 81,
-    SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83
+    SUMMON_TYPE_TOTEM_FIRE   = 63,
+    SUMMON_TYPE_TOTEM_FIRE2  = 3403,
+    SUMMON_TYPE_TOTEM_FIRE3  = 3599,
+    SUMMON_TYPE_TOTEM_FIRE4  = 3211,
+
+    SUMMON_TYPE_TOTEM_EARTH  = 81,
+    SUMMON_TYPE_TOTEM_EARTH2 = 3400,
+
+    SUMMON_TYPE_TOTEM_WATER  = 82,
+    SUMMON_TYPE_TOTEM_WATER2 = 3402,
+
+    SUMMON_TYPE_TOTEM_AIR    = 83,
+    SUMMON_TYPE_TOTEM_AIR2   = 3405,
+    SUMMON_TYPE_TOTEM_AIR3   = 3407,
+    SUMMON_TYPE_TOTEM_AIR4   = 3406
 };
 
 enum Stagger
@@ -1348,7 +1359,7 @@ class Unit : public WorldObject
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        virtual void Update(uint32 time);
+        virtual void Update(uint32 time, uint32 entry = 0);
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
@@ -1552,7 +1563,7 @@ class Unit : public WorldObject
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
-        uint32 CalcStaggerDamage(Player* victim, uint32 damage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto = NULL);
+        uint32 CalcStaggerDamage(Player* victim, uint32 damage);
         void Kill(Unit* victim, bool durabilityLoss = true, SpellInfo const* spellProto = NULL);
         int32 DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto = NULL);
 
@@ -1883,6 +1894,7 @@ class Unit : public WorldObject
         void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, AuraPtr except = NULLAURA, bool negative = true, bool positive = true);
         void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0);
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
+        void RemoveFlagsAuras();
         void RemoveAurasWithAttribute(uint32 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID);
         void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode = AURA_REMOVE_BY_DEFAULT, uint32 except=0);
@@ -2217,6 +2229,13 @@ class Unit : public WorldObject
         uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
         void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
+        void ClearMovementData()
+        {
+            m_movementInfo.Alive32 = 0;
+            m_movementInfo.hasFallData = false;
+            m_movementInfo.hasFallDirection = false;
+        }
+
         void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
         void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
         uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }
@@ -2376,6 +2395,8 @@ class Unit : public WorldObject
 
     protected:
         explicit Unit (bool isWorldObject);
+
+        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         UnitAI* i_AI, *i_disabledAI;
 
@@ -2594,6 +2615,21 @@ namespace JadeCore
             }
         private:
             const DynamicObject* m_object;
+            const bool m_ascending;
+    };
+
+    // Binary predicate for sorting Units based on value of distance of an other Unit
+    class UnitDistanceCompareOrderPred
+    {
+        public:
+            UnitDistanceCompareOrderPred(const Unit* source, bool ascending = true) : m_object(source), m_ascending(ascending) {}
+            bool operator() (const Unit* a, const Unit* b) const
+            {
+                return m_ascending ? a->GetDistance(m_object) < b->GetDistance(m_object) :
+                                     a->GetDistance(m_object) > b->GetDistance(m_object);
+            }
+        private:
+            const Unit* m_object;
             const bool m_ascending;
     };
 }

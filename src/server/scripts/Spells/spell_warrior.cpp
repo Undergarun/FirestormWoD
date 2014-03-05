@@ -51,15 +51,15 @@ enum WarriorSpells
     WARRIOR_SPELL_ENRAGE                        = 12880,
     WARRIOR_SPELL_COLOSSUS_SMASH                = 86346,
     WARRIOR_SPELL_MORTAL_STRIKE_AURA            = 12294,
-    WARRIOR_SPELL_TASTE_FOR_BLOOD               = 56638,
-    WARRIOR_SPELL_ALLOW_OVERPOWER               = 119962,
+    WARRIOR_SPELL_TASTE_FOR_BLOOD               = 56636,
+    WARRIOR_SPELL_ALLOW_OVERPOWER               = 60503,
     WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE   = 125831,
     WARRIOR_SPELL_SECOND_WIND_REGEN             = 16491,
     WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK        = 118895,
     WARRIOR_SPELL_MEAT_CLEAVER_PROC             = 85739,
     WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326,
-    WARRIOR_SPELL_STORM_BOLT_STUN               = 132169,
-    WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED       = 132404,
+    WARRIOR_SPELL_STORM_BOLT_STUN               = 145585,
+    WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED        = 132404,
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
@@ -207,7 +207,7 @@ class spell_warr_shield_block : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED, true);
+                    _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
             }
 
             void Register()
@@ -236,12 +236,15 @@ class spell_warr_storm_bolt : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN))
                     {
-                        if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), 0))
-                            SetHitDamage(GetHitDamage() * 4);
+                        if (Unit* unitTarget = GetHitUnit())
+                        {
+                            if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), 0))
+                                SetHitDamage(GetHitDamage() * 4);
 
-                        _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                            _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                        }
                     }
                 }
             }
@@ -327,7 +330,7 @@ class spell_warr_dragon_roar : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
@@ -336,7 +339,7 @@ class spell_warr_dragon_roar : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleAfterHit);
             }
         };
 
@@ -530,6 +533,14 @@ class spell_warr_taste_for_blood : public SpellScriptLoader
                                 // Increase damage of next Heroic Strike or Slam
                                 _player->CastSpell(_player, WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE, true);
                             }
+                            if (AuraPtr overpower = _player->GetAura(WARRIOR_SPELL_ALLOW_OVERPOWER))
+                            {
+                                int32 stacks = overpower->GetStackAmount();
+                                if (stacks <= 1)
+                                    _player->RemoveAura(WARRIOR_SPELL_ALLOW_OVERPOWER);
+                                else
+                                    overpower->SetStackAmount(stacks - 1);
+                            }
                         }
                     }
                 }
@@ -612,7 +623,6 @@ class spell_warr_berzerker_rage : public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     _player->CastSpell(_player, WARRIOR_SPELL_ENRAGE, true);
-                    _player->CastSpell(_player, WARRIOR_SPELL_BERZERKER_RAGE_EFFECT, true);
                 }
             }
 
@@ -678,6 +688,35 @@ class spell_warr_mocking_banner : public SpellScriptLoader
 
 // Called by the proc of Enrage - 12880
 // Raging Blow (allow to use it) - 131116
+class spell_warr_raging_blow_proc : public SpellScriptLoader
+{
+    public:
+        spell_warr_raging_blow_proc() : SpellScriptLoader("spell_warr_raging_blow_proc") { }
+
+        class spell_warr_raging_blow_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_raging_blow_proc_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_FURY && _player->getLevel() >= 30)
+                        _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_RAGING_BLOW, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_raging_blow_proc_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_raging_blow_proc_SpellScript();
+        }
+};
+
+// Raging Blow - 85288
 class spell_warr_raging_blow : public SpellScriptLoader
 {
     public:
@@ -690,8 +729,19 @@ class spell_warr_raging_blow : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_FURY && _player->getLevel() >= 30)
-                        _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_RAGING_BLOW, true);
+                {
+                    if (_player->HasAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                    {
+                        if (AuraPtr ragingBlow = _player->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                        {
+                            int32 stacks = ragingBlow->GetStackAmount();
+                            if (stacks <= 1)
+                                _player->RemoveAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW);
+                            else
+                                ragingBlow->SetStackAmount(stacks - 1);
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -840,15 +890,27 @@ class spell_warr_heroic_leap : public SpellScriptLoader
             SpellCastResult CheckElevation()
             {
                 Unit* caster = GetCaster();
+                if (!caster || !caster->ToPlayer())
+                    return SPELL_FAILED_DONT_REPORT;
+
+                Player* player = caster->ToPlayer();
 
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
                 if (!dest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (dest->GetPositionZ() > caster->GetPositionZ() + 5.0f)
+                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f)
                     return SPELL_FAILED_NOPATH;
-                else if (caster->HasAuraType(SPELL_AURA_MOD_ROOT))
+                else if (player->HasAuraType(SPELL_AURA_MOD_ROOT))
                     return SPELL_FAILED_ROOTED;
+                else if (player->GetMap()->IsBattlegroundOrArena())
+                {
+                    if (Battleground* bg = player->GetBattleground())
+                    {
+                        if (bg->GetStatus() != STATUS_IN_PROGRESS)
+                            return SPELL_FAILED_NOT_READY;
+                    }
+                }
 
                 return SPELL_CAST_OK;
             }
@@ -1079,8 +1141,19 @@ class spell_warr_thunder_clap : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         _player->CastSpell(target, WARRIOR_SPELL_WEAKENED_BLOWS, true);
+
+                        // Glyph of Resonating Power - 58356, increases damage the damage and cooldown by 50%
+                        if (_player->HasAura(58356))
+                        {
+                            SetHitDamage(int32(GetHitDamage() * 1.5f));
+                            _player->ToPlayer()->AddSpellCooldown(6343, 0, time(NULL) + 12);
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -1112,10 +1185,16 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                            _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                        else
-                            _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                        if (target->GetGUID() == _player->GetGUID())
+                            return;
+
+                        if (_player->getLevel() >= 32)
+                        {
+                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
+                                _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                            else
+                                _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                        }
                     }
                 }
             }
@@ -1140,6 +1219,7 @@ enum Charge
     SPELL_CHARGE_WARBRINGER_STUN            = 105771
 };
 
+// Charge - 100
 class spell_warr_charge : public SpellScriptLoader
 {
     public:
@@ -1156,7 +1236,7 @@ class spell_warr_charge : public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnHit()
+            void HandleCharge(SpellEffIndex /*effIndex*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1168,14 +1248,14 @@ class spell_warr_charge : public SpellScriptLoader
                             _player->CastSpell(target, SPELL_CHARGE_STUN, true);
 
                         if (!_player->HasSpell(WARRIOR_SPELL_DOUBLE_TIME))
-                            _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 100, POWER_RAGE);
+                            _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 200, POWER_RAGE);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_charge_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
             }
         };
 
@@ -1204,6 +1284,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
     new spell_warr_mocking_banner();
+    new spell_warr_raging_blow_proc();
     new spell_warr_raging_blow();
     new spell_warr_sword_and_board();
     new spell_warr_mortal_strike();

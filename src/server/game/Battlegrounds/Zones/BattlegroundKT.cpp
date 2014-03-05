@@ -139,7 +139,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
     uint32 index = target_obj->GetEntry() - BG_KT_OBJECT_ORB_1_ENTRY;
 
     // If this orb is already keeped by a player, there is a problem
-    if (index > MAX_ORBS || m_OrbKeepers[index] != 0)
+    if (index >= MAX_ORBS || m_OrbKeepers[index] != 0)
         return;
 
     // Check if the player already have an orb
@@ -323,7 +323,6 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-
 void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
     BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetObjectGuid());
@@ -392,7 +391,7 @@ void BattlegroundKT::AccumulateScore(uint32 team, BG_KT_ZONE zone)
         EndBattleground(HORDE);
 }
 
-void BattlegroundKT::FillInitialWorldStates(WorldPacket& data, uint32& count)
+void BattlegroundKT::FillInitialWorldStates(ByteBuffer& data, uint32& count)
 {
     FillInitialWorldState(data, count, BG_KT_ORB_POINTS_A, GetTeamScore(ALLIANCE));
     FillInitialWorldState(data, count, BG_KT_ORB_POINTS_H, GetTeamScore(HORDE));

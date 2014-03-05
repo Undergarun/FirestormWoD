@@ -326,7 +326,7 @@ class spell_shu_benediction: public SpellScriptLoader
         class spell_shu_benediction_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_shu_benediction_AuraScript);
-
+            
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
@@ -398,7 +398,7 @@ class spell_grab_carriage: public SpellScriptLoader
 
                 Creature* carriage = NULL;
                 Creature* yak      = NULL;
-
+                
                 if (caster->GetAreaId() == 5826) // Bassins chantants
                 {
                     carriage = caster->SummonCreature(57208, 979.06f, 2863.87f, 87.88f, 4.7822f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
@@ -441,7 +441,7 @@ public:
     npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
 
     struct npc_nourished_yakAI : public npc_escortAI
-    {
+    {        
         npc_nourished_yakAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -496,12 +496,12 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_nourished_yakAI(creature);
     }
-
+    
 };
 
 class npc_water_spirit_dailo : public CreatureScript
@@ -628,11 +628,11 @@ public:
                             {
                                 owner->KilledMonsterCredit(55547);
                                 owner->RemoveAurasDueToSpell(59074); // Remove phase 4, asleep wugou disappear
-
+                                
                                 if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                                     if (Creature* newWugou = owner->SummonCreature(60916, wugou->GetPositionX(), wugou->GetPositionY(), wugou->GetPositionZ(), wugou->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0, owner->GetGUID()))
                                         newWugou->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-
+                            
                                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
                             }
                             break;

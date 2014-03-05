@@ -1982,6 +1982,33 @@ class mob_nalash_verdantis : public CreatureScript
         };
 };
 
+class mob_hisek_the_swarmkeeper : public CreatureScript
+{
+    public:
+        mob_hisek_the_swarmkeeper() : CreatureScript("mob_hisek_the_swarmkeeper") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_hisek_the_swarmkeeperAI(creature);
+        }
+
+        struct mob_hisek_the_swarmkeeperAI : public ScriptedAI
+        {
+            mob_hisek_the_swarmkeeperAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void UpdateAI(const uint32 diff)
+            {
+                std::list<Player*> playerList;
+                playerList.clear();
+                GetPlayerListInGrid(playerList, me, 5.0f);
+
+                for (auto player: playerList)
+                    if (player->GetQuestStatus(31439) == QUEST_STATUS_INCOMPLETE)
+                        player->KilledMonsterCredit(64645);
+            }
+        };
+};
+
 void AddSC_dread_wastes()
 {
     //Rare Mobs
@@ -2008,4 +2035,5 @@ void AddSC_dread_wastes()
     new mob_warlord_gurthan();
     //Standard Mobs
     new mob_overgrown_seacarp();
+    new mob_hisek_the_swarmkeeper();
 }

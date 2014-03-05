@@ -97,8 +97,10 @@ class debug_commandscript : public CommandScript
                 { "jump",           SEC_ADMINISTRATOR,  false, &HandleDebugMoveJump,               "", NULL },
                 { "backward",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveBackward,           "", NULL },
                 { "load_z",         SEC_ADMINISTRATOR,  false, &HandleDebugLoadZ,                  "", NULL },
+                { "SetMaxMapDiff",  SEC_ADMINISTRATOR,  false, &HandleDebugSetMaxMapDiff,          "", NULL },
                 { "packet",         SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,          "", NULL },
                 { "guildevent",     SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,      "", NULL },
+                { "log",            SEC_ADMINISTRATOR,  false, &HandleDebugLogCommand,             "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -108,6 +110,181 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugLogCommand(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+                return false;
+
+            char* result = strtok((char*)args, " ");
+            if (!result)
+                return false;
+
+            uint32 opcodeId  = uint32(atoi(result));
+            if (opcodeId == 0 && *result != '0')
+                return false;
+
+            WorldPacket data(Opcodes(opcodeId), 10);;
+            ObjectGuid playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
+            Player* player = handler->GetSession()->GetPlayer();
+
+            switch (opcodeId)
+            {
+                case 1440:
+                {
+                    std::string name = player->GetName();
+
+                    data << uint64(playerGuid);
+                    data.WriteBit(true);
+
+                    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                        data.WriteBits(0, 7);
+
+                    data.WriteBits(name.size(), 8);
+
+                    data << uint32(3117);
+                    data.append(name.c_str(), name.size());
+
+                    break;
+                }
+                case SMSG_SERVER_FIRST_ACHIEVEMENT:
+                {
+                    data.WriteBits(1, 21);
+                    
+                    uint8 bits[8] = { 7, 5, 0, 3, 6, 2, 1, 4 };
+                    data.WriteBitInOrder(playerGuid, bits);
+
+                    data.WriteByteSeq(playerGuid[6]);
+                    data.WriteByteSeq(playerGuid[3]);
+                    data << uint32(3117); // Faucheur de la Mort "Prem's" du royaume
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[0]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    break;
+                }
+                case 4101:
+                {
+                    data.WriteBit(false);   // Inversed, Unk
+                    data.WriteBit(false);   // Inversed, Unk
+                    data.WriteBit(false);   // Inversed, has UInt32 - bit8
+
+                    uint8 bits[8] = { 7, 4, 5, 3, 0, 2, 6, 1 };
+                    data.WriteBitInOrder(playerGuid, bits);
+
+                    uint8 bits2[8] = { 6, 4, 2, 0, 5, 7, 3, 1 };
+                    data.WriteBitInOrder(playerGuid, bits2);
+
+                    data.WriteBit(false);   // Inversed, Unk
+                    data.WriteBit(false);   // Inversed, Unk
+
+                    data << uint32(100784);
+
+                    uint8 bytes[8] = { 1, 3, 4, 7, 5, 0, 6, 2 };
+                    data.WriteBytesSeq(playerGuid, bytes);
+
+                    data << float(1.0f);    // Unk
+
+                    uint8 bytes2[8] = { 3, 5, 7, 2, 4, 6, 0, 1 };
+                    data.WriteBytesSeq(playerGuid, bytes2);
+
+                    data << float(1.0f);    // Unk
+                    break;
+                }
+                case 4385:
+                {
+                    uint8 bits[8] = { 2, 5, 0, 1, 3, 6, 4, 7 };
+                    data.WriteBitInOrder(playerGuid, bits);
+
+                    data.WriteByteSeq(playerGuid[0]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[6]);
+                    data << uint8(2);
+                    data.WriteByteSeq(playerGuid[3]);
+                    data << uint32(100784);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    break;
+                }
+                case 4501:
+                {
+                    // Display channel bar
+                    data.WriteBit(false);
+                    data.WriteBit(true);    // Unk bit56
+
+                    uint8 bits[8] = { 6, 0, 4, 1, 2, 3, 5, 7 };
+                    data.WriteBitInOrder(playerGuid, bits);
+
+                    data << uint32(100784);
+                    data << uint32(100784);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[6]);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data << uint32(100784);
+                    data.WriteByteSeq(playerGuid[7]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[3]);
+                    data << uint32(100784);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[0]);
+                    break;
+                }
+                case 4518:
+                {
+                    // Show cast bar
+                    data.WriteBit(playerGuid[2]);
+                    data.WriteBit(playerGuid[1]);
+                    data.WriteBit(true);    // Unk bit40
+                    data.WriteBit(playerGuid[1]);
+                    data.WriteBit(playerGuid[4]);
+                    data.WriteBit(playerGuid[0]);
+                    data.WriteBit(playerGuid[3]);
+                    data.WriteBit(playerGuid[2]);
+                    data.WriteBit(playerGuid[3]);
+                    data.WriteBit(playerGuid[5]);
+                    data.WriteBit(playerGuid[7]);
+                    data.WriteBit(playerGuid[6]);
+                    data.WriteBit(playerGuid[0]);
+                    data.WriteBit(playerGuid[6]);
+                    data.WriteBit(playerGuid[5]);
+                    data.WriteBit(playerGuid[4]);
+                    data.WriteBit(playerGuid[7]);
+
+                    data.WriteByteSeq(playerGuid[0]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[1]);
+                    data.WriteByteSeq(playerGuid[5]);
+                    data.WriteByteSeq(playerGuid[6]);
+                    data << uint32(100784);
+                    data << uint32(100784);
+                    data << uint32(100784);
+                    data << uint32(100784);
+                    data.WriteByteSeq(playerGuid[0]);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[2]);
+                    data.WriteByteSeq(playerGuid[3]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    data.WriteByteSeq(playerGuid[3]);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[7]);
+                    data << uint32(100784);
+                    data.WriteByteSeq(playerGuid[4]);
+                    data.WriteByteSeq(playerGuid[6]);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            handler->GetSession()->SendPacket(&data, true);
+
+            return true;
         }
 
         static bool HandleDebugGuildEventCommand(ChatHandler* handler, char const* args)
@@ -1625,6 +1802,17 @@ class debug_commandscript : public CommandScript
                 }
             }
 
+            return true;
+        }
+
+        static bool HandleDebugSetMaxMapDiff(ChatHandler* handler, char const* /*args*/)
+        {
+            sMapMgr->SetMapDiffLimit(!sMapMgr->HaveMaxDiff());
+            if (sMapMgr->HaveMaxDiff())
+                handler->PSendSysMessage("Max creature::update diff limit activate !");
+            else
+                handler->PSendSysMessage("Max creature::update diff limit disable !");
+    
             return true;
         }
 };

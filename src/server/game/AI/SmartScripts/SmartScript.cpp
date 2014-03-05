@@ -43,29 +43,12 @@ class TrinityStringTextBuilder
         {
         }
 
-        size_t operator()(WorldPacket* data, LocaleConstant locale) const
+        void operator()(WorldPacket* data, LocaleConstant locale, uint64 tguid) const
         {
             std::string text = sObjectMgr->GetTrinityString(_textId, locale);
             char const* localizedName = _source->GetNameForLocaleIdx(locale);
 
-            *data << uint8(_msgType);
-            *data << uint32(_language);
-            *data << uint64(_source->GetGUID());
-            *data << uint32(1);                                      // 2.1.0
-            *data << uint32(strlen(localizedName)+1);
-            *data << localizedName;
-            size_t whisperGUIDpos = data->wpos();
-            *data << uint64(_targetGUID);                           // Unit Target
-            if (_targetGUID && !IS_PLAYER_GUID(_targetGUID))
-            {
-                *data << uint32(1);                                  // target name length
-                *data << uint8(0);                                   // target name
-            }
-            *data << uint32(text.length() + 1);
-            *data << text;
-            *data << uint8(0);                                       // ChatTag
-
-            return whisperGUIDpos;
+            _source->BuildMonsterChat(data, _msgType, text.c_str(), _language, localizedName, tguid > 0 ? tguid : _targetGUID);
         }
 
         WorldObject* _source;
@@ -1464,6 +1447,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_EQUIP:
         {
+            bool hasDelete = false;
             ObjectList* targets = GetTargets(e, unit);
             if (!targets)
                 break;
@@ -1480,6 +1464,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);
                             delete targets;
+                            hasDelete = true;
                             break;
                         }
                         npc->SetCurrentEquipmentId(e.action.equip.entry);
@@ -1501,6 +1486,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, slot[2]);
                 }
             }
+
+            if (hasDelete)
+                break;
 
             delete targets;
             break;

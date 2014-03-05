@@ -242,7 +242,7 @@ void LFGMgr::Update(uint32 diff)
             ClearState(guid);
             if (Player* player = ObjectAccessor::FindPlayer(guid))
             {
-                player->GetSession()->SendLfgRoleCheckUpdate(roleCheck, false);
+                player->GetSession()->SendLfgRoleCheckUpdate(roleCheck);
 
                 if (itRoles->first == roleCheck->leader)
                     player->GetSession()->SendLfgJoinResult(roleCheck->leader, LfgJoinResultData(LFG_JOIN_FAILED, LFG_ROLECHECK_MISSING_ROLE));
@@ -546,24 +546,30 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
             continue;
 
+        LfgLockStatus lockData;
+        lockData.lockstatus = LFG_LOCKSTATUS_OK;
+
         AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
 
-        LfgLockStatus lockData;
-
-        lockData.lockstatus = LFG_LOCKSTATUS_OK;
+        uint8 LevelMin = 0;
+        uint8 LevelMax = 0;
+        if (ar)
+        {
+            if (ar->levelMin && level < ar->levelMin)
+                LevelMin = ar->levelMin;
+            if (ar->levelMax && level > ar->levelMax)
+                LevelMax = ar->levelMax;
+        }
 
         if (dungeon->expansion > expansion)
             lockData.lockstatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > REGULAR_DIFFICULTY && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
-        {
-            //if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
-        }
-        else if (dungeon->minlevel > level)
+        else if (dungeon->minlevel > level || LevelMin)
             lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-        else if (dungeon->maxlevel < level)
+        else if (dungeon->maxlevel < level || LevelMax)
             lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (dungeon->flags & LFG_FLAG_SEASONAL)
         {
@@ -608,6 +614,19 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
             locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
         */
+
+        if (dungeon->type != TYPEID_RANDOM_DUNGEON)
+        {
+            if (dungeon->map > 0)
+            {
+                LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
+                if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
+                {
+                    lockData.itemLevel = 999;
+                    lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+                }
+            }
+        }
 
         if (lockData.lockstatus != LFG_LOCKSTATUS_OK)
             lock[dungeon->Entry()] = lockData;
@@ -754,7 +773,7 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
         {
             // Expand random dungeons and check restrictions
             if (rDungeonId)
-                dungeons = GetDungeonsByRandom(rDungeonId);
+                dungeons = GetDungeonsByRandom(rDungeonId, true);
 
             // if we have lockmap then there are no compatible dungeons
             GetCompatibleDungeons(dungeons, players, joinData.lockmap);
@@ -1347,15 +1366,18 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
         team = uint8(plrg->GetTeam());
         if (!sendRoleChosen)
             plrg->GetSession()->SendLfgRoleChosen(guid, roles);
-        plrg->GetSession()->SendLfgRoleCheckUpdate(roleCheck, roleCheck->state == LFG_ROLECHECK_FINISHED);
+
+        plrg->GetSession()->SendLfgRoleCheckUpdate(roleCheck);
         switch (roleCheck->state)
         {
             case LFG_ROLECHECK_INITIALITING:
                 continue;
             case LFG_ROLECHECK_FINISHED:
                 SetState(pguid, LFG_STATE_QUEUED);
-                SendUpdateStatus(plrg, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, dungeons, GetComment(pguid)));
+                SetRoles(pguid, it->second);
+                //SendUpdateStatus(plrg, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, dungeons, GetComment(pguid)));
                 SendUpdateStatus(plrg, LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, GetComment(pguid)));
+                SendUpdateStatus(plrg, LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, GetComment(pguid)));
                 break;
             default:
                 if (roleCheck->leader == pguid)
@@ -1406,7 +1428,9 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
             Player* plrg = ObjectAccessor::FindPlayer(it->first);
             if (!plrg)
                 continue;
+
             SendUpdateStatus(plrg, LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, GetComment(plrg->GetGUID())));
+            SendUpdateStatus(plrg, LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, GetComment(plrg->GetGUID())));
         }
         AddToQueue(gguid, team);
     }
@@ -2115,6 +2139,9 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
                     player->CleanupAfterTaxiFlight();
                 }
 
+                player->SetUnitMovementFlags(0);
+                player->ClearMovementData();
+
                 if (player->TeleportTo(mapid, x, y, z, orientation))
                     // FIXME - HACK - this should be done by teleport, when teleporting far
                     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
@@ -2145,7 +2172,7 @@ void LFGMgr::SendUpdateStatus(Player* player, const LfgUpdateData& updateData)
     if (!info)
         return;
 
-    bool unk = true; // true for tests
+    bool unk = false; // true for tests
     bool join = false;
     bool queued = false;
     bool quit = false;
@@ -2159,11 +2186,12 @@ void LFGMgr::SendUpdateStatus(Player* player, const LfgUpdateData& updateData)
             queued = true;
             break;
         case LFG_UPDATETYPE_UPDATE_STATUS:
-            join = false;
+            join = true;
             queued = true;
             break;
         case LFG_UPDATETYPE_PROPOSAL_BEGIN:
-            join = true;
+            join = false;
+            queued = true;
             break;
         case LFG_UPDATETYPE_GROUP_DISBAND_UNK16:
         case LFG_UPDATETYPE_GROUP_FOUND:
@@ -2307,7 +2335,10 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
 
     LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
     if (!reward)
+    {
+        sLog->outError(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: dungeon %u have no lfg reward", rDungeonId);
         return;
+    }
 
     uint8 index = 0;
     Quest const* qReward = sObjectMgr->GetQuestTemplate(reward->reward[index].questId);
@@ -2342,11 +2373,40 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
    @returns Set of dungeons that can be done.
 */
-const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
+const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool check)
 {
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(randomdungeon);
     uint32 groupType = dungeon ? dungeon->grouptype : 0;
-    return m_CachedDungeonMap[groupType];
+
+    if (!check)
+        return m_CachedDungeonMap[groupType];
+
+    LfgDungeonSet& cachedDungeon = m_CachedDungeonMap[groupType];
+    for (LfgDungeonSet::const_iterator it = cachedDungeon.begin(); it != cachedDungeon.end();)
+    {
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
+        if (dungeon && dungeon->map > 0)
+        {
+            LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
+            if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
+            {
+                cachedDungeon.erase(it++);
+                continue;
+            }
+
+            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+            {
+                if (ar->levelMin > 90 || ar->levelMax > 90)
+                {
+                    cachedDungeon.erase(it++);
+                    continue;
+                }
+            }
+        }
+
+        ++it;
+    }
+    return cachedDungeon;
 }
 
 /**

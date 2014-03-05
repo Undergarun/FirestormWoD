@@ -40,6 +40,7 @@ DoorData const doorData[] =
 };
 
 #define DIST_BETWEEN_TWO_Z      32.39f
+#define ACHIEVEMENT_SHOWMOVES   6455
 
 Position woeSpawnPos[8] =
 {
@@ -102,8 +103,13 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint32 willOfEmperorBossSpawnTimer;
             uint32 willOfEmperorGasPhaseTimer;
 
+            uint64 cursedMogu1Guid;
+            uint64 cursedMogu2Guid;
+            uint64 ghostEssenceGuid;
+
             uint64 stoneGuardControlerGuid;
             uint64 fengGuid;
+            uint64 siphonShieldGuid;
             uint64 spiritKingsControlerGuid;
             uint64 elegonGuid;
             uint64 infiniteEnergyGuid;
@@ -111,6 +117,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint64 inversionGobGuid;
             uint64 stoneGuardExit;
             uint64 cancelGobGuid;
+            uint64 ancientMoguDoorGuid;
+            uint64 emperorsDoorGuid;
+            uint64 celestialCommandGuid;
 
             uint64 energyPlatformGuid;
             uint64 titanDiskGuid;
@@ -121,6 +130,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
             std::vector<uint64> fengStatuesGUIDs;
             std::vector<uint64> spiritKingsGUIDs;
             std::vector<uint64> titanCirclesGuids;
+            std::vector<uint32> achievementGuids;
 
             void Initialize()
             {
@@ -132,9 +142,13 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
                 stoneGuardControlerGuid         = 0;
                 fengGuid                        = 0;
+                siphonShieldGuid                = 0;
 
                 inversionGobGuid                = 0;
                 cancelGobGuid                   = 0;
+                ancientMoguDoorGuid             = 0;
+                emperorsDoorGuid                = 0;
+                celestialCommandGuid            = 0;
                 energyPlatformGuid              = 0;
                 titanDiskGuid                   = 0;
                 woeIsGasPhaseActive             = false;
@@ -149,11 +163,17 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 willOfEmperorBossSpawnTimer     = 0;
                 willOfEmperorGasPhaseTimer      = 0;
 
+                cursedMogu1Guid                 = 0;
+                cursedMogu2Guid                 = 0;
+                ghostEssenceGuid                = 0;
+
                 stoneGuardControlerGuid         = 0;
-                fengGuid                        = 0;
                 inversionGobGuid                = 0;
                 cancelGobGuid                   = 0;
                 spiritKingsControlerGuid        = 0;
+
+                qinxiGuid                       = 0;
+                janxiGuid                       = 0;
 
                 stoneGuardGUIDs.clear();
                 fengStatuesGUIDs.clear();
@@ -171,10 +191,15 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case NPC_JADE:
                     case NPC_AMETHYST:
                     case NPC_COBALT:
+                    {
                         stoneGuardGUIDs.push_back(creature->GetGUID());
                         guardianAliveCount++;
 
-                        if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && instance->GetSpawnMode() <= MAN10_DIFFICULTY)
+                        uint32 difficulty = instance->GetSpawnMode();
+                        bool turnOver = (difficulty == MAN10_DIFFICULTY || difficulty == MAN10_HEROIC_DIFFICULTY || difficulty == RAID_TOOL_DIFFICULTY);
+
+                        // if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && instance->GetSpawnMode() <= MAN10_DIFFICULTY)
+                        if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && instance->GetSpawnMode() && turnOver)
                         {
                             std::vector<uint64> stoneGuards;
 
@@ -186,10 +211,22 @@ class instance_mogu_shan_vault : public InstanceMapScript
                             if (Creature* stoneGuard = instance->GetCreature((*stoneGuards.begin())))
                                 stoneGuard->DespawnOrUnsummon();
                         }
-
+                        break;
+                    }
+                    case NPC_CURSED_MOGU_SCULPTURE_2:
+                        if (!cursedMogu1Guid)
+                            cursedMogu1Guid = creature->GetGUID();
+                        else
+                            cursedMogu2Guid = creature->GetGUID();
+                        break;
+                    case NPC_GHOST_ESSENCE:
+                        ghostEssenceGuid = creature->GetGUID();
                         break;
                     case NPC_FENG:
                         fengGuid = creature->GetGUID();
+                        break;
+                    case NPC_SIPHONING_SHIELD:
+                        siphonShieldGuid = creature->GetGUID();
                         break;
                     case NPC_SPIRIT_GUID_CONTROLER:
                         spiritKingsControlerGuid = creature->GetGUID();
@@ -234,10 +271,17 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     // Feng
                     case GOB_SPEAR_STATUE:
                     case GOB_FIST_STATUE:
-                    case GOB_SHIELD_STATUE:
                     case GOB_STAFF_STATUE:
                         fengStatuesGUIDs.push_back(go->GetGUID());
                         break;
+                    case GOB_SHIELD_STATUE:
+                    {
+                        if (!instance->IsHeroic())
+                            go->SetObjectScale(0.001f);
+                        else
+                            fengStatuesGUIDs.push_back(go->GetGUID());
+                        break;
+                    }
                     case GOB_STONE_GUARD_DOOR_EXIT:
                         AddDoor(go, true);
                         stoneGuardExit = go->GetGUID();
@@ -252,6 +296,12 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         energyPlatformGuid = go->GetGUID();
                         go->SetGoState(GO_STATE_ACTIVE);
                         break;
+                    case GOB_ELEGON_DOOR_ENTRANCE:
+                        ancientMoguDoorGuid = go->GetGUID();
+                        break;
+                    case GOB_WILL_OF_EMPEROR_ENTRANCE:
+                        emperorsDoorGuid = go->GetGUID();
+                        break;
                     case GOB_ENERGY_TITAN_DISK:
                         titanDiskGuid = go->GetGUID();
                         break;
@@ -260,6 +310,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case GOB_ENERGY_TITAN_CIRCLE_3:
                         go->SetGoState(GO_STATE_ACTIVE);
                         titanCirclesGuids.push_back(go->GetGUID());
+                        break;
+                    case GOB_CELESTIAL_COMMAND:
+                        celestialCommandGuid = go->GetGUID();
                         break;
                 }
             }
@@ -381,10 +434,17 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
+                if (type == ACHIEVEMENT_SHOWMOVES)
+                    SetAchievementValid(ACHIEVEMENT_SHOWMOVES);
+
+                return;
             }
 
             uint32 GetData(uint32 type)
             {
+                if (type == ACHIEVEMENT_SHOWMOVES)
+                    return IsAchievementValid(ACHIEVEMENT_SHOWMOVES);
+
                 return 0;
             }
 
@@ -396,6 +456,12 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     // Stone Guard
                     case NPC_STONE_GUARD_CONTROLER:
                         return stoneGuardControlerGuid;
+                    case NPC_CURSED_MOGU_SCULPTURE_1:
+                        return cursedMogu1Guid;
+                    case NPC_CURSED_MOGU_SCULPTURE_2:
+                        return cursedMogu2Guid;
+                    case NPC_GHOST_ESSENCE:
+                        return ghostEssenceGuid;
                     case NPC_JASPER:
                     case NPC_JADE:
                     case NPC_AMETHYST:
@@ -410,6 +476,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     // Feng
                     case NPC_FENG:
                         return fengGuid;
+                    // SiphonShield
+                    case NPC_SIPHONING_SHIELD:
+                        return siphonShieldGuid;
                     // Spirit Kings
                     case NPC_SPIRIT_GUID_CONTROLER:
                         return spiritKingsControlerGuid;
@@ -456,6 +525,12 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         return energyPlatformGuid;
                     case GOB_ENERGY_TITAN_DISK:
                         return titanDiskGuid;
+                    case GOB_ELEGON_DOOR_ENTRANCE:
+                        return ancientMoguDoorGuid;
+                    case GOB_WILL_OF_EMPEROR_ENTRANCE:
+                        return emperorsDoorGuid;
+                    case GOB_CELESTIAL_COMMAND:
+                        return celestialCommandGuid;
                     default:
                         break;
                 }
@@ -502,7 +577,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
                                 while (randomPos2 == randomPos)
                                     randomPos2 = urand(0, 2);
-
+                            
                                 instance->SummonCreature(NPC_EMPEROR_RAGE, woeRageSpawnPos[randomPos]);
                                 instance->SummonCreature(NPC_EMPEROR_RAGE, woeRageSpawnPos[randomPos2]);
 
@@ -530,7 +605,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                             case PHASE_WOE_COURAGE:
                             {
                                 instance->SummonCreature(NPC_EMPEROR_COURAGE, woeSpawnPos[urand(0, 7)]);
-
+                            
                                 nextWillOfEmperorPhase = PHASE_WOE_RAGE;
                                 willOfEmperirLastBigAddSpawned = PHASE_WOE_COURAGE;
                                 willOfEmperorTimer = 10000;
@@ -595,6 +670,23 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 }
 
                 return true;
+            }
+
+            bool IsAchievementValid(uint32 id) const
+            {
+                if (achievementGuids[id])
+                    return true;
+
+                return false;
+            }
+
+            void SetAchievementValid(uint32 id)
+            {
+                if (achievementGuids[id])
+                    return;
+
+                achievementGuids.push_back(id);
+                return;
             }
         };
 };

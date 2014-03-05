@@ -114,7 +114,12 @@ namespace JadeCore
         }
 
         void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
-        void Visit(CreatureMapType &m){ updateObjects<Creature>(m); }
+        void Visit(CreatureMapType &m)
+        { 
+            for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+                iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
+            //updateObjects<Creature>(m); 
+        }
         void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
@@ -157,7 +162,8 @@ namespace JadeCore
     struct ObjectUpdater
     {
         uint32 i_timeDiff;
-        explicit ObjectUpdater(const uint32 diff) : i_timeDiff(diff) {}
+        uint32 i_startTime;
+        explicit ObjectUpdater(const uint32 diff, const uint32 startTime) : i_timeDiff(diff), i_startTime(startTime) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void Visit(PlayerMapType &) {}
         void Visit(CorpseMapType &) {}

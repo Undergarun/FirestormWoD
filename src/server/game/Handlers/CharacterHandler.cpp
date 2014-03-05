@@ -263,7 +263,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     bitBuffer.FlushBits();
 
     data.append(bitBuffer);
-    if (charCount)
+    if (dataBuffer.size())
         data.append(dataBuffer);
 
     SendPacket(&data);
@@ -476,7 +476,28 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 // SELECT SUM(x) is MYSQL_TYPE_NEWDECIMAL - needs to be read as string
                 const char* ch = fields[0].GetCString();
                 if (ch)
-                    acctCharCount = atoi(ch);
+                {
+                    // Try crashfix, atoi -> std::stoi with handling of exception
+                    // We have log in Pandashan.log to make better fix
+                    try
+                    {
+                        acctCharCount = std::stoi(ch);
+                    }
+                    catch(std::invalid_argument& e)
+                    {
+                        acctCharCount = 0;
+                        sLog->OutPandashan("Exception (invalid argument) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
+                        KickPlayer();
+                        return;
+                    }
+                    catch(std::out_of_range)
+                    {
+                        acctCharCount = 0;
+                        sLog->OutPandashan("Exception (out of range) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
+                        KickPlayer();
+                        return;
+                    }
+                }
             }
 
             if (acctCharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
@@ -928,34 +949,28 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
     // This is Hackypig fix : find a better way
     if (Player* _plr = GetPlayer())
     {
-        Unit::AuraApplicationMap AuraList = _plr->GetAppliedAuras();
-        std::list<AuraPtr> auraModsList;
-        for (Unit::AuraApplicationMap::iterator iter = AuraList.begin(); iter != AuraList.end(); ++iter)
+        std::list<uint32> spellToCast;
+
+        Unit::AuraApplicationMap& auraList = _plr->GetAppliedAuras();
+        for (Unit::AuraApplicationMap::iterator iter = auraList.begin(); iter != auraList.end();)
         {
-            AuraPtr aura = iter->second->GetBase();
-            if (!aura)
+            AuraApplication* aurApp = iter->second;
+            if (!aurApp)
                 continue;
 
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            AuraPtr aura = aurApp->GetBase();
+            if (aura && (aura->HasEffectType(SPELL_AURA_ADD_FLAT_MODIFIER) || aura->HasEffectType(SPELL_AURA_ADD_PCT_MODIFIER)) && aura->GetSpellInfo())
             {
-                if (AuraEffectPtr aurEff = aura->GetEffect(i))
-                {
-                    if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
-                    {
-                        auraModsList.push_back(aura);
-                        break;
-                    }
-                }
+                spellToCast.push_back(aura->GetSpellInfo()->Id);
+                _player->RemoveAura(iter);
             }
+            else
+                ++iter;
         }
 
-        if (!auraModsList.empty())
-            for (auto itr : auraModsList)
-                _plr->RemoveAura(itr->GetSpellInfo()->Id, _plr->GetGUID());
-
-        if (!auraModsList.empty())
-            for (auto itr : auraModsList)
-                _plr->CastSpell(_plr, itr->GetSpellInfo()->Id, true);
+        for (auto id : spellToCast)
+            if (id > 0 && _plr)
+                _plr->CastSpell(_plr, id, true);
     }
 }
 
@@ -985,11 +1000,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
-    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << pCurrChar->GetMapId();
-    data << pCurrChar->GetPositionX();
-    data << pCurrChar->GetPositionY();
+    WorldPacket data(SMSG_RESUME_TOKEN, 5);
+    data << uint32(0);
+    data << uint8(0x80);
+    SendPacket(&data);
+
+    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
     data << pCurrChar->GetPositionZ();
+    data << pCurrChar->GetMapId();
+    data << pCurrChar->GetPositionY();
+    data << pCurrChar->GetPositionX();
     data << pCurrChar->GetOrientation();
     SendPacket(&data);
 
@@ -997,15 +1017,43 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    bool featureBit4 = true;
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // sent in 5.0.5
-    uint8 fss[35] =
+    bool sessionTimeAlert = false;
+    bool travelPass = true;
+    bool webTicketFeature = false;
+    bool ingameStoreFeature = true;
+    bool itemRestorationFeature = false;
+    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
+
+    data << uint32(1);                  // SoR remaining ?
+    data << uint32(realmID);
+    data << uint8(2);                   // Complain System Status ?
+    data << uint32(43);                 // Unk
+    data << uint32(1);                  // SoR per day ?
+    
+    data.WriteBit(0);                   // Unk
+    data.WriteBit(1);                   // Is Voice Chat allowed ?
+    data.WriteBit(ingameStoreFeature);
+    data.WriteBit(sessionTimeAlert);
+    data.WriteBit(1);                   // Europa Ticket System Enabled ?
+    data.WriteBit(travelPass);          // Has Travel Pass
+    data.WriteBit(1);                   // Unk
+    data.WriteBit(itemRestorationFeature);
+    data.WriteBit(webTicketFeature);
+
+    if (sessionTimeAlert)
     {
-        0x01, 0x00, 0x00, 0x00, 0x62, 0x04, 0x00, 0x00, 0x02, 0x2B, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x4F,
-        0x80, 0x60, 0xEA, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x02, 0x1E, 0x14, 0x08, 0x01, 0x00, 0x00, 0x00
-    };
-    for (int i = 0; i < 35; i++)
-        data << fss[i];
+        data << uint32(0);              // Session Alert Period
+        data << uint32(0);              // Session Alert DisplayTime
+        data << uint32(0);              // Session Alert Delay
+    }
+
+    if (travelPass)
+    {
+        data << uint32(60000);          // Unk
+        data << uint32(10);             // Unk
+        data << uint32(114194674);      // Unk
+        data << uint32(1);              // Unk
+    }
    
     SendPacket(&data);
 
@@ -1055,6 +1103,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
 
+    const static std::string timeZoneName = "Europe/Paris";
+
+    data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
+    data.WriteBits(timeZoneName.size(), 7);
+    data.WriteBits(timeZoneName.size(), 7);
+    data.FlushBits();
+    data.append(timeZoneName.c_str(), timeZoneName.size());
+    data.append(timeZoneName.c_str(), timeZoneName.size());
+    SendPacket(&data);
+
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
     {
         data.Initialize(SMSG_SET_ARENA_SEASON, 8);
@@ -1085,13 +1143,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 22);
+    data.WriteBits(hotfix.size(), 20);
     data.FlushBits();
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
-        data << uint32(hotfix[i].Type);
-        data << uint32(hotfix[i].Timestamp);
         data << uint32(hotfix[i].Entry);
+        data << uint32(hotfix[i].Timestamp);
+        data << uint32(hotfix[i].Type);
     }
     SendPacket(&data);
 
@@ -1280,18 +1338,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
 
-    // Send CUF profiles (new raid UI 4.2)
-    // 5.4.0 17399 packet dump
-    data.Initialize(SMSG_LOAD_CUF_PROFILES);
-
-    uint8 cufProfilesRawData[] =
-    { 0x00, 0x00, 0x22, 0x01, 0x29, 0x13, 0x80, 0x00, 0x00, 0x24, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x50, 0x72, 0x69, 0x6E, 0x63, 0x69, 0x70, 0x61, 0x6C, 0x00, 0x00 };
-
-    for (int i = 0; i < 31; i++)
-        data << cufProfilesRawData[i];
-
-    SendPacket(&data);
+    pCurrChar->SendCUFProfiles();
 
     uint32 time8 = getMSTime() - time7;
 
@@ -1735,23 +1782,49 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 
 void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 {
-    uint64 guid;
-    std::string newName;
-
-    recvData >> guid;
-    recvData >> newName;
-
+    ObjectGuid playerGuid;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair;
-    recvData >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face;
+    std::string newName;
+    uint32 nameLen;
+
+    recvData >> gender >> hairColor >> facialHair >> skin >> face >> hairStyle;
+
+    playerGuid[0] = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    playerGuid[5] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    nameLen = recvData.ReadBits(6);
+    playerGuid[2] = recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+    recvData.FlushBits();
+    newName = recvData.ReadString(nameLen);
+
+    uint8 bytes[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
+    recvData.ReadBytesSeq(playerGuid, bytes);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, GUID_LOPART(playerGuid));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
+
+        uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[2]);
         data << uint8(CHAR_CREATE_ERROR);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[4]);
+        data.WriteByteSeq(playerGuid[3]);
+
         SendPacket(&data);
         return;
     }
@@ -1762,7 +1835,20 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
+
+        uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[2]);
         data << uint8(CHAR_CREATE_ERROR);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[4]);
+        data.WriteByteSeq(playerGuid[3]);
+
         SendPacket(&data);
         return;
     }
@@ -1771,7 +1857,20 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (!normalizePlayerName(newName))
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
+
+        uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[2]);
         data << uint8(CHAR_NAME_NO_NAME);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[4]);
+        data.WriteByteSeq(playerGuid[3]);
+
         SendPacket(&data);
         return;
     }
@@ -1780,7 +1879,20 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (res != CHAR_NAME_SUCCESS)
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
+
+        uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[2]);
         data << uint8(res);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[4]);
+        data.WriteByteSeq(playerGuid[3]);
+
         SendPacket(&data);
         return;
     }
@@ -1789,7 +1901,20 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
+
+        uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data.WriteByteSeq(playerGuid[0]);
+        data.WriteByteSeq(playerGuid[5]);
+        data.WriteByteSeq(playerGuid[2]);
         data << uint8(CHAR_NAME_RESERVED);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[4]);
+        data.WriteByteSeq(playerGuid[3]);
+
         SendPacket(&data);
         return;
     }
@@ -1797,53 +1922,80 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     // character with this name already exist
     if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newName))
     {
-        if (newguid != guid)
+        if (newguid != playerGuid)
         {
             WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
+
+            uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+            data.WriteBitInOrder(playerGuid, bits);
+
+            data.WriteByteSeq(playerGuid[7]);
+            data.WriteByteSeq(playerGuid[1]);
+            data.WriteByteSeq(playerGuid[0]);
+            data.WriteByteSeq(playerGuid[5]);
+            data.WriteByteSeq(playerGuid[2]);
             data << uint8(CHAR_CREATE_NAME_IN_USE);
+            data.WriteByteSeq(playerGuid[6]);
+            data.WriteByteSeq(playerGuid[4]);
+            data.WriteByteSeq(playerGuid[3]);
+
             SendPacket(&data);
             return;
         }
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, GUID_LOPART(playerGuid));
     result = CharacterDatabase.Query(stmt);
 
     if (result)
     {
         std::string oldname = result->Fetch()[0].GetString();
-        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), GUID_LOPART(guid), newName.c_str());
+        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), GUID_LOPART(playerGuid), newName.c_str());
     }
 
-    Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
+    Player::Customize(playerGuid, gender, skin, face, hairStyle, hairColor, facialHair);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
 
     stmt->setString(0, newName);
     stmt->setUInt16(1, uint16(AT_LOGIN_CUSTOMIZE));
-    stmt->setUInt32(2, GUID_LOPART(guid));
+    stmt->setUInt32(2, GUID_LOPART(playerGuid));
 
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
 
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, GUID_LOPART(playerGuid));
 
     CharacterDatabase.Execute(stmt);
 
-    sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newName, gender);
+    sWorld->UpdateCharacterNameData(GUID_LOPART(playerGuid), newName, gender);
 
-    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1+8+(newName.size()+1)+6);
+    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 17 + newName.size());
+
+    uint8 bits[8] = { 0, 5, 2, 4, 6, 7, 3, 1 };
+    data.WriteBitInOrder(playerGuid, bits);
+
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(playerGuid[2]);
     data << uint8(RESPONSE_SUCCESS);
-    data << uint64(guid);
-    data << newName;
-    data << uint8(gender);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[4]);
     data << uint8(skin);
-    data << uint8(face);
-    data << uint8(hairStyle);
     data << uint8(hairColor);
     data << uint8(facialHair);
+    data << uint8(face);
+    data << uint8(hairStyle);
+    data << uint8(gender);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteBits(newName.size(), 6);
+    data.FlushBits();
+    data.append(newName.c_str(), newName.size());
+
     SendPacket(&data);
 }
 
@@ -1934,6 +2086,9 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     eqSet.state     = EQUIPMENT_SET_NEW;
 
     _player->SetEquipmentSet(index, eqSet);
+
+    delete[] itemGuid;
+    itemGuid = 0;
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
@@ -1957,13 +2112,9 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
 
-    uint8* srcbag;
-    uint8* srcslot;
-    srcbag = new uint8[EQUIPMENT_SLOT_END];
-    srcslot = new uint8[EQUIPMENT_SLOT_END];
-
-    ObjectGuid* itemGuid = NULL;
-    itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
+    uint8* srcbag = new uint8[EQUIPMENT_SLOT_END];
+    uint8* srcslot = new uint8[EQUIPMENT_SLOT_END];
+    ObjectGuid* itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
 
     EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
 
@@ -2039,6 +2190,13 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     WorldPacket data(SMSG_DUMP_OBJECTS_DATA);
     data << uint8(0);   // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
+
+    delete[] srcbag;
+    srcbag = NULL;
+    delete[] srcslot;
+    srcslot = NULL;
+    delete[] itemGuid;
+    itemGuid = 0;
 }
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
@@ -2097,6 +2255,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         recvData >> facialHair;
 
     uint32 lowGuid = GUID_LOPART(guid);
+    CharacterNameData const* oldData = sWorld->GetCharacterNameData(lowGuid);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
 
@@ -2274,6 +2433,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
     stmt->setUInt32(0, lowGuid);
     trans->Append(stmt);
+
+    // CHECK PTR
+    if (oldData)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
+        stmt->setUInt32(0, lowGuid);
+        stmt->setString(1, oldData->m_name);
+        stmt->setString(2, newname);
+        trans->Append(stmt);
+    }
 
     sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
 
@@ -2665,8 +2834,8 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
 
     std::string const* name = GetRandomCharacterName(race, gender);
     WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    data.WriteBits(name->size(), 6);
     data.WriteBit(0); // unk
-    data.WriteBits(name->size(), 7);
     data.WriteString(name->c_str());
     SendPacket(&data);
 }

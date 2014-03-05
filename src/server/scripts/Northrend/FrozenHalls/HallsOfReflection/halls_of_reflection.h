@@ -72,7 +72,7 @@ enum HorWorldStates
 // Common actions from Instance Script to Boss Script
 enum Actions
 {
-    ACTION_ENTER_COMBAT
+    ACTION_ENTER_COMBAT = 1
 };
 
 // Base class for FALRIC and MARWYN

@@ -59,19 +59,32 @@ enum eSpells
     SPELL_ANIM_SIT                      = 128886,
     SPELL_ZERO_ENERGY                   = 72242,
     SPELL_TOTALY_PETRIFIED              = 115877,
+
+    //  Energized Tiles
+    SPELL_TILES_AURA                    = 116579,
+    SPELL_TILES_AURA_EFFECT             = 116541,
+    SPELL_TILES_DISPLAYED               = 116542,
+    SPELL_LIVING_AMETHYST               = 116322,
+    SPELL_LIVING_COBALT                 = 116199,
+    SPELL_LIVING_JADE                   = 116301,
+    SPELL_LIVING_JASPER                 = 116304,
 };
 
 enum eEvents
 {
     // Controler
     EVENT_PETRIFICATION                 = 1,
+    EVENT_CRYSTALS                      = 2,
 
     // Guardians
-    EVENT_CHECK_NEAR_GUARDIANS          = 2,
-    EVENT_CHECK_ENERGY                  = 3,
-    EVENT_REND_FLESH                    = 4,
-    EVENT_MAIN_ATTACK                   = 5,
-    EVENT_ENRAGE                        = 6,
+    EVENT_CHECK_NEAR_GUARDIANS          = 3,
+    EVENT_CHECK_ENERGY                  = 4,
+    EVENT_REND_FLESH                    = 5,
+    EVENT_MAIN_ATTACK                   = 6,
+    EVENT_ENRAGE                        = 7,
+
+    // Tiles
+    EVENT_TILING                        = 8,
 };
 
 uint32 guardiansEntry[4] =
@@ -82,6 +95,22 @@ uint32 guardiansEntry[4] =
     NPC_COBALT
 };
 
+// For living crystals - Stone guard
+Position stoneGuardsPos[4] =
+{
+    {3919.89f, 1258.59f, 466.363f, 4.66991f},
+    {3878.93f, 1258.49f, 466.363f, 4.69497f},
+    {3928.00f, 1246.34f, 466.363f, 4.71147f},
+    {3870.75f, 1246.28f, 466.363f, 4.54348f}
+};
+
+// Specific orientation for tiles (should not be turned)
+#define TILE_ORIENTATION 4.714031f
+
+// Invisible modelID for NPC Tiling Creature 62026
+#define INVISIBLE_DISPLAYID 11686
+
+// 60089 - Stone Guard Controller
 class boss_stone_guard_controler : public CreatureScript
 {
     public:
@@ -101,6 +130,9 @@ class boss_stone_guard_controler : public CreatureScript
 
             uint8 totalGuardian;
 
+            // Heroic
+            uint8 powDownCount;
+
             bool fightInProgress;
 
             void Reset()
@@ -113,8 +145,11 @@ class boss_stone_guard_controler : public CreatureScript
 
                 if (pInstance->GetBossState(DATA_STONE_GUARD) != DONE)
                     pInstance->SetBossState(DATA_STONE_GUARD, NOT_STARTED);
-
+                
                 events.ScheduleEvent(EVENT_PETRIFICATION, 15000);
+
+                if (IsHeroic())
+                    powDownCount = 2;
             }
 
             void DoAction(int32 const action)
@@ -129,6 +164,9 @@ class boss_stone_guard_controler : public CreatureScript
                                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, guardian);
 
                         events.ScheduleEvent(EVENT_PETRIFICATION, 15000);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_CRYSTALS, 7000);
+
                         fightInProgress = true;
                         break;
                     }
@@ -149,17 +187,64 @@ class boss_stone_guard_controler : public CreatureScript
                         for (uint32 entry: guardiansEntry)
                             if (Creature* guardian = me->GetMap()->GetCreature(pInstance->GetData64(entry)))
                                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, guardian);
-
+                        
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_CHAINS);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_PETRIFICATION_BAR);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_COBALT_PETRIFICATION_BAR);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
+
                         pInstance->SetBossState(DATA_STONE_GUARD, DONE);
+
                         fightInProgress = false;
+
+                        // Removing Crystals
+                        if (Creature* amethystCrystal = GetClosestCreatureWithEntry(me, NPC_LIVING_AMETHYST_CRYSTAL, 200.0f))
+                            amethystCrystal->DespawnOrUnsummon();
+
+                        if (Creature* cobaltCrystal = GetClosestCreatureWithEntry(me, NPC_LIVING_COBALT_CRYSTAL, 200.0f))
+                            cobaltCrystal->DespawnOrUnsummon();
+
+                        if (Creature* jadeCrystal = GetClosestCreatureWithEntry(me, NPC_LIVING_JADE_CRYSTAL, 200.0f))
+                            jadeCrystal->DespawnOrUnsummon();
+
+                        if (Creature* jasperCrystal = GetClosestCreatureWithEntry(me, NPC_LIVING_JASPER_CRYSTAL, 200.0f))
+                            jasperCrystal->DespawnOrUnsummon();
+
+                        // Removing energized tiles
+                        me->RemoveAllDynObjects();
+
                         break;
                     }
+                    case ACTION_POWER_DOWN:
+                    {
+                        if (Creature* guardian = pInstance->instance->GetCreature(pInstance->GetData64(NPC_AMETHYST)))
+                        {
+                            if (powDownCount)
+                            {
+                                if (powDownCount == 2 || guardian->GetHealthPct() < 40.0f)
+                                {
+                                    // Removing Tiles
+                                    me->RemoveAllDynObjects();
+
+                                    // Removing buff
+                                    std::list<Player*> raid;
+                                    GetPlayerListInGrid(raid, me, 5000.0f);
+
+                                    for (auto player : raid)
+                                        player->RemoveAura(SPELL_TILES_AURA_EFFECT);
+
+                                    // Decreasing powDowCount
+                                    --powDownCount;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -225,6 +310,41 @@ class boss_stone_guard_controler : public CreatureScript
                         }
                         break;
                     }
+                    case EVENT_CRYSTALS:
+                    {
+                        for (uint8 i = 0; i < 4; ++i)
+                            if (uint64 stoneGuardGuid = pInstance->GetData64(guardiansEntry[i]))
+                                if (Creature* stoneGuard = pInstance->instance->GetCreature(stoneGuardGuid))
+                                    if (stoneGuard->isAlive())
+                                    {
+                                        switch(stoneGuard->GetEntry())
+                                        {
+                                            case NPC_JASPER:
+                                            {
+                                                me->SummonCreature(NPC_LIVING_JASPER_CRYSTAL, stoneGuardsPos[i]);
+                                                break;
+                                            }
+                                            case NPC_JADE:
+                                            {
+                                                me->SummonCreature(NPC_LIVING_JADE_CRYSTAL, stoneGuardsPos[i]);
+                                                break;
+                                            }
+                                            case NPC_AMETHYST:
+                                            {
+                                                me->SummonCreature(NPC_LIVING_AMETHYST_CRYSTAL, stoneGuardsPos[i]);
+                                                break;
+                                            }
+                                            case NPC_COBALT:
+                                            {
+                                                me->SummonCreature(NPC_LIVING_COBALT_CRYSTAL, stoneGuardsPos[i]);
+                                                break;
+                                            }
+                                            default:
+                                                break;
+                                        }
+                                    }
+                        break;
+                    }
                 }
             }
         };
@@ -235,6 +355,10 @@ class boss_stone_guard_controler : public CreatureScript
         }
 };
 
+// 59915 - Jasper Guardian
+// 60043 - Jade Guardian
+// 60047 - Amethyst Guardian
+// 60051 - Cobalt Guardian
 class boss_generic_guardian : public CreatureScript
 {
     public:
@@ -275,7 +399,7 @@ class boss_generic_guardian : public CreatureScript
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
-
+                
                 me->CastSpell(me, SPELL_SOLID_STONE, true);
                 me->CastSpell(me, SPELL_ANIM_SIT,    true);
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
@@ -284,6 +408,7 @@ class boss_generic_guardian : public CreatureScript
                     stoneGuardControler->AI()->Reset();
 
                 summons.DespawnAll();
+                me->RemoveAllAreasTrigger();
 
                 switch (me->GetEntry())
                 {
@@ -323,7 +448,7 @@ class boss_generic_guardian : public CreatureScript
                         spellMainAttack             = 0;
                         break;
                 }
-
+                
                 if (pInstance)
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(spellPetrificationBarId);
 
@@ -339,7 +464,7 @@ class boss_generic_guardian : public CreatureScript
             {
                 if (pInstance)
                     pInstance->SetBossState(DATA_STONE_GUARD, IN_PROGRESS);
-
+                
                 me->RemoveAurasDueToSpell(SPELL_SOLID_STONE);
                 me->RemoveAurasDueToSpell(SPELL_ANIM_SIT);
             }
@@ -411,6 +536,10 @@ class boss_generic_guardian : public CreatureScript
                         if (Creature* gardian = controller->GetMap()->GetCreature(pInstance->GetData64(entry)))
                             if (gardian->GetGUID() != me->GetGUID() && damage < gardian->GetHealth())
                                 gardian->ModifyHealth(-int32(damage));
+
+                    // Heroic : turns off white tiles when life < 75% and then < 40%
+                    if (me->HealthBelowPctDamaged(75, damage))
+                        controller->AI()->DoAction(ACTION_POWER_DOWN);
                 }
             }
 
@@ -430,6 +559,8 @@ class boss_generic_guardian : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                me->RemoveAllAreasTrigger();
+
                 if (Creature* controller = GetController())
                     controller->AI()->DoAction(ACTION_GUARDIAN_DIED);
             }
@@ -509,7 +640,9 @@ class boss_generic_guardian : public CreatureScript
                     {
                         if (me->GetPower(POWER_ENERGY) >= me->GetMaxPower(POWER_ENERGY))
                         {
-                            me->MonsterTextEmote(sSpellMgr->GetSpellInfo(spellOverloadId)->SpellName, 0, true);
+                            std::ostringstream text;
+                            text << "|cffba2200|Hspell:" << spellOverloadId << "|h[" << sSpellMgr->GetSpellInfo(spellOverloadId)->SpellName << "]|h|r";
+                            me->MonsterTextEmote(text.str().c_str(), 0, true);
                             me->CastSpell(me, spellOverloadId, false);
                             me->RemoveAurasDueToSpell(spellPetrificationId);
                             if (pInstance)
@@ -576,7 +709,7 @@ class boss_generic_guardian : public CreatureScript
                                             break;
 
                                         JadeCore::Containers::RandomResizeList(tempPlayerList, 2);
-
+                                    
                                         Player* firstPlayer  = *tempPlayerList.begin();
                                         Player* SecondPlayer = *(++(tempPlayerList.begin()));
 
@@ -621,6 +754,7 @@ enum eMineSpell
     SPELL_COBALT_MINE_EXPLOSION = 116281
 };
 
+// 65083 - Cobalt mine
 class mob_cobalt_mine : public CreatureScript
 {
     public:
@@ -676,6 +810,229 @@ class mob_cobalt_mine : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_cobalt_mineAI(creature);
+        }
+};
+
+// Generic Living Crystals : 60304 (Cobalt) 60306 (Jade) 60307 (Jasper) 60308 (Amethyst)
+class mob_living_crystal : public CreatureScript
+{
+    public:
+        mob_living_crystal() : CreatureScript("mob_living_crystal") { }
+
+        struct mob_living_crystalAI : public ScriptedAI
+        {
+            mob_living_crystalAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+            
+            InstanceScript* pInstance;
+
+            void Reset()
+            {
+            }
+
+            void OnSpellClick(Unit* clicker)
+            {
+                if (Player* player = clicker->ToPlayer())
+                {
+                    AuraPtr amethyst = player->GetAura(SPELL_LIVING_AMETHYST);
+                    AuraPtr cobalt = player->GetAura(SPELL_LIVING_COBALT);
+                    AuraPtr jade = player->GetAura(SPELL_LIVING_JADE);
+                    AuraPtr jasper = player->GetAura(SPELL_LIVING_JASPER);
+
+                    // Prevent stacking different auras
+                    if (amethyst && cobalt)
+                    {
+                        if (amethyst->GetStackAmount() > cobalt->GetStackAmount())
+                            cobalt->Remove();
+                        else
+                            amethyst->Remove();
+                        return;
+                    }
+                    else if (amethyst && jade)
+                    {
+                        if (amethyst->GetStackAmount() > jade->GetStackAmount())
+                            jade->Remove();
+                        else
+                            amethyst->Remove();
+                        return;
+                    }
+                    else if (amethyst && jasper)
+                    {
+                        if (amethyst->GetStackAmount() > jasper->GetStackAmount())
+                            jasper->Remove();
+                        else
+                            amethyst->Remove();
+                        return;
+                    }
+                    else if (cobalt && jade)
+                    {
+                        if (cobalt->GetStackAmount() > jade->GetStackAmount())
+                            jade->Remove();
+                        else
+                            cobalt->Remove();
+                        return;
+                    }
+                    else if (cobalt && jasper)
+                    {
+                        if (cobalt->GetStackAmount() > jasper->GetStackAmount())
+                            jasper->Remove();
+                        else
+                            cobalt->Remove();
+                        return;
+                    }
+                    else if (jade && jasper)
+                    {
+                        if (jade->GetStackAmount() > jasper->GetStackAmount())
+                            jasper->Remove();
+                        else
+                            jade->Remove();
+                        return;
+                    }
+
+                    // Setting stack
+                    if (amethyst)
+                        player->GetAura(SPELL_LIVING_AMETHYST)->SetStackAmount(10);
+                    else if (cobalt)
+                        player->GetAura(SPELL_LIVING_COBALT)->SetStackAmount(10);
+                    else if (jade)
+                        player->GetAura(SPELL_LIVING_JADE)->SetStackAmount(10);
+                    else if (jasper)
+                        player->GetAura(SPELL_LIVING_JASPER)->SetStackAmount(10);
+                }
+            }
+
+
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_living_crystalAI(creature);
+        }
+};
+
+// Tiling Creature - 62026 - Using a random creature not used anywhere else
+class mob_tiling_creature : public CreatureScript
+{
+    public :
+        mob_tiling_creature() : CreatureScript("mob_tiling_creature") { }
+
+        struct mob_tiling_creatureAI : public ScriptedAI
+        {
+            mob_tiling_creatureAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            InstanceScript* pInstance;
+            bool activated;
+
+            void Reset()
+            {
+                me->SetDisplayId(INVISIBLE_DISPLAYID);
+                events.Reset();
+                activated = false;
+                events.ScheduleEvent(EVENT_TILING, 100);
+            }
+
+            void DoAction(const int32 action)
+            {
+                switch (action)
+                {
+                    case ACTION_TILING:
+                    {
+                        if (Creature* controller = me->GetMap()->GetCreature(pInstance->GetData64(NPC_STONE_GUARD_CONTROLER)))
+                            controller->CastSpell(me, SPELL_TILES_DISPLAYED, false);
+
+                        // me->CastSpell(me, SPELL_TILES_DISPLAYED, false);
+
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 5000.0f);
+
+                        for (auto player : playerList)
+                        {
+                            AuraPtr buff = player->GetAura(SPELL_TILES_AURA_EFFECT);
+                            if (buff)
+                                buff->SetStackAmount(buff->GetStackAmount() + 1);
+                            else
+                                me->AddAura(SPELL_TILES_AURA_EFFECT, player);
+                        }
+
+                        activated = true;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_TILING:
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 0.1f);
+
+                        for (auto player : playerList)
+                        {
+                            if (playerList.empty())
+                                break;
+
+                            AuraPtr amethyst = player->GetAura(SPELL_LIVING_AMETHYST);
+                            AuraPtr cobalt   = player->GetAura(SPELL_LIVING_COBALT);
+                            AuraPtr jade     = player->GetAura(SPELL_LIVING_JADE);
+                            AuraPtr jasper   = player->GetAura(SPELL_LIVING_JASPER);
+
+                            if (amethyst || cobalt || jade || jasper)
+                            {
+                                DoAction(ACTION_TILING);
+                                if (amethyst)
+                                {
+                                    amethyst->SetStackAmount(amethyst->GetStackAmount() - 1);
+                                    if (!amethyst->GetStackAmount())
+                                        amethyst->Remove();
+                                }
+                                else if (cobalt)
+                                {
+                                    cobalt->SetStackAmount(cobalt->GetStackAmount() - 1);
+                                    if (!cobalt->GetStackAmount())
+                                        cobalt->Remove();
+                                }
+                                else if (jade)
+                                {
+                                    jade->SetStackAmount(jade->GetStackAmount() - 1);
+                                    if (!jade->GetStackAmount())
+                                        jade->Remove();
+                                }
+                                else if (jasper)
+                                {
+                                    jasper->SetStackAmount(jasper->GetStackAmount() - 1);
+                                    if (!jasper->GetStackAmount())
+                                        jasper->Remove();
+                                }
+                                break;
+                            }
+                        }
+                                    
+                        if (!activated)
+                            events.ScheduleEvent(EVENT_TILING, 100);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_tiling_creatureAI(creature);
         }
 };
 
@@ -786,7 +1143,7 @@ class spell_jasper_chains : public SpellScriptLoader
                             return;
                         }
                     }
-
+                    
                     caster->AddAura(spell->Id, target);
                     target->CastSpell(linkedPlayer, SPELL_JASPER_CHAINS_DAMAGE, true);
                 }
@@ -848,6 +1205,8 @@ void AddSC_boss_stone_guard()
     new boss_stone_guard_controler();
     new boss_generic_guardian();
     new mob_cobalt_mine();
+    new mob_living_crystal();
+    new mob_tiling_creature();
     new spell_petrification();
     new spell_jasper_chains();
     new spell_jasper_chains_damage();

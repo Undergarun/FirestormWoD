@@ -251,16 +251,20 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 (*i)->ModifyMoney(goldPerPlayer);
                 (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
 
-                if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
+                if ((*i)->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
                 {
-                    if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
+                    if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
                     {
-                        uint32 amount = guild->GetBankMoney();
-                        if ((amount + guildGold) > MAX_MONEY_AMOUNT && amount < MAX_MONEY_AMOUNT)
-                        {
-                            guildGold = uint32(MAX_MONEY_AMOUNT) - guildGold;
-                            guild->HandleMemberDepositMoney(this, uint64(guildGold), true);
-                        }
+                        uint64 guildGold = uint64(CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
+                        if (guildGold > MAX_MONEY_AMOUNT)
+                            guildGold = MAX_MONEY_AMOUNT;
+
+                        uint64 amount = guild->GetBankMoney();
+                        if ((amount + guildGold) > MAX_MONEY_AMOUNT)
+                            guildGold = uint64(MAX_MONEY_AMOUNT - guildGold);
+
+                        if (guildGold)
+                            guild->DepositMoney(guildGold);
                     }
                 }
 
@@ -276,16 +280,20 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             player->ModifyMoney(loot->gold);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
 
-            if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+            if (player->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
             {
-                if (uint32 guildGold = CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
+                if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
                 {
-                    uint32 amount = guild->GetBankMoney();
-                    if ((amount + guildGold) > MAX_MONEY_AMOUNT && amount < MAX_MONEY_AMOUNT)
-                    {
-                        guildGold = uint32(MAX_MONEY_AMOUNT) - guildGold;
-                        guild->HandleMemberDepositMoney(this, uint64(guildGold), true);
-                    }
+                    uint64 guildGold = uint64(CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
+                    if (guildGold > MAX_MONEY_AMOUNT)
+                        guildGold = MAX_MONEY_AMOUNT;
+
+                    uint64 amount = guild->GetBankMoney();
+                    if ((amount + guildGold) > MAX_MONEY_AMOUNT)
+                        guildGold = uint64(MAX_MONEY_AMOUNT - guildGold);
+
+                    if (guildGold)
+                        guild->DepositMoney(guildGold);
                 }
             }
 
@@ -546,6 +554,16 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
             return;
 
         loot = &creature->loot;
+        if (loot->isLinkedLoot(slot))
+        {
+            LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(slot);
+            creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
+            if (!creature)
+                return;
+
+            loot = &creature->loot;
+            slot = linkedLootInfo.slot;
+        }
     }
     else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
     {
@@ -638,15 +656,26 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
         if (IS_CRE_OR_VEH_GUID(GetPlayer()->GetLootGUID()))
         {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
+            Creature* creature = GetPlayer()->GetMap()->GetCreature(sObjectMgr->GetCreatureGUIDByLootViewGUID(lootguid));
             if (!creature)
                 return;
 
             loot = &creature->loot;
+            if (loot->isLinkedLoot(slotid))
+            {
+                LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(slotid);
+                creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
+                if (!creature)
+                    return;
+
+                loot = &creature->loot;
+                slotid = linkedLootInfo.slot;
+            }
+
         }
         else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
         {
-            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
+            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(GetPlayer()->GetLootGUID());
             if (!pGO)
                 return;
 

@@ -152,7 +152,7 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSEGuidByte2,
     MSEGuidByte0,
     MSEGuidByte5,
-    // if bit counter, then do while
+    MSEBitCounterLoop1,
     MSEGuidByte6,
 
     MSETransportGuidByte6,

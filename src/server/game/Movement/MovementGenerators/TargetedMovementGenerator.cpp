@@ -87,6 +87,8 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     i_targetReached = false;
     i_recalculateTravel = false;
 
+    owner.UpdateAllowedPositionZ(x, y, z);
+
     Movement::MoveSplineInit init(owner);
     init.MoveTo(x,y,z);
     init.SetFacing(i_target.getTarget());

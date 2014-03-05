@@ -21,6 +21,8 @@
 #include "Common.h"
 #include <ace/Singleton.h>
 #include "LFG.h"
+#include "LockedMap.h"
+#include "LFGPlayerData.h"
 
 class LfgGroupData;
 class LfgPlayerData;
@@ -136,6 +138,7 @@ struct LfgRoleCheck;
 struct LfgProposal;
 struct LfgProposalPlayer;
 struct LfgPlayerBoot;
+class LfgPlayerData;
 
 typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;
@@ -154,7 +157,7 @@ typedef std::map<uint32, LfgProposal*> LfgProposalMap;
 typedef std::map<uint64, LfgProposalPlayer*> LfgProposalPlayerMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 typedef std::map<uint64, LfgGroupData> LfgGroupDataMap;
-typedef std::map<uint64, LfgPlayerData> LfgPlayerDataMap;
+typedef ACE_Based::LockedMap<uint64, LfgPlayerData> LfgPlayerDataMap;
 typedef std::map<uint32, Position> LfgEntrancePositionMap;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
@@ -362,7 +365,7 @@ class LFGMgr
         void RemoveFromCompatibles(uint64 guid);
 
         // Generic
-        const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon);
+        const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon, bool check = false);
         LfgType GetDungeonType(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
 

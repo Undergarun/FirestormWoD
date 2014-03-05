@@ -450,7 +450,7 @@ enum AuraType
     SPELL_AURA_390                                          = 390,  // 5.0.5 unk aura
     SPELL_AURA_391                                          = 391,  // 5.0.5 unk aura
     SPELL_AURA_392                                          = 392,  // 5.0.5 unk aura
-    SPELL_AURA_393                                          = 393,  // 5.0.5 unk aura
+    SPELL_AURA_DEFLECT_FRONT_SPELLS                         = 393,  // SPELL_AURA_DEFLECT_FRONT_SPELLS
     SPELL_AURA_394                                          = 394,  // 5.0.5 unk aura
     SPELL_AURA_395                                          = 395,  // 5.0.5 unk aura
     SPELL_AURA_396                                          = 396,  // 5.0.5 unk aura
@@ -478,7 +478,7 @@ enum AuraType
     SPELL_AURA_418                                          = 418,  // 5.0.5 unk aura
     SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2                = 419,  // SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)
-    SPELL_AURA_MOD_HEALING_2                                = 421,  // 5.4.0 unk aura (NYI)
+    SPELL_AURA_MOD_ABSORPTION_PCT                           = 421,  // 5.4.0
     SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0 unk aura (NYI) wind Storm Iron Qon phase 2
     SPELL_AURA_423                                          = 423,  // 5.4.0 unk aura (NYI) "Balance: Spell Damage and Hit Chance increased.Mana cost of all damage spells reduced by 100 % ."
     SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura (NYI) Heart of the Wild talent related

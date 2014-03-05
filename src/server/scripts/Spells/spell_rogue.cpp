@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 
 enum RogueSpells
 {
@@ -79,6 +80,39 @@ enum RogueSpells
     ROGUE_SPELL_WEAKENED_ARMOR                   = 113746,
     ROGUE_SPELL_DEADLY_BREW                      = 51626,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGE              = 56807,
+    ROGUE_SPELL_CLOAK_AND_DAGGER                 = 138106,
+    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY         = 128766
+};
+
+// Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
+// Cloak and Dagger - 138106
+class spell_rog_cloak_and_dagger : public SpellScriptLoader
+{
+    public:
+        spell_rog_cloak_and_dagger() : SpellScriptLoader("spell_rog_cloak_and_dagger") { }
+
+        class spell_rog_cloak_and_dagger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (Unit* target = GetHitUnit())
+                        if (_player->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER))
+                            _player->CastSpell(target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_cloak_and_dagger_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_cloak_and_dagger_SpellScript();
+        }
 };
 
 // Called by Expose Armor - 8647
@@ -437,7 +471,7 @@ class spell_rog_nightstalker : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -575,12 +609,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_ADRENALINE_RUSH);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
                             {
@@ -588,12 +617,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_KILLING_SPREE, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_KILLING_SPREE);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_REDIRECT))
                             {
@@ -601,12 +625,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_REDIRECT, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_REDIRECT);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
                             {
@@ -614,12 +633,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_SHADOW_BLADES);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                             {
@@ -627,12 +641,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 newCooldownDelay -= comboPoints * 2;
 
                                 _player->AddSpellCooldown(ROGUE_SPELL_SPRINT, 0, uint32(time(NULL) + newCooldownDelay));
-
-                                WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                                data << uint32(ROGUE_SPELL_SPRINT);     // Spell ID
-                                data << uint64(_player->GetGUID());              // Player GUID
-                                data << int32(-1 * comboPoints * 2000);          // Cooldown mod in milliseconds
-                                _player->GetSession()->SendPacket(&data);
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, (-1 * comboPoints * 2000));
                             }
 
                             comboPoints = 0;
@@ -668,10 +677,19 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (_player->HasAura(ROGUE_SPELL_CUT_TO_THE_CHASE_AURA))
+                        {
                             if (AuraPtr sliceAndDice = _player->GetAura(ROGUE_SPELL_SLICE_AND_DICE, _player->GetGUID()))
-                                sliceAndDice->SetDuration(sliceAndDice->GetMaxDuration());
+                            {
+                                sliceAndDice->SetDuration(36 * IN_MILLISECONDS);
+                                sliceAndDice->SetMaxDuration(36 * IN_MILLISECONDS);
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -831,6 +849,18 @@ class spell_rog_redirect : public SpellScriptLoader
         }
 };
 
+enum battleGroundsFlagsSpells
+{
+    BG_WS_SPELL_WARSONG_FLAG    = 23333,
+    BG_WS_SPELL_SILVERWING_FLAG = 23335,
+    BG_KT_SPELL_ORB_PICKED_UP_1 = 121164,
+    BG_KT_SPELL_ORB_PICKED_UP_2 = 121175,
+    BG_KT_SPELL_ORB_PICKED_UP_3 = 121176,
+    BG_KT_SPELL_ORB_PICKED_UP_4 = 121177,
+    BG_KT_ALLIANCE_INSIGNIA     = 131527,
+    BG_KT_HORDE_INSIGNIA        = 131528
+};
+
 // Shroud of Concealment - 115834
 class spell_rog_shroud_of_concealment : public SpellScriptLoader
 {
@@ -841,17 +871,56 @@ class spell_rog_shroud_of_concealment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_shroud_of_concealment_SpellScript);
 
+            void SelectTargets(std::list<WorldObject*>& targets)
+            {
+                std::list<WorldObject*> targetsToRemove;
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_WARSONG_FLAG));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_SILVERWING_FLAG));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_1));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_2));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_3));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_4));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_ALLIANCE_INSIGNIA));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_HORDE_INSIGNIA));
+
+                for (auto itr : targets)
+                {
+                    if (Unit* target = itr->ToUnit())
+                    {
+                        if ((!target->IsInRaidWith(GetCaster()) && !target->IsInPartyWith(GetCaster())) ||
+                            target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING))
+                            targetsToRemove.push_back(itr);
+                    }
+                }
+
+                for (auto itr : targetsToRemove)
+                    targets.remove(itr);
+            }
+
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (AuraPtr shroudOfConcealment = target->GetAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, _player->GetGUID()))
-                            if (!target->IsInRaidWith(_player) && !target->IsInPartyWith(_player))
+                        {
+                            if ((!target->IsInRaidWith(_player) && !target->IsInPartyWith(_player)) ||
+                                target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING) ||
+                                target->HasAura(BG_WS_SPELL_WARSONG_FLAG) || target->HasAura(BG_WS_SPELL_SILVERWING_FLAG) ||
+                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_1) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_2) ||
+                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_3) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_4))
+                            {
                                 target->RemoveAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, _player->GetGUID());
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_shroud_of_concealment_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_rog_shroud_of_concealment_SpellScript::HandleOnHit);
             }
         };
@@ -1217,6 +1286,8 @@ class spell_rog_recuperate : public SpellScriptLoader
                     if (AuraPtr recuperate = _player->GetAura(ROGUE_SPELL_RECUPERATE))
                     {
                         int32 bp = _player->CountPctFromMaxHealth(3);
+                        bp = _player->SpellHealingBonusDone(_player, GetSpellInfo(), bp, HEAL);
+                        bp = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), bp, HEAL);
                         recuperate->GetEffect(0)->ChangeAmount(bp);
                     }
                 }
@@ -1396,6 +1467,9 @@ class spell_rog_shadowstep : public SpellScriptLoader
             {
                 if (GetCaster()->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
+                if (GetExplTargetUnit() && GetExplTargetUnit() == GetCaster())
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 return SPELL_CAST_OK;
             }
 
@@ -1413,6 +1487,7 @@ class spell_rog_shadowstep : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_cloak_and_dagger();
     new spell_rog_glyph_of_expose_armor();
     new spell_rog_cheat_death();
     new spell_rog_blade_flurry();

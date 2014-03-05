@@ -95,6 +95,76 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL     = 115515,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE              = 56420,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC         = 115654,
+    PALADIN_SPELL_SANCTIFIED_WRATH_TALENT        = 53376,
+    PALADIN_SPELL_SANCTIFIED_WRATH_BONUS         = 114232,
+    PALADIN_SPELL_AVENGING_WRATH                 = 31884,
+    PALADIN_SPELL_EXORCISM_ENERGIZE              = 147715
+};
+
+// Exorcism - 879
+class spell_pal_exorcism_energize : public SpellScriptLoader
+{
+    public:
+        spell_pal_exorcism_energize() : SpellScriptLoader("spell_pal_exorcism_energize") { }
+
+        class spell_pal_exorcism_energize_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_exorcism_energize_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                        _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pal_exorcism_energize_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_exorcism_energize_SpellScript();
+        }
+};
+
+// Called by Avenging Wrath - 31884
+// Sanctified Wrath - 53376
+class spell_pal_sanctified_wrath : public SpellScriptLoader
+{
+    public:
+        spell_pal_sanctified_wrath() : SpellScriptLoader("spell_pal_sanctified_wrath") { }
+
+        class spell_pal_sanctified_wrath_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sanctified_wrath_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
+                        _player->CastSpell(_player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->RemoveAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_sanctified_wrath_AuraScript();
+        }
 };
 
 // Called by Divine Storm - 53385
@@ -276,12 +346,7 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
                         if (newCooldownDelay > maxCooldownReduction)
                         {
                             _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-
-                            WorldPacket packet(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            packet << uint32(PALADIN_SPELL_DIVINE_SHIELD);                // Spell ID
-                            packet << uint64(_player->GetGUID());                         // Player GUID
-                            packet << int32(-lessCooldown);                               // Cooldown mod in milliseconds
-                            _player->GetSession()->SendPacket(&packet);
+                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, -lessCooldown);
                         }
                     }
                     if (_player->HasSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS))
@@ -296,12 +361,7 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
                         if (newCooldownDelay > maxCooldownReduction)
                         {
                             _player->AddSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-
-                            WorldPacket packet(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            packet << uint32(PALADIN_SPELL_LAY_ON_HANDS);                 // Spell ID
-                            packet << uint64(_player->GetGUID());                         // Player GUID
-                            packet << int32(-lessCooldown);                               // Cooldown mod in milliseconds
-                            _player->GetSession()->SendPacket(&packet);
+                            _player->ReduceSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, -lessCooldown);
                         }
                     }
                     if (_player->HasSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION))
@@ -316,12 +376,7 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
                         if (newCooldownDelay > maxCooldownReduction)
                         {
                             _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-
-                            WorldPacket packet(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            packet << uint32(PALADIN_SPELL_DIVINE_PROTECTION);                // Spell ID
-                            packet << uint64(_player->GetGUID());                             // Player GUID
-                            packet << int32(-lessCooldown);                                   // Cooldown mod in milliseconds
-                            _player->GetSession()->SendPacket(&packet);
+                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, -lessCooldown);
                         }
                     }
                 }
@@ -1418,12 +1473,18 @@ class spell_pal_holy_shock : public SpellScriptLoader
                         if (caster->IsFriendlyTo(unitTarget))
                         {
                             caster->CastSpell(unitTarget, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
-                            caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 6);
+                            if (!caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 6);
+                            else
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 3);
                         }
                         else
                         {
                             caster->CastSpell(unitTarget, PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, true);
-                            caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 6);
+                            if (!caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 6);
+                            else
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 3);
                         }
 
                         if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
@@ -1588,6 +1649,8 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_exorcism_energize();
+    new spell_pal_sanctified_wrath();
     new spell_pal_glyph_of_divine_storm();
     new spell_pal_daybreak();
     new spell_pal_hand_of_purity();

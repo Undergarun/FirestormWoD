@@ -454,7 +454,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             else
             {
                 if (pet->isPossessed() || pet->IsVehicle())
-                    Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
+                    Spell::SendCastResult(GetPlayer(), spellInfo, NULL, 0, result);
                 else
                     pet->SendPetCastFail(spellid, result);
 
@@ -820,7 +820,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     bool hasUnk5bits;
     uint32 archeologyCounter = 0;
     WorldLocation dstLoc, srcLoc;
-    float speed, elevation;
+    float speed = 0.0f, elevation = 0.0f;
     uint32 targetFlags = 0;
     uint32 spellID = 0;
     uint32 stringLenght = 0;

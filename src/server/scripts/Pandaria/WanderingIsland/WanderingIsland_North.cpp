@@ -144,11 +144,11 @@ public:
     {
         return new mob_training_targetAI(creature);
     }
-
+    
     struct mob_training_targetAI : public ScriptedAI
     {
-        mob_training_targetAI(Creature* creature) : ScriptedAI(creature) {}
-
+    	mob_training_targetAI(Creature* creature) : ScriptedAI(creature) {}
+    	
         void Reset()
         {
             me->SetReactState(REACT_PASSIVE);
@@ -279,12 +279,12 @@ class boss_jaomin_ro : public CreatureScript
 {
 public:
     boss_jaomin_ro() : CreatureScript("boss_jaomin_ro") { }
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_jaomin_roAI(creature);
     }
-
+    
     struct boss_jaomin_roAI : public ScriptedAI
     {
         boss_jaomin_roAI(Creature* creature) : ScriptedAI(creature)
@@ -304,7 +304,7 @@ public:
             events.ScheduleEvent(EVENT_HIT_CIRCLE,  12000);
             events.ScheduleEvent(EVENT_CHECK_AREA,  12500);
         }
-
+        
         void Reset()
         {
             me->SetReactState(REACT_DEFENSIVE);
@@ -326,7 +326,7 @@ public:
                 summoned->DespawnOrUnsummon();
             }
         }
-
+        
         void DamageTaken(Unit* attacker, uint32& damage)
         {
             if (Player* player = attacker->ToPlayer())
@@ -383,7 +383,7 @@ public:
         }
 
         void UpdateAI(const uint32 diff)
-        {
+        {            
             events.Update(diff);
 
             if (!UpdateVictim())
@@ -444,14 +444,14 @@ public:
                         break;
                     case EVENT_RESET: // Comes back to initial pos
                         Reset();
-                        break;
+                    	break;
                     case EVENT_CHECK_AREA:
                         if (me->GetAreaId() != 5843) // Grotte Paisible (unk ?)
                             Reset();
                         break;
                 }
             }
-
+            
             DoMeleeAttackIfReady();
         }
     };
@@ -465,11 +465,11 @@ public:
     {
         return new mob_attacker_dimwindAI(creature);
     }
-
+    
     struct mob_attacker_dimwindAI : public ScriptedAI
     {
-        mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
-
+    	mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
+    	
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
             if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
@@ -488,12 +488,12 @@ class mob_min_dimwind : public CreatureScript
 {
 public:
     mob_min_dimwind() : CreatureScript("mob_min_dimwind") { }
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_min_dimwindAI(creature);
     }
-
+    
     struct mob_min_dimwindAI : public ScriptedAI
     {
         EventMap events;
@@ -504,7 +504,7 @@ public:
             EVENT_CHECK_MOBS    = 1,
             EVENT_RESET         = 2
         };
-
+        
         mob_min_dimwindAI(Creature* creature) : ScriptedAI(creature)
         {
             for(int i = 0; i < 4; i++)
@@ -513,13 +513,13 @@ public:
             ResetMobs();
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
         }
-
+        
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
             if(me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
                 uiDamage = 0;
         }
-
+        
         bool VerifyMobs()
         {
             bool HasRemainingAttacker = false;
@@ -540,7 +540,7 @@ public:
 
             return !HasRemainingAttacker;
         }
-
+        
         void ResetMobs()
         {
             events.ScheduleEvent(EVENT_CHECK_MOBS, 1000);
@@ -567,7 +567,7 @@ public:
                 }
             }
         }
-
+        
         void UpdateAI(const uint32 diff)
         {
             std::list<Player*> PlayerList;
@@ -593,14 +593,14 @@ public:
                     {
                         if(VerifyMobs()) // No more mobs, objective completed
                         {
-                            me->HandleEmoteCommand(EMOTE_STATE_STAND);
-                            me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
-
+                    	    me->HandleEmoteCommand(EMOTE_STATE_STAND);
+                    	    me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
+                        
                             std::list<Player*> PlayerList;
                             GetPlayerListInGrid(PlayerList, me, 20.0f);
                             for (auto player: PlayerList)
                                 player->KilledMonsterCredit(54855, 0);
-
+                        
                             events.ScheduleEvent(EVENT_RESET, 30000);
                         }
                         else
@@ -624,7 +624,7 @@ public:
     mob_aysa_lake_escort() : CreatureScript("mob_aysa_lake_escort") { }
 
     struct mob_aysa_lake_escortAI : public npc_escortAI
-    {
+    {        
         mob_aysa_lake_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -681,12 +681,12 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_aysa_lake_escortAI(creature);
     }
-
+    
 };
 
 #define ACTION_TALK_1 2
@@ -704,21 +704,21 @@ public:
 
         return true;
     }
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_aysaAI(creature);
     }
-
+    
     struct mob_aysaAI : public ScriptedAI
     {
-        EventMap events;
+    	EventMap events;
         std::list<Player*> playersInvolved;
         uint64 lifeiGUID;
         bool inCombat;
         uint64 timer;
         bool hasSaidIntro;
-
+        
         mob_aysaAI(Creature* creature) : ScriptedAI(creature)
         {
             events.ScheduleEvent(1, 600); //Begin script
@@ -737,7 +737,7 @@ public:
             EVENT_PROGRESS      = 3,
             EVENT_END           = 4,
         };
-
+        
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
             if(me->HealthBelowPctDamaged(5, uiDamage))
@@ -749,28 +749,28 @@ public:
                             summon->UnSummon();
                     lifeiGUID = 0;
                 }
-
+                
                 uiDamage = 0;
                 me->MonsterSay("I can't meditate!", LANG_UNIVERSAL, 0);
                 me->SetFullHealth();
                 me->SetReactState(REACT_DEFENSIVE);
-
+                
                 std::list<Creature*> unitlist;
                 GetCreatureListWithEntryInGrid(unitlist, me, 59637, 50.0f);
                 for (auto creature: unitlist)
                     me->Kill(creature);
-
+                	
                 events.ScheduleEvent(EVENT_START, 20000);
                 events.CancelEvent(EVENT_SPAWN_MOBS);
                 events.CancelEvent(EVENT_PROGRESS);
                 events.CancelEvent(EVENT_END);
             }
         }
-
+        
         void updatePlayerList()
         {
             playersInvolved.clear();
-
+            
             std::list<Player*> PlayerList;
             GetPlayerListInGrid(PlayerList, me, 20.0f);
 
@@ -779,7 +779,7 @@ public:
                 if (player->GetQuestStatus(29414) == QUEST_STATUS_INCOMPLETE)
                     playersInvolved.push_back(player);
 
-                if (player->GetQuestStatus(29419) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(29424) == QUEST_STATUS_COMPLETE
+                if (player->GetQuestStatus(29419) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(29424) == QUEST_STATUS_COMPLETE 
                     && me->GetPositionX() == 1206.310059f && me->GetPositionY() == 3507.459961f)
                 {
                     DoAction(ACTION_TALK_1);
@@ -802,7 +802,7 @@ public:
                 break;
             }
         }
-
+        
         void UpdateAI(const uint32 diff)
         {
             events.Update(diff);
@@ -812,11 +812,9 @@ public:
                 {
                     case EVENT_START: //Begin script if playersInvolved is not empty
                     {
-                        updatePlayerList();
-
-                        if (playersInvolved.empty())
+                    	updatePlayerList();
+                        if(playersInvolved.empty())
                             events.ScheduleEvent(1, 600);
-
                         else
                         {
                             me->MonsterSay("Keep those creatures at bay while I meditate. We'll soon have the answers we seek...", LANG_UNIVERSAL, 0);
@@ -833,12 +831,12 @@ public:
                         updatePlayerList();
                         for(int i = 0; i < std::max((int)playersInvolved.size()*3,3); i++)
                         {
-                            if (TempSummon* temp = me->SummonCreature(59637, 1144.55f, 3435.65f, 104.97f, 3.3f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                            if(TempSummon* temp = me->SummonCreature(59637, 1144.55f, 3435.65f, 104.97f, 3.3f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
                             {
                                 if (temp->AI())
                                     temp->AI()->AttackStart(me);
 
-                                temp->AddThreat(me, 250.0f);
+			                    temp->AddThreat(me, 250.0f);
                                 temp->GetMotionMaster()->Clear();
                                 temp->GetMotionMaster()->MoveChase(me);
                             }
@@ -863,27 +861,27 @@ public:
                                 lifei->MonsterSay("The way of the Tushui... enlightenment through patience and mediation... the principled life", LANG_UNIVERSAL, 0);
                             }
                         }
-
+                        
                         if(timer == 30)
                             if (lifei)
                                 lifei->MonsterSay("It is good to see you again, Aysa. You've come with respect, and so I shall give you the answers you seek.", LANG_UNIVERSAL, 0);
-
+                        
                         if(timer == 42)
                             if (lifei)
                                 lifei->MonsterSay("Huo, the spirit of fire, is known for his hunger. He wants for tinder to eat. He needs the caress of the wind to rouse him.", LANG_UNIVERSAL, 0);
-
+                        
                         if(timer == 54)
                             if (lifei)
                                 lifei->MonsterSay("If you find these things and bring them to his cave, on the far side of Wu-Song Village, you will face a challenge within.", LANG_UNIVERSAL, 0);
-
+                        
                         if(timer == 66)
                             if (lifei)
                                 lifei->MonsterSay("Overcome that challenge, and you shall be graced by Huo's presence. Rekindle his flame, and if your spirit is pure, he shall follow you.", LANG_UNIVERSAL, 0);
-
+                        
                         if(timer == 78)
                             if (lifei)
                                 lifei->MonsterSay("Go, children. We shall meet again very soon.", LANG_UNIVERSAL, 0);
-
+                        
                         if(timer == 85)
                         {
                             if (lifei)
@@ -892,7 +890,7 @@ public:
                             lifei = NULL;
                             lifeiGUID = 0;
                         }
-
+                        
                         updatePlayerList();
                         for (auto player: playersInvolved)
                         {
@@ -944,45 +942,45 @@ class boss_living_air : public CreatureScript
 {
 public:
     boss_living_air() : CreatureScript("boss_living_air") { }
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_living_airAI(creature);
     }
-
+    
     struct boss_living_airAI : public ScriptedAI
     {
         boss_living_airAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetReactState(REACT_AGGRESSIVE);
         }
-
+        
         EventMap events;
-
+        
         void EnterCombat(Unit* unit)
         {
             events.ScheduleEvent(1, 3000);
             events.ScheduleEvent(2, 5000);
         }
-
+        
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
-
+            
             events.Update(diff);
-
+            
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
                 {
                     case 1:
-                        me->CastSpell(me->getVictim(), 108693);
-                        break;
+                    	me->CastSpell(me->getVictim(), 108693);
+                    	break;
                     case 2:
-                        me->CastSpell(me->getVictim(), 73212);
-                        events.ScheduleEvent(2, 5000);
-                        break;
+                    	me->CastSpell(me->getVictim(), 73212);
+                    	events.ScheduleEvent(2, 5000);
+                    	break;
                 }
             }
 
@@ -1028,12 +1026,12 @@ class boss_li_fei_fight : public CreatureScript
 {
 public:
     boss_li_fei_fight() : CreatureScript("boss_li_fei_fight") { }
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_li_fei_fightAI(creature);
     }
-
+    
     struct boss_li_fei_fightAI : public ScriptedAI
     {
         EventMap events;
@@ -1090,7 +1088,7 @@ public:
         {
             playerGuid = guid;
         }
-
+        
         void DamageTaken(Unit* attacker, uint32& damage)
         {
             if (me->HealthBelowPctDamaged(10, damage))
@@ -1126,11 +1124,11 @@ public:
                     me->DespawnOrUnsummon(3000);
             }
         }
-
+        
         void UpdateAI(const uint32 diff)
         {
             events.Update(diff);
-
+            
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
@@ -1138,7 +1136,7 @@ public:
                     case EVENT_CHECK_PLAYER:
                     {
                         bool checkPassed = true;
-
+                        
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 30.0f);
                         for (auto player: playerList)
@@ -1163,22 +1161,24 @@ public:
                     }
                     case EVENT_FEET_OF_FURY:
                         if(me->getVictim())
-                            me->CastSpell(me->getVictim(), 108958);
+                    	    me->CastSpell(me->getVictim(), 108958);
+
                         events.ScheduleEvent(EVENT_FEET_OF_FURY, 5000);
-                        break;
+                    	break;
                     case EVENT_SHADOW_KICK:
                         if(me->getVictim())
-                            me->CastSpell(me->getVictim(), 108936);
-                        events.ScheduleEvent(EVENT_SHADOW_KICK_STUN, 2500);
-                        events.ScheduleEvent(EVENT_SHADOW_KICK, 30000);
-                        break;
+                    	    me->CastSpell(me->getVictim(), 108936);
+
+                    	events.ScheduleEvent(EVENT_SHADOW_KICK_STUN, 2500);
+                    	events.ScheduleEvent(EVENT_SHADOW_KICK, 30000);
+                    	break;
                     case EVENT_SHADOW_KICK_STUN:
                         if(me->getVictim())
-                            me->CastSpell(me->getVictim(), 108944);
-                        break;
+                    	    me->CastSpell(me->getVictim(), 108944);
+                    	break;
                 }
             }
-
+            
             DoMeleeAttackIfReady();
         }
     };
@@ -1193,7 +1193,7 @@ class spell_huo_benediction: public SpellScriptLoader
         class spell_huo_benediction_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_huo_benediction_AuraScript);
-
+            
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();

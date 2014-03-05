@@ -36,7 +36,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         explicit AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
         ~AuraEffect();
-        Unit* GetCaster() const { return GetBase()->GetCaster(); }
+        Unit* GetCaster() const { return GetBase() ? GetBase()->GetCaster() : NULL; }
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         AuraPtr GetBase() const { return std::const_pointer_cast<Aura>(m_base); }
         void GetTargetList(std::list<Unit*> & targetList) const;
@@ -53,7 +53,15 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
         AuraType GetAuraType() const { return (AuraType)m_spellInfo->Effects[m_effIndex].ApplyAuraName; }
         int32 GetAmount() const { return m_amount; }
-        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
+        void SetAmount(int32 amount)
+        {
+            if (m_amount != amount)
+            {
+                m_amount = amount;
+                GetBase()->SetNeedClientUpdateForTargets();
+            }
+            m_canBeRecalculated = false;
+        }
 
         int32 GetPeriodicTimer() const { return m_periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }

@@ -1,0 +1,1 @@
+UPDATE creature_template SET ScriptName = 'npc_luo_meng' WHERE entry IN (68868, 68869);

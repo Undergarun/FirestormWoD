@@ -40,7 +40,7 @@ class Transaction
 
         size_t GetSize() const { return m_queries.size(); }
 
-    protected:
+    //protected:
         void Cleanup();
         std::list<SQLElementData> m_queries;
 

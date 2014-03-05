@@ -32,13 +32,14 @@ enum TotemType
 #define SENTRY_TOTEM_SPELLID  6495
 
 #define SENTRY_TOTEM_ENTRY    3968
+#define STONECLAW_TOTEM_ENTRY 59712
 
 class Totem : public Minion
 {
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);
         virtual ~Totem() {}
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry);
         void InitStats(uint32 duration);
         void InitSummon();
         void UnSummon(uint32 msTime = 0);

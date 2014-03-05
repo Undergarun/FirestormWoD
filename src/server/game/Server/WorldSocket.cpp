@@ -784,7 +784,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 if (opcode >= NUM_OPCODE_HANDLERS)
                     return 0;
 
-                OpcodeHandler* handler = opcodeTable[opcode];
+                OpcodeHandler* handler = opcodeTable[WOW_CLIENT][opcode];
                 if (!handler || handler->status == STATUS_UNHANDLED)
                 {
                     sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode()).c_str(), m_Session->GetPlayerName(false).c_str());
@@ -1119,15 +1119,19 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return -1;
     }
 
+    uint8 premiumType = 0;
+
     QueryResult premresult = LoginDatabase.PQuery
-                               ("SELECT 1 "
+                               ("SELECT premium_type "
                                 "FROM account_premium "
                                 "WHERE id = '%u' "
                                 "AND active = 1",
                                 id);
     if (premresult) // If account premium
     {
+        Field* premField = premresult->Fetch();
         isPremium = true;
+        premiumType = premField->GetUInt8();
     }
 
     // Check locked state for server
@@ -1190,7 +1194,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), isPremium, expansion, mutetime, locale, recruiter, isRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), premiumType, isPremium, expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&k);
 

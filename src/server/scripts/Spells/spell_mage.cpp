@@ -286,7 +286,7 @@ class spell_mage_pet_frost_nova : public SpellScriptLoader
                     {
                         if (Player* _player = caster->GetOwner()->ToPlayer())
                         {
-                            if (!_player->HasAura(SPELL_MAGE_FINGERS_OF_FROST_AURA))
+                            if (_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_MAGE_FROST)
                                 return;
 
                             _player->CastSpell(_player, SPELL_MAGE_FINGER_OF_FROST_VISUAL, true);
@@ -728,47 +728,6 @@ class spell_mage_arcane_explosion : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_arcane_explosion_SpellScript();
-        }
-};
-
-// Slow - 31589
-class spell_mage_slow : public SpellScriptLoader
-{
-    public:
-        spell_mage_slow() : SpellScriptLoader("spell_mage_slow") { }
-
-        class spell_mage_slow_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_slow_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            if (AuraPtr frostjaw = target->GetAura(SPELL_MAGE_SLOW, _player->GetGUID()))
-                            {
-                                // Only half time against players
-                                frostjaw->SetDuration(frostjaw->GetMaxDuration() / 2);
-                                frostjaw->SetMaxDuration(frostjaw->GetDuration());
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mage_slow_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_slow_SpellScript();
         }
 };
 
@@ -1632,7 +1591,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_pyromaniac();
     new spell_mage_arcane_barrage();
     new spell_mage_arcane_explosion();
-    new spell_mage_slow();
     new spell_mage_frostbolt();
     new spell_mage_invocation();
     new spell_mage_frost_bomb();

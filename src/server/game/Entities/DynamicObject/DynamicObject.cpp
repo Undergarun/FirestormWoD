@@ -17,6 +17,7 @@
  */
 
 #include "Common.h"
+#include "ByteBuffer.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
@@ -132,7 +133,7 @@ void DynamicObject::Update(uint32 p_time)
     if (_aura)
     {
         if (!_aura->IsRemoved())
-            _aura->UpdateOwner(p_time, this);
+            _aura->UpdateOwner(p_time, this, _aura->GetId());
 
         // _aura may be set to null in Aura::UpdateOwner call
         if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))

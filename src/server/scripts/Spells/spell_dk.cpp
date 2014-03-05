@@ -63,7 +63,6 @@ enum DeathKnightSpells
     DK_SPELL_SCENT_OF_BLOOD_AURA                = 50421,
     DK_SPELL_CHAINS_OF_ICE                      = 45524,
     DK_SPELL_EBON_PLAGUEBRINGER                 = 51160,
-    DK_SPELL_REAPING                            = 56835,
     DK_SPELL_DESECRATED_GROUND                  = 118009,
     DK_SPELL_DESECRATED_GROUND_IMMUNE           = 115018,
     DK_SPELL_ASPHYXIATE                         = 108194,
@@ -73,7 +72,10 @@ enum DeathKnightSpells
     DK_SPELL_RUNIC_CORRUPTION_REGEN             = 51460,
     DK_SPELL_RUNIC_EMPOWERMENT                  = 81229,
     DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL       = 114869,
-    DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 49575
+    DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 49575,
+    DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION          = 127344,
+    DK_SPELL_GLYPH_OF_HORN_OF_WINTER            = 58680,
+    DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920
 };
 
 // Gorefiend's Grasp - 108199
@@ -451,6 +453,9 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
                                 if (uint32 spell = _player->GetRuneConvertSpell(i))
                                     takePower = spell != 54637;
 
+                                if (_player->IsRunePermanentlyConverted(i))
+                                    takePower = false;
+
                                 // keep Death Rune type if player has Blood of the North
                                 if (takePower)
                                 {
@@ -476,106 +481,6 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
         }
 };
 
-// Pestilence - 50842
-class spell_dk_pestilence : public SpellScriptLoader
-{
-    public:
-        spell_dk_pestilence() : SpellScriptLoader("spell_dk_pestilence") { }
-
-        class spell_dk_pestilence_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_pestilence_SpellScript);
-
-            void HandleAfterHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(DK_SPELL_REAPING, _player->GetGUID()))
-                        {
-                            bool blood = false;
-
-                            for (int i = 0; i < MAX_RUNES ; i++)
-                            {
-                                if (_player->GetCurrentRune(i) == RUNE_DEATH)
-                                    continue;
-
-                                if (!_player->GetRuneCooldown(i))
-                                    continue;
-
-                                if (_player->GetCurrentRune(i) == RUNE_BLOOD || _player->GetCurrentRune(i) == RUNE_DEATH && !blood)
-                                {
-                                    _player->ConvertRune(i, RUNE_DEATH);
-                                    blood = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_dk_pestilence_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_pestilence_SpellScript();
-        }
-};
-
-// Blood Strike - 45902
-class spell_dk_blood_strike : public SpellScriptLoader
-{
-    public:
-        spell_dk_blood_strike() : SpellScriptLoader("spell_dk_blood_strike") { }
-
-        class spell_dk_blood_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_blood_strike_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(DK_SPELL_REAPING, _player->GetGUID()))
-                        {
-                            for (int i = 0; i < MAX_RUNES ; i++)
-                            {
-                                bool blood = false;
-
-                                if (_player->GetCurrentRune(i) == RUNE_DEATH)
-                                    continue;
-
-                                if (!_player->GetRuneCooldown(i))
-                                    continue;
-
-                                if (_player->GetCurrentRune(i) == RUNE_BLOOD && !blood)
-                                {
-                                    _player->ConvertRune(i, RUNE_DEATH);
-                                    blood =  true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_blood_strike_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_blood_strike_SpellScript();
-        }
-};
-
 // Festering Strike - 85948
 class spell_dk_festering_strike : public SpellScriptLoader
 {
@@ -596,44 +501,33 @@ class spell_dk_festering_strike : public SpellScriptLoader
                         {
                             uint32 dur = BP->GetDuration() + 6000;
                             BP->SetDuration(dur);
-                            BP->SetMaxDuration(BP->GetMaxDuration() + 6000);
+
+                            if (dur > uint32(BP->GetMaxDuration()))
+                                BP->SetMaxDuration(dur);
+
+                            if (AuraPtr PV = target->GetAura(81326, _player->GetGUID()))
+                            {
+                                PV->SetDuration(dur);
+
+                                if (dur > uint32(PV->GetMaxDuration()))
+                                    PV->SetMaxDuration(dur);
+                            }
                         }
                         if (AuraPtr FF = target->GetAura(DK_SPELL_FROST_FEVER, _player->GetGUID()))
                         {
                             uint32 dur = FF->GetDuration() + 6000;
                             FF->SetDuration(dur);
-                            FF->SetMaxDuration(FF->GetMaxDuration() + 6000);
+
+                            if (dur > uint32(FF->GetMaxDuration()))
+                                FF->SetMaxDuration(dur);
                         }
                         if (AuraPtr COI = target->GetAura(DK_SPELL_CHAINS_OF_ICE, _player->GetGUID()))
                         {
                             uint32 dur = COI->GetDuration() + 6000;
                             COI->SetDuration(dur);
-                            COI->SetMaxDuration(COI->GetMaxDuration() + 6000);
-                        }
-                        if (_player->HasAura(DK_SPELL_REAPING, _player->GetGUID()))
-                        {
-                            bool blood = false;
-                            bool frost = false;
-
-                            for (int i = 0; i < MAX_RUNES ; i++)
-                            {
-                                if (_player->GetCurrentRune(i) == RUNE_DEATH)
-                                    continue;
-
-                                if (!_player->GetRuneCooldown(i))
-                                    continue;
-
-                                if (_player->GetCurrentRune(i) == RUNE_BLOOD && !blood)
-                                {
-                                    _player->ConvertRune(i, RUNE_DEATH);
-                                    blood = true;
-                                }
-                                if (_player->GetCurrentRune(i) == RUNE_FROST && !frost)
-                                {
-                                    _player->ConvertRune(i, RUNE_DEATH);
-                                    frost = true;
-                                }
-                            }
+                            
+                            if (dur > uint32(COI->GetMaxDuration()))
+                                COI->SetMaxDuration(dur);
                         }
                     }
                 }
@@ -1900,24 +1794,6 @@ class spell_dk_blood_boil : public SpellScriptLoader
                             if (_player->HasAura(DK_SPELL_ROILING_BLOOD))
                                 _player->CastSpell(target, DK_SPELL_PESTILENCE, true);
                         }
-
-                        if (_player->HasAura(DK_SPELL_REAPING, _player->GetGUID()))
-                        {
-                            int runesLeft = 1;
-                            for (uint8 i=0; i < MAX_RUNES && runesLeft; ++i)
-                            {
-                                if (_player->GetCurrentRune(i) == RUNE_DEATH
-                                    || _player->GetBaseRune(i) != RUNE_BLOOD
-                                    || _player->IsDeathRuneUsed(i))
-                                    continue;
-
-                                if (_player->GetRuneCooldown(i) != _player->GetRuneBaseCooldown(i))
-                                    continue;
-
-                                --runesLeft;
-                                _player->AddRuneBySpell(i, RUNE_DEATH, GetSpellInfo()->Id);
-                            }
-                        }
                     }
                 }
             }
@@ -1968,6 +1844,72 @@ class spell_dk_death_grip : public SpellScriptLoader
         }
 };
 
+// Glyph of Corpse Explosion - 59336
+class spell_dk_glyph_of_corpse_explosion : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_corpse_explosion() : SpellScriptLoader("spell_dk_glyph_of_corpse_explosion") { }
+
+        class spell_dk_glyph_of_corpse_explosion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_corpse_explosion_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION))
+                        _player->removeSpell(DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_glyph_of_corpse_explosion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_glyph_of_corpse_explosion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_corpse_explosion_AuraScript();
+        }
+};
+
+// Glyph of Horn of Winter - 58680
+// Called by Horn of Winter - 57330
+class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_horn_of_winter() : SpellScriptLoader("spell_dk_glyph_of_horn_of_winter") { }
+
+        class spell_dk_glyph_of_horn_of_winter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_glyph_of_horn_of_winter_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (!_player->isInCombat() && _player->HasAura(DK_SPELL_GLYPH_OF_HORN_OF_WINTER))
+                        _player->CastSpell(_player, DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT, true);
+            }
+			
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_dk_glyph_of_horn_of_winter_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_glyph_of_horn_of_winter_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_gorefiends_grasp();
@@ -1978,8 +1920,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_dark_transformation_form();
     new spell_dk_desecrated_ground();
     new spell_dk_necrotic_strike();
-    new spell_dk_pestilence();
-    new spell_dk_blood_strike();
     new spell_dk_festering_strike();
     new spell_dk_death_strike_heal();
     new spell_dk_howling_blast();

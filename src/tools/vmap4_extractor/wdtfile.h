@@ -23,6 +23,12 @@ public:
 private:
     MPQFile WDT;
     string filename;
+	
+
+    struct adtData{
+        uint32 flag;
+        uint32 data1;
+    } adt_list[64][64];	
 };
 
 #endif

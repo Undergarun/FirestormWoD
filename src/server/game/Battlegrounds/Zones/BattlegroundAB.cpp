@@ -296,7 +296,7 @@ int32 BattlegroundAB::_GetNodeNameId(uint8 node)
     return 0;
 }
 
-void BattlegroundAB::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundAB::FillInitialWorldStates(ByteBuffer& data)
 {
     const uint8 plusArray[] = {0, 2, 3, 0, 1};
 
@@ -529,6 +529,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         else
             SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
     }
+
     PlaySoundToAll(sound);
 }
 

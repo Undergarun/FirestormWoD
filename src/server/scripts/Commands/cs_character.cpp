@@ -44,7 +44,6 @@ public:
         static ChatCommand characterDeletedCommandTable[] =
         {
             { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
-            { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
             { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
             { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
@@ -61,7 +60,7 @@ public:
             { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
             { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
             { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
-            { "getrename",      SEC_GAMEMASTER,     true,  &HandleCharacterGetrenameCommand,    "", NULL },
+            { "getrename",      SEC_GAMEMASTER,     true,  &HandleCharacterGetrenameCommand,       "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
 
@@ -150,7 +149,6 @@ public:
     /**
     * Shows all deleted characters which matches the given search string, expected non empty list
     *
-    * @see HandleCharacterDeletedListCommand
     * @see HandleCharacterDeletedRestoreCommand
     * @see HandleCharacterDeletedDeleteCommand
     * @see DeletedInfoList
@@ -502,41 +500,12 @@ public:
         return true;
     }
 
-   /**
-    * Handles the '.character deleted list' command, which shows all deleted characters which matches the given search string
-    *
-    * @see HandleCharacterDeletedListHelper
-    * @see HandleCharacterDeletedRestoreCommand
-    * @see HandleCharacterDeletedDeleteCommand
-    * @see DeletedInfoList
-    *
-    * @param args the search string which either contains a player GUID or a part fo the character-name
-    */
-    static bool HandleCharacterDeletedListCommand(ChatHandler* handler, char const* args)
-    {
-        DeletedInfoList foundList;
-        if (!GetDeletedCharacterInfoList(foundList, args))
-            return false;
-
-        // if no characters have been found, output a warning
-        if (foundList.empty())
-        {
-            handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_EMPTY);
-            return false;
-        }
-
-        HandleCharacterDeletedListHelper(foundList, handler);
-
-        return true;
-    }
-
     /**
      * Handles the '.character deleted restore' command, which restores all deleted characters which matches the given search string
      *
      * The command automatically calls '.character deleted list' command with the search string to show all restored characters.
      *
      * @see HandleCharacterDeletedRestoreHelper
-     * @see HandleCharacterDeletedListCommand
      * @see HandleCharacterDeletedDeleteCommand
      *
      * @param args the search string which either contains a player GUID or a part of the character-name
@@ -601,7 +570,6 @@ public:
      *
      * @see Player::GetDeletedCharacterGUIDs
      * @see Player::DeleteFromDB
-     * @see HandleCharacterDeletedListCommand
      * @see HandleCharacterDeletedRestoreCommand
      *
      * @param args the search string which either contains a player GUID or a part fo the character-name
@@ -638,7 +606,6 @@ public:
      * @see Player::DeleteOldCharacters
      * @see Player::DeleteFromDB
      * @see HandleCharacterDeletedDeleteCommand
-     * @see HandleCharacterDeletedListCommand
      * @see HandleCharacterDeletedRestoreCommand
      *
      * @param args the search string which either contains a player GUID or a part fo the character-name

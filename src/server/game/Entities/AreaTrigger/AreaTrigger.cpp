@@ -91,6 +91,9 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
         case 116235:// Amethyst Pool
             SetVisualRadius(3.5f);
             break;
+        case 123811:
+            SetDuration(500000000);
+            break;
         default:
             break;
     }
@@ -231,6 +234,48 @@ void AreaTrigger::Update(uint32 p_time)
                 }
             }
 
+            break;
+        }
+        case 122731:// Create Cancelling Noise Area trigger
+        {
+            std::list<Unit*> targetList;
+            radius = 10.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+            VisitNearbyObject(radius, searcher);
+
+            if (!targetList.empty())
+            {
+                for (auto itr : targetList)
+                {
+                    // Periodic absorption for Imperial Vizier Zor'lok's Force and Verve and Sonic Rings
+                    if (itr->GetDistance(this) > 2.0f)
+                        itr->RemoveAura(122706);
+                    else if (!itr->HasAura(122706))
+                        caster->AddAura(122706, itr);
+                }
+            }
+            break;
+        }
+        case 123811:// Pheromones of Zeal
+        {
+            std::list<Player*> targetList;
+            radius = 35.0f;
+
+            GetPlayerListInGrid(targetList, 200.0f);
+
+            if (!targetList.empty())
+            {
+                for (auto itr : targetList)
+                {
+                    // Pheromones of Zeal - Periodic Damage
+                    if (itr->GetDistance(this) > radius)
+                        itr->RemoveAura(123812);
+                    else if (!itr->HasAura(123812))
+                        caster->AddAura(123812, itr);
+                }
+            }
             break;
         }
         case 116546:// Draw Power
@@ -407,6 +452,16 @@ void AreaTrigger::Remove()
                 if (m_caster && m_caster->HasAura(116014))
                     m_caster->RemoveAura(116014);
                 break;
+            case 122731:// Create Noise Cancelling Area Trigger
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, 200.0f);
+
+                for (auto player : playerList)
+                    if (player->HasAura(122706))
+                        player->RemoveAura(122706);
+                break;
+            }
             default:
                 break;
         }

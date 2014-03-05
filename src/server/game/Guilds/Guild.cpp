@@ -1350,7 +1350,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         memberData << uint64(0); // Total activity
         memberData << uint64(0); // Weekly activity
         memberData << uint32(player ? player->GetZoneId() : member->GetZone());
-        memberData << uint32(0); // RealmID
+        memberData << uint32(realmID);
 
         if (offNoteLength)
             memberData.append(member->GetOfficerNote().c_str(), offNoteLength);
@@ -1987,8 +1987,7 @@ void Guild::HandleSwapRanks(WorldSession* session, uint32 id, bool up)
     if (!rankinfo || !rankinfo2)
         return;
 
-    RankInfo tmp = NULL;
-    tmp = *rankinfo2;
+    RankInfo tmp = *rankinfo2;
     rankinfo2->SetName(rankinfo->GetName());
     rankinfo2->SetRights(rankinfo->GetRights());
     rankinfo->SetName(tmp.GetName());
@@ -2082,6 +2081,13 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
 
     if (!cashFlow)
         SendBankList(session, 0, false, false);
+}
+
+void Guild::DepositMoney(uint64 amount)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    _ModifyBankMoney(trans, amount, true);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair)

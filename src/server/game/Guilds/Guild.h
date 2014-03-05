@@ -279,7 +279,7 @@ class EmblemInfo
 
         void LoadFromDB(Field* fields);
         void SaveToDB(uint32 guildId) const;
-        void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_backgroundColor >> m_borderStyle >> m_color >> m_borderColor; }
+        void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_borderColor >> m_borderStyle >> m_color >> m_backgroundColor; }
         void WritePacket(WorldPacket& data) const;
 
         uint32 GetStyle() const { return m_style; }
@@ -770,6 +770,8 @@ class Guild
         bool LoadBankEventLogFromDB(Field* fields);
         bool LoadBankItemFromDB(Field* fields);
         bool Validate();
+
+        void DepositMoney(uint64 amount);
 
         // Broadcasts
         void BroadcastToGuild(WorldSession* session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;

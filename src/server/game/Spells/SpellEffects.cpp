@@ -461,9 +461,25 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     }
                     case 46968: // Shockwave
                     {
-                        int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
-                        if (pct > 0)
-                            damage += int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                            break;
+
+                        int32 pct = 0;
+
+                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
+                        {
+                            case SPEC_WARRIOR_ARMS:
+                                pct = 90;
+                                break;
+                            case SPEC_WARRIOR_FURY:
+                            case SPEC_WARRIOR_PROTECTION:
+                                pct = 75;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
 
                         break;
                     }
@@ -639,7 +655,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                             if (combo)
                             {
-                                damage += int32(0.112f * combo * ap + damage * combo);
+                                damage = int32(0.112f * combo * ap + damage * combo);
 
                                 // Eviscerate and Envenom Bonus Damage (item set effect)
                                 if (m_caster->HasAura(37169))
@@ -781,7 +797,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             if (unitTarget)
                             {
                                 uint32 damage = unitTarget->GetHealth();
-                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), NULL, NULL, false, NULL, false);
+                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
                                 m_caster->DealDamageMods(unitTarget, damage, NULL);
                                 m_caster->DealDamage(unitTarget, damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
                             }
@@ -1293,14 +1309,20 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     return;
 
                 // See if we already are stealthed. If so, we're done.
-                if (unitTarget->HasAura(1784))
+                if (unitTarget->HasAura(1784) || unitTarget->HasAura(115191))
                     return;
 
                 // Reset cooldown on stealth if needed
                 if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
                     unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
 
-                unitTarget->CastSpell(unitTarget, 1784, true);
+                if (unitTarget->ToPlayer()->HasSpellCooldown(115191))
+                    unitTarget->ToPlayer()->RemoveSpellCooldown(115191, true);
+                
+                if (!unitTarget->HasAura(108208))
+                    unitTarget->CastSpell(unitTarget, 1784, true);
+                else
+                    unitTarget->CastSpell(unitTarget, 115191, true);
                 return;
             }
             // Demonic Empowerment -- succubus
@@ -1777,6 +1799,23 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
 
     ASSERT(unitTarget == m_spellAura->GetOwner());
 
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; i++)
+    {
+        if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
+        {
+            float AbsorbMod2 = 0.0f;
+
+            float minval = (float)unitTarget->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+            float maxval = (float)unitTarget->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+
+            AbsorbMod2 = minval + maxval;
+
+            uint32 currentValue = m_spellAura->GetEffect(i)->GetAmount();
+            AddPct(currentValue, AbsorbMod2);
+            m_spellAura->GetEffect(i)->SetAmount(currentValue);
+        }
+    }
+
     m_spellAura->_ApplyEffectForTargets(effIndex);
 }
 
@@ -2053,8 +2092,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 break;
             }
             case 115072:// Expel Harm
+            case 147489:// Expel Harm with glyph of Targeted Expulsion
             {
-                if (caster && caster->getClass() == CLASS_MONK && addhealth && m_spellInfo->Id == 115072)
+                if (caster && caster->getClass() == CLASS_MONK && addhealth && (m_spellInfo->Id == 115072 || m_spellInfo->Id == 147489))
                 {
                     addhealth = Spell::CalculateMonkMeleeAttacks(m_caster, 7, 14);
                     addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
@@ -2196,25 +2236,33 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
 
     switch (m_spellInfo->Id)
     {
-        case 6262:  // Healthstone
+        case 6262:   // Healthstone
             if (m_caster->HasAura(56224)) // Glyph of Healthstone
                 return;
             break;
-        case 59754: // Rune Tap - Party
+        case 59754:  // Rune Tap - Party
             if (unitTarget == m_caster)
                 return;
             break;
-        case 53353: // Chimera Shot - Heal
+        case 53353:  // Chimera Shot - Heal
             if (m_caster->HasAura(119447)) // Glyph of Chimera Shot
                 damage += 2;
             break;
-        case 118340:// Impending Victory - Heal
+        case 115450: // Detox
+            if (!m_caster->HasAura(146954))
+                return;
+            break;
+        case 118340: // Impending Victory - Heal
             // Victorious State causes your next Impending Victory to heal for 20% of your maximum health.
             if (m_caster->HasAura(32216))
             {
                 damage = 20;
                 m_caster->RemoveAurasDueToSpell(32216);
             }
+            break;
+        case 137562:// Nimble Brew
+            if (!m_caster->HasAura(146952)) // Glyph of Nimble Brew
+                return;
             break;
         default:
             break;
@@ -2605,6 +2653,9 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
 
 void Spell::SendLoot(uint64 guid, LootType loottype)
 {
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     Player* player = m_caster->ToPlayer();
     if (!player)
         return;
@@ -2921,13 +2972,14 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     {
         Item* mainItem = m_originalCaster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
-        if (mainItem && (mainItem->GetEntry() == 86335 || mainItem->GetEntry() == 86227))
+        if (mainItem && (mainItem->GetEntry() == 86335 || mainItem->GetEntry() == 86893 || mainItem->GetEntry() == 87170 ||
+            mainItem->GetEntry() == 86227 || mainItem->GetEntry() == 86990 || mainItem->GetEntry() == 86865))
         {
             entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
-            properties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
+            SummonPropertiesEntry const* newProperties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
 
-            if (!properties)
-                return;
+            if (newProperties)
+                properties = newProperties;
         }
     }
 
@@ -3329,7 +3381,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     // Custom effects
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        // Glyph of Dispel Magic
+        // Glyph of Dispel Magic (discipline and priest) -- Purify
         if (m_spellInfo->Id == 97690)
         {
             if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(55677, 0))
@@ -3340,6 +3392,12 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                     m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true); 
                 }
             }
+        }
+        // Glyph of Dispel Magic
+        if (m_spellInfo->Id == 528)
+        {
+            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(119864, 0))
+                m_caster->CastSpell(unitTarget, 119856, true);
         }
     }
 
@@ -4354,10 +4412,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Deadly Throw - Interrupt spell only if used with 5 combo points
+    // Deadly Throw - Interrupt spell only if used with 3 combo points
     if (m_spellInfo->Id == 26679)
         if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            if (m_originalCaster->ToPlayer()->GetComboPoints() < 5)
+            if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
                 return;
 
     // TODO: not all spells that used this effect apply cooldown at school spells
@@ -5233,15 +5291,15 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_targets.GetUnitTarget()->GetAura(55078))
                     {
                         m_caster->CastSpell(unitTarget, 55078, true);
-                        m_caster->CastSpell(unitTarget, 63687, true); // Cosmetic - Pestilence State
-                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true); // Cosmetic - Send Diseases on target
+                        m_caster->AddAura(63687, unitTarget);                           // Cosmetic - Pestilence State
+                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true);  // Cosmetic - Send Diseases on target
                     }
                     // Frost Fever
                     if (m_targets.GetUnitTarget()->GetAura(55095))
                     {
                         m_caster->CastSpell(unitTarget, 55095, true);
-                        m_caster->CastSpell(unitTarget, 63687, true); // Cosmetic - Pestilence State
-                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true); // Cosmetic - Send Diseases on target
+                        m_caster->AddAura(63687, unitTarget);                           // Cosmetic - Pestilence State
+                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true);  // Cosmetic - Send Diseases on target
                     }
                 }
             }
@@ -5735,13 +5793,46 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     uint32 go_id = m_spellInfo->Effects[effIndex].MiscValue;
 
     uint8 slot = 0;
+
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1: slot = m_spellInfo->Effects[effIndex].MiscValueB; break;
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2: slot = 1; break;
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3: slot = 2; break;
-        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4: slot = 3; break;
-        default: return;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            slot = m_spellInfo->Effects[effIndex].MiscValueB;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            slot = 1;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            slot = 2;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            slot = 3;
+            break;
+        default:
+            return;
+    }
+
+    switch (m_spellInfo->Id)
+    {
+        case 84996: // Raid Marker 1
+        case 84997: // Raid Marker 2
+        case 84998: // Raid Marker 3
+        case 84999: // Raid Marker 4
+        case 85000: // Raid Marker 5
+        {
+            if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            float x = 0.0f, y = 0.0f, z = 0.0f;
+            if (m_targets.HasDst())
+                destTarget->GetPosition(x, y, z);
+
+            if (Group* group = m_caster->ToPlayer()->GetGroup())
+                group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
+            return;
+        }
+        default:
+            break;
     }
 
     uint64 guid = m_caster->m_ObjectSlot[slot];

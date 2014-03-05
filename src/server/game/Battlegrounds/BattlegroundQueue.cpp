@@ -295,12 +295,12 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
         return;
     }
 
-    GroupQueueInfo* group = itr->second.GroupInfo;
+    GroupQueueInfo* groupInfo = itr->second.GroupInfo;
     GroupsQueueType::iterator group_itr, group_itr_tmp;
     // mostly people with the highest levels are in battlegrounds, thats why
     // we count from MAX_BATTLEGROUND_QUEUES - 1 to 0
     // variable index removes useless searching in other team's queue
-    uint32 index = (group->Team == HORDE) ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    uint32 index = (groupInfo->Team == HORDE) ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
 
     for (int32 bracket_id_tmp = MAX_BATTLEGROUND_BRACKETS - 1; bracket_id_tmp >= 0 && bracket_id == -1; --bracket_id_tmp)
     {
@@ -310,7 +310,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
         {
             for (group_itr_tmp = m_QueuedGroups[bracket_id_tmp][j].begin(); group_itr_tmp != m_QueuedGroups[bracket_id_tmp][j].end(); ++group_itr_tmp)
             {
-                if ((*group_itr_tmp) == group)
+                if ((*group_itr_tmp) == groupInfo)
                 {
                     bracket_id = bracket_id_tmp;
                     group_itr = group_itr_tmp;
@@ -328,6 +328,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue: ERROR Cannot find groupinfo for player GUID: %u", GUID_LOPART(guid));
         return;
     }
+
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue: Removing player GUID %u, from bracket_id %u", GUID_LOPART(guid), (uint32)bracket_id);
 
     // ALL variables are correctly set
@@ -336,59 +337,66 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     // if only one player there, remove group
 
     // remove player queue info from group queue info
-    std::map<uint64, PlayerQueueInfo*>::iterator pitr = group->Players.find(guid);
-    if (pitr != group->Players.end())
-        group->Players.erase(pitr);
+    std::map<uint64, PlayerQueueInfo*>::iterator pitr = groupInfo->Players.find(guid);
+    if (pitr != groupInfo->Players.end())
+        groupInfo->Players.erase(pitr);
 
     // if invited to bg, and should decrease invited count, then do it
-    if (decreaseInvitedCount && group->IsInvitedToBGInstanceGUID)
-        if (Battleground* bg = sBattlegroundMgr->GetBattleground(group->IsInvitedToBGInstanceGUID, group->BgTypeId == BATTLEGROUND_AA ? BATTLEGROUND_TYPE_NONE : group->BgTypeId))
-            bg->DecreaseInvitedCount(group->Team);
+    if (decreaseInvitedCount && groupInfo->IsInvitedToBGInstanceGUID)
+        if (Battleground* bg = sBattlegroundMgr->GetBattleground(groupInfo->IsInvitedToBGInstanceGUID, groupInfo->BgTypeId == BATTLEGROUND_AA ? BATTLEGROUND_TYPE_NONE : groupInfo->BgTypeId))
+            bg->DecreaseInvitedCount(groupInfo->Team);
 
     // remove player queue info
     m_QueuedPlayers.erase(itr);
 
-    // announce to world if arena team left queue for rated match, show only once
-    /*if (group->ArenaType && group->IsRated && group->Players.empty() && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
-        if (ArenaTeam* Team = sArenaTeamMgr->GetArenaTeamById(group->ArenaTeamId))
-            sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, Team->GetName().c_str(), group->ArenaType, group->ArenaType, group->ArenaTeamRating);*/
-
     // if player leaves queue and he is invited to rated arena match, then he have to lose
-    if (group->IsInvitedToBGInstanceGUID && group->IsRated && decreaseInvitedCount)
+    if (groupInfo->IsInvitedToBGInstanceGUID && groupInfo->IsRated && decreaseInvitedCount)
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "UPDATING memberLost's personal arena rating for %u by opponents rating: %u", GUID_LOPART(guid), group->OpponentsTeamRating);
         if (Player* player = ObjectAccessor::FindPlayer(guid))
-            group->group->MemberLost(player, group->OpponentsMatchmakerRating, Arena::GetSlotByType(group->ArenaType));
-        else
-            group->group->OfflineMemberLost(guid, group->OpponentsMatchmakerRating, Arena::GetSlotByType(group->ArenaType));
+        {
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "UPDATING memberLost's personal arena rating for %u by opponents rating: %u", GUID_LOPART(guid), groupInfo->OpponentsTeamRating);
+            
+            // Update personal rating
+            uint8 slot = Arena::GetSlotByType(groupInfo->ArenaType);
+            int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), groupInfo->OpponentsMatchmakerRating, false);
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+
+            // Update matchmaker rating
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) - 12);
+
+            // Update personal played stats
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
+        }
     }
 
     // remove group queue info if needed
-    if (group->Players.empty())
+    if (groupInfo->Players.empty())
     {
         m_QueuedGroups[bracket_id][index].erase(group_itr);
-        delete group;
+        delete groupInfo;
     }
+
     // if group wasn't empty, so it wasn't deleted, and player have left a rated
     // queue -> everyone from the group should leave too
     // don't remove recursively if already invited to bg!
-    else if (!group->IsInvitedToBGInstanceGUID && group->IsRated)
+    else if (!groupInfo->IsInvitedToBGInstanceGUID && groupInfo->IsRated)
     {
         // remove next player, this is recursive
         // first send removal information
-        if (Player* plr2 = ObjectAccessor::FindPlayer(group->Players.begin()->first))
+        if (Player* plr2 = ObjectAccessor::FindPlayer(groupInfo->Players.begin()->first))
         {
-            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(group->BgTypeId);
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(group->BgTypeId, group->ArenaType);
+            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(groupInfo->BgTypeId);
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(groupInfo->BgTypeId, groupInfo->ArenaType);
             uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
             plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
                                                             // queue->removeplayer, it causes bugs
             WorldPacket data;
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, plr2, queueSlot, STATUS_NONE, plr2->GetBattlegroundQueueJoinTime(group->BgTypeId), 0, 0);
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, plr2, queueSlot, STATUS_NONE, plr2->GetBattlegroundQueueJoinTime(groupInfo->BgTypeId), 0, 0);
             plr2->GetSession()->SendPacket(&data);
         }
         // then actually delete, this may delete the group as well!
-        RemovePlayer(group->Players.begin()->first, decreaseInvitedCount);
+        RemovePlayer(groupInfo->Players.begin()->first, decreaseInvitedCount);
     }
 }
 

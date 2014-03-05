@@ -32,7 +32,7 @@ Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(prop
     m_type = TOTEM_PASSIVE;
 }
 
-void Totem::Update(uint32 time)
+void Totem::Update(uint32 time, uint32 entry)
 {
     if (!m_owner->isAlive() || !isAlive())
     {
@@ -48,12 +48,15 @@ void Totem::Update(uint32 time)
     else
         m_duration -= time;
 
-    Creature::Update(time);
+    Creature::Update(time, entry);
 }
 
 void Totem::InitStats(uint32 duration)
 {
-    uint32 spellId1, spellId2, spellId3, spellId4;
+    uint32 spellId1 = 0;
+    uint32 spellId2 = 0;
+    uint32 spellId3 = 0;
+    uint32 spellId4 = 0;
 
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (m_owner->GetTypeId() == TYPEID_PLAYER
@@ -79,8 +82,6 @@ void Totem::InitStats(uint32 duration)
         data.WriteByteSeq(totemGuid[5]);
 
         m_owner->ToPlayer()->SendDirectMessage(&data);
-
-        spellId1 = spellId2 = spellId3 = spellId4 = 0;
 
         // set display id depending on caster's race
         SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
@@ -143,6 +144,12 @@ void Totem::InitStats(uint32 duration)
 
     SetLevel(m_owner->getLevel());
 
+    // Totems must receive stamina from owner
+    if (GetEntry() == STONECLAW_TOTEM_ENTRY)
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
+    if (m_owner->HasAura(63298))
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.05f);
+
     if (spellId1)
         m_owner->CastSpell(m_owner, spellId1, true); // Fake Fire Totem
     if (spellId2)
@@ -184,24 +191,21 @@ void Totem::UnSummon(uint32 msTime)
                 pct = 50.0f;
 
             Player* _player = m_owner->ToPlayer();
-            uint32 spellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
-            if (_player && spellId)
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            if (_player && spellInfo)
             {
-                if (_player->HasSpellCooldown(spellId))
+                if (_player->HasSpellCooldown(spellInfo->Id))
                 {
-                    uint32 newCooldownDelay = _player->GetSpellCooldownDelay(spellId);
-                    uint32 totalCooldown = sSpellMgr->GetSpellInfo(spellId)->RecoveryTime;
+                    uint32 newCooldownDelay = _player->GetSpellCooldownDelay(spellInfo->Id);
+                    uint32 totalCooldown = spellInfo->RecoveryTime;
+                    if (!totalCooldown)
+                        totalCooldown = spellInfo->CategoryRecoveryTime;
                     int32 lessCooldown = CalculatePct(totalCooldown, int32(pct));
 
                     newCooldownDelay -= lessCooldown;
 
-                    _player->AddSpellCooldown(spellId, 0, uint32(time(NULL) + newCooldownDelay));
-
-                    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                    data << uint32(spellId);                  // Spell ID
-                    data << uint64(GetGUID());                // Player GUID
-                    data << int32(-lessCooldown);             // Cooldown mod in milliseconds
-                    _player->GetSession()->SendPacket(&data);
+                    _player->AddSpellCooldown(spellInfo->Id, 0, uint32(time(NULL) + newCooldownDelay));
+                    _player->ReduceSpellCooldown(spellInfo->Id, -lessCooldown);
                 }
             }
         }

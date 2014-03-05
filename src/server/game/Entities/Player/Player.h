@@ -39,6 +39,7 @@
 #include "Util.h"                                           // for Tokenizer typedef
 #include "WorldSession.h"
 #include "PhaseMgr.h"
+#include "CUFProfiles.h"
 
 // for template
 #include "SpellMgr.h"
@@ -64,7 +65,6 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25  // @todo: remove me (removed since 5.0.4)
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -178,7 +178,9 @@ struct PlayerCurrency
    uint32 totalCount;
    uint32 weekCount;
    uint32 seasonTotal;
+   uint32 weekCap;
    uint8 flags;
+   bool needResetCap;
 };
 
 typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
@@ -369,6 +371,17 @@ struct RuneInfo
     uint32 Cooldown;
     uint32 spell_id;
     bool DeathUsed;
+    bool Permanently;
+
+    RuneInfo()
+    {
+        BaseRune    = 0;
+        CurrentRune = 0;
+        Cooldown    = 0;
+        spell_id    = 0;
+        DeathUsed   = false;
+        Permanently = false;
+    }
 };
 
 struct Runes
@@ -848,7 +861,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS    = 36,
     PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE              = 37,
     PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 38,
-    //PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES          = 39, //id on TC.
+    PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 39,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1265,7 +1278,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry = 0);
 
         static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
 
@@ -1459,11 +1472,11 @@ class Player : public Unit, public GridObject<Player>
         void DeleteRefundReference(uint32 it);
 
         /// send initialization of new currency for client
-        void SendNewCurrency(uint32 id) const;
+        void SendNewCurrency(uint32 id);
         /// send full data about all currencies to client
         void ModifyCurrencyFlags(uint32 currencyId, uint8 flags);
-        void SendCurrencies() const;
-        void SendPvpRewards() const;
+        void SendCurrencies();
+        void SendPvpRewards();
         /// return count of currency witch has plr
         uint32 GetCurrency(uint32 id, bool usePrecision) const;
         uint32 GetCurrencyOnWeek(uint32 id, bool usePrecision) const;
@@ -1472,9 +1485,9 @@ class Player : public Unit, public GridObject<Player>
         bool HasCurrency(uint32 id, uint32 count) const;
         /// @todo: not understand why it subtract from total count and for what it used. It should be remove and replaced by ModifyCurrency
         void SetCurrency(uint32 id, uint32 count, bool printLog = true);
-        uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
+        uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision = false);
         void ResetCurrencyWeekCap();
-        uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const;
+        uint32 CalculateCurrencyWeekCap(uint32 id);
         uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
         void UpdateConquestCurrencyCap(uint32 currency);
 
@@ -1966,7 +1979,6 @@ class Player : public Unit, public GridObject<Player>
         }
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
-        void SpellCooldownReduction(uint32 spell_id, time_t end_time);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId = 0, Spell* spell = NULL, bool setCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
@@ -2126,7 +2138,11 @@ class Player : public Unit, public GridObject<Player>
 
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
-            ASSERT(slot < MAX_ARENA_SLOT);
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
             m_ArenaPersonalRating[slot] = value;
             if (m_BestRatingOfWeek[slot] < value)
                 m_BestRatingOfWeek[slot] = value;
@@ -2134,11 +2150,51 @@ class Player : public Unit, public GridObject<Player>
                 m_BestRatingOfSeason[slot] = value;
         }
 
-        void SetArenaMatchMakerRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaMatchMakerRating[slot] = value; }
-        void IncrementWeekGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekGames[slot]; }
-        void IncrementWeekWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekWins[slot]; }
-        void IncrementSeasonGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonGames[slot]; }
-        void IncrementSeasonWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonWins[slot]; }
+        void SetArenaMatchMakerRating(uint8 slot, uint32 value)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            m_ArenaMatchMakerRating[slot] = value;
+        }
+        void IncrementWeekGames(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_WeekGames[slot];
+        }
+        void IncrementWeekWins(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_WeekWins[slot];
+        }
+        void IncrementSeasonGames(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_SeasonGames[slot];
+        }
+        void IncrementSeasonWins(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_SeasonWins[slot];
+        }
         void FinishWeek();
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
@@ -2441,7 +2497,8 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
         {
-            m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
+            if (m_bgData.bgQueuesJoinedTime.find(bgTypeId) != m_bgData.bgQueuesJoinedTime.end())
+                m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
         }
 
         bool InBattlegroundQueue() const
@@ -2627,6 +2684,8 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        uint32 m_lastEclipseState;
+
         // current pet slot
         PetSlot m_currentPetSlot;
         uint32 m_petSlotUsed;
@@ -2697,7 +2756,7 @@ class Player : public Unit, public GridObject<Player>
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
         void UnsummonPetTemporaryIfAny();
         void ResummonPetTemporaryUnSummonedIfAny();
-        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive() || IsMounted() /*+in flight*/; }
+        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive(); }
 
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);
@@ -2793,10 +2852,12 @@ class Player : public Unit, public GridObject<Player>
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         void SetDeathRuneUsed(uint8 index, bool apply) { m_runes.runes[index].DeathUsed = apply; }
         bool IsDeathRuneUsed(uint8 index) { return m_runes.runes[index].DeathUsed; }
+        bool IsRunePermanentlyConverted(uint8 index) { return m_runes.runes[index].Permanently; }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes.runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes.runes[index].CurrentRune = currentRune; }
-        void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes.runes[index].Cooldown = cooldown; m_runes.SetRuneState(index, (cooldown == 0) ? true : false); }
+        void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes.runes[index].Cooldown = cooldown; m_runes.SetRuneState(index, cooldown == 0); }
         void SetRuneConvertSpell(uint8 index, uint32 spell_id) { m_runes.runes[index].spell_id = spell_id; }
+        void SetRuneConvertType(uint8 index, bool permanently) { m_runes.runes[index].Permanently = permanently; }
         void AddRuneBySpell(uint8 index, RuneType newType, uint32 spell_id) { SetRuneConvertSpell(index, spell_id); ConvertRune(index, newType); }
         void RemoveRunesBySpell(uint32 spell_id);
         void RestoreBaseRune(uint8 index);
@@ -2920,6 +2981,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendBattlePetJournal();
 
+        void SendCUFProfiles();
+
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
@@ -3004,6 +3067,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
+        void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
 
         /*********************************************************/
@@ -3150,6 +3214,8 @@ class Player : public Unit, public GridObject<Player>
         bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
 
+        bool m_needSummonPetAfterStopFlying;
+
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;
         uint32 inn_pos_mapid;
@@ -3190,6 +3256,9 @@ class Player : public Unit, public GridObject<Player>
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
         uint8 m_grantableLevels;
+
+        typedef std::set<uint32> DailyQuestList;
+        DailyQuestList m_dailyQuestStorage;
 
     private:
         // internal common parts for CanStore/StoreItem functions
@@ -3279,6 +3348,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
+        uint8 m_storeCallbackCounter;
 
         uint32 m_lastPlayedEmote;
 
@@ -3301,6 +3371,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonWins[MAX_ARENA_SLOT];
         uint32 m_WeekGames[MAX_ARENA_SLOT];
         uint32 m_SeasonGames[MAX_ARENA_SLOT];
+
+        CUFProfiles m_cufProfiles;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

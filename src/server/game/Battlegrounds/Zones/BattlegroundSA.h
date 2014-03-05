@@ -116,7 +116,7 @@ enum npc
 };
 
 enum BG_SA_NPCs
-  {
+{
     BG_SA_GUN_1 = 0,
     BG_SA_GUN_2,
     BG_SA_GUN_3,
@@ -143,7 +143,7 @@ enum BG_SA_NPCs
     BG_SA_NPC_SPARKLIGHT,
     BG_SA_NPC_RIGSPARK,
     BG_SA_MAXNPC
-  };
+};
 
 enum BG_SA_Boat
 {
@@ -249,6 +249,12 @@ enum BG_SA_Objects
     BG_SA_LEFT_FLAG,
     BG_SA_BOMB,
     BG_SA_MAXOBJ = BG_SA_BOMB+68
+};
+
+float const BG_SA_BayTeleportlocs[2][3] =
+{
+    { 1608.078f, 0049.164f, 7.581f },
+    { 1598.014f, -106.052f, 8.874f }
 };
 
 float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
@@ -466,7 +472,7 @@ class BattlegroundSA : public Battleground
         virtual bool SetupBattleground();
         virtual void Reset();
         /// Called for generate packet contain worldstate data
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        virtual void FillInitialWorldStates(ByteBuffer& data);
         /// Called when a player deal damage to building (door)
         virtual void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
         /// Called when a player kill a unit in bg
@@ -606,6 +612,8 @@ class BattlegroundSA : public Battleground
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player* player);
 
+        void RelocatePlayer(Player* player);
+
         /// Totale elapsed time of current round
         uint32 TotalTime;
         /// Max time of round
@@ -634,5 +642,8 @@ class BattlegroundSA : public Battleground
 
         // Achievement: Not Even a Scratch
         bool _notEvenAScratch[BG_TEAMS_COUNT];
+
+        std::map<uint64, uint32> playersToRelocate;
 };
+
 #endif

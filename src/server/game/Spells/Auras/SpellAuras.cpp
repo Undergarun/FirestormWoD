@@ -39,7 +39,7 @@
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, AuraPtr aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
-_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(NULL)
+_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(0)
 {
     ASSERT(GetTarget() && GetBase());
 
@@ -204,7 +204,11 @@ void AuraApplication::BuildBitsUpdatePacket(ByteBuffer& data, bool remove) const
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
 
-    uint8 count = (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT) ? MAX_SPELL_EFFECTS : 0;
+    uint8 count = 0;
+    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (aura->GetEffect(i))
+                ++count;
 
     data.WriteBit(flags & AFLAG_DURATION); // duration
     data.WriteBits(count, 22);
@@ -250,7 +254,7 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
 
     data << uint8(flags);
 
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
         {
@@ -258,11 +262,6 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
                 data << float(eff->GetAmount());
 
             mask |= 1 << i;
-        }
-        else
-        {
-            if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                data << float(0.00f);
         }
     }
 
@@ -502,13 +501,15 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
             break;
         case TYPEID_DYNAMICOBJECT:
             aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID));
+            ASSERT(aura->GetDynobjOwner());
+            ASSERT(aura->GetDynobjOwner()->IsInWorld());
+            ASSERT(aura->GetCaster()->IsInWorld());
+            ASSERT(aura->GetDynobjOwner()->GetMap() == aura->GetCaster()->GetMap());
+
             aura->GetDynobjOwner()->SetAura(aura);
             aura->_InitEffects(effMask, caster, baseAmount);
             
             aura->LoadScripts();
-            ASSERT(aura->GetDynobjOwner());
-            ASSERT(aura->GetDynobjOwner()->IsInWorld());
-            ASSERT(aura->GetDynobjOwner()->GetMap() == aura->GetCaster()->GetMap());
             break;
         default:
             ASSERT(false);
@@ -572,6 +573,9 @@ Aura::~Aura()
 
 Unit* Aura::GetCaster() const
 {
+    if (!GetOwner())
+        return NULL;
+
     if (GetOwner()->GetGUID() == GetCasterGUID())
         return GetUnitOwner();
     if (AuraApplication const* aurApp = GetApplicationOfTarget(GetCasterGUID()))
@@ -810,9 +814,12 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
         }
     }
 }
-void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
+void Aura::UpdateOwner(uint32 diff, WorldObject* owner, uint32 auraId)
 {
     ASSERT(owner == m_owner);
+
+    if (auraId != GetId())
+        auraId = GetId();
 
     Unit* caster = GetCaster();
     // Apply spellmods for channeled auras
@@ -889,8 +896,8 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                     else
                     {
-                        if (int32(caster->CountPctFromMaxPower(manaPerSecond, powertype)) <= caster->GetPower(powertype))
-                            caster->ModifyPower(powertype, -1 * int32(caster->CountPctFromMaxPower(manaPerSecond, powertype)));
+                        if (int32(caster->GetPower(powertype)) >= manaPerSecond)
+                            caster->ModifyPower(powertype, -manaPerSecond);
                         else
                         {
                             Remove();
@@ -1137,6 +1144,10 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
+    // Blood of the North
+    if (GetId() == 54637)
+        return true;
+
     if (IsPassive())
         return false;
 
@@ -1693,31 +1704,37 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 break;
             case SPELLFAMILY_ROGUE:
                 // Remove Vanish on stealth remove
-                if (GetId() == 1784)
+                if (GetId() == 1784 || GetId() == 115191)
                     target->RemoveAurasDueToSpell(131369, target->GetGUID());
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
-                // Reaping
-                // Blood Rites
-                if (GetSpellInfo()->Id == 56835 || GetSpellInfo()->Id == 54637)
+            {
+                switch (GetSpellInfo()->Id)
                 {
-                    if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
-                        break;
-                    if (target->GetTypeId() != TYPEID_PLAYER)
-                        break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
-                        break;
+                    case 56835: // Reaping
+                    {
+                        if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
+                            break;
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            break;
+                        if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
+                            break;
 
-                     // aura removed - remove death runes
-                    target->ToPlayer()->RemoveRunesBySpell(GetId());
+                        // aura removed - remove death runes
+                        target->ToPlayer()->RemoveRunesBySpell(GetId());
+                        break;
+                    }
+                    case 81256: // Dancing Rune Weapon
+                        // Item - Death Knight T12 Tank 4P Bonus
+                        if (target->HasAura(98966) && (removeMode == AURA_REMOVE_BY_EXPIRE))
+                            target->CastSpell(target, 101162, true); // +15% parry
+                        break;
+                    default:
+                        break;
                 }
-                else if (GetId() == 81256) // Dancing Rune Weapon
-                {
-                    // Item - Death Knight T12 Tank 4P Bonus
-                    if (target->HasAura(98966) && (removeMode == AURA_REMOVE_BY_EXPIRE))
-                        target->CastSpell(target, 101162, true); // +15% parry
-                }
+
                 break;
+            }
             case SPELLFAMILY_HUNTER:
                 // Glyph of Freezing Trap
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000008)
@@ -1739,7 +1756,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Grownding Totem effect
                     case 89523:
                     case 8178:
-                        if (caster == target && removeMode != AURA_REMOVE_NONE)
+                        if (caster != target && removeMode != AURA_REMOVE_NONE)
                             caster->setDeathState(JUST_DIED);
                         break;
                     default:

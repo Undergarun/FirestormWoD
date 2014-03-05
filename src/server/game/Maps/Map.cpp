@@ -518,7 +518,7 @@ void Map::Update(const uint32 t_diff)
     /// update active cells around players and active objects
     resetMarkedCells();
 
-    JadeCore::ObjectUpdater updater(t_diff);
+    JadeCore::ObjectUpdater updater(t_diff, getMSTime());
     // for creature
     TypeContainerVisitor<JadeCore::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
     // for pets
@@ -1820,10 +1820,10 @@ bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, floa
 
 bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
 {
-    Vector3 startPos = Vector3(x1, y1, z1);
-    Vector3 dstPos = Vector3(x2, y2, z2);
+    G3D::Vector3 startPos = G3D::Vector3(x1, y1, z1);
+    G3D::Vector3 dstPos = G3D::Vector3(x2, y2, z2);
 
-    Vector3 resultPos;
+    G3D::Vector3 resultPos;
     bool result = _dynamicTree.getObjectHitPos(phasemask, startPos, dstPos, resultPos, modifyDist);
 
     rx = resultPos.x;
@@ -2607,7 +2607,28 @@ uint32 InstanceMap::GetMaxPlayers() const
         }
     }
     else                                                    // I'd rather ASSERT(false);
+    {
+        switch (GetDifficulty())
+        {
+            case Difficulty::SCENARIO_DIFFICULTY:
+            case Difficulty::SCENARIO_HEROIC_DIFFICULTY:
+                return 3;
+            case Difficulty::HEROIC_DIFFICULTY:
+            case Difficulty::CHALLENGE_MODE_DIFFICULTY:
+                return 5;
+            case Difficulty::MAN10_DIFFICULTY:
+            case Difficulty::MAN10_HEROIC_DIFFICULTY:
+                return 10;
+            case Difficulty::MAN25_DIFFICULTY:
+            case Difficulty::MAN25_HEROIC_DIFFICULTY:
+            case Difficulty::DYNAMIC_DIFFICULTY:
+                return 25;
+            default:
+                break;
+        }
+
         return 0;
+    }
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const

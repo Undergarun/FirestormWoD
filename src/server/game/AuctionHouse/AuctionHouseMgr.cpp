@@ -287,8 +287,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 item_guid    = fields[13].GetUInt32();
-        uint32 itemEntry    = fields[14].GetUInt32();
+        uint32 item_guid    = fields[14].GetUInt32();
+        uint32 itemEntry    = fields[15].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
@@ -485,8 +485,8 @@ void AuctionHouseObject::Update()
         auction->DeleteFromDB(trans);
         CharacterDatabase.CommitTransaction(trans);
 
-        RemoveAuction(auction, itemEntry);
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
+        RemoveAuction(auction, itemEntry);
     }
     while (result->NextRow());
 }
@@ -630,21 +630,20 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
         data << uint32(item->GetEnchantmentDuration(EnchantmentSlot(i)));
         data << uint32(item->GetEnchantmentCharges(EnchantmentSlot(i)));
     }
-    
-    data <<  uint32(0);
 
+    data << uint32(0);
     data << int32(item->GetItemRandomPropertyId());                 // Random item property id
     data << uint32(item->GetItemSuffixFactor());                    // SuffixFactor
     data << uint32(item->GetCount());                               // item->count
     data << uint32(item->GetSpellCharges());                        // item->charge FFFFFFF
-    data << uint32(0);                                              // Unknown
-    data << uint64(owner);                                          // Auction->owner
+    data << uint32(0);                                              // Unk
+    data << uint64(MAKE_NEW_GUID(owner, 0, HIGHGUID_PLAYER));       // Auction->owner
     data << uint64(startbid);                                       // Auction->startbid (not sure if useful)
     data << uint64(bid ? GetAuctionOutBid() : 0);
     // Minimal outbid
     data << uint64(buyout);                                         // Auction->buyout
     data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
-    data << uint64(bidder);                                         // auction->bidder current
+    data << uint64(MAKE_NEW_GUID(bidder, 0, HIGHGUID_PLAYER));      // auction->bidder current
     data << uint64(bid);                                            // current bid
     return true;
 }

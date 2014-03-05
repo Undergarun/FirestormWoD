@@ -45,11 +45,8 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     mailbox[1] = recvData.ReadBit();
     mailbox[3] = recvData.ReadBit();
-    receiverLength = recvData.ReadBits(8);
-    receiverLength *= 2;
-    bool pair = recvData.ReadBit();
-    if (pair)
-        receiverLength++;
+    receiverLength = recvData.ReadBits(8) * 2;
+    receiverLength |= (uint32)recvData.ReadBit();
 
     mailbox[0] = recvData.ReadBit();
     mailbox[7] = recvData.ReadBit();
@@ -57,13 +54,10 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[2] = recvData.ReadBit();
     mailbox[6] = recvData.ReadBit();
     mailbox[5] = recvData.ReadBit();
-    subjectLength = recvData.ReadBits(8);
-    subjectLength *= 2;
-    pair = recvData.ReadBit();
-    if (pair)
-        subjectLength++;
+    subjectLength = recvData.ReadBits(8) * 2;
+    subjectLength |= (uint32)recvData.ReadBit();
 
-    bodyLength = recvData.ReadBits(12);
+    bodyLength = recvData.ReadBits(11);
     uint8 items_count = recvData.ReadBits(5);
 
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
@@ -99,7 +93,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     receiver = recvData.ReadString(receiverLength);
     recvData.ReadByteSeq(mailbox[6]);
     subject = recvData.ReadString(subjectLength);
-    body = recvData.ReadString(bodyLength / 2);
+    body = recvData.ReadString(bodyLength);
     recvData.ReadByteSeq(mailbox[0]);
     recvData.ReadByteSeq(mailbox[4]);
     recvData.ReadByteSeq(mailbox[7]);
@@ -303,13 +297,17 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
+    // If theres is an item, there is a one hour delivery delay if sent to another account's character.
+    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
+
     // Guild Mail
     if (receive && receive->GetGuildId() && player->GetGuildId())
         if (player->HasAura(83951) && (player->GetGuildId() == receive->GetGuildId()))
-            needItemDelay = false;
+            deliver_delay = 0;
 
-    // If theres is an item, there is a one hour delivery delay if sent to another account's character.
-    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
+    // VIP Accounts receive mails instantly
+    if (receive && receive->GetSession()->IsPremium())
+        deliver_delay = 0;
 
     // will delete item or place to receiver mail list
     draft
@@ -750,7 +748,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             ObjectGuid senderGuid = (*itr)->sender;
 
             uint8 bytesOrder[8] = { 2, 0, 4, 5, 3, 6, 1, 7 };
-            dataBuffer.WriteBytesSeq(senderGuid, bitsOrder);
+            dataBuffer.WriteBytesSeq(senderGuid, bytesOrder);
         }
 
         if ((*itr)->subject.size())

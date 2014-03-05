@@ -259,13 +259,7 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
-    m_dynamicTab.resize(32);
-    m_dynamicChange.resize(32);
-    for (int i = 0; i < 32; i++)
-    {
-        m_dynamicTab[i] = new uint32[32];
-        m_dynamicChange[i] = new bool[32];
-    }
+    _dynamicTabCount = 32;
 }
 
 Item::~Item()
@@ -291,7 +285,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         return false;
 
     // For Item Upgrade
-    if (itemProto->ItemLevel >= 458 && IsStuffItem())
+    if (CanUpgrade())
     {
         if (IsPvPItem())
         {
@@ -503,13 +497,16 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 upgradeId = fields[10].GetUInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+        if (CanUpgrade())
+        {
+            SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+        }
     }
     else
     {
         // For Item Upgrade
-        if (proto->ItemLevel >= 458 && IsStuffItem())
+        if (CanUpgrade())
         {
             if (IsPvPItem())
             {
@@ -1074,8 +1071,21 @@ void Item::SendTimeUpdate(Player* owner)
         return;
 
     WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    data << uint64(GetGUID());
-    data << uint32(duration);
+    ObjectGuid guid = GetGUID();
+
+    uint8 bits[8] = { 0, 4, 2, 5, 7, 1, 6, 3 };
+    data.WriteBitInOrder(guid, bits);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
+    data << duration;
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+
     owner->GetSession()->SendPacket(&data);
 }
 
@@ -1578,10 +1588,19 @@ bool Item::IsPvPItem() const
     if (!proto)
         return false;
 
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatType == ITEM_MOD_PVP_POWER
-            || proto->ItemStat[i].ItemStatType == ITEM_MOD_RESILIENCE_RATING)
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+    {
+        uint32 stat = proto->ItemStat[i].ItemStatType;
+        if (stat == ITEM_MOD_PVP_POWER || stat == ITEM_MOD_RESILIENCE_RATING)
             return true;
+    }
+
+    for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
+    {
+        int32 spell = proto->Spells[i].SpellId;
+        if (spell == 132586 || spell == 139891)
+            return true;
+    }
 
     return false;
 }
@@ -1609,6 +1628,54 @@ bool Item::IsStuffItem() const
             return false;
         default:
             return true;
+    }
+
+    return false;
+}
+
+bool Item::CanUpgrade() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+        return false;
+
+    if (proto->ItemLevel < 458)
+        return false;
+
+    // August Celestials's cloaks can be upgraded
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY && !IsLegendaryCloak())
+        return false;
+
+    if (!IsStuffItem())
+        return false;
+
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    // PvP item can't be upgraded after Season 12
+    if (IsPvPItem() && proto->ItemLevel > 483)
+        return false;
+
+    return true;
+}
+
+bool Item::IsLegendaryCloak() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+        return false;
+
+    switch (proto->ItemId)
+    {
+        case 102245: // Qian-Le, Courage of Niuzao
+        case 102246: // Xing-Ho, Breath of Yu'lon
+        case 102247: // Jina-Kang, Kindness of Chi-Ji
+        case 102248: // Fen-Yu, Fury of Xuen
+        case 102249: // Gong-Lu, Strength of Xuen
+        case 102250: // Qian-Ying, Fortitude of Niuzao
+            return true;
+        default:
+            break;
     }
 
     return false;

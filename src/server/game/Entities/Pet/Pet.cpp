@@ -360,8 +360,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         spellCooldownResult = holder->GetPreparedResult(PET_LOGIN_QUERY_LOADSPELLCOOLDOWN);
     }
 
-
-
     _LoadAuras(auraResult, auraEffectResult, timediff, login);
 
     if (owner->GetTypeId() == TYPEID_PLAYER && owner->ToPlayer()->InArena())
@@ -616,7 +614,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
     }
 }
 
-void Pet::Update(uint32 diff)
+void Pet::Update(uint32 diff, uint32 entry)
 {
     if (m_removed)                                           // pet already removed, just wait in remove queue, no updates
         return;
@@ -731,7 +729,7 @@ void Pet::Update(uint32 diff)
             }
             break;
     }
-    Creature::Update(diff);
+    Creature::Update(diff, entry);
 }
 
 void Creature::Regenerate(Powers power)
@@ -1022,15 +1020,36 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             uint32 val  = (fire > shadow) ? fire : shadow;
             SetBonusDamage(int32 (val));
 
-            // Hardcode : Ghoul Base HP
-            if (IsPetGhoul() && getLevel() > 86)
-            {
-                SetCreateHealth(GetCreateHealth() / 7);
-                CastSpell(this, 47466, true);
-            }
-
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+
+            switch (GetEntry())
+            {
+                case ENTRY_GHOUL:
+                    SetCreateHealth(GetCreateHealth() / 7);
+                    CastSpell(this, 47466, true);
+                    break;
+                case ENTRY_FEL_IMP:
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_VOIDLORD:
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_SHIVARRA:
+                    CastSpell(this, 114355, true); // Dual-Wield
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_OBSERVER:
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                case ENTRY_WRATHGUARD:
+                    CastSpell(this, 114355, true); // Dual-Wield
+                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    break;
+                default:
+                    break;
+            }
+
             break;
         }
         case HUNTER_PET:
@@ -1160,6 +1179,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 }
                 case 63508: // Xuen, the White Tiger
                 {
+                    if (m_owner->GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
                     if (!pInfo)
                     {
                         SetCreateMana(28 + 10*petlevel);
@@ -1171,6 +1193,15 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel + bonus_dmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel + bonus_dmg));
                     SetAttackTime(BASE_ATTACK, 1 * IN_MILLISECONDS);
+
+                    float crit_chance = 5.0f;
+                    crit_chance += m_owner->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    crit_chance += m_owner->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, SPELL_SCHOOL_MASK_NORMAL);
+                    m_baseSpellCritChance = crit_chance;
+
+                    m_modMeleeHitChance = float(m_owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE));
+                    m_modMeleeHitChance += m_owner->ToPlayer()->GetRatingBonusValue(CR_HIT_MELEE);
+                    m_modSpellHitChance = m_modMeleeHitChance;
 
                     break;
                 }
@@ -1396,6 +1427,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
     m_CreatureCategoryCooldowns.clear();
 
     PreparedQueryResult result = resultCooldown;
+    Player* owner = GetOwner() ? GetOwner()->ToPlayer() : NULL;
 
     if (!login)
     {
@@ -1407,14 +1439,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
     if (result)
     {
         time_t curTime = time(NULL);
-        WorldPacket data(SMSG_SPELL_COOLDOWN, result->GetRowCount() * 8 + 4);
         ObjectGuid petGuid = GetGUID();
-
-        data.WriteBits(result->GetRowCount(), 21);
-        data.WriteBit(1);
-
-        uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-        data.WriteBitInOrder(petGuid, bitsOrder);
 
         do
         {
@@ -1433,19 +1458,33 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
             if (db_time <= curTime)
                 continue;
 
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            data.WriteBits(1, 21);
+            data.WriteBit(0);
+
+            uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+            data.WriteBitInOrder(petGuid, bitsOrder);
+
             data << uint32(spell_id);
             data << uint32(uint32(db_time-curTime)*IN_MILLISECONDS);
+            data.WriteByteSeq(petGuid[4]);
+            data << uint8(1);
+            data.WriteByteSeq(petGuid[1]);
+            data.WriteByteSeq(petGuid[5]);
+            data.WriteByteSeq(petGuid[7]);
+            data.WriteByteSeq(petGuid[6]);
+            data.WriteByteSeq(petGuid[0]);
+            data.WriteByteSeq(petGuid[2]);
+            data.WriteByteSeq(petGuid[3]);
+
+            if (owner)
+                owner->GetSession()->SendPacket(&data);
 
             _AddCreatureSpellCooldown(spell_id, db_time);
 
             sLog->outDebug(LOG_FILTER_PETS, "Pet (Number: %u) spell %u cooldown loaded (%u secs).", m_charmInfo->GetPetNumber(), spell_id, uint32(db_time-curTime));
         }
         while (result->NextRow());
-
-        uint8 bytesOrder[8] = { 4, 1, 5, 7, 6, 0, 2, 3 };
-        data.WriteBytesSeq(petGuid, bytesOrder);
-
-        ((Player*)GetOwner())->GetSession()->SendPacket(&data);
     }
 }
 
@@ -1607,6 +1646,10 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 continue;
             }
 
+            // Does not need to load Spirit Bond - reapplied at update
+            if (spellInfo->Id == 118694)
+                continue;
+
             // negative effects should continue counting down after logout
             if (remaintime != -1 && !spellInfo->IsPositive())
             {
@@ -1669,8 +1712,11 @@ void Pet::_SaveAuras(SQLTransaction& trans)
 
         AuraPtr aura = itr->second;
         AuraApplication * foundAura = GetAuraApplication(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID());
-
         if (!foundAura)
+            continue;
+
+        // Hack fix for Spirit Bond - Does not need to be saved, reapplied at update
+        if (foundAura->GetBase()->GetId() == 118694)
             continue;
 
         int32 damage[MAX_SPELL_EFFECTS];
@@ -1875,6 +1921,11 @@ void Pet::InitLevelupSpellsForLevel()
         {
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(defSpells->spellid[i]);
             if (!spellEntry)
+                continue;
+
+            // This prevent to add spells with no cooldown - cheating !
+            if (!spellEntry->RecoveryTime && !spellEntry->StartRecoveryCategory &&
+                !spellEntry->StartRecoveryTime && !spellEntry->CategoryRecoveryTime)
                 continue;
 
             // will called first if level down
@@ -2190,5 +2241,60 @@ void Pet::UnlearnSpecializationSpell()
             continue;
 
         unlearnSpell(specializationEntry->LearnSpell, false);
+    }
+}
+
+void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
+{
+    Player* owner = GetOwner();
+    time_t curTime = time(NULL);
+    for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    {
+        if (itr->second.state == PETSPELL_REMOVED)
+            continue;
+        uint32 unSpellId = itr->first;
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
+        if (!spellInfo)
+        {
+            ASSERT(spellInfo);
+            continue;
+        }
+
+        // Not send cooldown for this spells
+        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+            continue;
+
+        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+            continue;
+
+        if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
+        {
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            ObjectGuid guid = GetGUID();
+
+            data.WriteBits(1, 21);
+            data.WriteBit(0);
+
+            uint8 bits[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
+            data.WriteBitInOrder(guid, bits);
+
+            data << uint32(unSpellId);
+            data << uint32(unTimeMs);                       // in m.secs
+
+            data.WriteByteSeq(guid[4]);
+            data << uint8(0);
+            data.WriteByteSeq(guid[1]);
+            data.WriteByteSeq(guid[5]);
+            data.WriteByteSeq(guid[7]);
+            data.WriteByteSeq(guid[6]);
+            data.WriteByteSeq(guid[0]);
+            data.WriteByteSeq(guid[2]);
+            data.WriteByteSeq(guid[3]);
+
+            if (owner)
+                owner->GetSession()->SendPacket(&data);
+
+            _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
+        }
     }
 }
