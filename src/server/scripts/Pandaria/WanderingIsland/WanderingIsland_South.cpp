@@ -291,10 +291,12 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
+
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_ji_forest_escortAI(creature);
     }
+
 };
 
 class AreaTrigger_at_rescue_soldiers : public AreaTriggerScript
@@ -577,8 +579,10 @@ public:
                             break;
                         case 6:
                             SetEscortPaused(false);
+
                             if (Creature* ji = getJi())
                                 ji->GetMotionMaster()->MovePoint(0, 227.21f, 3981.09f, 85.92f);
+
                             discussTimer = 1000;
                             break;
                         case 7:
