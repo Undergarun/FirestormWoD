@@ -1418,6 +1418,13 @@ void Player::RewardCurrencyAtKill(Unit* victim)
     if (!Curr)
         return;
 
+    bool result = true;
+    if (victim->ToCreature()->AI())
+        victim->ToCreature()->AI()->CurrenciesRewarder(result);
+
+    if (!result)
+        return;
+
     if (Curr->currencyId1 && Curr->currencyCount1)
     {
         if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
