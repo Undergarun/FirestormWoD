@@ -18,6 +18,7 @@
  */
 
 #include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
@@ -413,6 +414,9 @@ class boss_ancient_regail : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
                             _JustDied();
 
+                            if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+                                minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
+
                             if (kaolan)
                                 kaolan->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (asani)
@@ -424,6 +428,13 @@ class boss_ancient_regail : public CreatureScript
                             break;
                     }
                 }
+            }
+
+            void CurrenciesRewarder(bool& result)
+            {
+                // Must be 1, because currencies are given before death
+                if (ProtectorsAlive(pInstance, me) > 1)
+                    result = false;
             }
 
             void DoAction(const int32 action)
@@ -689,6 +700,9 @@ class boss_ancient_asani : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
                             _JustDied();
 
+                            if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+                                minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
+
                             if (kaolan)
                                 kaolan->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
@@ -700,6 +714,13 @@ class boss_ancient_asani : public CreatureScript
                             break;
                     }
                 }
+            }
+
+            void CurrenciesRewarder(bool& result)
+            {
+                // Must be 1, because currencies are given before death
+                if (ProtectorsAlive(pInstance, me) > 1)
+                    result = false;
             }
 
             void DoAction(const int32 action)
@@ -964,6 +985,9 @@ class boss_protector_kaolan : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
                             _JustDied();
 
+                            if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+                                minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
+
                             if (asani)
                                 asani->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
@@ -975,6 +999,13 @@ class boss_protector_kaolan : public CreatureScript
                             break;
                     }
                 }
+            }
+
+            void CurrenciesRewarder(bool& result)
+            {
+                // Must be 1, because currencies are given before death
+                if (ProtectorsAlive(pInstance, me) > 1)
+                    result = false;
             }
 
             void DoAction(const int32 action)
@@ -1228,11 +1259,14 @@ class mob_minion_of_fear : public CreatureScript
                     std::list<Creature*> targets;
 
                     if (Creature* asani = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_ASANI)))
-                        targets.push_back(asani);
+                        if (asani->isAlive())
+                            targets.push_back(asani);
                     if (Creature* kaolan = pInstance->instance->GetCreature(pInstance->GetData64(NPC_PROTECTOR_KAOLAN)))
-                        targets.push_back(kaolan);
+                        if (kaolan->isAlive())
+                            targets.push_back(kaolan);
                     if (Creature* regail = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_REGAIL)))
-                        targets.push_back(regail);
+                        if (regail->isAlive())
+                            targets.push_back(regail);
 
                     if (targets.empty())
                     {
