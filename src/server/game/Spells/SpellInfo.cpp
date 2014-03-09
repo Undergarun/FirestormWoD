@@ -121,6 +121,12 @@ Targets SpellImplicitTargetInfo::GetTarget() const
 
 uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet) const
 {
+    if (_target >= TOTAL_SPELL_TARGETS)
+    {
+        printf("SPELL_TARGET overflow!! %u\r\n", _target);
+        return 0;
+    }
+    
     uint32 targetMask = 0;
     if (GetTarget() == TARGET_DEST_TRAJ)
     {
@@ -2517,6 +2523,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
     {
         if (!Effects[i].IsEffect())
             continue;
+
         targetMask |= Effects[i].TargetA.GetExplicitTargetMask(srcSet, dstSet);
         targetMask |= Effects[i].TargetB.GetExplicitTargetMask(srcSet, dstSet);
 
