@@ -2523,6 +2523,12 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
     {
         if (!Effects[i].IsEffect())
             continue;
+        
+        if (Effects[i].TargetA.GetTarget() >= TOTAL_SPELL_TARGETS)
+        {
+            printf("%u SPELL_TARGET overflow!! %u\r\n", Id, Effects[i].TargetA.GetTarget());
+            continue;
+        }
 
         targetMask |= Effects[i].TargetA.GetExplicitTargetMask(srcSet, dstSet);
         targetMask |= Effects[i].TargetB.GetExplicitTargetMask(srcSet, dstSet);
