@@ -20185,7 +20185,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
         if (!spellEntry)
         {
             sLog->OutPandashan("HandleSpellClick: spellEntry pointer is NULL!!");
-            return;
+            return false;
         }
 
         if (seatId > -1)
