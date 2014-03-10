@@ -60,6 +60,8 @@ enum eCreatures
 
     // Lei Shi
     NPC_LEI_SHI                     = 62983,
+    NPC_ANIMATED_PROTECTOR          = 62995,
+    NPC_LEI_SHI_HIDDEN              = 63099,
 
     // Sha of Fear
     NPC_SHA_OF_FEAR                 = 60999,
@@ -74,7 +76,12 @@ enum eCreatures
 enum eGameObjects
 {
     GOB_WALL_OF_COUNCILS_VORTEX = 214854,
-    GOB_COUNCILS_VORTEX         = 214853
+    GOB_COUNCILS_VORTEX         = 214853,
+
+    GOB_WALL_OF_LEI_SHI         = 214852,
+    GOB_LEI_SHIS_VORTEX         = 214851,
+    GOB_LEI_SHI_CHEST_NORMAL    = 213076,
+    GOB_LEI_SHI_CHEST_HEROIC    = 213075
 };
 
 enum ePhases

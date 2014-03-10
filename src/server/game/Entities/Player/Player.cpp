@@ -727,6 +727,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_speakTime = 0;
     m_speakCount = 0;
 
+    hasForcedMovement = false;
+
     m_bgRoles = 0;
 
     m_lastPlayedEmote = 0;
@@ -29801,5 +29803,64 @@ void Player::FinishWeek()
         m_PrevWeekWins[slot] = m_WeekWins[slot];
         m_WeekGames[slot] = 0;
         m_WeekWins[slot] = 0;
+    }
+}
+
+void Player::SendApplyMovementForce(bool apply, Position source, float force /*= 0.0f*/)
+{
+    ObjectGuid playerGuid = GetGUID();
+
+    if (apply)
+    {
+        // Forced movement can cumulate
+        if (hasForcedMovement)
+            return;
+
+        WorldPacket data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+
+        uint8 bits[8] = { 3, 5, 4, 6, 7, 1, 0, 2 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteBits(1, 2);
+
+        data << float(source.GetPositionZ());
+        data << uint32(0);                  // Unk, sniffed value, not always the same
+        data.WriteByteSeq(playerGuid[5]);
+        data << uint32(1024);               // Unk, sniffed value, not always the same
+        data.WriteByteSeq(playerGuid[0]);
+        data << float(source.GetPositionY());
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data << float(force);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[2]);
+        data.WriteByteSeq(playerGuid[4]);
+        data << float(source.GetPositionX());
+        data.WriteByteSeq(playerGuid[3]);
+        data << uint32(268441055);          // Unk, sniffed value, not always the same
+
+        GetSession()->SendPacket(&data);
+
+        hasForcedMovement = true;
+    }
+    else
+    {
+        if (!hasForcedMovement)
+            return;
+
+        WorldPacket data(SMSG_UNAPPLY_MOVEMENT_FORCE, 2 * 4 + 1 + 8);
+
+        data << uint32(1024);               // Unk, sniffed value, not always the same
+        data << uint32(268441055);          // Unk, sniffed value, not always the same
+
+        uint8 bits[8] = { 6, 5, 7, 0, 4, 3, 1, 2 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        uint8 bytes[8] = { 2, 4, 5, 6, 3, 1, 0, 7 };
+        data.WriteBytesSeq(playerGuid, bytes);
+
+        GetSession()->SendPacket(&data);
+
+        hasForcedMovement = false;
     }
 }
