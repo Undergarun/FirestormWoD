@@ -20213,7 +20213,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 for (int eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
                     bp0[eff] = spellEntry->Effects[i].BasePoints;
                 bp0[i] = seatId + 1;
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0, NULL, origCasterGUID);
+                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0[0], NULL, origCasterGUID);
             }
         }
         else
