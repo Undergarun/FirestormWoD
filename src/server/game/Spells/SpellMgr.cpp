@@ -3086,8 +3086,14 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].BasePoints = -10;
                     spellInfo->Effects[1].BasePoints = -10;
                     break;
-                case 111850:// Lightning Prison
-                    spellInfo->MaxAffectedTargets = 2;
+                case 125706:// Channeling Corruption
+                    spellInfo->Effects[0].TriggerSpell = 0;
+                    break;
+                case 125713:// Channeling Corruption (triggered)
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    break;
+                case 125736:// Night Terrors (missile)
+                    spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                     break;
                 case 117230:// Overpowered
                     spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -3096,8 +3102,17 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].Effect = 0;
                     spellInfo->Effects[1].Mechanic = MECHANIC_NONE;
                     break;
-                case 117268:// Cleansing Waters (missile)
-                    spellInfo->Speed = 1;
+                case 117052:// Corruption Sha
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[0].TargetB = 0;
+                    spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[1].TargetB = 0;
+                    spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[2].TargetB = 0;
+                    break;
+                case 127731:// Corruption Sha (triggered)
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[0].TargetB = 0;
                     break;
                 case 127424:
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;

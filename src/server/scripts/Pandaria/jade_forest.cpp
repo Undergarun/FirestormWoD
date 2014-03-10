@@ -1548,6 +1548,90 @@ class mob_big_bao : public CreatureScript
         };
 };
 
+enum eHutiaSpells
+{
+    SPELL_FRENZY_2              = 19615,
+    SPELL_SPIRIT_BEAST_BLESSING = 127830,
+    SPELL_SPIRIT_HEAL_2           = 138477,
+    SPELL_SPIRIT_MEND           = 90361,
+    SPELL_STRONG_WILL           = 138472
+};
+
+enum eHutiaEvents
+{
+    EVENT_FRENZY_2              = 1,
+    EVENT_SPIRIT_BEAST_BLESSING = 2,
+    EVENT_SPIRIT_HEAL           = 3
+};
+
+class mob_hutia : public CreatureScript
+{
+    public:
+        mob_hutia() : CreatureScript("mob_hutia")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_hutiatAI(creature);
+        }
+
+        struct mob_hutiatAI : public ScriptedAI
+        {
+            mob_hutiatAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->CastSpell(me, SPELL_SPIRIT_MEND, false);
+                me->CastSpell(me, SPELL_STRONG_WILL, false);
+
+                events.ScheduleEvent(EVENT_FRENZY_2, 7000);
+                events.ScheduleEvent(EVENT_SPIRIT_BEAST_BLESSING, 12000);
+                events.ScheduleEvent(EVENT_SPIRIT_HEAL, 19000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FRENZY_2:
+                            me->CastSpell(me, SPELL_FRENZY_2, false);
+                            events.ScheduleEvent(EVENT_FRENZY_2,      30000);
+                            break;
+                        case EVENT_SPIRIT_BEAST_BLESSING:
+                            me->CastSpell(me, SPELL_SPIRIT_BEAST_BLESSING, false);
+                            events.ScheduleEvent(EVENT_SPIRIT_BEAST_BLESSING,      40000);
+                            break;
+                        case EVENT_SPIRIT_HEAL:
+                            me->CastSpell(me, SPELL_SPIRIT_HEAL_2, false);
+                            events.ScheduleEvent(EVENT_SPIRIT_HEAL,      40000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_jade_forest()
 {
     //Rare mobs
@@ -1563,6 +1647,7 @@ void AddSC_jade_forest()
     new mob_rakira();
     new mob_ro_shen();
     new mob_sha_reminant();
+    new mob_hutia();
     //Standard Mobs
     new mob_pandriarch_windfur();
     new mob_pandriarch_bramblestaff();
