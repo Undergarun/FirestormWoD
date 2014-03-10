@@ -60,6 +60,9 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             // Sha of Fear
             uint64 shaOfFearGuid;
 
+            // Timers, old school style!
+            uint32 tsulongEventTimer;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
@@ -76,6 +79,8 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 leiShiGuid              = 0;
 
                 shaOfFearGuid           = 0;
+
+                tsulongEventTimer       = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -113,6 +118,10 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
+
+                if (id == DATA_PROTECTORS && state == DONE)
+                    if (Creature* c = instance->GetCreature(GetData64(NPC_TSULONG)))
+                        c->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
 
                 return true;
             }
