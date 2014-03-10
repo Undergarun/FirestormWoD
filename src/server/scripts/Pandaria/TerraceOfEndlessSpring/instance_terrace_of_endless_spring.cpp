@@ -54,6 +54,9 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             // Sha of Fear
             uint64 shaOfFearGuid;
 
+            // Timers, old school style!
+            uint32 tsulongEventTimer;
+
             // Council's Vortex
             uint64 wallOfCouncilsVortexGuid;
             uint64 councilsVortexGuid;
@@ -73,13 +76,10 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 ancientAsaniGuid            = 0;
                 protectorKaolanGuid         = 0;
                 minionOfFearControllerGuid  = 0;
-
                 tsulongGuid                 = 0;
-
                 leiShiGuid                  = 0;
-
                 shaOfFearGuid               = 0;
-
+                tsulongEventTimer           = 0;
                 wallOfCouncilsVortexGuid    = 0;
                 councilsVortexGuid          = 0;
 
@@ -142,6 +142,10 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
+
+                if (id == DATA_PROTECTORS && state == DONE)
+                    if (Creature* c = instance->GetCreature(GetData64(NPC_TSULONG)))
+                        c->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
 
                 return true;
             }

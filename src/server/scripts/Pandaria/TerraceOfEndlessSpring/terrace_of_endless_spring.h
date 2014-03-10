@@ -41,6 +41,7 @@ enum eSpells
 
 enum eActions
 {
+    ACTION_START_TSULONG_WAYPOINT = 1,
     ACTION_INTRO_FINISHED = 2
 };
 
@@ -99,6 +100,11 @@ enum eEvents
 enum eTypes
 {
     INTRO_DONE
+};
+
+enum eTimers
+{
+	TIMER_TSULONG_SPAWN	= 10000,
 };
 
 #endif // TERRACE_OF_ENDLESS_SPRING_H_

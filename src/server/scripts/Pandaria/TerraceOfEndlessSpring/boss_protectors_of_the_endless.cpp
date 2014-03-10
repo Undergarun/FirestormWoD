@@ -18,6 +18,7 @@
  */
 
 #include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
