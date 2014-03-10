@@ -20182,6 +20182,11 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->second.spellId);
         // if (!spellEntry) should be checked at npc_spellclick load
+        if (!spellEntry)
+        {
+            sLog->OutPandashan("HandleSpellClick: spellEntry pointer is NULL!!");
+            return;
+        }
 
         if (seatId > -1)
         {
@@ -20204,7 +20209,10 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, false, NULL, NULLAURA_EFFECT, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
-                int32 bp0 = seatId + 1;
+                int32 bp0[MAX_SPELL_EFFECTS];
+                for (int eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
+                    bp0[eff] = spellEntry->Effects[i].BasePoints;
+                bp0[i] = seatId + 1;
                 Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0, NULL, origCasterGUID);
             }
         }
