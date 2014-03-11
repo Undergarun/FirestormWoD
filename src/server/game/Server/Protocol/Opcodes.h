@@ -663,6 +663,7 @@ enum Opcodes
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x5B0,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AI_REACTION                                  = 0x5B1,  // 5.4.0 17399
     SMSG_ALL_ACHIEVEMENT_DATA                         = 0x816,  // 5.4.0 17399
+    SMSG_APPLY_MOVEMENT_FORCE                         = 0x1766, // 5.4.0 17399
     SMSG_AREA_SPIRIT_HEALER_TIME                      = 0x092,  // 5.4.0 17399
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                 = 0x8A3,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x81A,  // 5.4.0 17399 (JamList) (NYI)
@@ -1505,6 +1506,7 @@ enum Opcodes
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x194,  // 5.4.0 17399
     SMSG_TUTORIAL_FLAGS                               = 0x1F35, // 5.4.0 17399
     SMSG_UI_TIME                                      = 0x000,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x1376, // 5.4.0 17399
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x000,  // 5.0.5 16048
     SMSG_UNIT_SPELLCAST_START                         = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,  // 5.4.0 17399

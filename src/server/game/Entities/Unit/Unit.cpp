@@ -13724,7 +13724,7 @@ bool Unit::isTargetableForAttack(bool checkFakeDeath) const
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC))
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC) && GetEntry() != 62983)
         return false;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
@@ -13775,7 +13775,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // can't attack untargetable
     if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE))
-        && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+        && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE) && target->GetEntry() != 62983)
         return false;
 
     if (Player const* playerAttacker = ToPlayer())
@@ -20505,6 +20505,10 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     {
         UpdatePosition(x, y, z, orientation, true);
         SendMovementFlagUpdate();
+
+        Position pos;
+        GetPosition(&pos);
+        SendTeleportPacket(pos);
     }
 }
 

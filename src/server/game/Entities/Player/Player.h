@@ -2654,6 +2654,9 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
+        void SendApplyMovementForce(bool apply, Position source, float force = 0.0f);
+        bool hasForcedMovement;
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;

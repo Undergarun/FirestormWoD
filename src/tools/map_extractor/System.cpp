@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
+ * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
@@ -78,21 +97,35 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 uint32 CONF_TargetBuild = 17399;              // 5.4.0 17399
 
 // List MPQ for extract maps from
-char const* CONF_mpq_list[]=
+char const* CONF_mpq_list[] =
 {
     "world.MPQ",
+    "misc.MPQ",
     "expansion1.MPQ",
     "expansion2.MPQ",
     "expansion3.MPQ",
-    "expansion4.MPQ",
-    "misc.MPQ",                             // LiquiType.dbc
+    "expansion4.MPQ"
 };
 
-uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516,  16650, 16844, 16965, 17116, 17266, 17325, 17345, 0};
-#define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
+char const* CONF_mpq_dbc_list[] =
+{
+    "misc.MPQ"
+};
 
-char* const Locales[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU"};
-TCHAR* const LocalesT[] =
+uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516, 16650, 16844, 16965, 17116, 17266, 17325, 17345, 17538, 0};
+#define NEW_BASE_SET_BUILD  16016
+
+char const* Locales[] =
+{
+    "enGB", "enUS",
+    "deDE", "esES",
+    "frFR", "koKR",
+    "zhCN", "zhTW",
+    "enCN", "enTW",
+    "esMX", "ruRU"
+};
+
+TCHAR const* LocalesT[] =
 {
     _T("enGB"), _T("enUS"),
     _T("deDE"), _T("esES"),
@@ -125,7 +158,7 @@ bool FileExists(TCHAR const* fileName)
     return false;
 }
 
-void Usage(char* prg)
+void Usage(char const* prg)
 {
     printf(
         "Usage:\n"\
@@ -134,12 +167,12 @@ void Usage(char* prg)
         "-o set output path\n"\
         "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "-b target build (default %u)"\
+        "-b target build (default %u)\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"", prg, CONF_TargetBuild, prg);
     exit(1);
 }
 
-void HandleArgs(int argc, char * arg[])
+void HandleArgs(int argc, char* arg[])
 {
     for (int c = 1; c < argc; ++c)
     {
@@ -198,7 +231,7 @@ uint32 ReadBuild(int locale)
 {
     // include build info file also
     std::string filename  = std::string("component.wow-") + Locales[locale] + ".txt";
-    printf("Read %s file... ", filename.c_str());
+    //printf("Read %s file... ", filename.c_str());
 
     HANDLE dbcFile;
     if (!SFileOpenFileEx(LocaleMpq, filename.c_str(), SFILE_OPEN_PATCHED_FILE, &dbcFile))
@@ -267,7 +300,7 @@ uint32 ReadMapDBC()
     }
 
     SFileCloseFile(dbcFile);
-    printf("Done! (%u maps loaded)\n", map_count);
+    printf("Done! (%u maps loaded)\n", uint32(map_count));
     return map_count;
 }
 
@@ -296,36 +329,53 @@ void ReadAreaTableDBC()
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     SFileCloseFile(dbcFile);
-    printf("Done! (%u areas loaded)\n", area_count);
+    printf("Done! (%u areas loaded)\n", uint32(area_count));
 }
 
 void ReadLiquidTypeTableDBC()
 {
-    printf("Read LiquidType.dbc file...");
-    HANDLE dbcFile;
-    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+    HANDLE localeFile;
+    char localMPQ[512];
+
+    sprintf(localMPQ, "%s/Data/misc.MPQ", input_path);
+    if (FileExists(localMPQ)==false)
+    {   // Use misc.mpq
+        printf(localMPQ, "%s/Data/%s/locale-%s.MPQ", input_path);
+    }
+
+    if (!SFileOpenArchive(localMPQ, 0, MPQ_OPEN_READ_ONLY, &localeFile))
     {
-        printf("Fatal error: Cannot find LiquidType.dbc in archive!\n");
         exit(1);
     }
 
+    printf("Read LiquidType.dbc file...");
+
+    HANDLE dbcFile;
+    if (!SFileOpenFileEx(localeFile, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+    {
+        if (!SFileOpenFileEx(localeFile, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+        {
+            printf("Fatal error: Cannot find LiquidType.dbc in archive!\n");
+            exit(1);
+        }
+    }
+
     DBCFile dbc(dbcFile);
-    if(!dbc.open())
+    if (!dbc.open())
     {
         printf("Fatal error: Invalid LiquidType.dbc file format!\n");
         exit(1);
     }
 
-    size_t liqTypeCount = dbc.getRecordCount();
-    size_t liqTypeMaxId = dbc.getMaxId();
-    LiqType = new uint16[liqTypeMaxId + 1];
-    memset(LiqType, 0xff, (liqTypeMaxId + 1) * sizeof(uint16));
+    size_t LiqType_count = dbc.getRecordCount();
+    size_t LiqType_maxid = dbc.getMaxId();
+    LiqType = new uint16[LiqType_maxid + 1];
+    memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
 
-    for(uint32 x = 0; x < liqTypeCount; ++x)
+    for (uint32 x = 0; x < LiqType_count; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    SFileCloseFile(dbcFile);
-    printf("Done! (%u LiqTypes loaded)\n", liqTypeCount);
+    printf("Done! (%lu LiqTypes loaded)\n", LiqType_count);
 }
 
 //
@@ -334,7 +384,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.2";
+static char const* MAP_VERSION_MAGIC = "v1.3";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -350,6 +400,8 @@ struct map_fileheader
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
@@ -466,11 +518,11 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     //============================================
     bool fullAreaData = false;
     uint32 areaflag = area_flags[0][0];
-    for (int y=0;y<ADT_CELLS_PER_GRID;y++)
+    for (int y = 0; y < ADT_CELLS_PER_GRID; y++)
     {
-        for(int x=0;x<ADT_CELLS_PER_GRID;x++)
+        for (int x = 0; x < ADT_CELLS_PER_GRID; x++)
         {
-            if(area_flags[y][x]!=areaflag)
+            if (area_flags[y][x] != areaflag)
             {
                 fullAreaData = true;
                 break;
@@ -487,7 +539,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     if (fullAreaData)
     {
         areaHeader.gridArea = 0;
-        map.areaMapSize+=sizeof(area_flags);
+        map.areaMapSize += sizeof(area_flags);
     }
     else
     {
@@ -498,9 +550,9 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     //
     // Get Height map from grid
     //
-    for (int i=0;i<ADT_CELLS_PER_GRID;i++)
+    for (int i = 0; i < ADT_CELLS_PER_GRID; i++)
     {
-        for(int j=0;j<ADT_CELLS_PER_GRID;j++)
+        for (int j = 0; j < ADT_CELLS_PER_GRID; j++)
         {
             adt_MCNK * cell = adt.cells[i][j];
             if (!cell)
@@ -522,46 +574,48 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             // . . . . . . . .
 
             // Set map height as grid height
-            for (int y=0; y <= ADT_CELL_SIZE; y++)
+            for (int y = 0; y <= ADT_CELL_SIZE; y++)
             {
-                int cy = i*ADT_CELL_SIZE + y;
-                for (int x=0; x <= ADT_CELL_SIZE; x++)
+                int cy = i * ADT_CELL_SIZE + y;
+                for (int x = 0; x <= ADT_CELL_SIZE; x++)
                 {
-                    int cx = j*ADT_CELL_SIZE + x;
-                    V9[cy][cx]=cell->ypos;
+                    int cx = j * ADT_CELL_SIZE + x;
+                    V9[cy][cx] = cell->ypos;
                 }
             }
-            for (int y=0; y < ADT_CELL_SIZE; y++)
+            for (int y = 0; y < ADT_CELL_SIZE; y++)
             {
-                int cy = i*ADT_CELL_SIZE + y;
-                for (int x=0; x < ADT_CELL_SIZE; x++)
+                int cy = i * ADT_CELL_SIZE + y;
+                for (int x = 0; x < ADT_CELL_SIZE; x++)
                 {
-                    int cx = j*ADT_CELL_SIZE + x;
+                    int cx = j * ADT_CELL_SIZE + x;
                     V8[cy][cx]=cell->ypos;
                 }
             }
+
             // Get custom height
             adt_MCVT *v = adt.cellsMcvt[i][j];
             if (!v)
                 continue;
+
             // get V9 height map
-            for (int y=0; y <= ADT_CELL_SIZE; y++)
+            for (int y = 0; y <= ADT_CELL_SIZE; y++)
             {
-                int cy = i*ADT_CELL_SIZE + y;
-                for (int x=0; x <= ADT_CELL_SIZE; x++)
+                int cy = i * ADT_CELL_SIZE + y;
+                for (int x = 0; x <= ADT_CELL_SIZE; x++)
                 {
-                    int cx = j*ADT_CELL_SIZE + x;
-                    V9[cy][cx]+=v->height_map[y*(ADT_CELL_SIZE*2+1)+x];
+                    int cx = j * ADT_CELL_SIZE + x;
+                    V9[cy][cx] += v->height_map[y * (ADT_CELL_SIZE * 2 + 1) + x];
                 }
             }
             // get V8 height map
-            for (int y=0; y < ADT_CELL_SIZE; y++)
+            for (int y = 0; y < ADT_CELL_SIZE; y++)
             {
-                int cy = i*ADT_CELL_SIZE + y;
-                for (int x=0; x < ADT_CELL_SIZE; x++)
+                int cy = i * ADT_CELL_SIZE + y;
+                for (int x = 0; x < ADT_CELL_SIZE; x++)
                 {
-                    int cx = j*ADT_CELL_SIZE + x;
-                    V8[cy][cx]+=v->height_map[y*(ADT_CELL_SIZE*2+1)+ADT_CELL_SIZE+1+x];
+                    int cx = j * ADT_CELL_SIZE + x;
+                    V8[cy][cx] += v->height_map[y * (ADT_CELL_SIZE * 2 + 1) + ADT_CELL_SIZE + 1 + x];
                 }
             }
         }
@@ -571,18 +625,18 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     //============================================
     float maxHeight = -20000;
     float minHeight =  20000;
-    for (int y=0; y<ADT_GRID_SIZE; y++)
+    for (int y = 0; y < ADT_GRID_SIZE; y++)
     {
-        for(int x=0;x<ADT_GRID_SIZE;x++)
+        for(int x = 0; x < ADT_GRID_SIZE; x++)
         {
             float h = V8[y][x];
             if (maxHeight < h) maxHeight = h;
             if (minHeight > h) minHeight = h;
         }
     }
-    for (int y=0; y<=ADT_GRID_SIZE; y++)
+    for (int y = 0; y <= ADT_GRID_SIZE; y++)
     {
-        for(int x=0;x<=ADT_GRID_SIZE;x++)
+        for (int x = 0; x <= ADT_GRID_SIZE; x++)
         {
             float h = V9[y][x];
             if (maxHeight < h) maxHeight = h;
@@ -593,12 +647,12 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     // Check for allow limit minimum height (not store height in deep ochean - allow save some memory)
     if (CONF_allow_height_limit && minHeight < CONF_use_minHeight)
     {
-        for (int y=0; y<ADT_GRID_SIZE; y++)
-            for(int x=0;x<ADT_GRID_SIZE;x++)
+        for (int y = 0; y < ADT_GRID_SIZE; y++)
+            for (int x = 0; x < ADT_GRID_SIZE; x++)
                 if (V8[y][x] < CONF_use_minHeight)
                     V8[y][x] = CONF_use_minHeight;
-        for (int y=0; y<=ADT_GRID_SIZE; y++)
-            for(int x=0;x<=ADT_GRID_SIZE;x++)
+        for (int y = 0; y <= ADT_GRID_SIZE; y++)
+            for (int x = 0; x <= ADT_GRID_SIZE; x++)
                 if (V9[y][x] < CONF_use_minHeight)
                     V9[y][x] = CONF_use_minHeight;
         if (minHeight < CONF_use_minHeight)
@@ -633,39 +687,39 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             float diff = maxHeight - minHeight;
             if (diff < CONF_float_to_int8_limit)      // As uint8 (max accuracy = CONF_float_to_int8_limit/256)
             {
-                heightHeader.flags|=MAP_HEIGHT_AS_INT8;
+                heightHeader.flags |= MAP_HEIGHT_AS_INT8;
                 step = selectUInt8StepStore(diff);
             }
-            else if (diff<CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
+            else if (diff < CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
             {
-                heightHeader.flags|=MAP_HEIGHT_AS_INT16;
+                heightHeader.flags |= MAP_HEIGHT_AS_INT16;
                 step = selectUInt16StepStore(diff);
             }
         }
 
         // Pack it to int values if need
-        if (heightHeader.flags&MAP_HEIGHT_AS_INT8)
+        if (heightHeader.flags & MAP_HEIGHT_AS_INT8)
         {
-            for (int y=0; y<ADT_GRID_SIZE; y++)
-                for(int x=0;x<ADT_GRID_SIZE;x++)
+            for (int y = 0; y < ADT_GRID_SIZE; y++)
+                for(int x = 0; x < ADT_GRID_SIZE; x++)
                     uint8_V8[y][x] = uint8((V8[y][x] - minHeight) * step + 0.5f);
-            for (int y=0; y<=ADT_GRID_SIZE; y++)
-                for(int x=0;x<=ADT_GRID_SIZE;x++)
+            for (int y = 0; y <= ADT_GRID_SIZE; y++)
+                for(int x = 0; x <= ADT_GRID_SIZE; x++)
                     uint8_V9[y][x] = uint8((V9[y][x] - minHeight) * step + 0.5f);
-            map.heightMapSize+= sizeof(uint8_V9) + sizeof(uint8_V8);
+            map.heightMapSize += sizeof(uint8_V9) + sizeof(uint8_V8);
         }
-        else if (heightHeader.flags&MAP_HEIGHT_AS_INT16)
+        else if (heightHeader.flags & MAP_HEIGHT_AS_INT16)
         {
-            for (int y=0; y<ADT_GRID_SIZE; y++)
-                for(int x=0;x<ADT_GRID_SIZE;x++)
+            for (int y = 0; y < ADT_GRID_SIZE; y++)
+                for(int x = 0; x < ADT_GRID_SIZE; x++)
                     uint16_V8[y][x] = uint16((V8[y][x] - minHeight) * step + 0.5f);
-            for (int y=0; y<=ADT_GRID_SIZE; y++)
-                for(int x=0;x<=ADT_GRID_SIZE;x++)
+            for (int y = 0; y <= ADT_GRID_SIZE; y++)
+                for(int x = 0; x <= ADT_GRID_SIZE; x++)
                     uint16_V9[y][x] = uint16((V9[y][x] - minHeight) * step + 0.5f);
-            map.heightMapSize+= sizeof(uint16_V9) + sizeof(uint16_V8);
+            map.heightMapSize += sizeof(uint16_V9) + sizeof(uint16_V8);
         }
         else
-            map.heightMapSize+= sizeof(V9) + sizeof(V8);
+            map.heightMapSize += sizeof(V9) + sizeof(V8);
     }
 
     // Get from MCLQ chunk (old)
@@ -691,7 +745,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                     if (liquid->flags[y][x] != 0x0F)
                     {
                         liquid_show[cy][cx] = true;
-                        if (liquid->flags[y][x] & (1<<7))
+                        if (liquid->flags[y][x] & (1 << 7))
                             liquid_flags[i][j] |= MAP_LIQUID_TYPE_DARK_WATER;
                         ++count;
                     }
@@ -699,17 +753,17 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             }
 
             uint32 c_flag = cell->flags;
-            if (c_flag & (1<<2))
+            if (c_flag & (1 << 2))
             {
                 liquid_entry[i][j] = 1;
                 liquid_flags[i][j] |= MAP_LIQUID_TYPE_WATER;            // water
             }
-            if (c_flag & (1<<3))
+            if (c_flag & (1 << 3))
             {
                 liquid_entry[i][j] = 2;
                 liquid_flags[i][j] |= MAP_LIQUID_TYPE_OCEAN;            // ocean
             }
-            if (c_flag & (1<<4))
+            if (c_flag & (1 << 4))
             {
                 liquid_entry[i][j] = 3;
                 liquid_flags[i][j] |= MAP_LIQUID_TYPE_MAGMA;            // magma/slime
@@ -835,9 +889,9 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
         int maxX = 0, maxY = 0;
         maxHeight = -20000;
         minHeight = 20000;
-        for (int y=0; y<ADT_GRID_SIZE; y++)
+        for (int y = 0; y < ADT_GRID_SIZE; y++)
         {
-            for(int x=0; x<ADT_GRID_SIZE; x++)
+            for (int x = 0; x < ADT_GRID_SIZE; x++)
             {
                 if (liquid_show[y][x])
                 {
@@ -880,12 +934,41 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             map.liquidMapSize += sizeof(liquid_entry) + sizeof(liquid_flags);
 
         if (!(liquidHeader.flags & MAP_LIQUID_NO_HEIGHT))
-            map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
+            map.liquidMapSize += sizeof(float) * liquidHeader.width * liquidHeader.height;
     }
 
+    // map hole info
+    uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+
+    if (map.liquidMapOffset)
+        map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
+    else
+        map.holesOffset = map.heightMapOffset + map.heightMapSize;
+
+    memset(holes, 0, sizeof(holes));
+    bool hasHoles = false;
+
+    for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
+    {
+        for (int j = 0; j < ADT_CELLS_PER_GRID; ++j)
+        {
+            adt_MCNK * cell = adt.cells[i][j];
+            if (!cell)
+                continue;
+            holes[i][j] = cell->holes;
+            if (!hasHoles && cell->holes != 0)
+                hasHoles = true;
+        }
+    }
+
+    if (hasHoles)
+        map.holesSize = sizeof(holes);
+    else
+        map.holesSize = 0;
+
     // Ok all data prepared - store it
-    FILE *output=fopen(filename2, "wb");
-    if(!output)
+    FILE* output = fopen(filename2, "wb");
+    if (!output)
     {
         printf("Can't create the output file '%s'\n", filename2);
         return false;
@@ -893,7 +976,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     fwrite(&map, sizeof(map), 1, output);
     // Store area data
     fwrite(&areaHeader, sizeof(areaHeader), 1, output);
-    if (!(areaHeader.flags&MAP_AREA_NO_AREA))
+    if (!(areaHeader.flags & MAP_AREA_NO_AREA))
         fwrite(area_flags, sizeof(area_flags), 1, output);
 
     // Store height data
@@ -933,6 +1016,11 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 fwrite(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
         }
     }
+
+    // store hole data
+    if (hasHoles)
+        fwrite(holes, map.holesSize, 1, output);
+
     fclose(output);
 
     return true;
@@ -960,7 +1048,7 @@ void ExtractMapsFromMpq(uint32 build)
     {
         printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
-        sprintf(mpq_map_name, "World/Maps/%s/%s.wdt", map_ids[z].name, map_ids[z].name);
+        sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         WDT_file wdt;
         if (!wdt.loadFile(WorldMpq, mpq_map_name, false))
             continue;
@@ -972,7 +1060,7 @@ void ExtractMapsFromMpq(uint32 build)
                 if (!(wdt.main->adt_list[y][x].flag & 0x1))
                     continue;
 
-                sprintf(mpq_filename, "World/Maps/%s/%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
+                sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(mpq_filename, output_filename, y, x, build);
             }
@@ -1114,17 +1202,15 @@ bool LoadLocaleMPQFile(int locale)
     char const* prefix = NULL;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
+        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
+        // and trying to read them together with new base will not end well
+        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
+           continue;
+
         memset(buff, 0, sizeof(buff));
-        if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
-        {
-            prefix = "";
-            _stprintf(buff, _T("%s/Data/%s/wow-update-%s-%u.MPQ"), input_path, LocalesT[locale], LocalesT[locale], Builds[i]);
-        }
-        else
-        {
-            prefix = Locales[locale];
-            _stprintf(buff, _T("%s/Data/wow-update-%u.MPQ"), input_path, Builds[i]);
-        }
+        prefix = "";
+        _stprintf(buff, _T("%s/Data/%s/wow-update-%s-%u.MPQ"), input_path, LocalesT[locale], LocalesT[locale], Builds[i]);
+
 
         if (!SFileOpenPatchArchive(LocaleMpq, buff, prefix, 0))
         {
@@ -1132,17 +1218,60 @@ bool LoadLocaleMPQFile(int locale)
                 _tprintf(_T("Cannot open patch archive %s\n"), buff);
             continue;
         }
+        else
+            _tprintf(_T("Loaded %s\n"), buff);
     }
-    _stprintf(buff, _T("%s/Data/misc.MPQ"), input_path);
-    SFileOpenPatchArchive(LocaleMpq, buff, "", 0);
 
+    for (int i = 0; i < sizeof(CONF_mpq_dbc_list) / sizeof(char*); i++)
+    {
+        memset(buff, 0, sizeof(buff));
+        prefix = "";
+        _stprintf(buff, _T("%s/Data/%s"), input_path, CONF_mpq_dbc_list[i]);
+
+
+        if (!SFileOpenPatchArchive(LocaleMpq, buff, prefix, 0))
+        {
+            if (GetLastError() != ERROR_FILE_NOT_FOUND)
+                _tprintf(_T("Cannot open patch archive %s\n"), buff);
+            continue;
+        }
+        else
+            _tprintf(_T("Loaded %s\n"), buff);
+    }
+
+
+    for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
+    {
+        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
+        // and trying to read them together with new base will not end well
+        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
+           continue;
+
+        memset(buff, 0, sizeof(buff));
+        prefix = "";
+        _stprintf(buff, _T("%s/Data/wow-update-base-%u.MPQ"), input_path, Builds[i]);
+
+
+        if (!SFileOpenPatchArchive(LocaleMpq, buff, prefix, 0))
+        {
+            if (GetLastError() != ERROR_FILE_NOT_FOUND)
+                _tprintf(_T("Cannot open patch archive %s\n"), buff);
+            continue;
+        }
+        else
+            _tprintf(_T("Loaded %s\n"), buff);
+    }
+
+    printf("\n");
     return true;
 }
 
 void LoadCommonMPQFiles(uint32 build)
 {
     TCHAR filename[512];
+
     _stprintf(filename, _T("%s/Data/world.MPQ"), input_path);
+    _tprintf(_T("Loading common MPQ files\n"));
     if (!SFileOpenArchive(filename, 0, MPQ_OPEN_READ_ONLY, &WorldMpq))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
@@ -1153,9 +1282,6 @@ void LoadCommonMPQFiles(uint32 build)
     int count = sizeof(CONF_mpq_list) / sizeof(char*);
     for (int i = 1; i < count; ++i)
     {
-        if (build < 15211 && !strcmp("world2.MPQ", CONF_mpq_list[i]))   // 4.3.2 and higher MPQ
-            continue;
-
         _stprintf(filename, _T("%s/Data/%s"), input_path, CONF_mpq_list[i]);
         if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
         {
@@ -1169,22 +1295,17 @@ void LoadCommonMPQFiles(uint32 build)
 
     }
 
-    char const* prefix = NULL;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
-        memset(filename, 0, sizeof(filename));
-        if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
-        {
-            prefix = "";
-            _stprintf(filename, _T("%s/Data/wow-update-base-%u.MPQ"), input_path, Builds[i]);
-        }
-        else
-        {
-            prefix = "base";
-            _stprintf(filename, _T("%s/Data/wow-update-%u.MPQ"), input_path, Builds[i]);
-        }
+        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
+        // and trying to read them together with new base will not end well
+        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
+            continue;
 
-        if (!SFileOpenPatchArchive(WorldMpq, filename, prefix, 0))
+        memset(filename, 0, sizeof(filename));
+        _stprintf(filename, _T("%s/Data/wow-update-base-%u.MPQ"), input_path, Builds[i]);
+ 
+        if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
         {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
                 _tprintf(_T("Cannot open patch archive %s\n"), filename);
@@ -1196,12 +1317,13 @@ void LoadCommonMPQFiles(uint32 build)
             _tprintf(_T("Loaded %s\n"), filename);
     }
 
+    printf("\n");
 }
 
 int main(int argc, char * arg[])
 {
     printf("Map & DBC Extractor\n");
-    printf("===================\n\n");
+    printf("===================\n");
 
     HandleArgs(argc, arg);
 
@@ -1230,6 +1352,7 @@ int main(int argc, char * arg[])
             }
 
             printf("Detected client build: %u\n", build);
+            printf("\n");
             break;
         }
 
@@ -1238,10 +1361,12 @@ int main(int argc, char * arg[])
         printf("Detected client build %u for locale %s\n", tempBuild, Locales[i]);
         if (tempBuild > CONF_TargetBuild)
         {
+            SFileCloseArchive(LocaleMpq);
             printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], tempBuild, CONF_TargetBuild);
             continue;
         }
 
+        printf("\n");
         ExtractDBCFiles(i, FirstLocale < 0);
         ExtractDB2Files(i, FirstLocale < 0);
 
@@ -1258,11 +1383,10 @@ int main(int argc, char * arg[])
     if (FirstLocale < 0)
     {
         printf("No locales detected\n");
-
-        // Extract maps
-        ExtractMapsFromMpq(build);
+        return 0;
     }
-    else if (CONF_extract & EXTRACT_MAP)
+
+    if (CONF_extract & EXTRACT_MAP)
     {
         printf("Using locale: %s\n", Locales[FirstLocale]);
 

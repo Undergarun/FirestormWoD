@@ -1,9 +1,28 @@
+/*
+ * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
+ * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+ 
 #include "mpqfile.h"
 #include <deque>
 #include <cstdio>
 #include "StormLib.h"
 
-MPQFile::MPQFile(HANDLE mpq, const char* filename):
+MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) :
     eof(false),
     buffer(0),
     pointer(0),
@@ -12,7 +31,8 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
     HANDLE file;
     if (!SFileOpenFileEx(mpq, filename, SFILE_OPEN_PATCHED_FILE, &file))
     {
-        fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
+        if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
+            fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
         eof = true;
         return;
     }
@@ -22,7 +42,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
 
     if (hi)
     {
-        fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, (uint32)hi);
+        fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, uint32(hi));
         SFileCloseFile(file);
         eof = true;
         return;
@@ -30,7 +50,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
 
     if (size <= 1)
     {
-        fprintf(stderr, "Can't open %s, size = %u!\n", filename, size);
+        fprintf(stderr, "Can't open %s, size = %u!\n", filename, uint32(size));
         SFileCloseFile(file);
         eof = true;
         return;
@@ -40,7 +60,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
     buffer = new char[size];
     if (!SFileReadFile(file, buffer, size, &read) || size != read)
     {
-        fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, size, read);
+        fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, uint32(size), uint32(read));
         SFileCloseFile(file);
         eof = true;
         return;

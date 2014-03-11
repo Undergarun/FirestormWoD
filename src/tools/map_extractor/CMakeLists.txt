@@ -1,5 +1,4 @@
-# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,6 +16,8 @@ include_directories (
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
 )
+
+include_directories(${include_Dirs})
 
 add_executable(mapextractor
   ${sources}

@@ -61,6 +61,10 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             uint64 wallOfCouncilsVortexGuid;
             uint64 councilsVortexGuid;
 
+            // Lei Shi's Vortex
+            uint64 wallOfLeiShisVortexGuid;
+            uint64 leiShisVortexGuid;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
@@ -78,6 +82,9 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 tsulongEventTimer           = 0;
                 wallOfCouncilsVortexGuid    = 0;
                 councilsVortexGuid          = 0;
+
+                wallOfLeiShisVortexGuid     = 0;
+                leiShisVortexGuid           = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -119,6 +126,12 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         break;
                     case GOB_WALL_OF_COUNCILS_VORTEX:
                         wallOfCouncilsVortexGuid = go->GetGUID();
+                        break;
+                    case GOB_WALL_OF_LEI_SHI:
+                        wallOfLeiShisVortexGuid = go->GetGUID();
+                        break;
+                    case GOB_LEI_SHIS_VORTEX:
+                        leiShisVortexGuid = go->GetGUID();
                         break;
                     default:
                         break;
@@ -205,6 +218,10 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         return councilsVortexGuid;
                     case GOB_WALL_OF_COUNCILS_VORTEX:
                         return wallOfCouncilsVortexGuid;
+                    case GOB_WALL_OF_LEI_SHI:
+                        return wallOfLeiShisVortexGuid;
+                    case GOB_LEI_SHIS_VORTEX:
+                        return leiShisVortexGuid;
                     default:
                         break;
                 }

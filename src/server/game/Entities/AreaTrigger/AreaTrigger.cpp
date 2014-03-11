@@ -258,6 +258,29 @@ void AreaTrigger::Update(uint32 p_time)
             }
             break;
         }
+        case 123461:// Get Away!
+        {
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, 60.0f);
+
+            Position pos;
+            GetPosition(&pos);
+
+            for (auto player : playerList)
+            {
+                if (player->IsWithinDist(caster, 40.0f, false))
+                {
+                    if (player->isAlive() && !player->hasForcedMovement)
+                        player->SendApplyMovementForce(true, pos, -3.0f);
+                    else if (!player->isAlive() && player->hasForcedMovement)
+                        player->SendApplyMovementForce(false, pos);
+                }
+                else if (player->hasForcedMovement)
+                    player->SendApplyMovementForce(false, pos);
+            }
+
+            break;
+        }
         case 123811:// Pheromones of Zeal
         {
             std::list<Player*> targetList;
@@ -460,6 +483,19 @@ void AreaTrigger::Remove()
                 for (auto player : playerList)
                     if (player->HasAura(122706))
                         player->RemoveAura(122706);
+                break;
+            }
+            case 123461:// Get Away!
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, 100.0f);
+
+                Position pos;
+                GetPosition(&pos);
+
+                for (auto player : playerList)
+                    player->SendApplyMovementForce(false, pos);
+
                 break;
             }
             default:
