@@ -3271,7 +3271,7 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 
 void Group::SendRaidMarkersUpdate()
 {
-    uint32 mask = RAID_MARKER_NONE;
+    /*uint32 mask = RAID_MARKER_NONE;
 
     for (auto itr : GetRaidMarkers())
         mask |= itr.mask;
@@ -3310,12 +3310,12 @@ void Group::SendRaidMarkersUpdate()
     if (dataBuffer.size())
         data.append(dataBuffer);
 
-    BroadcastPacket(&data, true);
+    BroadcastPacket(&data, true);*/
 }
 
 void Group::AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z)
 {
-    uint32 mask = RAID_MARKER_NONE;
+   /* uint32 mask = RAID_MARKER_NONE;
 
     RaidMarker marker;
     marker.mapId = mapId;
@@ -3347,12 +3347,12 @@ void Group::AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float 
     marker.mask = mask;
 
     m_raidMarkers.push_back(marker);
-    SendRaidMarkersUpdate();
+    SendRaidMarkersUpdate();*/
 }
 
 void Group::RemoveRaidMarker(uint8 markerId)
 {
-    uint32 mask = RAID_MARKER_NONE;
+   /* uint32 mask = RAID_MARKER_NONE;
 
     switch (markerId)
     {
@@ -3383,13 +3383,13 @@ void Group::RemoveRaidMarker(uint8 markerId)
             ++itr;
     }
 
-    SendRaidMarkersUpdate();
+    SendRaidMarkersUpdate();*/
 }
 
 void Group::RemoveAllRaidMarkers()
 {
-    m_raidMarkers.clear();
-    SendRaidMarkersUpdate();
+    //m_raidMarkers.clear();
+    //SendRaidMarkersUpdate();
 }
 
 uint8 Group::GetMemberGroup(uint64 guid) const
