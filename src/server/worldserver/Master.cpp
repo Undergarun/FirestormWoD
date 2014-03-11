@@ -316,7 +316,7 @@ public:
     {
         while (!World::IsStopped())
         {
-            ArenaLog * log;
+            /*ArenaLog * log;
             while(!ArenaLogQueue.empty())
             {
                 ArenaLogQueue.next(log);
@@ -325,7 +325,7 @@ public:
 
                 CharacterDatabase.PExecute("INSERT INTO log_arena (`id`, `timestamp`, `string`) VALUES (0, %u, '%s');", log->timestamp, log->str.c_str());
                 delete log;
-            }
+            }*/
             ACE_Based::Thread::Sleep(1000);
         }
     }
