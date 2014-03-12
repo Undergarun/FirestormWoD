@@ -920,10 +920,11 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
                                 if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _plr->GetGUID())
                                 {
                                     std::list<Unit*> targets;
+                                    std::list<Unit*> tempTargets;
 
-                                    _plr->GetPartyMembers(targets);
+                                    _plr->GetPartyMembers(tempTargets);
 
-                                    for (auto itr : targets)
+                                    for (auto itr : tempTargets)
                                     {
                                         if (itr->GetGUID() == statue->GetGUID() ||
                                             itr->GetGUID() == _plr->GetGUID())
