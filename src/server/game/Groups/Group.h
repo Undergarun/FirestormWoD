@@ -209,7 +209,7 @@ class Group
             uint8       roles;
         };
 
-        typedef std::list<MemberSlot> MemberSlotList;
+        typedef ACE_Based::LockedVector<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
 
         struct RaidMarker

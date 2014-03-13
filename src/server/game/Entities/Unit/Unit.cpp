@@ -13724,7 +13724,7 @@ bool Unit::isTargetableForAttack(bool checkFakeDeath) const
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC))
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC) && GetEntry() != 62983)
         return false;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
@@ -13775,7 +13775,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // can't attack untargetable
     if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE))
-        && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+        && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE) && target->GetEntry() != 62983)
         return false;
 
     if (Player const* playerAttacker = ToPlayer())
@@ -20182,6 +20182,11 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->second.spellId);
         // if (!spellEntry) should be checked at npc_spellclick load
+        if (!spellEntry)
+        {
+            sLog->OutPandashan("HandleSpellClick: spellEntry pointer is NULL!!");
+            return false;
+        }
 
         if (seatId > -1)
         {
@@ -20204,8 +20209,11 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, false, NULL, NULLAURA_EFFECT, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
-                int32 bp0 = seatId + 1;
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0, NULL, origCasterGUID);
+                int32 bp0[MAX_SPELL_EFFECTS];
+                for (int eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
+                    bp0[eff] = spellEntry->Effects[i].BasePoints;
+                bp0[i] = seatId + 1;
+                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0[0], NULL, origCasterGUID);
             }
         }
         else
@@ -20497,6 +20505,10 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     {
         UpdatePosition(x, y, z, orientation, true);
         SendMovementFlagUpdate();
+
+        Position pos;
+        GetPosition(&pos);
+        SendTeleportPacket(pos);
     }
 }
 

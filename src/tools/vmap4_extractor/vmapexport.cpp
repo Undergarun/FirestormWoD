@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
+ * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +9,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -60,26 +61,37 @@
 HANDLE WorldMpq = NULL;
 HANDLE LocaleMpq = NULL;
 
-uint32 CONF_TargetBuild = 17399;              // 5.4.0 17399
+uint32 CONF_TargetBuild = 17399;              // 5.4.0.17399
 
 // List MPQ for extract maps from
 char const* CONF_mpq_list[]=
 {
     "world.MPQ",
+    "model.MPQ", // added in 5.x.x
+    "misc.MPQ", // added in 5.x.x
     "expansion1.MPQ",
     "expansion2.MPQ",
     "expansion3.MPQ",
-    "expansion4.MPQ",
-    "texture.MPQ",
-    "model.MPQ",
-    "misc.MPQ",  //LiquiType.dbc
+    "expansion4.MPQ", // added in 5.x.x
 };
 
-uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516,  16650, 16844, 16965, 17116, 17266, 17325, 17345, 0};
-#define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
+uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516, 16650, 16844, 16965, 17116, 17266, 17345, 17538, 0};
+#define LAST_DBC_IN_DATA_BUILD 15595    // after this build mpqs with dbc are back to locale folder
+#define NEW_BASE_SET_BUILD 16016 // 15211
 
-char* const Locales[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU"};
-TCHAR* const LocalesT[] =
+#define LOCALES_COUNT 12
+
+char const* Locales[LOCALES_COUNT] =
+{
+    "enGB", "enUS",
+    "deDE", "esES",
+    "frFR", "koKR",
+    "zhCN", "zhTW",
+    "enCN", "enTW",
+    "esMX", "ruRU"
+};
+
+TCHAR const* LocalesT[LOCALES_COUNT] =
 {
     _T("enGB"), _T("enUS"),
     _T("deDE"), _T("esES"),
@@ -88,8 +100,6 @@ TCHAR* const LocalesT[] =
     _T("enCN"), _T("enTW"),
     _T("esMX"), _T("ruRU"),
 };
-
-#define LOCALES_COUNT 12
 
 typedef struct
 {
@@ -114,27 +124,37 @@ bool LoadLocaleMPQFile(int locale)
 {
     TCHAR buff[512];
     memset(buff, 0, sizeof(buff));
-    _stprintf(buff, _T("%s/Data/%s/locale-%s.MPQ"), input_path, LocalesT[locale], LocalesT[locale]);
+
+    _stprintf(buff, _T("%s%s/locale-%s.MPQ"), input_path, LocalesT[locale], LocalesT[locale]);
     if (!SFileOpenArchive(buff, 0, MPQ_OPEN_READ_ONLY, &LocaleMpq))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
+        {
+            _tprintf(_T("Loading %s locale MPQs\n"), LocalesT[locale]);
             _tprintf(_T("Cannot open archive %s\n"), buff);
+        }
         return false;
     }
 
+    _tprintf(_T("Loading %s locale MPQs\n"), LocalesT[locale]);
     char const* prefix = NULL;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
+        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
+        // and trying to read them together with new base will not end well
+        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
+            continue;
+
         memset(buff, 0, sizeof(buff));
         if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
         {
             prefix = "";
-            _stprintf(buff, _T("%s/Data/%s/wow-update-%s-%u.MPQ"), input_path, LocalesT[locale], LocalesT[locale], Builds[i]);
+            _stprintf(buff, _T("%s%s/wow-update-%s-%u.MPQ"), input_path, LocalesT[locale], LocalesT[locale], Builds[i]);
         }
         else
         {
             prefix = Locales[locale];
-            _stprintf(buff, _T("%s/Data/wow-update-%u.MPQ"), input_path, Builds[i]);
+            _stprintf(buff, _T("%swow-update-base-%u.MPQ"), input_path, Builds[i]);
         }
 
         if (!SFileOpenPatchArchive(LocaleMpq, buff, prefix, 0))
@@ -144,16 +164,18 @@ bool LoadLocaleMPQFile(int locale)
             continue;
         }
     }
-    _stprintf(buff, _T("%s/Data/misc.MPQ"), input_path);
-    SFileOpenPatchArchive(LocaleMpq, buff, "", 0);
 
+    printf("\n");
     return true;
 }
 
 void LoadCommonMPQFiles(uint32 build)
 {
     TCHAR filename[512];
-    _stprintf(filename, _T("%s/Data/world.MPQ"), input_path);
+
+    _stprintf(filename, _T("%sworld.MPQ"), input_path);
+    _tprintf(_T("Loading common MPQ files\n"));
+
     if (!SFileOpenArchive(filename, 0, MPQ_OPEN_READ_ONLY, &WorldMpq))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
@@ -164,10 +186,7 @@ void LoadCommonMPQFiles(uint32 build)
     int count = sizeof(CONF_mpq_list) / sizeof(char*);
     for (int i = 1; i < count; ++i)
     {
-        if (build < 15211 && !strcmp("world2.MPQ", CONF_mpq_list[i]))   // 4.3.2 and higher MPQ
-            continue;
-
-        _stprintf(filename, _T("%s/Data/%s"), input_path, CONF_mpq_list[i]);
+        _stprintf(filename, _T("%s%s"), input_path, CONF_mpq_list[i]);
         if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
         {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
@@ -177,25 +196,19 @@ void LoadCommonMPQFiles(uint32 build)
         }
         else
             _tprintf(_T("Loaded %s\n"), filename);
-
     }
 
-    char const* prefix = NULL;
     for (int i = 0; Builds[i] && Builds[i] <= CONF_TargetBuild; ++i)
     {
-        memset(filename, 0, sizeof(filename));
-        if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
-        {
-            prefix = "";
-            _stprintf(filename, _T("%s/Data/wow-update-base-%u.MPQ"), input_path, Builds[i]);
-        }
-        else
-        {
-            prefix = "base";
-            _stprintf(filename, _T("%s/Data/wow-update-%u.MPQ"), input_path, Builds[i]);
-        }
+        // Do not attempt to read older MPQ patch archives past this build, they were merged with base
+        // and trying to read them together with new base will not end well
+        if (CONF_TargetBuild >= NEW_BASE_SET_BUILD && Builds[i] < NEW_BASE_SET_BUILD)
+            continue;
 
-        if (!SFileOpenPatchArchive(WorldMpq, filename, prefix, 0))
+        memset(filename, 0, sizeof(filename));
+        _stprintf(filename, _T("%swow-update-base-%u.MPQ"), input_path, Builds[i]);
+ 
+        if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
         {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
                 _tprintf(_T("Cannot open patch archive %s\n"), filename);
@@ -207,8 +220,8 @@ void LoadCommonMPQFiles(uint32 build)
             _tprintf(_T("Loaded %s\n"), filename);
     }
 
+    printf("\n");
 }
-
 
 
 // Local testing functions
@@ -235,31 +248,48 @@ void strToLower(char* str)
 // copied from contrib/extractor/System.cpp
 void ReadLiquidTypeTableDBC()
 {
+    HANDLE localeFile;
+    char localMPQ[512];
+
+    sprintf(localMPQ, "%smisc.MPQ", input_path);
+    if (FileExists(localMPQ)==false)
+    {   // Use misc.mpq
+        printf(localMPQ, "%s/Data/%s/locale-%s.MPQ", input_path);
+    }
+    
+    if (!SFileOpenArchive(localMPQ, 0, MPQ_OPEN_READ_ONLY, &localeFile))
+    {
+        exit(1);
+    }
+    
     printf("Read LiquidType.dbc file...");
 
     HANDLE dbcFile;
-    if (!SFileOpenFileEx(LocaleMpq, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+    if (!SFileOpenFileEx(localeFile, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
     {
-        printf("Fatal error: Cannot find LiquidType.dbc in archive!\n 2");
-        exit(1);
+        if (!SFileOpenFileEx(localeFile, "DBFilesClient\\LiquidType.dbc", SFILE_OPEN_PATCHED_FILE, &dbcFile))
+        {
+            printf("Fatal error: Cannot find LiquidType.dbc in archive!\n");
+            exit(1);
+        }
     }
 
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidType.dbc");
-    if(!dbc.open())
+    DBCFile dbc(localeFile, "DBFilesClient\\LiquidType.dbc");
+    if (!dbc.open())
     {
         printf("Fatal error: Invalid LiquidType.dbc file format!\n");
         exit(1);
     }
 
     size_t LiqType_count = dbc.getRecordCount();
-    size_t LiqType_maxid = dbc.getRecord(LiqType_count - 1).getUInt(0);
+    size_t LiqType_maxid = dbc.getMaxId();
     LiqType = new uint16[LiqType_maxid + 1];
     memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
 
-    for(uint32 x = 0; x < LiqType_count; ++x)
+    for (uint32 x = 0; x < LiqType_count; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    printf("Done! (%u LiqTypes loaded)\n", (unsigned int)LiqType_count);
+    printf("Done! (%lu LiqTypes loaded)\n", LiqType_count);
 }
 
 bool ExtractWmo()
@@ -295,22 +325,22 @@ bool ExtractSingleWmo(std::string& fname)
     char szLocalFile[1024];
     const char * plain_name = GetPlainName(fname.c_str());
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
-    fixnamen(szLocalFile,strlen(szLocalFile));
+    FixNameCase(szLocalFile,strlen(szLocalFile));
 
     if (FileExists(szLocalFile))
         return true;
 
     int p = 0;
-    //Select root wmo files
+    // Select root wmo files
     char const* rchr = strrchr(plain_name, '_');
-    if(rchr != NULL)
+    if (rchr != NULL)
     {
         char cpy[4];
         strncpy((char*)cpy, rchr, 4);
         for (int i = 0; i < 4; ++i)
         {
             int m = cpy[i];
-            if(isdigit(m))
+            if (isdigit(m))
                 p++;
         }
     }
@@ -319,7 +349,7 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     bool file_ok = true;
-    std::cout << "Extracting " << fname << std::endl;
+    //std::cout << "Extracting " << fname << std::endl;
     WMORoot froot(fname);
     if(!froot.open())
     {
@@ -346,7 +376,7 @@ bool ExtractSingleWmo(std::string& fname)
             sprintf(groupFileName, "%s_%03u.wmo", temp, i);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
-            string s = groupFileName;
+            std::string s = groupFileName;
             WMOGroup fgroup(s);
             if(!fgroup.open())
             {
@@ -374,21 +404,28 @@ void ParsMapFiles()
     char fn[512];
     //char id_filename[64];
     char id[10];
-    for (unsigned int i=0; i<map_count; ++i)
+    for (unsigned int i = 0; i < map_count; ++i)
     {
-        sprintf(id,"%03u",map_ids[i].id);
-        sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
-        WDTFile WDT(fn,map_ids[i].name);
+        sprintf(id, "%03u", map_ids[i].id);
+        sprintf(fn, "World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
+        WDTFile WDT(fn, map_ids[i].name);
         if(WDT.init(id, map_ids[i].id))
         {
             printf("Processing Map %u\n[", map_ids[i].id);
-            for (int x=0; x<64; ++x)
+            for (int x = 0; x < 64; ++x)
             {
-                for (int y=0; y<64; ++y)
+                for (int y = 0; y < 64; ++y)
                 {
-                    if (ADTFile *ADT = WDT.GetMap(x,y))
+                    //if (!(WDT.adt_list[x][y].flag & 0x1))
+                    //    continue;
+
+                    if (ADTFile *ADT = WDT.GetMap_obj0(x,y))
                     {
-                        //sprintf(id_filename,"%02u %02u %03u",x,y,map_ids[i].id);//!!!!!!!!!
+                        ADT->init(map_ids[i].id, x, y);
+                        delete ADT;
+                    }
+                    if (ADTFile *ADT = WDT.GetMap_obj1(x,y))
+                    {
                         ADT->init(map_ids[i].id, x, y);
                         delete ADT;
                     }
@@ -404,40 +441,10 @@ void ParsMapFiles()
 void getGamePath()
 {
 #ifdef _WIN32
-    strcpy(input_path,".");
+    strcpy(input_path,"Data\\");
 #else
-    strcpy(input_path,".");
+    strcpy(input_path,"Data/");
 #endif
-}
-
-bool scan_patches(char* scanmatch, std::vector<std::string>& pArchiveNames)
-{
-    int i;
-    char path[512];
-
-    for (i = 1; i <= 99; i++)
-    {
-        if (i != 1)
-        {
-            sprintf(path, "%s-%d.MPQ", scanmatch, i);
-        }
-        else
-        {
-            sprintf(path, "%s.MPQ", scanmatch);
-        }
-#ifdef __linux__
-        if(FILE* h = fopen64(path, "rb"))
-#else
-        if(FILE* h = fopen(path, "rb"))
-#endif
-        {
-            fclose(h);
-            //matches.push_back(path);
-            pArchiveNames.push_back(path);
-        }
-    }
-
-    return(true);
 }
 
 bool processArgv(int argc, char ** argv, const char *versionString)
@@ -494,7 +501,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
         printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
         printf("   -d <path>: Path to the vector data source folder.\n");
-        printf("   -b : target build (default %u)", CONF_TargetBuild);
+        printf("   -b : target build (default %u)\n", CONF_TargetBuild);
         printf("   -? : This message.\n");
     }
 
@@ -534,34 +541,41 @@ int main(int argc, char ** argv)
             printf("Your output directory seems to be polluted, please use an empty directory!\n");
             printf("<press return to exit>");
             char garbage[2];
-            scanf("%c", garbage);
-            return 1;
+            return scanf("%c", garbage);
         }
     }
 
-    printf("Extract %s. Beginning work ....\n",versionString);
+    printf("Extract %s. Beginning work ....\n\n",versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
                     , 0711
 #endif
                     ))
             success = (errno == EEXIST);
 
-    
+    LoadCommonMPQFiles(CONF_TargetBuild);
 
-    int FirstLocale = -1;
+    for (int i = 0; i < LOCALES_COUNT; ++i)
+    {
+        //Open MPQs
+        if (!LoadLocaleMPQFile(i))
+        {
+            if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                printf("Unable to load %s locale archives!\n", Locales[i]);
+            continue;
+        }
 
-        LoadLocaleMPQFile(4);
-        LoadCommonMPQFiles(16057);
-
+        printf("Detected and using locale: %s\n", Locales[i]);
+        break;
+    }
 
     ReadLiquidTypeTableDBC();
 
     // extract data
-    if (success)
-        success = ExtractWmo();
+    //if (success)
+    //    success = ExtractWmo();
 
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     //map.dbc
@@ -571,25 +585,24 @@ int main(int argc, char ** argv)
         if (!dbc->open())
         {
             delete dbc;
-            printf("FATAL ERROR: Map.dbc not found in data file.\n");
+            printf("Fatal error: Invalid Map.dbc file format!\n");
             return 1;
         }
-        map_count=dbc->getRecordCount ();
-        map_ids=new map_id[map_count];
-        for (unsigned int x=0;x<map_count;++x)
+        map_count = dbc->getRecordCount ();
+        map_ids = new map_id[map_count];
+        for (unsigned int x = 0; x < map_count; ++x)
         {
-            map_ids[x].id=dbc->getRecord (x).getUInt(0);
-            strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
-            printf("Map - %s\n",map_ids[x].name);
+            map_ids[x].id = dbc->getRecord(x).getUInt(0);
+            strcpy(map_ids[x].name, dbc->getRecord(x).getString(1));
+            printf("Map - %s\n", map_ids[x].name);
         }
-
 
         delete dbc;
         ParsMapFiles();
         delete [] map_ids;
         //nError = ERROR_SUCCESS;
-        // Extract models, listed in DameObjectDisplayInfo.dbc
-        ExtractGameobjectModels();
+        // Extract models, listed in GameObjectDisplayInfo.dbc
+        ExtractGameobjectModels(&input_path[0]);
     }
 
     SFileCloseArchive(LocaleMpq);

@@ -3114,6 +3114,10 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                     spellInfo->Effects[0].TargetB = 0;
                     break;
+                case 123244:// Hide
+                    spellInfo->Effects[0].Effect = 0;
+                    spellInfo->Effects[2].Effect = 0;
+                    break;
                 case 127424:
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                     spellInfo->Effects[0].TargetB = 0;

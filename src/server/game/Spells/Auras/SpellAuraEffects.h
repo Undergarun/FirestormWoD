@@ -353,6 +353,8 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+
+        void HandleChangeSpellVisualEffect(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 };
 
 namespace JadeCore
