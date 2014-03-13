@@ -2315,16 +2315,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     std::string playerName = player->GetName();
     uint32 memberCount = GetMembersCount();
-    ObjectGuid* memberGuids = new ObjectGuid[memberCount];
-    uint32* memberNameLength = new uint32[memberCount];
-
-    uint8 count = 0;
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
-    {
-        memberGuids[count] = citr->guid;
-        memberNameLength[count] = citr->name.size();
-        count++;
-    }
 
     WorldPacket data(SMSG_PARTY_UPDATE);
 
@@ -2337,15 +2327,14 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
     data.WriteBitInOrder(playerGUID, bitsSelfOrder);
 
-    for (uint32 i = 0; i < memberCount; i++)
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        if (memberGuids[i] == playerGUID)
+        if (citr->guid == playerGUID)
             continue;
 
-        data.WriteBits(memberNameLength[i], 6);
-
+        data.WriteBits(citr->name.size(), 6);
         uint8 bitsOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
-        data.WriteBitInOrder(memberGuids[i], bitsOrder);
+        data.WriteBitInOrder(citr->guid, bitsOrder);
     }
 
     data.WriteBit(leaderGuid[2]);
@@ -2485,12 +2474,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteByteSeq(leaderGuid[5]);
 
     player->GetSession()->SendPacket(&data);
-
-    delete[] memberGuids;
-    delete[] memberNameLength;
-
-    memberGuids = NULL;
-    memberNameLength = NULL;
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)

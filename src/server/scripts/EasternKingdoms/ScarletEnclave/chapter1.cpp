@@ -327,7 +327,11 @@ public:
         if (Creature* anchor = go->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
                 if (Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
-                    CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+                {
+                    npc_unworthy_initiate::npc_unworthy_initiateAI* prisonerAI = CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI());
+                    if (prisonerAI)
+                        prisonerAI->EventStart(anchor, player);
+                }
 
         return false;
     }
