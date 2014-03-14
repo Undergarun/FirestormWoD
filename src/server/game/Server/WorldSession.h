@@ -239,7 +239,7 @@ class CharacterCreateInfo
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 premiumType, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -485,8 +485,6 @@ class WorldSession
         void HandleMoveHoverAck(WorldPacket& recvData);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
-
-        void HandleClientReportError(WorldPacket& recvData);
 
         // character view
         void HandleShowAccountAchievement(WorldPacket& recvData);
@@ -753,6 +751,8 @@ class WorldSession
         void HandleSetSpecialization(WorldPacket& recvPacket);
         void HandleLearnTalents(WorldPacket& recvPacket);
 
+        void HandleArcheologyRequestHistory(WorldPacket& recvPacket);
+
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
@@ -837,6 +837,7 @@ class WorldSession
         void HandleCharRenameOpcode(WorldPacket& recvData);
         void HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
+        void SendPlayerDeclinedNamesResult(uint64 guid, uint32 result);
 
         void HandleTotemDestroyed(WorldPacket& recvData);
         void HandleDismissCritter(WorldPacket& recvData);
@@ -844,6 +845,7 @@ class WorldSession
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
+        void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
         void HandlePVPLogDataOpcode(WorldPacket& recvData);
         void HandleBattleFieldPortOpcode(WorldPacket& recvData);
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
@@ -899,8 +901,6 @@ class WorldSession
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
         void HandleLfgGetStatus(WorldPacket& recvData);
 
-        void SendLfgUpdatePlayer(const LfgUpdateData& updateData);
-        void SendLfgUpdateParty(const LfgUpdateData& updateData, uint32 joinTime = 0);
         void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
         void SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck);
         void SendLfgUpdateSearch(bool update);
@@ -1020,7 +1020,7 @@ class WorldSession
         void HandleSetLootSpecialization(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleTradeInfo(WorldPacket& recvData);
+        void HandleTradeInfo (WorldPacket& recvData);
         void HandleSaveCUFProfiles(WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);

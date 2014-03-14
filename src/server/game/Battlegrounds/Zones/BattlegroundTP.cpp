@@ -685,8 +685,6 @@ void BattlegroundTP::HandleAreaTrigger(Player *Source, uint32 Trigger)
         case 5921:                                          // Horde Start left Water channel
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 
@@ -876,7 +874,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
     }
 }
 
-void BattlegroundTP::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundTP::FillInitialWorldStates(WorldPacket& data)
 {
     data << uint32(BG_TP_FLAG_CAPTURES_ALLIANCE) << uint32(GetTeamScore(ALLIANCE));
     data << uint32(BG_TP_FLAG_CAPTURES_HORDE) << uint32(GetTeamScore(HORDE));

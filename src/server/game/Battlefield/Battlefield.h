@@ -80,7 +80,7 @@ class BfCapturePoint
     public:
         BfCapturePoint(Battlefield* bf);
 
-        virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
 
         // Send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -213,7 +213,7 @@ class Battlefield : public ZoneScript
         virtual bool SetupBattlefield() { return true; }
 
         /// Generate packet which contain all worldstatedata of area
-        virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
 
         /// Update data of a worldstate to all players present in zone
         void SendUpdateWorldState(uint32 field, uint32 value);

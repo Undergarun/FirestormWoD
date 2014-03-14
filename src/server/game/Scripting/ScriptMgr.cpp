@@ -215,7 +215,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
     switch (pData->uiType)
     {
         case CHAT_TYPE_SAY:
-            pSource->MonsterSay(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
             break;
         case CHAT_TYPE_YELL:
             pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
@@ -1217,12 +1217,12 @@ void ScriptMgr::OnShutdown()
     FOREACH_SCRIPT(WorldScript)->OnShutdown();
 }
 
-bool ScriptMgr::OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target)
+bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 {
     ASSERT(source);
     // target can be NULL.
 
-    GET_SCRIPT_RET(AchievementCriteriaScript, data->ScriptId, tmpscript, false);
+    GET_SCRIPT_RET(AchievementCriteriaScript, scriptId, tmpscript, false);
     return tmpscript->OnCheck(source, target);
 }
 

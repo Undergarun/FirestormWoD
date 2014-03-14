@@ -325,6 +325,7 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
         data.WriteBits(str.length(), 12);
         data.FlushBits();
         data.WriteString(str);
+        //sWorld->SendGlobalGMMessage(&data); NO MORE OF THIS PLEASE THIS IS FLOODING MY SCREEN FOR NOTHIN'
     }
 }
 

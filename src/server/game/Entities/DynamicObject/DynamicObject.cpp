@@ -17,7 +17,6 @@
  */
 
 #include "Common.h"
-#include "ByteBuffer.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
@@ -79,19 +78,22 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type)
 {
+    _spell = spell;
+    _type = type;
+
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spellId, GetPositionX(), GetPositionY());
+        sLog->outError(LOG_FILTER_GENERAL, "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
     WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetPhaseMask());
 
-    SetEntry(spellId);
+    SetEntry(spell->Id);
     SetObjectScale(1.0f);
     SetUInt64Value(DYNAMICOBJECT_CASTER, caster->GetGUID());
 
@@ -102,14 +104,14 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
     // I saw sniffed...
 
     // Blizz set visual spell Id in 3 first byte of DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID after 5.X
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
     if (spellInfo)
     {
         uint32 visual = spellInfo->SpellVisual[0] ? spellInfo->SpellVisual[0] : spellInfo->SpellVisual[1];
         SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
     }
 
-    SetUInt32Value(DYNAMICOBJECT_SPELLID, spellId);
+    SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
 
@@ -133,7 +135,7 @@ void DynamicObject::Update(uint32 p_time)
     if (_aura)
     {
         if (!_aura->IsRemoved())
-            _aura->UpdateOwner(p_time, this, _aura->GetId());
+            _aura->UpdateOwner(p_time, this);
 
         // _aura may be set to null in Aura::UpdateOwner call
         if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))

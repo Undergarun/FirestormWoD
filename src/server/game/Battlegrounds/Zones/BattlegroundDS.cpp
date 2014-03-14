@@ -200,8 +200,6 @@ void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
                 setPipeKnockBackCount(0);
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 }
@@ -212,7 +210,7 @@ bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundDS::FillInitialWorldStates(ByteBuffer &data)
+void BattlegroundDS::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(3610) << uint32(1);                                              // 9 show
     UpdateArenaWorldState();

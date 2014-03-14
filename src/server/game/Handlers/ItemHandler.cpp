@@ -335,8 +335,8 @@ void WorldSession::SendItemDb2Reply(uint32 entry)
     if (!proto)
     {
         data << uint32(0);          // size of next block
-        data << uint32(time(NULL)); // hotfix date
         data << uint32(DB2_REPLY_ITEM);
+        data << uint32(time(NULL)); // hotfix date
         data << uint32(-1);         // entry
         return;
     }
@@ -529,6 +529,12 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
 void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SELL_ITEM");
+
+    time_t now = time(NULL);
+    if (now - timeLastSellItemOpcode < 1)
+        return;
+    else
+       timeLastSellItemOpcode = now;
 
     ObjectGuid vendorguid;
     ObjectGuid itemguid;
@@ -1509,7 +1515,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     }
 
     // maybe not correct check  (it is better than nothing)
-    if (item->GetTemplate()->MaxCount > 0)
+    if (item->GetTemplate()->MaxCount > 0 || item->IsConjuredConsumable())
     {
         _player->SendEquipError(EQUIP_ERR_CANT_WRAP_UNIQUE, item, NULL);
         return;
@@ -2177,7 +2183,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     if (!reforgeEntry)
     {
         // Reset the item
-        if (item->IsEquipped())
+        if (item->IsEquipped() && !item->IsBroken())
             player->ApplyReforgeEnchantment(item, false);
 
         item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, 0);
@@ -2222,7 +2228,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
 
     SendReforgeResult(true);
 
-    if (item->IsEquipped())
+    if (item->IsEquipped() && !item->IsBroken())
         player->ApplyReforgeEnchantment(item, true);
 }
 
@@ -2350,7 +2356,6 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     }
 
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
-    // Must apply the three flags
     item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
     item->SetState(ITEM_CHANGED, player);
 

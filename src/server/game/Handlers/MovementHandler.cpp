@@ -185,6 +185,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
 
+    for (uint8 i = 0; i < 9; ++i)
+        GetPlayer()->UpdateSpeed(UnitMoveType(i), true);
+
     // honorless target
     if (GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
@@ -517,12 +520,6 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 
     uint8 bytesOrder[8] = { 7, 0, 3, 6, 5, 2, 4, 1 };
     recvPacket.ReadBytesSeq(guid, bytesOrder);
-
-    if (GetPlayer()->IsInWorld())
-    {
-        if (_player->m_mover->GetGUID() != guid)
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, uint64(guid), GetLogNameForGuid(guid), GUID_ENPART(guid), _player->m_mover->GetGUID());
-    }
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -604,7 +601,7 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     summonerGuid[7] = recvData.ReadBit();
     summonerGuid[3] = recvData.ReadBit();
     summonerGuid[6] = recvData.ReadBit();
-
+    
     agree = recvData.ReadBit();
 
     summonerGuid[4] = recvData.ReadBit();

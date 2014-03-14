@@ -115,8 +115,6 @@ void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
         case 4537:                                          // buff trigger?
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 
@@ -124,7 +122,7 @@ void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid, Source);
 }
 
-void BattlegroundNA::FillInitialWorldStates(ByteBuffer &data)
+void BattlegroundNA::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0xa11) << uint32(1);           // 9
     UpdateArenaWorldState();

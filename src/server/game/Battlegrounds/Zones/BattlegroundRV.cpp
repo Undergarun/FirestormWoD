@@ -163,13 +163,11 @@ void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
         case 5474:
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 }
 
-void BattlegroundRV::FillInitialWorldStates(ByteBuffer &data)
+void BattlegroundRV::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(BG_RV_WORLD_STATE_A) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));
     data << uint32(BG_RV_WORLD_STATE_H) << uint32(GetAlivePlayersCountByTeam(HORDE));

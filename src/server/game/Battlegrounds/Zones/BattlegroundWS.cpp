@@ -651,8 +651,6 @@ void BattlegroundWS::HandleAreaTrigger(Player* Source, uint32 Trigger)
         case 4629:                                          // unk4
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 
@@ -806,7 +804,7 @@ WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
     }
 }
 
-void BattlegroundWS::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
 {
     data << uint32(BG_WS_FLAG_CAPTURES_ALLIANCE) << uint32(GetTeamScore(ALLIANCE));
     data << uint32(BG_WS_FLAG_CAPTURES_HORDE) << uint32(GetTeamScore(HORDE));

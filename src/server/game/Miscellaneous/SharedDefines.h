@@ -221,7 +221,7 @@ enum eclipseState
 {
     ECLIPSE_NONE,
     ECLIPSE_LUNAR,
-    ECLIPSE_SOLAR
+    ECLIPSE_SOLAR,
 };
 
 // valid classes for creature_template.unit_class
@@ -739,7 +739,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK19                            = 0x00080000, // 19
     SPELL_ATTR9_UNK20                            = 0x00100000, // 20
     SPELL_ATTR9_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR9_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR9_AFFECTED_BY_SPELLSWAP            = 0x00400000, // 22 Can be swapped by 332 or 333 auras
     SPELL_ATTR9_UNK23                            = 0x00800000, // 23 Asira Dismount 103720
     SPELL_ATTR9_UNK24                            = 0x01000000, // 24
     SPELL_ATTR9_UNK25                            = 0x02000000, // 25
@@ -3678,7 +3678,7 @@ enum SkillType
     SKILL_DESTRUCTION              = 593,
     SKILL_HOLY2                    = 594,
     SKILL_DISCIPLINE               = 613,
-    SKILL_OLD_ROGUE                = 633,    // Old SKILL_LOCKPICKING
+    SKILL_LOCKPICKING              = 633,
     SKILL_PET_BAT                  = 653,
     SKILL_PET_HYENA                = 654,
     SKILL_PET_BIRD_OF_PREY         = 655,
@@ -3751,7 +3751,7 @@ enum SkillType
     SKILL_LANG_PANDAREN_N          = 905, // 5.0.5
     SKILL_LANG_PANDAREN_A          = 906, // 5.0.5
     SKILL_LANG_PANDAREN_H          = 907, // 5.0.5
-    SKILL_LOCKPICKING              = 921, // New LOCKPICKING in MoP 5.0.5
+    SKILL_NEW_ROGUE                = 921, // New in MoP 5.0.5
     SKILL_NEW_SHAMAN               = 924, // New in MoP 5.0.5
     SKILL_NEW_PET_IMP              = 927, // New in MoP 5.0.5
     SKILL_NEW_PET_VOIDWALKER       = 928, // New in MoP 5.0.5
@@ -4036,8 +4036,8 @@ enum DiminishingGroup
     DIMINISHING_FEAR                = 10,
     DIMINISHING_HORROR              = 11,
     DIMINISHING_MIND_CONTROL        = 12,
-    DIMINISHING_ROOT                = 13,
-    DIMINISHING_STUN                = 14,
+    DIMINISHING_RANDOM_ROOT         = 13,
+    DIMINISHING_RANDOM_STUN         = 14,
     DIMINISHING_SCATTER_SHOT        = 15,
     DIMINISHING_SILENCE             = 16,
     DIMINISHING_SLEEP               = 17,
@@ -4080,6 +4080,7 @@ enum SummonType
 
 enum EventId
 {
+    EVENT_SPELLCLICK        = 1001,
     EVENT_CHARGE            = 1003,
     EVENT_JUMP              = 1004
 };

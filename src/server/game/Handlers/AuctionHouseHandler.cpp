@@ -312,6 +312,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     Item* items[MAX_AUCTION_ITEMS];
 
     uint32 finalCount = 0;
+    uint32 true_item_entry = 0;
 
     for (uint32 i = 0; i < itemsCount; ++i)
     {
@@ -322,6 +323,15 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
             return;
         }
+
+        if (!true_item_entry)
+            true_item_entry = item->GetEntry();
+        else
+            if (item->GetEntry() != true_item_entry)
+            {
+                SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
+                return;
+            }
 
         if (sAuctionMgr->GetAItem(item->GetGUIDLow()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
             item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
@@ -546,7 +556,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     if (!auction || auction->owner == player->GetGUIDLow())
     {
         //you cannot bid your own auction:
-        SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
+        //SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
         return;
     }
 
@@ -559,14 +569,14 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         price < auction->bid + auction->GetAuctionOutBid())
     {
         // client already test it but just in case ...
-        SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_HIGHER_BID);
+        //SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_HIGHER_BID);
         return;
     }
 
     if (!player->HasEnoughMoney(price))
     {
         // client already test it but just in case ...
-        SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+        //SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_NOT_ENOUGHT_MONEY);
         return;
     }
 
@@ -598,7 +608,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
 
-        SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_OK);
+        //SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_OK);
     }
     else
     {
@@ -620,7 +630,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
         sAuctionMgr->SendAuctionWonMail(auction, trans);
 
-        SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_OK);
+        //SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_OK);
 
         auction->DeleteFromDB(trans);
 
@@ -643,12 +653,12 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
 
     recvData >> auctionId;
 
-    uint8 bitOrder[8] = { 1, 5, 4, 2, 7, 6, 0, 3 };
+    uint8 bitOrder[8] = {1, 5, 4, 2, 7, 6, 0, 3};
     recvData.ReadBitInOrder(auctioneer, bitOrder);
 
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = { 3, 5, 2, 7, 1, 0, 6, 4 };
+    uint8 byteOrder[8] = {3, 5, 2, 7, 1, 0, 6, 4};
     recvData.ReadBytesSeq(auctioneer, byteOrder);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);

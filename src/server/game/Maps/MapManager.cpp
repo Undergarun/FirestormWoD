@@ -40,7 +40,6 @@ MapManager::MapManager()
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
-    m_mapDiffLimit = false;
 }
 
 MapManager::~MapManager()
@@ -163,7 +162,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         if (player->getLevel() < 85)
             return false;
 
-    if (!entry->IsDungeon())
+    if (!entry->IsDungeon() || (entry->IsDungeon() && entry->Expansion() < 4))
         return true;
 
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);

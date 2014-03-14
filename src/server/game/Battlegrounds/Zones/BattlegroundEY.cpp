@@ -438,8 +438,6 @@ void BattlegroundEY::HandleAreaTrigger(Player* Source, uint32 Trigger)
         case 5866:
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 }
@@ -852,7 +850,7 @@ void BattlegroundEY::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     }
 }
 
-void BattlegroundEY::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundEY::FillInitialWorldStates(WorldPacket& data)
 {
     data << uint32(EY_HORDE_BASE) << uint32(m_TeamPointsCount[BG_TEAM_HORDE]);
     data << uint32(EY_ALLIANCE_BASE) << uint32(m_TeamPointsCount[BG_TEAM_ALLIANCE]);

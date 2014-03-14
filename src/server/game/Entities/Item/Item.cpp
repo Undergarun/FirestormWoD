@@ -499,8 +499,8 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     {
         if (CanUpgrade())
         {
-            SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+             SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
+             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
         }
     }
     else
@@ -596,41 +596,9 @@ Player* Item::GetOwner()const
     return ObjectAccessor::FindPlayer(GetOwnerGUID());
 }
 
-uint32 Item::GetSkill()
+uint32 Item::GetSkill() const
 {
-    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
-    {
-        SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
-        SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
-        SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
-        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
-        SKILL_FISHING
-    };
-
-    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
-    {
-        0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
-    };
-
-    ItemTemplate const* proto = GetTemplate();
-
-    switch (proto->Class)
-    {
-        case ITEM_CLASS_WEAPON:
-            if (proto->SubClass >= MAX_ITEM_SUBCLASS_WEAPON)
-                return 0;
-            else
-                return item_weapon_skills[proto->SubClass];
-
-        case ITEM_CLASS_ARMOR:
-            if (proto->SubClass >= MAX_ITEM_SUBCLASS_ARMOR)
-                return 0;
-            else
-                return item_armor_skills[proto->SubClass];
-
-        default:
-            return 0;
-    }
+    return GetTemplate()->GetSkill();
 }
 
 int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
@@ -927,7 +895,15 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
         if (proto->InventoryType == INVTYPE_WEAPON &&
             (spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONMAINHAND) ||
              spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONOFFHAND)))
+        {
+
+            // Single-Minded Fury
+            // TODO: needs to be fixed correct way
+            if (spellInfo->Id == 81099)
+                return false;
+
             return true;
+        }
         else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->InventoryType)) == 0 && spellInfo->Id != 100130) // Hack Fix Wild Strikes
             return false;                                   // inventory type not present in mask
     }
@@ -1298,7 +1274,7 @@ bool Item::CanBeTransmogrified() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats())
+    if (!HasStats() && !HasSpells() && (proto->Quality < ITEM_QUALITY_RARE))
         return false;
 
     return true;
@@ -1327,13 +1303,13 @@ bool Item::CanTransmogrify() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
         return true;
 
-    if (!HasStats())
+    if (!HasStats() && !HasSpells())
         return false;
 
     return true;
 }
 
-bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier)
+bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier)
 {
     if (!transmogrifier || !transmogrified)
         return false;
@@ -1353,16 +1329,62 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* t
         proto1->InventoryType == INVTYPE_FINGER ||
         proto1->InventoryType == INVTYPE_TRINKET ||
         proto1->InventoryType == INVTYPE_AMMO ||
-        proto1->InventoryType == INVTYPE_QUIVER)
+        proto1->InventoryType == INVTYPE_QUIVER || 
+        proto1->InventoryType == INVTYPE_NON_EQUIP ||
+        proto1->InventoryType == INVTYPE_TABARD ||
+        proto1->InventoryType == INVTYPE_HOLDABLE)
         return false;
 
-    if (proto1->SubClass != proto2->SubClass && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (proto2->InventoryType == INVTYPE_BAG ||
+        proto2->InventoryType == INVTYPE_RELIC ||
+        proto2->InventoryType == INVTYPE_BODY ||
+        proto2->InventoryType == INVTYPE_FINGER ||
+        proto2->InventoryType == INVTYPE_TRINKET ||
+        proto2->InventoryType == INVTYPE_AMMO ||
+        proto2->InventoryType == INVTYPE_QUIVER || 
+        proto2->InventoryType == INVTYPE_NON_EQUIP ||
+        proto2->InventoryType == INVTYPE_TABARD ||
+        proto2->InventoryType == INVTYPE_HOLDABLE)
         return false;
 
-    if (proto1->InventoryType != proto2->InventoryType &&
-        (proto1->Class != ITEM_CLASS_WEAPON || (proto2->InventoryType != INVTYPE_WEAPONMAINHAND && proto2->InventoryType != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->Class != ITEM_CLASS_ARMOR || (proto1->InventoryType != INVTYPE_CHEST && proto2->InventoryType != INVTYPE_ROBE && proto1->InventoryType != INVTYPE_ROBE && proto2->InventoryType != INVTYPE_CHEST)))
+    if (proto1->Class != proto2->Class)
         return false;
+
+    if (proto1->SubClass != proto2->SubClass && !proto1->IsRangedWeapon() && !proto2->IsRangedWeapon())
+        return false;
+
+    if (proto1->IsRangedWeapon() && proto2->IsRangedWeapon())
+        return true;
+
+    if (proto1->InventoryType != proto2->InventoryType)
+    {
+        if (proto1->Class == ITEM_CLASS_WEAPON && proto2->Class == ITEM_CLASS_WEAPON)
+        {
+            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND || proto1->InventoryType == INVTYPE_WEAPONOFFHAND) &&
+                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||proto2->InventoryType == INVTYPE_WEAPONOFFHAND)))
+                return false;
+        }
+        else if (proto2->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
+        {
+            if (!((proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE) &&
+                (proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE)))
+                return false;
+        }
+    }
+
+    // Check armor types
+    if (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR)
+    {
+        uint32 skill1 = proto1->GetSkill();
+        uint32 skill2 = proto2->GetSkill();
+        
+        if ((skill1 == SKILL_PLATE_MAIL || skill1 == SKILL_LEATHER ||
+            skill1 == SKILL_MAIL || skill1 == SKILL_CLOTH) ||
+            (skill2 == SKILL_PLATE_MAIL || skill2 == SKILL_LEATHER ||
+            skill2 == SKILL_MAIL || skill2 == SKILL_CLOTH))
+            if (skill1 != skill2)
+                return false;
+    }
 
     return true;
 }
@@ -1375,6 +1397,16 @@ bool Item::HasStats() const
     ItemTemplate const* proto = GetTemplate();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         if (proto->ItemStat[i].ItemStatValue != 0)
+            return true;
+
+    return false;
+}
+
+bool Item::HasSpells() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        if (proto->Spells[i].SpellId != 0)
             return true;
 
     return false;
@@ -1582,6 +1614,11 @@ int32 Item::GetReforgableStat(ItemModType statType) const
     return 0;
 }
 
+bool Item::IsPotion() const
+{
+    return GetTemplate()->IsPotion();
+}
+
 bool Item::IsPvPItem() const
 {
     ItemTemplate const* proto = GetTemplate();
@@ -1595,7 +1632,7 @@ bool Item::IsPvPItem() const
             return true;
     }
 
-    for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         int32 spell = proto->Spells[i].SpellId;
         if (spell == 132586 || spell == 139891)
@@ -1642,7 +1679,6 @@ bool Item::CanUpgrade() const
     if (proto->ItemLevel < 458)
         return false;
 
-    // August Celestials's cloaks can be upgraded
     if (proto->Quality == ITEM_QUALITY_LEGENDARY && !IsLegendaryCloak())
         return false;
 
@@ -1650,6 +1686,9 @@ bool Item::CanUpgrade() const
         return false;
 
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    if (!HasStats())
         return false;
 
     // PvP item can't be upgraded after Season 12

@@ -239,8 +239,6 @@ void BattlegroundAB::HandleAreaTrigger(Player* Source, uint32 Trigger)
         case 4674:                                          // Unk3
             //break;
         default:
-            //sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            //Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 }
@@ -296,7 +294,7 @@ int32 BattlegroundAB::_GetNodeNameId(uint8 node)
     return 0;
 }
 
-void BattlegroundAB::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundAB::FillInitialWorldStates(WorldPacket& data)
 {
     const uint8 plusArray[] = {0, 2, 3, 0, 1};
 
@@ -529,7 +527,6 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         else
             SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
     }
-
     PlaySoundToAll(sound);
 }
 

@@ -74,6 +74,16 @@ void LoadSkillDiscoveryTable()
         uint32 reqSkillValue   = fields[2].GetUInt16();
         float  chance          = fields[3].GetFloat();
 
+        if (spellId > 0)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+            if (!spellInfo)
+            {
+                sLog->outError(LOG_FILTER_SQL, "There is not existed spell (ID: %i) in `spellId` field in `skill_discovery_template` table", spellId);
+                continue;
+            }
+        }
+
         if (chance <= 0)                                    // chance
         {
             ssNonDiscoverableEntries << "spellId = " << spellId << " reqSkillOrSpell = " << reqSkillOrSpell

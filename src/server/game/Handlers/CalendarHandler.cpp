@@ -47,10 +47,8 @@ SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ Structure unkown ]
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
-    // Look like that function make random crashs ...
-    // @TODO: Check the code
     return;
-    
+
     uint64 guid = _player->GetGUID();
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GET_CALENDAR [" UI64FMTD "]", guid);
 
@@ -74,7 +72,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*it))
         {
             ObjectGuid creatorGuid = calendarEvent->GetCreatorGUID();
-            ObjectGuid guildGuid = 0;
+            ObjectGuid guildGuid = NULL;
             if (calendarEvent->GetGuildId())
                 guildGuid = MAKE_NEW_GUID(calendarEvent->GetGuildId(), 0, HIGHGUID_GUILD);
             std::string title = calendarEvent->GetTitle();
@@ -190,7 +188,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
 
-            ObjectGuid creatorGuid = invite ? invite->GetSenderGUID() : 0;
+            ObjectGuid creatorGuid = invite ? invite->GetSenderGUID() : NULL;
 
             uint8 bitsOrder[8] = { 1, 6, 2, 3, 5, 7, 4, 0 };
             data.WriteBitInOrder(creatorGuid, bitsOrder);

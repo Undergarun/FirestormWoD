@@ -583,6 +583,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             recvData.hexlike();
             return;
     }
+
     std::string message;
     std::string prefix;
     std::string targetName;
@@ -591,8 +592,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
     {
         case CHAT_MSG_WHISPER:
         {
-            uint32 msgLen = recvData.ReadBits(8) << 1;
-            msgLen += recvData.ReadBit();
+            uint32 msgLen = recvData.ReadBits(9);
             uint32 prefixLen = recvData.ReadBits(5);
             uint32 targetLen = recvData.ReadBits(8);
             recvData.FlushBits();
@@ -606,8 +606,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             uint32 prefixLen = recvData.ReadBits(5);
             uint32 msgLen = recvData.ReadBits(8);
             recvData.FlushBits();
-            message = recvData.ReadString(msgLen);
             prefix = recvData.ReadString(prefixLen);
+            message = recvData.ReadString(msgLen);
             break;
         }
         case CHAT_MSG_RAID:
@@ -707,8 +707,19 @@ void WorldSession::HandleEmoteOpcode(WorldPacket & recvData)
     if (!GetPlayer()->isAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         return;
 
+    if (!GetPlayer()->CanSpeak())
+    {
+        std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
+        SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+        recvData.rfinish(); // Prevent warnings
+        return;
+    }
+
+    GetPlayer()->UpdateSpeakTime();
+
     uint32 emote;
     recvData >> emote;
+
     sScriptMgr->OnPlayerEmote(GetPlayer(), emote);
     GetPlayer()->HandleEmoteCommand(emote);
 }
@@ -724,7 +735,7 @@ namespace JadeCore
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 ObjectGuid playerGuid = i_player.GetGUID();
-                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : 0;
+                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : NULL;
 
                 data.Initialize(SMSG_TEXT_EMOTE);
                 data.WriteBit(playerGuid[0]);
@@ -784,6 +795,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
         return;
     }
 
+    GetPlayer()->UpdateSpeakTime();
+
     uint32 text_emote, emoteNum;
     ObjectGuid guid;
 
@@ -834,7 +847,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
     cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 
-    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
+    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, 0, unit);
 
     //Send scripted event call
     if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())

@@ -170,6 +170,13 @@ DBCStorage <QuestSortEntry>              sQuestSortStore(QuestSortEntryfmt);
 DBCStorage <QuestXPEntry>                sQuestXPStore(QuestXPfmt);
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
+
+DBCStorage <ResearchBranchEntry> sResearchBranchStore(ResearchBranchfmt);
+DBCStorage <ResearchSiteEntry> sResearchSiteStore(ResearchSitefmt);
+std::set<ResearchSiteEntry const*> sResearchSiteSet;
+DBCStorage <ResearchProjectEntry> sResearchProjectStore(ResearchProjectfmt);
+std::set<ResearchProjectEntry const*> sResearchProjectSet;
+
 DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingStatDistributionfmt);
 DBCStorage <ScalingStatValuesEntry>      sScalingStatValuesStore(ScalingStatValuesfmt);
 
@@ -468,6 +475,35 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestSortStore,              dbcPath, "QuestSort.dbc");                                                    // 17399
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sRandomPropertiesPointsStore, dbcPath, "RandPropPoints.dbc");                                               // 17399
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sResearchBranchStore,      dbcPath, "ResearchBranch.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sResearchProjectStore,     dbcPath, "ResearchProject.dbc");
+    for (uint32 i =0; i < sResearchProjectStore.GetNumRows(); ++i)
+    {
+        ResearchProjectEntry const* rp = sResearchProjectStore.LookupEntry(i);
+        if (!rp)
+            continue;
+        if (rp->branchId == 29) // unused
+            continue;
+        sResearchProjectSet.insert(rp);
+    }
+    //sResearchProjectStore.Clear();
+    LoadDBC(availableDbcLocales, bad_dbc_files, sResearchSiteStore,        dbcPath, "ResearchSite.dbc");
+    for (uint32 i =0; i < sResearchSiteStore.GetNumRows(); ++i)
+    {
+        ResearchSiteEntry const* rs = sResearchSiteStore.LookupEntry(i);
+        if (!rs)
+            continue;
+        if (rs->ID == 140           // template
+            || rs->ID == 142        // template
+            || rs->ID == 161        // template
+            || rs->ID == 471        // vashj'ir
+            || rs->ID == 473        // vashj'ir
+            || rs->ID == 475)       // vashj'ir
+            continue;
+        sResearchSiteSet.insert(rs);
+    }
+    //sResearchSiteStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore,dbcPath, "ScalingStatDistribution.dbc");                                      // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatValuesStore,      dbcPath, "ScalingStatValues.dbc");                                            // 17399

@@ -1876,7 +1876,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
         data.WriteByteSeq(playerGuid[2]);
         data.WriteByteSeq(playerGuid[3]);
 
-        BroadcastPacket(&data);
+        BroadcastPacket(&data);        
 
         sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));
     }

@@ -494,7 +494,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
-        void Update(uint32 time, uint32 entry);                         // overwrited Unit::Update
+        void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
         uint32 GetEquipmentId() const { return GetCreatureTemplate()->equipmentId; }
 
@@ -555,6 +555,19 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
+
+        bool isCanGiveSpell(Unit* /*caster*/)
+        {
+            if (IsPetGuardianStuff())
+                return true;
+
+            // TODO: we need to make a list spells that can be stolen from bosses/rare elites (there are some exceptions)
+            uint32 rank = GetCreatureTemplate()->rank;
+            if (rank > CREATURE_ELITE_NORMAL)
+                return false;
+
+            return true;
+        }
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         inline CreatureAI* AI() const { return (CreatureAI*)i_AI; }
@@ -653,6 +666,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool canStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;
+        float GetAggroRange(Unit const* target) const;
 
         void SendAIReaction(AiReaction reactionType);
 
@@ -661,6 +675,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
         Player* SelectNearestPlayer(float distance = 0) const;
         Player* SelectNearestPlayerNotGM(float distance = 0) const;
+        Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
 
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);
@@ -768,11 +783,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void SetLockAI(bool lock) { m_AI_locked = lock; }
 
-        inline bool IsAlreadyUpdated() const { return m_alreadyUpdated; }
-        inline void SetUpdated(bool value) { m_alreadyUpdated = value; }
-        inline uint32 GetLastUpdateTime() const { return m_lastUpdateTime; }
-        inline void SetLastUpdateTime(uint32 time) { m_lastUpdateTime = time; }
-
         uint32 m_LOSCheckTimer;
         bool m_LOSCheck_creature;
         bool m_LOSCheck_player;
@@ -790,7 +800,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 m_lootRecipientGroup;
 
         /// Timers
-        uint32 m_lastUpdateTime;                            // (msecs) timestamp of last call of Creature::Update
         time_t m_corpseRemoveTime;                          // (msecs) timer for death or corpse disappearance
         time_t m_respawnTime;                               // (secs)  time of next respawn
         uint32 m_respawnDelay;                              // (secs)  delay between corpse disappearance and respawning
@@ -809,7 +818,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool m_AlreadySearchedAssistance;
         bool m_regenHealth;
         bool m_AI_locked;
-        bool m_alreadyUpdated;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;

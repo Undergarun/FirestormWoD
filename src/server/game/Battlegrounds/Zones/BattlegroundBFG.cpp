@@ -61,7 +61,7 @@ BattlegroundBFG::BattlegroundBFG()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_BFG_HAS_BEGUN;
 }
 
-BattlegroundBFG::~BattlegroundBFG() { }
+BattlegroundBFG::~BattlegroundBFG() {}
 
 void BattlegroundBFG::PostUpdateImpl(uint32 diff)
 {
@@ -230,7 +230,6 @@ void BattlegroundBFG::AddPlayer(Player* player)
 }
 
 void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/) { }
-
 void BattlegroundBFG::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
     // this is  wrong way to implement these things. On official it done by gameobject spell cast.
@@ -287,7 +286,7 @@ int32 BattlegroundBFG::_GetNodeNameId(uint8 node)
     return 0;
 }
 
-void BattlegroundBFG::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundBFG::FillInitialWorldStates(WorldPacket& data)
 {
     const uint8 plusArray[] = { 0, 2, 3, 0, 1 };
 
@@ -677,6 +676,7 @@ WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
             WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(GILNEAS_BG_GraveyardIds[nodes[i]]);
+
             if (!entry)
                 continue;
 
@@ -688,7 +688,6 @@ WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
                 good_entry = entry;
             }
         }
-
         nodes.clear();
     }
 

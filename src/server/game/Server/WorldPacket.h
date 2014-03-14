@@ -59,4 +59,3 @@ class WorldPacket : public ByteBuffer
         z_stream_s* _compressionStream;
 };
 #endif
-

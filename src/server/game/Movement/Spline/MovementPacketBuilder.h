@@ -26,7 +26,6 @@ using G3D::Vector3;
 
 class ByteBuffer;
 class WorldPacket;
-class Unit;
 
 namespace Movement
 {

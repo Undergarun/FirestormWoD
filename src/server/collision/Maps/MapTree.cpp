@@ -162,10 +162,13 @@ namespace VMAP
             return false;
 
         // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-        ASSERT(maxDist < std::numeric_limits<float>::max());
+        if (maxDist > std::numeric_limits<float>::max())
+            return false;
+
         // prevent NaN values which can cause BIH intersection to enter infinite loop
         if (maxDist < 1e-10f)
             return true;
+
         // direction with length of 1
         G3D::Ray ray = G3D::Ray::fromOriginAndDirection(pos1, (pos2 - pos1)/maxDist);
         if (getIntersectionTime(ray, maxDist, true))

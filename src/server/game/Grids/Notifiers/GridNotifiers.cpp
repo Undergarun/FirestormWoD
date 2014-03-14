@@ -207,6 +207,31 @@ MessageDistDeliverer::VisitObject(Player* player)
 }
 */
 
+void UnfriendlyMessageDistDeliverer::Visit(PlayerMapType &m)
+{
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Player* target = iter->getSource();
+        if (!target->InSamePhase(i_phaseMask))
+            continue;
+
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
+            continue;
+
+        // Send packet to all who are sharing the player's vision
+        if (!target->GetSharedVisionList().empty())
+        {
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
+                    SendPacket(*i);
+        }
+
+        if (target->m_seer == target || target->GetVehicle())
+            SendPacket(target);
+    }
+}
+
 template<class T>
 void ObjectUpdater::Visit(GridRefManager<T> &m)
 {

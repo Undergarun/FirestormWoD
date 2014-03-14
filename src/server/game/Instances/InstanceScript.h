@@ -157,6 +157,9 @@ class InstanceScript : public ZoneScript
         //This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
+        //Called when a player begins to enter the instance.
+        virtual void BeforePlayerEnter(Player* /*player*/) {}
+
         //Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) {}
 
@@ -177,8 +180,14 @@ class InstanceScript : public ZoneScript
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(char const* format, ...);
 
+        // Reset Achievement Criteria
+        void DoResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+
+        // Complete Achievement for all players in instance
+	 void DoCompleteAchievement(uint32 achievement);
+
         // Update Achievement Criteria for all players in instance
-        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, uint32 miscValue3 = 0, Unit* unit = NULL);
 
         // Start/Stop Timed Achievement Criteria for all players in instance
         void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
@@ -221,7 +230,7 @@ class InstanceScript : public ZoneScript
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();
 
-        virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
 
         void UpdatePhasing();
 

@@ -145,7 +145,7 @@ m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemov
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_alreadyUpdated(false), m_lastUpdateTime(getMSTime())
+m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -466,7 +466,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     return true;
 }
 
-void Creature::Update(uint32 diff, uint32 entry)
+void Creature::Update(uint32 diff)
 {
     if (m_LOSCheckTimer <= diff)
     {
@@ -476,9 +476,6 @@ void Creature::Update(uint32 diff, uint32 entry)
     }
     else
         m_LOSCheckTimer -= diff;
-
-    if (entry != GetEntry())
-        entry = GetEntry();
 
     // Zone Skip Update
     if ((sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
@@ -590,7 +587,7 @@ void Creature::Update(uint32 diff, uint32 entry)
                 i_AI->UpdateAI(diff);
 
                 if ((getMSTime() - diffAI) > 10)
-                    sLog->OutPandashan("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), (getMSTime() - diffAI));
+                    sLog->OutPandashan("CreatureScript [%u] take more than 10 ms to execute", GetEntry());
 
                 m_AI_locked = false;
             }
@@ -617,12 +614,14 @@ void Creature::Update(uint32 diff, uint32 entry)
 
             /*if (m_regenTimer <= diff)
             {*/
-            if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed())) // regenerate health if not in combat or if polymorphed
+            if (!bInCombat || IsPolymorphed()) // regenerate health if not in combat or if polymorphed
                 RegenerateHealth();
 
             if (getPowerType() == POWER_ENERGY)
             {
-                if (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE)
+                 if (!IsVehicle() || 
+                    (GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE && 
+                    GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_HEAT))
                     Regenerate(POWER_ENERGY);
             }
             else
@@ -874,11 +873,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
     TrainerSpellData const* trainer_spells = GetTrainerSpells();
 
     if ((!trainer_spells || trainer_spells->spellList.empty()) && GetCreatureTemplate()->trainer_type != TRAINER_TYPE_PETS)
-    {
-        sLog->outError(LOG_FILTER_SQL, "Creature %u (Entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
-            GetGUIDLow(), GetEntry());
         return false;
-    }
 
     switch (GetCreatureTemplate()->trainer_type)
     {
@@ -1443,6 +1438,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
     m_respawnradius = data->spawndist;
 
     m_respawnDelay = data->spawntimesecs;
+    m_corpseDelay = std::min(m_respawnDelay * 9 / 10, m_corpseDelay);
     m_deathState = ALIVE;
 
     m_respawnTime  = GetMap()->GetCreatureRespawnTime(m_DBTableGuid);
@@ -1710,12 +1706,28 @@ void Creature::setDeathState(DeathState s)
         ResetPlayerDamageReq();
         CreatureTemplate const* cinfo = GetCreatureTemplate();
         SetWalk(true);
-        if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND)
+
+        // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+        float ground = GetPositionZ();
+        GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
+
+        bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
+
+        if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
             SetCanFly(true);
-        else if (cinfo->InhabitType & INHABIT_AIR)
+        else if (cinfo->InhabitType & INHABIT_AIR && isInAir)
             SetDisableGravity(true);
-        if (cinfo->InhabitType & INHABIT_WATER)
+        else
+        {
+            SetCanFly(false);
+            SetDisableGravity(false);
+        }
+
+        if (cinfo->InhabitType & INHABIT_WATER && IsInWater())
             AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         SetUInt32Value(UNIT_NPC_FLAGS + 1, cinfo->npcflag2);
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
@@ -2137,6 +2149,10 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
     if (!HasReactState(REACT_AGGRESSIVE))
         return false;
 
+    // only creature not moving home
+    if (GetMotionMaster()->GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE)
+        return false;
+
     // we don't need help from zombies :)
     if (!isAlive())
         return false;
@@ -2316,19 +2332,11 @@ bool Creature::LoadCreaturesAddon(bool reload)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
             if (!AdditionalSpellInfo)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
                 continue;
-            }
 
             // skip already applied aura
             if (HasAura(*itr))
-            {
-                if (!reload)
-                    sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
-
                 continue;
-            }
 
             AddAura(*itr, this);
             sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
@@ -2812,4 +2820,70 @@ bool Creature::SetHover(bool enable)
     }
 
     return true;
+}
+
+float Creature::GetAggroRange(Unit const* target) const
+{
+    // Determines the aggro range for creatures (usually pets), used mainly for aggressive pet target selection.
+    // Based on data from wowwiki due to lack of 3.3.5a data
+
+    if (target && this->isPet())
+    {
+        uint32 targetLevel = 0;
+
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            targetLevel = target->getLevelForTarget(this);
+        else if (target->GetTypeId() == TYPEID_UNIT)
+            targetLevel = target->ToCreature()->getLevelForTarget(this);
+
+        uint32 myLevel = getLevelForTarget(target);
+        int32 levelDiff = int32(targetLevel) - int32(myLevel);
+
+        // The maximum Aggro Radius is capped at 45 yards (25 level difference)
+        if (levelDiff < -25)
+            levelDiff = -25;
+
+        // The base aggro radius for mob of same level
+        float aggroRadius = 20;
+
+        // Aggro Radius varies with level difference at a rate of roughly 1 yard/level
+        aggroRadius -= (float)levelDiff;
+
+        // detect range auras
+        aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
+
+        // detected range auras
+        aggroRadius += target->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+
+        // Just in case, we don't want pets running all over the map
+        if (aggroRadius > MAX_AGGRO_RADIUS)
+            aggroRadius = MAX_AGGRO_RADIUS;
+
+        // Minimum Aggro Radius for a mob seems to be combat range (5 yards)
+        //  hunter pets seem to ignore minimum aggro radius so we'll default it a little higher
+        if (aggroRadius < 10)
+            aggroRadius = 10;
+
+        return (aggroRadius);
+    }
+
+    // Default
+    return 0.0f;
+}
+
+Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
+{
+    // Selects nearest hostile target within creature's aggro range. Used primarily by
+    //  pets set to aggressive. Will not return neutral or friendly targets.
+
+    Unit* target = NULL;
+
+    {
+        JadeCore::NearestHostileUnitInAggroRangeCheck u_check(this, useLOS);
+        JadeCore::UnitSearcher<JadeCore::NearestHostileUnitInAggroRangeCheck> searcher(this, target, u_check);
+
+        VisitNearbyGridObject(MAX_AGGRO_RADIUS, searcher);
+    }
+
+    return target;
 }

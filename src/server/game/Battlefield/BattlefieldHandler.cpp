@@ -412,13 +412,28 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_STATS");
 
     WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
-    data << uint32(0);  //rating
-    data << uint32(0);  //unk1
-    data << uint32(0);  //unk2
-    //data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG, true);
-    data << uint32(0);  //unk3
-    data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    data << uint8(3);   //unk4
-    data << uint32(0);  //unk5
+
+    for (int i = 0; i < MAX_ARENA_SLOT; i++)
+    {
+        data << uint32(_player->GetWeekGames(i)); // games of week
+        data << uint32(_player->GetSeasonGames(i)); // games of season
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(_player->GetArenaPersonalRating(i)); // current rating
+        data << uint32(_player->GetBestRatingOfSeason(i)); // best rating of season
+        data << uint32(_player->GetBestRatingOfWeek(i)); // best rating of week
+        data << uint32(_player->GetPrevWeekWins(i)); // wins of prev week
+    }
+
+    // rated bg part
+    data << uint32(0); // games of week
+    data << uint32(0); // games of season
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0); // wins of current week
+    data << uint32(0); // best rating of season
+    data << uint32(0); // best rating of week
+    data << uint32(0); // wins of prev week
+
     SendPacket(&data);
 }

@@ -106,6 +106,7 @@ bool Group::Create(Player* leader)
 
     leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
+
     m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
     if (m_groupType & GROUPTYPE_RAID)
@@ -563,10 +564,12 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
                 player->UpdateForQuestWorldObjects();
             }
 
+            WorldPacket data;
+
             if (method == GROUP_REMOVEMETHOD_KICK)
             {
-                WorldPacket kick(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendPacket(&kick);
+                data.Initialize(SMSG_GROUP_UNINVITE, 0);
+                player->GetSession()->SendPacket(&data);
             }
 
             ObjectGuid groupGuid = GetGUID();
@@ -577,11 +580,11 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = 0;
+            ObjectGuid memberGuids = NULL;
 
             uint32 memberNameLength = 0;
 
-            WorldPacket data(SMSG_PARTY_UPDATE);
+            data.Initialize(SMSG_PARTY_UPDATE);
 
             data.WriteBit(leaderGuid[1]);
             data.WriteBit(groupGuid[7]);
@@ -889,7 +892,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = 0;
+            ObjectGuid memberGuids = NULL;
 
             uint32 memberNameLength = 0;
 
@@ -2473,7 +2476,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     delete[] memberGuids;
     delete[] memberNameLength;
-
+    
     memberGuids = NULL;
     memberNameLength = NULL;
 }
@@ -2819,6 +2822,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // check if someone in party is using dungeon system
         if (member->isUsingLfg())
             return ERR_LFG_CANT_USE_BATTLEGROUND;
+        // check is someone in party is loading or teleporting
+        if (member->GetSession()->PlayerLoading() || member->IsBeingTeleported())
+            return ERR_BATTLEGROUND_JOIN_FAILED;
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
@@ -3272,7 +3278,7 @@ void Group::SendRaidMarkersUpdate()
     // @TODO: Send in classic order instead of summon order
     for (auto itr : GetRaidMarkers())
     {
-        ObjectGuid guid = 0;
+        ObjectGuid guid = NULL;
 
         uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
         data.WriteBitInOrder(guid, bits);
@@ -3599,9 +3605,6 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
 
 void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
 {
-    if (!player)
-        return;
-
     // Called for each participant of a match after losing
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
@@ -3653,12 +3656,12 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
             // Change in Team Rating
-            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
+            rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, true);
 
             if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
                 rating_change = 0;
 
-            if (player->GetArenaPersonalRating(slot) < 1500)
+            if (player->GetArenaPersonalRating(slot) < 1000)
                 rating_change = 96;
 
             if (player->GetBattleground())
@@ -3688,13 +3691,10 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
             // Change in Team Rating
-            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
+            rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, false);
 
             if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
                 rating_change = 0;
-
-            if (player->GetArenaPersonalRating(slot) < 1500)
-                rating_change = 92;
 
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)

@@ -242,6 +242,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());
     map->SetBG(bg);
+    map->InitVisibilityDistance();
     bg->SetBgMap(map);
 
     m_InstancedMaps[InstanceId] = map;

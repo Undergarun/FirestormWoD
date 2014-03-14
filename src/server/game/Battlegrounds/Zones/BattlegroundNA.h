@@ -64,7 +64,7 @@ class BattlegroundNA : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         virtual void Reset();
-        virtual void FillInitialWorldStates(ByteBuffer &d);
+        virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
 };

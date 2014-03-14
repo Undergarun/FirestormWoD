@@ -48,7 +48,7 @@ void Totem::Update(uint32 time)
     else
         m_duration -= time;
 
-    Creature::Update(time, GetEntry());
+    Creature::Update(time);
 }
 
 void Totem::InitStats(uint32 duration)
@@ -83,7 +83,8 @@ void Totem::InitStats(uint32 duration)
         spellId1 = spellId2 = spellId3 = spellId4 = 0;
 
         // set display id depending on caster's race
-        SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+        if (m_owner->getClass() == CLASS_SHAMAN)
+            SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
 
         // Light's Hammer
         if (GetUInt32Value(UNIT_CREATED_BY_SPELL) == 122773)
@@ -142,6 +143,11 @@ void Totem::InitStats(uint32 duration)
     m_duration = duration;
 
     SetLevel(m_owner->getLevel());
+    // TODO some totems don't receive stamina from owner
+    if (GetEntry() == STONECLAW_TOTEM_ENTRY)
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
+    if (m_owner->HasAura(63298))
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.05f);
 
     if (spellId1)
         m_owner->CastSpell(m_owner, spellId1, true); // Fake Fire Totem
@@ -198,7 +204,7 @@ void Totem::UnSummon(uint32 msTime)
                     newCooldownDelay -= lessCooldown;
 
                     _player->AddSpellCooldown(spellInfo->Id, 0, uint32(time(NULL) + newCooldownDelay));
-                    _player->ReduceSpellCooldown(spellInfo->Id, -lessCooldown);
+                    _player->ReduceSpellCooldown(spellInfo->Id, lessCooldown);
                 }
             }
         }

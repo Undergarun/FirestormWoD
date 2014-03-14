@@ -20,6 +20,7 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
+#include "ArchaeologyMgr.h"
 #include "Arena.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
@@ -65,7 +66,8 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25  // Fake big number
+#define PLAYER_MAX_DAILY_QUESTS     25  // @todo: remove me (removed since 5.0.4)
+#define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -376,11 +378,11 @@ struct RuneInfo
 
     RuneInfo()
     {
-        BaseRune    = 0;
+        BaseRune = 0;
         CurrentRune = 0;
-        Cooldown    = 0;
-        spell_id    = 0;
-        DeathUsed   = false;
+        Cooldown = 0;
+        spell_id = 0;
+        DeathUsed = false;
         Permanently = false;
     }
 };
@@ -863,6 +865,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE              = 37,
     PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 38,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 39,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY             = 40,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1386,6 +1389,8 @@ class Player : public Unit, public GridObject<Player>
         void Whisper(const std::string& text, const uint32 language, uint64 receiver);
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
         void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL, const std::string& channel = "") const;
+
+        ArchaeologyMgr& GetArchaeologyMgr() { return m_archaeologyMgr; }
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -1942,6 +1947,7 @@ class Player : public Unit, public GridObject<Player>
             SetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot, glyph);
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
+        bool HasGlyph(uint32 spell_id);
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->SpecInfo[spec].Talents; }
@@ -1958,7 +1964,7 @@ class Player : public Unit, public GridObject<Player>
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = NULL);
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL);
+        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL, bool removestacks = true);
         void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
@@ -2223,6 +2229,12 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
 
+        bool CanSwitch() const;
+        bool IsInWorgenForm() const { return HasAuraType(SPELL_AURA_ALLOW_WORGEN_TRANSFORM); }
+        void SwitchToHumanForm() { RemoveAurasByType(SPELL_AURA_ALLOW_WORGEN_TRANSFORM); }
+        void SwitchToWorgenForm() { CastSpell(this, 97709, true); }
+        void SwitchForm();
+
         uint64 GetLootGUID() const { return m_lootGuid; }
         void SetLootGUID(uint64 guid) { m_lootGuid = guid; }
 
@@ -2415,6 +2427,9 @@ class Player : public Unit, public GridObject<Player>
         void SetEquipmentSet(uint32 index, EquipmentSet eqset);
         void DeleteEquipmentSet(uint64 setGuid);
 
+        void SetEmoteState(uint32 anim_id);
+        uint32 GetEmoteState() { return m_emote; }
+
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket* data);
@@ -2603,7 +2618,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void HandleFall(MovementInfo const& movementInfo);
 
-        bool IsKnowHowFlyIn(uint32 mapid, uint32 zone) const;
+        bool IsKnowHowFlyIn(uint32 mapid, uint32 zone, uint32 spellId = 0) const;
 
         void SetClientControl(Unit* target, uint8 allowMove);
 
@@ -2826,7 +2841,7 @@ class Player : public Unit, public GridObject<Player>
 
         AchievementMgr<Player>& GetAchievementMgr() { return m_achievementMgr; }
         AchievementMgr<Player> const& GetAchievementMgr() const { return m_achievementMgr; }
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex);
@@ -2893,6 +2908,18 @@ class Player : public Unit, public GridObject<Player>
             }
         }
 
+        uint16 GetPrimaryProfession(uint8 index) const
+        {
+            //ASSERT(index < DEFAULT_MAX_PRIMARY_TRADE_SKILL);
+            return uint16(GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + index));
+        }
+
+        void SetPrimaryProfession(uint8 index, uint16 skillId)
+        {
+            //ASSERT(index < DEFAULT_MAX_PRIMARY_TRADE_SKILL);
+            SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + index, skillId);
+        }
+
         // Void Storage
         bool IsVoidStorageUnlocked() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }
         void UnlockVoidStorage() { SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }
@@ -2928,6 +2955,8 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
+        void SendCUFProfiles();
+
 
         /*********************************************************/
         /***              BATTLE PET SYSTEM                    ***/
@@ -2937,8 +2966,6 @@ class Player : public Unit, public GridObject<Player>
         BattlePetMgr const& GetBattlePetMgr() const { return m_battlePetMgr; }
 
         void SendBattlePetJournal();
-
-        void SendCUFProfiles();
 
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
@@ -3112,6 +3139,14 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         GlobalCooldownMgr m_GlobalCooldownMgr;
+        struct prohibited_struct
+        {
+            prohibited_struct(uint32 _time): m_time_prohibited_until(getMSTime() + _time) { }
+            prohibited_struct(): m_time_prohibited_until(0) { }
+            uint32 m_time_prohibited_until;
+        };
+
+        prohibited_struct prohibited[MAX_SPELL_SCHOOL];
 
         PlayerTalentInfo* _talentMgr;
 
@@ -3302,7 +3337,11 @@ class Player : public Unit, public GridObject<Player>
         bool m_initializeCallback;
         uint8 m_storeCallbackCounter;
 
+        uint32 m_emote;
+
         uint32 m_lastPlayedEmote;
+
+        ArchaeologyMgr m_archaeologyMgr;
 
         // Store callback
         PreparedQueryResultFuture _storeGoldCallback;
@@ -3323,7 +3362,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonWins[MAX_ARENA_SLOT];
         uint32 m_WeekGames[MAX_ARENA_SLOT];
         uint32 m_SeasonGames[MAX_ARENA_SLOT];
-
+        
         CUFProfiles m_cufProfiles;
 };
 
@@ -3331,7 +3370,7 @@ void AddItemsSetItem(Player*player, Item* item);
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)
+template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell, bool removestacks)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -3398,7 +3437,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             totalmul += CalculatePct(1.0f, value);
         }
 
-        if (!m_isMoltenCored)
+        if (removestacks && !m_isMoltenCored)
             DropModCharge(mod, spell);
     }
 

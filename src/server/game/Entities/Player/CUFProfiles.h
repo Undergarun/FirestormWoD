@@ -57,7 +57,7 @@ struct CUFProfile
     }
 
     uint32 nameLen;
-	std::string name;
+    std::string name;
     CUFProfileData data;
 };
 

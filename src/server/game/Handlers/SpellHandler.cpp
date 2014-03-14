@@ -36,6 +36,29 @@
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
+    if (castFlags & 0x8)   // Archaeology
+    {
+        uint32 count, entry, usedCount;
+        uint8 type;
+        recvPacket >> count;
+        for (uint32 i = 0; i < count; ++i)
+        {
+            recvPacket >> type;
+            switch (type)
+            {
+                case 2: // Keystones
+                    recvPacket >> entry;        // Item id
+                    recvPacket >> usedCount;    // Item count
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry, usedCount, false);
+                    break;
+                case 1: // Fragments
+                    recvPacket >> entry;        // Currency id
+                    recvPacket >> usedCount;    // Currency count
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry, usedCount, true);
+                    break;
+            }
+        }
+    }
 }
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
@@ -46,6 +69,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     // ignore for remote control state
     if (pUser->m_mover != pUser)
         return;
+
+    if (pUser->GetEmoteState())
+        pUser->SetEmoteState(0);
 
     float speed = 0.00f, elevation = 0.00f;
     std::string unkString;
@@ -147,7 +173,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
                 break;
         }
     }
-
+    
     delete[] archeologyType;
     archeologyType = NULL;
     delete[] usedCount;
@@ -501,20 +527,23 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     bool hasMovement = recvPacket.ReadBit();
     bool hasUnk4 = !(recvPacket.ReadBit());
 
+    uint32 targetFlags = 0;
+
     uint8* archeologyType = NULL;
     uint32* entry = NULL;
     uint32* usedCount = NULL;
     if (archeologyCounter > 0)
     {
         archeologyType = new uint8[archeologyCounter];
+        
         entry = new uint32[archeologyCounter];
         usedCount = new uint32[archeologyCounter];
     }
 
-    uint32 targetFlags = 0;
-
     for (int i = 0; i < archeologyCounter; ++i)
+    {
         archeologyType[i] = recvPacket.ReadBits(2);
+    }
 
     if (hasMovement)
     {
@@ -673,23 +702,42 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     if (mover->GetTypeId() == TYPEID_PLAYER)
     {
-        // not have spell in spellbook or spell passive and not casted by client
-        if ((!mover->ToPlayer()->HasActiveSpell(spellId) || spellInfo->IsPassive()) && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(targetGuid))
-        {
-            //cheater? kick? ban?
-            recvPacket.rfinish(); // prevent spam at ignore packet
-            return;
-        }
+        if (mover->ToPlayer()->GetEmoteState())
+            mover->ToPlayer()->SetEmoteState(0);
     }
-    else
+
+    if (spellInfo->IsPassive())
     {
-        // not have spell in spellbook or spell passive and not casted by client
-        if ((mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(spellId)) || spellInfo->IsPassive())
+        recvPacket.rfinish(); // prevent spam at ignore packet 
+        return; 
+    }
+
+    Unit* caster = mover;
+    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId)) 
+    {
+        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells 
+        // change caster to player and let him cast
+        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK) 
         {
-            //cheater? kick? ban?
             recvPacket.rfinish(); // prevent spam at ignore packet
             return;
         }
+
+        caster = _player; 
+    }
+
+    if (caster->GetTypeId() == TYPEID_PLAYER && 
+        !caster->ToPlayer()->HasActiveSpell(spellId) &&
+         spellId != 101603 && // Hack for Throw Totem, Echo of Baine 
+         spellId != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(targetGuid)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+    {
+        // not have spell in spellbook 
+        //cheater? kick? ban?
+        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY))
+        {
+            recvPacket.rfinish(); // prevent spam at ignore packet
+            return;
+        } 
     }
 
     Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
@@ -715,8 +763,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // Client is resending autoshot cast opcode when other spell is casted during shoot rotation
     // Skip it to prevent "interrupt" message
-    if (spellInfo->IsAutoRepeatRangedSpell() && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
-        && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
+    if (spellInfo->IsAutoRepeatRangedSpell() && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
+        && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
     {
         recvPacket.rfinish();
         return;
@@ -929,7 +977,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Spell* spell = new Spell(mover, spellInfo, TRIGGERED_NONE, 0, false);
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
     spell->m_cast_count = castCount;                       // set count of casts
     spell->m_glyphIndex = glyphIndex;
     spell->prepare(&targets);
@@ -1166,8 +1214,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (!creator)
         return;
 
-    if (creator->GetDarkSimulacrum())
-        creator = creator->GetDarkSimulacrum();
+    if (creator->GetSimulacrumTarget())
+        creator = creator->GetSimulacrumTarget();
 
     WorldPacket data(SMSG_MIRROR_IMAGE_DATA, 68);
 
@@ -1179,7 +1227,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         if (uint32 guildId = player->GetGuildId())
             guild = sGuildMgr->GetGuildById(guildId);
 
-        ObjectGuid guildGuid = guild ? guild->GetGUID() : 0;
+        ObjectGuid guildGuid = guild ?  guild->GetGUID() : NULL;
 
         data << uint8(player->GetByteValue(PLAYER_FIELD_BYTES, 3)); // haircolor
         data << uint8(player->GetByteValue(PLAYER_FIELD_BYTES, 2)); // hair
@@ -1258,7 +1306,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     }
     else
     {
-        ObjectGuid guildGuid = 0;
+        ObjectGuid guildGuid = NULL;
 
         data << uint8(0);   // skin
         data << uint8(creator->getRace());

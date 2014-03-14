@@ -403,7 +403,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;
-        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus();                    // SpellPower from Weapon
+        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus(); // SpellPower from Weapon
         spellPower += std::max(0, int32(ToPlayer()->GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
 
         AuraEffectList const& mAPFromSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT);
@@ -674,6 +674,10 @@ void Player::UpdateParryPercentage()
 
         value = value < 0.0f ? 0.0f : value;
     }
+
+    if (pclass = CLASS_MONK)
+        value += 5.0f;
+
     SetStatFloatValue(PLAYER_PARRY_PERCENTAGE, value);
 }
 
@@ -765,7 +769,6 @@ void Player::UpdateMasteryPercentage()
 void Player::UpdatePvPPowerPercentage()
 {
     float value = GetRatingBonusValue(CR_PVP_POWER);
-    value /= 400;
     value = value < 0.0f ? 0.0f : value;
 
     float damage_value = value;
@@ -800,7 +803,7 @@ void Player::UpdatePvPPowerPercentage()
         case SPEC_PRIEST_HOLY:
         case SPEC_SHAMAN_RESTORATION:
         case SPEC_DROOD_RESTORATION:
-        case SPEC_MONK_WINDWALKER:
+        case SPEC_MONK_MISTWEAVER:
             damage_value = 0.0f;
             break;
         // Damage specializations for Druids, Monks, Paladins, Priests, and Shaman receive a 70% bonus to healing from PvP Power.
@@ -898,7 +901,7 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
-    if (getPowerType() != POWER_MANA)
+    if (getPowerType() != POWER_MANA && !IsInFeralForm())
         return;
 
     // Mana regen from spirit
@@ -1239,8 +1242,8 @@ bool Guardian::UpdateStats(Stats stat)
             else if (owner->getClass() == CLASS_DEATH_KNIGHT && GetEntry() == 31216)
             {
                 mod = 0.3f;
-                if (owner->GetDarkSimulacrum())
-                    ownersBonus = owner->GetDarkSimulacrum()->GetStat(stat) * mod;
+                if (owner->GetSimulacrumTarget())
+                    ownersBonus = owner->GetSimulacrumTarget()->GetStat(stat) * mod;
                 else
                     ownersBonus = owner->GetStat(stat) * mod;
             }
@@ -1342,7 +1345,7 @@ void Guardian::UpdateMaxHealth()
             multiplicator = 9.1f;
             break;
         case ENTRY_FELHUNTER:
-            multiplicator = 9.5f;
+            multiplicator = 14.46f;
             break;
         case ENTRY_GHOUL:
         case ENTRY_GARGOYLE:

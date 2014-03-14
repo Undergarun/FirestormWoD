@@ -78,7 +78,7 @@ class CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
-        void Talk(uint8 id, uint64 WhisperGuid = 0);
+        void Talk(uint8 id, uint64 WhisperGuid = 0, uint32 range = 0);
         explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), m_MoveInLineOfSight_locked(false), m_canSeeEvenInPassiveMode(false) {}
 
         virtual ~CreatureAI() {}
@@ -139,6 +139,7 @@ class CreatureAI : public UnitAI
         virtual void JustReachedHome() {}
 
         void DoZoneInCombat(Creature* creature = NULL, float maxRangeToNearestTarget = 50.0f);
+        void DoAttackerAreaInCombat(Unit* attacker, float range, Unit* pUnit = NULL);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}

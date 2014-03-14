@@ -37,7 +37,6 @@ BattlegroundSA::BattlegroundSA()
     SignaledRoundTwo = false;
     SignaledRoundTwoHalfMin = false;
     InitSecondRound = false;
-    playersToRelocate.clear();
 
     //! This is here to prevent an uninitialised variable warning
     //! The warning only occurs when SetUpBattleGround fails though.
@@ -283,26 +282,6 @@ void BattlegroundSA::StartShips()
 
 void BattlegroundSA::PostUpdateImpl(uint32 diff)
 {
-    std::map<uint64, uint32> newPlayersRelocate;
-
-    for (auto itr : playersToRelocate)
-    {
-        if (itr.second <= diff)
-        {
-            if (Player* player = ObjectAccessor::FindPlayer(itr.first))
-                RelocatePlayer(player);
-        }
-        else
-            newPlayersRelocate.insert(std::make_pair(itr.first, (itr.second - diff)));
-    }
-
-    playersToRelocate.clear();
-
-    for (auto itr : newPlayersRelocate)
-        playersToRelocate.insert(itr);
-
-    newPlayersRelocate.clear();
-
     if (InitSecondRound)
     {
         if (UpdateWaitTimer < diff)
@@ -320,28 +299,21 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             return;
         }
     }
-
     TotalTime += diff;
 
     if (Status == BG_SA_WARMUP )
     {
         EndRoundTimer = BG_SA_ROUNDLENGTH;
-
         if (TotalTime >= BG_SA_WARMUPLENGTH)
         {
             TotalTime = 0;
             ToggleTimer();
             DemolisherStartState(false);
             Status = BG_SA_ROUND_ONE;
-            StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
-
-            uint8 bay = urand(0, 1);
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                    if (p->GetTeamId() == Attackers)
-                        p->TeleportTo(607, BG_SA_BayTeleportlocs[bay][0], BG_SA_BayTeleportlocs[bay][1], BG_SA_BayTeleportlocs[bay][2], 3.11f, 0);
+            StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE)? 23748 : 21702);
         }
-
+        if (TotalTime >= BG_SA_BOAT_START)
+            StartShips();
         return;
     }
     else if (Status == BG_SA_SECOND_WARMUP)
@@ -361,21 +333,10 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
             // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
             SetStatus(STATUS_IN_PROGRESS);
-
-            uint8 bay = urand(0, 1);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
                 if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    if (p->GetTeamId() == Attackers)
-                    {
-                        p->TeleportTo(607, BG_SA_BayTeleportlocs[bay][0], BG_SA_BayTeleportlocs[bay][1], BG_SA_BayTeleportlocs[bay][2], 3.11f, 0);
-                        p->RemoveAurasDueToSpell(SPELL_PREPARATION);
-                    }
-                }
-            }
+                    p->RemoveAurasDueToSpell(SPELL_PREPARATION);
         }
-
         if (TotalTime >= 30000)
         {
             if (!SignaledRoundTwoHalfMin)
@@ -384,7 +345,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 SendMessageToAll(LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
         }
-
+        StartShips();
         return;
     }
     else if (GetStatus() == STATUS_IN_PROGRESS)
@@ -446,7 +407,7 @@ void BattlegroundSA::StartingEventOpenDoors()
 {
 }
 
-void BattlegroundSA::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
 {
   uint32 ally_attacks = uint32(Attackers == TEAM_ALLIANCE ? 1 : 0);
   uint32 horde_attacks = uint32(Attackers == TEAM_HORDE ? 1 : 0);
@@ -489,20 +450,17 @@ void BattlegroundSA::FillInitialWorldStates(ByteBuffer& data)
 void BattlegroundSA::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    // Create score and add it to map, default values are set in constructor
+    //create score and add it to map, default values are set in constructor
     BattlegroundSAScore* sc = new BattlegroundSAScore;
 
-    playersToRelocate.insert(std::make_pair(player->GetGUID(), 3000));
-    player->CastSpell(player, 12438, true);     // Without this player falls before boat loads...
-
-    if (Status != BG_SA_ROUND_ONE && Status != BG_SA_ROUND_TWO)
+    if (!ShipsStarted)
     {
         if (player->GetTeamId() == Attackers)
         {
-            if (Attackers == TEAM_ALLIANCE)
-                player->TeleportTo(607, 2064.699f, 2.268f, 17.926f, 3.11f, 0);
-            else
-                player->TeleportTo(607, 2146.383f, -85.122f, 15.342f, 3.11f, 0);
+            player->CastSpell(player, 12438, true);//Without this player falls before boat loads...
+
+            player->TeleportTo(607, 1828.809f, -28.069f, 57.951f, 3.11f, 0);
+
         }
         else
             player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
@@ -510,14 +468,10 @@ void BattlegroundSA::AddPlayer(Player* player)
     else
     {
         if (player->GetTeamId() == Attackers)
-        {
-            uint8 bay = urand(0, 1);
-            player->TeleportTo(607, BG_SA_BayTeleportlocs[bay][0], BG_SA_BayTeleportlocs[bay][1], BG_SA_BayTeleportlocs[bay][2], 3.11f, 0);
-        }
+            player->TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f, 0);
         else
             player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
     }
-
     //SendTransportInit(player);
     PlayerScores[player->GetGUID()] = sc;
 }
@@ -576,12 +530,10 @@ void BattlegroundSA::TeleportPlayers()
 
             if (player->GetTeamId() == Attackers)
             {
-                player->CastSpell(player, 12438, true);     // Without this player falls before boat loads...
+                player->CastSpell(player, 12438, true);     //Without this player falls before boat loads...
 
-                if (Attackers == TEAM_ALLIANCE)
-                    player->TeleportTo(607, 2064.699f, 2.268f, 17.926f, 3.11f, 0);
-                else
-                    player->TeleportTo(607, 2146.383f, -85.122f, 15.342f, 3.11f, 0);
+                player->TeleportTo(607, 1828.809f, -28.069f, 57.951f, 3.11f, 0);
+
             }
             else
                 player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
@@ -1058,33 +1010,4 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
         if (transData.BuildPacket(&packet))
             player->GetSession()->SendPacket(&packet);
     }*/
-}
-
-void BattlegroundSA::RelocatePlayer(Player* player)
-{
-    if (GetPlayers().find(player->GetGUID()) != GetPlayers().end())
-    {
-        if (Status != BG_SA_ROUND_ONE && Status != BG_SA_ROUND_TWO)
-        {
-            if (player->GetTeamId() == Attackers)
-            {
-                if (Attackers == TEAM_ALLIANCE)
-                    player->TeleportTo(607, 2064.699f, 2.268f, 17.926f, 3.11f, 0);
-                else
-                    player->TeleportTo(607, 2146.383f, -85.122f, 15.342f, 3.11f, 0);
-            }
-            else
-                player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
-        }
-        else
-        {
-            if (player->GetTeamId() == Attackers)
-            {
-                uint8 bay = urand(0, 1);
-                player->TeleportTo(607, BG_SA_BayTeleportlocs[bay][0], BG_SA_BayTeleportlocs[bay][1], BG_SA_BayTeleportlocs[bay][2], 3.11f, 0);
-            }
-            else
-                player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
-        }
-    }
 }

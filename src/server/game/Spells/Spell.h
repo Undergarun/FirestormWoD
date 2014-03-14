@@ -439,6 +439,7 @@ class Spell
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
+        bool LOSAdditionalRules(Unit const* target, int8 eff = -1) const;
 
         static void SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellPowerEntry const* powerData, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
         void SendCastResult(SpellCastResult result);
@@ -474,7 +475,7 @@ class Spell
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
-        bool m_darkSimulacrum;
+        bool isStolen;
 
         UsedSpellMods m_appliedMods;
 
@@ -510,10 +511,15 @@ class Spell
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
+        Unit* GetUnitTarget() { return m_targets.GetUnitTarget() ? m_targets.GetUnitTarget(): unitTarget; }
+
+        void SetPeriodicDamageModifier(float newModifier) { m_periodicDamageModifier = newModifier; }
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
+        bool IsDarkSimulacrum() const;
+        bool IsMorePowerfulAura(Unit const* target) const;
 
         void SendLoot(uint64 guid, LootType loottype);
 
@@ -557,6 +563,7 @@ class Spell
         bool m_needComboPoints;
         uint32 m_applyMultiplierMask;
         float m_damageMultipliers[32];
+        float m_periodicDamageModifier;
 
         // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
         Unit* unitTarget;
@@ -673,6 +680,7 @@ class Spell
         };
 
         bool CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura = NULL) const;
+        bool CanProcOnTarget(Unit *target) const;
         void PrepareTriggersExecutedOnHit();
         typedef std::list<HitTriggerSpell> HitTriggerSpellList;
         HitTriggerSpellList m_hitTriggerSpells;

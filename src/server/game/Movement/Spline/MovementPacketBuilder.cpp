@@ -114,7 +114,7 @@ namespace Movement
             //WriteLinearPath(spline, data);
     }
 
-     void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data)
+    void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data)
     {
         ASSERT(!moveSpline.Finalized());
 

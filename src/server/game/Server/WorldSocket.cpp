@@ -1023,11 +1023,13 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     // Get the account information from the realmd database
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
+    LoginDatabase.EscapeString (safe_account);
+    // No SQL injection, username escaped.
 
-    stmt->setString(0, account);
-
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    //                                                 0       1          2       3     4  5      6          7       8         9      10
+    QueryResult result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os FROM account "
+                                               "WHERE username = '%s'", safe_account.c_str());
 
     // Stop if the account is not found
     if (!result)
@@ -1089,28 +1091,31 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string os = fields[10].GetString();
 
     // Checks gmlevel per Realm
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
-
-    stmt->setUInt32(0, id);
-    stmt->setInt32(1, int32(realmID));
-
-    result = LoginDatabase.Query(stmt);
+    result =
+        LoginDatabase.PQuery ("SELECT "
+                              "RealmID, "            //0
+                              "gmlevel "             //1
+                              "FROM account_access "
+                              "WHERE id = '%d'"
+                              " AND (RealmID = '%d'"
+                              " OR RealmID = '-1')",
+                              id, realmID);
 
     if (!result)
         security = 0;
     else
     {
         fields = result->Fetch();
-        security = fields[0].GetUInt8();
+        security = fields[1].GetInt32();
     }
 
     // Re-check account ban (same check as in realmd)
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BANS);
-
-    stmt->setUInt32(0, id);
-    stmt->setString(1, GetRemoteAddress());
-
-    PreparedQueryResult banresult = LoginDatabase.Query(stmt);
+    QueryResult banresult =
+          LoginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1 "
+                                "UNION "
+                                "SELECT 1 FROM ip_banned WHERE ip = '%s'",
+                                id, GetRemoteAddress().c_str());
+    uint8 premiumType = 0;
 
     if (banresult) // if account banned
     {
@@ -1118,8 +1123,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         return -1;
     }
-
-    uint8 premiumType = 0;
 
     QueryResult premresult = LoginDatabase.PQuery
                                ("SELECT premium_type "
@@ -1173,28 +1176,20 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         account.c_str(),
         address.c_str());
 
-    // Check if this user is by any chance a recruiter
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
-
-    stmt->setUInt32(0, id);
-
-    result = LoginDatabase.Query(stmt);
-
     bool isRecruiter = false;
-    if (result)
-        isRecruiter = true;
 
     // Update the last_ip in the database
+    // No SQL injection, username escaped.
+    LoginDatabase.EscapeString (address);
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
-
-    stmt->setString(0, address);
-    stmt->setString(1, account);
-
-    LoginDatabase.Execute(stmt);
+    LoginDatabase.PExecute ("UPDATE account "
+                            "SET last_ip = '%s' "
+                            "WHERE username = '%s'",
+                            address.c_str(),
+                            safe_account.c_str());
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), premiumType, isPremium, expansion, mutetime, locale, recruiter, isRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), isPremium, premiumType, expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&k);
 

@@ -90,12 +90,12 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = { 6, 3, 4, 2, 5, 7, 0, 1 };
+    uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
     recvData.ReadBitInOrder(guid, bitOrder);
 
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = { 0, 2, 6, 1, 4, 7, 5, 3 };
+    uint8 byteOrder[8] = {0, 2, 6, 1, 4, 7, 5, 3};
     recvData.ReadBytesSeq(guid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
@@ -144,12 +144,13 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     uint8 byteOrder[8] = {6, 0, 3, 4, 7, 5, 2, 1};
     recvData.ReadBytesSeq(guid, byteOrder);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST npc = %u, quest = %u, unk1 = %u", uint32(GUID_LOPART(guid)), questId, unk1);
-
     Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
 
+    if (!object || object == _player)
+        return;
+
     // no or incorrect quest giver
-    if (!object || (object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
+    if ((object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
         (object->GetTypeId() == TYPEID_PLAYER && object != _player && !object->ToPlayer()->CanShareQuest(questId)))
     {
         _player->PlayerTalkClass->SendCloseGossip();
@@ -181,8 +182,20 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         if (_player->GetDivider() != 0)
         {
             Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
+            if (!player)
+            {
+                _player->SetDivider(0);
+                return;
+            }
+
             if (player)
             {
+                if (!player->CanShareQuest(questId))
+                {
+                    player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_CANT_TAKE_QUEST);
+                    _player->SetDivider(0);
+                    return;
+                }
                 player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_ACCEPT_QUEST);
                 _player->SetDivider(0);
             }

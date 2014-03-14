@@ -199,7 +199,7 @@ class BattlegroundTP : public Battleground
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
         void SetDroppedFlagGUID(uint64 guid, uint32 TeamID)  { m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid;}
         uint64 GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)];}
-        virtual void FillInitialWorldStates(ByteBuffer& data);
+        virtual void FillInitialWorldStates(WorldPacket& data);
 
         /* Scorekeeping */
         uint32 GetTeamScore(uint32 TeamID) const            { return m_TeamScores[GetTeamIndexByTeamId(TeamID)]; }

@@ -116,7 +116,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
     }
 
     // probably not the best place to pu this but im not really sure where else to put it.
-    _owner->UpdateUnderwaterState(_owner->GetMap(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+    //_owner->UpdateUnderwaterState(_owner->GetMap(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 }
 
 void MotionMaster::DirectClean(bool reset)
@@ -368,7 +368,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id)
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, float o, uint32 id)
 {
     sLog->outDebug(LOG_FILTER_GENERAL, "Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUIDLow(), x, y, z);
 
@@ -379,6 +379,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     init.MoveTo(x,y,z);
     init.SetParabolic(max_height,0);
     init.SetVelocity(speedXY);
+    if (o != 10.0f)
+        init.SetFacing(o);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }

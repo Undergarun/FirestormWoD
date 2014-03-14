@@ -166,7 +166,7 @@ enum EnchantmentSlot
     SOCK_ENCHANTMENT_SLOT_3         = 4,
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
-    //TODO: 7,
+    ENGINEERING_ENCHANTMENT_SLOT    = 7,                    // TODO
     MAX_INSPECTED_ENCHANTMENT_SLOT  = 8,
 
     PROP_ENCHANTMENT_SLOT_0         = 8,                   // used with RandomSuffix
@@ -278,7 +278,7 @@ class Item : public Object
         bool IsInBag() const { return m_container != NULL; }
         bool IsEquipped() const;
 
-        uint32 GetSkill();
+        uint32 GetSkill() const;
 
         // RandomPropertyId (signed but stored as unsigned)
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }
@@ -339,7 +339,8 @@ class Item : public Object
         bool hasQuest(uint32 quest_id) const { return GetTemplate()->StartQuest == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
         bool HasStats() const;
-        bool IsPotion() const { return GetTemplate()->IsPotion(); }
+        bool HasSpells() const;
+        bool IsPotion() const;
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
@@ -368,7 +369,7 @@ class Item : public Object
 
         bool CanBeTransmogrified() const;
         bool CanTransmogrify() const;
-        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
+        static bool CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
@@ -383,9 +384,9 @@ class Item : public Object
 
         int32 GetReforgableStat(ItemModType statType) const;
 
-        bool CanUpgrade() const;
         bool IsPvPItem() const;
         bool IsStuffItem() const;
+        bool CanUpgrade() const;
         bool IsLegendaryCloak() const;
 
     private:

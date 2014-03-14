@@ -225,12 +225,6 @@ enum LevelRequirementVsMode
 #pragma pack(pop)
 #endif
 
-#define MAX_HEIGHT            100000.0f                     // can be use for find ground height at surface
-#define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
-#define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
-#define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
-#define MIN_UNLOAD_DELAY      1                             // immediate unload
-
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
 class Map : public GridRefManager<NGridType>
@@ -303,7 +297,7 @@ class Map : public GridRefManager<NGridType>
         static void InitStateMachine();
         static void DeleteStateMachine();
 
-        Map const* GetParent() const { return m_parentMap; }
+        Map const* GetParent() const { return (m_parentMap? m_parentMap : this); }
 
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
@@ -370,6 +364,8 @@ class Map : public GridRefManager<NGridType>
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
+        uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
+
         bool GetEntrancePos(int32 &mapid, float &x, float &y)
         {
             if (!i_mapEntry)
@@ -511,7 +507,12 @@ class Map : public GridRefManager<NGridType>
 
         NGridType* getNGrid(uint32 x, uint32 y) const
         {
-            ASSERT(x < MAX_NUMBER_OF_GRIDS && y < MAX_NUMBER_OF_GRIDS);
+            //ASSERT(x < MAX_NUMBER_OF_GRIDS && y < MAX_NUMBER_OF_GRIDS);
+            if (x > MAX_NUMBER_OF_GRIDS && y > MAX_NUMBER_OF_GRIDS)
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "CRASH::map::setNGrid() Invalid grid coordinates found: %d, %d!", x, y);
+                return false;
+            }
             return i_grids[x][y];
         }
 

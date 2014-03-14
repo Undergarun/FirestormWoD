@@ -188,10 +188,8 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             itr->second.needSend = false;
 
-            {
-                data << uint32(itr->second.Standing);
-                data << uint32(itr->second.ReputationListID);
-            }
+            data << uint32(itr->second.Standing);
+            data << uint32(itr->second.ReputationListID);
         }
     }
 
@@ -583,18 +581,8 @@ void ReputationMgr::SaveToDB(SQLTransaction& trans)
     {
         if (itr->second.needSave)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION_BY_FACTION);
-            stmt->setUInt32(0, _player->GetGUIDLow());
-            stmt->setUInt16(1, uint16(itr->second.ID));
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_REPUTATION_BY_FACTION);
-            stmt->setUInt32(0, _player->GetGUIDLow());
-            stmt->setUInt16(1, uint16(itr->second.ID));
-            stmt->setInt32(2, itr->second.Standing);
-            stmt->setUInt16(3, uint16(itr->second.Flags));
-            trans->Append(stmt);
-
+            trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", _player->GetGUIDLow(), uint16(itr->second.ID));
+            trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%d', '%u')", _player->GetGUIDLow(), uint16(itr->second.ID), itr->second.Standing, uint16(itr->second.Flags));
             itr->second.needSave = false;
         }
     }

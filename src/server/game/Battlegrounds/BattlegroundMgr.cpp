@@ -359,8 +359,8 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(player_guid[1]);
             data->WriteByteSeq(player_guid[2]);
             data->WriteByteSeq(bg_guid[7]);
-            *data << uint32(Time2);                     // Elasped Time
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
+            *data << uint32(Time2); // Elapsed Time
+            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID            
             *data << uint32(bg->GetMapId());            // Map Id
             data->WriteByteSeq(bg_guid[4]);
             data->WriteByteSeq(bg_guid[3]);
@@ -368,7 +368,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                 // Queue slot
             data->WriteByteSeq(player_guid[3]);
             data->WriteByteSeq(player_guid[4]);
-            *data << uint32(Time1);                     // Time before close
+            *data << uint32(Time1); // Time to Close
             data->WriteByteSeq(bg_guid[2]);
             data->WriteByteSeq(player_guid[5]);
             data->WriteByteSeq(bg_guid[6]);
@@ -765,7 +765,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             uint32 pointsGained = rating_change > 0 ? rating_change : 0;
             uint32 MatchmakerRating = bg->GetArenaMatchmakerRatingByIndex(i);
 
-            if (i == 1)
+            if(i == 1)
             {
                 *data << uint32(pointsLost);                    // Rating Lost
                 *data << uint32(MatchmakerRating);              // Matchmaking Value
@@ -864,20 +864,6 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
     *data << uint32(field);
     *data << uint32(value);
     data->WriteBit(0);
-}
-
-void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
-{
-    data->Initialize(SMSG_PLAY_SOUND, 4 + 8);
-    ObjectGuid guid = 0;
-    
-    uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    data->WriteBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-    data->WriteBytesSeq(guid, bytes);
-
-    *data << uint32(soundid);
 }
 
 void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint64 guid)

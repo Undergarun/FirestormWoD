@@ -230,7 +230,7 @@ class BattlegroundBFG : public Battleground
 
         /* Score-keeping */
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        void FillInitialWorldStates(ByteBuffer& data);
+        void FillInitialWorldStates(WorldPacket& data);
 
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
@@ -259,19 +259,19 @@ class BattlegroundBFG : public Battleground
          *  3: ally occupied
          *  4: horde occupied
          */
-        uint8                   m_Nodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
-        uint8                   m_prevNodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
-        GILNEAS_BG_BannerTimer  m_BannerTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
-        uint32                  m_NodeTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+        uint8               m_Nodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+        uint8               m_prevNodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+        GILNEAS_BG_BannerTimer   m_BannerTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+        uint32              m_NodeTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
 
-        uint32                  m_lastTick[BG_TEAMS_COUNT];
-        uint32                  m_HonorScoreTicks[BG_TEAMS_COUNT];
-        uint32                  m_ReputationScoreTicks[BG_TEAMS_COUNT];
+        uint32              m_lastTick[BG_TEAMS_COUNT];
+        uint32              m_HonorScoreTicks[BG_TEAMS_COUNT];
+        uint32              m_ReputationScoreTicks[BG_TEAMS_COUNT];
 
-        bool                    m_IsInformedNearVictory;
-        uint32                  m_HonorTicks;
-        uint32                  m_ReputationTicks;
-        bool                    m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                m_IsInformedNearVictory;
+        uint32              m_HonorTicks;
+        uint32              m_ReputationTicks;
+        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
 };
 
 #endif

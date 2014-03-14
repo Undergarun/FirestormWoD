@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -1655,9 +1655,7 @@ void ObjectMgr::LoadCreatures()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-
-            // @DEV Update creature table
-            WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            //WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         ++count;
@@ -1916,15 +1914,14 @@ void ObjectMgr::LoadGameobjects()
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) spawned on a non-existed map (Id: %u), skip", guid, data.id, data.mapid);
             continue;
         }
-        
-        // @DEV
+
         if (!data.zoneId || !data.areaId)
         {
             uint32 zoneId = 0;
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-            WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            //WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
@@ -3564,6 +3561,20 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     }
 }
 
+/* Need to add new fields
+        RequiredFactionKills        after RequiredFactionValue2
+        RequiredFactionKillsCount   after RequiredFactionKills
+        RequiredPetBattleWith       after RequiredFactionKillsCount
+        RewardXPId                  after RewardXPId
+        move EndText                after RequestItemsText
+        Add RequiredNpcOrGo 5 to 10 after RequiredNpcOrGo4
+        RequiredNpcOrGoCount 5 to 10 after RequiredNpcOrGoCount4
+        RequiredItemId 7 to 10      after RequiredItemId6
+        RequiredItemCount 7 to 10   after RequiredItemCount6
+        RequiredSpellCast 5 to 6    after RequiredSpellCast4
+        ObjectiveText 5 to 10       after ObjectiveText4
+        remove QuestGiverTargetName
+*/
 void ObjectMgr::LoadQuests()
 {
     uint32 oldMSTime = getMSTime();
@@ -3575,21 +3586,6 @@ void ObjectMgr::LoadQuests()
 
     mExclusiveQuestGroups.clear();
 
-
-    /* Need to add new fields
-            RequiredFactionKills        after RequiredFactionValue2
-            RequiredFactionKillsCount   after RequiredFactionKills
-            RequiredPetBattleWith       after RequiredFactionKillsCount
-            RewardXPId                  after RewardXPId
-            move EndText                after RequestItemsText
-            Add RequiredNpcOrGo 5 to 10 after RequiredNpcOrGo4
-            RequiredNpcOrGoCount 5 to 10 after RequiredNpcOrGoCount4
-            RequiredItemId 7 to 10      after RequiredItemId6
-            RequiredItemCount 7 to 10   after RequiredItemCount6
-            RequiredSpellCast 5 to 6    after RequiredSpellCast4
-            ObjectiveText 5 to 10       after ObjectiveText4
-            remove QuestGiverTargetName
-    */
     QueryResult result = WorldDatabase.Query("SELECT "
         //0     1      2        3        4           5       6            7             8           9              10              11             12                 13
         "Id, Method, Level, MinLevel, MaxLevel, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredTeam, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
@@ -6067,7 +6063,7 @@ void ObjectMgr::LoadAccessRequirements()
 
     _accessRequirementStore.clear();                                  // need for reload case
 
-    //                                               0      1           2          3          4     5      6             7             8                      9                 10              11
+    //                                               0      1           2          3          4     5      6             7             8                      9              10             11
     QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, itemlevel_min, itemlevel_max, quest_failed_text FROM access_requirement");
     if (!result)
     {
@@ -9090,6 +9086,95 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     if (itr != _vehicleTemplateAccessoryStore.end())
         return &itr->second;
     return NULL;
+}
+
+void ObjectMgr::LoadResearchSiteZones()
+{
+    QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, zone FROM research_site");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 research site zones. DB table `research_site` is empty.");
+        return;
+    }
+
+    uint32 counter = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 siteId = 0;
+        uint32 mapId = 0;
+        uint32 POIid = fields[0].GetUInt32();
+        uint32 zoneId = fields[3].GetUInt16();
+
+        bool bFound = false;
+        for (std::set<ResearchSiteEntry const*>::const_iterator itr = sResearchSiteSet.begin(); itr != sResearchSiteSet.end(); ++itr)
+            if ((*itr)->POIid == POIid)
+            {
+                bFound = true;
+                siteId = (*itr)->ID;
+                mapId = (*itr)->mapId;
+                break;
+            }
+        if (!bFound)
+            continue;
+
+        ResearchZoneEntry &ptr = _researchZoneMap[siteId];
+        ptr.coords.push_back(ResearchPOIPoint(fields[1].GetInt32(), fields[2].GetInt32()));
+        ptr.map = mapId;
+        ptr.zone = zoneId;
+        ptr.level = 0;
+        for (uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)
+        {
+            AreaTableEntry const* area = sAreaStore.LookupEntry(i);
+            if (!area)
+                continue;
+
+            if (area->mapid == ptr.map && area->zone == ptr.zone)
+            {
+                ptr.level = area->area_level;
+                break;
+            }
+        }
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u research site zones.", counter);
+}
+
+void ObjectMgr::LoadResearchSiteLoot()
+{
+    QueryResult result = WorldDatabase.Query("SELECT site_id, x, y, z, race FROM research_loot");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 research loot. DB table `research_loot` is empty.");
+        return;
+    }
+
+    uint32 counter = 0;
+
+    do
+    {
+        ResearchLootEntry dg;
+        {
+            Field *fields = result->Fetch();
+
+            dg.id = uint16(fields[0].GetUInt32());
+            dg.x = fields[1].GetFloat();
+            dg.y = fields[2].GetFloat();
+            dg.z = fields[3].GetFloat();
+            dg.race = fields[4].GetUInt8();
+        }
+
+        _researchLoot.push_back(dg);
+
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u research site loot.", counter);
 }
 
 void ObjectMgr::LoadSkipUpdateZone()

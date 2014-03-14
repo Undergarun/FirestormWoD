@@ -25,7 +25,6 @@
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "Transport.h"
-#include "MapManager.h"
 
 BattlegroundIC::BattlegroundIC()
 {
@@ -78,7 +77,7 @@ void BattlegroundIC::SendTransportInit(Player* player)
     if (!gunshipAlliance || !gunshipHorde)
         return;
 
-    UpdateData transData(player->GetMapId());
+    /*UpdateData transData(player->GetMapId());
 
     gunshipAlliance->BuildCreateUpdateBlockForPlayer(&transData, player);
     gunshipHorde->BuildCreateUpdateBlockForPlayer(&transData, player);
@@ -86,7 +85,7 @@ void BattlegroundIC::SendTransportInit(Player* player)
     WorldPacket packet;
 
     if (transData.BuildPacket(&packet))
-        player->GetSession()->SendPacket(&packet);
+        player->GetSession()->SendPacket(&packet);*/
 }
 
 void BattlegroundIC::DoAction(uint32 action, uint64 var)
@@ -366,7 +365,7 @@ void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     }
 }
 
-void BattlegroundIC::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundIC::FillInitialWorldStates(WorldPacket& data)
 {
     data << uint32(BG_IC_ALLIANCE_RENFORT_SET) << uint32(1);
     data << uint32(BG_IC_HORDE_RENFORT_SET) << uint32(1);

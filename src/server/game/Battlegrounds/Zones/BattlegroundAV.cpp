@@ -521,8 +521,6 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
             //Source->Unmount();
             break;
         default:
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-//            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 
@@ -1050,7 +1048,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_ASSAULTS:AV_SOUND_HORDE_ASSAULTS);
 }
 
-void BattlegroundAV::FillInitialWorldStates(ByteBuffer& data)
+void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
 {
     bool stateok;
     //graveyards
