@@ -997,9 +997,9 @@ Player::~Player()
     //m_social = NULL;
 
     // temp check
-    for (uint8 i = 0; i < PLAYER_SLOT_COUNT; i++)
+    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
     {
-        for (uint8 slot = 0; slot < PLAYER_SLOT_COUNT; slot++)
+        for (uint8 slot = 0; slot < PLAYER_SLOTS_COUNT; slot++)
         {
             if (m_items[i] == m_items[slot] && slot!= i)
                 sLog->OutPandashan("Player[%u] have same item pointer in two slot ! (slot: %u, copy slot: %u)", GetGUIDLow(), i, slot);
