@@ -2442,11 +2442,11 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     trans->Append(stmt);
 
     // CHECK PTR
-    if (oldData)
+    if (nameData)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
         stmt->setUInt32(0, lowGuid);
-        stmt->setString(1, oldData->m_name);
+        stmt->setString(1, nameData->m_name);
         stmt->setString(2, newname);
         trans->Append(stmt);
     }

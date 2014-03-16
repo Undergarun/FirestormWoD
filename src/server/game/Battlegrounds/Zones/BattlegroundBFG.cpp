@@ -286,7 +286,7 @@ int32 BattlegroundBFG::_GetNodeNameId(uint8 node)
     return 0;
 }
 
-void BattlegroundBFG::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundBFG::FillInitialWorldStates(ByteBuffer& data)
 {
     const uint8 plusArray[] = { 0, 2, 3, 0, 1 };
 

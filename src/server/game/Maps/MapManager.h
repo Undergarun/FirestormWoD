@@ -150,6 +150,10 @@ class MapManager
         void RegisterInstanceId(uint32 instanceId);
         void FreeInstanceId(uint32 instanceId);
 
+        // Map max diff functions
+        bool HaveMaxDiff() const { return m_mapDiffLimit; }
+        void SetMapDiffLimit(bool value) { m_mapDiffLimit = value; }
+        
         uint32 GetNextInstanceId() const { return _nextInstanceId; };
         void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
@@ -184,6 +188,7 @@ class MapManager
         InstanceIds _instanceIds;
         uint32 _nextInstanceId;
         MapUpdater m_updater;
+        bool m_mapDiffLimit;
 };
 #define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()
 #endif

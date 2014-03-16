@@ -122,7 +122,7 @@ void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid, Source);
 }
 
-void BattlegroundNA::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundNA::FillInitialWorldStates(ByteBuffer &data)
 {
     data << uint32(0xa11) << uint32(1);           // 9
     UpdateArenaWorldState();
