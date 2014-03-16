@@ -72,7 +72,10 @@ enum DeathKnightSpells
     DK_SPELL_RUNIC_CORRUPTION_REGEN             = 51460,
     DK_SPELL_RUNIC_EMPOWERMENT                  = 81229,
     DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL       = 114869,
-    DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 49575
+    DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 49575,
+    DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION          = 127344,
+    DK_SPELL_GLYPH_OF_HORN_OF_WINTER            = 58680,
+    DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920
 };
 
 // Gorefiend's Grasp - 108199
@@ -1838,6 +1841,72 @@ class spell_dk_death_grip : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_death_grip_SpellScript();
+        }
+};
+
+// Glyph of Corpse Explosion - 59336
+class spell_dk_glyph_of_corpse_explosion : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_corpse_explosion() : SpellScriptLoader("spell_dk_glyph_of_corpse_explosion") { }
+
+        class spell_dk_glyph_of_corpse_explosion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_corpse_explosion_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION))
+                        _player->removeSpell(DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_glyph_of_corpse_explosion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_glyph_of_corpse_explosion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_corpse_explosion_AuraScript();
+        }
+};
+
+// Glyph of Horn of Winter - 58680
+// Called by Horn of Winter - 57330
+class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_horn_of_winter() : SpellScriptLoader("spell_dk_glyph_of_horn_of_winter") { }
+
+        class spell_dk_glyph_of_horn_of_winter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_glyph_of_horn_of_winter_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (!_player->isInCombat() && _player->HasAura(DK_SPELL_GLYPH_OF_HORN_OF_WINTER))
+                        _player->CastSpell(_player, DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT, true);
+            }
+			
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_dk_glyph_of_horn_of_winter_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_glyph_of_horn_of_winter_SpellScript();
         }
 };
 

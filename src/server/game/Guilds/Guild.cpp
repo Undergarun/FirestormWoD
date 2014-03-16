@@ -2083,6 +2083,13 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
         SendBankList(session, 0, false, false);
 }
 
+void Guild::DepositMoney(uint64 amount)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    _ModifyBankMoney(trans, amount, true);
+    CharacterDatabase.CommitTransaction(trans);
+}
+
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair)
 {
     // clamp amount to MAX_MONEY_AMOUNT, Players can't hold more than that anyway

@@ -294,6 +294,7 @@ struct CreatureData
     uint32 spawnMask;
     uint32 npcflag;
     uint32 unit_flags;                                      // enum UnitFlags mask values
+    uint32 unit_flags2;                                     // enum UnitFlags mask values
     uint32 dynamicflags;
     bool isActive;
     bool dbData;

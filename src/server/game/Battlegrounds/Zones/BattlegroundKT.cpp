@@ -139,7 +139,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
     uint32 index = target_obj->GetEntry() - BG_KT_OBJECT_ORB_1_ENTRY;
 
     // If this orb is already keeped by a player, there is a problem
-    if (index > MAX_ORBS || m_OrbKeepers[index] != 0)
+    if (index >= MAX_ORBS || m_OrbKeepers[index] != 0)
         return;
 
     // Check if the player already have an orb

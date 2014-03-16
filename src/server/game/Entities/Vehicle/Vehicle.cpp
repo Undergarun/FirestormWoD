@@ -553,6 +553,9 @@ void Vehicle::InitMovementInfoForBase()
 
 VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger)
 {
+    if (!passenger)
+        return NULL;
+
     SeatMap::iterator itr;
     for (itr = Seats.begin(); itr != Seats.end(); ++itr)
         if (itr->second.Passenger == passenger->GetGUID())

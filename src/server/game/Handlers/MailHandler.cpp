@@ -746,7 +746,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             ObjectGuid senderGuid = (*itr)->sender;
 
             uint8 bytesOrder[8] = { 2, 0, 4, 5, 3, 6, 1, 7 };
-            dataBuffer.WriteBytesSeq(senderGuid, bitsOrder);
+            dataBuffer.WriteBytesSeq(senderGuid, bytesOrder);
         }
 
         if ((*itr)->subject.size())

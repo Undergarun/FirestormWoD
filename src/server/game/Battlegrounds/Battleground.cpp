@@ -254,10 +254,10 @@ void Battleground::Update(uint32 diff)
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();
-            // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+            // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (GetElapsedTime() >= 47 *  MINUTE*IN_MILLISECONDS)
+                if (GetElapsedTime() >= 20 *  MINUTE * IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
                     CheckArenaAfterTimerConditions();
@@ -785,10 +785,10 @@ void Battleground::EndBattleground(uint32 winner)
             SetArenaTeamRatingChangeForTeam(winner, winner_change);
             SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
 
-            if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
-                for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
-                    if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                        sLog->outArena("Statistics match Type: %u for %s (GUID: " UI64FMTD ", IP: %s): %u damage, %u healing, %u killing blows", m_ArenaType, player->GetName(), itr->first, player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
+            //if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
+            //    for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
+            //        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            //            sLog->outArena("Statistics match Type: %u for %s (GUID: " UI64FMTD ", IP: %s): %u damage, %u healing, %u killing blows", m_ArenaType, player->GetName(), itr->first, player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
         }
         // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
         else
@@ -812,9 +812,9 @@ void Battleground::EndBattleground(uint32 winner)
             if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
             {
                 if (team == winner)
-                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, winner_matchmaker_change);
+                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, Arena::GetSlotByType(GetArenaType()), winner_matchmaker_change);
                 else
-                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating, loser_matchmaker_change);
+                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating, Arena::GetSlotByType(GetArenaType()), loser_matchmaker_change);
             }
             continue;
         }
@@ -1143,8 +1143,8 @@ void Battleground::StartBattleground()
     // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
     // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
     sBattlegroundMgr->AddBattleground(GetInstanceID(), GetTypeID(), this);
-    if (m_IsRated)
-        sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
+    //if (m_IsRated)
+    //    sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
 
 void Battleground::BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team)

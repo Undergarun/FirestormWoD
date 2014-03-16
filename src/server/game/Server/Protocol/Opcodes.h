@@ -25,6 +25,14 @@
 
 #include "Common.h"
 
+enum OpcodeTransferDirection : uint8
+{
+    WOW_SERVER = 0,
+    WOW_CLIENT = 1,
+
+    TRANSFER_DIRECTION_MAX = 2
+};
+
 /// List of Opcodes
 enum Opcodes
 {
@@ -213,7 +221,7 @@ enum Opcodes
     CMSG_GMTICKET_DELETETICKET                        = 0x1206, // 5.4.0 17399
     CMSG_GMTICKET_GETTICKET                           = 0x1B46, // 5.4.0 17399
     CMSG_GMTICKET_GETWEBTICKET                        = 0x1ACA, // 5.4.0 17399
-    CMSG_GMTICKET_SYSTEMSTATUS                        = 0x000, // 5.4.0 17399
+    CMSG_GMTICKET_SYSTEMSTATUS                        = 0x000,  // 5.4.0 17399
     CMSG_GMTICKET_UPDATETEXT                          = 0x178B, // 5.4.0 17399
     CMSG_GM_INVIS                                     = 0x000,  // 5.0.5 16048
     CMSG_GM_NUKE                                      = 0x000,  // 5.0.5 16048
@@ -452,7 +460,7 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x16CF, // 5.4.0 17399
     CMSG_REQUEST_PET_INFO                             = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x000,  // 5.0.5 16048
-    CMSG_REQUEST_PVP_REWARDS                          = 0x1B16, // 5.0.5 16048
+    CMSG_REQUEST_PVP_REWARDS                          = 0x1B16, // 5.4.0 17399
     CMSG_REQUEST_RAID_INFO                            = 0x1612, // 5.4.0 17399
     CMSG_REQUEST_RATED_BG_INFO                        = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RATED_BG_STATS                       = 0x13C6, // 5.4.0 17399
@@ -654,6 +662,7 @@ enum Opcodes
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x5B0,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AI_REACTION                                  = 0x5B1,  // 5.4.0 17399
     SMSG_ALL_ACHIEVEMENT_DATA                         = 0x816,  // 5.4.0 17399
+    SMSG_APPLY_MOVEMENT_FORCE                         = 0x1766, // 5.4.0 17399
     SMSG_AREA_SPIRIT_HEALER_TIME                      = 0x092,  // 5.4.0 17399
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                 = 0x8A3,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x81A,  // 5.4.0 17399 (JamList) (NYI)
@@ -1496,6 +1505,7 @@ enum Opcodes
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x194,  // 5.4.0 17399
     SMSG_TUTORIAL_FLAGS                               = 0x1F35, // 5.4.0 17399
     SMSG_UI_TIME                                      = 0x000,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x1376, // 5.4.0 17399
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x000,  // 5.0.5 16048
     SMSG_UNIT_SPELLCAST_START                         = 0x000,  // 5.0.5 16048
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x0A9,  // 5.4.0 17399
@@ -1581,7 +1591,7 @@ struct OpcodeHandler
     pOpcodeHandler handler;
 };
 
-extern OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS];
+extern OpcodeHandler* opcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS];
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
@@ -1593,13 +1603,19 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
 
     if (id < UNKNOWN_OPCODE)
     {
-        if (OpcodeHandler* handler = opcodeTable[uint32(id) & 0x7FFF])
+        bool foundet = false;
+        for (int t = 0; t < 2; ++t)
         {
+            OpcodeHandler* handler = opcodeTable[t][uint32(id) & 0x7FFF];
+            if (!handler)
+                continue;
+
+            foundet = true;
             ss << handler->name;
-            if (opcode & COMPRESSED_OPCODE_MASK)
-                ss << "_COMPRESSED";
+            break;
         }
-        else
+
+        if (!foundet)
             ss << "UNKNOWN OPCODE";
     }
     else

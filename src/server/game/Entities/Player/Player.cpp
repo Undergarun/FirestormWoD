@@ -987,6 +987,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_initializeCallback = false;
     m_storeCallbackCounter = 0;
+
+    m_needSummonPetAfterStopFlying = false;
 }
 
 Player::~Player()
@@ -1425,6 +1427,13 @@ void Player::RewardCurrencyAtKill(Unit* victim)
     if (!Curr)
         return;
 
+    bool result = true;
+    if (victim->ToCreature()->AI())
+        victim->ToCreature()->AI()->CurrenciesRewarder(result);
+
+    if (!result)
+        return;
+
     if (Curr->currencyId1 && Curr->currencyCount1)
     {
         if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
@@ -1824,7 +1833,7 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     SendMessageToSet(&data, true);
 }
 
-void Player::Update(uint32 p_time)
+void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 {
     if (!IsInWorld())
         return;
@@ -2245,6 +2254,17 @@ void Player::Update(uint32 p_time)
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
         RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, true, pet->m_Stampeded);
+
+    if (pet && IsFlying() && !pet->isPossessed())
+    {
+        UnsummonPetTemporaryIfAny();
+        m_needSummonPetAfterStopFlying = true;
+    }
+    else if (!IsFlying() && m_needSummonPetAfterStopFlying)
+    {
+        ResummonPetTemporaryUnSummonedIfAny();
+        m_needSummonPetAfterStopFlying = false;
+    }
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
@@ -2769,7 +2789,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // remove pet on map change
             if (pet)
                 UnsummonPetTemporaryIfAny();
-
+				
+            // remove stealth on map change
+            if (HasAuraType(SPELL_AURA_MOD_STEALTH))
+                RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
             // remove all dyn objects and AreaTrigger
             RemoveAllDynObjects();
             RemoveAllAreasTrigger();
@@ -6919,7 +6942,7 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
 
 float Player::GetBaseModValue(BaseModGroup modGroup, BaseModType modType) const
 {
-    if (modGroup >= BASEMOD_END || modType > MOD_END)
+    if (modGroup >= BASEMOD_END || modType >= MOD_END)
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "trial to access non existed BaseModGroup or wrong BaseModType!");
         return 0.0f;
@@ -11571,7 +11594,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
-                    if (mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                    if (!CanTitanGrip() && mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                     {
                         const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                         break;
@@ -11581,7 +11604,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
 
             if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
             {
-                if (proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                if (!CanTitanGrip() && proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                 {
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
@@ -11610,7 +11633,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     break;
                 }
             }
-            if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_POLEARM && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
+            if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
         case INVTYPE_TABARD:
@@ -17832,24 +17855,6 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
         return true;
     }
 
-    bool have_slot = false;
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-    {
-        uint32 id = GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx);
-        if (qInfo->GetQuestId() == id)
-            return false;
-
-        if (!id)
-            have_slot = true;
-    }
-
-    if (!have_slot)
-    {
-        if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DAILY_QUESTS_REMAINING);
-        return false;
-    }
-
     return true;
 }
 
@@ -20580,8 +20585,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
 void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 {
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-        SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, 0);
+    m_dailyQuestStorage.clear();
 
     m_DFQuests.clear();
 
@@ -20589,8 +20593,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
     if (result)
     {
-        uint32 quest_daily_idx = 0;
-
         do
         {
             Field* fields = result->Fetch();
@@ -20615,6 +20617,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
             SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, quest_id);
             ++quest_daily_idx;
+            m_dailyQuestStorage.insert(quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -21350,7 +21353,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
         stmt->setUInt8(index++, m_currentPetSlot);
-        stmt->setUInt8(index++, m_petSlotUsed);
+        stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
     }
     else
@@ -21476,7 +21479,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
         stmt->setUInt8(index++, m_currentPetSlot);
-        stmt->setUInt8(index++, m_petSlotUsed);
+        stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
 
         stmt->setUInt8(index++, IsInWorld() ? 1 : 0);
@@ -21971,16 +21974,14 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+
+    for (auto id : m_dailyQuestStorage)
     { 
-        if (GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx))
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-            stmt->setUInt32(0, GetGUIDLow());
-            stmt->setUInt32(1, GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx));
-            stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
-            trans->Append(stmt);
-        }
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
+        stmt->setUInt32(0, GetGUIDLow());
+        stmt->setUInt32(1, id);
+        stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
+        trans->Append(stmt);
     }
 
     if (!m_DFQuests.empty())
@@ -22440,11 +22441,8 @@ void Player::SendDungeonDifficulty(bool IsInGroup)
 
 void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
 {
-    uint8 val = 0x00000001;
-    WorldPacket data(MSG_SET_RAID_DIFFICULTY, 12);
+    WorldPacket data(MSG_SET_RAID_DIFFICULTY, 4);
     data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
-    data << uint32(val);
-    data << uint32(IsInGroup);
     GetSession()->SendPacket(&data);
 }
 
@@ -25916,12 +25914,22 @@ void Player::SendAurasForTarget(Unit* target)
     ObjectGuid targetGuid = target->GetGUID();
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
+    uint32 auraCount = 0;
+    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    {
+        AuraApplication* auraApp = itr->second;
+        if (!auraApp || !auraApp->GetBase())
+            continue;
+
+        ++auraCount;
+    }
+
     WorldPacket data(SMSG_AURA_UPDATE);
     data.WriteBit(true); // full update bit
     data.WriteBit(targetGuid[6]);
     data.WriteBit(targetGuid[1]);
     data.WriteBit(targetGuid[0]);
-    data.WriteBits(visibleAuras->size(), 24); // aura counter
+    data.WriteBits(auraCount, 24); // aura counter
     data.WriteBit(targetGuid[2]);
     data.WriteBit(targetGuid[4]);
     data.WriteBit(powerData); // has power data, don't care about it ?
@@ -25937,16 +25945,25 @@ void Player::SendAurasForTarget(Unit* target)
     data.WriteBit(targetGuid[3]);
     data.WriteBit(targetGuid[5]);
 
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    if (auraCount)
     {
-        AuraApplication * auraApp = itr->second;
-        auraApp->BuildBitsUpdatePacket(data, false);
-    }
+        for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+        {
+            AuraApplication* auraApp = itr->second;
+            if (!auraApp || !auraApp->GetBase())
+                continue;
 
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-    {
-        AuraApplication * auraApp = itr->second;
-        auraApp->BuildBytesUpdatePacket(data, false);
+            auraApp->BuildBitsUpdatePacket(data, false);
+        }
+
+        for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+        {
+            AuraApplication* auraApp = itr->second;
+            if (!auraApp || !auraApp->GetBase())
+                continue;
+
+            auraApp->BuildBytesUpdatePacket(data, false);
+        }
     }
 
     if (powerData)
@@ -25979,16 +25996,9 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
     {
         if (!qQuest->IsDFQuest())
         {
-            for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-            {
-                if (!GetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx))
-                {
-                    SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, quest_id);
-                    m_lastDailyQuestTime = time(NULL);              // last daily quest time
-                    m_DailyQuestChanged = true;
-                    break;
-                }
-            }
+            m_dailyQuestStorage.insert(quest_id);
+            m_lastDailyQuestTime = time(NULL);              // last daily quest time
+            m_DailyQuestChanged = true;
         }
         else
         {
@@ -26023,8 +26033,7 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
 
 void Player::ResetDailyQuestStatus()
 {
-    for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
-        SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx, 0);
+    m_dailyQuestStorage.clear();
 
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
@@ -28257,7 +28266,7 @@ void Player::SendEquipmentSetList()
             if (itr->second.IgnoreMask & (1 << i))
             {
                 uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
-                data.WriteBitInOrder(NULL, bitsOrder);
+                data.WriteBitInOrder(0, bitsOrder);
             }
             else
             {
@@ -28296,7 +28305,7 @@ void Player::SendEquipmentSetList()
             if (itr->second.IgnoreMask & (1 << i))
             {
                 uint8 bytesOrder[8] = { 4, 6, 3, 5, 0, 2, 1, 7 };
-                data.WriteBytesSeq(NULL, bytesOrder);
+                data.WriteBytesSeq(0, bytesOrder);
             }
             else
             {
@@ -30091,4 +30100,63 @@ void Player::SetEmoteState(uint32 anim_id)
 {
     HandleEmoteCommand(anim_id);
     m_emote = anim_id;
+}
+
+void Player::SendApplyMovementForce(bool apply, Position source, float force /*= 0.0f*/)
+{
+    ObjectGuid playerGuid = GetGUID();
+
+    if (apply)
+    {
+        // Forced movement can cumulate
+        if (hasForcedMovement)
+            return;
+
+        WorldPacket data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+
+        uint8 bits[8] = { 3, 5, 4, 6, 7, 1, 0, 2 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        data.WriteBits(1, 2);
+
+        data << float(source.GetPositionZ());
+        data << uint32(0);                  // Unk, sniffed value, not always the same
+        data.WriteByteSeq(playerGuid[5]);
+        data << uint32(1024);               // Unk, sniffed value, not always the same
+        data.WriteByteSeq(playerGuid[0]);
+        data << float(source.GetPositionY());
+        data.WriteByteSeq(playerGuid[7]);
+        data.WriteByteSeq(playerGuid[1]);
+        data << float(force);
+        data.WriteByteSeq(playerGuid[6]);
+        data.WriteByteSeq(playerGuid[2]);
+        data.WriteByteSeq(playerGuid[4]);
+        data << float(source.GetPositionX());
+        data.WriteByteSeq(playerGuid[3]);
+        data << uint32(268441055);          // Unk, sniffed value, not always the same
+
+        GetSession()->SendPacket(&data);
+
+        hasForcedMovement = true;
+    }
+    else
+    {
+        if (!hasForcedMovement)
+            return;
+
+        WorldPacket data(SMSG_UNAPPLY_MOVEMENT_FORCE, 2 * 4 + 1 + 8);
+
+        data << uint32(1024);               // Unk, sniffed value, not always the same
+        data << uint32(268441055);          // Unk, sniffed value, not always the same
+
+        uint8 bits[8] = { 6, 5, 7, 0, 4, 3, 1, 2 };
+        data.WriteBitInOrder(playerGuid, bits);
+
+        uint8 bytes[8] = { 2, 4, 5, 6, 3, 1, 0, 7 };
+        data.WriteBytesSeq(playerGuid, bytes);
+
+        GetSession()->SendPacket(&data);
+
+        hasForcedMovement = false;
+    }
 }

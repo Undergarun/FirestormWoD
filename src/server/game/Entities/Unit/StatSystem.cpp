@@ -809,6 +809,7 @@ void Player::UpdatePvPPowerPercentage()
         // Damage specializations for Druids, Monks, Paladins, Priests, and Shaman receive a 70% bonus to healing from PvP Power.
         default:
             heal_value *= 0.7f;
+            break;
     }
 
     SetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE, damage_value);

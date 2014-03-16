@@ -572,6 +572,9 @@ Aura::~Aura()
 
 Unit* Aura::GetCaster() const
 {
+    if (!GetOwner())
+        return NULL;
+
     if (GetOwner()->GetGUID() == GetCasterGUID())
         return GetUnitOwner();
     if (AuraApplication const* aurApp = GetApplicationOfTarget(GetCasterGUID()))

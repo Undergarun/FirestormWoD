@@ -1264,10 +1264,21 @@ enum ReactiveType
 
 enum PlayerTotemType
 {
-    SUMMON_TYPE_TOTEM_FIRE  = 63,
-    SUMMON_TYPE_TOTEM_EARTH = 81,
-    SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83,
+    SUMMON_TYPE_TOTEM_FIRE   = 63,
+    SUMMON_TYPE_TOTEM_FIRE2  = 3403,
+    SUMMON_TYPE_TOTEM_FIRE3  = 3599,
+    SUMMON_TYPE_TOTEM_FIRE4  = 3211,
+
+    SUMMON_TYPE_TOTEM_EARTH  = 81,
+    SUMMON_TYPE_TOTEM_EARTH2 = 3400,
+
+    SUMMON_TYPE_TOTEM_WATER  = 82,
+    SUMMON_TYPE_TOTEM_WATER2 = 3402,
+
+    SUMMON_TYPE_TOTEM_AIR    = 83,
+    SUMMON_TYPE_TOTEM_AIR2   = 3405,
+    SUMMON_TYPE_TOTEM_AIR3   = 3407,
+    SUMMON_TYPE_TOTEM_AIR4   = 3406
 };
 
 enum Stagger
@@ -1322,7 +1333,7 @@ class Unit : public WorldObject
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        virtual void Update(uint32 time);
+        virtual void Update(uint32 time, uint32 entry = 0);
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);

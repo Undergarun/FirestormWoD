@@ -270,7 +270,7 @@ public:
         if (!*args)
             return false;
 
-        const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
+        const uint8 type = 1; // @todo : make type (1 item, 2 currency) an argument
 
         char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!pitem)
@@ -314,7 +314,7 @@ public:
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, type, extendedcost);
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, type);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
@@ -335,7 +335,7 @@ public:
 
         Creature* creature = NULL;
 
-        /* FIXME: impossible without entry
+        /* @todo : impossible without entry
         if (lowguid)
             creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
         */

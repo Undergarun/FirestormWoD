@@ -66,7 +66,6 @@ class PhaseMgr;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           128
-#define PLAYER_MAX_DAILY_QUESTS     25  // @todo: remove me (removed since 5.0.4)
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
@@ -1282,7 +1281,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry = 0);
 
         static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
 
@@ -2145,7 +2144,11 @@ class Player : public Unit, public GridObject<Player>
 
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
-            ASSERT(slot < MAX_ARENA_SLOT);
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
             m_ArenaPersonalRating[slot] = value;
             if (m_BestRatingOfWeek[slot] < value)
                 m_BestRatingOfWeek[slot] = value;
@@ -2153,11 +2156,51 @@ class Player : public Unit, public GridObject<Player>
                 m_BestRatingOfSeason[slot] = value;
         }
 
-        void SetArenaMatchMakerRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_ARENA_SLOT); m_ArenaMatchMakerRating[slot] = value; }
-        void IncrementWeekGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekGames[slot]; }
-        void IncrementWeekWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_WeekWins[slot]; }
-        void IncrementSeasonGames(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonGames[slot]; }
-        void IncrementSeasonWins(uint8 slot) { ASSERT(slot < MAX_ARENA_SLOT); ++m_SeasonWins[slot]; }
+        void SetArenaMatchMakerRating(uint8 slot, uint32 value)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            m_ArenaMatchMakerRating[slot] = value;
+        }
+        void IncrementWeekGames(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_WeekGames[slot];
+        }
+        void IncrementWeekWins(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_WeekWins[slot];
+        }
+        void IncrementSeasonGames(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_SeasonGames[slot];
+        }
+        void IncrementSeasonWins(uint8 slot)
+        {
+            if (slot >= MAX_ARENA_SLOT)
+            {
+                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                return;
+            }
+            ++m_SeasonWins[slot];
+        }
         void FinishWeek();
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
@@ -2626,6 +2669,9 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
+        void SendApplyMovementForce(bool apply, Position source, float force = 0.0f);
+        bool hasForcedMovement;
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;
@@ -2728,7 +2774,7 @@ class Player : public Unit, public GridObject<Player>
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
         void UnsummonPetTemporaryIfAny();
         void ResummonPetTemporaryUnSummonedIfAny();
-        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive() || IsMounted() /*+in flight*/; }
+        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive(); }
 
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);
@@ -3206,6 +3252,8 @@ class Player : public Unit, public GridObject<Player>
         bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
 
+        bool m_needSummonPetAfterStopFlying;
+
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;
         uint32 inn_pos_mapid;
@@ -3246,6 +3294,9 @@ class Player : public Unit, public GridObject<Player>
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
         uint8 m_grantableLevels;
+
+        typedef std::set<uint32> DailyQuestList;
+        DailyQuestList m_dailyQuestStorage;
 
     private:
         // internal common parts for CanStore/StoreItem functions

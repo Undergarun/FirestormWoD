@@ -4628,10 +4628,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Deadly Throw - Interrupt spell only if used with 5 combo points
+    // Deadly Throw - Interrupt spell only if used with 3 combo points
     if (m_spellInfo->Id == 26679)
         if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            if (m_originalCaster->ToPlayer()->GetComboPoints() < 5)
+            if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
                 return;
 
     // TODO: not all spells that used this effect apply cooldown at school spells
@@ -6082,7 +6082,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
             return;
     }
 
-    switch (m_spellInfo->Id)
+    /*switch (m_spellInfo->Id)
     {
         case 84996: // Raid Marker 1
         case 84997: // Raid Marker 2
@@ -6093,7 +6093,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
             if (m_caster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            float x, y, z;
+            float x = 0.0f, y = 0.0f, z = 0.0f;
             if (m_targets.HasDst())
                 destTarget->GetPosition(x, y, z);
 
@@ -6103,7 +6103,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         }
         default:
             break;
-    }
+    }*/
 
     uint64 guid = m_caster->m_ObjectSlot[slot];
     if (guid != 0)

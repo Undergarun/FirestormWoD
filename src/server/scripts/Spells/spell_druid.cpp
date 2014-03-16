@@ -1857,8 +1857,14 @@ class spell_dru_ravage : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         _player->CastSpell(target, SPELL_DRUID_INFECTED_WOUNDS, true);
+                        if (_player->HasAura(SPELL_DRUID_STAMPEDE))
+                            _player->RemoveAura(SPELL_DRUID_STAMPEDE);
+                    }
+                }
             }
 
             void Register()
@@ -2409,7 +2415,7 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
 
             // Globals variables
             float spellRange;
-            std::list<Creature*> mushroomList;
+            std::list<uint64> mushroomList;
 
             bool Load()
             {
@@ -2427,7 +2433,7 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
                     Unit* owner = (*i)->GetOwner();
                     if (owner && owner == player && (*i)->isSummon())
                     {
-                        mushroomList.push_back((*i)->ToTempSummon());
+                        mushroomList.push_back((*i)->GetGUID());
                         continue;
                     }
                 }
@@ -2449,10 +2455,13 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
 
                 bool inRange = false;
 
-                for (std::list<Creature*>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
+                for (std::list<uint64>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
                 {
+                    Creature* mushroom = player->GetMap()->GetCreature(*i);
+                    if (!mushroom)
+                        continue;
                     Position shroomPos;
-                    (*i)->GetPosition(&shroomPos);
+                    mushroom->GetPosition(&shroomPos);
                     if (player->IsWithinDist3d(&shroomPos, spellRange)) // Must have at least one mushroom within 40 yards
                     {
                         inRange = true;
@@ -2470,22 +2479,25 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
             {
                 if (Player* player = GetCaster()->ToPlayer())
                 {
-                    for (std::list<Creature*>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
+                    for (std::list<uint64>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
                     {
+                        Creature* mushroom = player->GetMap()->GetCreature(*i);
+                        if (!mushroom)
+                            continue;
                         Position shroomPos;
-                        (*i)->GetPosition(&shroomPos);
+                        mushroom->GetPosition(&shroomPos);
                         if (!player->IsWithinDist3d(&shroomPos, spellRange))
                             continue;
 
-                        (*i)->SetVisible(true);
+                        mushroom->SetVisible(true);
 
-                        player->CastSpell((*i), DRUID_SPELL_WILD_MUSHROOM_DAMAGE, true);    // Damage
+                        player->CastSpell(mushroom, DRUID_SPELL_WILD_MUSHROOM_DAMAGE, true);    // Damage
 
-                        player->CastSpell((*i), DRUID_SPELL_FUNGAL_GROWTH_SUMMON, true);    // Fungal Growth
+                        player->CastSpell(mushroom, DRUID_SPELL_FUNGAL_GROWTH_SUMMON, true);    // Fungal Growth
 
-                        (*i)->CastSpell((*i), DRUID_SPELL_WILD_MUSHROOM_DEATH_VISUAL, true);// Explosion visual
-                        (*i)->CastSpell((*i), DRUID_SPELL_WILD_MUSHROOM_SUICIDE, true);     // Suicide
-                        (*i)->DespawnOrUnsummon(500);
+                        mushroom->CastSpell(mushroom, DRUID_SPELL_WILD_MUSHROOM_DEATH_VISUAL, true);// Explosion visual
+                        mushroom->CastSpell(mushroom, DRUID_SPELL_WILD_MUSHROOM_SUICIDE, true);     // Suicide
+                        mushroom->DespawnOrUnsummon(500);
                     }
                 }
             }
@@ -2515,7 +2527,7 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
 
             // Globals variables
             float spellRange;
-            std::list<TempSummon*> mushroomList;
+            std::list<uint64> mushroomList;
 
             bool Load()
             {
@@ -2526,7 +2538,7 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
                     return false;
 
                 std::list<Creature*> list;
-                std::list<TempSummon*> summonList;
+                std::list<uint64> summonList;
                 player->GetCreatureListWithEntryInGrid(list, DRUID_NPC_WILD_MUSHROOM, 500.0f);
 
                 for (std::list<Creature*>::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -2534,7 +2546,7 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
                     Unit* owner = (*i)->GetOwner();
                     if (owner && owner == player && (*i)->isSummon())
                     {
-                        summonList.push_back((*i)->ToTempSummon());
+                        summonList.push_back((*i)->GetGUID());
                         continue;
                     }
                 }
@@ -2557,10 +2569,13 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
 
                 bool inRange = false;
 
-                for (std::list<TempSummon*>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
+                for (std::list<uint64>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
                 {
+                    Creature* mushroom = player->GetMap()->GetCreature(*i);
+                    if (!mushroom)
+                        continue;
                     Position shroomPos;
-                    (*i)->GetPosition(&shroomPos);
+                    mushroom->GetPosition(&shroomPos);
                     if (player->IsWithinDist3d(&shroomPos, spellRange)) // Must have at least one mushroom within 40 yards
                     {
                         inRange = true;
@@ -2578,15 +2593,18 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
             {
                 if (Player* player = GetCaster()->ToPlayer())
                 {
-                    for (std::list<TempSummon*>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
+                    for (std::list<uint64>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
                     {
+                        Creature* mushroom = player->GetMap()->GetCreature(*i);
+                        if (!mushroom)
+                            continue;
                         Position shroomPos;
-                        (*i)->GetPosition(&shroomPos);
+                        mushroom->GetPosition(&shroomPos);
                         if (!player->IsWithinDist3d(&shroomPos, spellRange))
                             continue;
 
-                        (*i)->CastSpell((*i), DRUID_SPELL_WILD_MUSHROOM_SUICIDE, true); // Explosion visual and suicide
-                        player->CastSpell((*i)->GetPositionX(), (*i)->GetPositionY(), (*i)->GetPositionZ(), SPELL_DRUID_WILD_MUSHROOM_HEAL, true); // heal
+                        mushroom->CastSpell(mushroom, DRUID_SPELL_WILD_MUSHROOM_SUICIDE, true); // Explosion visual and suicide
+                        player->CastSpell(mushroom->GetPositionX(), mushroom->GetPositionY(), mushroom->GetPositionZ(), SPELL_DRUID_WILD_MUSHROOM_HEAL, true); // heal
                     }
                 }
             }
@@ -2935,7 +2953,8 @@ class spell_dru_innervate : public SpellScriptLoader
                             mana *= 2;
 
                         if (AuraPtr innervate = target->GetAura(29166))
-                            innervate->GetEffect(0)->ChangeAmount(mana / 10);
+                            if (innervate->GetEffect(0))
+                                innervate->GetEffect(0)->ChangeAmount(mana / 10);
                     }
                 }
             }

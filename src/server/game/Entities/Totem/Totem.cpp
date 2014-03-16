@@ -32,7 +32,7 @@ Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(prop
     m_type = TOTEM_PASSIVE;
 }
 
-void Totem::Update(uint32 time)
+void Totem::Update(uint32 time, uint32 entry)
 {
     if (!m_owner->isAlive() || !isAlive())
     {
@@ -48,12 +48,15 @@ void Totem::Update(uint32 time)
     else
         m_duration -= time;
 
-    Creature::Update(time);
+    Creature::Update(time, entry);
 }
 
 void Totem::InitStats(uint32 duration)
 {
-    uint32 spellId1, spellId2, spellId3, spellId4;
+    uint32 spellId1 = 0;
+    uint32 spellId2 = 0;
+    uint32 spellId3 = 0;
+    uint32 spellId4 = 0;
 
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (m_owner->GetTypeId() == TYPEID_PLAYER
@@ -79,8 +82,6 @@ void Totem::InitStats(uint32 duration)
         data.WriteByteSeq(totemGuid[5]);
 
         m_owner->ToPlayer()->SendDirectMessage(&data);
-
-        spellId1 = spellId2 = spellId3 = spellId4 = 0;
 
         // set display id depending on caster's race
         if (m_owner->getClass() == CLASS_SHAMAN)
@@ -143,7 +144,8 @@ void Totem::InitStats(uint32 duration)
     m_duration = duration;
 
     SetLevel(m_owner->getLevel());
-    // TODO some totems don't receive stamina from owner
+
+    // Totems must receive stamina from owner
     if (GetEntry() == STONECLAW_TOTEM_ENTRY)
         SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
     if (m_owner->HasAura(63298))

@@ -109,6 +109,9 @@ class CreatureAI : public UnitAI
         // Called when the creature kills a unit
         virtual void KilledUnit(Unit* /*victim*/) {}
 
+        // Called when the killer is rewarded with currencies
+        virtual void CurrenciesRewarder(bool& result) { }
+
         // Called when the creature summon successfully other creature
         virtual void JustSummoned(Creature* /*summon*/) {}
         virtual void IsSummonedBy(Unit* /*summoner*/) {}

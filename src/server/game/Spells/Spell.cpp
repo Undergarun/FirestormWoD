@@ -1193,6 +1193,19 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             return;
         }
+        case 117230: // Overpowered
+        {
+            // remove existing targets
+            CleanupTargetList();
+
+            if (!targets.empty())
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if ((*itr) && (*itr)->ToUnit())
+                        if ((*itr)->GetEntry() == 60583 || (*itr)->GetEntry() == 60585 || (*itr)->GetEntry() == 60586)
+                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
+
+            return;
+        }
         case 120764: // Ghost Essence
         {
             // remove existing targets
@@ -2800,6 +2813,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
         // Send log damage message to client
+        if (missInfo == SPELL_MISS_REFLECT)
+            damageInfo.attacker = unit;
         caster->SendSpellNonMeleeDamageLog(&damageInfo);
 
         procEx |= createProcExtendMask(&damageInfo, missInfo);
@@ -5061,6 +5076,10 @@ void Spell::SendSpellGo()
         && m_spellPowerData->powerType != POWER_HEALTH)
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    // Hack fix to avoid wow error
+    if (m_spellInfo->Id == 116803 || m_spellInfo->Id == 118327)
+        castFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
@@ -5108,7 +5127,9 @@ void Spell::SendSpellGo()
     bool hasBit102 = false;
     bool hasBit106 = false;
     bool hasRuneStateBefore = m_runesState;
-    bool hasRuneStateAfter = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT &&  m_caster->ToPlayer()->GetRunesState();
+    bool hasRuneStateAfter = false;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT &&  m_caster->ToPlayer()->GetRunesState())
+        hasRuneStateAfter = true;
     bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;

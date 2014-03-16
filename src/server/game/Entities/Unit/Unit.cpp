@@ -353,7 +353,7 @@ Unit::~Unit()
     //ASSERT(m_AreaTrigger.empty());
 }
 
-void Unit::Update(uint32 p_time)
+void Unit::Update(uint32 p_time, uint32 entry /*= 0*/)
 {
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
@@ -4237,9 +4237,11 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
-        if (aura != exceptAura && (!exceptAuraId || aura->GetId() != exceptAuraId) &&
-            (!casterGUID || aura->GetCasterGUID() == casterGUID) &&
-            ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
+        if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+            continue;
+
+        if (aura != except && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+            && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
         {
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aurApp);
@@ -4313,6 +4315,9 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         ++iter;
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
+            if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+                continue;
+
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aura);
             if (m_removedAurasCount > removedAuras + 1)
@@ -10216,6 +10221,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 403 && procSpell->Id != 421)
                 return false;
 
+            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
+                return false;
+
             break;
         }
         case 49572: // Shadow infusion
@@ -10273,6 +10281,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (procSpell->Id != 23922 || procEx != PROC_EX_CRITICAL_HIT)
+                return false;
+
+            break;
+        }
+        case 57954: // Glyph of Fire From the Heavens
+        {
+            if (!procSpell)
+                return false;
+
+            if ((procSpell->Id != 24275 && procSpell->Id != 20271) || procEx != PROC_EX_CRITICAL_HIT)
                 return false;
 
             break;
@@ -13792,7 +13810,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     }
 
     // Sudden Death - 29725
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == BASE_ATTACK || attType == OFF_ATTACK || spellProto->Id == 76838))
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == BASE_ATTACK || attType == OFF_ATTACK || spellProto))
         if (roll_chance_i(10))
             CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
 
@@ -14549,7 +14567,7 @@ bool Unit::isTargetableForAttack(bool checkFakeDeath) const
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC))
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC) && GetEntry() != 62983)
         return false;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
@@ -14587,7 +14605,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // can't attack own vehicle or passenger
     if (m_vehicle)
-        if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
+        if (IsOnVehicle(target) || (m_vehicle->GetBase() && m_vehicle->GetBase()->IsOnVehicle(target)))
             return false;
 
     // can't attack invisible (ignore stealth for aoe spells) also if the area being looked at is from a spell use the dynamic object created instead of the casting unit.
@@ -14600,7 +14618,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // can't attack untargetable
     if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE))
-        && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+        && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE) && target->GetEntry() != 62983)
         return false;
 
     if (Player const* playerAttacker = ToPlayer())
@@ -14706,7 +14724,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
 
     // can't assist own vehicle or passenger
     if (m_vehicle)
-        if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
+        if (IsOnVehicle(target) || (m_vehicle->GetBase() && m_vehicle->GetBase()->IsOnVehicle(target)))
             return false;
 
     // can't assist invisible
@@ -17801,7 +17819,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
             i->aura->DropCharge();
         }
-
         i->aura->CallScriptAfterProcHandlers(aurApp, eventInfo);
 
         if (spellInfo->AttributesEx3 & SPELL_ATTR3_DISABLE_PROC)
@@ -20892,10 +20909,26 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 }
 
 uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
-    // TODO FIND for Pandaren horde/alliance
 {
-    if (totemType == 3211)
-        totemType = SUMMON_TYPE_TOTEM_FIRE;
+    switch (totemType)
+    {
+        case SUMMON_TYPE_TOTEM_FIRE2:
+        case SUMMON_TYPE_TOTEM_FIRE3:
+        case SUMMON_TYPE_TOTEM_FIRE4:
+            totemType = SUMMON_TYPE_TOTEM_FIRE;
+            break;
+        case SUMMON_TYPE_TOTEM_EARTH2:
+            totemType = SUMMON_TYPE_TOTEM_EARTH;
+            break;
+        case SUMMON_TYPE_TOTEM_WATER2:
+            totemType = SUMMON_TYPE_TOTEM_WATER;
+            break;
+        case SUMMON_TYPE_TOTEM_AIR2:
+        case SUMMON_TYPE_TOTEM_AIR3:
+        case SUMMON_TYPE_TOTEM_AIR4:
+            totemType = SUMMON_TYPE_TOTEM_AIR;
+            break;
+    }
 
     switch (getRace())
     {
@@ -21083,6 +21116,11 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->second.spellId);
         // if (!spellEntry) should be checked at npc_spellclick load
+        if (!spellEntry)
+        {
+            sLog->OutPandashan("HandleSpellClick: spellEntry pointer is NULL!!");
+            return false;
+        }
 
         if (seatId > -1)
         {
@@ -21105,8 +21143,11 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, false, NULL, NULLAURA_EFFECT, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
-                int32 bp0 = seatId+1;
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0, NULL, origCasterGUID);
+                int32 bp0[MAX_SPELL_EFFECTS];
+                for (int eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
+                    bp0[eff] = spellEntry->Effects[i].BasePoints;
+                bp0[i] = seatId + 1;
+                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0[0], NULL, origCasterGUID);
             }
         }
         else
@@ -21402,6 +21443,10 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     {
         UpdatePosition(x, y, z, orientation, true);
         SendMovementFlagUpdate();
+
+        Position pos;
+        GetPosition(&pos);
+        SendTeleportPacket(pos);
     }
 }
 

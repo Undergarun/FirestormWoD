@@ -1799,6 +1799,11 @@ enum Targets
     TARGET_UNK_136                     = 136,
     TARGET_UNK_137                     = 137,
     TARGET_UNK_138                     = 138,
+    TARGET_UNK_139                     = 139,
+    TARGET_UNK_140                     = 140,
+    TARGET_UNK_141                     = 141,
+    TARGET_UNK_142                     = 142,
+    TARGET_UNK_143                     = 143,
     TOTAL_SPELL_TARGETS
 };
 

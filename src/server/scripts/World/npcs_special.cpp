@@ -2119,12 +2119,16 @@ class npc_fire_elemental : public CreatureScript
         {
             npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
-            uint32 FireBlastTimer;
+            uint32 FireNova_Timer;
+            uint32 FireShield_Timer;
+            uint32 FireBlast_Timer;
 
             void Reset()
             {
+                FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                FireShield_Timer = 0;
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-                FireBlastTimer = 6000;
             }
 
             void UpdateAI(const uint32 diff)
@@ -2135,19 +2139,35 @@ class npc_fire_elemental : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (FireBlastTimer <= diff)
+                if (FireShield_Timer <= diff)
                 {
-                    me->CastSpell(me->getVictim(), 57984, true);
-                    FireBlastTimer = 6000;
+                    DoCast(me->getVictim(), 13376);
+                    FireShield_Timer = 2 * IN_MILLISECONDS;
                 }
                 else
-                    FireBlastTimer -= diff;
+                    FireShield_Timer -= diff;
+
+                if (FireBlast_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), 57984);
+                    FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                }
+                else
+                    FireBlast_Timer -= diff;
+
+                if (FireNova_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), 12470);
+                    FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                }
+                else
+                    FireNova_Timer -= diff;
 
                 DoMeleeAttackIfReady();
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const
+ 
+        CreatureAI *GetAI(Creature* creature) const
         {
             return new npc_fire_elementalAI(creature);
         }
@@ -4808,6 +4828,55 @@ class npc_force_of_nature : public CreatureScript
         }
 };
 
+/*######
+## npc_luo_meng
+######*/
+
+#define MAGIC_BAMBOO_SHOOT 93314
+
+class npc_luo_meng : public CreatureScript
+{
+    public:
+        npc_luo_meng() : CreatureScript("npc_luo_meng") { }
+
+        struct npc_luo_mengAI : public ScriptedAI
+        {
+            npc_luo_mengAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+            void ReceiveEmote(Player* player, uint32 emote)
+            {
+                if (emote != TEXT_EMOTE_HUG)
+                    return;
+
+                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(MAGIC_BAMBOO_SHOOT);
+                if (!itemTemplate)
+                    return;
+
+                // Adding items
+                uint32 noSpaceForCount = 0;
+                uint32 count = 1;
+
+                // check space and find places
+                ItemPosCountVec dest;
+                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, MAGIC_BAMBOO_SHOOT, count, &noSpaceForCount);
+                if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
+                    count -= noSpaceForCount;
+
+                if (count == 0 || dest.empty())                         // can't add any
+                    return;
+
+                Item* item = player->StoreNewItem(dest, MAGIC_BAMBOO_SHOOT, true, Item::GenerateItemRandomPropertyId(MAGIC_BAMBOO_SHOOT));
+                if (count > 0 && item)
+                    player->SendNewItem(item, count, true, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* pCreature) const
+        {
+            return new npc_luo_mengAI(pCreature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4869,4 +4938,5 @@ void AddSC_npcs_special()
     new npc_spectral_guise();
     new npc_shadowy_apparition();
     new npc_force_of_nature();
+    new npc_luo_meng();
 }

@@ -168,11 +168,14 @@ public:
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
-            float z;
-            anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
+            if (anchor)
+            {
+                float z;
+                anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
+            }
 
-            playerGUID = target->GetGUID();
-            DoScriptText(say_event_start[rand()%8], me, target);
+            playerGUID = target ? target->GetGUID() : 0;
+            DoScriptText(say_event_start[urand(0, 7)], me, target);
         }
 
         void UpdateAI(const uint32 diff)
@@ -324,7 +327,11 @@ public:
         if (Creature* anchor = go->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
                 if (Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
-                    CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+                {
+                    npc_unworthy_initiate::npc_unworthy_initiateAI* prisonerAI = CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI());
+                    if (prisonerAI)
+                        prisonerAI->EventStart(anchor, player);
+                }
 
         return false;
     }

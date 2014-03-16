@@ -17,11 +17,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-    @TODO:
-            Shield Phase
-*/
-
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -265,7 +260,7 @@ class boss_feng : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INVERSION);
 
                 isWaitingForPhase = false;
-                actualPhase  = PHASE_NONE;
+                actualPhase  = PHASE_FIST;
                 nextPhasePct = 95;
                 dotSpellId = 0;
 
@@ -278,6 +273,8 @@ class boss_feng : public CreatureScript
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
+
+                actualPhase = PHASE_NONE;
 
                 if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
                     inversionGob->Respawn();
@@ -831,6 +828,12 @@ class mob_siphon_shield : public CreatureScript
                             std::list<Player*> potenTargets;
                             GetPlayerListInGrid(potenTargets, me, 150.0f);
 
+                            if (potenTargets.empty())
+                            {
+                                events.ScheduleEvent(EVENT_SHIELD_CHECKSOULS, 10000);
+                                break;
+                            }
+
                             uint8 maxTargets = Is25ManRaid() ? 10 : 5;
 
                             // Selecting targets
@@ -866,6 +869,12 @@ class mob_siphon_shield : public CreatureScript
                         }
                         case EVENT_SHIELD_BACK:
                         {
+                            if (!pInstance)
+                            {
+                                events.ScheduleEvent(EVENT_SHIELD_DESTROY, 200);
+                                break;
+                            }
+
                             if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
                             {
                                 // Making Feng moves his arm
@@ -880,6 +889,9 @@ class mob_siphon_shield : public CreatureScript
                         }
                         case EVENT_SHIELD_DESTROY:
                         {
+                            if (!pInstance)
+                                break;
+
                             if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
                             {
                                 // Become invisible

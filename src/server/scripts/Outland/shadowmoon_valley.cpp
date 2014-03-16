@@ -1712,6 +1712,8 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
         }
     }
     ++WaveCount;
+    if (WaveCount >= 4)
+        return;
     WaveTimer = WavesInfo[WaveCount].SpawnTimer;
     AnnounceTimer = WavesInfo[WaveCount].YellTimer;
 }

@@ -252,14 +252,16 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
             delete group;
             return;
         }
+
         if (!group->AddInvite(player))
         {
             delete group;
             return;
         }
 
-        group->Create(GetPlayer());
-        sGroupMgr->AddGroup(group);
+        // disable, make crash
+        //group->Create(GetPlayer());
+        //sGroupMgr->AddGroup(group);
     }
     else
     {

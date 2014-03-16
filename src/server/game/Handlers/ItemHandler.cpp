@@ -105,10 +105,9 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
     uint8 itemCount = recvData.ReadBits(2);
     itemGuid[4] = recvData.ReadBit();
 
-    bool* hasBag = NULL;
-    bool* hasSlot = NULL;
-    hasBag = new bool[itemCount];
-    hasSlot = new bool[itemCount];
+    std::vector<bool> hasBag(itemCount, false);
+    std::vector<bool> hasSlot(itemCount, false);
+
     for (uint8 i = 0; i < itemCount; ++i)
     {
         hasBag[i] = !recvData.ReadBit();
@@ -125,10 +124,8 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
     uint8 bytes[8] = { 0, 3, 6, 2, 5, 7, 1, 4 };
     recvData.ReadBytesSeq(itemGuid, bytes);
 
-    uint8* inventoryBags = NULL;
-    uint8* inventorySlots = NULL;
-    inventoryBags = new uint8[itemCount];
-    inventorySlots = new uint8[itemCount];
+    std::vector<uint8> inventoryBags(itemCount, 0);
+    std::vector<uint8> inventorySlots(itemCount, 0);
     for (uint8 i = 0; i < itemCount; ++i)
     {
         if (hasSlot[i])
@@ -825,7 +822,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         return; // cheating
 
     if (itemType == ITEM_VENDOR_TYPE_ITEM)
-        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, NULL_SLOT);
+        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, NULL_BAG, NULL_SLOT);
     else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
         GetPlayer()->BuyCurrencyFromVendorSlot(vendorguid, slot, item, count);
     else

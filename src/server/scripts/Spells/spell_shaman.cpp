@@ -1820,7 +1820,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                             if (AuraApplication* searingFlame = _player->GetAuraApplication(SPELL_SHA_SEARING_FLAMES_DAMAGE_DONE))
                             {
                                 searingFlameAmount = searingFlame->GetBase()->GetStackAmount();
-                                searingFlameAmount *= 8;
+                                searingFlameAmount *= 20;
                                 AddPct(hitDamage, searingFlameAmount);
 
                                 _player->RemoveAura(SPELL_SHA_SEARING_FLAMES_DAMAGE_DONE);

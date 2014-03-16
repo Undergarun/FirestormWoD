@@ -383,9 +383,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
             // Repentance - limit to 6 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x4)
                 return 6 * IN_MILLISECONDS;
-            // Turn Evil - limit to 8 seconds in PvP
+             // Turn Evil - limit to 8 seconds in PvP
             else if (spellproto->Id == 145067 || spellproto->Id == 10326)
-                return 8 * IN_MILLISECONDS;
+                 return 8 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -406,13 +406,13 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
         }
         case SPELLFAMILY_MONK:
         {
-                // Disable (reduce movement speed) - limit to 8 seconds in PvP
-                if (spellproto->Id == 116095)
-                    return 8 * IN_MILLISECONDS;
-                // Disable (root) - limit to 4 seconds in PvP
-                else if (spellproto->Id == 116706)
-                    return 4 * IN_MILLISECONDS;
-                break;
+            // Disable (reduce movement speed) - limit to 8 seconds in PvP
+            if (spellproto->Id == 116095)
+                return 8 * IN_MILLISECONDS;
+            // Disable (root) - limit to 4 seconds in PvP
+            else if (spellproto->Id == 116706)
+                return 4 * IN_MILLISECONDS;
+            break;
         }
         default:
             break;
@@ -3261,6 +3261,42 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 126848:// Ritual of Purification
+                    spellInfo->Effects[0].BasePoints = -10;
+                    spellInfo->Effects[1].BasePoints = -10;
+                    break;
+                case 125706:// Channeling Corruption
+                    spellInfo->Effects[0].TriggerSpell = 0;
+                    break;
+                case 125713:// Channeling Corruption (triggered)
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    break;
+                case 125736:// Night Terrors (missile)
+                    spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                    break;
+                case 117230:// Overpowered
+                    spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                    break;
+                case 117988:// Defiled Ground
+                    spellInfo->Effects[0].Effect = 0;
+                    spellInfo->Effects[1].Mechanic = MECHANIC_NONE;
+                    break;
+                case 117052:// Corruption Sha
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[0].TargetB = 0;
+                    spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[1].TargetB = 0;
+                    spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[2].TargetB = 0;
+                    break;
+                case 127731:// Corruption Sha (triggered)
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[0].TargetB = 0;
+                    break;
+                case 123244:// Hide
+                    spellInfo->Effects[0].Effect = 0;
+                    spellInfo->Effects[2].Effect = 0;
+                    break;
                 case 127424:
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                     spellInfo->Effects[0].TargetB = 0;
@@ -3875,8 +3911,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 88767: // Fulmination (triggered)
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                     break;
-                case 33786: // Cyclone
-                case 113506:// Cyclone (Symbiosis)
                 case 51514: // Hex
                 case 130616:// Glyph of Fear effect
                     spellInfo->Dispel = DISPEL_MAGIC;
@@ -3914,9 +3948,11 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                     break;
+                case 123811:// Pheromones of Zeal
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
+                    break;
                 case 108503:// Grimoire of Sacrifice
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                    spellInfo->Effects[6].Effect = 0;
                     break;
                 case 119905:// Cauterize (Command Demon)
                 case 119907:// Disarm (Command Demon)
@@ -4105,6 +4141,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 115610:// Temporal Shield
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
+                case 108416:// Sacrificial Pact
+                    spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                    break;
+                case 81333: // Might of the Frozen Wastes
+                    spellInfo->Effects[1].BasePoints = 30;
                     break;
                 case 44203: // Tranquility (triggered)
                     spellInfo->MaxAffectedTargets = 5;
@@ -4559,7 +4600,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                     spellInfo->OverrideSpellList.push_back(116847);
                     break;
-                case 125084: // Charging Ox Wave
+                case 125084:// Charging Ox Wave
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // radius 30
                     break;
                 case 107270:// Spinning Crane Kick - Radius

@@ -125,10 +125,10 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
     data.WriteByteSeq(guid[2]);
 
     if (action == AUCTION_PLACE_BID || action == ERR_AUCTION_HIGHER_BID)
-        data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
+        data << uint64(auction ? (auction->bid ? auction->GetAuctionOutBid() : 0) : 0);
 
     if (action == ERR_AUCTION_HIGHER_BID)
-        data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
+        data << uint64(auction ? (auction->bid ? auction->GetAuctionOutBid() : 0) : 0);
 
     SendPacket(&data);
 }

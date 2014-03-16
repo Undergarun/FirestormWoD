@@ -771,6 +771,8 @@ class Guild
         bool LoadBankItemFromDB(Field* fields);
         bool Validate();
 
+        void DepositMoney(uint64 amount);
+
         // Broadcasts
         void BroadcastToGuild(WorldSession* session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;
         void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, const std::string& msg, const std::string& prefix) const;

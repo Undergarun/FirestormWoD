@@ -39,7 +39,7 @@ class Totem : public Minion
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);
         virtual ~Totem() {}
-        void Update(uint32 time);
+        void Update(uint32 time, uint32 entry);
         void InitStats(uint32 duration);
         void InitSummon();
         void UnSummon(uint32 msTime = 0);

@@ -617,7 +617,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
     }
 }
 
-void Pet::Update(uint32 diff)
+void Pet::Update(uint32 diff, uint32 entry)
 {
     if (m_removed)                                           // pet already removed, just wait in remove queue, no updates
         return;
@@ -732,7 +732,7 @@ void Pet::Update(uint32 diff)
             }
             break;
     }
-    Creature::Update(diff);
+    Creature::Update(diff, entry);
 }
 
 void Creature::Regenerate(Powers power)

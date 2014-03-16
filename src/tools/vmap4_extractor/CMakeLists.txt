@@ -1,5 +1,4 @@
-# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -15,7 +14,7 @@ file(GLOB_RECURSE sources *.cpp *.h)
 add_definitions("-DIOMAP_DEBUG")
 
 # build setup currently only supports libmpq 0.4.x
-if( NOT WIN32 )
+if( NOT MSVC )
   add_definitions("-Wall")
   add_definitions("-ggdb")
   add_definitions("-O3")

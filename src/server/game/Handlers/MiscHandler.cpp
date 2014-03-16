@@ -2249,14 +2249,14 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
         //data << uint16(0);
 
+    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
+    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
+
     // Active terrain swaps, may switch with inactive terrain
     data << uint32(terrainswaps.size() * 2);
     for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
         data << uint16(*itr);
-
-    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
     
     uint8 bitOrder[8] = { 0, 2, 1, 5, 3, 7, 4, 6 };
     data.WriteBitInOrder(guid, bitOrder);

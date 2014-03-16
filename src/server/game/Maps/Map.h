@@ -257,7 +257,14 @@ class Map : public GridRefManager<NGridType>
         void VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<JadeCore::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<JadeCore::ObjectUpdater, WorldTypeMapContainer> &worldVisitor);
         virtual void Update(const uint32);
 
-        float GetVisibilityRange() const { return m_VisibleDistance; }
+        float GetVisibilityRange() const
+        {
+            // HackFix : Terrasse of endless spring
+            if (GetId() == 996)
+                return 300.0f;
+            return m_VisibleDistance;
+        }
+
         //function for setting up visibility distance for maps on per-type/per-Id basis
         virtual void InitVisibilityDistance();
 
@@ -516,7 +523,7 @@ class Map : public GridRefManager<NGridType>
             return i_grids[x][y];
         }
 
-        bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x, y)->isGridObjectDataLoaded(); }
+        bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x, y) ? getNGrid(x, y)->isGridObjectDataLoaded() : false; }
         void setGridObjectDataLoaded(bool pLoaded, uint32 x, uint32 y) { getNGrid(x, y)->setGridObjectDataLoaded(pLoaded); }
 
         void setNGrid(NGridType* grid, uint32 x, uint32 y);

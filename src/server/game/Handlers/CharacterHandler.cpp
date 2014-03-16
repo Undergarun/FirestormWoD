@@ -982,6 +982,13 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
             if (id > 0 && _plr)
                 _plr->CastSpell(_plr, id, true);
         }
+
+        if (_plr->hasForcedMovement)
+        {
+            Position pos;
+            _plr->GetPosition(&pos);            
+            _plr->SendApplyMovementForce(false, pos);
+        }
     }
 }
 

@@ -818,7 +818,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     bool hasUnk5bits;
     uint32 archeologyCounter = 0;
     WorldLocation dstLoc, srcLoc;
-    float speed, elevation;
+    float speed = 0.0f, elevation = 0.0f;
     uint32 targetFlags = 0;
     uint32 spellID = 0;
     uint32 stringLenght = 0;

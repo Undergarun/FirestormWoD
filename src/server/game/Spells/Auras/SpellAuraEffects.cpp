@@ -459,7 +459,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //400 SPELL_AURA_400
     &AuraEffect::HandleNULL,                                      //401 SPELL_AURA_401
     &AuraEffect::HandleNULL,                                      //402 SPELL_AURA_402
-    &AuraEffect::HandleNULL,                                      //403 SPELL_AURA_403
+    &AuraEffect::HandleChangeSpellVisualEffect,                   //403 SPELL_AURA_CHANGE_VISUAL_EFFECT
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT
     &AuraEffect::HandleIncreaseHasteFromItemsByPct,               //405 SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT
     &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_406
@@ -3683,6 +3683,9 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
 
     switch (m_spellInfo->Id)
     {
+        case 117436:// Lightning Prison
+            target->RemoveAura(111850);
+            break;
         case 127266:// Amber Prison
             if (target->GetTypeId() == TYPEID_PLAYER)
                 return;
@@ -4301,7 +4304,7 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
         return;
 
     Unit* target = aurApp->GetTarget();
-    uint32 mechanic;
+    uint32 mechanic = 0;
 
     switch (GetId())
     {
@@ -7218,7 +7221,12 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
         {
             int32 basepoints0 = GetAmount();
-            triggerCaster->CastCustomSpell(target, triggerSpellId, &basepoints0, 0, 0, true, 0, CONST_CAST(AuraEffect, shared_from_this()));
+
+            // Hack fix for Protectors of the Endless - Defiled Ground
+            if (triggerSpellId == 117988)
+                triggerCaster->CastCustomSpell(target, triggerSpellId, 0, &basepoints0, 0, true, 0, CONST_CAST(AuraEffect, shared_from_this()));
+            else
+                triggerCaster->CastCustomSpell(target, triggerSpellId, &basepoints0, 0, 0, true, 0, CONST_CAST(AuraEffect, shared_from_this()));
         }
     }
 }
@@ -8405,4 +8413,26 @@ void AuraEffect::HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 
 
     if (target->GetTypeId() == TYPEID_PLAYER)
         target->ToPlayer()->UpdateManaRegen();
+}
+
+void AuraEffect::HandleChangeSpellVisualEffect(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    Player* player = target->ToPlayer();
+    if (player == NULL)
+        return;
+
+    uint32 spellToReplace = apply ? GetMiscValue() : 0;
+    uint32 replacer = apply ? m_spellInfo->Id : 0;
+
+    // This is Google Traduction result
+    /*Il semble que Blizzard valeur "trakturuyut" (wtf ?) de champs en fonction de leur nombre et les noms ne sont pas prises à partir du client (PLAYER_DYNAMIC_RESEARCH_SITES)*/
+    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_RESEARCH_SITES, 0, spellToReplace);
+    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_RESEARCH_SITES, 1, replacer);
 }

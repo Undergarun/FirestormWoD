@@ -2623,7 +2623,28 @@ uint32 InstanceMap::GetMaxPlayers() const
         }
     }
     else                                                    // I'd rather ASSERT(false);
+    {
+        switch (GetDifficulty())
+        {
+            case Difficulty::SCENARIO_DIFFICULTY:
+            case Difficulty::SCENARIO_HEROIC_DIFFICULTY:
+                return 3;
+            case Difficulty::HEROIC_DIFFICULTY:
+            case Difficulty::CHALLENGE_MODE_DIFFICULTY:
+                return 5;
+            case Difficulty::MAN10_DIFFICULTY:
+            case Difficulty::MAN10_HEROIC_DIFFICULTY:
+                return 10;
+            case Difficulty::MAN25_DIFFICULTY:
+            case Difficulty::MAN25_HEROIC_DIFFICULTY:
+            case Difficulty::DYNAMIC_DIFFICULTY:
+                return 25;
+            default:
+                break;
+        }
+
         return 0;
+    }
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const

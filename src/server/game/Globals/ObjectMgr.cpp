@@ -1097,10 +1097,11 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureTemplate* cinfo
     return display_id;
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
+void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& unit_flags2, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
 {
     npcflag = cinfo->npcflag;
     unit_flags = cinfo->unit_flags;
+    unit_flags2 = cinfo->unit_flags2;
     dynamicflags = cinfo->dynamicflags;
 
     if (data)
@@ -1110,6 +1111,9 @@ void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcfl
 
         if (data->unit_flags)
             unit_flags = data->unit_flags;
+
+        if (data->unit_flags2)
+            unit_flags2 = data->unit_flags2;
 
         if (data->dynamicflags)
             dynamicflags = data->dynamicflags;
@@ -1514,7 +1518,7 @@ void ObjectMgr::LoadCreatures()
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
     //        13            14         15       16            17         18         19          20          21                22                   23                     24
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.isActive "
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.unit_flags2,  creature.dynamicflags, creature.isActive "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1575,6 +1579,7 @@ void ObjectMgr::LoadCreatures()
         uint32 PoolId       = fields[index++].GetUInt32();
         data.npcflag        = fields[index++].GetUInt32();
         data.unit_flags     = fields[index++].GetUInt32();
+        data.unit_flags2    = fields[index++].GetUInt32();
         data.dynamicflags   = fields[index++].GetUInt32();
         data.isActive       = fields[index++].GetBool();
 
@@ -1807,6 +1812,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.dbData = false;
     data.npcflag = cInfo->npcflag;
     data.unit_flags = cInfo->unit_flags;
+    data.unit_flags2 = cInfo->unit_flags2;
     data.dynamicflags = cInfo->dynamicflags;
 
     AddCreatureToGrid(guid, &data);
