@@ -4240,7 +4240,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
             continue;
 
-        if (aura != except && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+        if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
         {
             uint32 removedAuras = m_removedAurasCount;
@@ -10295,16 +10295,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 57954: // Glyph of Fire From the Heavens
-        {
-            if (!procSpell)
-                return false;
-
-            if ((procSpell->Id != 24275 && procSpell->Id != 20271) || procEx != PROC_EX_CRITICAL_HIT)
-                return false;
-
-            break;
-        }
         case 5301:  // Revenge (aura proc)
         {
             if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
@@ -13776,7 +13766,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Sword of Light - 53503
     // Increase damage dealt by two handed weapons by 30%
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && !ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
+    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
         AddPct(DoneTotalMod, 30);
 
     // 76856 - Mastery : Unshackled Fury
@@ -13942,7 +13932,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 AddPct(DoneTotalMod, shadowInfusion->GetAmount());
 
     // Seasoned Soldier
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(12712) && !ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(12712) && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_ARMS)
         if (ToPlayer() && ToPlayer()->IsTwoHandUsed())
             AddPct(DoneTotalMod, 25);
 

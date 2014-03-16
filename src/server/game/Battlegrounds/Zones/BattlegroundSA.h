@@ -466,7 +466,7 @@ class BattlegroundSA : public Battleground
         virtual bool SetupBattleground();
         virtual void Reset();
         /// Called for generate packet contain worldstate data
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        virtual void FillInitialWorldStates(ByteBuffer& data);
         /// Called when a player deal damage to building (door)
         virtual void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
         /// Called when a player kill a unit in bg

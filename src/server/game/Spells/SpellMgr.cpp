@@ -4141,8 +4141,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 115610:// Temporal Shield
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
-                case 108416:// Sacrificial Pact
-                    spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                     break;
                 case 81333: // Might of the Frozen Wastes
                     spellInfo->Effects[1].BasePoints = 30;

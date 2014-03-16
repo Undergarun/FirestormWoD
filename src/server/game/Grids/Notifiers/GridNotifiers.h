@@ -114,7 +114,11 @@ namespace JadeCore
         }
 
         void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
-        void Visit(CreatureMapType &m){ updateObjects<Creature>(m); }
+        void Visit(CreatureMapType &m)
+        { 
+            for (GridRefManager<Creature>::iterator iter = m.begin(); iter != m.end(); ++iter)
+                iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
+        }
         void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
