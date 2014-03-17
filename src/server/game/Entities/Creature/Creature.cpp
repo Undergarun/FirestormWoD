@@ -587,7 +587,7 @@ void Creature::Update(uint32 diff, uint32 entry)
                 i_AI->UpdateAI(diff);
 
                 if ((getMSTime() - diffAI) > 10)
-                    sLog->OutPandashan("CreatureScript [%u] take more than 10 ms to execute", GetEntry());
+                    sLog->OutPandashan("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), (getMSTime() - diffAI));
 
                 m_AI_locked = false;
             }

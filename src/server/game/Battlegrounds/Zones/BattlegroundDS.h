@@ -58,12 +58,12 @@ enum BattlegroundDSCreatures
 enum BattlegroundDSSpells
 {
     BG_DS_SPELL_FLUSH             = 57405, // Visual and target selector for the starting knockback from the pipe
-    BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not need to be casted)
-    BG_DS_SPELL_WATER_SPOUT       = 58873, // Knockback effect of the central waterfall
+    BG_DS_SPELL_WATER_SPOUT       = 58873  // Knockback effect of the central waterfall
 };
 
 enum BattlegroundDSData
-{ // These values are NOT blizzlike... need the correct data!
+{
+    // These values are NOT blizzlike... need the correct data!
     BG_DS_WATERFALL_TIMER_MIN                    = 30000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
     BG_DS_WATERFALL_WARNING_DURATION             = 5000,

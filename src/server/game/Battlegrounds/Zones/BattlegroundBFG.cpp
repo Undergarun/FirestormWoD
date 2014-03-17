@@ -61,7 +61,7 @@ BattlegroundBFG::BattlegroundBFG()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_BFG_HAS_BEGUN;
 }
 
-BattlegroundBFG::~BattlegroundBFG() {}
+BattlegroundBFG::~BattlegroundBFG() { }
 
 void BattlegroundBFG::PostUpdateImpl(uint32 diff)
 {

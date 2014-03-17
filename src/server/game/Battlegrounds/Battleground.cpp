@@ -897,7 +897,7 @@ void Battleground::EndBattleground(uint32 winner)
                     player->SetRandomWinner(true);
                 }
             }
-            else if (!isArena()) // 50cp awarded for each non-rated battleground won 
+            else if (!isArena()) // 50cp awarded for each non-rated battleground won
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, BG_REWARD_WINNER_CONQUEST_LAST );
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -1001,12 +1001,13 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         {
             player->ClearAfkReports();
 
-            if (!team) team = player->GetTeam();
+            if (!team)
+                team = player->GetTeam();
 
             // if arena, remove the specific arena auras
             if (isArena())
             {
-                bgTypeId=BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
+                bgTypeId = BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
                 // unsummon current and summon old pet if there was one and there isn't a current pet
                 if (Pet* pet = player->GetPet())

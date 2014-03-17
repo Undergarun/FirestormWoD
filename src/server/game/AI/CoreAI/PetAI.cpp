@@ -342,13 +342,13 @@ void PetAI::AttackStart(Unit* target)
 void PetAI::OwnerDamagedBy(Unit* attacker)
 {
     // Called when owner takes damage. Allows defensive pets to know
-    //  that their owner might need help
+    // that their owner might need help
 
     if (!attacker)
         return;
 
     // Passive pets don't do anything
-   if (me->HasReactState(REACT_PASSIVE))
+    if (me->HasReactState(REACT_PASSIVE))
         return;
 
     // Prevent pet from disengaging from current target
@@ -362,7 +362,7 @@ void PetAI::OwnerDamagedBy(Unit* attacker)
 void PetAI::OwnerAttacked(Unit* target)
 {
     // Called when owner attacks something. Allows defensive pets to know
-    //  that they need to assist
+    // that they need to assist
 
     // Target might be NULL if called from spell with invalid cast targets
     if (!target)

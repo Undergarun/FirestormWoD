@@ -671,7 +671,7 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
     {
         LfgDungeonSet playerDungeons = GetSelectedDungeons(guid);
         if (playerDungeons == dungeons)                     // Joining the same dungeons -- Send OK
-         {
+        {
             LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
             player->GetSession()->SendLfgJoinResult(player->GetGUID(), joinData); // Default value of joinData.result = LFG_JOIN_OK
             if (grp)
@@ -679,9 +679,7 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
                 for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
                     if (itr->getSource() && itr->getSource()->GetSession())
-                    {
                         SendUpdateStatus(itr->getSource(), updateData);
-                    }
                 }
             }
             return;
@@ -1195,26 +1193,26 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
 
         switch (type)
         {
-        case LFG_SUBTYPEID_DUNGEON:
-            Dps_Needed = 3;
-            Healers_Needed = 1;
-            Tanks_Needed = 1;
-            break;
-        case LFG_SUBTYPEID_RAID:
-            Dps_Needed = 17;
-            Healers_Needed = 6;
-            Tanks_Needed = 2;
-            break;
-        case LFG_SUBTYPEID_SCENARIO:
-            Dps_Needed = 3;
-            Healers_Needed = 0;
-            Tanks_Needed = 0;
-            break;
-        default:
-            Dps_Needed = 3;
-            Healers_Needed = 1;
-            Tanks_Needed = 1;
-            break;
+            case LFG_SUBTYPEID_DUNGEON:
+                Dps_Needed = 3;
+                Healers_Needed = 1;
+                Tanks_Needed = 1;
+                break;
+            case LFG_SUBTYPEID_RAID:
+                Dps_Needed = 17;
+                Healers_Needed = 6;
+                Tanks_Needed = 2;
+                break;
+            case LFG_SUBTYPEID_SCENARIO:
+                Dps_Needed = 3;
+                Healers_Needed = 0;
+                Tanks_Needed = 0;
+                break;
+            default:
+                Dps_Needed = 3;
+                Healers_Needed = 1;
+                Tanks_Needed = 1;
+                break;
         }
         for (LfgQueueInfoMap::const_iterator itQueue = pqInfoMap.begin(); itQueue != pqInfoMap.end(); ++itQueue)
         {
@@ -1545,26 +1543,26 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgType type, bool removeLeade
 
     switch (type)
     {
-    case TYPEID_DUNGEON:
-        dpsNeeded = 3;
-        healerNeeded = 1;
-        tankNeeded = 1;
-        break;
-    case LFG_SUBTYPEID_RAID:
-        dpsNeeded = 17;
-        healerNeeded = 6;
-        tankNeeded = 2;
-        break;
-    case LFG_SUBTYPEID_SCENARIO:
-        dpsNeeded = 3;
-        healerNeeded = 0;
-        tankNeeded = 0;
-        break;
-    default:
-        dpsNeeded = 3;
-        healerNeeded = 1;
-        tankNeeded = 1;
-        break;
+        case TYPEID_DUNGEON:
+            dpsNeeded = 3;
+            healerNeeded = 1;
+            tankNeeded = 1;
+            break;
+        case LFG_SUBTYPEID_RAID:
+            dpsNeeded = 17;
+            healerNeeded = 6;
+            tankNeeded = 2;
+            break;
+        case LFG_SUBTYPEID_SCENARIO:
+            dpsNeeded = 3;
+            healerNeeded = 0;
+            tankNeeded = 0;
+            break;
+        default:
+            dpsNeeded = 3;
+            healerNeeded = 1;
+            tankNeeded = 1;
+            break;
     }
 
     if (removeLeaderFlag)
@@ -2477,30 +2475,30 @@ HolidayIds LFGMgr::GetDungeonSeason(uint32 dungeonId)
 
     switch (dungeonId)
     {
-    case 285:
-        holiday = HOLIDAY_HALLOWS_END;
-        break;
-    case 286:
-        holiday = HOLIDAY_FIRE_FESTIVAL;
-        break;
-    case 287:
-        holiday = HOLIDAY_BREWFEST;
-        break;
-    case 288:
-        holiday = HOLIDAY_LOVE_IS_IN_THE_AIR;
-        break;
-    case 296:
-    case 297:
-    case 298:
-    case 299:
-    case 306:
-    case 308:
-    case 309:
-    case 310:
-        holiday = HOLIDAY_WOTLK_LAUNCH; // Actualy this is cataclysm_launch_dungeon, but we didn't have a holiday for it
-        break;
-    default:
-        break;
+        case 285:
+            holiday = HOLIDAY_HALLOWS_END;
+            break;
+        case 286:
+            holiday = HOLIDAY_FIRE_FESTIVAL;
+            break;
+        case 287:
+            holiday = HOLIDAY_BREWFEST;
+            break;
+        case 288:
+            holiday = HOLIDAY_LOVE_IS_IN_THE_AIR;
+            break;
+        case 296:
+        case 297:
+        case 298:
+        case 299:
+        case 306:
+        case 308:
+        case 309:
+        case 310:
+            holiday = HOLIDAY_WOTLK_LAUNCH; // Actualy this is cataclysm_launch_dungeon, but we didn't have a holiday for it
+            break;
+        default:
+            break;
     }
 
     return holiday;

@@ -2325,9 +2325,9 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     std::string channel = ""; // no channel
 
     ObjectGuid senderGuid = GetGUID();
-    ObjectGuid groupGuid = NULL;
+    ObjectGuid groupGuid = 0;
     ObjectGuid receiverGuid = targetGuid;
-    ObjectGuid guildGuid = NULL;
+    ObjectGuid guildGuid = 0;
 
     bool unkBit = false;
     bool bit5256 = false;

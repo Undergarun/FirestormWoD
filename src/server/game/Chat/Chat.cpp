@@ -667,13 +667,13 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     else if (session)
         speakerPlayer = session->GetPlayer();
 
-    ObjectGuid speakerGuid = NULL;
+    ObjectGuid speakerGuid = 0;
     if (speaker)
         speakerGuid = speaker->GetGUID();
     else if (session)
         speakerGuid = session->GetPlayer()->GetGUID();
 
-    ObjectGuid groupGuid = NULL;
+    ObjectGuid groupGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGroup())
         groupGuid = speakerPlayer->GetGroup()->GetGUID();
 
@@ -702,7 +702,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     }
 
     ObjectGuid targetGuid = target_guid;
-    ObjectGuid guildGuid = NULL;
+    ObjectGuid guildGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGuild())
         guildGuid = speakerPlayer->GetGuild()->GetGUID();
 
@@ -720,7 +720,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
     data->WriteBitInOrder(speakerGuid, bitsOrder);
 
-    data->WriteBit(groupGuid != NULL);                          // has group GUID - FAKE GUID
+    data->WriteBit(groupGuid != 0);                          // has group GUID - FAKE GUID
 
     uint8 bitsOrder2[8] = { 6, 0, 4, 1, 2, 3, 7, 5 };
     data->WriteBitInOrder(groupGuid, bitsOrder2);
