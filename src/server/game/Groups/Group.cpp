@@ -595,7 +595,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = NULL;
+            ObjectGuid memberGuids = 0;
 
             uint32 memberNameLength = 0;
 
@@ -907,7 +907,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             bool sendDifficulty = true;
 
             uint32 memberCount = 0;
-            ObjectGuid memberGuids = NULL;
+            ObjectGuid memberGuids = 0;
 
             uint32 memberNameLength = 0;
 

@@ -5103,7 +5103,7 @@ void Spell::SendSpellGo()
 
     ObjectGuid guid1, guid2, guid6;
     ObjectGuid caster = m_caster->GetGUID();
-    ObjectGuid target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : NULL;
+    ObjectGuid target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : 0;
     ObjectGuid itemGuid = itemTarget ? itemTarget->GetGUID() : 0;
     ObjectGuid itemCaster = m_castItemGUID ? m_castItemGUID : uint64(caster);
     ObjectGuid powerUnit = caster;

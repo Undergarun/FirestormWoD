@@ -420,8 +420,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         }
 
         ObjectGuid playerGuid = itr->second->GetGUID();
-        ObjectGuid unkGuid = NULL;
-        ObjectGuid guildGuid = itr->second->GetGuild() ? itr->second->GetGuild()->GetGUID() : NULL;
+        ObjectGuid unkGuid = 0;
+        ObjectGuid guildGuid = itr->second->GetGuild() ? itr->second->GetGuild()->GetGUID() : 0;
 
         bitsData.WriteBit(guildGuid[4]);
 

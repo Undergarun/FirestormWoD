@@ -735,7 +735,7 @@ namespace JadeCore
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 ObjectGuid playerGuid = i_player.GetGUID();
-                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : NULL;
+                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : 0;
 
                 data.Initialize(SMSG_TEXT_EMOTE);
                 data.WriteBit(playerGuid[0]);

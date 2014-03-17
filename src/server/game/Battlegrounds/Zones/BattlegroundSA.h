@@ -116,7 +116,7 @@ enum npc
 };
 
 enum BG_SA_NPCs
-  {
+{
     BG_SA_GUN_1 = 0,
     BG_SA_GUN_2,
     BG_SA_GUN_3,
@@ -143,7 +143,7 @@ enum BG_SA_NPCs
     BG_SA_NPC_SPARKLIGHT,
     BG_SA_NPC_RIGSPARK,
     BG_SA_MAXNPC
-  };
+};
 
 enum BG_SA_Boat
 {

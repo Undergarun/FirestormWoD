@@ -362,7 +362,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
             player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
 
             // Update matchmaker rating
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) - 12);
 
             // Update personal played stats
             player->IncrementWeekGames(slot);

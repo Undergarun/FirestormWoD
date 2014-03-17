@@ -2642,7 +2642,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid victimGUID = victim ? victim->GetGUID() : NULL;
+    ObjectGuid victimGUID = victim ? victim->GetGUID() : 0;
     ObjectGuid attackerGUID = GetGUID();
 
     data.WriteBit(victimGUID[0]);
