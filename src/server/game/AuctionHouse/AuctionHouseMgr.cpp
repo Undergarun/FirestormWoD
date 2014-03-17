@@ -485,8 +485,8 @@ void AuctionHouseObject::Update()
         auction->DeleteFromDB(trans);
         CharacterDatabase.CommitTransaction(trans);
 
-        RemoveAuction(auction, itemEntry);
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
+        RemoveAuction(auction, itemEntry);
     }
     while (result->NextRow());
 }

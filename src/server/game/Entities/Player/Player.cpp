@@ -998,6 +998,19 @@ Player::~Player()
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
 
+    // temp check
+    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
+    {
+        for (uint8 slot = 0; slot < PLAYER_SLOTS_COUNT; slot++)
+        {
+            if (m_items[slot] == NULL)
+                continue;
+
+            if (m_items[i] == m_items[slot] && slot != i)
+                sLog->OutPandashan("Player[%u] have same item pointer in two slot ! (slot: %u, copy slot: %u)", GetGUIDLow(), i, slot);
+        }
+    }
+
     // Note: buy back item already deleted from DB when player was saved
     for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; ++i)
         delete m_items[i];
@@ -22142,7 +22155,9 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER)) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER)) 
+                    || spell->IsAbilityOfSkillType(SKILL_MINIPET))
+                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
@@ -22166,7 +22181,9 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0)) || spell->IsAbilityOfSkillType(SKILL_MINIPET)))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0)) 
+                    || spell->IsAbilityOfSkillType(SKILL_MINIPET))
+                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT))
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
