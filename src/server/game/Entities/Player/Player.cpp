@@ -22188,7 +22188,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0)) 
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT))
+                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
