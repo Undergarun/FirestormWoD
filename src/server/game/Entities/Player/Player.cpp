@@ -13714,21 +13714,26 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
         if (!clone)
         {
-            // delete item (it not in any slot currently)
-            if (IsInWorld() && update)
+            if (pItem != pItem2)
             {
-                pItem->RemoveFromWorld();
-                pItem->DestroyForPlayer(this);
+                // delete item (it not in any slot currently)
+                if (IsInWorld() && update)
+                {
+                    pItem->RemoveFromWorld();
+                    pItem->DestroyForPlayer(this);
+                }
+
+                RemoveEnchantmentDurations(pItem);
+                RemoveItemDurations(pItem);
+
+                pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
+                pItem->SetNotRefundable(this);
+                pItem->ClearSoulboundTradeable(this);
+                RemoveTradeableItem(pItem);
+                pItem->SetState(ITEM_REMOVED, this);
             }
-
-            RemoveEnchantmentDurations(pItem);
-            RemoveItemDurations(pItem);
-
-            pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
-            pItem->SetNotRefundable(this);
-            pItem->ClearSoulboundTradeable(this);
-            RemoveTradeableItem(pItem);
-            pItem->SetState(ITEM_REMOVED, this);
+            else
+                sLog->OutPandashan("Player::_StoreItem, pItem == pItem2");
         }
 
         AddEnchantmentDurations(pItem2);
