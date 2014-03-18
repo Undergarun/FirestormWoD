@@ -24,42 +24,52 @@
 #include <ace/TSS_T.h>
 #include <ace/INET_Addr.h>
 
-typedef ACE_TSS<SFMTRand> SFMTRandTSS;
-static SFMTRandTSS sfmtRand;
+typedef ACE_TSS<MTRand> MTRandTSS;
+static MTRandTSS mtRand;
 
 void init_sfmt()
 {
-    sfmtRand->RandomInit((int)(time(0)));
+    //sfmtRand->RandomInit((int)(time(0)));
 }
 
-int32 irand(int32 min, int32 max)
+int32 irand (int32 min, int32 max)
 {
-    return int32(sfmtRand->IRandom(min, max));
+    return int32 (mtRand->randInt (max - min)) + min;
 }
 
-uint32 urand(uint32 min, uint32 max)
+uint32 urand (uint32 min, uint32 max)
 {
-    return sfmtRand->URandom(min, max);
+    return mtRand->randInt (max - min) + min;
 }
 
-float frand(float min, float max)
+float frand (float min, float max)
 {
-    return float(sfmtRand->Random() * (max - min) + min);
+    return mtRand->randExc (max - min) + min;
 }
 
-int32 rand32()
+int32 rand32 ()
 {
-    return int32(sfmtRand->BRandom());
+    return mtRand->randInt ();
 }
 
 double rand_norm(void)
 {
-    return sfmtRand->Random();
+    return mtRand->randExc ();
 }
 
-double rand_chance(void)
+float rand_norm_f(void)
 {
-    return sfmtRand->Random() * 100.0;
+    return (float)mtRand->randExc ();
+}
+
+double rand_chance (void)
+{
+    return mtRand->randExc (100.0);
+}
+
+float rand_chance_f(void)
+{
+    return (float)mtRand->randExc (100.0);
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
