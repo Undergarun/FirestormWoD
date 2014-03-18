@@ -795,7 +795,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_social = NULL;
 
     // group is initialized in the reference constructor
-    SetGroupInvite(NULL);
+    SetGroupInvite(0);
     m_groupUpdateMask = 0;
     m_auraRaidUpdateMask = 0;
     m_bPassOnGroupLoot = false;
@@ -3737,7 +3737,11 @@ bool Player::IsInSameGroupWith(Player const* p) const
 /// \todo Shouldn't we also check if there is no other invitees before disbanding the group?
 void Player::UninviteFromGroup()
 {
-    Group* group = GetGroupInvite();
+    uint32 groupGUID = GetGroupInvite();
+    if (!groupGUID)
+        return;
+
+    Group* group = sGroupMgr->GetGroupByGUID(groupGUID);
     if (!group)
         return;
 

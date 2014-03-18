@@ -323,7 +323,11 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     bool accept = recvData.ReadBit();
     recvData.ReadBit();
 
-    Group* group = GetPlayer()->GetGroupInvite();
+    uint32 groupGUID = GetPlayer()->GetGroupInvite();
+    if (!groupGUID)
+        return;
+
+    Group* group = sGroupMgr->GetGroupByGUID(groupGUID);
     if (!group)
         return;
 

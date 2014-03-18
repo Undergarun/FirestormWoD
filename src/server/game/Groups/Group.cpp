@@ -329,7 +329,7 @@ bool Group::AddInvite(Player* player)
     m_invitees.insert(player->GetGUID());
     m_inviteesLock.release();
 
-    player->SetGroupInvite(this);
+    player->SetGroupInvite(this->GetGUID());
 
     sScriptMgr->OnGroupInviteMember(this, player->GetGUID());
 
@@ -354,7 +354,7 @@ void Group::RemoveInvite(Player* player)
         m_inviteesLock.acquire();
         m_invitees.erase(player->GetGUID());
         m_inviteesLock.release();
-        player->SetGroupInvite(NULL);
+        player->SetGroupInvite(0);
     }
 }
 
@@ -363,7 +363,7 @@ void Group::RemoveAllInvites()
     m_inviteesLock.acquire();
     for (InvitesList::iterator itr=m_invitees.begin(); itr != m_invitees.end(); ++itr)
         if (Player* plr = sObjectAccessor->FindPlayer(*itr))
-            plr->SetGroupInvite(NULL);
+            plr->SetGroupInvite(0);
 
     m_invitees.clear();
     m_inviteesLock.release();
@@ -430,7 +430,7 @@ bool Group::AddMember(Player* player)
 
     if (player)
     {
-        player->SetGroupInvite(NULL);
+        player->SetGroupInvite(0);
         if (player->GetGroup() && (isBGGroup() || isBFGroup())) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
             player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
         else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
