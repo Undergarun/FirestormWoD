@@ -765,6 +765,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_curSelection = 0;
     m_lootGuid = 0;
+    m_lootSpecId = 0;
 
     m_comboTarget = 0;
     m_comboPoints = 0;

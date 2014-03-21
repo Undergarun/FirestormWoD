@@ -2281,6 +2281,9 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetLootGUID() const { return m_lootGuid; }
         void SetLootGUID(uint64 guid) { m_lootGuid = guid; }
 
+        uint32 GetLootSpecId() const { return m_lootSpecId; }
+        void SetLootSpecId(uint32 specId) { m_lootSpecId = specId; }
+
         void RemovedInsignia(Player* looterPlr);
 
         WorldSession* GetSession() const { return m_session; }
@@ -3141,6 +3144,7 @@ class Player : public Unit, public GridObject<Player>
 
         void outDebugValues() const;
         uint64 m_lootGuid;
+        uint32 m_lootSpecId;
 
         uint32 m_team;
         uint32 m_nextSave;
