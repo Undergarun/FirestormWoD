@@ -1,0 +1,1 @@
+UPDATE creature_template SET unit_flags = unit_flags | 0x00020000 WHERE entry = 64403; -- UNIT_FLAG_PACIFIED
