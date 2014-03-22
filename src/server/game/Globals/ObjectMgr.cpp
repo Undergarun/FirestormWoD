@@ -2757,6 +2757,29 @@ void ObjectMgr::LoadItemScriptNames()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::LoadItemSpecs()
+{
+    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
+
+    for (int i = 0; i < sItemSpecOverrideStore.GetNumRows(); i++)
+    {
+        ItemSpecOverrideEntry const* specInfo = sItemSpecOverrideStore.LookupEntry(i);
+        if (!specInfo)
+            continue;
+
+        if (_itemTemplateStore.find(specInfo->itemEntry) != _itemTemplateStore.end())
+            continue;
+
+        ItemTemplate& itemTemplate = _itemTemplateStore[itemEntry];
+        itemTemplate.AddSpec(specInfo->specID);
+        count++;
+    }
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
 {
     ItemTemplateContainer::const_iterator itr = _itemTemplateStore.find(entry);
@@ -4406,6 +4429,36 @@ void ObjectMgr::LoadQuests()
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestDynamicRewards()
+{
+    uint32 oldMSTime = getMSTime();
+    QueryResult result = WorldDatabase.Query("SELECT questId, itemId, itemCount FROM quest_dynamic_reward");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Empty or non-exist quest_dynamic_reward table");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        
+        uint32 questId = fields[0].GetUInt32();
+
+        if (_questTemplates.find(questId) == _questTemplates.end())
+            continue;
+
+        count++;
+
+        Quest& quest = &_questTemplates[questId];
+        quest.AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
+    }
+    while (result->NextRow());
+    
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestLocales()

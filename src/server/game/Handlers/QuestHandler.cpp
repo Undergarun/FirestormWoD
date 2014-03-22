@@ -463,6 +463,34 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
         for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
             if (quest->RewardChoiceItemId[i] == slot)
                 reward = i;
+
+        if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        {
+            uint32 index = 0;
+            for (auto itr : quest->DynamicRewards)
+            {
+                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
+                if (!itemTemplate)
+                    continue;
+
+                // @TODO: Check if we really need to check specialisation id or just player's class
+                // (if player doesn't have choosen spec, he doesn't have reward ??)
+                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
+                //    continue;
+
+                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(_player->getClass()))
+                    continue;
+
+                if (itr.itemID == slot)
+                {
+                    reward = index;
+                    break;
+                }
+
+                index++;
+            }
+        }
+
         if (reward >= QUEST_REWARD_CHOICES_COUNT)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", _player->GetName(), _player->GetGUIDLow(), reward);

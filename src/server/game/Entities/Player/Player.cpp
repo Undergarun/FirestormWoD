@@ -13064,7 +13064,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                             return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
                 }
 
-                if (ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
+                if (pProto->Class == ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
                 if (isInCombat()&& (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
@@ -17097,15 +17097,51 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
     if (!CanRewardQuest(quest, msg))
         return false;
 
-    if (quest->GetRewChoiceItemsCount() > 0)
+    if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
     {
-        if (quest->RewardChoiceItemId[reward])
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
+        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+        if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        {
+            Player* plr = _session->GetPlayer();
+            uint32 index = 0;
+            for (auto dynamicReward : quest->DynamicRewards)
+            {
+                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
+                if (!itemTemplate)
+                    continue;
+
+                // @TODO: Check if we really need to check specialisation id or just player's class
+                // (if player doesn't have choosen spec, he doesn't have reward ??)
+                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
+                //    continue;
+
+                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(plr->getClass()))
+                    continue;
+
+                if (index >= QUEST_REWARD_CHOICES_COUNT)
+                    continue;
+
+                RewardChoiceItemId[index] = dynamicReward.itemID;
+                RewardChoiceItemCount[index] = dynamicReward.count;
+                index++;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+            {
+                RewardChoiceItemId[i] = quest->RewardChoiceItemId[i];
+                RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
+            }
+        }        
+        if (RewardChoiceItemId[reward])
         {
             ItemPosCountVec dest;
-            InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
+            InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
             if (res != EQUIP_ERR_OK)
             {
-                SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[reward]);
+                SendEquipError(res, NULL, NULL, RewardChoiceItemId[reward]);
                 return false;
             }
         }
@@ -17278,15 +17314,52 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
     RemoveTimedQuest(quest_id);
 
-    if (quest->GetRewChoiceItemsCount() > 0)
+    if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
     {
-        if (uint32 itemId = quest->RewardChoiceItemId[reward])
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
+        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+        if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        {
+            Player* plr = _session->GetPlayer();
+            uint32 index = 0;
+            for (auto dynamicReward : quest->DynamicRewards)
+            {
+                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
+                if (!itemTemplate)
+                    continue;
+
+                // @TODO: Check if we really need to check specialisation id or just player's class
+                // (if player doesn't have choosen spec, he doesn't have reward ??)
+                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
+                //    continue;
+
+                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(plr->getClass()))
+                    continue;
+
+                if (index >= QUEST_REWARD_CHOICES_COUNT)
+                    continue;
+
+                RewardChoiceItemId[index] = dynamicReward.itemID;
+                RewardChoiceItemCount[index] = dynamicReward.count;
+                index++;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+            {
+                RewardChoiceItemId[i] = quest->RewardChoiceItemId[i];
+                RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
+            }
+        }
+
+        if (uint32 itemId = RewardChoiceItemId[reward])
         {
             ItemPosCountVec dest;
-            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardChoiceItemCount[reward]) == EQUIP_ERR_OK)
+            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, RewardChoiceItemCount[reward]) == EQUIP_ERR_OK)
             {
                 Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                SendNewItem(item, quest->RewardChoiceItemCount[reward], true, false);
+                SendNewItem(item, RewardChoiceItemCount[reward], true, false);
             }
         }
     }

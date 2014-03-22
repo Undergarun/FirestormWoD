@@ -156,6 +156,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     recvPacket.FlushBits();
 
     recvPacket.ReadByteSeq(itemGuid[7]);
+       
 
     for (uint8 i = 0; i < archeologyCounter; i++)
     {
@@ -164,10 +165,12 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
             case 1: // Fragments
                 recvPacket >> entry[i];     // Currency ID
                 recvPacket >> usedCount[i]; // Currency count
+                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], true);
                 break;
             case 2: // Keystones
                 recvPacket >> entry[i];     // Item ID
                 recvPacket >> usedCount[i]; // ItemCount
+                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], false);
                 break;
             default:
                 break;
@@ -587,10 +590,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             case 2: // Keystones
                 recvPacket >> entry[i];        // Item id
                 recvPacket >> usedCount[i];    // Item count
+                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], false);
                 break;
             case 1: // Fragments
                 recvPacket >> entry[i];        // Currency id
                 recvPacket >> usedCount[i];    // Currency count
+                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], true);
                 break;
             default:
                 break;

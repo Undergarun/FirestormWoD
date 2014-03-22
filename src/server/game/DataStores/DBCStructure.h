@@ -1563,6 +1563,13 @@ struct ItemSetEntry
     uint32    required_skill_value;                         // 36       m_requiredSkillRank
 };
 
+struct ItemSpecOverrideEntry
+{
+    uint32 ID;
+    uint32 itemEntry;
+    uint32 specID;
+};
+
 // @author Selenium: 5.4 valid
 struct LFGDungeonEntry
 {

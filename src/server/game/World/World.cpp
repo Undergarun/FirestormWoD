@@ -1559,6 +1559,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                 // must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                   // must be after LoadItemPrototypes
+    sObjectMGr->LoadItemSpecs();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 
@@ -1621,6 +1624,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
+    
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "loading Quest Dynamic Reward...");
+    sObjectMgr->LoadQuestDynamicRewards();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
     DisableMgr::CheckQuestDisables();                           // must be after loading quests

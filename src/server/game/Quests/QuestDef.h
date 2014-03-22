@@ -172,11 +172,12 @@ enum __QuestSpecialFlags
 
     QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
 
-    QUEST_SPECIAL_FLAGS_DELIVER              = 0x080,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_KILL_OR_CAST         = 0x200,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_TIMED                = 0x400,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_DELIVER              = 0x0080,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x0100,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_KILL_OR_CAST         = 0x0200,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_TIMED                = 0x0400,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x0800,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD  = 0x1000,   // Internal flag computed only
 };
 
 struct QuestLocale
@@ -196,6 +197,17 @@ struct QuestLocale
     StringVector QuestGiverTargetName;
     StringVector QuestTurnTextWindow;
     StringVector QuestTurnTargetName;
+};
+
+struct QuestDynamicReward
+{
+    QuestDynamicReward(uint32 id, uint32 c)
+    {
+        itemID = id;
+        count = c;
+    }
+    uint32 itemID;
+    uint32 count;
 };
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
@@ -332,6 +344,10 @@ class Quest
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
         uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
         uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
+    
+        bool HasDynamicReward() { return !DynamicRewards.empty(); }
+        void AddDynamicReward(uint32 item, uint32 count) { DynamicRewards.push_back(QuestDynamicReward(item, count); }
+        std::list<QuestDynamicReward> DynamicRewards;
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
 

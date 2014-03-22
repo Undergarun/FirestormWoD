@@ -208,6 +208,60 @@ enum Classes
     CLASS_DRUID         = 11
 };
 
+inline uint8 GetClassBySpec(uint32 spec)
+{
+    switch (spec)
+    {
+        case SPEC_MAGE_ARCANE:
+        case SPEC_MAGE_FIRE:
+        case SPEC_MAGE_FROST:
+            return CLASS_MAGE;
+        case SPEC_PALADIN_HOLY:
+        case SPEC_PALADIN_PROTECTION:
+        case SPEC_PALADIN_RETRIBUTION:
+            return CLASS_PALADIN;
+        case SPEC_WARRIOR_ARMS:
+        case SPEC_WARRIOR_FURY:
+        case SPEC_WARRIOR_PROTECTION:
+            return CLASS_WARRIOR;
+        case SPEC_DROOD_BALANCE:
+        case SPEC_DROOD_CAT:
+        case SPEC_DROOD_BEAR:
+        case SPEC_DROOD_RESTORATION:
+            return CLASS_DRUID;
+        case SPEC_DK_BLOOD:
+        case SPEC_DK_FROST:
+        case SPEC_DK_UNHOLY:
+            return CLASS_DEATH_KNIGHT;
+        case SPEC_HUNTER_BEASTMASTER:
+        case SPEC_HUNTER_MARKSMAN:
+        case SPEC_HUNTER_SURVIVAL:
+            return CLASS_HUNTER;
+        case SPEC_PRIEST_DISCIPLINE:
+        case SPEC_PRIEST_HOLY:
+        case SPEC_PRIEST_SHADOW:
+            return CLASS_PRIEST;
+        case SPEC_ROGUE_ASSASSINATION:
+        case SPEC_ROGUE_COMBAT:
+        case SPEC_ROGUE_SUBTLETY:
+            return CLASS_ROGUE;
+        case SPEC_SHAMAN_ELEMENTAL:
+        case SPEC_SHAMAN_ENHANCEMENT:
+        case SPEC_SHAMAN_RESTORATION:
+            return CLASS_SHAMAN;
+        case SPEC_WARLOCK_AFFLICTION:
+        case SPEC_WARLOCK_DEMONOLOGY:
+        case SPEC_WARLOCK_DESTRUCTION:
+            return CLASS_WARLOCK;
+        case SPEC_MONK_BREWMASTER:
+        case SPEC_MONK_WINDWALKER:
+        case SPEC_MONK_MISTWEAVER:
+            return CLASS_MONK;              
+        default:
+            return CLASS_NONE;
+    }
+}
+
 // max+1 for player class
 #define MAX_CLASSES       12
 
