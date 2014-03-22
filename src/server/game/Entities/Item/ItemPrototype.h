@@ -635,7 +635,7 @@ struct _Socket
 #define MAX_ITEM_PROTO_SPELLS  5
 #define MAX_ITEM_PROTO_STATS  10
 
-typedef SpecList std::list<SpecIndex>;
+typedef std::list<SpecIndex> SpecList;
 
 struct ItemTemplate
 {
@@ -817,15 +817,15 @@ struct ItemTemplate
     }
 
     void AddSpec(SpecIndex index) { specs.push_back(index); }
-    bool HasSpec() { return !specs.empty(); }
-    bool HasClassSpec(uint8 Class)
+    bool HasSpec() const { return !specs.empty(); }
+    bool HasClassSpec(uint8 Class) const
     {
         for (auto itr : specs)
             if (GetClassBySpec(itr) == Class)
                 return true;
         return false;
     }
-    bool HasSpec(SpecIndex index)
+    bool HasSpec(SpecIndex index) const
     {
         for (auto itr : specs)
             if (itr == index)

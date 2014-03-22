@@ -17101,9 +17101,8 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
     {
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
         {
-            Player* plr = _session->GetPlayer();
             uint32 index = 0;
             for (auto dynamicReward : quest->DynamicRewards)
             {
@@ -17116,7 +17115,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
                 //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
                 //    continue;
 
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(plr->getClass()))
+                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
                     continue;
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
@@ -17318,9 +17317,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
         {
-            Player* plr = _session->GetPlayer();
             uint32 index = 0;
             for (auto dynamicReward : quest->DynamicRewards)
             {
@@ -17333,7 +17331,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
                 //    continue;
 
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(plr->getClass()))
+                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
                     continue;
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)

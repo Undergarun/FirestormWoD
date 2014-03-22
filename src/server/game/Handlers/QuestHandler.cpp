@@ -464,12 +464,12 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
             if (quest->RewardChoiceItemId[i] == slot)
                 reward = i;
 
-        if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
         {
             uint32 index = 0;
             for (auto itr : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
+                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itr.itemID);
                 if (!itemTemplate)
                     continue;
 

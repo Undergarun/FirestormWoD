@@ -2763,7 +2763,7 @@ void ObjectMgr::LoadItemSpecs()
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
 
-    for (int i = 0; i < sItemSpecOverrideStore.GetNumRows(); i++)
+    for (uint32 i = 0; i < sItemSpecOverrideStore.GetNumRows(); i++)
     {
         ItemSpecOverrideEntry const* specInfo = sItemSpecOverrideStore.LookupEntry(i);
         if (!specInfo)
@@ -2772,8 +2772,8 @@ void ObjectMgr::LoadItemSpecs()
         if (_itemTemplateStore.find(specInfo->itemEntry) != _itemTemplateStore.end())
             continue;
 
-        ItemTemplate& itemTemplate = _itemTemplateStore[itemEntry];
-        itemTemplate.AddSpec(specInfo->specID);
+        ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->itemEntry];
+        itemTemplate.AddSpec((SpecIndex)specInfo->specID);
         count++;
     }
 
@@ -4453,8 +4453,8 @@ void ObjectMgr::LoadQuestDynamicRewards()
 
         count++;
 
-        Quest& quest = &_questTemplates[questId];
-        quest.AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
+        Quest* quest = _questTemplates[questId];
+        quest->AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
     }
     while (result->NextRow());
     

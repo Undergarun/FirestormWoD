@@ -1176,7 +1176,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
 
     uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
     uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-    if (quest->HasSpecialFlags(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
     {
         Player* plr = _session->GetPlayer();
         uint32 index = 0;

@@ -345,8 +345,8 @@ class Quest
         uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
         uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
     
-        bool HasDynamicReward() { return !DynamicRewards.empty(); }
-        void AddDynamicReward(uint32 item, uint32 count) { DynamicRewards.push_back(QuestDynamicReward(item, count); }
+        bool HasDynamicReward() const { return !DynamicRewards.empty(); }
+        void AddDynamicReward(uint32 item, uint32 count) { DynamicRewards.push_back(QuestDynamicReward(item, count)); }
         std::list<QuestDynamicReward> DynamicRewards;
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;

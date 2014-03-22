@@ -1560,7 +1560,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadItemScriptNames();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                   // must be after LoadItemPrototypes
-    sObjectMGr->LoadItemSpecs();
+    sObjectMgr->LoadItemSpecs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
