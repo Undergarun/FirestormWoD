@@ -179,6 +179,26 @@ class SpellCastTargets
         void Update(Unit* caster);
         void OutDebug() const;
 
+        void ClearExtraTargets()
+        {
+            m_extraTargets.clear();
+            m_targetMask &= ~TARGET_FLAG_EXTRA_TARGETS;
+        }
+
+        void AddExtraTarget(uint64 guid, WorldLocation pos)
+        {
+            SpellDestination extraTarget;
+            extraTarget._position = pos;
+            extraTarget._transportGUID = guid;
+
+            m_extraTargets.push_back(extraTarget);
+
+            m_targetMask |= TARGET_FLAG_EXTRA_TARGETS;
+        }
+
+        size_t GetExtraTargetsCount() const { return m_extraTargets.size(); }
+        std::list<SpellDestination> GetExtraTargets() const { return m_extraTargets; }
+
     private:
         uint32 m_targetMask;
 
@@ -193,6 +213,7 @@ class SpellCastTargets
 
         SpellDestination m_src;
         SpellDestination m_dst;
+        std::list<SpellDestination> m_extraTargets;
 
         float m_elevation, m_speed;
         std::string m_strTarget;

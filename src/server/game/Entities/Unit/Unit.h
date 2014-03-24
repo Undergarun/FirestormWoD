@@ -659,7 +659,15 @@ enum UnitFlags2
     UNIT_FLAG2_DISABLE_TURN                 = 0x00008000,
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
-    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000    // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_UNK3                         = 0x00080000,
+    UNIT_FLAG2_UNK4                         = 0x00100000,
+    UNIT_FLAG2_UNK5                         = 0x00200000,
+    UNIT_FLAG2_UNK6                         = 0x00400000,
+    UNIT_FLAG2_UNK7                         = 0x00800000,
+    UNIT_FLAG2_UNK8                         = 0x01000000,
+    UNIT_FLAG2_UNK9                         = 0x02000000,
+    UNIT_FLAG2_UNK10                        = 0x04000000
 };
 
 /// Non Player Character flags

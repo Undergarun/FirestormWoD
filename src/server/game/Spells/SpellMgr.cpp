@@ -3082,6 +3082,24 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 119414:// Breath of Fear
+                    spellInfo->Effects[2].Effect = 0;
+                    break;
+                case 107145:// Wall of Light activation
+                    spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                    break;
+                case 119312:// Conjure Terror Spawn (01)
+                case 119370:// Conjure Terror Spawn (02)
+                case 119371:// Conjure Terror Spawn (03)
+                case 119372:// Conjure Terror Spawn (04)
+                    spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                    spellInfo->Effects[0].TargetB = 0;
+                    break;
+                case 117866:// Champion of Light
+                    spellInfo->MaxAffectedTargets = 1;
+                    spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(65); // 1,5s
+                    spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(15); // 3 yards
+                    break;
                 case 126848:// Ritual of Purification
                     spellInfo->Effects[0].BasePoints = -10;
                     spellInfo->Effects[1].BasePoints = -10;

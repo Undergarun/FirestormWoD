@@ -866,7 +866,7 @@ class spell_scary_fog_stacks : public SpellScriptLoader
             return new spell_scary_fog_stacks_SpellScript();
         }
 };
- 
+
 void AddSC_boss_lei_shi()
 {
     new boss_lei_shi();
