@@ -140,17 +140,17 @@ class spell_pri_power_word_fortitude : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->IsInRaidWith(_player))
+                        if (target->IsInRaidWith(caster))
                         {
                             std::list<Unit*> playerList;
-                            _player->GetPartyMembers(playerList);
+                            caster->GetPartyMembers(playerList);
 
                             for (auto itr : playerList)
-                                _player->AddAura(PRIEST_SPELL_POWER_WORD_FORTITUDE, itr);
+                                caster->AddAura(PRIEST_SPELL_POWER_WORD_FORTITUDE, itr);
                         }
                     }
                 }
@@ -182,20 +182,20 @@ class spell_pri_spectral_guise_charges : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!GetCaster())
+                Unit* spectralGuise = GetCaster();
+                if (!spectralGuise)
                     return;
 
                 Unit* attacker = eventInfo.GetActor();
                 if (!attacker)
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != GetCaster()->GetGUID())
+                if (eventInfo.GetActor()->GetGUID() != spectralGuise->GetGUID())
                     return;
 
-                if (Unit* spectralGuise = GetCaster())
-                    if (eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE || eventInfo.GetDamageInfo()->GetDamageType() == DIRECT_DAMAGE)
-                        if (AuraPtr spectralGuiseCharges = spectralGuise->GetAura(PRIEST_SPELL_SPECTRAL_GUISE_CHARGES))
-                            spectralGuiseCharges->DropCharge();
+                if (eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE || eventInfo.GetDamageInfo()->GetDamageType() == DIRECT_DAMAGE)
+                    if (AuraPtr spectralGuiseCharges = spectralGuise->GetAura(PRIEST_SPELL_SPECTRAL_GUISE_CHARGES))
+                        spectralGuiseCharges->DropCharge();
             }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)

@@ -65,7 +65,8 @@ enum WarriorSpells
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
     WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277,
     WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
-    WARRIOR_SPELL_DOUBLE_TIME                   = 103827
+    WARRIOR_SPELL_DOUBLE_TIME                   = 103827,
+    WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356
 };
 
 // Victorious State - 32216
@@ -140,9 +141,8 @@ class spell_warr_stampeding_shout : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveMovementImpairingAuras();
+                if (Unit* target = GetHitUnit())
+                    target->RemoveMovementImpairingAuras();
             }
 
             void Register()
@@ -169,16 +169,16 @@ class spell_warr_shield_barrier : public SpellScriptLoader
 
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                if (GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    int32 rage = int32(GetCaster()->GetPower(POWER_RAGE) / 10);
-                    int32 AP = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
-                    int32 Strength = int32(GetCaster()->GetStat(STAT_STRENGTH));
-                    int32 Stamina = int32(GetCaster()->GetStat(STAT_STAMINA));
+                    int32 rage = int32(caster->GetPower(POWER_RAGE) / 10);
+                    int32 AP = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK));
+                    int32 Strength = int32(caster->GetStat(STAT_STRENGTH));
+                    int32 Stamina = int32(caster->GetStat(STAT_STAMINA));
 
                     amount += std::max(int32(2 * (AP - 2 * (Strength - 10))), int32(Stamina * 2.5f)) * (std::min(60, rage) / 20);
 
-                    GetCaster()->SetPower(POWER_RAGE, GetCaster()->GetPower(POWER_RAGE) - std::min(60, rage) * 10);
+                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) - std::min(60, rage) * 10);
                 }
             }
 
@@ -206,8 +206,8 @@ class spell_warr_shield_block : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
             }
 
             void Register()
@@ -234,7 +234,7 @@ class spell_warr_storm_bolt : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN))
                     {
@@ -243,7 +243,7 @@ class spell_warr_storm_bolt : public SpellScriptLoader
                             if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), 0))
                                 SetHitDamage(GetHitDamage() * 4);
 
-                            _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                            caster->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
                         }
                     }
                 }
@@ -273,9 +273,9 @@ class spell_warr_colossus_smash : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, WARRIOR_SPELL_PHYSICAL_VULNERABILITY, true);
+                        caster->CastSpell(target, WARRIOR_SPELL_PHYSICAL_VULNERABILITY, true);
             }
 
             void Register()
@@ -303,9 +303,9 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(WARRIOR_SPELL_MEAT_CLEAVER_PROC))
-                        _player->RemoveAura(WARRIOR_SPELL_MEAT_CLEAVER_PROC);
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(WARRIOR_SPELL_MEAT_CLEAVER_PROC))
+                        caster->RemoveAura(WARRIOR_SPELL_MEAT_CLEAVER_PROC);
             }
 
             void Register()
@@ -332,9 +332,9 @@ class spell_warr_dragon_roar : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
+                        caster->CastSpell(target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
             }
 
             void Register()
@@ -388,9 +388,9 @@ class spell_warr_frenzied_regeneration : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAuraState(AURA_STATE_ENRAGE))
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 600, POWER_RAGE);
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAuraState(AURA_STATE_ENRAGE))
+                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 600, POWER_RAGE);
             }
 
             void Register()
@@ -417,8 +417,8 @@ class spell_warr_second_wind : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
             }
 
             void Register()
@@ -468,7 +468,7 @@ class spell_warr_taste_for_blood_aura : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
@@ -477,13 +477,13 @@ class spell_warr_taste_for_blood_aura : public SpellScriptLoader
 
                         int32 stacks = 0;
 
-                        if (AuraPtr tasteForBlood = _player->GetAura(WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE))
+                        if (AuraPtr tasteForBlood = caster->GetAura(WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE))
                             stacks = tasteForBlood->GetStackAmount();
 
                         stacks++;
 
-                        if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE))
-                            _player->RemoveAura(WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE);
+                        if (caster->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE))
+                            caster->RemoveAura(WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE);
 
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             if (stacks > 2)
@@ -519,28 +519,29 @@ class spell_warr_taste_for_blood : public SpellScriptLoader
 
             void HandleOnHit()
             {
+                if (!GetHitUnit())
+                    return;
+
                 rolled = false;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (caster->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
                     {
-                        if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
+                        if (roll_chance_i(30))
                         {
-                            if (roll_chance_i(30))
-                            {
-                                rolled = true;
-                                // Increase damage of next Heroic Strike or Slam
-                                _player->CastSpell(_player, WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE, true);
-                            }
-                            if (AuraPtr overpower = _player->GetAura(WARRIOR_SPELL_ALLOW_OVERPOWER))
-                            {
-                                int32 stacks = overpower->GetStackAmount();
-                                if (stacks <= 1)
-                                    _player->RemoveAura(WARRIOR_SPELL_ALLOW_OVERPOWER);
-                                else
-                                    overpower->SetStackAmount(stacks - 1);
-                            }
+                            rolled = true;
+                            // Increase damage of next Heroic Strike or Slam
+                            caster->CastSpell(caster, WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE, true);
+                        }
+
+                        if (AuraPtr overpower = caster->GetAura(WARRIOR_SPELL_ALLOW_OVERPOWER))
+                        {
+                            int32 stacks = overpower->GetStackAmount();
+                            if (stacks <= 1)
+                                caster->RemoveAura(WARRIOR_SPELL_ALLOW_OVERPOWER);
+                            else
+                                overpower->SetStackAmount(stacks - 1);
                         }
                     }
                 }
@@ -620,10 +621,8 @@ class spell_warr_berzerker_rage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->CastSpell(_player, WARRIOR_SPELL_ENRAGE, true);
-                }
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, WARRIOR_SPELL_ENRAGE, true);
             }
 
             void Register()
@@ -650,12 +649,12 @@ class spell_warr_mocking_banner : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Player* player = GetTarget()->ToPlayer())
+                if (Unit* target = GetTarget())
                 {
                     std::list<Creature*> bannerList;
                     std::list<Creature*> tempList;
 
-                    GetTarget()->GetCreatureListWithEntryInGrid(tempList, WARRIOR_NPC_MOCKING_BANNER, 30.0f);
+                    target->GetCreatureListWithEntryInGrid(tempList, WARRIOR_NPC_MOCKING_BANNER, 30.0f);
 
                     bannerList = tempList;
 
@@ -663,14 +662,14 @@ class spell_warr_mocking_banner : public SpellScriptLoader
                     for (auto itr : tempList)
                     {
                         Unit* owner = itr->GetOwner();
-                        if (owner && owner == player && itr->isSummon())
+                        if (owner && owner == target && itr->isSummon())
                             continue;
 
                         bannerList.remove(itr);
                     }
 
                     for (auto itr : bannerList)
-                        player->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
+                        target->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
                 }
             }
 
@@ -728,15 +727,15 @@ class spell_warr_raging_blow : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                    if (caster->HasAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
                     {
-                        if (AuraPtr ragingBlow = _player->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                        if (AuraPtr ragingBlow = caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
                         {
                             int32 stacks = ragingBlow->GetStackAmount();
                             if (stacks <= 1)
-                                _player->RemoveAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW);
+                                caster->RemoveAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW);
                             else
                                 ragingBlow->SetStackAmount(stacks - 1);
                         }
@@ -769,16 +768,16 @@ class spell_warr_sword_and_board : public SpellScriptLoader
 
             void HandleOnHit()
             {
+                if (!GetHitUnit())
+                    return;
+
                 // Fix Sword and Board
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (roll_chance_i(30))
                     {
-                        if (roll_chance_i(30))
-                        {
-                            _player->CastSpell(_player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
-                            _player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
-                        }
+                        player->CastSpell(player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
+                        player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
                     }
                 }
             }
@@ -812,9 +811,8 @@ class spell_warr_mortal_strike : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA))
-                            if (!_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
-                                _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
+                        if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
+                            _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
 
                         if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
                         {
@@ -885,15 +883,12 @@ class spell_warr_heroic_leap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
 
-            std::list<Unit*> targetList;
-
             SpellCastResult CheckElevation()
             {
-                Unit* caster = GetCaster();
-                if (!caster || !caster->ToPlayer())
+                if (!GetCaster() || !GetCaster()->ToPlayer())
                     return SPELL_FAILED_DONT_REPORT;
 
-                Player* player = caster->ToPlayer();
+                Player* player = GetCaster()->ToPlayer();
 
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
                 if (!dest)
@@ -918,8 +913,9 @@ class spell_warr_heroic_leap : public SpellScriptLoader
             void HandleAfterCast()
             {
                 // Item - Warrior PvP Set 4P Bonus
-                if (GetCaster()->HasAura(WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS))
-                    GetCaster()->CastSpell(GetCaster(), WARRIOR_SPELL_HEROIC_LEAP_SPEED, true);
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS))
+                        caster->CastSpell(caster, WARRIOR_SPELL_HEROIC_LEAP_SPEED, true);
             }
 
             void Register()
@@ -996,9 +992,9 @@ class spell_warr_shockwave : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN, true);
+                        caster->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN, true);
             }
 
             void Register()
@@ -1025,16 +1021,16 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST))
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST) || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST_HEAL))
                     return false;
                 return true;
             }
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (GetHitDamage())
-                            _player->CastSpell(_player, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
+                if (Unit* caster = GetCaster())
+                    if (GetHitDamage())
+                        caster->CastSpell(caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
             }
 
             void Register()
@@ -1065,16 +1061,18 @@ class spell_warr_victory_rush : public SpellScriptLoader
                     return false;
                 return true;
             }
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (!GetHitUnit())
+                    return;
+
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(_player, WARRIOR_SPELL_VICTORY_RUSH_HEAL, true);
-                        if (_player->HasAura(WARRIOR_SPELL_VICTORIOUS_STATE))
-                            _player->RemoveAura(WARRIOR_SPELL_VICTORIOUS_STATE);
-                    }
+                    caster->CastSpell(caster, WARRIOR_SPELL_VICTORY_RUSH_HEAL, true);
+
+                    if (caster->HasAura(WARRIOR_SPELL_VICTORIOUS_STATE))
+                        caster->RemoveAura(WARRIOR_SPELL_VICTORIOUS_STATE);
                 }
             }
 
@@ -1146,11 +1144,11 @@ class spell_warr_thunder_clap : public SpellScriptLoader
                     {
                         _player->CastSpell(target, WARRIOR_SPELL_WEAKENED_BLOWS, true);
 
-                        // Glyph of Resonating Power - 58356, increases damage the damage and cooldown by 50%
-                        if (_player->HasAura(58356))
+                        // Glyph of Resonating Power - increases damage the damage and cooldown by 50%
+                        if (_player->HasAura(WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER))
                         {
                             SetHitDamage(int32(GetHitDamage() * 1.5f));
-                            _player->ToPlayer()->AddSpellCooldown(6343, 0, time(NULL) + 12);
+                            _player->AddSpellCooldown(WARRIOR_SPELL_THUNDER_CLAP, 0, time(NULL) + 12);
                         }
                     }
                 }
@@ -1181,19 +1179,19 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->GetGUID() == _player->GetGUID())
+                        if (target->GetGUID() == caster->GetGUID())
                             return;
 
-                        if (_player->getLevel() >= 32)
+                        if (caster->getLevel() >= 32)
                         {
-                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                                _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && caster->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
+                                caster->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
                             else
-                                _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                                caster->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
                         }
                     }
                 }
@@ -1238,17 +1236,17 @@ class spell_warr_charge : public SpellScriptLoader
 
             void HandleCharge(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_player->HasAura(SPELL_WARBRINGER))
-                            _player->CastSpell(target, SPELL_CHARGE_WARBRINGER_STUN, true);
+                        if (caster->HasAura(SPELL_WARBRINGER))
+                            caster->CastSpell(target, SPELL_CHARGE_WARBRINGER_STUN, true);
                         else
-                            _player->CastSpell(target, SPELL_CHARGE_STUN, true);
+                            caster->CastSpell(target, SPELL_CHARGE_STUN, true);
 
-                        if (!_player->HasSpell(WARRIOR_SPELL_DOUBLE_TIME))
-                            _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 200, POWER_RAGE);
+                        if (!caster->HasSpell(WARRIOR_SPELL_DOUBLE_TIME))
+                            caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 200, POWER_RAGE);
                     }
                 }
             }

@@ -84,6 +84,7 @@ enum CreatureFlagsExtra
 #define ENTRY_SHIVARRA          58963
 #define ENTRY_OBSERVER          58964
 #define ENTRY_WRATHGUARD        58965
+#define ENTRY_DOOMGUARD         11859
 
 // Mage
 #define ENTRY_WATER_ELEMENTAL   510
