@@ -812,7 +812,8 @@ class World
         // for max speed access
         static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
         static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
-        static float GetMaxVisibleDistanceInBGArenas()      { return m_MaxVisibleDistanceInBGArenas;   }
+        static float GetMaxVisibleDistanceInBG()            { return m_MaxVisibleDistanceInBG;         }
+        static float GetMaxVisibleDistanceInArenas()        { return m_MaxVisibleDistanceInArenas;     }
 
         static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
         static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
@@ -851,6 +852,7 @@ class World
         void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
         void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
+        bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -872,6 +874,8 @@ class World
         void SetRecordDiff(RecordDiffType recordDiff, uint32 diff) { m_recordDiff[recordDiff] = diff; }
         uint32 GetRecordDiff(RecordDiffType recordDiff) { return m_recordDiff[recordDiff]; }
 
+        void ResetCurrencyWeekCap();
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -887,7 +891,6 @@ class World
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();
-        void ResetCurrencyWeekCap();
         void AutoRestartServer();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
@@ -937,7 +940,8 @@ class World
         // for max speed access
         static float m_MaxVisibleDistanceOnContinents;
         static float m_MaxVisibleDistanceInInstances;
-        static float m_MaxVisibleDistanceInBGArenas;
+        static float m_MaxVisibleDistanceInBG;
+        static float m_MaxVisibleDistanceInArenas;
 
         static int32 m_visibility_notify_periodOnContinents;
         static int32 m_visibility_notify_periodInInstances;

@@ -157,8 +157,8 @@ typedef std::map<uint32, LfgProposal*> LfgProposalMap;
 typedef std::map<uint64, LfgProposalPlayer*> LfgProposalPlayerMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 typedef std::map<uint64, LfgGroupData> LfgGroupDataMap;
-typedef ACE_Based::LockedMap<uint64, LfgPlayerData> LfgPlayerDataMap;
 typedef std::map<uint32, Position> LfgEntrancePositionMap;
+typedef ACE_Based::LockedMap<uint64, LfgPlayerData> LfgPlayerDataMap;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData

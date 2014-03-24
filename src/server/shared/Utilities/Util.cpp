@@ -27,6 +27,11 @@
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
+void init_sfmt()
+{
+    sfmtRand->RandomInit((int)(time(0)));
+}
+
 int32 irand(int32 min, int32 max)
 {
     return int32(sfmtRand->IRandom(min, max));
@@ -90,7 +95,6 @@ Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserv
         ++posnew;
     }
 }
-
 void stripLineInvisibleChars(std::string &str)
 {
     static std::string const invChars = " \t\7\n";
@@ -124,6 +128,24 @@ void stripLineInvisibleChars(std::string &str)
         str.clear();
 
 }
+
+void UnpackDBBinary(void* unpackedData, uint32 unpackedCount, void const* packedData, uint32 packedCount)
+{
+    uint32 copyCount = std::min(unpackedCount, packedCount);
+
+    memcpy(unpackedData, packedData, copyCount);
+
+    memset((char*)unpackedData + copyCount, 0, unpackedCount - copyCount);
+}
+
+nullable_string PackDBBinary(void const* unpackedData, uint32 unpackedCount)
+{
+    while (unpackedCount > 0 && !*((char*)unpackedData + unpackedCount - 1))
+        --unpackedCount;
+
+    return nullable_string((char const*)unpackedData, unpackedCount);
+}
+
 
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {

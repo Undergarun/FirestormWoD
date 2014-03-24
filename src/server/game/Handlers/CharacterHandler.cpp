@@ -222,6 +222,14 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADCURRENCY, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CUF_PROFILE);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, stmt);
+
     return res;
 }
 
@@ -249,9 +257,10 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         {
             uint32 guidLow = (*result)[0].GetUInt32();
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "Loading char guid %u from account %u.", guidLow, GetAccountId());
-
             Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+
+            if (!sWorld->HasCharacterNameData(guidLow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                 sWorld->AddCharacterNameData(guidLow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
 
             _allowedCharsToLogin.insert(guidLow);
         }
@@ -969,14 +978,17 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
         }
 
         for (auto id : spellToCast)
+        {
             if (id > 0 && _plr)
                 _plr->CastSpell(_plr, id, true);
-
-        Position pos;
-        _plr->GetPosition(&pos);
+        }
 
         if (_plr->hasForcedMovement)
+        {
+            Position pos;
+            _plr->GetPosition(&pos);            
             _plr->SendApplyMovementForce(false, pos);
+        }
     }
 }
 
@@ -1028,6 +1040,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     bool webTicketFeature = false;
     bool ingameStoreFeature = true;
     bool itemRestorationFeature = false;
+
     data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
 
     data << uint32(1);                  // SoR remaining ?
@@ -1108,7 +1121,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
-
+    
     const static std::string timeZoneName = "Europe/Paris";
 
     data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
@@ -1269,14 +1282,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
-    stmt->setUInt32(0, pCurrChar->GetGUIDLow());
-    CharacterDatabase.Execute(stmt);
-
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_ONLINE);
-    stmt->setUInt32(0, GetAccountId());
-    LoginDatabase.Execute(stmt);
-
+    CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", pCurrChar->GetGUIDLow());
+    LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = '%u'", GetAccountId());
     pCurrChar->SetInGameTime(getMSTime());
 
     uint32 time6 = getMSTime() - time5;
@@ -1360,6 +1367,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
     m_playerLoading = false;
+
+    // fix exploit with Aura Bind Sight
+    pCurrChar->StopCastingBindSight();
+    pCurrChar->StopCastingCharm();
+    pCurrChar->RemoveAurasByType(SPELL_AURA_BIND_SIGHT);
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
@@ -1601,36 +1613,26 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 {
     uint64 guid;
-
     recvData >> guid;
 
     // not accept declined names for unsupported languages
     std::string name;
     if (!sObjectMgr->GetPlayerNameByGUID(guid, name))
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-        data << uint32(1);
-        data << uint64(guid);
-        SendPacket(&data);
+        SendPlayerDeclinedNamesResult(guid, 1);
         return;
     }
 
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-        data << uint32(1);
-        data << uint64(guid);
-        SendPacket(&data);
+        SendPlayerDeclinedNamesResult(guid, 1);
         return;
     }
 
     if (!isCyrillicCharacter(wname[0]))                      // name already stored as only single alphabet using
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-        data << uint32(1);
-        data << uint64(guid);
-        SendPacket(&data);
+        SendPlayerDeclinedNamesResult(guid, 1);
         return;
     }
 
@@ -1641,10 +1643,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 
     if (name2 != name)                                       // character have different name
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-        data << uint32(1);
-        data << uint64(guid);
-        SendPacket(&data);
+        SendPlayerDeclinedNamesResult(guid, 1);
         return;
     }
 
@@ -1653,20 +1652,14 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         recvData >> declinedname.name[i];
         if (!normalizePlayerName(declinedname.name[i]))
         {
-            WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-            data << uint32(1);
-            data << uint64(guid);
-            SendPacket(&data);
+            SendPlayerDeclinedNamesResult(guid, 1);
             return;
         }
     }
 
     if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-        data << uint32(1);
-        data << uint64(guid);
-        SendPacket(&data);
+        SendPlayerDeclinedNamesResult(guid, 1);
         return;
     }
 
@@ -1682,15 +1675,20 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_DECLINED_NAME);
     stmt->setUInt32(0, GUID_LOPART(guid));
 
-    for (uint8 i = 0; i < 5; i++)
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
         stmt->setString(i+1, declinedname.name[i]);
 
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
 
+    SendPlayerDeclinedNamesResult(guid, 0);
+}
+
+void WorldSession::SendPlayerDeclinedNamesResult(uint64 guid, uint32 result)
+{
     WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-    data << uint32(0);                                      // OK
+    data << uint32(result);
     data << uint64(guid);
     SendPacket(&data);
 }
@@ -2007,8 +2005,6 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_SAVE");
-
     ObjectGuid setGuid;
     uint32 index;
     EquipmentSet eqSet;
@@ -2094,13 +2090,11 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     _player->SetEquipmentSet(index, eqSet);
 
     delete[] itemGuid;
-    itemGuid = 0;
+    itemGuid = NULL;
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_DELETE");
-
     ObjectGuid setGuid;
 
     uint8 bitsOrder[8] = { 4, 1, 7, 0, 5, 6, 3, 2 };
@@ -2116,10 +2110,9 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
 
 void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
-
-    uint8* srcbag = new uint8[EQUIPMENT_SLOT_END];
+    uint8* srcbag = new uint8[EQUIPMENT_SLOT_END];;
     uint8* srcslot = new uint8[EQUIPMENT_SLOT_END];
+
     ObjectGuid* itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
 
     EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
@@ -2202,7 +2195,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     delete[] srcslot;
     srcslot = NULL;
     delete[] itemGuid;
-    itemGuid = 0;
+    itemGuid = NULL;
 }
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
@@ -2261,12 +2254,20 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         recvData >> facialHair;
 
     uint32 lowGuid = GUID_LOPART(guid);
-    CharacterNameData const* oldData = sWorld->GetCharacterNameData(lowGuid);
+
+    // get the players old (at this moment current) race
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGuid);
+    if (!nameData)	
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
+        data << uint8(CHAR_CREATE_ERROR);
+        data << uint64(guid);
+        SendPacket(&data);
+        return;
+    }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
-
     stmt->setUInt32(0, lowGuid);
-
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -2441,14 +2442,15 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     trans->Append(stmt);
 
     // CHECK PTR
-    if (oldData)
+    if (nameData)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
         stmt->setUInt32(0, lowGuid);
-        stmt->setString(1, oldData->m_name);
+        stmt->setString(1, nameData->m_name);
         stmt->setString(2, newname);
         trans->Append(stmt);
     }
+
 
     sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
 

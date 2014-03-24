@@ -41,16 +41,16 @@ void npc_escortAI::AttackStart(Unit* who)
     if (!who)
         return;
 
+    if (me->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN)
+        return;
+
     if (me->Attack(who, true))
     {
-        if (me->GetMotionMaster())
-        {
-            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                me->GetMotionMaster()->MovementExpired();
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+            me->GetMotionMaster()->MovementExpired();
 
-            if (IsCombatMovementAllowed())
-                me->GetMotionMaster()->MoveChase(who);
-        }
+        if (IsCombatMovementAllowed())
+            me->GetMotionMaster()->MoveChase(who);
     }
 }
 

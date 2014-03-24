@@ -251,12 +251,6 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
 
-float const BG_SA_BayTeleportlocs[2][3] =
-{
-    { 1608.078f, 0049.164f, 7.581f },
-    { 1598.014f, -106.052f, 8.874f }
-};
-
 float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
 {
     { 1411.57f, 108.163f, 28.692f, 5.441f },
@@ -612,8 +606,6 @@ class BattlegroundSA : public Battleground
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player* player);
 
-        void RelocatePlayer(Player* player);
-
         /// Totale elapsed time of current round
         uint32 TotalTime;
         /// Max time of round
@@ -642,8 +634,5 @@ class BattlegroundSA : public Battleground
 
         // Achievement: Not Even a Scratch
         bool _notEvenAScratch[BG_TEAMS_COUNT];
-
-        std::map<uint64, uint32> playersToRelocate;
 };
-
 #endif

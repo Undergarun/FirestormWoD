@@ -116,9 +116,8 @@ namespace JadeCore
         void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
         void Visit(CreatureMapType &m)
         { 
-            for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+            for (GridRefManager<Creature>::iterator iter = m.begin(); iter != m.end(); ++iter)
                 iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
-            //updateObjects<Creature>(m); 
         }
         void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
@@ -159,11 +158,47 @@ namespace JadeCore
         }
     };
 
+    struct UnfriendlyMessageDistDeliverer
+    {
+        Unit* i_source;
+        WorldPacket* i_message;
+        uint32 i_phaseMask;
+        float i_distSq;
+        UnfriendlyMessageDistDeliverer(Unit* src, WorldPacket* msg, float dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+        {
+        }
+        void Visit(PlayerMapType &m);
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
+
+        void SendPacket(Player* player)
+        {
+            // never send packet to self
+            if (player == i_source || (player->IsFriendlyTo(i_source)))
+                return;
+
+            if (!player->HaveAtClient(i_source))
+                return;
+
+            if (WorldSession* session = player->GetSession())
+                session->SendPacket(i_message);
+            
+            if (i_message->GetOpcode() == SMSG_CLEAR_TARGET)
+            {
+                for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_AUTOREPEAT_SPELL; ++i)
+                {
+                    Spell * spell = player->GetCurrentSpell(i);
+                    if (spell && spell->GetUnitTarget() == ((Unit*)i_source) && spell->getState() == SPELL_STATE_CASTING)
+                        spell->cancel();
+                }
+            }
+        }
+    };
+
     struct ObjectUpdater
     {
         uint32 i_timeDiff;
-        uint32 i_startTime;
-        explicit ObjectUpdater(const uint32 diff, const uint32 startTime) : i_timeDiff(diff), i_startTime(startTime) {}
+        explicit ObjectUpdater(const uint32 diff) : i_timeDiff(diff) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void Visit(PlayerMapType &) {}
         void Visit(CorpseMapType &) {}
@@ -845,7 +880,7 @@ namespace JadeCore
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                return i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u);
+                return i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsValidAttackTarget(u);
             }
         private:
             WorldObject const* i_obj;
@@ -974,7 +1009,7 @@ namespace JadeCore
             bool operator()(Unit* u)
             {
                 if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
-                    !i_funit->IsFriendlyTo(u) && i_funit->canSeeOrDetect(u))
+                    !i_funit->IsFriendlyTo(u))
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
                     return true;
@@ -1122,33 +1157,33 @@ namespace JadeCore
 
     class NearestHostileNoCCUnitCheck
     {
-        public:
-            explicit NearestHostileNoCCUnitCheck(Creature const* creature, float dist = 0) : me(creature)
-            {
-                m_range = (dist == 0 ? 9999 : dist);
-            }
-            bool operator()(Unit* u)
-            {
-                if (!me->IsWithinDistInMap(u, m_range))
-                    return false;
+    public:
+        explicit NearestHostileNoCCUnitCheck(Creature const* creature, float dist = 0) : me(creature)
+        {
+            m_range = (dist == 0 ? 9999 : dist);
+        }
+        bool operator()(Unit* u)
+        {
+            if (!me->IsWithinDistInMap(u, m_range))
+                return false;
 
-                if (!me->canSeeOrDetect(u))
-                    return false;
+            if (!me->IsValidAttackTarget(u))
+                return false;
 
-                if (u->HasCrowdControlAura())
-                    return false;
+            if (u->HasCrowdControlAura())
+                return false;
 
-                if (u->HasAuraType(SPELL_AURA_MOD_CONFUSE))
-                    return false;
+            if (u->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+                return false;
 
-                m_range = me->GetDistance(u);   // use found unit range as new range limit for next check
-                return true;
-            }
+            m_range = me->GetDistance(u);   // use found unit range as new range limit for next check
+            return true;
+        }
 
-        private:
-            Creature const *me;
-            float m_range;
-            NearestHostileNoCCUnitCheck(NearestHostileNoCCUnitCheck const&);
+    private:
+        Creature const *me;
+        float m_range;
+        NearestHostileNoCCUnitCheck(NearestHostileNoCCUnitCheck const&);
     };
 
     class NearestHostileUnitInAttackDistanceCheck
@@ -1184,6 +1219,35 @@ namespace JadeCore
             float m_range;
             bool m_force;
             NearestHostileUnitInAttackDistanceCheck(NearestHostileUnitInAttackDistanceCheck const&);
+    };
+
+    class NearestHostileUnitInAggroRangeCheck
+    {
+        public:
+            explicit NearestHostileUnitInAggroRangeCheck(Creature const* creature, bool useLOS = false) : _me(creature), _useLOS(useLOS)
+            {
+            }
+            bool operator()(Unit* u)
+            {
+                if (!u->IsHostileTo(_me))
+                    return false;
+
+                if (!u->IsWithinDistInMap(_me, _me->GetAggroRange(u)))
+                    return false;
+
+                if (!_me->IsValidAttackTarget(u))
+                    return false;
+
+                if (_useLOS && !u->IsWithinLOSInMap(_me))
+                    return false;
+
+                return true;
+            }
+
+    private:
+            Creature const* _me;
+            bool _useLOS;
+            NearestHostileUnitInAggroRangeCheck(NearestHostileUnitInAggroRangeCheck const&);
     };
 
     class AnyAssistCreatureInRangeCheck

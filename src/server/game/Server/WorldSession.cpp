@@ -91,9 +91,9 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 premiumType, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
 m_muteTime(mute_time), m_timeOutTime(0), _player(NULL), m_Socket(sock),
-_security(sec), _ispremium(ispremium), _premiumType(premiumType), _accountId(id), m_expansion(expansion), _logoutTime(0),
+_security(sec), _premiumType(premiumType), _ispremium(ispremium), _accountId(id), m_expansion(expansion), _logoutTime(0),
 m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
@@ -446,7 +446,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (deletePacket)
             delete packet;
 
-#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 500
+#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 250
         processedPackets++;
 
         //process only a max amout of packets in 1 Update() call.
@@ -508,6 +508,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 /// %Log the player out
 void WorldSession::LogoutPlayer(bool Save)
 {
+    // fix exploit with Aura Bind Sight
+    _player->StopCastingBindSight();
+    _player->StopCastingCharm();
+    _player->RemoveAurasByType(SPELL_AURA_BIND_SIGHT);
+
     // finish pending transfers before starting the logout
     while (_player && _player->IsBeingTeleportedFar())
         HandleMoveWorldportAckOpcode();
@@ -540,6 +545,7 @@ void WorldSession::LogoutPlayer(bool Save)
                 else if ((*itr)->GetTypeId() == TYPEID_PLAYER)
                     aset.insert((Player*)(*itr));
             }
+
             // CombatStop() method is removing all attackers from the AttackerSet
             // That is why it must be AFTER building current set of attackers
             _player->CombatStop();
@@ -572,6 +578,12 @@ void WorldSession::LogoutPlayer(bool Save)
         {
             _player->RepopAtGraveyard();
             _player->SetPendingBind(0, 0);
+        }
+        else if (_player->GetVehicleBase() && _player->isInCombat())
+        {
+            _player->KillPlayer();
+            _player->BuildPlayerRepop();
+            _player->RepopAtGraveyard();
         }
 
         //drop a flag if player is carrying it
@@ -674,9 +686,7 @@ void WorldSession::LogoutPlayer(bool Save)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
         //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
-        stmt->setUInt32(0, GetAccountId());
-        CharacterDatabase.Execute(stmt);
+        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
     }
 
     m_playerLogout = false;

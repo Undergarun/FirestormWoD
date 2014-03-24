@@ -123,7 +123,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         void ApplyForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, true);}
         void _ApplyEffectForTargets(uint8 effIndex);
 
-        void UpdateOwner(uint32 diff, WorldObject* owner, uint32 auraId);
+        void UpdateOwner(uint32 diff, WorldObject* owner);
         void Update(uint32 diff, Unit* caster);
 
         time_t GetApplyTime() const { return m_applyTime; }
@@ -133,13 +133,15 @@ class Aura : public std::enable_shared_from_this<Aura>
         int32 CalcMaxDuration(Unit* caster) const;
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
-        void RefreshDuration();
+        void SetAuraTimer(int32 newTime, uint64 guid = 0);
+        void RefreshDuration(bool recalculate = true);
         void RefreshTimers();
         bool IsExpired() const { return !GetDuration();}
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
+        void SetModCharges(int16 charges);
         uint8 CalcMaxCharges(Unit* caster) const;
         uint8 CalcMaxCharges() const { return CalcMaxCharges(GetCaster()); }
         bool ModCharges(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);

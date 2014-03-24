@@ -87,7 +87,8 @@ ACE_Atomic_Op<ACE_Thread_Mutex, uint32> World::m_worldLoopCounter = 0;
 
 float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;
-float World::m_MaxVisibleDistanceInBGArenas   = DEFAULT_VISIBILITY_BGARENAS;
+float World::m_MaxVisibleDistanceInBG         = DEFAULT_VISIBILITY_BGARENAS;
+float World::m_MaxVisibleDistanceInArenas     = DEFAULT_VISIBILITY_BGARENAS;
 
 int32 World::m_visibility_notify_periodOnContinents = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 int32 World::m_visibility_notify_periodInInstances  = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
@@ -1157,17 +1158,30 @@ void World::LoadConfigSettings(bool reload)
         m_MaxVisibleDistanceInInstances = MAX_VISIBILITY_DISTANCE;
     }
 
-    //visibility in BG/Arenas
-    m_MaxVisibleDistanceInBGArenas = ConfigMgr::GetFloatDefault("Visibility.Distance.BGArenas", DEFAULT_VISIBILITY_BGARENAS);
-    if (m_MaxVisibleDistanceInBGArenas < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
+    //visibility in BG
+    m_MaxVisibleDistanceInBG = ConfigMgr::GetFloatDefault("Visibility.Distance.BG", DEFAULT_VISIBILITY_BGARENAS);
+    if (m_MaxVisibleDistanceInBG < 45 * sWorld->getRate(RATE_CREATURE_AGGRO))
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BGArenas can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
-        m_MaxVisibleDistanceInBGArenas = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BG can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        m_MaxVisibleDistanceInBG = 45 * sWorld->getRate(RATE_CREATURE_AGGRO);
     }
-    else if (m_MaxVisibleDistanceInBGArenas > MAX_VISIBILITY_DISTANCE)
+    else if (m_MaxVisibleDistanceInBG > MAX_VISIBILITY_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BGArenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
-        m_MaxVisibleDistanceInBGArenas = MAX_VISIBILITY_DISTANCE;
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BG can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        m_MaxVisibleDistanceInBG = MAX_VISIBILITY_DISTANCE;
+    }
+
+    //visibility in Arenas
+    m_MaxVisibleDistanceInArenas = ConfigMgr::GetFloatDefault("Visibility.Distance.Arenas", DEFAULT_VISIBILITY_BGARENAS);
+    if (m_MaxVisibleDistanceInArenas < 45 * sWorld->getRate(RATE_CREATURE_AGGRO))
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Arenas can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        m_MaxVisibleDistanceInArenas = 45 * sWorld->getRate(RATE_CREATURE_AGGRO);
+    }
+    else if (m_MaxVisibleDistanceInArenas > MAX_VISIBILITY_DISTANCE)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Arenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        m_MaxVisibleDistanceInArenas = MAX_VISIBILITY_DISTANCE;
     }
 
     m_visibility_notify_periodOnContinents = ConfigMgr::GetIntDefault("Visibility.Notify.Period.OnContinents", DEFAULT_VISIBILITY_NOTIFY_PERIOD);
@@ -1448,6 +1462,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Zones...");
+    sObjectMgr->LoadResearchSiteZones();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Loot...");
+    sObjectMgr->LoadResearchSiteLoot();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();
 
@@ -1570,7 +1590,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureClassLevelStats();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
-    sObjectMgr->RestructCreatureGUID(10000);                     // Select amount
+    sObjectMgr->RestructCreatureGUID(10000);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
@@ -1946,10 +1966,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
     InitRandomBGResetTime();
 
-    InitServerAutoRestartTime();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
     InitCurrencyResetTime();
+    InitServerAutoRestartTime();
 
     LoadCharacterNameData();
 
@@ -2101,8 +2120,8 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), realmID);
-            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u. Queue : %u", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount(), GetQueuedSessionCount());
+            LoginDatabase.PExecute("UPDATE realmlist set online=%u where id=%u", GetActiveSessionCount(), realmID);
+            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2592,8 +2611,8 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
                 }
 
             
-                // Permanent ban
-                stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT);
+                //Permanent ban
+                stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED);
                 stmtt->setUInt32(0, account);
                 PreparedQueryResult resultCheckBan = LoginDatabase.Query(stmtt);
 
@@ -3130,20 +3149,17 @@ void World::ResetCurrencyWeekCap()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
-    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
+    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL));
+    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
 
     sLog->OutPandashan("World::ResetCurrencyWeekCap()");
 }
 
 void World::LoadDBAllowedSecurityLevel()
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
-    stmt->setInt32(0, int32(realmID));
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
+    QueryResult result = LoginDatabase.PQuery("SELECT allowedSecurityLevel from realmlist WHERE id = '%d'", realmID);
     if (result)
-        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt8()));
+        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt16()));
 }
 
 void World::SetPlayerSecurityLimit(AccountTypes _sec)

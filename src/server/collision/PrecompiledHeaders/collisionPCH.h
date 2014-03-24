@@ -6,4 +6,4 @@
 #include "BoundingIntervalHierarchy.h"
 #include "RegularGrid.h"
 #include "BoundingIntervalHierarchyWrapper.h"
-#include "BoundingIntervalHierarchyWrapper.h"
+#include "GameObjectModel.h"

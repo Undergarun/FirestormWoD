@@ -41,8 +41,8 @@ void LFGPlayerScript::OnLogout(Player* player)
 {
     sLFGMgr->Leave(player);
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-    player->GetSession()->SendLfgUpdateParty(updateData);
-    player->GetSession()->SendLfgUpdatePlayer(updateData);
+    sLFGMgr->SendUpdateStatus(player, updateData);
+    sLFGMgr->SendUpdateStatus(player, updateData);
     player->GetSession()->SendLfgUpdateSearch(false);
     uint64 guid = player->GetGUID();
     // TODO - Do not remove, add timer before deleting
@@ -78,8 +78,8 @@ void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
     {
         if (Player* plrg = itr->getSource())
         {
-            plrg->GetSession()->SendLfgUpdatePlayer(updateData);
-            plrg->GetSession()->SendLfgUpdateParty(updateData);
+            sLFGMgr->SendUpdateStatus(plrg, updateData);
+            sLFGMgr->SendUpdateStatus(plrg, updateData);
         }
     }
 
@@ -131,7 +131,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
         */
 
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1);
-        player->GetSession()->SendLfgUpdateParty(updateData);
+        sLFGMgr->SendUpdateStatus(player, updateData);
         if (player->GetMap()->IsDungeon())                    // Teleport player out the dungeon
             sLFGMgr->TeleportPlayer(player, true);
     }
@@ -159,13 +159,13 @@ void LFGGroupScript::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 o
 
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1);
     if (player)
-        player->GetSession()->SendLfgUpdateParty(updateData);
+        sLFGMgr->SendUpdateStatus(player, updateData);
 
     player = ObjectAccessor::FindPlayer(oldLeaderGuid);
     if (player)
     {
         updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND_UNK16;
-        player->GetSession()->SendLfgUpdateParty(updateData);
+        sLFGMgr->SendUpdateStatus(player, updateData);
     }
 }
 

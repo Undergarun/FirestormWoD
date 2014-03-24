@@ -246,6 +246,11 @@ class Field
             return std::string((char*)data.value);
         }
 
+        uint32 GetStringLength() const
+        {
+            return data.length;
+        }
+
     protected:
         Field();
         ~Field();

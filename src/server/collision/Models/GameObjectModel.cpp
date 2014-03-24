@@ -165,7 +165,7 @@ GameObjectModel* GameObjectModel::Create(const GameObject& go)
 
 bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
 {
-    if (!(phasemask & ph_mask))
+    if (!(phasemask & ph_mask) || !iModel)
         return false;
 
     float time = ray.intersectionTime(iBound);

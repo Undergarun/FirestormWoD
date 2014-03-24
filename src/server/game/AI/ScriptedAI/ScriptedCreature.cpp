@@ -312,7 +312,7 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
     Map::PlayerList const& PlayerList = map->GetPlayers();
     for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
         if (Player* player = itr->getSource())
-            if (player->isAlive())
+            if (player->isAlive() && player->InSamePhase(me))
                 player->TeleportTo(me->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
@@ -391,7 +391,9 @@ enum eNPCs
     NPC_BROODLORD   = 12017,
     NPC_VOID_REAVER = 19516,
     NPC_JAN_ALAI    = 23578,
-    NPC_SARTHARION  = 28860
+    NPC_SARTHARION  = 28860,
+    NPC_BLOOD_QUEEN = 37955,
+    NPC_GARFROST    = 36494
 };
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
@@ -415,6 +417,14 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 
     switch (me->GetEntry())
     {
+        case NPC_BLOOD_QUEEN:
+            if (z > 390.0f)
+                return false;
+            break;
+        case NPC_GARFROST:
+            if (me->GetDistance2d(688.93f, -197.52f) < 66.0f)
+                return false;
+            break;
         case NPC_BROODLORD:                                         // broodlord (not move down stairs)
             if (z > 448.60f)
                 return false;

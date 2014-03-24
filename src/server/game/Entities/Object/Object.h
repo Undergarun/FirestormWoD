@@ -124,38 +124,38 @@ typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
 class DynamicFields
 {
-    public:
-        DynamicFields()
-        {
-            _dynamicValues = new uint32[Count];
-            _dynamicChangedFields = new bool[Count];
+public:
+    DynamicFields()
+    {
+        _dynamicValues = new uint32[Count];
+        _dynamicChangedFields = new bool[Count];
 
-            Clear();
-        }
+        Clear();
+    }
     
-        ~DynamicFields()
-        {
-            delete[] _dynamicValues;
-            _dynamicValues = NULL;
-            delete[] _dynamicChangedFields;
-            _dynamicChangedFields = NULL;
-        }
+    ~DynamicFields()
+    {
+        delete[] _dynamicValues;
+        _dynamicValues = NULL;
+        delete[] _dynamicChangedFields;
+        _dynamicChangedFields = NULL;
+    }
 
-        void Clear()
-        {
-            memset(_dynamicValues, 0, sizeof(uint32)*Count);
-            memset(_dynamicChangedFields, 0, sizeof(bool)*Count);
-        }
+    void Clear()
+    {
+        memset(_dynamicValues, 0, sizeof(uint32)*Count);
+        memset(_dynamicChangedFields, 0, sizeof(bool)*Count);
+    }
 
-        void ClearMask()
-        {
-            memset(_dynamicChangedFields, 0, sizeof(bool)*Count);
-        }
+    void ClearMask()
+    {
+        memset(_dynamicChangedFields, 0, sizeof(bool)*Count);
+    }
 
-        uint32* _dynamicValues;
-        bool* _dynamicChangedFields;
+    uint32* _dynamicValues;
+    bool* _dynamicChangedFields;
 
-        const static uint32 Count = sizeof(uint32)*8;
+    const static uint32 Count = sizeof(uint32)*8;;
 };
 
 class Object
@@ -192,19 +192,25 @@ class Object
 
         int32 GetInt32Value(uint16 index) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+            if (!m_int32Values)
+                return int32(0);
+
             return m_int32Values[index];
         }
 
         uint32 GetUInt32Value(uint16 index) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+            if (!m_uint32Values)
+                return uint32(0);
+
             return m_uint32Values[index];
         }
 
         uint64 GetUInt64Value(uint16 index) const
         {
-            ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, false));
+            if (!m_uint32Values)
+                return uint64(0);
+
             return *((uint64*)&(m_uint32Values[index]));
         }
 
@@ -346,7 +352,6 @@ class Object
 
         void SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value);
 
-
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
         virtual void BuildUpdate(UpdateDataMapType&) {}
@@ -390,6 +395,7 @@ class Object
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
 
         bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
+
         void BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
         void BuildDynamicValuesUpdate(ByteBuffer* data) const;
@@ -535,6 +541,7 @@ struct Position
     {
         if (o >= 0.0f && o < 6.2831864f)
             return o;
+
         // fmod only supports positive numbers. Thus we have
         // to emulate negative numbers
         if (o < 0)
@@ -546,7 +553,6 @@ struct Position
         }
         return fmod(o, 2.0f * static_cast<float>(M_PI));
     }
-
     static float NormalizePitch(float o)
     {
         if (o > -M_PI && o < M_PI)
@@ -769,6 +775,7 @@ class WorldObject : public Object, public WorldLocation
         InstanceScript* GetInstanceScript();
 
         const char* GetName() const { return m_name.c_str(); }
+        size_t GetNameLength() const { return m_name.length(); }
         void SetName(const std::string& newname) { m_name=newname; }
 
         virtual const char* GetNameForLocaleIdx(LocaleConstant /*locale_idx*/) const { return GetName(); }
@@ -832,7 +839,7 @@ class WorldObject : public Object, public WorldLocation
         bool IsWithinLOS(float x, float y, float z) const;
         bool IsWithinLOSInMap(const WorldObject* obj) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
-        bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
+        bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true, bool useSizeFactor = true) const;
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
         bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
         bool isInFront(WorldObject const* target, float arc = M_PI) const;
@@ -887,7 +894,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void SetMap(Map* map);
         virtual void ResetMap();
-        Map* GetMap() const { ASSERT(m_currMap); return m_currMap; }
+        Map* GetMap() const  { return m_currMap; }
         Map* FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
 
@@ -916,6 +923,7 @@ class WorldObject : public Object, public WorldLocation
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
+        Player*     FindNearestPlayer(float range, bool alive = true);
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
@@ -1013,6 +1021,30 @@ class WorldObject : public Object, public WorldLocation
 
 namespace JadeCore
 {
+    template<class T>
+    void RandomResizeList(std::list<T> &_list, uint32 _size)
+    {
+        while (_list.size() > _size)
+        {
+            typename std::list<T>::iterator itr = _list.begin();
+            advance(itr, urand(0, _list.size() - 1));
+            _list.erase(itr);
+        }
+    }
+    template<class T, class Predicate>
+    void RandomResizeList(std::list<T> &list, Predicate& predicate, uint32 size)
+    {
+        //! First use predicate filter
+        std::list<T> listCopy;
+        for (typename std::list<T>::iterator itr = list.begin(); itr != list.end(); ++itr)
+            if (predicate(*itr))
+                listCopy.push_back(*itr);
+
+        if (size)
+            RandomResizeList(listCopy, size);
+
+        list = listCopy;
+    }
     // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
     class ObjectDistanceOrderPred
     {

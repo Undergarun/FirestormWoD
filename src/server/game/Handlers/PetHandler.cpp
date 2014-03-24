@@ -324,7 +324,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 case COMMAND_MOVE_TO:
                     pet->StopMoving();
                     pet->GetMotionMaster()->Clear(false);
+                    pet->GetMotionMaster()->MoveIdle();
                     pet->GetMotionMaster()->MovePoint(0, x, y, z);
+
                     charmInfo->SetCommandState(COMMAND_MOVE_TO);
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(true);
@@ -332,7 +334,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                     charmInfo->SetIsReturning(false);
                     charmInfo->SaveStayPosition();
                     break;
-
                 default:
                     sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
             }
@@ -342,14 +343,11 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
-                    break;
+
                 case REACT_DEFENSIVE:                       //recovery
-                case REACT_AGGRESSIVE:                      //activete
                 case REACT_HELPER:
                     if (pet->GetTypeId() == TYPEID_UNIT)
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
-                    break;
-                default:
                     break;
             }
             break;

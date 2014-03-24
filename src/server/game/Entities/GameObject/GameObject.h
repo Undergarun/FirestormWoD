@@ -416,6 +416,18 @@ struct GameObjectTemplate
             default: return false;
         }
     }
+ 
+    bool IsUsableMounted() const 
+    {
+        switch (type) 
+        {
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted; 
+            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted; 
+            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted; 
+            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted; 
+            default: return false; 
+        }
+    }
 
     uint32 GetLockId() const
     {
@@ -622,7 +634,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
     public:
         explicit GameObject();
         ~GameObject();
-
+        
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         void AddToWorld();

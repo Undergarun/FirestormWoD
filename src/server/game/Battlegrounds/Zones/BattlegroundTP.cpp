@@ -685,8 +685,6 @@ void BattlegroundTP::HandleAreaTrigger(Player *Source, uint32 Trigger)
         case 5921:                                          // Horde Start left Water channel
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 

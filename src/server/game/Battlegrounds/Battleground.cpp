@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "World.h"
@@ -35,7 +36,6 @@
 #include "Util.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Chat.h"
 
 namespace JadeCore
 {
@@ -67,8 +67,6 @@ namespace JadeCore
         private:
             void do_helper(WorldPacket& data, char const* text)
             {
-                uint64 target_guid = _source ? _source->GetGUID() : 0;
-
                 ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : NULL, _msgtype, LANG_UNIVERSAL, NULL, _source ? _source->GetGUID() : 0, text, NULL, NULL);
             }
 
@@ -92,8 +90,6 @@ namespace JadeCore
 
                 char str[2048];
                 snprintf(str, 2048, text, arg1str, arg2str);
-
-                uint64 target_guid = _source  ? _source->GetGUID() : 0;
 
                 ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : NULL, _msgtype, LANG_UNIVERSAL, NULL, _source ? _source->GetGUID() : 0, str, NULL, NULL);
             }
@@ -657,19 +653,19 @@ void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* 
 
 void Battleground::PlaySoundToAll(uint32 SoundID)
 {
-    WorldPacket data;
-    sBattlegroundMgr->BuildPlaySoundPacket(&data, SoundID);
-    SendPacketToAll(&data);
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
+            player->SendPlaySound(SoundID, true);
+    }
 }
 
 void Battleground::PlaySoundToTeam(uint32 SoundID, uint32 TeamID)
 {
-    WorldPacket data;
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "PlaySoundToTeam"))
         {
-            sBattlegroundMgr->BuildPlaySoundPacket(&data, SoundID);
-            player->GetSession()->SendPacket(&data);
+            player->SendPlaySound(SoundID, true);
         }
 }
 
@@ -854,7 +850,6 @@ void Battleground::EndBattleground(uint32 winner)
         if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
         {
             uint8 slot = Arena::GetSlotByType(GetArenaType());
-
             if (team == winner)
             {
                 // update achievement BEFORE personal rating update
@@ -868,7 +863,7 @@ void Battleground::EndBattleground(uint32 winner)
                 // Member lost
                 // Update personal rating
                 /*int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), winner_matchmaker_rating, false);
-                player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+                player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
 
                 // Update matchmaker rating
                 player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + loser_matchmaker_change);
@@ -1027,6 +1022,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                     //left a rated match while the encounter was in progress, consider as loser
                     Group* winner_group = GetBgRaid(GetOtherTeam(team));
                     Group* loser_group = GetBgRaid(team);
+
                     if (winner_group && loser_group && winner_group != loser_group)
                     {
                         uint8 slot = Arena::GetSlotByType(GetArenaType());
@@ -1161,9 +1157,6 @@ void Battleground::BuildArenaOpponentSpecializations(WorldPacket* data, uint32 t
         if (_GetPlayer(itr, "BuildArenaOpponentSpecializations") && itr->second.Team == team)
             opponent_count++;
 
-    if (!opponent_count)
-        return;
-
     data->WriteBits(opponent_count, 21);
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -1221,7 +1214,7 @@ void Battleground::AddPlayer(Player* player)
     // BG Status packet
     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-    
+
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         if (isArena())

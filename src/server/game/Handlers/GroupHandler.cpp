@@ -323,7 +323,11 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     bool accept = recvData.ReadBit();
     recvData.ReadBit();
 
-    Group* group = GetPlayer()->GetGroupInvite();
+    uint32 groupGUID = GetPlayer()->GetGroupInvite();
+    if (!groupGUID)
+        return;
+
+    Group* group = sGroupMgr->GetGroupByGUID(groupGUID);
     if (!group)
         return;
 
@@ -526,10 +530,10 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 
     // @TODO: find a better way to fix exploit, we must have possibility to change leader while group is in raid/instance
     // Prevent exploits with instance saves
-    /*for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         if (Player* plr = itr->getSource())
             if (plr->GetMap() && plr->GetMap()->Instanceable())
-                return;*/
+                return;
 
     // Everything's fine, accepted.
     group->ChangeLeader(guid);

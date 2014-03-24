@@ -139,6 +139,10 @@ namespace VMAP
         if (!isLineOfSightCalcEnabled() || DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LOS))
             return true;
 
+        // Don't calculate hit position, if wrong src/dest points provided!
+        if (!VMAP::CheckPosition(x1,y1,z1) || !VMAP::CheckPosition(x2,y2,z2))
+            return false;
+
         InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
@@ -159,6 +163,10 @@ namespace VMAP
     */
     bool VMapManager2::getObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist)
     {
+        bool result = false;
+        rx=x2;
+        ry=y2;
+        rz=z2;
         if (isLineOfSightCalcEnabled() && !DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LOS))
         {
             InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
@@ -167,20 +175,24 @@ namespace VMAP
                 Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
                 Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
                 Vector3 resultPos;
-                bool result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, modifyDist);
-                resultPos = convertPositionToInternalRep(resultPos.x, resultPos.y, resultPos.z);
+                float maxDist = (pos2 - pos1).magnitude();
+                // prevent NaN values which can cause BIH intersection to enter infinite loop
+                if (maxDist < 1e-10f)
+                {
+                    resultPos = pos2;
+                    result = false;
+                }
+                else
+                {
+                    result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, modifyDist);
+                    resultPos = convertPositionToInternalRep(resultPos.x,resultPos.y,resultPos.z);
+                }
                 rx = resultPos.x;
                 ry = resultPos.y;
                 rz = resultPos.z;
-                return result;
             }
         }
-
-        rx = x2;
-        ry = y2;
-        rz = z2;
-
-        return false;
+        return result;
     }
 
     /**

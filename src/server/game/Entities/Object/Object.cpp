@@ -124,7 +124,6 @@ Object::~Object()
 
     delete [] m_uint32Values;
     delete [] _changedFields;
-
     delete [] _dynamicFields;
 }
 
@@ -277,6 +276,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     BuildDynamicValuesUpdate(&buf);
+
     data->AddUpdateBlock(buf);
 }
 
@@ -334,38 +334,42 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     bool isTransport = false;
     if (go)
+    {
         if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(go->GetEntry()))
             if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT && goinfo->transport.pause)
                 isTransport = false;
+    }
 
     uint32 bitCounter2 = 0;
     bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER) && ((AreaTrigger*)this)->GetVisualRadius() != 0.0f;
     bool isSceneObject = false;
 
-    data->WriteBit(hasAreaTriggerData);                                             // isAreaTrigger
-    data->WriteBit(isSceneObject);                                                  // isScenario
-    data->WriteBit(0);                                                              // unk bit 676
-    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);                                   // isTransport
-    data->WriteBit(0);                                                              // unk bit 810
-    data->WriteBit(flags & UPDATEFLAG_ANIMKITS);                                    // HasAnimKits
-    data->WriteBit(flags & UPDATEFLAG_SELF);                                        // unk bit 680
-    data->WriteBit(0);                                                              // unk bit 1044
+    data->WriteBit(hasAreaTriggerData);                         // isAreaTrigger
+    data->WriteBit(isSceneObject);                              // isScenario
+    data->WriteBit(0);                                          // unk bit 676
+    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);               // isTransport
+    data->WriteBit(0);                                          // unk bit 810
+    data->WriteBit(flags & UPDATEFLAG_ANIMKITS);                // HasAnimKits
+    data->WriteBit(flags & UPDATEFLAG_SELF);                    // unk bit 680
+    data->WriteBit(0);                                          // unk bit 1044
     data->WriteBits(uint32(isTransport ? 1 : 0), 22);
-    data->WriteBit(0);                                                              // unk bit
-    data->WriteBit(0);                                                              // unk bit
-    data->WriteBit((flags & UPDATEFLAG_LIVING) && unit);                            // isAlive
-    data->WriteBit((flags & UPDATEFLAG_STATIONARY_POSITION) && wo);                 // hasStationaryPosition
-    data->WriteBit((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo);               // hasGameObjectData
-    data->WriteBit((flags & UPDATEFLAG_ROTATION) && go);                            // hasRotation
-    data->WriteBit((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim());   // hasTarget
-    data->WriteBit(0);                                                              // unk bit 1064
-    data->WriteBit(0);                                                              // unk bit
-    data->WriteBit(0);                                                              // unk bit
-    data->WriteBit(0);	                                                            // isSelf
-    data->WriteBit((flags & UPDATEFLAG_VEHICLE) && unit);                           // hasVehicleData
+    data->WriteBit(0);                                          // unk bit
+    data->WriteBit(0);                                          // unk bit
+    data->WriteBit((flags & UPDATEFLAG_LIVING) && unit);        // isAlive
+    data->WriteBit((flags & UPDATEFLAG_STATIONARY_POSITION) && wo);     // hasStationaryPosition
+    data->WriteBit((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo);   // hasGameObjectData
+    data->WriteBit((flags & UPDATEFLAG_ROTATION) && go);                // hasRotation
+    data->WriteBit((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim());  // hasTarget
+    data->WriteBit(0);                                          // unk bit 1064
+    data->WriteBit(0);                                          // unk bit
+    data->WriteBit(0);                                          // unk bit
+    data->WriteBit(0);                                          // isSelf
+    data->WriteBit((flags & UPDATEFLAG_VEHICLE) && unit);       // hasVehicleData
 
     if (unit)
+    {
         const_cast<Unit*>(unit)->m_movementInfo.Normalize();
+    }
 
     if ((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo)
     {
@@ -374,11 +378,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(transGuid[5]);
         data->WriteBit(transGuid[0]);
         data->WriteBit(transGuid[6]);
-        data->WriteBit(wo->m_movementInfo.t_time2 != 0);                            // HasTransportTime2
+        data->WriteBit(wo->m_movementInfo.t_time2 != 0);              // HasTransportTime2
         data->WriteBit(transGuid[7]);
         data->WriteBit(transGuid[3]);
         data->WriteBit(transGuid[2]);
-        data->WriteBit(wo->m_movementInfo.t_time3 != 0);                            // HasTransportTime3
+        data->WriteBit(wo->m_movementInfo.t_time3 != 0);             // HasTransportTime3
         data->WriteBit(transGuid[4]);
         data->WriteBit(transGuid[1]);
     }
@@ -417,14 +421,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
 
         bool isSplineEnabled = unit->movespline->Initialized() && !unit->movespline->Finalized();
-
         data->WriteBit(guid[5]);
         data->WriteBit(isSplineEnabled);
-        data->WriteBit(0);                                                          // unk
+        data->WriteBit(0);                                          // unk
         data->WriteBit(guid[1]);
         data->WriteBit(guid[3]);
-        data->WriteBit(G3D::fuzzyEq(unit->GetOrientation(), 0.0f));                 // Has Orientation bit
-        data->WriteBit(0);                                                          // unk
+        data->WriteBit(G3D::fuzzyEq(unit->GetOrientation(), 0.0f)); // Has Orientation bit
+        data->WriteBit(0);                                          // unk
 
         if (isSplineEnabled)
             Movement::PacketBuilder::WriteCreateBits(*unit->movespline, *data);
@@ -439,13 +442,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         {
             ObjectGuid transGuid = unit->m_movementInfo.t_guid;
 
-            data->WriteBit(unit->m_movementInfo.t_time3);                           // Has transport time 3
+            data->WriteBit(unit->m_movementInfo.t_time3);                                                  // Has transport time 3
             data->WriteBit(transGuid[6]);
             data->WriteBit(transGuid[2]);
             data->WriteBit(transGuid[1]);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[5]);
-            data->WriteBit(unit->m_movementInfo.t_time2);                           // Has transport time 2
+            data->WriteBit(unit->m_movementInfo.t_time2);                                                  // Has transport time 2
             data->WriteBit(transGuid[3]);
             data->WriteBit(transGuid[7]);
             data->WriteBit(transGuid[4]);
@@ -471,14 +474,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteBit(unit->m_movementInfo.hasFallDirection);
 
         data->WriteBit(guid[0]);
-        data->WriteBit(0);                                                          // Unk
-        data->WriteBit(1);                                                          // Unk
+        data->WriteBit(0); // Unk
+        data->WriteBit(1); // unk
         data->WriteBit(!unit->m_movementInfo.HaveSplineElevation);
     }
 
     if ((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim())
     {
-        ObjectGuid victimGuid = unit->getVictim()->GetGUID();                       // checked in BuildCreateUpdateBlockForPlayer
+        ObjectGuid victimGuid = unit->getVictim()->GetGUID();   // checked in BuildCreateUpdateBlockForPlayer
     
         uint8 bitOrder[8] = {6, 4, 5, 2, 3, 7, 0, 1};
         data->WriteBitInOrder(victimGuid, bitOrder);
@@ -518,7 +521,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
             *data << float(unit->GetTransOffsetX());
             if (unit->m_movementInfo.t_time2)
+            {
                 *data << uint32(unit->m_movementInfo.t_time2);
+            }
             *data << uint32(unit->GetTransTime());
             *data << float(unit->GetTransOffsetZ());
             data->WriteByteSeq(transGuid[4]);
@@ -533,7 +538,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteByteSeq(transGuid[1]);
             data->WriteByteSeq(transGuid[2]);
             if (unit->m_movementInfo.t_time3)
+            {
                 *data << uint32(unit->m_movementInfo.t_time3);
+            }
         }
 
         data->WriteByteSeq(guid[2]);
@@ -673,7 +680,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit && unit->movespline->Initialized() && !unit->movespline->Finalized())
+    {
         Movement::PacketBuilder::WriteCreateGuid(*unit->movespline, *data);
+    }
 
     /*
     data->WriteBits(bitCounter2, 21);               //BitCounter2
@@ -809,7 +818,7 @@ void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
     {
         *data << uint32(dynamicTabMask);
 
-        for (uint32 i = 0; i < _dynamicTabCount; i++)
+        for (uint32 i = 0; i < _dynamicTabCount; ++i)
         {
             if (dynamicTabMask & (1 << i)) //if ( (1 << (v16 & 31)) & *(&dest + (v16 >> 5)) )
             {
@@ -833,7 +842,9 @@ void Object::ClearUpdateMask(bool remove)
     if (m_objectUpdated)
     {
         for (uint32 i = 0; i < _dynamicTabCount; ++i)
+        {
             _dynamicFields[i].ClearMask();
+        }
 
         if (remove)
             sObjectAccessor->RemoveUpdateObject(this);
@@ -1488,6 +1499,22 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
+
+    // Hack fix for Ice Tombs (Sindragosa encounter)
+    if (obj->GetTypeId() == TYPEID_UNIT)
+        if (obj->GetEntry() == 36980 || obj->GetEntry() == 38320 || obj->GetEntry() == 38321 || obj->GetEntry() == 38322)
+            return true;
+
+    // Hack fix for Alysrazor
+    if (GetMapId() == 720 && GetAreaId() == 5766)
+        if ((GetTypeId() == TYPEID_PLAYER) || (obj->GetTypeId() == TYPEID_PLAYER))
+            return true;
+
+    // AoE spells
+    if (GetTypeId() == TYPEID_UNIT)
+        if (GetEntry() == 36980 || GetEntry() == 38320 || GetEntry() == 38321 || GetEntry() == 38322)
+            return true;
+
     return IsWithinLOS(ox, oy, oz);
 }
 
@@ -1526,7 +1553,7 @@ bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* o
     return distsq1 < distsq2;
 }
 
-bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D /* = true */) const
+bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D /* = true */, bool useSizeFactor /* = true */) const
 {
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
@@ -1537,7 +1564,7 @@ bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRan
         distsq += dz*dz;
     }
 
-    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+    float sizefactor = useSizeFactor ? (GetObjectSize() + obj->GetObjectSize()) : 0.0f;
 
     // check only for real range
     if (minRange > 0.0f)
@@ -1844,7 +1871,12 @@ float WorldObject::GetSightRange(const WorldObject* target) const
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
             else
-                return GetMap()->GetVisibilityRange();
+            {
+                if (Map* map = GetMap())
+                    return map->GetVisibilityRange();
+                else
+                    return MAX_VISIBILITY_DISTANCE;
+            }
         }
         else if (ToCreature())
             return ToCreature()->m_SightDistance;
@@ -1967,6 +1999,10 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
 
 bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
 {
+    // pets are invisible if caster is invisible
+    if (obj->ToUnit() && obj->ToUnit()->GetOwner())
+        return this->CanDetectInvisibilityOf(obj->ToUnit()->GetOwner());
+
     uint32 mask = obj->m_invisibility.GetFlags() & m_invisibilityDetect.GetFlags();
 
     // Check for not detected types
@@ -2090,16 +2126,15 @@ void WorldObject::AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerLi
 
 void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+    uint8 bitsOrder[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
+    uint8 bytesOrder[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+
     ObjectGuid guid = GetGUID();
 
-    uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    data.WriteBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-    data.WriteBytesSeq(guid, bytes);
-
-    data << uint32(Sound);
+    WorldPacket data(SMSG_PLAY_SOUND, 12);
+    data.WriteBitInOrder(guid, bitsOrder);
+    data.WriteBytesSeq(guid, bytesOrder);
+    data << Sound;
 
     if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetSession()->SendPacket(&data);
@@ -2388,30 +2423,6 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
 
     if (bit5264)
         *data << uint32(0);                                         // unk uint32
-
-    return;
-
-
-
-
-    // Old datas
-    *data << (uint8)msgtype;
-    *data << (uint32)language;
-    *data << (uint64)GetGUID();
-    *data << (uint32)0;                                     // 2.1.0
-    *data << (uint32)(strlen(name)+1);
-    *data << name;
-    *data << (uint64)targetGuid;                            // Unit Target
-    if (targetGuid && !IS_PLAYER_GUID(targetGuid))
-    {
-        *data << (uint32)1;                                 // target name length
-        *data << (uint8)0;                                  // target name
-    }
-    *data << (uint32)(strlen(text)+1);
-    *data << text;
-    *data << (uint16)0;                                      // ChatTag
-    *data << (float)0.0f;                                   // added in 4.2.0, unk
-    *data << (uint8)0;                                      // added in 4.2.0, unk
 }
 
 void Unit::BuildHeartBeatMsg(WorldPacket* data) const
@@ -2980,6 +2991,15 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
     return go;
 }
 
+Player* WorldObject::FindNearestPlayer(float range, bool alive)
+{
+    Player* player = NULL;
+    JadeCore::AnyPlayerInObjectRangeCheck check(this, range);
+    JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
+    VisitNearbyWorldObject(range, searcher);
+    return player;
+}
+
 void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const
 {
     CellCoord pair(JadeCore::ComputeCellCoord(this->GetPositionX(), this->GetPositionY()));
@@ -3272,7 +3292,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
             destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now
-        else
+        else if (IsWithinLOS(destx, desty, destz))
         {
             pos.Relocate(destx, desty, destz);
             break;
@@ -3469,10 +3489,11 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[1]);
+
     data << uint32(sound_id);
+
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[3]);
-
     if (target)
         target->SendDirectMessage(&data);
     else
@@ -3481,17 +3502,15 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
 
 void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 4);
+    uint8 bitsOrder[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
+    uint8 bytesOrder[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+
     ObjectGuid guid = GetGUID();
 
-    uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    data.WriteBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-    data.WriteBytesSeq(guid, bytes);
-
-    data << uint32(sound_id);
-
+    WorldPacket data(SMSG_PLAY_SOUND, 12);
+    data.WriteBitInOrder(guid, bitsOrder);
+    data.WriteBytesSeq(guid, bytesOrder);
+    data << sound_id;
     if (target)
         target->SendDirectMessage(&data);
     else

@@ -104,16 +104,38 @@ class MapManager
             return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
         }
 
+        // modulos a radian orientation to the range of 0..2PI
+        static float NormalizeOrientation(float o)
+        {
+            // fmod only supports positive numbers. Thus we have
+            // to emulate negative numbers
+            if (o < 0)
+            {
+                float mod = o *-1;
+                mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
+                mod = -mod + 2.0f * static_cast<float>(M_PI);
+                return mod;
+            }
+            return fmod(o, 2.0f * static_cast<float>(M_PI));
+        }
+
         void DoDelayedMovesAndRemoves();
 
         void LoadTransports();
         void LoadTransportNPCs();
+
+        //Load transport to instance
+        Transport* LoadTransportInMap(Map* instance, uint32 goEntry, uint32 period);
+        void UnLoadTransportFromMap(Transport* t);
+        void LoadTransportForPlayers(Player* player);
+        void UnLoadTransportForPlayers(Player* player);
 
         typedef std::set<Transport*> TransportSet;
         TransportSet m_Transports;
 
         typedef std::map<uint32, TransportSet> TransportMap;
         TransportMap m_TransportsByMap;
+        TransportMap m_TransportsByInstanceIdMap;
 
         bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
         void InitializeVisibilityDistanceInfo();
@@ -128,12 +150,12 @@ class MapManager
         void RegisterInstanceId(uint32 instanceId);
         void FreeInstanceId(uint32 instanceId);
 
-        uint32 GetNextInstanceId() const { return _nextInstanceId; }
-        void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; }
-
         // Map max diff functions
         bool HaveMaxDiff() const { return m_mapDiffLimit; }
         void SetMapDiffLimit(bool value) { m_mapDiffLimit = value; }
+        
+        uint32 GetNextInstanceId() const { return _nextInstanceId; };
+        void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 

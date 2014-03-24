@@ -21,8 +21,8 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
-#include "DB2Structure.h"
 #include "Object.h"
+#include "DB2Structure.h"
 
 class Unit;
 class Player;
@@ -157,6 +157,7 @@ enum SpellSpecificType
     SPELL_SPECIFIC_ELEMENTAL_SHIELD              = 10,
     SPELL_SPECIFIC_MAGE_POLYMORPH                = 11,
     SPELL_SPECIFIC_JUDGEMENT                     = 13,
+    SPELL_SPECIFIC_PRIEST_SANCTUM                = 14,
     SPELL_SPECIFIC_WARLOCK_CORRUPTION            = 17,
     SPELL_SPECIFIC_WELL_FED                      = 18,
     SPELL_SPECIFIC_FOOD                          = 19,
@@ -176,7 +177,7 @@ enum SpellSpecificType
 
 enum SpellCustomAttributes
 {
-    SPELL_ATTR0_CU_ENCHANT_PROC                  = 0x00000001,
+    SPELL_ATTR0_CU_ENCHANT_STACK                 = 0x00000001,
     SPELL_ATTR0_CU_CONE_BACK                     = 0x00000002,
     SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
@@ -196,7 +197,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000, // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
     // @todo: 4.3.4 core
     //SPELL_ATTR0_CU_CAN_STACK_FROM_DIFF_CASTERS   = 0x00100000,  // Collect auras with diff casters in one stackable aura
-    //SPELL_ATTR0_CU_BINARY                        = 0x00400000,  // Binary spells can be fully resisted
+    SPELL_ATTR0_CU_BINARY                        = 0x00400000, // Binary spells can be fully resisted
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };
@@ -278,6 +279,7 @@ public:
     bool IsFarUnitTargetEffect() const;
     bool IsFarDestTargetEffect() const;
     bool IsUnitOwnedAuraEffect() const;
+    bool IsPeriodicEffect() const;
 
     int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL) const;
     int32 CalcBaseValue(int32 value) const;
@@ -289,6 +291,9 @@ public:
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
+
+    // correction helpers
+    void SetRadiusIndex(uint32 index);
 
     SpellEffectImplicitTargetTypes GetImplicitTargetType() const;
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
@@ -409,6 +414,7 @@ public:
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
     SpellPowerEntry* spellPower;
+    uint32 ResearchProject;
 
     // SpecializationSpellEntry
     std::list<uint32> SpecializationIdList;
@@ -473,17 +479,20 @@ public:
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;
-    bool IsBreakingStealth(Unit* m_caster) const;
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
-    bool CanBeDarkSimulacrum(Unit* m_caster) const;
-    bool CanBeDuplicated() const;
+    bool IsPeriodic() const;
+    bool IsCanBeStolen() const;
+    bool IsNeedAdditionalLosChecks() const;
+    bool CanTriggerPoisonAdditional() const;
 
     bool IsAffectedBySpellMods() const;
     bool IsAffectedBySpellMod(SpellModifier* mod) const;
 
     bool CanPierceImmuneAura(SpellInfo const* aura) const;
     bool CanDispelAura(SpellInfo const* aura) const;
+
+    bool CanCritDamageClassNone() const;
 
     bool IsSingleTarget() const;
     bool IsSingleTargetWith(SpellInfo const* spellInfo) const;
@@ -507,6 +516,7 @@ public:
     SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
     SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
     SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = NULL) const;
+    SpellCastResult CheckVehicle(Unit const* caster) const;
     bool CheckTargetCreatureType(Unit const* target) const;
 
     SpellSchoolMask GetSchoolMask() const;
@@ -550,14 +560,17 @@ public:
     bool IsAllwaysStackModifers() const;
 
     bool IsIgnoringCombat() const;
-    bool IsCustomCheckedForHolyPower() const;
+    bool IsRequireAdditionalTargetCheck() const;
+    bool IsNeedToCheckSchoolImmune() const;
     bool IsRemoveLossControlEffects() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
     int32 GetCustomCoefficientForStormlash() const;
 
     // helpers for breaking by damage spells
     bool IsBreakingCamouflage() const;
-    bool CanBreaksCamouflage() const;
+    bool IsBreakingCamouflageAfterHit() const;
+    bool IsBreakingStealth(Unit* m_caster = NULL) const;
+    bool IsPeriodicHeal() const;
     bool IsReducingCastTime() const;
     bool CanTriggerBladeFlurry() const;
     bool IsCustomCharged(SpellInfo const* procSpell) const;
@@ -568,6 +581,7 @@ public:
     bool IsLethalPoison() const;
     bool CanTriggerHotStreak() const;
     bool IsCustomCalculated() const;
+    bool IsInterruptSpell() const;
     bool CannotBeAddedToCharm() const;
 
     // loading helpers
@@ -577,6 +591,11 @@ public:
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
     bool _IsCrowdControl(uint8 effMask, bool nodamage) const;
     bool _IsNeedDelay() const;
+
+    // correction helpers
+    void SetDurationIndex(uint32 index);
+    void SetRangeIndex(uint32 index);
+    void SetCastTimeIndex(uint32 index);
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();

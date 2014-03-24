@@ -300,8 +300,6 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %u attempted to eject creature GUID %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
     }
-    //else
-      //  sLog->outError(LOG_FILTER_NETWORKIO, "HandleEjectPassenger: Player %u tried to eject invalid GUID " UI64FMTD, GetPlayer()->GetGUIDLow(), uint64(gu));
 }
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)

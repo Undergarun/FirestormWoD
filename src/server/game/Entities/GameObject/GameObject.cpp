@@ -300,8 +300,7 @@ void GameObject::Update(uint32 diff)
                         m_cooldownTime = time(NULL) + 10;   // Hardcoded tooltip value
                     else if (Unit* owner = GetOwner())
                     {
-                        if (owner->isInCombat())
-                            m_cooldownTime = time(NULL) + 1;
+                        m_cooldownTime = time(NULL) + goInfo->trap.startDelay;
                     }
                     m_lootState = GO_READY;
                     break;
@@ -1098,6 +1097,9 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        if (playerUser->GetEmoteState())
+            playerUser->SetEmoteState(0);
+
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
@@ -1742,7 +1744,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
- {
+{
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
@@ -1773,8 +1775,8 @@ void GameObject::SendCustomAnim(uint32 anim)
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[2]);
 
-     SendMessageToSet(&data, true);
- }
+    SendMessageToSet(&data, true);
+}
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
 {
@@ -2070,10 +2072,13 @@ void GameObject::UpdateModel()
 {
     if (!IsInWorld())
         return;
+
     if (m_model)
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
+
     delete m_model;
+
     m_model = GameObjectModel::Create(*this);
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);

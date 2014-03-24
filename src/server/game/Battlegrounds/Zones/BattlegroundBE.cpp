@@ -122,8 +122,6 @@ void BattlegroundBE::HandleAreaTrigger(Player* Source, uint32 Trigger)
             //buff_guid = BgObjects[BG_BE_OBJECT_BUFF_2];
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 

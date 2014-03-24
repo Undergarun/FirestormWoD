@@ -283,281 +283,281 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             Creature * SpawnTransportNpc(Transport * pTransport, uint32 npc_entry = 0, float TransOffsetX = 0, float TransOffsetY = 0, float TransOffsetZ = 0, float TransOffsetO = 0, uint32 emote = 0)
             {
-                uint8 MAX_GUNSHIP_ARTILLEURS  = !instance->Is25ManRaid() ? 2: 4;
-                uint8 MAX_GUNSHIP_TIREURS     = !instance->Is25ManRaid() ? 4: 8;
+                //uint8 MAX_GUNSHIP_ARTILLEURS  = !instance->Is25ManRaid() ? 2: 4;
+                //uint8 MAX_GUNSHIP_TIREURS     = !instance->Is25ManRaid() ? 4: 8;
 
-                bool mustBeSpawned = false;
+                //bool mustBeSpawned = false;
 
-                if (!npc_entry)
-                {
-                    QueryResult npc_transport = WorldDatabase.PQuery("SELECT npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote, guid FROM creature_transport WHERE transport_entry = '%u' ORDER BY guid", pTransport->GetEntry());
+                //if (!npc_entry)
+                //{
+                //    QueryResult npc_transport = WorldDatabase.PQuery("SELECT npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote, guid FROM creature_transport WHERE transport_entry = '%u' ORDER BY guid", pTransport->GetEntry());
 
-                    if (!npc_transport)
-                        return NULL;
+                //    if (!npc_transport)
+                //        return NULL;
 
-                    do
-                    {
-                        Field *fields = npc_transport->Fetch();
+                //    do
+                //    {
+                //        Field *fields = npc_transport->Fetch();
 
-                        uint32 guid = fields[6].GetUInt32();
-                        uint32 npc_entry = fields[0].GetFloat();
+                //        uint32 guid = fields[6].GetUInt32();
+                //        uint32 npc_entry = fields[0].GetFloat();
 
-                        mustBeSpawned = true;
+                //        mustBeSpawned = true;
 
-                        // EVENT ALLIANCE
-                        /*if (pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
-                        {
-                            switch(npc_entry)
-                            {
-                                // Canons : guid 2-5
-                                case NPC_CANON_A:
-                                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_CANONS)
-                                        mustBeSpawned = false;
+                //        // EVENT ALLIANCE
+                //        /*if (pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
+                //        {
+                //            switch(npc_entry)
+                //            {
+                //                // Canons : guid 2-5
+                //                case NPC_CANON_A:
+                //                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_CANONS)
+                //                        mustBeSpawned = false;
 
-                                    break;
-                            }
-                        }
-                        else */
-                        if (pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
-                        {
-                            switch(npc_entry)
-                            {
-                                // Tireurs : guid 2-9
-                                case NPC_TIREUR_H:
-                                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_TIREURS)
-                                        mustBeSpawned = false;
+                //                    break;
+                //            }
+                //        }
+                //        else */
+                //        if (pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
+                //        {
+                //            switch(npc_entry)
+                //            {
+                //                // Tireurs : guid 2-9
+                //                case NPC_TIREUR_H:
+                //                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_TIREURS)
+                //                        mustBeSpawned = false;
 
-                                    break;
-                                // Artilleurs : guid 10 - 13
-                                case NPC_ARTILLEUR_H:
-                                    if (guid < 10 || (guid - 10) >= MAX_GUNSHIP_ARTILLEURS)
-                                        mustBeSpawned = false;
+                //                    break;
+                //                // Artilleurs : guid 10 - 13
+                //                case NPC_ARTILLEUR_H:
+                //                    if (guid < 10 || (guid - 10) >= MAX_GUNSHIP_ARTILLEURS)
+                //                        mustBeSpawned = false;
 
-                                    break;
-                            }
-                        }
-                        // EVENT HORDE
-                        /*else if (pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
-                        {
-                            switch(npc_entry)
-                            {
-                                // Canons : guid 2-5
-                                /*case NPC_CANON_H:
-                                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_CANONS)
-                                        mustBeSpawned = false;
+                //                    break;
+                //            }
+                //        }
+                //        // EVENT HORDE
+                //        /*else if (pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
+                //        {
+                //            switch(npc_entry)
+                //            {
+                //                // Canons : guid 2-5
+                //                /*case NPC_CANON_H:
+                //                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_CANONS)
+                //                        mustBeSpawned = false;
 
-                                    break;
-                            }
-                        }
-                        else */
-                        if (pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
-                        {
-                            switch(npc_entry)
-                            {
-                                // Tireurs : guid 2-9
-                                case NPC_TIREUR_A:
-                                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_TIREURS)
-                                        mustBeSpawned = false;
+                //                    break;
+                //            }
+                //        }
+                //        else */
+                //        if (pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
+                //        {
+                //            switch(npc_entry)
+                //            {
+                //                // Tireurs : guid 2-9
+                //                case NPC_TIREUR_A:
+                //                    if (guid < 2 || (guid - 2) >= MAX_GUNSHIP_TIREURS)
+                //                        mustBeSpawned = false;
 
-                                    break;
-                                // Artilleurs : guid 10 - 13
-                                case NPC_ARTILLEUR_A:
-                                    if (guid < 10 || (guid - 10) >= MAX_GUNSHIP_ARTILLEURS)
-                                        mustBeSpawned = false;
+                //                    break;
+                //                // Artilleurs : guid 10 - 13
+                //                case NPC_ARTILLEUR_A:
+                //                    if (guid < 10 || (guid - 10) >= MAX_GUNSHIP_ARTILLEURS)
+                //                        mustBeSpawned = false;
 
-                                    break;
-                            }
-                        }
+                //                    break;
+                //            }
+                //        }
 
-                        // On a eliminé ceux qui ne doivent pas etre spawn
-                        if (!mustBeSpawned)
-                            continue;
+                //        // On a eliminé ceux qui ne doivent pas etre spawn
+                //        if (!mustBeSpawned)
+                //            continue;
 
-                        if (Creature * Passenger = pTransport->AddNPCPassengerCreature(fields[6].GetUInt32(), fields[0].GetFloat(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(),fields[4].GetUInt32(),fields[5].GetUInt32()))
-                        {
-                            // EVENT ALLIANCE
-                            if (pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
-                            {
-                                switch(npc_entry)
-                                {
-                                    case NPC_GUNSHIP_A:
-                                    {
-                                        switch (instance->GetDifficulty())
-                                        {
-                                            case MAN10_DIFFICULTY:
-                                                Passenger->SetMaxHealth(690000);
-                                                Passenger->SetHealth(690000);
-                                                break;
-                                            case MAN25_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1380000);
-                                                Passenger->SetHealth(1380000);
-                                                break;
-                                            case MAN10_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(793500);
-                                                Passenger->SetHealth(793500);
-                                                break;
-                                            case MAN25_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1586997);
-                                                Passenger->SetHealth(1586997);
-                                                break;
-                                        }
-                                        Passenger->setFaction(35);
-                                        Passenger->AI()->DoAction(ACTION_SET_MAIN_GUNSHIP);
-                                        if (Passenger->GetInstanceScript())
-                                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_MAIN, Passenger->GetGUID());
-                                        break;
-                                    }
-                                    case NPC_MURADIN_GUNSHIP:
-                                        GunshipcommanderGUID = Passenger->GetGUID();
-                                        break;
-                                    // Canons : guid 2-5
-                                    /*case NPC_CANON_A:
-                                        GunshipCanons[guid - 2] = Passenger->GetGUID();
-                                        break;*/
-                                }
-                            }
-                            else if (pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
-                            {
-                                switch(npc_entry)
-                                {
-                                    case NPC_GUNSHIP_H:
-                                    {
-                                        switch (instance->GetDifficulty())
-                                        {
-                                            case MAN10_DIFFICULTY:
-                                                Passenger->SetMaxHealth(690000);
-                                                Passenger->SetHealth(690000);
-                                                break;
-                                            case MAN25_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1380000);
-                                                Passenger->SetHealth(1380000);
-                                                break;
-                                            case MAN10_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(793500);
-                                                Passenger->SetHealth(793500);
-                                                break;
-                                            case MAN25_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1586997);
-                                                Passenger->SetHealth(1586997);
-                                                break;
-                                        }
-                                        Passenger->setFaction(14);
-                                        Passenger->AI()->DoAction(ACTION_SET_SECOND_GUNSHIP);
-                                        if (Passenger->GetInstanceScript())
-                                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_SECOND, Passenger->GetGUID());
-                                        break;
-                                    }
-                                    // Saucroc : guid 1
-                                    case NPC_SAURCROC_GUNSHIP:
-                                        Passenger->AI()->DoAction(ACTION_SET_ENNEMY_COMMANDER);
-                                        GunshipennemycommanderGUID = Passenger->GetGUID();
-                                        break;
-                                    // Tireurs : guid 2-9
-                                    case NPC_TIREUR_H:
-                                        GunshipTireurs[guid - 2] = Passenger->GetGUID();
-                                        break;
-                                    // Artilleurs : guid 10 - 13
-                                    case NPC_ARTILLEUR_H:
-                                        GunshipArtilleurs[guid - 10] = Passenger->GetGUID();
-                                        break;
-                                    // Artilleurs : guid 16 - 17
-                                    case NPC_MAGE_H:
-                                        GunshipMages[guid - 16] = Passenger->GetGUID();
-                                        break;
-                                }
-                            }
-                            // EVENT HORDE
-                            else if (pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
-                            {
-                                switch(npc_entry)
-                                {
-                                    case NPC_GUNSHIP_H:
-                                    {
-                                        switch (instance->GetDifficulty())
-                                        {
-                                            case MAN10_DIFFICULTY:
-                                                Passenger->SetMaxHealth(690000);
-                                                Passenger->SetHealth(690000);
-                                                break;
-                                            case MAN25_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1380000);
-                                                Passenger->SetHealth(1380000);
-                                                break;
-                                            case MAN10_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(793500);
-                                                Passenger->SetHealth(793500);
-                                                break;
-                                            case MAN25_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1586997);
-                                                Passenger->SetHealth(1586997);
-                                                break;
-                                        }
-                                        Passenger->setFaction(35);
-                                        Passenger->AI()->DoAction(ACTION_SET_MAIN_GUNSHIP);
-                                        if (Passenger->GetInstanceScript())
-                                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_MAIN, Passenger->GetGUID());
-                                        break;
-                                    }
-                                    case NPC_SAURCROC_GUNSHIP:
-                                        GunshipcommanderGUID = Passenger->GetGUID();
-                                        break;
-                                    // Canons : guid 2-5
-                                    /*case NPC_CANON_H:
-                                        GunshipCanons[guid - 2] = Passenger->GetGUID();
-                                        break;*/
-                                }
-                            }
-                            else if (pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
-                            {
-                                switch(npc_entry)
-                                {
-                                    case NPC_GUNSHIP_A:
-                                    {
-                                        switch (instance->GetDifficulty())
-                                        {
-                                            case MAN10_DIFFICULTY:
-                                                Passenger->SetMaxHealth(690000);
-                                                Passenger->SetHealth(690000);
-                                                break;
-                                            case MAN25_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1380000);
-                                                Passenger->SetHealth(1380000);
-                                                break;
-                                            case MAN10_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(793500);
-                                                Passenger->SetHealth(793500);
-                                                break;
-                                            case MAN25_HEROIC_DIFFICULTY:
-                                                Passenger->SetMaxHealth(1586997);
-                                                Passenger->SetHealth(1586997);
-                                                break;
-                                        }
-                                        Passenger->setFaction(14);
-                                        Passenger->AI()->DoAction(ACTION_SET_SECOND_GUNSHIP);
-                                        if (Passenger->GetInstanceScript())
-                                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_SECOND, Passenger->GetGUID());
-                                        break;
-                                    }
-                                    case NPC_MURADIN_GUNSHIP:
-                                        Passenger->AI()->DoAction(ACTION_SET_ENNEMY_COMMANDER);
-                                        GunshipennemycommanderGUID = Passenger->GetGUID();
-                                        break;
-                                    // Tireurs : guid 2-9
-                                    case NPC_TIREUR_A:
-                                        GunshipTireurs[guid - 2] = Passenger->GetGUID();
-                                        break;
-                                    // Artilleurs : guid 10 - 13
-                                    case NPC_ARTILLEUR_A:
-                                        GunshipArtilleurs[guid - 10] = Passenger->GetGUID();
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                    while(npc_transport->NextRow());
-                }
-                else
-                    return pTransport->AddNPCPassengerCreature(0/*tGuid*/, npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote);
+                //        /*if (Creature * Passenger = pTransport->AddNPCPassengerCreature(fields[6].GetUInt32(), fields[0].GetFloat(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(),fields[4].GetUInt32(),fields[5].GetUInt32()))
+                //        {
+                //            // EVENT ALLIANCE
+                //            if (pTransport->GetEntry() == TRANSPORT_A_THE_SKYBREAKER)
+                //            {
+                //                switch(npc_entry)
+                //                {
+                //                    case NPC_GUNSHIP_A:
+                //                    {
+                //                        switch (instance->GetDifficulty())
+                //                        {
+                //                            case MAN10_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(690000);
+                //                                Passenger->SetHealth(690000);
+                //                                break;
+                //                            case MAN25_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1380000);
+                //                                Passenger->SetHealth(1380000);
+                //                                break;
+                //                            case MAN10_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(793500);
+                //                                Passenger->SetHealth(793500);
+                //                                break;
+                //                            case MAN25_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1586997);
+                //                                Passenger->SetHealth(1586997);
+                //                                break;
+                //                        }
+                //                        Passenger->setFaction(35);
+                //                        Passenger->AI()->DoAction(ACTION_SET_MAIN_GUNSHIP);
+                //                        if (Passenger->GetInstanceScript())
+                //                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_MAIN, Passenger->GetGUID());
+                //                        break;
+                //                    }
+                //                    case NPC_MURADIN_GUNSHIP:
+                //                        GunshipcommanderGUID = Passenger->GetGUID();
+                //                        break;
+                //                    // Canons : guid 2-5
+                //                    /*case NPC_CANON_A:
+                //                        GunshipCanons[guid - 2] = Passenger->GetGUID();
+                //                        break;*/
+                //                /*}
+                //            }
+                //            else if (pTransport->GetEntry() == TRANSPORT_A_ORGRIM_HAMMER)
+                //            {
+                //                switch(npc_entry)
+                //                {
+                //                    case NPC_GUNSHIP_H:
+                //                    {
+                //                        switch (instance->GetDifficulty())
+                //                        {
+                //                            case MAN10_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(690000);
+                //                                Passenger->SetHealth(690000);
+                //                                break;
+                //                            case MAN25_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1380000);
+                //                                Passenger->SetHealth(1380000);
+                //                                break;
+                //                            case MAN10_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(793500);
+                //                                Passenger->SetHealth(793500);
+                //                                break;
+                //                            case MAN25_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1586997);
+                //                                Passenger->SetHealth(1586997);
+                //                                break;
+                //                        }
+                //                        Passenger->setFaction(14);
+                //                        Passenger->AI()->DoAction(ACTION_SET_SECOND_GUNSHIP);
+                //                        if (Passenger->GetInstanceScript())
+                //                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_SECOND, Passenger->GetGUID());
+                //                        break;
+                //                    }
+                //                    // Saucroc : guid 1
+                //                    case NPC_SAURCROC_GUNSHIP:
+                //                        Passenger->AI()->DoAction(ACTION_SET_ENNEMY_COMMANDER);
+                //                        GunshipennemycommanderGUID = Passenger->GetGUID();
+                //                        break;
+                //                    // Tireurs : guid 2-9
+                //                    case NPC_TIREUR_H:
+                //                        GunshipTireurs[guid - 2] = Passenger->GetGUID();
+                //                        break;
+                //                    // Artilleurs : guid 10 - 13
+                //                    case NPC_ARTILLEUR_H:
+                //                        GunshipArtilleurs[guid - 10] = Passenger->GetGUID();
+                //                        break;
+                //                    // Artilleurs : guid 16 - 17
+                //                    case NPC_MAGE_H:
+                //                        GunshipMages[guid - 16] = Passenger->GetGUID();
+                //                        break;
+                //                }
+                //            }
+                //            // EVENT HORDE
+                //            else if (pTransport->GetEntry() == TRANSPORT_H_ORGRIM_HAMMER)
+                //            {
+                //                switch(npc_entry)
+                //                {
+                //                    case NPC_GUNSHIP_H:
+                //                    {
+                //                        switch (instance->GetDifficulty())
+                //                        {
+                //                            case MAN10_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(690000);
+                //                                Passenger->SetHealth(690000);
+                //                                break;
+                //                            case MAN25_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1380000);
+                //                                Passenger->SetHealth(1380000);
+                //                                break;
+                //                            case MAN10_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(793500);
+                //                                Passenger->SetHealth(793500);
+                //                                break;
+                //                            case MAN25_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1586997);
+                //                                Passenger->SetHealth(1586997);
+                //                                break;
+                //                        }
+                //                        Passenger->setFaction(35);
+                //                        Passenger->AI()->DoAction(ACTION_SET_MAIN_GUNSHIP);
+                //                        if (Passenger->GetInstanceScript())
+                //                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_MAIN, Passenger->GetGUID());
+                //                        break;
+                //                    }
+                //                    case NPC_SAURCROC_GUNSHIP:
+                //                        GunshipcommanderGUID = Passenger->GetGUID();
+                //                        break;
+                //                    // Canons : guid 2-5
+                //                    /*case NPC_CANON_H:
+                //                        GunshipCanons[guid - 2] = Passenger->GetGUID();
+                //                        break;*/
+                //                /*}
+                //            }
+                //            else if (pTransport->GetEntry() == TRANSPORT_H_THE_SKYBREAKER)
+                //            {
+                //                switch(npc_entry)
+                //                {
+                //                    case NPC_GUNSHIP_A:
+                //                    {
+                //                        switch (instance->GetDifficulty())
+                //                        {
+                //                            case MAN10_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(690000);
+                //                                Passenger->SetHealth(690000);
+                //                                break;
+                //                            case MAN25_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1380000);
+                //                                Passenger->SetHealth(1380000);
+                //                                break;
+                //                            case MAN10_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(793500);
+                //                                Passenger->SetHealth(793500);
+                //                                break;
+                //                            case MAN25_HEROIC_DIFFICULTY:
+                //                                Passenger->SetMaxHealth(1586997);
+                //                                Passenger->SetHealth(1586997);
+                //                                break;
+                //                        }
+                //                        Passenger->setFaction(14);
+                //                        Passenger->AI()->DoAction(ACTION_SET_SECOND_GUNSHIP);
+                //                        if (Passenger->GetInstanceScript())
+                //                            Passenger->GetInstanceScript()->SetData64(DATA_GUNSHIP_NPC_SECOND, Passenger->GetGUID());
+                //                        break;
+                //                    }
+                //                    case NPC_MURADIN_GUNSHIP:
+                //                        Passenger->AI()->DoAction(ACTION_SET_ENNEMY_COMMANDER);
+                //                        GunshipennemycommanderGUID = Passenger->GetGUID();
+                //                        break;
+                //                    // Tireurs : guid 2-9
+                //                    case NPC_TIREUR_A:
+                //                        GunshipTireurs[guid - 2] = Passenger->GetGUID();
+                //                        break;
+                //                    // Artilleurs : guid 10 - 13
+                //                    case NPC_ARTILLEUR_A:
+                //                        GunshipArtilleurs[guid - 10] = Passenger->GetGUID();
+                //                        break;
+                //                }
+                //            }
+                //        }*/
+                //    }
+                //    while(npc_transport->NextRow());
+                //}
+                //else
+                //    return pTransport->AddNPCPassengerCreature(0/*tGuid*/, npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote);
 
                  return NULL;
             }
@@ -2101,15 +2101,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     case 1:
                     {
-                        Creature * portal = m_GunshipMain->AddNPCPassengerCreature(0, NPC_GUNSHIP_PORTAL, x, y, z, o);
-                        //Creature * portal = commander->SummonCreature(NPC_GUNSHIP_PORTAL, x, y, z, o);
+                        //Creature * portal = m_GunshipMain->AddNPCPassengerCreature(0, NPC_GUNSHIP_PORTAL, x, y, z, o);
+                        ////Creature * portal = commander->SummonCreature(NPC_GUNSHIP_PORTAL, x, y, z, o);
 
-                        if (portal)
-                        {
-                            PortalGUID = portal->GetGUID();
-                            GunshipTempList.push_back(portal->GetGUID());
-                            portal->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                        }
+                        //if (portal)
+                        //{
+                        //    PortalGUID = portal->GetGUID();
+                        //    GunshipTempList.push_back(portal->GetGUID());
+                        //    portal->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                        //}
 
                         if (TeamInInstance == ALLIANCE)
                             DoScriptText(SAY_EVENT_FIGHT_START_A_H, Ennemycommander);
@@ -2175,36 +2175,36 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (npcToAdd)
                 {
-                    if (Creature* soldier = m_GunshipMain->AddNPCPassengerCreature(0, npcToAdd, x, y, z, o))
-                    //if (Creature* soldier = commander->SummonCreature(npcToAdd, x, y, z, o))
-                    {
-                        Transport * Friendtransport = ObjectAccessor::GetTransport(*commander, FriendGunshipGUID);
+                    //if (Creature* soldier = m_GunshipMain->AddNPCPassengerCreature(0, npcToAdd, x, y, z, o))
+                    ////if (Creature* soldier = commander->SummonCreature(npcToAdd, x, y, z, o))
+                    //{
+                    //    Transport * Friendtransport = ObjectAccessor::GetTransport(*commander, FriendGunshipGUID);
 
-                        if (!Friendtransport)
-                            return;
+                    //    if (!Friendtransport)
+                    //        return;
 
-                        std::set<Player*> pSet = Friendtransport->GetPassengers();
+                    //    std::set<Player*> pSet = Friendtransport->GetPassengers();
 
-                        Unit * pTarget = NULL;
+                    //    Unit * pTarget = NULL;
 
-                        if (!pSet.empty())
-                        {
-                            if (urand(0, 1))
-                                pTarget = *pSet.begin();
-                            else
-                                pTarget = commander;
-                        }
-                        else
-                            pTarget = commander;
+                    //    if (!pSet.empty())
+                    //    {
+                    //        if (urand(0, 1))
+                    //            pTarget = *pSet.begin();
+                    //        else
+                    //            pTarget = commander;
+                    //    }
+                    //    else
+                    //        pTarget = commander;
 
-                        if (!pTarget)
-                            return;
+                    //    if (!pTarget)
+                    //        return;
 
-                        if (soldier->AI())
-                            soldier->AI()->AttackStart(pTarget);
+                    //    if (soldier->AI())
+                    //        soldier->AI()->AttackStart(pTarget);
 
-                        GunshipTempList.push_back(soldier->GetGUID());
-                    }
+                    //    GunshipTempList.push_back(soldier->GetGUID());
+                    //}
                 }
             }
 

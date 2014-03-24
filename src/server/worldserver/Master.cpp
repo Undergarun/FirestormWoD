@@ -592,6 +592,7 @@ Master::~Master()
 /// Main function
 int Master::Run()
 {
+    init_sfmt();
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 

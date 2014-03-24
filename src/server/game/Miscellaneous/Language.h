@@ -1167,6 +1167,50 @@ enum TrinityStrings
 
     LANG_ANTISPAM_ERROR                 = 11013,
 
+    LANG_TITANIUM_SEAL_USE              = 11190,
+    LANG_TITANIUM_SEAL_UP               = 11191,    
+    LANG_TITANIUM_SEAL_DOWN             = 11192,
+    
+    // Ulduar Locales (reserved: 12000 - 12049)
+    LANG_ULD_TEL_BASE_CAMP              = 12000, // Teleport to the Expedition Base Camp
+    LANG_ULD_TEL_FORM_GROUNDS           = 12001, // Teleport to the Formation Grounds
+    LANG_ULD_TEL_COLOS_FORGE            = 12002, // Teleport to the Colossal Forge
+    LANG_ULD_TEL_SCRAPYARD              = 12003, // Teleport to the Scrapyard
+    LANG_ULD_TEL_ANTCHAMBER             = 12004, // Teleport to the Antechamber of Ulduar
+    LANG_ULD_TEL_SHATTERED              = 12005, // Teleport to the Shattered Walkway
+    LANG_ULD_TEL_CONSERVATORY           = 12006, // Teleport to the Conservatory of Life
+    LANG_ULD_TEL_IMAGINATION            = 12007, // Teleport to the Spark of Imagination
+    LANG_ULD_TEL_DESCENT                = 12008, // Teleport to the Descent into Madness
+    LANG_ULD_RAZOR_GOSSIP               = 12009, // Activate Harpoons! (boss Razorscale)
+ 
+    // Icecrown Citadel Locales (reserved: 13050 - 13099)
+    LANG_ICC_RING_ALREADY_HAVE              = 13050,
+    LANG_ICC_RING_NOT_ENOUGH_REP            = 13051,
+    LANG_ICC_RING_CASTER_FRIENDLY           = 13052,
+    LANG_ICC_RING_HEALER_FRIENDLY           = 13053,
+    LANG_ICC_RING_MELEE_STRENGTH_FRIENDLY   = 13054,
+    LANG_ICC_RING_MELEE_AGILITY_FRIENDLY    = 13055,
+    LANG_ICC_RING_TANK_FRIENDLY             = 13056,
+    LANG_ICC_RING_CASTER_HONORED            = 13057,
+    LANG_ICC_RING_HEALER_HONORED            = 13058,
+    LANG_ICC_RING_MELEE_STRENGTH_HONORED    = 13059,
+    LANG_ICC_RING_MELEE_AGILITY_HONORED     = 13060,
+    LANG_ICC_RING_TANK_HONORED              = 13061,
+    LANG_ICC_RING_CASTER_REVERED            = 13062,
+    LANG_ICC_RING_HEALER_REVERED            = 13063,
+    LANG_ICC_RING_MELEE_STRENGTH_REVERED    = 13064,
+    LANG_ICC_RING_MELEE_AGILITY_REVERED     = 13065,
+    LANG_ICC_RING_TANK_REVERED              = 13066,
+    LANG_ICC_RING_CASTER_EXALTED            = 13067,
+    LANG_ICC_RING_HEALER_EXALTED            = 13068,
+    LANG_ICC_RING_MELEE_STRENGTH_EXALTED    = 13069,
+    LANG_ICC_RING_MELEE_AGILITY_EXALTED     = 13070,
+    LANG_ICC_RING_TANK_EXALTED              = 13071,
+    LANG_ICC_RING_DELETE                    = 13072,
+    LANG_ICC_RING_CONFIRM                   = 13073,
+    LANG_ICC_BUFF_REMOVE_H                  = 13074,
+    LANG_ICC_BUFF_REMOVE_A                  = 13075,
+
     // NOT RESERVED IDS                   11014-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

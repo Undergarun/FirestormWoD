@@ -106,6 +106,7 @@ bool Group::Create(Player* leader)
 
     leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
+
     m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
     if (m_groupType & GROUPTYPE_RAID)
@@ -328,7 +329,7 @@ bool Group::AddInvite(Player* player)
     m_invitees.insert(player->GetGUID());
     m_inviteesLock.release();
 
-    player->SetGroupInvite(this);
+    player->SetGroupInvite(this->GetGUID());
 
     sScriptMgr->OnGroupInviteMember(this, player->GetGUID());
 
@@ -353,7 +354,7 @@ void Group::RemoveInvite(Player* player)
         m_inviteesLock.acquire();
         m_invitees.erase(player->GetGUID());
         m_inviteesLock.release();
-        player->SetGroupInvite(NULL);
+        player->SetGroupInvite(0);
     }
 }
 
@@ -362,7 +363,7 @@ void Group::RemoveAllInvites()
     m_inviteesLock.acquire();
     for (InvitesList::iterator itr=m_invitees.begin(); itr != m_invitees.end(); ++itr)
         if (Player* plr = sObjectAccessor->FindPlayer(*itr))
-            plr->SetGroupInvite(NULL);
+            plr->SetGroupInvite(0);
 
     m_invitees.clear();
     m_inviteesLock.release();
@@ -429,7 +430,7 @@ bool Group::AddMember(Player* player)
 
     if (player)
     {
-        player->SetGroupInvite(NULL);
+        player->SetGroupInvite(0);
         if (player->GetGroup() && (isBGGroup() || isBFGroup())) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
             player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
         else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
@@ -578,10 +579,12 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
                 player->UpdateForQuestWorldObjects();
             }
 
+            WorldPacket data;
+
             if (method == GROUP_REMOVEMETHOD_KICK)
             {
-                WorldPacket kick(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendPacket(&kick);
+                data.Initialize(SMSG_GROUP_UNINVITE, 0);
+                player->GetSession()->SendPacket(&data);
             }
 
             ObjectGuid groupGuid = GetGUID();
@@ -596,7 +599,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
 
             uint32 memberNameLength = 0;
 
-            WorldPacket data(SMSG_PARTY_UPDATE);
+            data.Initialize(SMSG_PARTY_UPDATE);
 
             data.WriteBit(leaderGuid[1]);
             data.WriteBit(groupGuid[7]);
@@ -2315,16 +2318,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     std::string playerName = player->GetName();
     uint32 memberCount = GetMembersCount();
-    ObjectGuid* memberGuids = new ObjectGuid[memberCount];
-    uint32* memberNameLength = new uint32[memberCount];
-
-    uint8 count = 0;
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
-    {
-        memberGuids[count] = citr->guid;
-        memberNameLength[count] = citr->name.size();
-        count++;
-    }
 
     WorldPacket data(SMSG_PARTY_UPDATE);
 
@@ -2337,15 +2330,14 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     uint8 bitsSelfOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
     data.WriteBitInOrder(playerGUID, bitsSelfOrder);
 
-    for (uint32 i = 0; i < memberCount; i++)
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        if (memberGuids[i] == playerGUID)
+        if (citr->guid == playerGUID)
             continue;
 
-        data.WriteBits(memberNameLength[i], 6);
-
+        data.WriteBits(citr->name.size(), 6);
         uint8 bitsOrder[8] = { 3, 0, 4, 7, 6, 1, 5, 2 };
-        data.WriteBitInOrder(memberGuids[i], bitsOrder);
+        data.WriteBitInOrder(citr->guid, bitsOrder);
     }
 
     data.WriteBit(leaderGuid[2]);
@@ -2485,12 +2477,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data.WriteByteSeq(leaderGuid[5]);
 
     player->GetSession()->SendPacket(&data);
-
-    delete[] memberGuids;
-    delete[] memberNameLength;
-
-    memberGuids = NULL;
-    memberNameLength = NULL;
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)
@@ -2834,6 +2820,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // check if someone in party is using dungeon system
         if (member->isUsingLfg())
             return ERR_LFG_CANT_USE_BATTLEGROUND;
+        // check is someone in party is loading or teleporting
+        if (member->GetSession()->PlayerLoading() || member->IsBeingTeleported())
+            return ERR_BATTLEGROUND_JOIN_FAILED;
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
@@ -3287,7 +3276,7 @@ void Group::SendRaidMarkersUpdate()
     // @TODO: Send in classic order instead of summon order
     for (auto itr : GetRaidMarkers())
     {
-        ObjectGuid guid = 0;
+        ObjectGuid guid = NULL;
 
         uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
         data.WriteBitInOrder(guid, bits);
@@ -3614,9 +3603,6 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
 
 void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
 {
-    if (!player)
-        return;
-
     // Called for each participant of a match after losing
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
@@ -3668,12 +3654,12 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
             // Change in Team Rating
-            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, true);
+            rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, true);
 
             if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
                 rating_change = 0;
 
-            if (player->GetArenaPersonalRating(slot) < 1500)
+            if (player->GetArenaPersonalRating(slot) < 1000)
                 rating_change = 96;
 
             if (player->GetBattleground())
@@ -3703,13 +3689,10 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
             // Change in Team Rating
-            rating_change = Arena::GetRatingMod(GetRating(slot), Opponent_MMRating, false);
+            rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, false);
 
             if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
                 rating_change = 0;
-
-            if (player->GetArenaPersonalRating(slot) < 1500)
-                rating_change = 92;
 
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)

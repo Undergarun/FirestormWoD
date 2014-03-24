@@ -54,8 +54,7 @@ public:
                 char** tmpIdxTable = new char*[id+1];
                 memset(tmpIdxTable, 0, (id+1) * sizeof(char*));
                 memcpy(tmpIdxTable, (char*)indexTable, nCount * sizeof(char*));
-                //@TODO : Fix heap overflow
-                //delete[] (T**)indexTable;
+                delete[] ((char*)indexTable);
                 nCount = id + 1;
                 indexTable = (T**)tmpIdxTable;
             }

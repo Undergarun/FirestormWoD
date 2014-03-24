@@ -34,7 +34,8 @@ DoorData const doorData[] =
     {GOB_ATRIUM_DOOR_ENTRANCE,      0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
     {GOB_ATRIUM_DOOR_EXIT,          0,              DOOR_TYPE_ROOM,     BOUNDARY_W},
     {GOB_SANCTUM_DOOR_ENTRANCE,     0,              DOOR_TYPE_ROOM,     BOUNDARY_E},
-    {GOB_HEARTOFFEAR_DOOR_ENTRANCE, DATA_UNSOK,     DOOR_TYPE_PASSAGE,  BOUNDARY_E}
+    {GOB_HEARTOFFEAR_DOOR_ENTRANCE, DATA_UNSOK,     DOOR_TYPE_PASSAGE,  BOUNDARY_E},
+    {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
 class instance_heart_of_fear : public InstanceMapScript

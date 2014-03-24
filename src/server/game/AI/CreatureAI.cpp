@@ -38,9 +38,12 @@ void CreatureAI::OnCharmed(bool /*apply*/)
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
 
-void CreatureAI::Talk(uint8 id, uint64 WhisperGuid)
+void CreatureAI::Talk(uint8 id, uint64 WhisperGuid, uint32 range)
 {
-    sCreatureTextMgr->SendChat(me, id, WhisperGuid);
+    TextRange _range = TextRange(range);
+    if (range == TEXT_RANGE_NORMAL)
+        _range = (me->GetMap()->IsDungeon() ? TEXT_RANGE_ZONE : TEXT_RANGE_NORMAL);
+    sCreatureTextMgr->SendChat(me, id, WhisperGuid, CHAT_MSG_ADDON, LANG_ADDON, _range);
 }
 
 void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToNearestTarget /* = 50.0f*/)
@@ -53,10 +56,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
 
     Map* map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
         return;
-    }
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
@@ -76,10 +76,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
     }
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
-    }
 
     Map::PlayerList const& playerList = map->GetPlayers();
 
@@ -107,6 +104,36 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
                 (*itr)->SetInCombatWith(creature);
                 creature->AddThreat(*itr, 0.0f);
             }*/
+        }
+    }
+}
+
+void CreatureAI::DoAttackerAreaInCombat(Unit* attacker, float range, Unit* pUnit)
+{
+    if (!attacker)
+        attacker = me;
+
+    if (!pUnit)
+        pUnit = me;
+
+    Map* map = pUnit->GetMap();
+    if (!map->IsDungeon())
+        return;
+
+    if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
+        return;
+
+    Map::PlayerList const &PlayerList = map->GetPlayers();
+    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    {
+        if (Player* i_pl = i->getSource())
+        {
+            if (i_pl->isAlive() && attacker->GetDistance(i_pl) <= range )
+            {
+                pUnit->SetInCombatWith(i_pl);
+                i_pl->SetInCombatWith(pUnit);
+                pUnit->AddThreat(i_pl, 0.0f);
+            }
         }
     }
 }

@@ -31,8 +31,6 @@
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SEND_MAIL");
-
     ObjectGuid mailbox;
     uint64 money, COD;
     std::string receiver, subject, body;
@@ -45,7 +43,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     mailbox[1] = recvData.ReadBit();
     mailbox[3] = recvData.ReadBit();
-    receiverLength = recvData.ReadBits(8) * 2;
+
+    receiverLength = recvData.ReadBits(8);
+    receiverLength <<= 1;
     receiverLength |= (uint32)recvData.ReadBit();
 
     mailbox[0] = recvData.ReadBit();
@@ -54,7 +54,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[2] = recvData.ReadBit();
     mailbox[6] = recvData.ReadBit();
     mailbox[5] = recvData.ReadBit();
-    subjectLength = recvData.ReadBits(8) * 2;
+
+    subjectLength = recvData.ReadBits(8);
+    subjectLength <<= 1;
     subjectLength |= (uint32)recvData.ReadBit();
 
     bodyLength = recvData.ReadBits(11);
@@ -119,13 +121,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (!rc)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, stationery = %u",
-            player->GetGUIDLow(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, unk1, stationery);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, stationery = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, unk1, stationery);
 
     if (player->GetGUID() == rc)
     {

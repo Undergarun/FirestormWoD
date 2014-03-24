@@ -560,7 +560,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 
     // Instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
-        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)) || IsPremium())
+        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint32(reason);
@@ -998,7 +998,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 
     uint32 status;
     recvData >> status;
-
+    
     ObjectGuid guid;
 
     uint8 bitsOrder[8] = { 3, 4, 1, 5, 2, 0, 7, 6 };
@@ -1619,27 +1619,22 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
         uint32 mask = 0;
         uint32 modifiers = 0;
-
         if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0))
         {
             ++modifiers;
-            mask |= 1;
+            mask |= 0x1;
         }
-
         if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1))
         {
             ++modifiers;
-            mask |= 2;
+            mask |= 0x2;
         }
-
         if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2))
         {
             ++modifiers;
-            mask |= 4;
+            mask |= 0x4;
         }
-
-        data << uint32(modifiers == 0 ? 0 : ((modifiers * 4) + 4));
-
+        data << uint32(modifiers == 0 ? 0 : ((modifiers*4) + 4));
         if (modifiers > 0)
         {
             data << uint32(mask);
@@ -1751,13 +1746,6 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     data.WriteByteSeq(playerGuid[4]);
 
     SendPacket(&data);
-}
-
-void WorldSession::HandleClientReportError(WorldPacket& recvData)
-{
-    uint16 len = recvData.ReadBits(9);
-    recvData.FlushBits();
-    std::string str = recvData.ReadString(len);
 }
 
 void WorldSession::HandleInspectRatedBGStatsOpcode(WorldPacket& recvData)
@@ -2004,7 +1992,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESP");
 
     uint32 counter, clientTicks;
-    recvData >> clientTicks >> counter;
+    recvData >> counter >> clientTicks;
 
     if (counter != _player->m_timeSyncCounter - 1)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName());
@@ -2418,11 +2406,10 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
             case DB2_REPLY_SCENE_SCRIPT:
                 break;
             case DB2_REPLY_BROADCAST_TEXT:
-                printf("DB2_REPLY_BROADCAST_TEXT : %u\n", entry);
                 SendBroadcastTextDb2Reply(entry);
                 break;
             default:
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
+                recvPacket.rfinish();
                 delete[] guids;
                 return;
         }
@@ -2561,15 +2548,16 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 {
+    uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
+    uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
+    
     uint32 skillId = recvPacket.read<uint32>();
     uint32 spellId = recvPacket.read<uint32>();
 
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
     recvPacket.ReadBitInOrder(guid, bitOrder);
-
-    uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
+    recvPacket.FlushBits();
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
     Player* plr = sObjectAccessor->FindPlayer(guid);
@@ -2577,16 +2565,22 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
         return;
 
     uint32 spellSkillCount = 0;
+    ByteBuffer buff(sizeof(uint32)*32);
     for (auto itr : plr->GetSpellMap())
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
         if (!spell)
             continue;
 
-        if (spell->IsAbilityOfSkillType(skillId) && spell->Effects[0].Effect != SPELL_EFFECT_TRADE_SKILL)
-            spellSkillCount++;
-    }
+        if (!spell->IsAbilityOfSkillType(skillId))
+            continue;
 
+        if (!(spell->Attributes & SPELL_ATTR0_TRADESPELL))
+            continue;
+
+        buff.append(itr.first);
+        ++spellSkillCount;
+    }
     WorldPacket data(SMSG_TRADE_INFO);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[6]);
@@ -2595,26 +2589,20 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
     data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[4]);
-    data.WriteBits(1, 22);              // skill value count
-    data.WriteBits(1, 22);              // skill id count
-    data.WriteBits(1, 22);              // skill max value
+    data.WriteBits(1, 22); // skill value count
+    data.WriteBits(1, 22); // skill id count
+    data.WriteBits(1, 22); // skill max value
     data.WriteBit(guid[3]);
     data.WriteBit(guid[0]);
+    data.FlushBits();
+
     data << uint32(plr->GetSkillValue(skillId));
     data.WriteByteSeq(guid[0]);
     data << uint32(skillId);
     data.WriteByteSeq(guid[1]);
     data << uint32(spellId);
 
-    for (auto itr : plr->GetSpellMap())
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
-            continue;
-
-        if (spell->IsAbilityOfSkillType(skillId) && spell->Effects[0].Effect != SPELL_EFFECT_TRADE_SKILL)
-            data << uint32(spell->Id);
-    }
+    data.append(buff);
 
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[5]);
@@ -2628,23 +2616,6 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 
 void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
 {
-    // Temp disable CUF
-    // Valgrind report : 
-    /*==5870== Thread 25:
-==5870== Conditional jump or move depends on uninitialised value(s)
-==5870==    at 0x4C2C908: strlen (mc_replace_strmem.c:404)
-==5870==    by 0x60AF084: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.19)
-==5870==    by 0x158BC7E: WorldSession::HandleSaveCUFProfiles(WorldPacket&) (MiscHandler.cpp:2704)
-==5870==    by 0x167C6FF: WorldSession::Update(unsigned int, PacketFilter&) (WorldSession.cpp:366)
-==5870==    by 0x15E3144: Map::Update(unsigned int) (Map.cpp:515)
-==5870==    by 0x188EC63: MapUpdateRequest::call() (MapUpdater.cpp:54)
-==5870==    by 0x1917AF6: DelayExecutor::svc() (DelayExecutor.cpp:52)
-==5870==    by 0x5192236: ACE_Task_Base::svc_run(void*) (in /usr/lib/libACE-6.0.3.so)
-==5870==    by 0x5193924: ACE_Thread_Adapter::invoke_i() (in /usr/lib/libACE-6.0.3.so)
-==5870==    by 0x519386E: ACE_Thread_Adapter::invoke() (in /usr/lib/libACE-6.0.3.so)
-==5870==    by 0x6812E0D: start_thread (pthread_create.c:311)
-==5870==    by 0x6B100FC: clone (clone.S:113)*/
-    return;
     uint32 count = recvPacket.ReadBits(19);
     if (count > MAX_CUF_PROFILES)
     {
@@ -2727,14 +2698,12 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
     for (uint32 i = 0; i < count; ++i)
     {
         CUFProfile& profile = profiles[i];
-        CUFProfileData& data = profile.data;
-
-        auto sdata = std::string((const char*)&data);
+        CUFProfileData data = profile.data;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
         stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
         stmt->setString(1, profile.name);
-        stmt->setString(2, sdata);
+        stmt->setString(2, PackDBBinary(&data, sizeof(CUFProfileData)));
         trans->Append(stmt);
     }
 

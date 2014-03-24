@@ -40,24 +40,11 @@ void WorldSession::HandleArenaTeamQueryOpcode(WorldPacket & recvData)
 void WorldSession::HandleArenaTeamRosterOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ARENA_TEAM_ROSTER");
-
-    time_t now = time(NULL);
-    if (now - timeLastArenaTeamCommand < 5)
-        return;
-    else
-       timeLastArenaTeamCommand = now;
 }
 
 void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_INVITE");
-
-    time_t now = time(NULL);
-    if (now - timeLastArenaTeamCommand < 5)
-        return;
-    else
-       timeLastArenaTeamCommand = now;
-
 }
 
 void WorldSession::HandleArenaTeamAcceptOpcode(WorldPacket & /*recvData*/)
@@ -78,25 +65,11 @@ void WorldSession::HandleArenaTeamDeclineOpcode(WorldPacket & /*recvData*/)
 void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_LEAVE");
-
-    time_t now = time(NULL);
-    if (now - timeLastArenaTeamCommand < 5)
-        return;
-    else
-       timeLastArenaTeamCommand = now;
-
 }
 
 void WorldSession::HandleArenaTeamDisbandOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_DISBAND");
-
-    time_t now = time(NULL);
-    if (now - timeLastArenaTeamCommand < 5)
-        return;
-    else
-       timeLastArenaTeamCommand = now;
-
 }
 
 void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket & recvData)
@@ -107,13 +80,6 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket & recvData)
 void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_LEADER");
-
-    time_t now = time(NULL);
-    if (now - timeLastArenaTeamCommand < 5)
-        return;
-    else
-       timeLastArenaTeamCommand = now;
-
 }
 
 /*

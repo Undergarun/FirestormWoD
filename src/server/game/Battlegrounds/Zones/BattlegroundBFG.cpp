@@ -230,7 +230,6 @@ void BattlegroundBFG::AddPlayer(Player* player)
 }
 
 void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/) { }
-
 void BattlegroundBFG::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
     // this is  wrong way to implement these things. On official it done by gameobject spell cast.
@@ -677,6 +676,7 @@ WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
             WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(GILNEAS_BG_GraveyardIds[nodes[i]]);
+
             if (!entry)
                 continue;
 
@@ -688,7 +688,6 @@ WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
                 good_entry = entry;
             }
         }
-
         nodes.clear();
     }
 

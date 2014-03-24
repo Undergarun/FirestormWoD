@@ -41,7 +41,7 @@ union u_map_magic
 };
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','2'} };
+u_map_magic MapVersionMagic = { {'v','1','.','3'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -158,7 +158,6 @@ void Map::LoadMap(int gx, int gy, bool reload)
     if (GridMaps[gx][gy])
     {
         sLog->outInfo(LOG_FILTER_MAPS, "Unloading previously loaded map %u before reloading.", GetId());
-        sScriptMgr->OnUnloadGridMap(this, GridMaps[gx][gy], gx, gy);
 
         delete (GridMaps[gx][gy]);
         GridMaps[gx][gy]=NULL;
@@ -177,8 +176,6 @@ void Map::LoadMap(int gx, int gy, bool reload)
         sLog->outError(LOG_FILTER_MAPS, "Error loading map file: \n %s\n", tmp);
     }
     delete [] tmp;
-
-    sScriptMgr->OnLoadGridMap(this, GridMaps[gx][gy], gx, gy);
 }
 
 void Map::LoadMapAndVMap(int gx, int gy)
@@ -518,7 +515,7 @@ void Map::Update(const uint32 t_diff)
     /// update active cells around players and active objects
     resetMarkedCells();
 
-    JadeCore::ObjectUpdater updater(t_diff, getMSTime());
+    JadeCore::ObjectUpdater updater(t_diff);
     // for creature
     TypeContainerVisitor<JadeCore::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
     // for pets
@@ -566,8 +563,6 @@ void Map::Update(const uint32 t_diff)
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
-    sScriptMgr->OnPlayerLeaveMap(this, player);
-
     player->RemoveFromWorld();
     SendRemoveTransports(player);
 
@@ -578,8 +573,10 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
         ASSERT(remove); //maybe deleted in logoutplayer when player is not in a map
 
     if (remove)
+    {
         DeleteFromWorld(player);
-
+        sScriptMgr->OnPlayerLeaveMap(this, player);
+    }
 }
 
 template<class T>
@@ -725,9 +722,9 @@ void Map::MoveAllCreaturesInMoveList()
         // do move or do move to respawn or remove creature if previous all fail
         if (CreatureCellRelocation(c, Cell(c->_newPosition.m_positionX, c->_newPosition.m_positionY)))
         {
-            // update position and visibility for server and client
+            // update pos
             c->Relocate(c->_newPosition);
-            c->SendMovementFlagUpdate();
+            //c->SendMovementFlagUpdate(); possible creature crash fix.
             c->UpdateObjectVisibility(false);
         }
         else
@@ -1515,6 +1512,10 @@ inline GridMap* Map::GetGrid(float x, float y)
     // half opt method
     int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
     int gy=(int)(32-y/SIZE_OF_GRIDS);                       //grid y
+ 
+    if (gx >= MAX_NUMBER_OF_GRIDS || gy >= MAX_NUMBER_OF_GRIDS ||
+        gx < 0 || gy < 0)
+        return NULL;
 
     // ensure GridMap is loaded
     EnsureGridCreated(GridCoord(63-gx, 63-gy));
@@ -1578,8 +1579,17 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
         else
             return vmapHeight;                              // we have only vmapHeight (if have)
     }
+    else
+    {
+        if (!checkVMap)
+            return mapHeight;                               // explicitly use map data (if have)
+        else if (mapHeight > INVALID_HEIGHT && (z < mapHeight + 2 || z == MAX_HEIGHT))
+            return mapHeight;                               // explicitly use map data if original z < mapHeight but map found (z+2 > mapHeight)
+        else
+            return VMAP_INVALID_HEIGHT_VALUE;               // we not have any height
+    }
 
-    return mapHeight;                               // explicitly use map data
+   //return mapHeight; 
 }
 
 inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, int32 /*groupId*/, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
@@ -2061,6 +2071,9 @@ void Map::RemoveAllObjectsInRemoveList()
         std::set<WorldObject*>::iterator itr = i_objectsToRemove.begin();
         WorldObject* obj = *itr;
 
+        if (!obj)
+            continue;
+
         switch (obj->GetTypeId())
         {
             case TYPEID_CORPSE:
@@ -2415,6 +2428,9 @@ bool InstanceMap::AddPlayerToMap(Player* player)
         m_unloadWhenEmpty = false;
     }
 
+    if (i_data)
+        i_data->BeforePlayerEnter(player);
+
     // this will acquire the same mutex so it cannot be in the previous block
     Map::AddPlayerToMap(player);
 
@@ -2640,11 +2656,7 @@ uint32 InstanceMap::GetMaxResetDelay() const
 /* ******* Battleground Instance Maps ******* */
 
 BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 InstanceId, Map* _parent, uint8 spawnMode)
-  : Map(id, expiry, InstanceId, spawnMode, _parent), m_bg(NULL)
-{
-    //lets initialize visibility distance for BG/Arenas
-    BattlegroundMap::InitVisibilityDistance();
-}
+  : Map(id, expiry, InstanceId, spawnMode, _parent), m_bg(NULL) { }
 
 BattlegroundMap::~BattlegroundMap()
 {
@@ -2659,7 +2671,7 @@ BattlegroundMap::~BattlegroundMap()
 void BattlegroundMap::InitVisibilityDistance()
 {
     //init visibility distance for BG/Arenas
-    m_VisibleDistance = World::GetMaxVisibleDistanceInBGArenas();
+    m_VisibleDistance = GetBG()->isArena() ? World::GetMaxVisibleDistanceInArenas() : World::GetMaxVisibleDistanceInBG();
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
 }
 

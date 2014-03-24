@@ -62,4 +62,3 @@ class PetAI : public CreatureAI
         bool CanAttack(Unit* target);
 };
 #endif
-

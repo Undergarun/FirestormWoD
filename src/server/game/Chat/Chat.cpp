@@ -709,31 +709,31 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     bool bit5264 = false;
     bool sendRealmId = true;
 
-    data->Initialize(SMSG_MESSAGE_CHAT, 100);                   // Guessed size
+    data->Initialize(SMSG_MESSAGE_CHAT, 100);                   // guess size
 
     data->WriteBit(false);                                      // Unk bit 5269
-    data->WriteBit(message ? 0 : 1);                            // Has text
+    data->WriteBit(message ? 0 : 1);                            // hasText
     data->WriteBit(!achievementId);                             // Has achievement
-    data->WriteBit(speakerPlayer == nullptr);                   // Has sender
-    data->WriteBit(speakerPlayer != nullptr);                   // Has sender GUID - FAKE GUID
+    data->WriteBit(speakerPlayer == NULL);                      // has sender
+    data->WriteBit(speakerPlayer != NULL);                      // has sender GUID - FAKE GUID
 
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
     data->WriteBitInOrder(speakerGuid, bitsOrder);
 
-    data->WriteBit(groupGuid != 0);                             // Has group GUID - FAKE GUID
+    data->WriteBit(groupGuid != 0);                          // has group GUID - FAKE GUID
 
     uint8 bitsOrder2[8] = { 6, 0, 4, 1, 2, 3, 7, 5 };
     data->WriteBitInOrder(groupGuid, bitsOrder2);
 
-    data->WriteBit(addonPrefix ? 0 : 1);                        // Has prefix
+    data->WriteBit(addonPrefix ? 0 : 1);                        // has prefix
     data->WriteBit(false);                                      // Unk bit 5268
-    data->WriteBit(!sendRealmId);                               // Send realmId
-    data->WriteBit(!bit5264);                                   // (inversed) Unk bit 5264
+    data->WriteBit(!sendRealmId);                               // sendRealmId
+    data->WriteBit(!bit5264);                                   // (inversed) unk bit 5264
 
-    if (speakerPlayer)
+    if (speakerPlayer != NULL)
         data->WriteBits(speakerNameLength, 11);
 
-    data->WriteBit(targetGuid);                                 // Has receiver GUID - FAKE GUID
+    data->WriteBit(targetGuid);                                 // has receiver GUID - FAKE GUID
 
     uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
     data->WriteBitInOrder(targetGuid, bitsOrder3);
@@ -741,24 +741,24 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     if (prefixeLength)
         data->WriteBits(prefixeLength, 5);
 
-    data->WriteBit(!targetGuid);                                // Has receiver
+    data->WriteBit(!targetGuid);                                // has receiver
 
     bool hasChatTag = false;
     if (speakerPlayer)
         hasChatTag = speakerPlayer->GetChatTag();
 
-    data->WriteBit(!hasChatTag);                                // (inversed) Has chat tag
+    data->WriteBit(!hasChatTag);                                // (inversed) has chat tag
 
     if (messageLength)
         data->WriteBits(messageLength, 12);
 
-    data->WriteBit(!language);                                  // Has lang
+    data->WriteBit(!language);                                  // has lang
 
     // Must be inversed
     if (hasChatTag)
         data->WriteBits(speakerPlayer->GetChatTag(), 9);
 
-    data->WriteBit(guildGuid);                                  // Has guild GUID - FAKE GUID
+    data->WriteBit(guildGuid);                                  // has guild GUID - FAKE GUID
 
     if (targetGuid)
         data->WriteBits(targetLength, 11);
@@ -767,7 +767,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     data->WriteBitInOrder(guildGuid, bitsOrder4);
 
     bool hasChannel = type == CHAT_MSG_CHANNEL;
-    data->WriteBit(!hasChannel);                                // Has channel
+    data->WriteBit(!hasChannel);                                // has channel
 
     if (hasChannel)
         data->WriteBits(channelLength, 7);
@@ -799,7 +799,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         data->append(addonPrefix, prefixeLength);
 
     if (sendRealmId)
-        *data << uint32(realmID);                               // Realmd id / flags
+        *data << uint32(realmID);                               // realmd id / flags
 
     uint8 byteOrder3[8] = { 1, 0, 3, 7, 6, 5, 2, 4 };
     data->WriteBytesSeq(guildGuid, byteOrder3);

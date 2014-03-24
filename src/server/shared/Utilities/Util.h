@@ -27,6 +27,8 @@
 #include <vector>
 #include <list>
 
+ void init_sfmt();
+
 // Searcher for map of structs
 template<typename T, class S> struct Finder
 {
@@ -63,6 +65,26 @@ public:
     char* m_str;
     StorageType m_storage;
 };
+
+struct nullable_string
+{
+    char const* const ptr;
+    uint32 const length;
+
+    nullable_string()
+        : ptr(""), length(0)
+    {
+    }
+
+    nullable_string(const char* ptr_, uint32 len)
+        : ptr(ptr_), length(len)
+    {
+    }
+};
+
+void UnpackDBBinary(void* unpackedData, uint32 unpackedCount, void const* packedData, uint32 packedCount);
+
+nullable_string PackDBBinary(void const* unpackedData, uint32 unpackedCount);
 
 void stripLineInvisibleChars(std::string &src);
 

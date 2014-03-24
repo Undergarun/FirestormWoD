@@ -1,0 +1,1 @@
+UPDATE creature_template SET npcflag = 80 WHERE entry = 65098;

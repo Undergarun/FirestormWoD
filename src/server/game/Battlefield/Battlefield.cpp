@@ -18,6 +18,7 @@
 
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Chat.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Map.h"
@@ -31,7 +32,6 @@
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
 #include "GroupMgr.h"
-#include "Chat.h"
 
 Battlefield::Battlefield()
 {
@@ -380,21 +380,10 @@ void Battlefield::EndBattle(bool endByTimer)
 
 void Battlefield::DoPlaySoundToAll(uint32 SoundID)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-    ObjectGuid guid = 0;
-
-    uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    data.WriteBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-    data.WriteBytesSeq(guid, bytes);
-
-    data << uint32(SoundID);
-
     for (int team = 0; team < BG_TEAMS_COUNT; team++)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                player->GetSession()->SendPacket(&data);
+                player->SendPlaySound(SoundID, true);
 }
 
 bool Battlefield::HasPlayer(Player* player) const

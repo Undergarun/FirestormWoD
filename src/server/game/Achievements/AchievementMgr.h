@@ -232,8 +232,9 @@ class AchievementMgr
         static void DeleteFromDB(uint32 lowguid, uint32 accountId = 0);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult = NULL, PreparedQueryResult criteriaAccountResult = NULL);
         void SaveToDB(SQLTransaction& trans);
-        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL);
+        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL);
+        bool IsCompletedAchievement(AchievementEntry const* entry);
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver);
@@ -255,17 +256,16 @@ class AchievementMgr
         CriteriaProgressMap* GetCriteriaProgressMap();
         CriteriaProgress* GetCriteriaProgress(uint32 entry);
         CriteriaProgress* GetCriteriaProgress(AchievementCriteriaEntry const* entry);
-        void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
+        void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint64 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
         void RemoveCriteriaProgress(AchievementCriteriaEntry const* entry);
         void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer);
         bool CanCompleteCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
-        bool IsCompletedAchievement(AchievementEntry const* entry);
-        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer);
+        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
         void SendPacket(WorldPacket* data) const;
 
         bool ConditionsSatisfied(AchievementCriteriaEntry const *criteria, Player* referencePlayer) const;
-        bool RequirementsSatisfied(AchievementCriteriaEntry const *criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
+        bool RequirementsSatisfied(AchievementCriteriaEntry const *criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer) const;
         bool AdditionalRequirementsSatisfied(AchievementCriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
 
         T* _owner;

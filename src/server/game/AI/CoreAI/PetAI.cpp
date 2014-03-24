@@ -72,6 +72,8 @@ void PetAI::_stopAttack()
     }
 
     me->AttackStop();
+    me->InterruptNonMeleeSpells(false);
+    me->SendMeleeAttackStop(); // Should stop pet's attack button from flashing
     me->GetCharmInfo()->SetIsCommandAttack(false);
     HandleReturnMovement();
 }
@@ -95,7 +97,7 @@ void PetAI::UpdateAI(const uint32 diff)
         // is only necessary to stop casting, the pet must not exit combat
         if (me->getVictim()->HasCrowdControlAura(me))
         {
-            me->InterruptNonMeleeSpells(false);
+            me->InterruptNonMeleeSpellsExcept(false, 90337);    // hack for Bad Manner
             return;
         }
 
@@ -330,16 +332,17 @@ void PetAI::AttackStart(Unit* target)
     if (!CanAttack(target))
         return;
 
-    if (Unit* owner = me->GetOwner())
-        owner->SetInCombatWith(target);
+    if (Unit* owner = me->GetCharmerOrOwner())
+        owner->RemoveAurasByType(SPELL_AURA_MOD_CAMOUFLAGE);
 
-    DoAttack(target, true);
+    // Only chase if not commanded to stay or if stay but commanded to attack
+    DoAttack(target, (!me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->IsCommandAttack()));
 }
 
 void PetAI::OwnerDamagedBy(Unit* attacker)
 {
     // Called when owner takes damage. Allows defensive pets to know
-    //  that their owner might need help
+    // that their owner might need help
 
     if (!attacker)
         return;
@@ -359,7 +362,7 @@ void PetAI::OwnerDamagedBy(Unit* attacker)
 void PetAI::OwnerAttacked(Unit* target)
 {
     // Called when owner attacks something. Allows defensive pets to know
-    //  that they need to assist
+    // that they need to assist
 
     // Target might be NULL if called from spell with invalid cast targets
     if (!target)
@@ -370,8 +373,9 @@ void PetAI::OwnerAttacked(Unit* target)
         return;
 
     // Prevent pet from disengaging from current target
-    if (me->getVictim() && me->getVictim()->isAlive())
-        return;
+    if (!me->HasReactState(REACT_HELPER))
+        if (me->getVictim() && me->getVictim()->isAlive())
+            return;
 
     // Continue to evaluate and attack if necessary
     AttackStart(target);
@@ -517,34 +521,71 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
 
 bool PetAI::CanAttack(Unit* target)
 {
-    // CrashFix
-    if (!me->GetCharmInfo())
+    // Evaluates wether a pet can attack a specific target based on CommandState, ReactState and other flags
+    // IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks
+
+    // Hmmm...
+    if (!target)
         return false;
 
-    // Evaluates wether a pet can attack a specific
-    // target based on CommandState, ReactState and other flags
-
-    // Returning - check first since pets returning ignore attacks
-    if (me->GetCharmInfo()->IsReturning())
+    // If pet disabled dont start attack (for example owner in mount)
+    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && !me->HasUnitState(UNIT_STATE_STUNNED))
         return false;
 
-    // Passive - check now so we don't have to worry about passive in later checks
+    if (!target->isAlive())
+    {
+        // Clear target to prevent getting stuck on dead targets
+        me->AttackStop();
+        me->InterruptNonMeleeSpells(false);
+        me->SendMeleeAttackStop();
+        return false;
+    }
+
+    // Passive - passive pets can attack if told to
     if (me->HasReactState(REACT_PASSIVE))
         return me->GetCharmInfo()->IsCommandAttack();
 
-    //  Pets commanded to attack should not stop their approach if attacked by another creature
-    if (me->getVictim() && (me->getVictim() != target))
-        return !me->GetCharmInfo()->IsCommandAttack();
+    // CC - mobs under crowd control can be attacked if owner commanded
+    if (target->HasCrowdControlAura())
+        return me->GetCharmInfo()->IsCommandAttack();
 
-    // From this point on, pet will always be either aggressive or defensive
+    // Returning - pets ignore attacks only if owner clicked follow
+    if (me->GetCharmInfo()->IsReturning())
+        return !me->GetCharmInfo()->IsCommandFollow();
 
     // Stay - can attack if target is within range or commanded to
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        return (me->IsWithinMeleeRange(target, MELEE_RANGE) || me->GetCharmInfo()->IsCommandAttack());
+        return (me->IsWithinMeleeRange(target) || me->GetCharmInfo()->IsCommandAttack());
+
+    if (me->HasReactState(REACT_HELPER))
+    {
+        Unit* ownerTarget = NULL;
+        if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+            ownerTarget = owner->GetSelectedUnit();
+        else
+            ownerTarget = me->GetCharmerOrOwner()->getVictim();
+
+        if (target != ownerTarget)
+            return false;
+    }
+
+    //  Pets attacking something (or chasing) should only switch targets if owner tells them to
+    if (me->getVictim() && me->getVictim() != target)
+    {
+        // Check if our owner selected this target and clicked "attack"
+        Unit* ownerTarget = NULL;
+        if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+            ownerTarget = owner->GetSelectedUnit();
+        else
+            ownerTarget = me->GetCharmerOrOwner()->getVictim();
+
+        if (ownerTarget && me->GetCharmInfo()->IsCommandAttack())
+            return (target->GetGUID() == ownerTarget->GetGUID());
+    }
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        return true;
+        return !me->GetCharmInfo()->IsReturning();
 
     // default, though we shouldn't ever get here
     return false;

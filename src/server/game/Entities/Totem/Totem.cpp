@@ -84,7 +84,8 @@ void Totem::InitStats(uint32 duration)
         m_owner->ToPlayer()->SendDirectMessage(&data);
 
         // set display id depending on caster's race
-        SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+        if (m_owner->getClass() == CLASS_SHAMAN)
+            SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
 
         // Light's Hammer
         if (GetUInt32Value(UNIT_CREATED_BY_SPELL) == 122773)
@@ -205,7 +206,7 @@ void Totem::UnSummon(uint32 msTime)
                     newCooldownDelay -= lessCooldown;
 
                     _player->AddSpellCooldown(spellInfo->Id, 0, uint32(time(NULL) + newCooldownDelay));
-                    _player->ReduceSpellCooldown(spellInfo->Id, -lessCooldown);
+                    _player->ReduceSpellCooldown(spellInfo->Id, lessCooldown);
                 }
             }
         }

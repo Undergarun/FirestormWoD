@@ -70,6 +70,7 @@ struct AchievementCriteriaEntry
     uint32  ID;                                             // 0
     uint32  achievement;                                    // 1
     uint32  type;                                           // 2
+
     union
     {
         // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
@@ -87,7 +88,14 @@ struct AchievementCriteriaEntry
             uint32  winCount;                               // 4
         } win_bg;
 
-        // ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL            = 125
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS = 3
+        struct
+        {
+            uint32 unused;                                 // 3
+            uint32 count;                                  // 4
+        } archaeology;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL            = 5
         struct
         {
             uint32  unused;                                 // 3
@@ -225,7 +233,8 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA              = 32
         struct
         {
-            uint32  mapID;                                  // 3 Reference to Map.dbc
+            uint32 mapID;                                   // 3 Reference to Map.dbc
+            uint32 count;                                   // 4  Number of times that the arena must be won.
         } win_arena;
 
         // ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA             = 33
@@ -452,6 +461,13 @@ struct AchievementCriteriaEntry
             uint32  duelCount;                              // 4
         } win_duel;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM         = 90
+        struct
+        {
+            uint32  unused;                                 // 
+            uint32  lootCount;                             // 4
+        } loot_epic_item;
+
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER          = 96
         struct
         {
@@ -497,6 +513,90 @@ struct AchievementCriteriaEntry
             uint32  killCount;                              // 4
         } honorable_kill;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS = 124
+        struct
+        {
+            uint32 unused;
+            uint32 goldCount;
+        } spent_gold_guild_repairs;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL    = 125
+        struct
+        {
+            uint32 unused;
+            uint32  level;
+        } reach_guild_level;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD = 126
+        struct
+        {
+            uint32 unused;
+            uint32 itemsCount;
+        } craft_items_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL = 127
+        struct
+        {
+            uint32 unused;
+            uint32 catchCount;
+        } catch_from_pool;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS = 128
+        struct
+        {
+            uint32 unused;
+            uint32 slotsCount;
+        } buy_guild_bank_slots;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS = 129
+        struct
+        {
+            uint32 unused;
+            uint32  pointsCount;
+        } earn_guild_achievement_points;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND = 130
+        struct
+        {
+            uint32 unused;
+            uint32 winCount;
+        } win_rated_battleground;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD = 134
+        struct
+        {
+            uint32 unused;
+            uint32 questCount;
+        } complete_quests_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD = 135
+        struct
+        {
+            uint32 unused;
+            uint32 killCount;
+        } honorable_kills_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD = 136
+        struct
+        {
+            uint32 unused;
+            uint32 count;
+        } kill_creature_type_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE = 138
+        struct
+        {
+            uint32 challenge_type;
+            uint32 count;
+        } guild_challenge_complete_type;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE = 139
+        struct
+        {
+            uint32 unused;
+            uint32 count;
+        } guild_challenge_complete;
+
         struct
         {
             uint32  unused;
@@ -510,25 +610,27 @@ struct AchievementCriteriaEntry
         } raw;
     };
 
+    // uint32 unk                                           // 5
+
     struct
     {
-        uint32  additionalRequirement_type;
-        uint32  additionalRequirement_value;
+        uint32  additionalRequirement_type;                 // 6-7
+        uint32  additionalRequirement_value;                // 8-9
     } additionalRequirements[MAX_CRITERIA_REQUIREMENTS];
 
-    char*  name;                                            // 9        m_description_lang
-    uint32  completionFlag;                                 // 10       m_flags
-    uint32  timedCriteriaStartType;                         // 11       m_timer_start_event Only appears with timed achievements, seems to be the type of starting a timed Achievement, only type 1 and some of type 6 need manual starting
+    char*  name;                                            // 10        m_description_lang
+    uint32  completionFlag;                                 // 11       m_flags
+    uint32  timedCriteriaStartType;                         // 12       m_timer_start_event Only appears with timed achievements, seems to be the type of starting a timed Achievement, only type 1 and some of type 6 need manual starting
                                                             //              1: ByEventId(?) (serverside IDs),    2: ByQuestId,   5: ByCastSpellId(?)
                                                             //              6: BySpellIdTarget(some of these are unknown spells, some not, some maybe spells)
                                                             //              7: ByKillNpcId,  9: ByUseItemId
-    uint32  timedCriteriaMiscId;                            // 12       m_timer_asset_id Alway appears with timed events, used internally to start the achievement, store
-    uint32  timeLimit;                                      // 13       m_timer_time time limit in seconds
-    uint32  showOrder;                                      // 14       m_ui_order  also used in achievement shift-links as index in state bitmask
-    //uint32 unk1;                                          // 15 only one value, still unknown
-    //uint32 unk2;                                          // 16 all zeros
-    uint32 additionalConditionType[MAX_ADDITIONAL_CRITERIA_CONDITIONS];     // 17-19
-    uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS];    // 20-22
+    uint32  timedCriteriaMiscId;                            // 13       m_timer_asset_id Alway appears with timed events, used internally to start the achievement, store
+    uint32  timeLimit;                                      // 14       m_timer_time time limit in seconds
+    uint32  showOrder;                                      // 15       m_ui_order  also used in achievement shift-links as index in state bitmask
+    //uint32 unk1;                                          // 16 only one value, still unknown
+    //uint32 unk2;                                          // 17 all zeros
+    uint32 additionalConditionType[MAX_ADDITIONAL_CRITERIA_CONDITIONS];     // 18-20
+    uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS-1];    // 21-22
 };
 
 struct AreaTableEntry
@@ -1711,6 +1813,38 @@ struct RandomPropertiesPointsEntry
     uint32    UncommonPropertiesPoints[5];                  // 11-15
 };
 
+struct ResearchBranchEntry
+{
+    uint32 ID;          // 0
+    //char*  Name;      // 1
+    //uint32 FieldID;   // 2
+    uint32 CurrencyID;  // 3
+    //char*  Icon;      // 4
+    uint32 ItemID;      // 5
+};
+
+struct ResearchProjectEntry
+{
+    uint32      ID;                                         // 0
+    //char*       name;                                     // 1
+    //char*       description;                              // 2
+    uint32      rare;                                       // 3
+    uint32      branchId;                                   // 4
+    uint32      spellId;                                    // 5
+    //uint32    complexity;                                 // 6
+    //char*     path;                                       // 7
+    uint32      req_currency;                               // 8
+
+};
+
+struct ResearchSiteEntry
+{
+    uint32 ID;                                              // 0
+    uint32 mapId;                                           // 1
+    uint32 POIid;                                           // 2
+    //char* areaName;                                       // 3
+    //uint32 flags;                                         // 4
+};
 // @author Selenium: 5.4 valid
 struct ScalingStatDistributionEntry
 {
@@ -1969,7 +2103,7 @@ struct SpellEntry
     uint32 SpellShapeshiftId;                               // 20       SpellShapeshift.dbc
     uint32 SpellTargetRestrictionsId;                       // 21       SpellTargetRestrictions.dbc
     uint32 SpellTotemsId;                                   // 22       SpellTotems.dbc
-    //uint32 ResearchProject;                               // 23       ResearchProject.dbc
+    uint32 ResearchProject;                                 // 23       ResearchProject.dbc
     uint32 SpellMiscId;                                     // 24       SpellMisc.dbc
 
     // struct access functions

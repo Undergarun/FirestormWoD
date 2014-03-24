@@ -284,6 +284,7 @@ void InstanceScript::DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn)
             return;
 
         go->SetRespawnTime(uiTimeToDespawn);
+        go->UpdateObjectVisibility();
     }
 }
 
@@ -320,15 +321,40 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
     }
 }
 
-// Update Achievement Criteria for all players in instance
-void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
+// Reset Achievement Criteria for all players in instance
+void InstanceScript::DoResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, bool evenIfCriteriaComplete /*= false*/)
 {
-    Map::PlayerList const &PlayerList = instance->GetPlayers();
+    Map::PlayerList const &plrList = instance->GetPlayers();
 
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->getSource())
-                player->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                pPlayer->GetAchievementMgr().ResetAchievementCriteria(type, miscValue1, miscValue2, evenIfCriteriaComplete);
+}
+
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+  AchievementEntry const* pAE = sAchievementStore.LookupEntry(achievement);
+  Map::PlayerList const &plrList = instance->GetPlayers();
+  if (!pAE)
+      return;
+
+  if (!plrList.isEmpty())
+      for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+          if (Player *pPlayer = i->getSource())
+              pPlayer->CompletedAchievement(pAE);
+}
+
+// Update Achievement Criteria for all players in instance
+void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, uint32 miscValue3 /*=0*/, Unit* unit /*= NULL*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                pPlayer->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit);
 }
 
 // Start timed achievement for all players in instance
