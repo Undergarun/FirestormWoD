@@ -30,20 +30,35 @@ enum eTsulongEvents
     EVENT_WAYPOINT_SECOND,
     EVENT_SWITCH_TO_NIGHT_PHASE,
     EVENT_SPAWN_SUNBEAM,
+    EVENT_SHADOW_BREATH,
+    EVENT_NIGHTMARES,
+    EVENT_DARK_OF_NIGHT,
 };
 
 enum eTsulongSpells
 {
+    // Tsulong
     SPELL_DREAD_SHADOWS        = 122767,
     SPELL_DREAD_SHADOWS_DEBUFF = 122768,
     SPELL_SUNBEAM_DUMMY        = 122782,
     SPELL_SUNBEAM_PROTECTION   = 122789,
     SPELL_NIGHT_PHASE_EFFECT   = 122841,
+    SPELL_SHADOW_BREATH        = 122752,
+    SPELL_NIGHTMARES           = 122770,
+    SPELL_SPAWN_DARK_OF_NIGHT  = 123739,
+
+    // the dark of the night
+    SPELL_BUMP_DARK_OF_NIGHT   = 130013,
+    SPELL_VISUAL_DARK_OF_NIGHT = 123740,
+
 };
 
 enum eTsulongTimers
 {
     TIMER_FIRST_WAYPOINT = 5000, // 5 secs for test, live : 120 000
+    TIMER_SHADOW_BREATH  = 25000,
+    TIMER_NIGHTMARES     = 11600,
+    TIMER_DARK_OF_NIGHT  = 30000,
 };
 
 enum eTsulongPhase
@@ -68,7 +83,7 @@ enum eTsulongDisplay
 
 enum eTsulongActions
 {
-    ACTION_SPAWN_SUNBEAM = 1,
+    ACTION_SPAWN_SUNBEAM = 3,
 };
 
 enum eTsulongCreatures
@@ -149,6 +164,9 @@ class boss_tsulong : public CreatureScript
                 events.SetPhase(PHASE_NIGHT);
                 events.ScheduleEvent(EVENT_SWITCH_TO_NIGHT_PHASE, 0, 0, PHASE_NIGHT);
                 events.ScheduleEvent(EVENT_SPAWN_SUNBEAM, 2000, 0, PHASE_NIGHT);
+                events.ScheduleEvent(EVENT_SHADOW_BREATH, TIMER_SHADOW_BREATH, 0, PHASE_NIGHT);
+                events.ScheduleEvent(EVENT_NIGHTMARES, TIMER_NIGHTMARES, 0, PHASE_NIGHT);
+                events.ScheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
             }
 
             void JustSummoned(Creature* summon)
@@ -259,6 +277,18 @@ class boss_tsulong : public CreatureScript
                             me->GetRandomNearPosition(pos, 30.0f);
                             me->SummonCreature(SUNBEAM_DUMMY_ENTRY, pos);
                             break;
+                        case EVENT_SHADOW_BREATH:
+                            me->CastSpell(SelectTarget(SELECT_TARGET_TOPAGGRO), SPELL_SHADOW_BREATH, false);
+                            events.ScheduleEvent(EVENT_SHADOW_BREATH, TIMER_SHADOW_BREATH, 0, PHASE_NIGHT);
+                            break;
+                        case EVENT_NIGHTMARES:
+                            me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM), SPELL_NIGHTMARES, false);
+                            events.ScheduleEvent(EVENT_NIGHTMARES, TIMER_NIGHTMARES, 0, PHASE_NIGHT);
+                            break;
+                        case EVENT_DARK_OF_NIGHT:
+                            me->CastSpell(me, SPELL_SPAWN_DARK_OF_NIGHT, false);
+                            events.ScheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
+                            break;
                         default:
                             break;
                     }
@@ -292,25 +322,114 @@ class npc_sunbeam : public CreatureScript
                 creature->CastSpell(creature, SPELL_SUNBEAM_DUMMY, true);
             }
 
+            void Despawn()
+            {
+                if (pInstance)
+                {
+                    if (Creature* tsulong = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TSULONG)))
+                        tsulong->AI()->DoAction(ACTION_SPAWN_SUNBEAM);
+                }
+
+                me->DespawnOrUnsummon(1000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                Despawn();
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 float scale = me->GetFloatValue(OBJECT_FIELD_SCALE_X);
                 if (scale <= 1.0f)
-                {
-                    if (pInstance)
-                    {
-                        if (Creature* tsulong = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TSULONG)))
-                            tsulong->AI()->DoAction(ACTION_SPAWN_SUNBEAM);
-                    }
-
-                    me->DespawnOrUnsummon();
-                }
+                    Despawn();
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_sunbeamAI(creature);
+        }
+};
+
+class npc_dark_of_night : public CreatureScript
+{
+    public:
+        npc_dark_of_night() : CreatureScript("npc_dark_of_night") { }
+
+        struct npc_dark_of_nightAI : public CreatureAI
+        {
+            InstanceScript* pInstance;
+            uint64 sunbeamTargetGUID;
+            uint32 visualCastTimer;
+            bool explode;
+
+            npc_dark_of_nightAI(Creature* creature) : CreatureAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+                creature->SetReactState(REACT_PASSIVE);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                creature->CastSpell(me, SPELL_VISUAL_DARK_OF_NIGHT, false);
+                sunbeamTargetGUID = 0;
+                visualCastTimer = 1000;
+                explode = false;
+
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (visualCastTimer <= diff)
+                {
+                    me->CastSpell(me, SPELL_VISUAL_DARK_OF_NIGHT, false);
+                    visualCastTimer = 1000;
+                }
+                else
+                    visualCastTimer -= diff;
+
+                // Try to find a sunbeam
+                if (!sunbeamTargetGUID)
+                {
+                    std::list<Creature*> sumbeams;
+                    me->GetCreatureListWithEntryInGrid(sumbeams, SUNBEAM_DUMMY_ENTRY, 100.0f);
+                    float minDist = 150.0f;
+                    Creature* tmp = NULL;
+
+                    for (auto itr : sumbeams)
+                    {
+                        float dist = itr->GetDistance2d(me);
+                        if (dist < minDist)
+                        {
+                            tmp = itr;
+                            sunbeamTargetGUID = itr->GetGUID();
+                        }
+                    }
+
+                    if (tmp)
+                        me->GetMotionMaster()->MovePoint(1, tmp->GetPositionX(), tmp->GetPositionY(), tmp->GetPositionZ());
+                }
+                // Check if we are close enought to kill the sunbeam !
+                else if (!explode)
+                {
+                    Creature* tmp = me->GetMap()->GetCreature(sunbeamTargetGUID);
+                    if (!tmp)
+                        return;
+
+                    float dist = tmp->GetDistance(me);
+                    if (dist <= tmp->GetFloatValue(OBJECT_FIELD_SCALE_X))
+                    {
+                        me->CastSpell(me, SPELL_BUMP_DARK_OF_NIGHT, false);
+                        me->Kill(tmp);
+                        me->DespawnOrUnsummon(1000);
+                        explode = true;
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_dark_of_nightAI(creature);
         }
 };
 
@@ -467,6 +586,7 @@ void AddSC_boss_tsulong()
 {
     new boss_tsulong();
     new npc_sunbeam();
+    new npc_dark_of_night();
     new spell_dread_shadows_damage();
     new spell_dread_shadows_malus();
     new spell_sunbeam();
