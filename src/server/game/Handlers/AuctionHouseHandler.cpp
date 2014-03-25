@@ -277,7 +277,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     recvData.ReadByteSeq(auctioneer[0]);
     recvData.ReadByteSeq(auctioneer[3]);
 
-    if (!bid || !etime)
+    if (!bid || !etime || bid >= MAX_MONEY_AMOUNT || buyout >= MAX_MONEY_AMOUNT)
         return;
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
