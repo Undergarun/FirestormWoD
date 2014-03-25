@@ -13673,6 +13673,14 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         Bag* pBag = (bag == INVENTORY_SLOT_BAG_0) ? NULL : GetBagByPos(bag);
         if (!pBag)
         {
+            for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
+            {
+                if (m_items[i] == pItem)
+                {
+                    ACE_Stack_Trace trace;
+                    sLog->OutPandashan("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
+                }
+            }
             m_items[slot] = pItem;
             SetUInt64Value(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetGUID());
             pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, GetGUID());
@@ -14026,6 +14034,15 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
         pItem->SetBinding(true);
 
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
+
+    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
+    {
+        if (m_items[i] == pItem)
+        {
+            ACE_Stack_Trace trace;
+            sLog->OutPandashan("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
+        }
+    }
 
     m_items[slot] = pItem;
     SetUInt64Value(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetGUID());
@@ -15123,6 +15140,14 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         RemoveItemFromBuyBackSlot(slot, true);
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: AddItemToBuyBackSlot item = %u, slot = %u", pItem->GetEntry(), slot);
 
+        for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
+        {
+            if (m_items[i] == pItem)
+            {
+                ACE_Stack_Trace trace;
+                sLog->OutPandashan("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
+            }
+        }
         m_items[slot] = pItem;
         time_t base = time(NULL);
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
