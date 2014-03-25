@@ -167,17 +167,17 @@ enum __QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008, // quest is used by Dungeon Finder.
     QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010, // Set by 16 in SpecialFlags in DB if the quest is reset at the begining of the month
     QUEST_SPECIAL_FLAGS_CAST                 = 0x020, // Set by 32 in SpecialFlags in DB if the quest requires RequiredOrNpcGo killcredit but NOT kill (a spell cast)
+    QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD  = 0x040, // Set by 64 in SpecialFlags in DB if the quest has dynamic item reward
 
     // room for more custom flags
 
-    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
+    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY | QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD,
 
     QUEST_SPECIAL_FLAGS_DELIVER              = 0x0080,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x0100,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_KILL_OR_CAST         = 0x0200,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_TIMED                = 0x0400,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x0800,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD  = 0x1000,   // Internal flag computed only
 };
 
 struct QuestLocale

@@ -1176,6 +1176,13 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
 
     uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
     uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+    {
+        RewardChoiceItemId[i] = 0;
+        RewardChoiceItemCount[i] = 0;
+    }
+
+    uint32 dynamicItemRewardCount = 0;
     if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
     {
         Player* plr = _session->GetPlayer();
@@ -1200,6 +1207,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
             RewardChoiceItemId[index] = dynamicReward.itemID;
             RewardChoiceItemCount[index] = dynamicReward.count;
             index++;
+            dynamicItemRewardCount++;
         }
     }
     else
@@ -1318,7 +1326,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     else
         data << uint32(0);
     data << uint32(0);  // 102
-    data << uint32(quest->GetRewChoiceItemsCount());
+    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        data << uint32(dynamicItemRewardCount);
+    else
+        data << uint32(quest->GetRewChoiceItemsCount());
     data << uint32(quest->GetSuggestedPlayers());
     data << uint32(RewardChoiceItemId[2]);
     data << uint32(RewardChoiceItemId[1]);
