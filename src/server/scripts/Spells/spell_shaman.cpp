@@ -91,7 +91,9 @@ enum ShamanSpells
     SPELL_SHA_GHOST_WOLF                    = 2645,
     SPELL_SHA_ITEM_T14_4P                   = 123124,
     SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM = 55456,
-    SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS = 131554
+    SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS = 131554,
+    SPELL_SHA_RESTORATIVE_MISTS             = 114083,
+    SPELL_SHA_FROST_SHOCK                   = 8056
 };
 
 // Hex - 51514
@@ -155,7 +157,7 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                 if (!_player)
                     return;
 
-                if (_player->HasSpellCooldown(114083))
+                if (_player->HasSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS))
                     return;
 
                 if (eventInfo.GetActor()->GetGUID() != _player->GetGUID())
@@ -164,7 +166,7 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == 114083)
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
                     return;
 
                 if (!(eventInfo.GetHealInfo()->GetHeal()))
@@ -196,9 +198,9 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                         int32 bp = eventInfo.GetHealInfo()->GetHeal() / alliesList.size();
 
                         if (bp > 0)
-                            _player->CastCustomSpell((*alliesList.begin()), 114083, &bp, NULL, NULL, true);   // Restorative Mists
+                            _player->CastCustomSpell((*alliesList.begin()), SPELL_SHA_RESTORATIVE_MISTS, &bp, NULL, NULL, true);   // Restorative Mists
 
-                        _player->AddSpellCooldown(114083, 0, time(NULL) + 1);               // This prevent from multiple procs
+                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, time(NULL) + 1);               // This prevent from multiple procs
                     }
                 }
             }
@@ -227,8 +229,8 @@ class spell_sha_prowl : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, SPELL_SHA_GHOST_WOLF, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_SHA_GHOST_WOLF, true);
             }
 
             void Register()
@@ -255,8 +257,9 @@ class spell_sha_solar_beam : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (DynamicObject* dynObj = GetCaster()->GetDynObject(SPELL_SHA_SOLAR_BEAM))
-                    GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_SOLAR_BEAM_SILENCE, true);
+                if (Unit* caster = GetCaster())
+                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_SOLAR_BEAM))
+                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_SOLAR_BEAM_SILENCE, true);
             }
 
             void Register()
@@ -284,18 +287,15 @@ class spell_sha_glyph_of_shamanistic_rage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE))
+                    if (caster->HasAura(SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE))
                     {
                         DispelChargesList dispelList;
-                        _player->GetDispellableAuraList(_player, DISPEL_ALL_MASK, dispelList);
-                        if (!dispelList.empty())
-                        {
-                            for (auto itr : dispelList)
-                                if (_player->HasAura(itr.first->GetId()))
-                                    _player->RemoveAura(itr.first);
-                        }
+                        caster->GetDispellableAuraList(caster, DISPEL_ALL_MASK, dispelList);
+
+                        for (auto itr : dispelList)
+                            caster->RemoveAura(itr.first);
                     }
                 }
             }
@@ -325,9 +325,9 @@ class spell_sha_glyph_of_lakestrider : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(SPELL_SHA_GLYPH_OF_LAKESTRIDER))
-                        _player->CastSpell(_player, SPELL_SHA_WATER_WALKING, true);
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(SPELL_SHA_GLYPH_OF_LAKESTRIDER))
+                        caster->CastSpell(caster, SPELL_SHA_WATER_WALKING, true);
             }
 
             void Register()
@@ -364,10 +364,9 @@ class spell_sha_call_of_the_elements : public SpellScriptLoader
                         if (!spellInfo)
                             continue;
 
-                        if (spellInfo->Id == 51485 || spellInfo->Id == 108273 || spellInfo->Id == 108270
+                        if ((spellInfo->Id == 51485 || spellInfo->Id == 108273 || spellInfo->Id == 108270
                             || spellInfo->Id == 108269 || spellInfo->Id == 8143 || spellInfo->Id == 8177
-                            || spellInfo->Id == 5394 || spellInfo->Id == 2484 || spellInfo->Id == 108273
-                            && spellInfo->GetRecoveryTime() > 0)
+                            || spellInfo->Id == 5394 || spellInfo->Id == 2484) && spellInfo->GetRecoveryTime() > 0)
                             _player->RemoveSpellCooldown((itr++)->first, true);
                         else
                             ++itr;
@@ -652,16 +651,19 @@ class spell_sha_stone_bulwark : public SpellScriptLoader
                 {
                     if (Unit* owner = caster->GetOwner())
                     {
-                        if (owner->ToPlayer() && !owner->HasAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                        int32 AP = 0;
+                        int32 spellPower = 0;
+
+                        if (!owner->HasAura(SPELL_SHA_STONE_BULWARK_ABSORB))
                         {
-                            int32 AP = owner->GetTotalAttackPowerValue(BASE_ATTACK);
-                            int32 spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                            AP = owner->GetTotalAttackPowerValue(BASE_ATTACK);
+                            spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
                             amount += (AP > spellPower) ? int32(1.641f * AP) : int32(2.625f * spellPower);
                         }
-                        else if (owner->ToPlayer() && owner->HasAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                        else
                         {
-                            int32 AP = owner->GetTotalAttackPowerValue(BASE_ATTACK);
-                            int32 spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                            AP = owner->GetTotalAttackPowerValue(BASE_ATTACK);
+                            spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
                             amount += (AP > spellPower) ? int32(0.547f * AP) : int32(0.875f * spellPower);
                             amount += owner->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB)->GetEffect(0)->GetAmount();
                         }
@@ -745,17 +747,17 @@ class spell_sha_frozen_power : public SpellScriptLoader
 
             bool Validate(SpellEntry const * spellEntry)
             {
-                if (!sSpellMgr->GetSpellInfo(8056))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_FROST_SHOCK))
                     return false;
                 return true;
             }
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(SPELL_SHA_FROZEN_POWER))
-                            _player->CastSpell(target, SPELL_SHA_FROST_SHOCK_FREEZE, true);
+                        if (caster->HasAura(SPELL_SHA_FROZEN_POWER))
+                            caster->CastSpell(target, SPELL_SHA_FROST_SHOCK_FREEZE, true);
             }
 
             void Register()
@@ -842,9 +844,14 @@ class spell_sha_mana_tide : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
+                    if (!GetCaster()->GetOwner())
+                        return;
+
                     if (Player* _player = GetCaster()->GetOwner()->ToPlayer())
                     {
                         AuraApplication* aura = target->GetAuraApplication(SPELL_SHA_MANA_TIDE, GetCaster()->GetGUID());
+                        if (!aura)
+                            return;
 
                         aura->GetBase()->GetEffect(0)->ChangeAmount(0);
 
@@ -887,16 +894,16 @@ class spell_sha_tidal_waves : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (!GetHitUnit())
+                    return;
+
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(SPELL_SHA_TIDAL_WAVES))
+                    if (caster->HasAura(SPELL_SHA_TIDAL_WAVES))
                     {
-                        if (Unit* target = GetHitUnit())
-                        {
-                            int32 bp0 = -(sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[0].BasePoints);
-                            int32 bp1 = sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[1].BasePoints;
-                            _player->CastCustomSpell(_player, SPELL_SHA_TIDAL_WAVES_PROC, &bp0, &bp1, NULL, true);
-                        }
+                        int32 bp0 = -(sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[0].BasePoints);
+                        int32 bp1 = sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[1].BasePoints;
+                        caster->CastCustomSpell(caster, SPELL_SHA_TIDAL_WAVES_PROC, &bp0, &bp1, NULL, true);
                     }
                 }
             }
@@ -927,13 +934,10 @@ class spell_sha_fire_nova : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
-                {
                     if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                    {
                         caster->CastSpell(target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
-                    }
-                }
             }
+
             SpellCastResult HandleCheckCast()
             {
                 UnitList targets;
@@ -1112,7 +1116,7 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* _player = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
@@ -1178,7 +1182,7 @@ class spell_sha_fulmination : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* _player = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
@@ -1289,7 +1293,7 @@ class spell_sha_healing_stream : public SpellScriptLoader
                 if (!GetCaster()->GetOwner())
                     return;
 
-                if (Player* _player = GetCaster()->GetOwner()->ToPlayer())
+                if (Unit* _player = GetCaster()->GetOwner())
                     if (Unit* target = GetHitUnit())
                         // Glyph of Healing Stream Totem
                         if (target->GetGUID() != _player->GetGUID() && _player->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
@@ -1321,27 +1325,23 @@ class spell_sha_static_shock : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
                         // While have Lightning Shield active
-                        if (target && _player->HasAura(SPELL_SHA_LIGHTNING_SHIELD_AURA) && _player->HasAura(51527))
+                        if (caster->HasAura(SPELL_SHA_LIGHTNING_SHIELD_AURA) && caster->HasAura(51527))
                         {
                             // Item - Shaman T9 Enhancement 2P Bonus (Static Shock)
-                            if (_player->HasAura(67220))
+                            if (caster->HasAura(67220))
                             {
                                 if (roll_chance_i(48))
-                                {
-                                    _player->CastSpell(target, SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE, true);
-                                }
+                                    caster->CastSpell(target, SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE, true);
                             }
                             else
                             {
                                 if (roll_chance_i(45))
-                                {
-                                    _player->CastSpell(target, SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE, true);
-                                }
+                                    caster->CastSpell(target, SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE, true);
                             }
                         }
                     }
@@ -1379,27 +1379,25 @@ class spell_sha_elemental_blast : public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        _player->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL, true);
-                        _player->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL, true);
+                        caster->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL, true);
+                        caster->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL, true);
                     }
                 }
             }
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     int32 randomEffect = irand(0, 2);
 
-                    _player->CastSpell(_player, SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, true);
+                    caster->CastSpell(caster, SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, true);
 
-                    AuraApplication* aura = _player->GetAuraApplication(SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, _player->GetGUID());
-
-                    if (aura)
+                    if (AuraApplication* aura = caster->GetAuraApplication(SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, caster->GetGUID()))
                     {
                         switch (randomEffect)
                         {
@@ -1461,10 +1459,10 @@ class spell_sha_earthquake_tick : public SpellScriptLoader
             void HandleOnHit()
             {
                 // With a 10% chance of knocking down affected targets
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
                         if (roll_chance_i(10))
-                            _player->CastSpell(target, SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN, true);
+                            caster->CastSpell(target, SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN, true);
             }
 
             void Register()
@@ -1491,11 +1489,9 @@ class spell_sha_earthquake : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (!GetCaster())
-                    return;
-
-                if (DynamicObject* dynObj = GetCaster()->GetDynObject(SPELL_SHA_EARTHQUAKE))
-                    GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, true);
+                if (Unit* caster = GetCaster())
+                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_EARTHQUAKE))
+                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, true);
             }
 
             void Register()
@@ -1588,9 +1584,11 @@ class spell_sha_ascendance : public SpellScriptLoader
                         SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL);
                         return SPELL_FAILED_CUSTOM_ERROR;
                     }
-
-                    return SPELL_CAST_OK;
+                    else
+                        return SPELL_CAST_OK;
                 }
+                else
+                    return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
             }
@@ -1791,6 +1789,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
 
             bool Load()
             {
+                searingFlameAmount = 0;
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -1901,20 +1900,25 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (firstHeal)
+                if (Unit* target = GetHitUnit())
                 {
-                    // Check if the target has Riptide
-                    if (AuraEffectPtr aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, GetCaster()->GetGUID()))
+                    if (firstHeal)
                     {
-                        riptide = true;
-                        // Consume it
-                        GetHitUnit()->RemoveAura(aurEff->GetBase());
+                        // Check if the target has Riptide
+                        if (AuraEffectPtr aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, GetCaster()->GetGUID()))
+                        {
+                            riptide = true;
+                            // Consume it
+                            target->RemoveAura(aurEff->GetBase());
+                        }
+
+                        firstHeal = false;
                     }
-                    firstHeal = false;
+
+                    // Riptide increases the Chain Heal effect by 25%
+                    if (riptide)
+                        SetHitHeal(GetHitHeal() * 1.25f);
                 }
-                // Riptide increases the Chain Heal effect by 25%
-                if (riptide)
-                    SetHitHeal(GetHitHeal() * 1.25f);
             }
 
             void Register()

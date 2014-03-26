@@ -66,6 +66,7 @@
 #include "InstanceScript.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "ArchaeologyMgr.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -260,7 +261,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
     &Spell::EffectNULL,                                     //189 SPELL_EFFECT_189
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
-    &Spell::EffectNULL,                                     //191 SPELL_EFFECT_191
+    &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
     &Spell::EffectNULL,                                     //192 SPELL_EFFECT_192
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193
     &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
@@ -2577,7 +2578,7 @@ void Spell::EffectCreateItem(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY))
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) || m_spellInfo->IsCustomArchaeologySpell()))
         if (!m_caster->ToPlayer()->GetArchaeologyMgr().SolveResearchProject(m_spellInfo->ResearchProject))
             return;
 
@@ -2594,6 +2595,10 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
         return;
 
     Player* player = unitTarget->ToPlayer();
+
+    if (player && (m_spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) || m_spellInfo->IsCustomArchaeologySpell()))
+        if (!player->GetArchaeologyMgr().SolveResearchProject(m_spellInfo->ResearchProject))
+            return;
 
     uint32 item_id = m_spellInfo->Effects[effIndex].ItemType;
 
@@ -6056,7 +6061,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         if (m_caster->ToPlayer())
             go_id = m_caster->ToPlayer()->GetArchaeologyMgr().GetSurveyBotEntry(o);
 
-        duration = 15000;
+        duration = 5000;
     }
 
     if (go_id == 0)
@@ -7991,4 +7996,62 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     ExecuteLogEffectResurrect(effIndex, target);
     target->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
     SendResurrectRequest(target);
+}
+
+void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* target = unitTarget->ToPlayer();
+    if (!target)
+        return;
+    if (!target->isAlive())
+        return;
+
+    switch (m_spellInfo->Id)
+    {
+        case 126956: // Lorewalker's Lodestone
+        {
+            uint16 siteId = target->GetArchaeologyMgr().GetRandomActiveSiteInMap(870);
+
+            ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
+            if (loot.empty())
+                break;
+
+            ResearchLootVector lootListTemp;
+            ResearchLootVector lootList;
+
+            for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
+            {
+                ResearchLootEntry entry = (*itr);
+                if (entry.id == siteId)
+                    lootListTemp.push_back(entry);
+            }
+
+            if (lootListTemp.empty())
+                break;
+
+            lootList.push_back(JadeCore::Containers::SelectRandomContainerElement(lootListTemp));
+            if (lootList.empty())
+                break;
+
+            float x, y, z;
+            for (auto itr : lootList)
+            {
+                x = itr.x;
+                y = itr.y;
+                z = itr.z;
+                break;
+            }
+
+            target->NearTeleportTo(x, y, z, target->GetOrientation());
+            break;
+        }
+        default:
+            break;
+    }
 }

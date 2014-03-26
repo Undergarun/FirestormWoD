@@ -53,6 +53,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
 
             // Sha of Fear
             uint64 shaOfFearGuid;
+            uint64 pureLightTerraceGuid;
 
             // Timers, old school style!
             uint32 tsulongEventTimer;
@@ -76,10 +77,16 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 ancientAsaniGuid            = 0;
                 protectorKaolanGuid         = 0;
                 minionOfFearControllerGuid  = 0;
+
                 tsulongGuid                 = 0;
+
                 leiShiGuid                  = 0;
+
                 shaOfFearGuid               = 0;
+                pureLightTerraceGuid        = 0;
+
                 tsulongEventTimer           = 0;
+
                 wallOfCouncilsVortexGuid    = 0;
                 councilsVortexGuid          = 0;
 
@@ -111,6 +118,9 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         break;
                     case NPC_SHA_OF_FEAR:
                         shaOfFearGuid = creature->GetGUID();
+                        break;
+                    case NPC_PURE_LIGHT_TERRACE:
+                        pureLightTerraceGuid = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -214,6 +224,8 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         return leiShiGuid;
                     case NPC_SHA_OF_FEAR:
                         return shaOfFearGuid;
+                    case NPC_PURE_LIGHT_TERRACE:
+                        return pureLightTerraceGuid;
                     case GOB_COUNCILS_VORTEX:
                         return councilsVortexGuid;
                     case GOB_WALL_OF_COUNCILS_VORTEX:

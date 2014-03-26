@@ -689,6 +689,75 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
     }
     else
         m_targets.RemoveSrc();
+
+    // Hack fix for some specific spells
+    switch (m_spellInfo->Id)
+    {
+        case 107145: // Wall of Light Activation
+        {
+            m_targets.SetSrc(*m_caster);
+
+            WorldLocation firstPos;
+            WorldLocation secondPos;
+
+            firstPos.m_positionX = -1045.602f;
+            firstPos.m_positionY = -2822.323f;
+            firstPos.m_positionZ = 38.25466f;
+            secondPos.m_positionX = -989.4236f;
+            secondPos.m_positionY = -2821.757f;
+            secondPos.m_positionZ = 38.25455f;
+
+            m_targets.AddExtraTarget(0, firstPos);
+            m_targets.AddExtraTarget(0, secondPos);
+            break;
+        }
+        /*case 119312: // Conjure Terror Spawn (01)
+        {
+            WorldLocation pos;
+
+            pos.m_positionX = -1052.588f;
+            pos.m_positionY = -2788.164f;
+            pos.m_positionZ = 38.268f;
+
+            m_targets.AddExtraTarget(0, pos);
+            break;
+        }
+        case 119370: // Conjure Terror Spawn (02)
+        {
+            WorldLocation pos;
+
+            pos.m_positionX = -983.455f;
+            pos.m_positionY = -2787.942f;
+            pos.m_positionZ = 38.269f;
+
+            m_targets.AddExtraTarget(0, pos);
+            break;
+        }
+        case 119371: // Conjure Terror Spawn (03)
+        {
+            WorldLocation pos;
+
+            pos.m_positionX = -989.686f;
+            pos.m_positionY = -2772.245f;
+            pos.m_positionZ = 38.303f;
+
+            m_targets.AddExtraTarget(0, pos);
+            break;
+        }
+        case 119372: // Conjure Terror Spawn (04)
+        {
+            WorldLocation pos;
+
+            pos.m_positionX = -1046.274f;
+            pos.m_positionY = -2772.215f;
+            pos.m_positionZ = 38.303f;
+
+            m_targets.AddExtraTarget(0, pos);
+            break;
+        }*/
+        default:
+            break;
+    }
 }
 
 void Spell::SelectExplicitTargets()
@@ -4586,7 +4655,7 @@ void Spell::SendSpellStart()
     uint32 powerCount = 0;
     uint32 unkCounter1 = 0;
     uint32 unkCounter2 = 0;
-    uint32 unkCounter3 = 0;
+    uint32 extraTargets = m_targets.GetExtraTargetsCount();
     uint32 unkCounter4 = 0;
 
     ObjectGuid predicatedHealOverrideTarget;
@@ -4725,14 +4794,14 @@ void Spell::SendSpellStart()
     data.WriteBit(itemCaster[2]);
     data.WriteBit(!unkByte5);                               // !has unk byte 5
     data.WriteBit(caster[3]);
-    data.WriteBits(unkCounter3, 20);
+    data.WriteBits(extraTargets, 20);
 
-    ObjectGuid* unkGuids3;
-    unkGuids3 = new ObjectGuid[unkCounter3];
-    for (uint32 i = 0; i < unkCounter3; i++)
+    for (auto itr : m_targets.GetExtraTargets())
     {
-        uint8 unkBitsOrder[8] = { 5, 1, 4, 7, 3, 6, 0, 2 };
-        data.WriteBitInOrder(unkGuids3[i], unkBitsOrder);
+        ObjectGuid extraTargetGuid = itr._transportGUID;
+
+        uint8 extraTargetsOrder[8] = { 5, 1, 4, 7, 3, 6, 0, 2 };
+        data.WriteBitInOrder(extraTargetGuid, extraTargetsOrder);
     }
 
     uint8 itemOrder[8] = { 4, 1, 5, 2, 7, 6, 0, 3 };
@@ -4861,20 +4930,21 @@ void Spell::SendSpellStart()
 
     data.WriteByteSeq(itemCaster[4]);
 
-    for (uint32 i = 0; i < unkCounter3; i++)
+    for (auto itr : m_targets.GetExtraTargets())
     {
-        Unit* unkUnit3 = ObjectAccessor::FindUnit(unkGuids3[i]);
-        data.WriteByteSeq(unkGuids3[i][4]);
-        data.WriteByteSeq(unkGuids3[i][5]);
-        data << float(unkUnit3 ? unkUnit3->GetPositionY() : 0.0f);
-        data.WriteByteSeq(unkGuids3[i][0]);
-        data.WriteByteSeq(unkGuids3[i][1]);
-        data.WriteByteSeq(unkGuids3[i][2]);
-        data.WriteByteSeq(unkGuids3[i][3]);
-        data << float(unkUnit3 ? unkUnit3->GetPositionX() : 0.0f);
-        data << float(unkUnit3 ? unkUnit3->GetPositionZ() : 0.0f);
-        data.WriteByteSeq(unkGuids3[i][6]);
-        data.WriteByteSeq(unkGuids3[i][7]);
+        ObjectGuid extraTargetGuid = itr._transportGUID;
+
+        data.WriteByteSeq(extraTargetGuid[4]);
+        data.WriteByteSeq(extraTargetGuid[5]);
+        data << float(itr._position.GetPositionY());
+        data.WriteByteSeq(extraTargetGuid[0]);
+        data.WriteByteSeq(extraTargetGuid[1]);
+        data.WriteByteSeq(extraTargetGuid[2]);
+        data.WriteByteSeq(extraTargetGuid[3]);
+        data << float(itr._position.GetPositionX());
+        data << float(itr._position.GetPositionZ());
+        data.WriteByteSeq(extraTargetGuid[6]);
+        data.WriteByteSeq(extraTargetGuid[7]);
     }
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
@@ -5053,8 +5123,6 @@ void Spell::SendSpellStart()
     unkGuids1 = NULL;
     delete[] unkGuids2;
     unkGuids2 = NULL;
-    delete[] unkGuids3;
-    unkGuids3 = NULL;
 }
 
 void Spell::SendSpellGo()
@@ -5068,8 +5136,8 @@ void Spell::SendSpellGo()
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
     // triggered spells with spell visual != 0
-    /*if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
-        castFlags |= CAST_FLAG_PENDING;*/
+    if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
+        castFlags |= CAST_FLAG_PENDING;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
@@ -5114,7 +5182,7 @@ void Spell::SendSpellGo()
     uint32 powerTypeCount = 1;
     uint32 runeCooldownCount = 0;
     uint32 unkStringLength = 0;
-    uint32 counter388 = 0;
+    uint32 extraTargets = m_targets.GetExtraTargetsCount();
     uint32 counter52 = 0;
     uint32 counter84 = 0;
 
@@ -5198,7 +5266,7 @@ void Spell::SendSpellGo()
     data.WriteBit(hasBit380);                               // hasBit380
     data.WriteBit(hasSrc);                                  // hasGuid3
     data.WriteBit(itemCaster[3]);
-    data.WriteBits(counter388, 20);                         // counter388
+    data.WriteBits(extraTargets, 20);                       // extraTargets
     data.WriteBit(itemCaster[1]);
     data.WriteBit(caster[0]);
     data.WriteBit(itemCaster[6]);
@@ -5233,12 +5301,12 @@ void Spell::SendSpellGo()
     data.WriteBit(hasDest);                                 // hasDest
     data.WriteBit(1);                                       // !hasBit416
 
-    ObjectGuid* Guids2;
-    Guids2 = new ObjectGuid[counter388];
-    for (uint32 i = 0; i < counter388; i++)
+    for (auto itr : m_targets.GetExtraTargets())
     {
+        ObjectGuid extraTarget = itr._transportGUID;
+
         uint8 bitsOrder[8] = { 0, 4, 3, 1, 6, 7, 2, 5 };
-        data.WriteBitInOrder(Guids2[i], bitsOrder);
+        data.WriteBitInOrder(extraTarget, bitsOrder);
     }
 
     uint8 bitsOrder6[8] = { 4, 6, 7, 0, 1, 2, 3, 5 };
@@ -5473,21 +5541,21 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(caster[1]);
     data << uint32(getMSTime());                            // timestamp
 
-    for (uint32 i = 0; i < counter388; i++) // TARGET_FLAG_EXTRA_TARGETS
+    for (auto itr : m_targets.GetExtraTargets())
     {
-        Unit* second = ObjectAccessor::FindUnit(Guids2[i]);
+        ObjectGuid extraTarget = itr._transportGUID;
 
-        data.WriteByteSeq(Guids2[i][2]);
-        data << float(second ? second->GetPositionY() : 0.0f);
-        data.WriteByteSeq(Guids2[i][6]);
-        data << float(second ? second->GetPositionZ() : 0.0f);
-        data << float(second ? second->GetPositionX() : 0.0f);
-        data.WriteByteSeq(Guids2[i][4]);
-        data.WriteByteSeq(Guids2[i][1]);
-        data.WriteByteSeq(Guids2[i][3]);
-        data.WriteByteSeq(Guids2[i][0]);
-        data.WriteByteSeq(Guids2[i][7]);
-        data.WriteByteSeq(Guids2[i][5]);
+        data.WriteByteSeq(extraTarget[2]);
+        data << float(itr._position.GetPositionY());
+        data.WriteByteSeq(extraTarget[6]);
+        data << float(itr._position.GetPositionZ());
+        data << float(itr._position.GetPositionX());
+        data.WriteByteSeq(extraTarget[4]);
+        data.WriteByteSeq(extraTarget[1]);
+        data.WriteByteSeq(extraTarget[3]);
+        data.WriteByteSeq(extraTarget[0]);
+        data.WriteByteSeq(extraTarget[7]);
+        data.WriteByteSeq(extraTarget[5]);
     }
 
     if (hasBit380)
@@ -5649,9 +5717,6 @@ void Spell::SendSpellGo()
     }*/
 
     m_caster->SendMessageToSet(&data, true);
-    
-    delete[] Guids2;
-    Guids2 = NULL;
 }
 
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet

@@ -1,0 +1,1 @@
+ALTER TABLE character_archaeology ADD COLUMN sites4 TEXT AFTER sites3;

@@ -303,9 +303,10 @@ enum EPlayerFields
 
 enum EPlayerDynamicFields
 {
-    PLAYER_DYNAMIC_RESEARCH_SITES                    = 0x0,
-    PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED            = 0x2,
-    PLAYER_DYNAMIC_END                               = 0x4
+    PLAYER_DYNAMIC_SPELLVISUAL_CHANGE                = 0x0,
+    PLAYER_DYNAMIC_ARCHEOLOGY_SITES                  = 0x2,
+    PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED            = 0x4,
+    PLAYER_DYNAMIC_END                               = 0x8
 }; 
 
 enum ItemDynamicFields

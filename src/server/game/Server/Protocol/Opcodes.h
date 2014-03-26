@@ -464,7 +464,7 @@ enum Opcodes
     CMSG_REQUEST_RAID_INFO                            = 0x1612, // 5.4.0 17399
     CMSG_REQUEST_RATED_BG_INFO                        = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_RATED_BG_STATS                       = 0x13C6, // 5.4.0 17399
-    CMSG_REQUEST_RESEARCH_HISTORY                     = 0x5162, // 5.4.0 17399
+    CMSG_REQUEST_RESEARCH_HISTORY                     = 0x142A, // 5.4.0 17399
     CMSG_REQUEST_VEHICLE_EXIT                         = 0x1528, // 5.4.0 17399
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x000,  // 5.0.5 16048
     CMSG_REQUEST_VEHICLE_PREV_SEAT                    = 0x000,  // 5.0.5 16048
@@ -537,7 +537,7 @@ enum Opcodes
     CMSG_SUGGESTION_SUBMIT                            = 0x000,  // 5.0.5 16048
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x1A1F, // 5.4.0 17399
     CMSG_SUMMON_RESPONSE                              = 0x138F, // 5.4.0 17399
-    CMSG_SUSPEND_TOKEN                                = 0x000,  // 5.0.5 16048 Unused
+    CMSG_SUSPEND_TOKEN                                = 0x286,  // 5.4.0 17399
     CMSG_SAVE_GUILD_EMBLEM                            = 0x150C, // 5.4.0 17399
     CMSG_SWAP_INV_ITEM                                = 0x445,  // 5.4.0 17399
     CMSG_SWAP_ITEM                                    = 0x440,  // 5.4.0 17399
@@ -933,7 +933,7 @@ enum Opcodes
     SMSG_GAME_TIME_UPDATE                             = 0x136,  // 5.4.0 17399 (JamList)
     SMSG_GAME_EVENT_DEBUG_LOG                         = 0x50D,  // 5.4.0 17399 (JamList)
     SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                = 0x12B,  // 5.4.0 17399 (JamList)
-    SMSG_GAME_OBJECT_DESPAWN                          = 0x49E,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_GAME_OBJECT_DESPAWN                          = 0x49E,  // 5.4.0 17399
     SMSG_GHOST                                        = 0x409,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GHOSTEE_GONE                                 = 0x504,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_GM_ACCOUNT_ONLINE_RESPONSE                   = 0x902,  // 5.4.0 17399 (JamList) (NYI)
@@ -1340,8 +1340,9 @@ enum Opcodes
     SMSG_REPORT_PVP_AFK_RESULT                        = 0x03F,  // 5.4.0 17399 (JamList)
     SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x499,  // 5.4.0 17399
     SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x08A,  // 5.4.0 17399 (JamList)
-    SMSG_RESEARCH_COMPLETE                            = 0x928,  // 5.4.0 17399 (JamList)
-    SMSG_RESEARCH_SETUP_HISTORY                       = 0x034,  // 5.4.0 17399 (JamList)
+    SMSG_RESEARCH_COMPLETE                            = 0x4AB,  // 5.4.0 17399
+    SMSG_RESEARCH_SETUP_HISTORY                       = 0x034,  // 5.4.0 17399
+    SMSG_RESEARCH_SITE_COMPLETE                       = 0x928,  // 5.4.0 17399
     SMSG_RESET_COMPRESSION_CONTEXT                    = 0x000,  // 5.0.5 16048
     SMSG_RESET_FAILED_NOTIFY                          = 0x8AF,  // 5.4.0 17399
     SMSG_RESET_RANGED_COMBAT_TIMER                    = 0x520,  // 5.4.0 17399 (JamList) (NYI)
@@ -1382,7 +1383,6 @@ enum Opcodes
     SMSG_SERVER_MESSAGE                               = 0x13A9, // 5.4.0 17399
     SMSG_SERVER_PERF                                  = 0x58C,  // 5.4.0 17399 (JamList)
     SMSG_SET_ARENA_SEASON                             = 0x189,  // 5.4.0 17399
-    SMSG_SETUP_RESEARCH_HISTORY                       = 0x000,  // 5.0.5 16048
     SMSG_SET_AI_ANIM_KIT                              = 0x1B9,  // 5.4.0 17399 (JamList)
     SMSG_SET_ANIM_TIMER                               = 0x000,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x1B0,  // 5.4.0 17399 (JamList)

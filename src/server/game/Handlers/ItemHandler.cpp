@@ -2367,7 +2367,8 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetLootSpecialization(WorldPacket& recvData)
 {
-    uint32 specializationId = recvData.read<uint32>();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_LOOT_SPECIALIZATION");
 
-    // @TODO: implement this
+    uint32 specializationId = recvData.read<uint32>();
+    GetPlayer()->SetLootSpecId(specializationId);
 }

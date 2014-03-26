@@ -129,22 +129,28 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleArcheologyRequestHistory(WorldPacket& recvPacket)
 {
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_RESEARCH_HISTORY");
+
     WorldPacket data(SMSG_RESEARCH_SETUP_HISTORY);
 
     uint32 count = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects().size();
 
-    data.WriteBits(count,22);
+    data.WriteBits(count, 20);
 
     if (count > 0)
-        for (std::set<uint32>::const_iterator itr = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects().begin(); itr != GetPlayer()->GetArchaeologyMgr().GetCompletedProjects().end(); ++itr)
+    {
+        for (auto itr : GetPlayer()->GetArchaeologyMgr().GetCompletedProjects())
         {
-            if (ResearchProjectEntry const* project = sResearchProjectStore.LookupEntry((*itr)))
+            if (ResearchProjectEntry const* project = sResearchProjectStore.LookupEntry(itr.projectId))
             {
-                data.append<uint32>(uint32((*itr))); // projectId
-                data.append<uint32>(1); // count
-                data.append<uint32>(uint32(time(NULL))); // time
+                data << uint32(itr.projectId);
+                data << uint32(itr.count);
+                data << uint32(itr.first_date);
             }
+            else
+                data << uint32(0) << uint32(0) << uint32(0);
         }
+    }
 
     SendPacket(&data);
 }
