@@ -270,7 +270,7 @@ class achievement_intense_cold : public AchievementCriteriaScript
 
         bool OnCheck(Player* player, Unit* target)
         {
-            if (!target)
+            if (!target || target->GetEntry() != 26723)
                 return false;
 
             std::list<uint64> intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
