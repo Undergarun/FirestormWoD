@@ -614,7 +614,7 @@ void Creature::Update(uint32 diff, uint32 entry)
 
             /*if (m_regenTimer <= diff)
             {*/
-            if (!bInCombat || IsPolymorphed()) // regenerate health if not in combat or if polymorphed
+            if ((!bInCombat || IsPolymorphed()) && !HealthRegenIsDisable()) // regenerate health if not in combat or if polymorphed
                 RegenerateHealth();
 
             if (getPowerType() == POWER_ENERGY)

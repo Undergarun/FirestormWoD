@@ -11,3 +11,5 @@ UPDATE creature_template SET scriptname = "npc_sunbeam" WHERE entry = 62849;
 
 -- The Dark of Night
 UPDATE creature_template SET modelid1 = 42973, modelid2 = 42973, ScriptName = "npc_dark_of_night" WHERE entry = 63346;
+-- Tsulong
+UPDATE creature_template SET unit_class = 3, mindmg = 25000, maxdmg = 50000, attackpower = 60000, dmg_multiplier = 4, ScriptName = "boss_tsulong" WHERE entry = 62442;
