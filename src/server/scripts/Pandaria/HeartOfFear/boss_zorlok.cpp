@@ -125,13 +125,15 @@ class boss_zorlok : public CreatureScript
             {
                 events.Reset();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                // Make sure we can target zorlok
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 // Set fying
                 me->SetCanFly(true);
                 me->SetSpeed(MOVE_FLIGHT, 4.5f);
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
+                me->RemoveAllAreasTrigger();
 
                 // Set Echo
                 isAttEcho = me->GetEntry() == NPC_ECHO_OF_ATTENUATION;
@@ -163,6 +165,7 @@ class boss_zorlok : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
+                me->RemoveAllAreasTrigger();
 
                 if (isEcho)
                     return;
@@ -181,6 +184,7 @@ class boss_zorlok : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
                 }
                 _JustDied();
+
             }
 
             void JustReachedHome()
@@ -192,6 +196,11 @@ class boss_zorlok : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_ZORLOK, FAIL);
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
 
             void MoveInLineOfSight(Unit* attacker)
@@ -401,7 +410,7 @@ class boss_zorlok : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (isEcho)
+                if (isEcho || id == 0 || type != EFFECT_MOTION_TYPE)
                     return;
 
                 // General rule :
@@ -433,7 +442,7 @@ class boss_zorlok : public CreatureScript
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetDisableGravity(false);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TRACK_UNIT | UNIT_DYNFLAG_SPECIALINFO);
+                    me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TRACK_UNIT |UNIT_DYNFLAG_SPECIALINFO);
                     events.ScheduleEvent(EVENT_INHALE, 15000);
                     events.ScheduleEvent(EVENT_SONG_EMPRESS, 1000);
 
@@ -725,43 +734,43 @@ class mob_sonic_ring : public CreatureScript
                             orientation = zorOri;
                             break;
                         case NPC_SONIC_RING_30LEFT:
-                            orientation = zorOri + (PI / 6);
+                            orientation = zorOri + (M_PI / 6);
                             break;
                         case NPC_SONIC_RING_60LEFT:
-                            orientation = zorOri + (PI / 3);
+                            orientation = zorOri + (M_PI / 3);
                             break;
                         case NPC_SONIC_RING_90LEFT:
-                            orientation = zorOri + (PI / 2);
+                            orientation = zorOri + (M_PI / 2);
                             break;
                         case NPC_SONIC_RING_120LEFT:
-                            orientation = zorOri + (2 * PI / 3);
+                            orientation = zorOri + (2 * M_PI / 3);
                             break;
                         case NPC_SONIC_RING_150LEFT:
-                            orientation = zorOri + (5 * PI / 6);
+                            orientation = zorOri + (5 * M_PI / 6);
                             break;
                         case NPC_SONIC_RING_BACK:
-                            orientation = zorOri + PI;
+                            orientation = zorOri + M_PI;
                             break;
                         case NPC_SONIC_RING_150RIGHT:
-                            orientation = zorOri + (7 * PI / 6);
+                            orientation = zorOri + (7 * M_PI / 6);
                             break;
                         case NPC_SONIC_RING_120RIGHT:
-                            orientation = zorOri + (4 * PI / 3);
+                            orientation = zorOri + (4 * M_PI / 3);
                             break;
                         case NPC_SONIC_RING_90RIGHT:
-                            orientation = zorOri + (3 * PI / 2);
+                            orientation = zorOri + (3 * M_PI / 2);
                             break;
                         case NPC_SONIC_RING_60RIGHT:
-                            orientation = zorOri + (5 * PI / 3);
+                            orientation = zorOri + (5 * M_PI / 3);
                             break;
                         case NPC_SONIC_RING_30RIGHT:
-                            orientation = zorOri + (11 * PI / 6);
+                            orientation = zorOri + (11 * M_PI / 6);
                             break;
                         default:
                             break;
                     }
-                    // If needed, reset orientation into valid range [0, PI * 2]
-                    orientation = (orientation > (PI * 2)) ? (orientation - (PI * 2)) : (orientation < 0.0f ? (orientation + (PI * 2)) : orientation);
+                    // If needed, reset orientation into valid range [0, M_PI * 2]
+                    orientation = (orientation > (M_PI * 2)) ? (orientation - (M_PI * 2)) : (orientation < 0.0f ? (orientation + (M_PI * 2)) : orientation);
                     me->SetFacingTo(orientation);
 
                     // Go to virtual destination
@@ -797,23 +806,23 @@ class mob_sonic_ring : public CreatureScript
                 // Retrieving absolute orientation
                 float absOri = orientation;
                 uint8 turn = 0;
-                while (absOri > (PI / 2))
+                while (absOri > (M_PI / 2))
                 {
-                    absOri -= (PI / 2);
+                    absOri -= (M_PI / 2);
                     turn = 1 - turn;
                 }
 
                 // Looking for ratio between X and Y
-                float percentX = ((PI / 2) - absOri) / (PI / 2);
+                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
                 float percentY = 1.0f - percentX;
 
                 // Applying negatives directions according to orientation
-                if (orientation > (PI / 2))
+                if (orientation > (M_PI / 2))
                 {
-                    if (orientation > PI)
+                    if (orientation > M_PI)
                         percentY = -percentY;
                     
-                    if (orientation > (PI / 2) && orientation < (1.5f * PI))
+                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
                         percentX = -percentX;
                 }
 

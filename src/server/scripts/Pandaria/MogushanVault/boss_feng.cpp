@@ -55,7 +55,7 @@ enum eSpells
     SPELL_ARCANE_RESONANCE              = 116417,
 
     // Spirit of the Shield ( Heroic )
-    SPELL_SHADOWBURN                    = 17877,
+    SPELL_SHADOWBURN                    = 131792,
     SPELL_SIPHONING_SHIELD              = 118071,
     SPELL_CHAINS_OF_SHADOW              = 118783,
 
@@ -78,7 +78,7 @@ enum eSpells
     SPELL_ARCANE_VELOCITY_INVERSION     = 118305,
     SPELL_WILDFIRE_SPARK_INVERSION      = 118307,
     SPELL_FLAMING_SPEAR_INVERSION       = 118308,
-    // Inversion bouclier siphon        = 118471,
+    SPELL_SIPHONING_SHIELD_INVERSION    = 118471,
     SPELL_SHADOWBURN_INVERSION          = 132296,
     SPELL_LIGHTNING_LASH_INVERSION      = 132297,
     SPELL_ARCANE_SHOCK_INVERSION        = 132298,
@@ -185,7 +185,7 @@ uint32 statueEntryInOrder[4] = {GOB_FIST_STATUE,   GOB_SPEAR_STATUE,   GOB_STAFF
 uint32 controlerVisualId[4]  = {SPELL_VISUAL_FIST, SPELL_VISUAL_SPEAR, SPELL_VISUAL_STAFF, SPELL_VISUAL_SHIELD};
 uint32 fengVisualId[4]       = {SPELL_SPIRIT_FIST, SPELL_SPIRIT_SPEAR, SPELL_SPIRIT_STAFF, SPELL_SPIRIT_SHIELD};
 
-#define MAX_INVERSION_SPELLS    9
+#define MAX_INVERSION_SPELLS    10
 uint32 inversionMatching[MAX_INVERSION_SPELLS][2] =
 {
     {SPELL_EPICENTER,        SPELL_EPICENTER_INVERSION},
@@ -196,10 +196,11 @@ uint32 inversionMatching[MAX_INVERSION_SPELLS][2] =
     {SPELL_FLAMING_SPEAR,    SPELL_FLAMING_SPEAR_INVERSION},
     {SPELL_SHADOWBURN,       SPELL_SHADOWBURN_INVERSION},
     {SPELL_LIGHTNING_LASH,   SPELL_LIGHTNING_LASH_INVERSION},
-    {SPELL_ARCANE_SHOCK,     SPELL_ARCANE_SHOCK_INVERSION}
+    {SPELL_ARCANE_SHOCK,     SPELL_ARCANE_SHOCK_INVERSION},
+    {SPELL_SIPHONING_SHIELD, SPELL_SIPHONING_SHIELD_INVERSION},
 };
 
-#define MAX_DIST    60
+#define MAX_DIST    60.0f
 Position centerPos = {4041.979980f, 1341.859985f, 466.388000f, 3.140160f};
 
 // Positions for Siphoning Shield
@@ -238,9 +239,6 @@ class boss_feng : public CreatureScript
             std::list<uint64> sparkList;
             uint8 availablePos[4];
 
-            // Available positions -- Heroic mode purpose
-            // uint8 availablePos[4];
-
             void Reset()
             {
                 _Reset();
@@ -260,7 +258,7 @@ class boss_feng : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INVERSION);
 
                 isWaitingForPhase = false;
-                actualPhase  = PHASE_FIST;
+                actualPhase  = PHASE_NONE;
                 nextPhasePct = 95;
                 dotSpellId = 0;
 
@@ -274,8 +272,6 @@ class boss_feng : public CreatureScript
                     oldStatue->UseDoorOrButton();
                 }
 
-                actualPhase = PHASE_NONE;
-
                 if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
                     inversionGob->Respawn();
 
@@ -285,11 +281,12 @@ class boss_feng : public CreatureScript
 
             void JustDied(Unit* attacker)
             {
+                _JustDied();
                 Talk(TALK_DEATH);
                 pInstance->SetBossState(DATA_FENG, DONE);
-                _JustDied();
 
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLAMING_SPEAR);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NULLIFICATION_BARRIER_PLAYERS);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INVERSION);
 
@@ -314,9 +311,14 @@ class boss_feng : public CreatureScript
                 }
             }
 
+            void JustReachedHome()
+            {
+                _JustReachedHome();
+            }
+
             void EnterCombat(Unit* attacker)
             {
-                if (!pInstance->CheckRequiredBosses(DATA_FENG))
+                if (!pInstance->CheckRequiredBosses(DATA_FENG) || attacker->GetPositionX() < 4009.0f || attacker->GetPositionX() > 4076.0f)
                 {
                     EnterEvadeMode();
                     return;
@@ -325,6 +327,7 @@ class boss_feng : public CreatureScript
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 pInstance->SetBossState(DATA_FENG, IN_PROGRESS);
                 Talk(TALK_AGGRO);
+                events.ScheduleEvent(EVENT_SPIRIT_BOLTS, urand(25000, 35000));
             }
 
             void MovementInform (uint32 type, uint32 id)
@@ -350,6 +353,7 @@ class boss_feng : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_DOT_ATTACK, 15000);
                 events.ScheduleEvent(EVENT_RE_ATTACK,  500);
+                events.ScheduleEvent(EVENT_SPIRIT_BOLTS, urand(25000, 35000));
 
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->Clear();
@@ -570,12 +574,12 @@ class boss_feng : public CreatureScript
                     // All Phases
                     case EVENT_DOT_ATTACK:
                     {
-                        if (dotSpellId == SPELL_SHADOWBURN)
-                            if (Unit* target = me->getVictim())
-                                me->CastSpell(target, dotSpellId, false);
-
-                        else if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        // if (dotSpellId == SPELL_SHADOWBURN)
+                        if (Unit* target = me->getVictim())
                             me->CastSpell(target, dotSpellId, false);
+
+                        /*else if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, dotSpellId, false);*/
 
                         events.ScheduleEvent(EVENT_DOT_ATTACK, 12500);
                         break;
@@ -644,30 +648,14 @@ class boss_feng : public CreatureScript
                     }
                     case EVENT_SPIRIT_BOLTS:
                     {
-                        std::list<Player*> potenTargets;
-                        GetPlayerListInGrid(potenTargets, me, 100.0f);
-
-                        int count = 0;
-                        int max = IsHeroic() ? 8 : 3;
-
-                        while (count < max)
-                        {
-                            for (auto target : potenTargets)
-                            {
-                                if (urand(0, 1))
-                                {
-                                    me->CastSpell(me, SPELL_SPIRIT_BOLT, true);
-                                    if (++count == max)
-                                        break;
-                                }
-                            }
-                        }
+                        me->CastSpell(me, SPELL_SPIRIT_BOLT, true);
+                        events.ScheduleEvent(EVENT_SPIRIT_BOLTS, urand(25000, 35000));
                         break;
                     }
                     // Shield Phase
                     case EVENT_SIPHONING_SHIELD:
                     {
-                        me->CastSpell(me, 117203, true);
+                        me->CastSpell(me, SPELL_SUMMON_SHIELD, true);
                         break;
                     }
                     case EVENT_CHAINS_OF_SHADOW:
@@ -808,10 +796,23 @@ class mob_siphon_shield : public CreatureScript
 
             void DoAction(const int32 action)
             {
-                if (action == ACTION_SOUL_HOME)
+                switch (action)
+                {
+                case ACTION_SOUL_HOME:
+                {
                     if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
                         feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
-                soulsCount--;
+                    soulsCount--;
+                    break;
+                }
+                case ACTION_SOUL_KILLED:
+                {
+                    soulsCount--;
+                    break;
+                }
+                default:
+                    break;
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -836,12 +837,21 @@ class mob_siphon_shield : public CreatureScript
 
                             uint8 maxTargets = Is25ManRaid() ? 10 : 5;
 
+                            std::list<Player*>::iterator itr, next;
                             // Selecting targets
                             while (potenTargets.size() > maxTargets)
                             {
-                                for (auto player : potenTargets)
+                                for (itr = potenTargets.begin(); itr != potenTargets.end(); itr = next)
+                                {
+                                    next = itr;
+                                    ++next;
+
                                     if (potenTargets.size() > maxTargets && urand(0, 1)) // We can have enough targets during the for loop
-                                        potenTargets.remove(player);
+                                    {
+                                        potenTargets.remove(*itr);
+                                        break;
+                                    }
+                                }
                             }
 
                             soulsCount = potenTargets.size();
@@ -905,6 +915,7 @@ class mob_siphon_shield : public CreatureScript
                                 // Bye !
                                 me->DespawnOrUnsummon();
                             }
+                            break;
                         }
                         default:
                             break;
@@ -940,7 +951,7 @@ class mob_soul_fragment : public CreatureScript
             {
                 // Set dark aspect
                 me->AddAura(SPELL_SOUL_DISPLAY, me);
-                bound = me->SelectNearestPlayerNotGM(0.0f);
+                bound = me->SelectNearestPlayer(0.0f);
                 scale = 0.1f;
                 me->SetObjectScale(scale);
                 // Display with display of player
@@ -1103,8 +1114,8 @@ class spell_mogu_epicenter : public SpellScriptLoader
                 
                 float distance = caster->GetExactDist2d(target);
 
-                if (distance >= 0 && distance <= 60)
-                    SetHitDamage(GetHitDamage() * (1 - (distance / MAX_DIST)));
+                if (distance >= 0.0f && distance <= 100.0f)
+                    SetHitDamage(int32(GetHitDamage() * (1.0f - (distance / 100.0f))));
             }
 
             void Register()
@@ -1156,6 +1167,42 @@ class spell_mogu_wildfire_spark : public SpellScriptLoader
         {
             return new spell_mogu_wildfire_spark_SpellScript();
         }
+};
+
+// Wildfire spark - 116784
+class spell_wildfire_spark : public SpellScriptLoader
+{
+    public:
+        spell_wildfire_spark() : SpellScriptLoader("spell_wildfire_spark") { }
+
+        class spell_wildfire_spark_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_wildfire_spark_AuraScript);
+
+            void Cast(constAuraEffectPtr /*AurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetTarget())
+                        caster->CastSpell(target, 116583, true);
+            }
+
+            void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->AddAura(SPELL_WILDFIRE_SPARK, caster);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_wildfire_spark_AuraScript::Cast, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectApply += AuraEffectApplyFn(spell_wildfire_spark_AuraScript::ApplyAura, EFFECT_1, SPELL_EFFECT_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+
+            AuraScript* GetAuraScript() const
+            {
+                return new spell_wildfire_spark_AuraScript();
+            }
+        };
 };
 
 // Wildfire Infusion (stacks) - 116821
@@ -1279,11 +1326,11 @@ class spell_mogu_arcane_velocity : public SpellScriptLoader
                 float distance = caster->GetExactDist2d(target);
 
                 uint8 mode = GetCaster()->GetInstanceScript()->instance->GetSpawnMode();
-                uint32 mindmg  = (mode == MAN10_DIFFICULTY ? 39000 : (mode == MAN25_DIFFICULTY ? 44850 : (mode == MAN10_HEROIC_DIFFICULTY ? 58500 : (mode == MAN25_HEROIC_DIFFICULTY ? 67275 : 16770))));
-                uint32 range   = (mode == MAN10_DIFFICULTY ?  2000 : (mode == MAN25_DIFFICULTY ?  2300 : (mode == MAN10_HEROIC_DIFFICULTY ?  3000 : (mode == MAN25_HEROIC_DIFFICULTY ?  3450 :   860))));
+                int32 mindmg  = (mode == MAN10_DIFFICULTY ? 39000 : (mode == MAN25_DIFFICULTY ? 44850 : (mode == MAN10_HEROIC_DIFFICULTY ? 58500 : (mode == MAN25_HEROIC_DIFFICULTY ? 67275 : 16770))));
+                int32 range   = (mode == MAN10_DIFFICULTY ?  2000 : (mode == MAN25_DIFFICULTY ?  2300 : (mode == MAN10_HEROIC_DIFFICULTY ?  3000 : (mode == MAN25_HEROIC_DIFFICULTY ?  3450 :   860))));
 
-                if (distance >= 0 && distance <= 60)
-                    SetHitDamage(mindmg + range * (distance / MAX_DIST));
+                if (distance >= 0.0f && distance <= 60.0f)
+                    SetHitDamage(mindmg + int32(range * (distance / MAX_DIST)));
             }
 
             void Register()
@@ -1371,6 +1418,65 @@ class spell_mogu_inversion : public SpellScriptLoader
         }
 };
 
+// Spirit Bolt - 118530
+class spell_spirit_bolt : public SpellScriptLoader
+{
+    public:
+        spell_spirit_bolt() : SpellScriptLoader("spell_spirit_bolt") { }
+
+        class spell_spirit_bolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_spirit_bolt_SpellScript);
+
+            void SelectTarget(std::list<WorldObject*>& targets)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<WorldObject*>::iterator itr, next;
+
+                    // 8 targets in 25NM and 25HM, 3 targets else
+                    uint8 maxTargets = 3;
+                    if (InstanceScript* pInstance = caster->GetInstanceScript())
+                        if (pInstance->instance->Is25ManRaid())
+                            maxTargets = 8;
+
+                    // Removing non player targets
+                    for (itr = targets.begin(); itr != targets.end(); itr = next)
+                    {
+                        next = itr;
+                        ++next;
+
+                        if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+                            targets.remove(*itr);
+                    }
+
+                    // Removing random targets while they're too numerous
+                    while (targets.size() > maxTargets)
+                    {
+                        for (itr = targets.begin(); itr != targets.end(); itr = next)
+                        {
+                            next = itr;
+                            ++next;
+
+                            if (targets.size() > maxTargets && urand(0, 1))
+                                targets.remove(*itr);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_spirit_bolt_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_spirit_bolt_SpellScript();
+        }
+};
+
 // GameObject - 211628 - Shroud of reversal
 class go_inversion : public GameObjectScript
 {
@@ -1383,12 +1489,6 @@ class go_inversion : public GameObjectScript
 
             bool GossipHello(Player* player)
             {
-                if (!player->isInCombat())
-                    return true;
-
-                if (player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) != ROLES_TANK)
-                    return true;
-
                 return false;
             }
         };
@@ -1411,12 +1511,6 @@ class go_cancel : public GameObjectScript
 
             bool GossipHello(Player* player)
             {
-                if (!player->isInCombat())
-                    return true;
-
-                if (player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) != ROLES_TANK)
-                    return true;
-
                 return false;
             }
         };
@@ -1442,6 +1536,7 @@ void AddSC_boss_feng()
     new spell_mogu_arcane_velocity();
     new spell_mogu_arcane_resonance();
     new spell_mogu_inversion();
+    new spell_spirit_bolt();
     new go_inversion;
     new go_cancel;
 }

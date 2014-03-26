@@ -3566,7 +3566,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 117006:// Devastating Arc
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     break;
-                case 117833:// Crazy Thought
                 case 117708:// Maddening Shout
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                     break;
@@ -3931,6 +3930,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 51514: // Hex
                 case 130616:// Glyph of Fear effect
+                case 117961:// Impervious Shield
+                case 117837:// Delirious
+                case 117697:// Shield of Darkness
                     spellInfo->Dispel = DISPEL_MAGIC;
                     break;
                 case 113792:// Pyschic Horror - Psyfiend
@@ -4271,6 +4273,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 115175:// Soothing Mists
                 case 116694:// Surging Mists
                 case 117952:// Crackling Jade Lightning
+                    spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                    break;
+                case 117833:// Crazy Thought
+                    spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                     spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                     break;
                 case 102793:
