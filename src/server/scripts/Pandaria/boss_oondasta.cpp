@@ -91,11 +91,11 @@ class boss_oondasta : public CreatureScript
 
                 events.Update(diff);
 
-                switch (events.ExecuteEvent())
+                /*switch (events.ExecuteEvent())
                 {
                     default:
                         break;
-                }
+                }*/
 
                 DoMeleeAttackIfReady();
             }

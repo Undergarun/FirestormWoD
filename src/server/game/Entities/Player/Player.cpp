@@ -756,6 +756,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_ExtraFlags = 0;
 
+    m_tokenCounter = 0;
+
     m_spellModTakingSpell = NULL;
     //m_pad = 0;
 
@@ -10703,11 +10705,11 @@ void Player::SendNotifyLootMoneyRemoved(uint64 gold)
 
 void Player::SendNotifyLootItemRemoved(uint8 lootSlot)
 {
-    WorldPacket data(SMSG_LOOT_REMOVED);
-
     ObjectGuid guid = GetLootGUID();
     ObjectGuid lootGuid = MAKE_NEW_GUID(GUID_LOPART(guid), 0, HIGHGUID_LOOT);
     sObjectMgr->setLootViewGUID(lootGuid, guid);
+
+    WorldPacket data(SMSG_LOOT_REMOVED);
 
     data.WriteBit(guid[7]);
     data.WriteBit(guid[0]);
@@ -19578,7 +19580,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // load skills after InitStatsForLevel because it triggering aura apply also
     _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSKILLS));
-    m_archaeologyMgr.LoadArchaeology(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY));
+    m_archaeologyMgr.LoadArchaeology(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY),
+                                     holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS));
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 
@@ -27600,8 +27603,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
     QuestItem* qitem = NULL;
     QuestItem* ffaitem = NULL;
     QuestItem* conditem = NULL;
+    QuestItem* currency = NULL;
 
-    LootItem* item = loot->LootItemInSlot(lootSlot, this, &qitem, &ffaitem, &conditem);
+    LootItem* item = loot->LootItemInSlot(lootSlot, this, &qitem, &ffaitem, &conditem, &currency);
 
     if (!item)
     {
@@ -27613,6 +27617,18 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
     if (!qitem && item->is_blocked)
     {
         SendLootRelease(GetLootGUID());
+        return;
+    }
+
+    if (currency)
+    {
+        if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
+            ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
+
+        SendNotifyLootItemRemoved(lootSlot);
+        SendTokenResponse();
+        currency->is_looted = true;
+        --loot->unlootedCount;
         return;
     }
 
@@ -30186,4 +30202,23 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
 
         hasForcedMovement = false;
     }
+}
+
+void Player::SendResumeToken(uint32 token)
+{
+    WorldPacket data(SMSG_RESUME_TOKEN, 5);
+    data << uint32(token);
+    data.WriteBit(token == m_tokenCounter);
+    data.FlushBits();
+    GetSession()->SendPacket(&data);
+}
+
+void Player::SendTokenResponse()
+{
+    WorldPacket data(SMSG_SUSPEND_TOKEN_RESPONSE, 5);
+    data.WriteBits(2, 2);
+    data.FlushBits();
+    data << uint32(m_tokenCounter);
+    GetSession()->SendPacket(&data);
+    ++m_tokenCounter;
 }

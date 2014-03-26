@@ -39,6 +39,221 @@ enum MasterySpells
     MASTERY_SPELL_COMBO_BREAKER_2       = 116768,
     MASTERY_SPELL_DISCIPLINE_SHIELD     = 77484,
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
+    SPELL_MAGE_MASTERY_ICICLES          = 76613,
+    SPELL_MAGE_ICICLE_DAMAGE            = 148022
+};
+
+const int IcicleAuras[5] = { 148012, 148013, 148014, 148015, 148016 };
+const int IcicleHits[5] = { 148017, 148018, 148019, 148020, 148021 };
+bool IcicleOverstack = false;
+
+// Called by Frostbolt - 116 and Frostfire bolt - 44614
+// Mastery: Icicles - 76613
+class spell_mastery_icicles : public SpellScriptLoader
+{
+    public:
+        spell_mastery_icicles() : SpellScriptLoader("spell_mastery_icicles") { }
+
+        class spell_mastery_icicles_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_icicles_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        // Calculate damage
+                        int32 hitDamage = GetHitDamage();
+                        if (GetSpell()->IsCritForTarget(target))
+                            hitDamage *= 2;
+                        float Mastery = (_player->GetFloatValue(PLAYER_MASTERY) * 2.0f) / 100.0f;
+                        hitDamage *= Mastery;
+
+                        int8 currentMaxAura = 0;
+
+                        // if hitDamage == 0 we have a miss, so we need to except this variant
+                        if (_player->HasAura(SPELL_MAGE_MASTERY_ICICLES) && hitDamage != 0)
+                        {
+                            // We need to find how much icicles we have, and which is the last.
+                            for (int i = 0; i < 5; i++)
+                                if (_player->HasAura(IcicleAuras[i]))
+                                    currentMaxAura = i+1;
+
+                            switch (currentMaxAura)
+                            {
+                                case 0:
+                                    _player->AddAura(IcicleAuras[0], _player);
+                                    break;
+                                case 1:
+                                    _player->AddAura(IcicleAuras[1], _player);
+                                    break;
+                                case 2:
+                                    _player->AddAura(IcicleAuras[2], _player);
+                                    break;
+                                case 3:
+                                    _player->AddAura(IcicleAuras[3], _player);
+                                    break;
+                                case 4:
+                                    _player->AddAura(IcicleAuras[4], _player);
+                                    break;
+                                case 5:
+                                {
+                                    // We need to find an icicle, with the smallest duration.
+                                    int32 minDuration = 0;
+                                    int32 smallestIcicle = 0;
+                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
+                                        minDuration = _player->GetAura(IcicleAuras[0])->GetDuration();
+
+                                    for (int i = 1; i < 5; i++)
+                                    {
+                                        if (AuraPtr tmpCurrentAura = _player->GetAura(IcicleAuras[i]))
+                                        {
+                                            if (minDuration > tmpCurrentAura->GetDuration())
+                                            {
+                                                minDuration = tmpCurrentAura->GetDuration();
+                                                smallestIcicle = i;
+                                            }
+                                        }
+                                    }
+
+                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
+                                    {
+                                        int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
+                                        _player->CastSpell(target, IcicleHits[smallestIcicle], true);
+                                        _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
+                                        _player->RemoveAura(IcicleAuras[smallestIcicle]);
+                                    }
+
+                                    _player->AddAura(IcicleAuras[smallestIcicle], _player);
+
+                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
+                                        icicleCurrentAura->GetEffect(0)->SetAmount(int32(hitDamage));
+
+                                    IcicleOverstack = true;
+                                    break;
+                                }
+                            }
+
+                            if (IcicleOverstack == false)
+                                if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[currentMaxAura]))
+                                    icicleCurrentAura->GetEffect(0)->SetAmount(hitDamage);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_icicles_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_icicles_SpellScript();
+        }
+};
+
+// Ice Lance - 30455
+class spell_mastery_icicles_trigger : public SpellScriptLoader
+{
+    public:
+        spell_mastery_icicles_trigger() : SpellScriptLoader("spell_mastery_icicles_trigger") { }
+
+        class spell_mastery_icicles_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_icicles_trigger_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 currentMinAura = 0;
+                        // We need to find how much icicles we have, and which is the first.
+                        for (int i = 4; i >= 0; i--)
+                            if (_player->HasAura(IcicleAuras[i]))
+                                currentMinAura = i;
+
+                        if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[currentMinAura]))
+                        {
+                            int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
+                            _player->CastSpell(target, IcicleHits[currentMinAura], true);
+                            _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
+                            _player->RemoveAura(IcicleAuras[currentMinAura]);
+                        }
+
+                        IcicleOverstack = false;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_icicles_trigger_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_icicles_trigger_SpellScript();
+        }
+};
+
+// Icicles: 148017, 148018, 148019, 148020, 148021
+class spell_mastery_icicles_hit : public SpellScriptLoader
+{
+    public:
+        spell_mastery_icicles_hit() : SpellScriptLoader("spell_mastery_icicles_hit") { }
+
+        class spell_mastery_icicles_hit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_icicles_hit_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->GetGUID() != _player->GetGUID())
+                        {
+                            int8 currentMinAura = 0;
+                            if (IcicleOverstack == false)
+                            {
+                                // We need to find the first icicle and if we found it - break, because function will be called one more time.
+                                for (int i = 4; i >= 0; i--)
+                                {
+                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[i]))
+                                    {
+                                        int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
+                                        _player->CastSpell(target, IcicleHits[i], true);
+                                        _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
+                                        _player->RemoveAura(IcicleAuras[i]);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            IcicleOverstack = false;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_icicles_hit_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_icicles_hit_SpellScript();
+        }
 };
 
 // Called by Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
@@ -370,6 +585,9 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
 
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_icicles();
+    new spell_mastery_icicles_trigger();
+    new spell_mastery_icicles_hit();
     new spell_mastery_shield_discipline();
     new spell_mastery_combo_breaker();
     new spell_mastery_blood_shield();

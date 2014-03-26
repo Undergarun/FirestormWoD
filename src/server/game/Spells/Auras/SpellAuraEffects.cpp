@@ -8431,8 +8431,6 @@ void AuraEffect::HandleChangeSpellVisualEffect(AuraApplication const* aurApp, ui
     uint32 spellToReplace = apply ? GetMiscValue() : 0;
     uint32 replacer = apply ? m_spellInfo->Id : 0;
 
-    // This is Google Traduction result
-    /*Il semble que Blizzard valeur "trakturuyut" (wtf ?) de champs en fonction de leur nombre et les noms ne sont pas prises à partir du client (PLAYER_DYNAMIC_RESEARCH_SITES)*/
-    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_RESEARCH_SITES, 0, spellToReplace);
-    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_RESEARCH_SITES, 1, replacer);
+    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_SPELLVISUAL_CHANGE, 0, spellToReplace);
+    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_SPELLVISUAL_CHANGE, 1, replacer);
 }

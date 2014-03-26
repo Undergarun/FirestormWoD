@@ -12,9 +12,9 @@
 
 class Player;
 
-#define MAX_RESEARCH_SITES                      16
+#define MAX_RESEARCH_SITES                      20
 #define RESEARCH_SITES_PER_MAP                  4
-#define MAX_RESEARCH_PROJECTS                   9
+#define MAX_RESEARCH_PROJECTS                   12
 #define ARCHAEOLOGY_DIG_SITE_FAR_DIST           40
 #define ARCHAEOLOGY_DIG_SITE_MED_DIST           20
 #define ARCHAEOLOGY_DIG_SITE_CLOSE_DIST         8
@@ -62,14 +62,20 @@ struct ProjectCost
     bool currency;
 };
 
+struct CompletedProject
+{
+    uint32 projectId;
+    uint32 count;
+    uint32 first_date;
+};
+
 typedef std::set<uint32> SiteSet;
-typedef std::map<uint32, SiteSet> Sites;
 typedef std::set<uint32> ProjectSet;
 typedef std::map<uint32, ProjectSet> Projects;
 
 typedef std::set<uint32> ResearchSiteSet;
 typedef std::set<uint32> ResearchProjectSet;
-typedef std::set<uint32> CompletedProjectSet;
+typedef std::list<CompletedProject> CompletedProjectSet;
 
 class ArchaeologyMgr
 {
@@ -79,9 +85,9 @@ class ArchaeologyMgr
             for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
                 _digSites[i].clear();
         }
-        ~ArchaeologyMgr() {}
+        ~ArchaeologyMgr() { }
 
-        void LoadArchaeology(PreparedQueryResult result);
+        void LoadArchaeology(PreparedQueryResult result, PreparedQueryResult resultProjects);
         void SaveArchaeology(SQLTransaction& trans);
         
         void AddProjectCost(uint32 entry, uint32 count, bool isCurrency)
@@ -94,7 +100,7 @@ class ArchaeologyMgr
         bool SolveResearchProject(uint32 projectId);
         uint32 GetSurveyBotEntry(float &orientation);
 
-        CompletedProjectSet & GetCompletedProjects() { return _completedProjects; }
+        CompletedProjectSet GetCompletedProjects() { return _completedProjects; }
 
         void GenerateResearchProjects();
         void GenerateResearchSites();
@@ -103,11 +109,17 @@ class ArchaeologyMgr
         void ShowResearchSites();
 
         void UseResearchSite(uint32 id);
+
+        uint16 GetRandomActiveSiteInMap(uint32 mapId);
+
+        void SendSearchComplete(bool finished, uint8 count, uint16 siteId);
+        void SendSearchSiteComplete(uint16 siteId);
+
     private:
         Player* _player;
         std::vector<ProjectCost> costData;
-        DigitSite _digSites[16];
-        ResearchSiteSet _researchSites[4];
+        DigitSite _digSites[20];
+        ResearchSiteSet _researchSites[5];
         ResearchProjectSet _researchProjects;
         CompletedProjectSet _completedProjects;
         bool _archaeologyChanged;
@@ -120,6 +132,7 @@ class ArchaeologyMgr
                 case 1: return _researchSites[1].find(id) != _researchSites[1].end();
                 case 530: return _researchSites[2].find(id) != _researchSites[2].end();
                 case 571: return _researchSites[3].find(id) != _researchSites[3].end();
+                case 870: return _researchSites[4].find(id) != _researchSites[4].end();
                 default: return false;
             }
             return false;

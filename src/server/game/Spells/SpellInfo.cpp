@@ -3981,3 +3981,25 @@ bool SpellInfo::CannotBeAddedToCharm() const
 
     return true;
 }
+
+bool SpellInfo::IsCustomArchaeologySpell() const
+{
+    switch (Id)
+    {
+        case 139776: // Banner of the Mantid Empire
+        case 139779: // Ancient Sap Feeder
+        case 139780: // The Praying Mantid
+        case 139781: // Inert Sound Beacon
+        case 139782: // Remains of a Paragon
+        case 139783: // Mantid Lamp
+        case 139784: // Pollen Collector
+        case 139785: // Kypari Sap Container
+        case 139786: // Mantid Sky Reaver
+        case 139787: // Sonic Pulse Generator
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
+}

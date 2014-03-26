@@ -271,8 +271,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SAVE_GUILD_NEWS, "INSERT INTO guild_news_log (guild, id, eventType, playerGuid, data, flags, date) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // Archaeology
-    PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY, "SELECT sites0, sites1, sites2, sites3, counts, projects, completed FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
-    
+    PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY, "SELECT sites0, sites1, sites2, sites3, sites4, counts, projects FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY_PROJECTS, "SELECT project, count, first_date FROM character_archaeology_projects WHERE guid = ?", CONNECTION_ASYNC)
+
     // Chat channel handling
     PREPARE_STATEMENT(CHAR_SEL_CHANNEL, "SELECT announce, ownership, password, bannedList FROM channels WHERE name = ? AND team = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(CHAR_INS_CHANNEL, "INSERT INTO channels(name, team, lastUsed) VALUES (?, ?, UNIX_TIMESTAMP())", CONNECTION_ASYNC)

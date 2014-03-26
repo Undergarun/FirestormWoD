@@ -101,6 +101,7 @@ class debug_commandscript : public CommandScript
                 { "packet",         SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,          "", NULL },
                 { "guildevent",     SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,      "", NULL },
                 { "log",            SEC_ADMINISTRATOR,  false, &HandleDebugLogCommand,             "", NULL },
+                { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,             "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -110,6 +111,31 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugMoveCommand(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+                return false;
+
+            char* result = strtok((char*)args, " ");
+            if (!result)
+                return false;
+
+            bool apply = bool(atoi(result));
+
+            char* param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
+            float force = float(atoi(param));
+
+            Position pos;
+            handler->GetSession()->GetPlayer()->GetPosition(&pos);
+
+            handler->GetSession()->GetPlayer()->SendApplyMovementForce(apply, pos, -force);
+
+            return true;
         }
 
         static bool HandleDebugLogCommand(ChatHandler* handler, char const* args)

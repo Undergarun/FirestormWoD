@@ -91,11 +91,11 @@ class boss_niuzao : public CreatureScript
 
                 events.Update(diff);
 
-                switch (events.ExecuteEvent())
+                /*switch (events.ExecuteEvent())
                 {
                     default:
                         break;
-                }
+                }*/
 
                 DoMeleeAttackIfReady();
             }

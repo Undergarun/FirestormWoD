@@ -1805,6 +1805,14 @@ struct QuestFactionRewEntry
   int32       QuestRewFactionValue[10];
 };
 
+struct QuestPOIPointEntry
+{
+    uint32 unk;
+    int32 x;
+    int32 y;
+    uint32 ID;
+};
+
 struct RandomPropertiesPointsEntry
 {
     uint32    Id;                                           // 0 hidden key

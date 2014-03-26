@@ -585,12 +585,14 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         switch (archeologyType[i])
         {
             case 2: // Keystones
-                recvPacket >> entry[i];        // Item id
                 recvPacket >> usedCount[i];    // Item count
+                recvPacket >> entry[i];        // Item id
+                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], false);
                 break;
-            case 1: // Fragments
-                recvPacket >> entry[i];        // Currency id
+            case 0: // Fragments
                 recvPacket >> usedCount[i];    // Currency count
+                recvPacket >> entry[i];        // Currency id
+                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], true);
                 break;
             default:
                 break;
@@ -733,8 +735,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
          spellId != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(targetGuid)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
     {
         // not have spell in spellbook 
-        //cheater? kick? ban?
-        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY))
+        // cheater? kick? ban?
+        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
         {
             recvPacket.rfinish(); // prevent spam at ignore packet
             return;

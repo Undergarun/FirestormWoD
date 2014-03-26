@@ -111,6 +111,7 @@ const char PvPDifficultyfmt[]                 = "diiiii";
 const char QuestSortEntryfmt[]                = "nx";
 const char QuestXPfmt[]                       = "niiiiiiiiii";
 const char QuestFactionRewardfmt[]            = "niiiiiiiiii";
+const char QuestPOIPointfmt[]                 = "niii";
 const char RandomPropertiesPointsfmt[]        = "niiiiiiiiiiiiiii";
 const char ResearchBranchfmt[]                = "ixxixi";
 const char ResearchProjectfmt[]               = "nxxiiixxi";

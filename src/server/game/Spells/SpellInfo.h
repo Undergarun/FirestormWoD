@@ -583,6 +583,7 @@ public:
     bool IsCustomCalculated() const;
     bool IsInterruptSpell() const;
     bool CannotBeAddedToCharm() const;
+    bool IsCustomArchaeologySpell() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;

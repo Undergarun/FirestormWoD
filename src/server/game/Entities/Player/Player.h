@@ -865,6 +865,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 38,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 39,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY             = 40,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS    = 41,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -3006,6 +3007,9 @@ class Player : public Unit, public GridObject<Player>
 
         void SendCUFProfiles();
 
+        void SendResumeToken(uint32 token);
+        void SendTokenResponse();
+
 
         /*********************************************************/
         /***              BATTLE PET SYSTEM                    ***/
@@ -3298,6 +3302,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
         uint8 m_grantableLevels;
+
+        uint32 m_tokenCounter;
 
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;

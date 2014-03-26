@@ -226,6 +226,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY_PROJECTS);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CUF_PROFILE);
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, stmt);
@@ -958,30 +962,30 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
     // This is Hackypig fix : find a better way
     if (Player* _plr = GetPlayer())
     {
-        std::list<uint32> spellToCast;
+        /*std::list<uint32> spellToCast;
 
         Unit::AuraApplicationMap& auraList = _plr->GetAppliedAuras();
-        for (Unit::AuraApplicationMap::iterator iter = auraList.begin(); iter != auraList.end();)
+        for (Unit::AuraApplicationMap::iterator iter = auraList.begin(); iter != auraList.end(); ++iter)
         {
             AuraApplication* aurApp = iter->second;
             if (!aurApp)
                 continue;
 
             AuraPtr aura = aurApp->GetBase();
-            if (aura && (aura->HasEffectType(SPELL_AURA_ADD_FLAT_MODIFIER) || aura->HasEffectType(SPELL_AURA_ADD_PCT_MODIFIER)) && aura->GetSpellInfo())
-            {
+            if (aura && aura->GetSpellInfo() &&
+                (aura->HasEffectType(SPELL_AURA_ADD_FLAT_MODIFIER) || aura->HasEffectType(SPELL_AURA_ADD_PCT_MODIFIER)))
                 spellToCast.push_back(aura->GetSpellInfo()->Id);
-                _player->RemoveAura(iter);
-            }
-            else
-                ++iter;
         }
 
         for (auto id : spellToCast)
         {
             if (id > 0 && _plr)
+            {
+                if (_plr->HasAura(id))
+                    _plr->RemoveAura(id);
                 _plr->CastSpell(_plr, id, true);
-        }
+            }
+        }*/
 
         if (_plr->hasForcedMovement)
         {
@@ -1017,13 +1021,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
+    pCurrChar->SendTokenResponse();
 
-    WorldPacket data(SMSG_RESUME_TOKEN, 5);
-    data << uint32(0);
-    data << uint8(0x80);
-    SendPacket(&data);
-
-    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
+    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
     data << pCurrChar->GetPositionZ();
     data << pCurrChar->GetMapId();
     data << pCurrChar->GetPositionY();
@@ -2885,4 +2885,12 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
     }
 
     CharacterDatabase.CommitTransaction(trans);
+}
+
+void WorldSession::HandleSuspendToken(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SUSPEND_TOKEN");
+    uint32 token = recvData.read<uint32>();
+
+    GetPlayer()->SendResumeToken(token);
 }

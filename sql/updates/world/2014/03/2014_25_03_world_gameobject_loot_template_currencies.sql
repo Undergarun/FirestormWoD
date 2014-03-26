@@ -1,0 +1,1 @@
+ALTER TABLE `gameobject_loot_template` CHANGE `item` `item` MEDIUMINT(8) DEFAULT '0' NOT NULL; 

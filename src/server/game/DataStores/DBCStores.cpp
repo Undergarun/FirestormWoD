@@ -171,8 +171,11 @@ DBCStorage <QuestXPEntry>                sQuestXPStore(QuestXPfmt);
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 
+DBCStorage <QuestPOIPointEntry> sQuestPOIPointStore(QuestPOIPointfmt);
+
 DBCStorage <ResearchBranchEntry> sResearchBranchStore(ResearchBranchfmt);
 DBCStorage <ResearchSiteEntry> sResearchSiteStore(ResearchSitefmt);
+
 std::set<ResearchSiteEntry const*> sResearchSiteSet;
 DBCStorage <ResearchProjectEntry> sResearchProjectStore(ResearchProjectfmt);
 std::set<ResearchProjectEntry const*> sResearchProjectSet;
@@ -483,12 +486,16 @@ void LoadDBCStores(const std::string& dataPath)
         ResearchProjectEntry const* rp = sResearchProjectStore.LookupEntry(i);
         if (!rp)
             continue;
-        if (rp->branchId == 29) // unused
+
+        // Branch 0 is for Blizzard tests
+        if (rp->branchId == 0)
             continue;
+
         sResearchProjectSet.insert(rp);
     }
     //sResearchProjectStore.Clear();
     LoadDBC(availableDbcLocales, bad_dbc_files, sResearchSiteStore,        dbcPath, "ResearchSite.dbc");
+
     for (uint32 i =0; i < sResearchSiteStore.GetNumRows(); ++i)
     {
         ResearchSiteEntry const* rs = sResearchSiteStore.LookupEntry(i);
@@ -505,6 +512,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
     //sResearchSiteStore.Clear();
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sQuestPOIPointStore,          dbcPath, "QuestPOIPoint.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore,dbcPath, "ScalingStatDistribution.dbc");                                      // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatValuesStore,      dbcPath, "ScalingStatValues.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineStore,              dbcPath, "SkillLine.dbc");                                                    // 17399

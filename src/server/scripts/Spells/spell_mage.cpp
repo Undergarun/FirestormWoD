@@ -97,7 +97,7 @@ enum MageSpells
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
     SPELL_MAGE_FROST_NOVA                        = 122,
-    SPELL_MAGE_FINGERS_OF_FROST_AURA             = 112965,
+    SPELL_MAGE_FINGERS_OF_FROST_AURA             = 112965
 };
 
 // Flamestrike - 2120
