@@ -636,6 +636,8 @@ struct _Socket
 #define MAX_ITEM_PROTO_SPELLS  5
 #define MAX_ITEM_PROTO_STATS  10
 
+typedef std::list<SpecIndex> SpecList;
+
 struct ItemTemplate
 {
     uint32 ItemId;
@@ -715,6 +717,7 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
+    SpecList specs;
 
     // helpers
     bool CanChangeEquipStateInCombat() const
@@ -813,6 +816,24 @@ struct ItemTemplate
                 return 0;
         }
     }
+
+    void AddSpec(SpecIndex index) { specs.push_back(index); }
+    bool HasSpec() const { return !specs.empty(); }
+    bool HasClassSpec(uint8 Class) const
+    {
+        for (auto itr : specs)
+            if (GetClassBySpec(itr) == Class)
+                return true;
+        return false;
+    }
+    bool HasSpec(SpecIndex index) const
+    {
+        for (auto itr : specs)
+            if (itr == index)
+                return true;
+        return false;
+    }
+
 };
 
 // Benchmarked: Faster than std::map (insert/find)

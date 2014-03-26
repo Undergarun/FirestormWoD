@@ -8,3 +8,6 @@ INSERT INTO `spell_script_names` (spell_id, ScriptName) VALUES (122768, 'spell_d
 INSERT INTO `spell_script_names` (spell_id, ScriptName) VALUES (122789, 'spell_sunbeam');
 
 UPDATE creature_template SET scriptname = "npc_sunbeam" WHERE entry = 62849;
+
+-- The Dark of Night
+UPDATE creature_template SET modelid1 = 42973, modelid2 = 42973, ScriptName = "npc_dark_of_night" WHERE entry = 63346;

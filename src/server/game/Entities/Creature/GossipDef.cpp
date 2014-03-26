@@ -492,6 +492,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     }
     ObjectGuid guid = npcGUID;
     ObjectGuid guid2 = npcGUID;
+    bool hiddenRewardItem = quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS);
 
@@ -505,11 +506,11 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
         data << uint32(quest->RewardFactionValueId[i]);        
     }
 
-    data << uint32(quest->RewardChoiceItemCount[3]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[3]);
     data << uint32(0); // Unk 0
-    data << uint32(quest->GetRewChoiceItemsCount());
-    data << uint32(quest->RewardItemIdCount[3]);
-    data << uint32(quest->RewardItemIdCount[2]);
+    data << uint32(hiddenRewardItem ? 0 : quest->GetRewChoiceItemsCount());
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemIdCount[3]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemIdCount[2]);
 
     float QuestXpRate = 1;
     if (_session->GetPlayer()->GetPersonnalXpRate())
@@ -524,12 +525,12 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     else
         data << uint32(0);
 
-    data << uint32(quest->RewardItemIdCount[1]);
-    data << uint32(quest->RewardChoiceItemCount[4]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemIdCount[1]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[4]);
     data << uint32(quest->GetQuestId());
-    data << uint32(quest->RewardChoiceItemId[3]);
-    data << uint32(quest->RewardChoiceItemId[2]); 
-    data << uint32(quest->RewardItemId[1]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemId[3]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemId[2]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemId[1]);
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[1]))
         data << uint32(itemTemplate->DisplayInfoID);
@@ -538,7 +539,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 
     data << uint32(quest->GetQuestTurnInPortrait());
     data << uint32(quest->GetRewSpellCast());
-    data << uint32(quest->RewardChoiceItemCount[1]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[1]);
     data << uint32(quest->GetQuestGiverPortrait());
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[2]))
@@ -546,7 +547,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     else
         data << uint32(0);
 
-    data << uint32(quest->GetRewItemsCount());
+    data << uint32(hiddenRewardItem ? 0 : quest->GetRewItemsCount());
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[1]))
         data << uint32(itemTemplate->DisplayInfoID);
@@ -556,7 +557,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data << uint32(quest->GetRewMoneyMaxLevel());
     data << uint32(quest->GetFlags());
     data << uint32(quest->GetRewSpell());
-    data << uint32(quest->RewardChoiceItemId[0]); 
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemId[0]);
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
@@ -565,21 +566,21 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     }
 
     data << uint32(quest->GetRewardSkillId());
-    data << uint32(quest->RewardChoiceItemId[5]);
-    data << uint32(quest->RewardChoiceItemId[1]);
-    data << uint32(quest->RewardChoiceItemCount[0]);
-    data << uint32(quest->RewardChoiceItemCount[4]);
-    data << uint32(quest->RewardChoiceItemCount[2]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemId[5]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemId[1]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[0]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[4]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[2]);
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[0]))
         data << uint32(itemTemplate->DisplayInfoID);
     else
         data << uint32(0);
 
-    data << uint32(quest->RewardItemId[2]);
-    data << uint32(quest->RewardItemId[3]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemId[2]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemId[3]);
     data << uint32(0); //unk 0
-    data << uint32(quest->RewardChoiceItemCount[5]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardChoiceItemCount[5]);
     data << uint32(0); //unk 0
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[0]))
@@ -592,7 +593,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     else
         data << uint32(0);
 
-    data << uint32(quest->RewardItemIdCount[0]);
+    data << uint32(hiddenRewardItem ? 0 : quest->RewardItemIdCount[0]);
     data << uint32(quest->GetBonusTalents());
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[2]))
@@ -785,6 +786,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     }
 
     uint8 count = 0;
+    bool hiddenItemReward = quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD) || quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
 
     WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 100);       // guess size
     data.WriteBit(1);                                       // has data
@@ -861,7 +863,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data.WriteBits(( questTitle.size() - wrongLen) / 2, 8);
     data.WriteBit(wrongLen != 0);
 
-    data << uint32(quest->RewardItemIdCount[2]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemIdCount[2]);
     data << int32(quest->GetRewSpellCast());
     data << float(quest->GetRewHonorMultiplier());
 
@@ -951,7 +953,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << uint32(quest->GetNextQuestInChain());
     if (questEndText.size())
         data.append(questEndText.c_str(), questEndText.size());
-    data << uint32(quest->RewardChoiceItemId[2]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[2]);
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
@@ -961,7 +963,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     data << uint32(quest->GetMinLevel());
     data << float(quest->GetPointX());
-    data << uint32(quest->RewardItemId[3]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemId[3]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i) 
     {
@@ -974,25 +976,25 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << uint32(0);                                      // RewardChoiceItemUnk[2]
     data << uint32(quest->GetQuestGiverPortrait());
     data << uint32(quest->GetQuestTurnInPortrait());
-    data << uint32(quest->RewardChoiceItemCount[4]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[4]);
     data << uint32(0);                                      // 2962
     if (questTitle.size())
         data.append(questTitle.c_str(), questTitle.size());
-    data << uint32(quest->RewardItemIdCount[0]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemIdCount[0]);
     data << uint32(0);                                      // 2964
     data << uint32(0);                                      // RewardChoiceItemUnk[0]
     data << uint32(quest->GetRewardSkillId());
     data << uint32(quest->GetMinimapTargetMark());
     data << uint32(0);                                      // RewardChoiceItemUnk[3]
     data << uint32(0);                                      // RewardChoiceItemUnk[4]
-    data << uint32(quest->RewardChoiceItemCount[1]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[1]);
     data << uint32(quest->GetQuestId());
-    data << uint32(quest->RewardItemId[1]);
-    data << uint32(quest->RewardItemIdCount[1]);
-    data << uint32(quest->RewardItemId[2]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemId[1]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemIdCount[1]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemId[2]);
     data << uint32(quest->GetRewardSkillPoints());
     data << uint32(0);                                      // 2963
-    data << uint32(quest->RewardChoiceItemId[1]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[1]);
     data << uint32(quest->GetExclusiveGroup());
     data << uint32(quest->GetRewardReputationMask());
     if (questTurnTextWindow.size())
@@ -1011,36 +1013,39 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << uint32(0);                                      // 2961
     data << uint32(0);                                      // RewardChoiceItemUnk[5]
     data << uint32(quest->GetZoneOrSort());
-    data << uint32(quest->RewardItemId[0]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemId[0]);
     data << uint32(quest->GetXPId());
     if (questDetails.size())
         data.append(questDetails.c_str(), questDetails.size());
-    data << uint32(quest->RewardChoiceItemCount[0]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[0]);
     if (questGiverTargetName.size())
         data.append(questGiverTargetName.c_str(), questGiverTargetName.size());
     data << uint32(0);                                      // RewardChoiceItemUnk[1]
-    data << uint32(quest->RewardChoiceItemId[0]);    
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[0]);
     data << uint32(quest->GetQuestMethod());
     data << uint32(quest->GetRewHonorAddition());
     data << uint32(quest->GetBonusTalents());
     if (questGiverTextWindow.size())
         data.append(questGiverTextWindow.c_str(), questGiverTextWindow.size());
-    data << uint32(quest->GetRewOrReqMoney());
+    if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+        data << uint32(0);                                  // Hide money rewarded
+    else
+        data << uint32(quest->GetRewOrReqMoney());          // reward money (below max lvl)
     data << uint32(quest->GetType());
     if (questObjectives.size())
         data.append(questObjectives.c_str(), questObjectives.size());
     data << uint32(quest->GetRewSpell());
-    data << uint32(quest->RewardChoiceItemId[3]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[3]);
     data << uint32(0);                                  // 2960
-    data << uint32(quest->RewardChoiceItemCount[5]);
-    data << uint32(quest->RewardChoiceItemCount[3]);
-    data << uint32(quest->RewardItemIdCount[3]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[5]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[3]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardItemIdCount[3]);
     data << uint32(quest->GetSoundAccept());
-    data << uint32(quest->RewardChoiceItemId[5]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[5]);
     data << uint32(0);                                  // 2959
-    data << uint32(quest->RewardChoiceItemCount[2]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[2]);
     data << uint32(quest->GetPointOpt());
-    data << uint32(quest->RewardChoiceItemId[4]);
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[4]);
     data << uint32(quest->GetQuestId());
 
     /*
@@ -1145,6 +1150,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
 
+// @TODO: Replace unknow uint32 by missing RewardChoiceItemId/RewardChoiceItemCount tab (5 & 6) in packet
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, bool enableNext) const
 {
     std::string questTitle = quest->GetTitle();
@@ -1168,14 +1174,59 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         }
     }
 
+    uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
+    uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+    {
+        RewardChoiceItemId[i] = 0;
+        RewardChoiceItemCount[i] = 0;
+    }
+
+    uint32 dynamicItemRewardCount = 0;
+    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+    {
+        Player* plr = _session->GetPlayer();
+        uint32 index = 0;
+        for (auto dynamicReward : quest->DynamicRewards)
+        {
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
+            if (!itemTemplate)
+                continue;
+
+            // @TODO: Check if we really need to check specialisation id or just player's class
+            // (if player doesn't have choosen spec, he doesn't have reward ??)
+            //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
+            //    continue;
+
+            if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(plr->getClass()))
+                continue;
+
+            if (index >= QUEST_REWARD_CHOICES_COUNT)
+                continue;
+
+            RewardChoiceItemId[index] = dynamicReward.itemID;
+            RewardChoiceItemCount[index] = dynamicReward.count;
+            index++;
+            dynamicItemRewardCount++;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+        {
+            RewardChoiceItemId[i] = quest->RewardChoiceItemId[i];
+            RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
+        }
+    }
+
     WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 50);     // guess size
     
-    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[2]))
+    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[2]))
         data << uint32(itemTemplate->DisplayInfoID);
     else
         data << uint32(0);
     
-    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[0]))
+    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[0]))
         data << uint32(itemTemplate->DisplayInfoID);
     else
         data << uint32(0);
@@ -1188,7 +1239,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         data << uint32(quest->RewardCurrencyCount[i]);
     }
 
-    data << uint32(quest->RewardChoiceItemCount[0]);
+    data << uint32(RewardChoiceItemCount[0]);
 
     data << uint32(0); // 78
     data << uint32(0); // 144
@@ -1199,7 +1250,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(0); // 98
     data << uint32(0); // 99
     
-    data << uint32(quest->RewardChoiceItemCount[3]);
+    data << uint32(RewardChoiceItemCount[3]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
     {
@@ -1231,7 +1282,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(quest->XPValue(_session->GetPlayer()) * QuestXpRate);
     
     data << uint32(quest->RewardItemIdCount[2]);
-    data << uint32(quest->RewardChoiceItemCount[3]);
+    data << uint32(RewardChoiceItemCount[3]);
 
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[0]))
         data << uint32(itemTemplate->DisplayInfoID);
@@ -1241,12 +1292,12 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(0); // 101
     data << uint32(0); // 79
     data << uint32(quest->RewardItemIdCount[3]);
-    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[1]))
+    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[1]))
         data << uint32(itemTemplate->DisplayInfoID);
     else
         data << uint32(0);
     
-    data << uint32(quest->RewardChoiceItemId[3]);
+    data << uint32(RewardChoiceItemId[3]);
     data << uint32(0); // 84
     data << uint32(quest->GetFlags());
     data << uint32(0); // 100
@@ -1255,9 +1306,9 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(0); // 594
     data << uint32(0); // 70
 
-    data << uint32(quest->RewardChoiceItemCount[1]);
+    data << uint32(RewardChoiceItemCount[1]);
 
-    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[3]))
+    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[3]))
         data << uint32(itemTemplate->DisplayInfoID);
     else
         data << uint32(0);
@@ -1275,12 +1326,15 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     else
         data << uint32(0);
     data << uint32(0);  // 102
-    data << uint32(quest->GetRewChoiceItemsCount());
+    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        data << uint32(dynamicItemRewardCount);
+    else
+        data << uint32(quest->GetRewChoiceItemsCount());
     data << uint32(quest->GetSuggestedPlayers());
-    data << uint32(quest->RewardChoiceItemId[2]);
-    data << uint32(quest->RewardChoiceItemId[1]);
+    data << uint32(RewardChoiceItemId[2]);
+    data << uint32(RewardChoiceItemId[1]);
     data << uint32(quest->GetRewOrReqMoney()); // 76
-    data << uint32(quest->RewardChoiceItemId[0]);
+    data << uint32(RewardChoiceItemId[0]);
 
     data << uint32(quest->RewardItemId[0]);
 

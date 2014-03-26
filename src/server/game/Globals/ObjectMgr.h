@@ -862,6 +862,7 @@ class ObjectMgr
         }
 
         void LoadQuests();
+        void LoadQuestDynamicRewards();
         void LoadQuestRelations()
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO Start Quest Data...");
@@ -941,6 +942,7 @@ class ObjectMgr
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
         void LoadItemLocales();
+        void LoadItemSpecs();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
