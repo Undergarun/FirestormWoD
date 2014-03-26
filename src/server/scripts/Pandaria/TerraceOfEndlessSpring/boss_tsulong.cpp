@@ -29,10 +29,12 @@ enum eTsulongEvents
     EVENT_WAYPOINT_FIRST,
     EVENT_WAYPOINT_SECOND,
     EVENT_SWITCH_TO_NIGHT_PHASE,
+    EVENT_SWITCH_TO_DAY_PHASE,
     EVENT_SPAWN_SUNBEAM,
     EVENT_SHADOW_BREATH,
     EVENT_NIGHTMARES,
     EVENT_DARK_OF_NIGHT,
+    EVENT_UP_ENERGY,
 };
 
 enum eTsulongSpells
@@ -46,6 +48,7 @@ enum eTsulongSpells
     SPELL_SHADOW_BREATH        = 122752,
     SPELL_NIGHTMARES           = 122770,
     SPELL_SPAWN_DARK_OF_NIGHT  = 123739,
+    SPELL_DAY_PHASE            = 122453,
 
     // the dark of the night
     SPELL_BUMP_DARK_OF_NIGHT   = 130013,
@@ -59,6 +62,7 @@ enum eTsulongTimers
     TIMER_SHADOW_BREATH  = 25000,
     TIMER_NIGHTMARES     = 11600,
     TIMER_DARK_OF_NIGHT  = 30000,
+    TIMER_UP_ENERGY      =  2000,
 };
 
 enum eTsulongPhase
@@ -71,8 +75,9 @@ enum eTsulongPhase
 
 enum eTsulongWaypoints
 {
-    WAYPOINT_FIRST = 10001,
-    WAYPOINT_SECOND = 10002
+    WAYPOINT_FIRST         = 10001,
+    WAYPOINT_SECOND        = 10002,
+    WAYPOINT_TO_DAY_PHASE  = 10003,
 };
 
 enum eTsulongDisplay
@@ -122,6 +127,12 @@ class boss_tsulong : public CreatureScript
                 me->SetDisableGravity(true);
                 me->SetCanFly(true);
                 me->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS);
+                me->RemoveAurasDueToSpell(SPELL_DAY_PHASE);
+                me->ClearUnitState(UNIT_STATE_ROOT);
+                me->setPowerType(POWER_ENERGY);
+                me->SetPower(POWER_ENERGY, 0);
+                me->SetMaxPower(POWER_ENERGY, 100);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
                 if (pInstance)
                 {
@@ -160,13 +171,12 @@ class boss_tsulong : public CreatureScript
                     DoZoneInCombat();
                 }
 
+                me->DisableEvadeMode();
+                me->DisableHealthRegen();
+
                 phase = PHASE_NIGHT;
                 events.SetPhase(PHASE_NIGHT);
                 events.ScheduleEvent(EVENT_SWITCH_TO_NIGHT_PHASE, 0, 0, PHASE_NIGHT);
-                events.ScheduleEvent(EVENT_SPAWN_SUNBEAM, 2000, 0, PHASE_NIGHT);
-                events.ScheduleEvent(EVENT_SHADOW_BREATH, TIMER_SHADOW_BREATH, 0, PHASE_NIGHT);
-                events.ScheduleEvent(EVENT_NIGHTMARES, TIMER_NIGHTMARES, 0, PHASE_NIGHT);
-                events.ScheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
             }
 
             void JustSummoned(Creature* summon)
@@ -220,9 +230,36 @@ class boss_tsulong : public CreatureScript
                     case WAYPOINT_SECOND:
                         events.ScheduleEvent(EVENT_WAYPOINT_SECOND, 0, 0, PHASE_FLY);
                         break;
+                    case WAYPOINT_TO_DAY_PHASE:
+                        me->SetOrientation(4.7f);
+                        me->SetFacingTo(4.7f);
+                        me->AddUnitState(UNIT_STATE_ROOT);
+                        break;
                     default:
                         break;
                 }
+            }
+
+            void RegeneratePower(Powers power, int32& value)
+            {
+                value = 0;
+            }
+
+            void CheckCombatState()
+            {
+                if (pInstance && pInstance->IsWipe())
+                {
+                    me->ReenableEvadeMode();
+                    me->ReenableHealthRegen();
+                }
+            }
+
+            void DespawnAllSunbeams()
+            {
+                std::list<Creature*> sunbeams;
+                me->GetCreatureListWithEntryInGrid(sunbeams, SUNBEAM_DUMMY_ENTRY, 200.0f);
+                for (auto itr : sunbeams)
+                    itr->DespawnOrUnsummon();
             }
 
             void UpdateAI(const uint32 diff)
@@ -265,12 +302,22 @@ class boss_tsulong : public CreatureScript
 
                 if (phase == PHASE_NIGHT)
                 {
+                    CheckCombatState();
                     switch (events.ExecuteEvent())
                     {
                         case EVENT_SWITCH_TO_NIGHT_PHASE:
                             me->SetDisplayId(DISPLAY_TSULON_NIGHT);
+                            me->RemoveAurasDueToSpell(SPELL_DAY_PHASE);
+                            me->ClearUnitState(UNIT_STATE_ROOT);
                             me->setFaction(14);
+                            me->SetReactState(REACT_AGGRESSIVE);
                             me->CastSpell(me, SPELL_DREAD_SHADOWS, true);
+                            me->SetPower(POWER_ENERGY, 0);
+                            events.RescheduleEvent(EVENT_SPAWN_SUNBEAM, 2000, 0, PHASE_NIGHT);
+                            events.RescheduleEvent(EVENT_SHADOW_BREATH, TIMER_SHADOW_BREATH, 0, PHASE_NIGHT);
+                            events.RescheduleEvent(EVENT_NIGHTMARES, TIMER_NIGHTMARES, 0, PHASE_NIGHT);
+                            events.RescheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
+                            events.RescheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
                             break;
                         case EVENT_SPAWN_SUNBEAM:
                             Position pos;
@@ -289,12 +336,69 @@ class boss_tsulong : public CreatureScript
                             me->CastSpell(me, SPELL_SPAWN_DARK_OF_NIGHT, false);
                             events.ScheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
                             break;
+                        case EVENT_UP_ENERGY:
+                            if (me->GetPower(POWER_ENERGY) == 100)
+                            {
+                                me->SetPower(POWER_ENERGY, 0);
+                                events.SetPhase(PHASE_DAY);
+                                phase = PHASE_DAY;
+                                events.ScheduleEvent(EVENT_SWITCH_TO_DAY_PHASE, 0, 0, PHASE_DAY);
+                            }
+                            else
+                            {
+                                me->ModifyPower(POWER_ENERGY, 2);
+                                events.ScheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
+                            }
+                            break;
                         default:
                             break;
                     }
+                    DoMeleeAttackIfReady();
                 }
 
-                DoMeleeAttackIfReady();
+                if (phase == PHASE_DAY)
+                {
+                    switch (events.ExecuteEvent())
+                    {
+                        case EVENT_SWITCH_TO_DAY_PHASE:
+                            events.RescheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
+                            me->SetPower(POWER_ENERGY, 0);
+                            me->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS);
+                            DespawnAllSunbeams();
+                            me->setFaction(35);
+                            me->CastSpell(me, SPELL_DAY_PHASE, false);
+                            me->SetDisplayId(DISPLAY_TSULON_DAY);
+                            me->getThreatManager().resetAllAggro();
+                            me->SetReactState(REACT_PASSIVE);
+                            me->AttackStop();
+                            me->GetMotionMaster()->MovePoint(WAYPOINT_TO_DAY_PHASE, -1024.99f, -3029.15f, 12.60f);
+                            break;
+                        /*case EVENT_UP_ENERGY:
+                            if (me->GetPower(POWER_ENERGY) == 100)
+                            {
+                                events.SetPhase(PHASE_NIGHT);
+                                phase = PHASE_NIGHT;
+                                events.ScheduleEvent(EVENT_SWITCH_TO_NIGHT_PHASE, 0, 0, PHASE_NIGHT);
+                            }
+                            else
+                            {
+                                me->ModifyPower(POWER_ENERGY, 2);
+                                events.ScheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
+                            }
+                            break;*/
+                        default:
+                            break;
+                    }
+
+                    CheckCombatState();
+                    if (me->GetPower(POWER_ENERGY) == 100)
+                    {
+                        me->SetPower(POWER_ENERGY, 0);
+                        events.SetPhase(PHASE_NIGHT);
+                        phase = PHASE_NIGHT;
+                        events.ScheduleEvent(EVENT_SWITCH_TO_NIGHT_PHASE, 0, 0, PHASE_NIGHT);
+                    }
+                }
             }
         };
 

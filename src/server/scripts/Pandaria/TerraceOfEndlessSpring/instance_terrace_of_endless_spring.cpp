@@ -229,16 +229,6 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 return 0;
             }
 
-            bool IsWipe()
-            {
-                Map::PlayerList const& PlayerList = instance->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return true;
-
-                return false;
-            }
-
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
                 if (!InstanceScript::CheckRequiredBosses(bossId, player))

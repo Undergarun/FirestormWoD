@@ -2382,6 +2382,14 @@ class Unit : public WorldObject
         void setSimulacrumTarget(uint64 guid) { simulacrumTargetGUID = guid; }
         void removeSimulacrumTarget() { simulacrumTargetGUID = 0; }
 
+        void DisableHealthRegen() { m_disableHealthRegen = true; }
+        void ReenableHealthRegen() { m_disableHealthRegen = false; }
+        bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
+
+        void DisableEvadeMode() { m_disableEnterEvadeMode = true; }
+        void ReenableEvadeMode() { m_disableEnterEvadeMode = false; }
+        bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
+
     protected:
         explicit Unit (bool isWorldObject);
         
@@ -2472,6 +2480,8 @@ class Unit : public WorldObject
         uint32 _skipDiff;
 
         bool m_IsInKillingProcess;
+        bool m_disableHealthRegen;
+        bool m_disableEnterEvadeMode;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
