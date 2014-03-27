@@ -1,0 +1,1 @@
+ALTER TABLE `locales_gossip_menu_option` CHANGE `menu_id` `menu_id` MEDIUMINT(8)  UNSIGNED  NOT NULL  DEFAULT '0';
