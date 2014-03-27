@@ -93,6 +93,7 @@ enum eEvents
     // Enrage
     EVENT_FINAL_DESTINATION     = 12,
     EVENT_SOUL_EXPLOSION        = 13,
+    EVENT_CHECK_POSITION        = 14,
 };
 
 enum GarajalTalk
@@ -184,7 +185,8 @@ class boss_garajal : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
-                if (!pInstance->CheckRequiredBosses(DATA_GARAJAL))
+                // Can't be pulled if previous bosses hasn't been done, or if attacker isn't in the battle area
+                if (!pInstance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
                 {
                     EnterEvadeMode();
                     return;
@@ -663,6 +665,9 @@ class mob_soul_cutter : public CreatureScript
                             GetPlayerListInGrid(playerList, me, 300.0f);
                             bool hasCast = false;
 
+                            if (playerList.empty())
+                                break;
+
                             while (!hasCast)
                             {
                                 if (playerList.empty())
@@ -808,6 +813,34 @@ class spell_final_destination : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_final_destination_AuraScript();
+        }
+};
+
+// Voodoo Doll - 122151
+class spell_voodoo_doll : public SpellScriptLoader
+{
+    public:
+        spell_voodoo_doll() : SpellScriptLoader("spell_voodoo_doll") { }
+
+        class spell_voodoo_doll_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_voodoo_doll_AuraScript);
+
+            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    target->AddAura(65371, target);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_voodoo_doll_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_voodoo_doll_AuraScript();
         }
 };
 

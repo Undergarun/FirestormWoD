@@ -45,6 +45,7 @@ enum eSpells
     SPELL_AMETHYST_PETRIFICATION_BAR    = 131255,
     SPELL_AMETHYST_TRUE_FORM            = 115829,
     SPELL_AMETHYST_POOL                 = 116235,
+    SPELL_AMETHYST_AURA                 = 130774,
 
     // Cobalt
     SPELL_COBALT_OVERLOAD               = 115840,
@@ -85,6 +86,9 @@ enum eEvents
 
     // Tiles
     EVENT_TILING                        = 8,
+
+    // Check petrification
+    EVENT_CHECK_PETRIFICATION           = 9,
 };
 
 uint32 guardiansEntry[4] =
@@ -98,10 +102,10 @@ uint32 guardiansEntry[4] =
 // For living crystals - Stone guard
 Position stoneGuardsPos[4] =
 {
-    {3919.89f, 1258.59f, 466.363f, 4.66991f},
-    {3878.93f, 1258.49f, 466.363f, 4.69497f},
-    {3928.00f, 1246.34f, 466.363f, 4.71147f},
-    {3870.75f, 1246.28f, 466.363f, 4.54348f}
+    {3919.89f, 1258.59f, 466.363f, 4.66991f},   // Jasper
+    {3878.93f, 1258.49f, 466.363f, 4.69497f},   // Jade
+    {3928.00f, 1246.34f, 466.363f, 4.71147f},   // Amethyst
+    {3870.75f, 1246.28f, 466.363f, 4.54348f}    // Cobalt
 };
 
 // Specific orientation for tiles (should not be turned)
@@ -109,6 +113,8 @@ Position stoneGuardsPos[4] =
 
 // Invisible modelID for NPC Tiling Creature 62026
 #define INVISIBLE_DISPLAYID 11686
+
+#define DATA_FIGHT 1
 
 // 60089 - Stone Guard Controller
 class boss_stone_guard_controler : public CreatureScript
@@ -137,6 +143,8 @@ class boss_stone_guard_controler : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+                me->RemoveAllAreasTrigger();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetVisible(false);
 
@@ -147,6 +155,7 @@ class boss_stone_guard_controler : public CreatureScript
                     pInstance->SetBossState(DATA_STONE_GUARD, NOT_STARTED);
                 
                 events.ScheduleEvent(EVENT_PETRIFICATION, 15000);
+                events.ScheduleEvent(EVENT_CHECK_PETRIFICATION, 16000);
 
                 if (IsHeroic())
                     powDownCount = 2;
@@ -195,6 +204,8 @@ class boss_stone_guard_controler : public CreatureScript
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_COBALT_PETRIFICATION_BAR);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_AURA);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION);
 
                         pInstance->SetBossState(DATA_STONE_GUARD, DONE);
 
@@ -213,6 +224,10 @@ class boss_stone_guard_controler : public CreatureScript
                         if (Creature* jasperCrystal = GetClosestCreatureWithEntry(me, NPC_LIVING_JASPER_CRYSTAL, 200.0f))
                             jasperCrystal->DespawnOrUnsummon();
 
+                        // Making Cho moves
+                        if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 500.0f))
+                            cho->AI()->DoAction(ACTION_OPEN_STONEGUARD_DOOR);
+
                         // Removing energized tiles
                         me->RemoveAllDynObjects();
 
@@ -222,25 +237,55 @@ class boss_stone_guard_controler : public CreatureScript
                     {
                         if (Creature* guardian = pInstance->instance->GetCreature(pInstance->GetData64(NPC_AMETHYST)))
                         {
-                            if (powDownCount)
+                            // Removing Tiles & deactivating them
+                            me->RemoveAllDynObjects();
+                            std::list<Creature*> tileList;
+                            GetCreatureListWithEntryInGrid(tileList, me, NPC_TILING_CREATURE, 500.0f);
+
+                            for (auto tile : tileList)
+                                tile->AI()->DoAction(ACTION_UNTILING);
+
+                            // Removing buff
+                            std::list<Player*> raid;
+                            GetPlayerListInGrid(raid, me, 5000.0f);
+
+                            for (auto player : raid)
+                                player->RemoveAura(SPELL_TILES_AURA_EFFECT);
+
+                            // Decreasing powDowCount
+                            --powDownCount;
+                        }
+                        break;
+                    }
+                    case ACTION_REACH_HOME:
+                    {
+                        if (pInstance)
+                        {
+                            pInstance->SetBossState(DATA_STONE_GUARD, FAIL);
+
+                            for (uint32 entry: guardiansEntry)
                             {
-                                if (powDownCount == 2 || guardian->GetHealthPct() < 40.0f)
+                                if (pInstance)
                                 {
-                                    // Removing Tiles
-                                    me->RemoveAllDynObjects();
-
-                                    // Removing buff
-                                    std::list<Player*> raid;
-                                    GetPlayerListInGrid(raid, me, 5000.0f);
-
-                                    for (auto player : raid)
-                                        player->RemoveAura(SPELL_TILES_AURA_EFFECT);
-
-                                    // Decreasing powDowCount
-                                    --powDownCount;
+                                    if (Creature* guardian = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
+                                    {
+                                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, guardian);
+                                        guardian->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
+                                        guardian->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
+                                        guardian->RemoveAurasDueToSpell(SPELL_COBALT_PETRIFICATION);
+                                        guardian->RemoveAurasDueToSpell(SPELL_JASPER_PETRIFICATION);
+                                    }
                                 }
                             }
+
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_CHAINS);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_COBALT_PETRIFICATION_BAR);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_PETRIFICATION_BAR);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
                         }
+                        // Reset();
                         break;
                     }
                     default:
@@ -297,7 +342,7 @@ class boss_stone_guard_controler : public CreatureScript
                                     {
                                         stoneGuard->AI()->DoAction(ACTION_PETRIFICATION);
                                         lastPetrifierEntry = nextPetrifierEntry;
-                                        events.ScheduleEvent(EVENT_PETRIFICATION, 90000);
+                                        events.ScheduleEvent(EVENT_PETRIFICATION, 80000); // 90000 before, but seems too long
                                     }
                                     else
                                         events.ScheduleEvent(EVENT_PETRIFICATION, 2000);
@@ -313,8 +358,11 @@ class boss_stone_guard_controler : public CreatureScript
                     case EVENT_CRYSTALS:
                     {
                         for (uint8 i = 0; i < 4; ++i)
+                        {
                             if (uint64 stoneGuardGuid = pInstance->GetData64(guardiansEntry[i]))
+                            {
                                 if (Creature* stoneGuard = pInstance->instance->GetCreature(stoneGuardGuid))
+                                {
                                     if (stoneGuard->isAlive())
                                     {
                                         switch(stoneGuard->GetEntry())
@@ -343,6 +391,27 @@ class boss_stone_guard_controler : public CreatureScript
                                                 break;
                                         }
                                     }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case EVENT_CHECK_PETRIFICATION:
+                    {
+                        // Check if all the players have been petrified; if so, the figth resets
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 5000.0f);
+                        uint8 petrifiedCount = 0;
+
+                        for (auto player : playerList)
+                            if (player->HasAura(SPELL_TOTALY_PETRIFIED))
+                                ++petrifiedCount;
+
+                        if (petrifiedCount == playerList.size())
+                            Reset();
+                        else
+                            events.ScheduleEvent(EVENT_CHECK_PETRIFICATION, 1000);
+
                         break;
                     }
                 }
@@ -381,9 +450,11 @@ class boss_generic_guardian : public CreatureScript
             uint32 spellPetrificationBarId;
             uint32 spellTrueFormId;
             uint32 spellMainAttack;
+            uint8  powDownCount;
 
             bool warnedForOverload;
             bool isInTrueForm;
+            bool isHome;
 
             Creature* GetController()
             {
@@ -395,11 +466,15 @@ class boss_generic_guardian : public CreatureScript
                 _Reset();
                 isInTrueForm = false;
                 warnedForOverload = false;
+                isHome = true;
+                powDownCount = 0;
+                me->SetFullHealth();
                 me->SetReactState(REACT_DEFENSIVE);
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
-                
+                me->SetFacingTo(M_PI * 1.5f);
+
                 me->CastSpell(me, SPELL_SOLID_STONE, true);
                 me->CastSpell(me, SPELL_ANIM_SIT,    true);
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
@@ -457,7 +532,7 @@ class boss_generic_guardian : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_ENERGY,            1000);
                 events.ScheduleEvent(EVENT_REND_FLESH,              5000);
                 events.ScheduleEvent(EVENT_MAIN_ATTACK,             10000);
-                events.ScheduleEvent(EVENT_ENRAGE,                  360000);
+                events.ScheduleEvent(EVENT_ENRAGE,                  420000);
             }
 
             void EnterCombat(Unit* attacker)
@@ -469,39 +544,22 @@ class boss_generic_guardian : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_ANIM_SIT);
             }
 
-            void JustReachedHome()
+            void KilledUnit(Unit* victim)
             {
-                _JustReachedHome();
-                if (pInstance)
-                    pInstance->SetBossState(DATA_STONE_GUARD, FAIL);
-                me->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
-                me->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
-                me->RemoveAurasDueToSpell(SPELL_COBALT_PETRIFICATION);
-                me->RemoveAurasDueToSpell(SPELL_JASPER_PETRIFICATION);
-
-                for (uint32 entry: guardiansEntry)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (pInstance)
                     {
-                        if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetData64(entry)))
+                        std::list<Player*> playerList;
+                        playerList.clear();
+
+                        GetPlayerListInGrid(playerList, me, 500.0f);
+                        if (playerList.empty())
                         {
-                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, gardian);
-                            gardian->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
-                            gardian->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
-                            gardian->RemoveAurasDueToSpell(SPELL_COBALT_PETRIFICATION);
-                            gardian->RemoveAurasDueToSpell(SPELL_JASPER_PETRIFICATION);
+                            uint8 point = me->GetEntry() == NPC_JASPER ? 0 : (me->GetEntry() == NPC_JADE ? 1 : (me->GetEntry() == NPC_AMETHYST ? 2 : 3));
+                            me->NearTeleportTo(stoneGuardsPos[point].GetPositionX(), stoneGuardsPos[point].GetPositionY(), stoneGuardsPos[point].GetPositionZ(), stoneGuardsPos[point].GetOrientation());
                         }
                     }
-                }
-
-                if (pInstance)
-                {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_CHAINS);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_COBALT_PETRIFICATION_BAR);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_PETRIFICATION_BAR);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
                 }
             }
 
@@ -517,6 +575,9 @@ class boss_generic_guardian : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+                if (isHome)
+                    isHome = false;
+
                 if (Creature* controller = GetController())
                 {
                     if (damage >= me->GetHealth() && me->isAlive())
@@ -539,7 +600,11 @@ class boss_generic_guardian : public CreatureScript
 
                     // Heroic : turns off white tiles when life < 75% and then < 40%
                     if (me->HealthBelowPctDamaged(75, damage))
-                        controller->AI()->DoAction(ACTION_POWER_DOWN);
+                        if (!powDownCount || (powDownCount == 1 && me->HealthBelowPctDamaged(40, damage)))
+                        {
+                            controller->AI()->DoAction(ACTION_POWER_DOWN);
+                            ++powDownCount;
+                        }
                 }
             }
 
@@ -561,8 +626,20 @@ class boss_generic_guardian : public CreatureScript
             {
                 me->RemoveAllAreasTrigger();
 
+                _JustDied();
+
                 if (Creature* controller = GetController())
                     controller->AI()->DoAction(ACTION_GUARDIAN_DIED);
+
+                if (pInstance)
+                {
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_CHAINS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_COBALT_PETRIFICATION_BAR);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_PETRIFICATION_BAR);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
+                }
             }
 
             void DoAction(int32 const action)
@@ -712,6 +789,32 @@ class boss_generic_guardian : public CreatureScript
                                     
                                         Player* firstPlayer  = *tempPlayerList.begin();
                                         Player* SecondPlayer = *(++(tempPlayerList.begin()));
+
+                                        // Check for tanks
+                                        bool tank1 = false;
+                                        bool tank2 = false;
+                                        for (auto entry : guardiansEntry)
+                                        {
+                                            if (Creature* guardian = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
+                                            {
+                                                if (guardian->isAlive())
+                                                {
+                                                    if (Unit* target = guardian->getVictim())
+                                                    {
+                                                        if (target->GetTypeId() == TYPEID_PLAYER)
+                                                        {
+                                                            if (target->ToPlayer() == firstPlayer)
+                                                                tank1 = true;
+                                                            else if (target->ToPlayer() == SecondPlayer)
+                                                                tank2 = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // If selected players are both tanks, we switch the second player with another one
+                                        if (tank1 && tank2)
+                                            SecondPlayer = *(++(tempPlayerList.begin()));
 
                                         if (!firstPlayer || !SecondPlayer)
                                             break;
@@ -942,24 +1045,29 @@ class mob_tiling_creature : public CreatureScript
                 {
                     case ACTION_TILING:
                     {
-                        if (Creature* controller = me->GetMap()->GetCreature(pInstance->GetData64(NPC_STONE_GUARD_CONTROLER)))
-                            controller->CastSpell(me, SPELL_TILES_DISPLAYED, false);
-
-                        // me->CastSpell(me, SPELL_TILES_DISPLAYED, false);
-
-                        std::list<Player*> playerList;
-                        GetPlayerListInGrid(playerList, me, 5000.0f);
-
-                        for (auto player : playerList)
+                        if (!activated)
                         {
-                            AuraPtr buff = player->GetAura(SPELL_TILES_AURA_EFFECT);
-                            if (buff)
-                                buff->SetStackAmount(buff->GetStackAmount() + 1);
-                            else
-                                me->AddAura(SPELL_TILES_AURA_EFFECT, player);
-                        }
+                            if (Creature* controller = me->GetMap()->GetCreature(pInstance->GetData64(NPC_STONE_GUARD_CONTROLER)))
+                                controller->CastSpell(me, SPELL_TILES_DISPLAYED, false);
 
-                        activated = true;
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 5000.0f);
+
+                            for (auto player : playerList)
+                            {
+                                AuraPtr buff = player->GetAura(SPELL_TILES_AURA_EFFECT);
+                                if (buff)
+                                    buff->SetStackAmount(buff->GetStackAmount() + 1);
+                                else
+                                    me->AddAura(SPELL_TILES_AURA_EFFECT, player);
+                            }
+                            activated = true;
+                        }
+                        break;
+                    }
+                    case ACTION_UNTILING:
+                    {
+                        activated = false;
                         break;
                     }
                     default:
@@ -1079,7 +1187,7 @@ class spell_petrification : public SpellScriptLoader
 
                         target->SetPower(POWER_ALTERNATE_POWER, newStackCount);
 
-                        if (newStackCount >= 100)
+                        if (newStackCount >= 100 && caster->GetEntry() != NPC_ZANDALARI_SKULLCHARGER)
                             caster->AddAura(SPELL_TOTALY_PETRIFIED, target);
                     }
                 }

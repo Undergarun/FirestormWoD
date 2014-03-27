@@ -107,6 +107,7 @@ enum eTrashsActions
     ACTION_CURSED_MOGU_ATTACK_PLAYER = 1
 };
 
+// 61334 / 61989 - Cursed Mogu Sculpture
 class mob_cursed_mogu_sculpture : public CreatureScript
 {
     public:
@@ -185,8 +186,9 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                             if (activationDone)
                                 return;
 
-                            if (Creature* ghostEssence = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GHOST_ESSENCE)))
-                                ghostEssence->CastSpell(ghostEssence, SPELL_GHOST_ESSENCE, false);
+                            if (pInstance)
+                                if (Creature* ghostEssence = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GHOST_ESSENCE)))
+                                    ghostEssence->CastSpell(ghostEssence, SPELL_GHOST_ESSENCE, false);
                             break;
                         }
                         case NPC_CURSED_MOGU_SCULPTURE_1:
@@ -211,15 +213,16 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 50.0f, true))
+                if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 20.0f, true) && me->GetEntry() == NPC_CURSED_MOGU_SCULPTURE_2)
                 {
-                    Creature* Feng = GetClosestCreatureWithEntry(me, NPC_FENG, 100.0f, true);
-                    if (Feng && Feng->AI())
-                        Feng->AI()->Talk(7);
+                    if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 50.0f, true))
+                        lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
                 }
-
-                if (me->GetEntry() == NPC_CURSED_MOGU_SCULPTURE_1)
+                else if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 50.0f, true) && me->GetEntry() == NPC_CURSED_MOGU_SCULPTURE_1)
                 {
+                    if (Creature* Feng = GetClosestCreatureWithEntry(me, NPC_FENG, 100.0f, true))
+                        Feng->AI()->Talk(7);
+
                     if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
                     {
                         if (lorewalkerCho->AI())
@@ -326,6 +329,7 @@ class spell_ghost_essence : public SpellScriptLoader
 
 float quilenNewY[2] = { 1170.0f, 1240.0f };
 
+// 64183 - Enormous Stone Quilen
 class mob_enormous_stone_quilen : public CreatureScript
 {
     public:
@@ -337,13 +341,15 @@ class mob_enormous_stone_quilen : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
                 prevPosition = 1;
+                if (me->isAlive())
+                {
+                    if (me->GetPositionX() > 3900)
+                        prevPosition = 2;
 
-                if (me->GetPositionX() > 3900)
-                    prevPosition = 2;
-
-                nextMovementTimer = 0;
-                me->SetWalk(true);
-                me->GetMotionMaster()->MovePoint(prevPosition, me->GetPositionX(), quilenNewY[prevPosition - 1], me->GetPositionZ());
+                    nextMovementTimer = 0;
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(prevPosition, me->GetPositionX(), quilenNewY[prevPosition - 1], me->GetPositionZ());
+                }
             }
 
             InstanceScript* pInstance;
@@ -430,6 +436,7 @@ class mob_enormous_stone_quilen : public CreatureScript
         }
 };
 
+// 60576 - Stone Quilen
 class mob_stone_quilen : public CreatureScript
 {
     public:
@@ -505,6 +512,7 @@ class mob_stone_quilen : public CreatureScript
         }
 };
 
+// 60375 - Zandalari Skullcharger
 class mob_zandalari_skullcharger : public CreatureScript
 {
     public:
@@ -523,8 +531,8 @@ class mob_zandalari_skullcharger : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
-                events.ScheduleEvent(EVENT_ZANDALARI_TROLL_RUSH, urand (5000, 6000));
+                if (me->GetEntry() == NPC_ZANDALARI_SKULLCHARGER)
+                    events.ScheduleEvent(EVENT_ZANDALARI_TROLL_RUSH, urand (5000, 6000));
             }
 
             void EnterCombat(Unit* attacker)
@@ -536,6 +544,12 @@ class mob_zandalari_skullcharger : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 80.0f, true);
+                Creature* infiltrator  = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_INFILTRATOR,  80.0f, true);
+                Creature* firedancer   = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_FIREDANCER,   80.0f, true);
+                if (skullcharger || infiltrator || firedancer)
+                    return;
+
                 if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 150.0f, true))
                 {
                     if (lorewalkerCho->AI())
@@ -551,7 +565,7 @@ class mob_zandalari_skullcharger : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || me->GetEntry() != NPC_ZANDALARI_SKULLCHARGER)
                     return;
 
                 events.Update(diff);
@@ -575,7 +589,6 @@ class mob_zandalari_skullcharger : public CreatureScript
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
         };
@@ -664,6 +677,7 @@ enum eChoEvents
     EVENT_TALK_12            = 13
 };
 
+// 61348 - Lorewalker Cho
 class npc_lorewalker_cho : public CreatureScript
 {
     public:
@@ -713,7 +727,9 @@ class npc_lorewalker_cho : public CreatureScript
             }
 
             bool hasSaidIntro;
+            bool needToSayStoneGuardDone;
             bool hasSaidStoneguardDeath;
+            bool needToSayFengDone;
             bool hasSaidZandalariBegin;
             bool hasSaidZandalariDeath;
             bool hasSaidSecretsKeeperCombat;
@@ -727,7 +743,9 @@ class npc_lorewalker_cho : public CreatureScript
                 SetDespawnAtFar(false);
                 SetDespawnAtEnd(false);
                 hasSaidIntro = false;
+                needToSayStoneGuardDone = true;
                 hasSaidStoneguardDeath = false;
+                needToSayFengDone = true;
                 hasSaidZandalariBegin = false;
                 hasSaidZandalariDeath = false;
                 hasSaidSecretsKeeperCombat = false;
@@ -755,170 +773,292 @@ class npc_lorewalker_cho : public CreatureScript
 
                 switch (waypointId)
                 {
+                    // Intro Stone Guard
                     case 0:
-                        Talk(INTRO_02);
+                    {
+                        if (pInstance->GetBossState(DATA_STONE_GUARD) != DONE)
+                            Talk(INTRO_02);
                         break;
+                    }
+                    // Waiting point until Stone Guard is done
                     case 3:
-                        Talk(INTRO_03);
+                    {
+                        if (needToSayStoneGuardDone)
+                            Talk(INTRO_03);
                         SetEscortPaused(true);
                         SetRun(true);
+                        if (pInstance->GetBossState(DATA_STONE_GUARD) == DONE)
+                            DoAction(ACTION_OPEN_STONEGUARD_DOOR);
                         break;
+                    }
+                    // Moving outside of the Stone Guard room
                     case 6:
-                        Talk(INTRO_06);
+                        if (needToSayStoneGuardDone)
+                            Talk(INTRO_06);
                         break;
+                    // Before the 2 first Cursed Mogu Sculptures
+                    case 9:
+                    {
+                        if (Creature* cursedScupture = GetClosestCreatureWithEntry(me, NPC_CURSED_MOGU_SCULPTURE_2, 100.0f))
+                            SetEscortPaused(true);
+                        break;
+                    }
                     case 10:
-                        Talk(INTRO_07);
+                    {
+                        if (needToSayStoneGuardDone)
+                            Talk(INTRO_07);
                         break;
+                    }
+                    // Before the line of 5 Cursed Mogu Sculptures, in front of Feng
                     case 12:
-                        SetEscortPaused(true);
+                    {
+                        if (Creature* cursedSculpture = GetClosestCreatureWithEntry(me, NPC_CURSED_MOGU_SCULPTURE_1, 50.0f, true))
+                            SetEscortPaused(true);
                         break;
+                    }
+                    // Waiting until Feng is done
                     case 13:
-                        Talk(FENG_01);
-                        SetEscortPaused(true);
+                    {
+                        if (pInstance->GetBossState(DATA_FENG) != DONE)
+                        {
+                            Talk(FENG_01);
+                            SetEscortPaused(true);
+                        }
+                        else
+                            needToSayFengDone = false;
                         break;
+                    }
+                    // If the trash before Garajal are done, we don't go on the left side
+                    case 18:
+                    {
+                        Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 100.0f, true);
+                        Creature* infiltrator  = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_INFILTRATOR,  100.0f, true);
+                        Creature* firedancer   = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_FIREDANCER,   100.0f, true);
+                        if (!skullcharger && !infiltrator && !firedancer)
+                            SetNextWaypoint(20);
+                        break;
+                    }
+                    // Going on left side and waiting for the trash before Garajal to be done
                     case 19:
-                        Talk(FENG_03);
+                    {
+                        if (needToSayFengDone)
+                            Talk(FENG_03);
                         SetEscortPaused(true);
+                        break;
+                    }
+                    // Waiting until Garajal is done
                     case 21:
-                        SetEscortPaused(true);
+                    {
+                        if (pInstance->GetBossState(DATA_GARAJAL) != DONE)
+                            SetEscortPaused(true);
                         break;
+                    }
+                    // Gossip to trigger the event before spirit kings
                     case 38:
-                        me->SetOrientation(4.68f);
-                        me->SetFacingTo(4.68f);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        SetEscortPaused(true);
+                    {
+                        if (GetClosestCreatureWithEntry(me, MOB_MENG, 500.0f, true))
+                        {
+                            me->SetOrientation(4.68f);
+                            me->SetFacingTo(4.68f);
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            SetEscortPaused(true);
+                        }
                         break;
+                    }
                     case 39:
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
+                    // Stop and wait for the event, and the for the spirit kings, to be done before restarting
                     case 42:
                     {
-                        me->SetOrientation(1.51f);
-                        me->SetFacingTo(1.51f);
-                        SetEscortPaused(true);
-                        Talk(SPIRIT_KINGS_01);
-
-                        std::list<Creature*> sorcererMoguList;
-                        std::list<Creature*> mountedMoguList;
-                        std::list<Creature*> moguArcherList;
-                        std::list<Creature*> kingsGuardList;
-
-                        me->GetCreatureListWithEntryInGrid(sorcererMoguList, NPC_SORCERER_MOGU, 100.0f);
-                        me->GetCreatureListWithEntryInGrid(mountedMoguList, NPC_MOUNTED_MOGU, 200.0f);
-                        me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 100.0f);
-                        me->GetCreatureListWithEntryInGrid(kingsGuardList, NPC_KINGSGUARD, 200.0f);
-
-                        for (auto itr : sorcererMoguList)
+                        if (GetClosestCreatureWithEntry(me, NPC_QIANG, 200.0f, true))
                         {
-                            if (Creature* sorcererMogu = itr)
+                            me->SetOrientation(1.51f);
+                            me->SetFacingTo(1.51f);
+                            SetEscortPaused(true);
+                            Talk(SPIRIT_KINGS_01);
+
+                            if (Creature* mob_meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
                             {
-                                sorcererMogu->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                sorcererMogu->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                sorcererMogu->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                                events.ScheduleEvent(EVENT_START_FIRST_COMBAT,	4000);
+                                std::list<Creature*> sorcererMoguList;
+                                std::list<Creature*> mountedMoguList;
+                                std::list<Creature*> moguArcherList;
+                                std::list<Creature*> kingsGuardList;
+
+                                me->GetCreatureListWithEntryInGrid(sorcererMoguList, NPC_SORCERER_MOGU, 100.0f);
+                                me->GetCreatureListWithEntryInGrid(mountedMoguList, NPC_MOUNTED_MOGU, 200.0f);
+                                me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 100.0f);
+                                me->GetCreatureListWithEntryInGrid(kingsGuardList, NPC_KINGSGUARD, 200.0f);
+
+                                for (auto itr : sorcererMoguList)
+                                {
+                                    if (Creature* sorcererMogu = itr)
+                                    {
+                                        sorcererMogu->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        sorcererMogu->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        sorcererMogu->AI()->DoAction(ACTION_BEFORE_COMBAT);
+                                        events.ScheduleEvent(EVENT_START_FIRST_COMBAT,	4000);
+                                    }
+                                }
+
+                                for (auto itr : mountedMoguList)
+                                {
+                                    if (Creature* mountedMogu = itr)
+                                    {
+                                        mountedMogu->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        mountedMogu->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                    }
+                                }
+
+                                for (auto itr : moguArcherList)
+                                {
+                                    if (Creature* moguArcher = itr)
+                                    {
+                                        moguArcher->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        moguArcher->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                    }
+                                }
+
+                                for (auto itr : kingsGuardList)
+                                {
+                                    if (Creature* kingsGuard = itr)
+                                    {
+                                        kingsGuard->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        kingsGuard->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                    }
+                                }
+
+                                if (Creature* zian = GetClosestCreatureWithEntry(me, MOB_ZIAN, 200.0f))
+                                {
+                                    if (zian->AI())
+                                    {
+                                        zian->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        zian->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        zian->AI()->DoAction(ACTION_BEFORE_COMBAT);
+                                        events.ScheduleEvent(EVENT_START_FIRST_COMBAT,	5000);
+                                    }
+                                }
+
+                                if (Creature* meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f))
+                                {
+                                    if (meng->AI())
+                                    {
+                                        meng->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        meng->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                    }
+                                }
+
+                                if (Creature* qiang = GetClosestCreatureWithEntry(me, MOB_QIANG, 200.0f))
+                                {
+                                    if (qiang->AI())
+                                    {
+                                        qiang->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        qiang->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                    }
+                                }
+
+                                if (Creature* subetai = GetClosestCreatureWithEntry(me, MOB_SUBETAI, 200.0f))
+                                {
+                                    if (subetai->AI())
+                                    {
+                                        subetai->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        subetai->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                    }
+                                }
                             }
                         }
-
-                        for (auto itr : mountedMoguList)
+                        else
                         {
-                            if (Creature* mountedMogu = itr)
-                            {
-                                mountedMogu->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                mountedMogu->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                            }
-                        }
+                            if (GameObject* wall = GetClosestGameObjectWithEntry(me, GOB_SPIRIT_KINGS_EXIT, 100.0f))
+                                if (wall->GetGoState() == GO_STATE_READY)
+                                    wall->SetGoState(GO_STATE_ACTIVE);
 
-                        for (auto itr : moguArcherList)
-                        {
-                            if (Creature* moguArcher = itr)
-                            {
-                                moguArcher->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                moguArcher->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                            }
+                            if (pInstance)
+                                if (pInstance->GetBossState(DATA_SPIRIT_KINGS) == NOT_STARTED)
+                                    pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                         }
-
-                        for (auto itr : kingsGuardList)
-                        {
-                            if (Creature* kingsGuard = itr)
-                            {
-                                kingsGuard->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                kingsGuard->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                            }
-                        }
-
-                        if (Creature* zian = GetClosestCreatureWithEntry(me, MOB_ZIAN, 200.0f))
-                        {
-                            if (zian->AI())
-                            {
-                                zian->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                zian->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                zian->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                                events.ScheduleEvent(EVENT_START_FIRST_COMBAT,	5000);
-                            }
-                        }
-
-                        if (Creature* meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f))
-                        {
-                            if (meng->AI())
-                            {
-                                meng->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                meng->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                            }
-                        }
-
-                        if (Creature* qiang = GetClosestCreatureWithEntry(me, MOB_QIANG, 200.0f))
-                        {
-                            if (qiang->AI())
-                            {
-                                qiang->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                qiang->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                            }
-                        }
-
-                        if (Creature* subetai = GetClosestCreatureWithEntry(me, MOB_SUBETAI, 200.0f))
-                        {
-                            if (subetai->AI())
-                            {
-                                subetai->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                subetai->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                            }
-                        }
-
                         break;
                     }
+                    // Saying a passage has appeared in the wall
                     case 43:
+                    {
                         Talk(18);
                         break;
+                    }
                     case 48:
-                        Talk(19);
+                    {
+                        if (pInstance->GetBossState(DATA_ELEGON) != DONE)
+                            Talk(19);
                         break;
+                    }
+                    // Downstairs, entrance of the last part of the vault
                     case 53:
-                        SetEscortPaused(true);
-                        Talk(20);
+                    {
+                        if (GetClosestCreatureWithEntry(me, NPC_MOGU_SECRET_KEEPER, 50.0f, true))
+                        {
+                            SetEscortPaused(true);
+                            Talk(20);
+                        }
                         break;
+                    }
+                    // Crossroads between Elegon and Will Of Emperor : if Elegon is done, we directly go to WOE
+                    case 56:
+                    {
+                        if (pInstance->GetBossState(DATA_ELEGON) == DONE)
+                            SetNextWaypoint(83);
+                        break;
+                    }
+                    // Opening Elegon's door
                     case 60:
                         if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ELEGON_DOOR_ENTRANCE)))
                             if (door->GetGoState() == GO_STATE_READY)
                                 door->SetGoState(GO_STATE_ACTIVE);
                         break;
+                    // Stopping for the mob in the stairway to Elegon
                     case 62:
-                        SetEscortPaused(true);
+                    {
+                        if (GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN, 100.0f, true))
+                            SetEscortPaused(true);
                         break;
+                    }
+                    // Trash in front of Elegon's console
                     case 67:
-                        SetEscortPaused(true);
-                        Talk(23);
+                    {
+                        if (GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ENGINE_KEEPER, 200.0f, true) ||
+                            GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ARCANIST,      200.0f, true) ||
+                            GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN,        200.0f, true) ||
+                            GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN_2,      200.0f, true))
+                        {
+                            SetEscortPaused(true);
+                            Talk(23);
+                        }
                         break;
+                    }
+                    // Moving to Elegon's console
                     case 69:
-                        Talk(24);
+                        if (pInstance->GetBossState(DATA_ELEGON) != DONE)
+                            Talk(24);
                         break;
+                    // Gossip to trigger Elegon's console
                     case 70:
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        SetEscortPaused(true);
+                    {
+                        if (pInstance->GetBossState(DATA_ELEGON) != DONE)
+                        {
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            SetEscortPaused(true);
+                        }
                         break;
+                    }
+                    // Hiding until Elegon is done
                     case 71:
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        SetEscortPaused(true);
+                    {
+                        if (pInstance->GetBossState(DATA_ELEGON) != DONE)
+                        {
+                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            SetEscortPaused(true);
+                        }
                         break;
+                    }
                     case 72:
                         events.ScheduleEvent(EVENT_TALK_1, 1000);
                         break;
@@ -928,15 +1068,12 @@ class npc_lorewalker_cho : public CreatureScript
                             if (door->GetGoState() == GO_STATE_READY)
                                 door->SetGoState(GO_STATE_ACTIVE);
                         break;
-                    /*case 83:
-                        if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_WILL_OF_EMPEROR_ENTRANCE)))
-                            if (door->GetGoState() == GO_STATE_READY)
-                                door->SetGoState(GO_STATE_ACTIVE);
-                                // door->Use(me);
-                        break;*/
                     case 86:
-                        SetEscortPaused(true);
+                    {
+                        if (GetClosestCreatureWithEntry(me, NPC_MOGU_SECRET_KEEPER, 50.0f, true))
+                            SetEscortPaused(true);
                         break;
+                    }
                     case 88:
                         events.ScheduleEvent(EVENT_TALK_6, 1000);
                         break;
@@ -991,8 +1128,14 @@ class npc_lorewalker_cho : public CreatureScript
 
                         Talk(25);
                         if (GameObject* button = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CELESTIAL_COMMAND)))
+                        {
                             if (button->GetGoState() == GO_STATE_READY)
+                            {
                                 button->Use(me);
+                                button->SetGoState(GO_STATE_ACTIVE);
+                                button->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            }
+                        }
                         break;
                     }
                     case ACTION_TALK_WILL_OF_EMPEROR:
@@ -1001,6 +1144,13 @@ class npc_lorewalker_cho : public CreatureScript
                     case ACTION_EMPERORS_DEATH:
                         events.ScheduleEvent(EVENT_TALK_11, 1000);
                         break;
+                    case ACTION_OPEN_STONEGUARD_DOOR:
+                    {
+                        DoAction(ACTION_CONTINUE_ESCORT);
+                        Talk(INTRO_05);
+                        hasSaidStoneguardDeath = true;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1009,24 +1159,6 @@ class npc_lorewalker_cho : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 npc_escortAI::UpdateAI(diff);
-
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_STONE_GUARD_DOOR_EXIT)))
-                {
-                    if (pDoor->GetGoState() == GO_STATE_ACTIVE)
-                    {
-                        if (me->GetPositionX() == 3869.48f && me->GetPositionY() == 1123.95f && me->GetPositionZ() >= 481.24f)
-                        {
-                            if (hasSaidStoneguardDeath == false)
-                            {
-                                DoAction(ACTION_CONTINUE_ESCORT);
-                                Talk(INTRO_05);
-                                hasSaidStoneguardDeath = true;
-                            }
-                            else
-                                return;
-                        }
-                    }
-                }
 
                 events.Update(diff);
 
@@ -1107,6 +1239,7 @@ class npc_lorewalker_cho : public CreatureScript
         }
 };
 
+// 61421 - Zian of the Endless Shadow
 class mob_zian : public CreatureScript
 {
     public:
@@ -1186,6 +1319,7 @@ class mob_zian : public CreatureScript
         }
 };
 
+// 61250 - Sorcerer Mogu
 class mob_sorcerer_mogu : public CreatureScript
 {
     public:
@@ -1265,6 +1399,7 @@ class mob_sorcerer_mogu : public CreatureScript
         }
 };
 
+// 61423 - Qiang the Merciless
 class mob_qiang : public CreatureScript
 {
     public:
@@ -1378,6 +1513,7 @@ class mob_qiang : public CreatureScript
         }
 };
 
+// 61341 - Mounted Mogu
 class mob_mounted_mogu : public CreatureScript
 {
     public:
@@ -1462,6 +1598,7 @@ class mob_mounted_mogu : public CreatureScript
         }
 };
 
+// 61427 - Subetai the Swift
 class mob_subetai : public CreatureScript
 {
     public:
@@ -1575,6 +1712,7 @@ class mob_subetai : public CreatureScript
         }
 };
 
+// 61345 - Mogu Archer
 class mob_mogu_archer : public CreatureScript
 {
     public:
@@ -1657,6 +1795,7 @@ class mob_mogu_archer : public CreatureScript
         }
 };
 
+// 61429 - Meng the Demented
 class mob_meng : public CreatureScript
 {
     public:
@@ -1768,6 +1907,7 @@ class mob_meng : public CreatureScript
         }
 };
 
+// 61347 - Kingsguard
 class mob_kingsguard : public CreatureScript
 {
     public:
@@ -1864,6 +2004,7 @@ class mob_kingsguard : public CreatureScript
         }
 };
 
+// 61131 - Mogu'shan Secret-Keeper
 class mob_mogu_secret_keeper : public CreatureScript
 {
     public:
@@ -1940,6 +2081,9 @@ class mob_mogu_secret_keeper : public CreatureScript
         }
 };
 
+// 64061 - Mogu'shan Warden
+// 64947 - Mogu'shan Warden
+// 64063 - Mogu'shan Arcanist
 class mob_mogu_warden : public CreatureScript
 {
     public:
@@ -1956,15 +2100,23 @@ class mob_mogu_warden : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_WARDEN_FORCEFUL_SWING, urand(5000, 12000));
-                events.ScheduleEvent(EVENT_WARDEN_TOUCH_OF_NALAK_SHA, urand(15000, 20000));
-                events.ScheduleEvent(EVENT_WARDEN_WARDEN_S_FURY, urand(22000, 28000));
+                if (me->GetEntry() != NPC_MOGUSHAN_ARCANIST)
+                {
+                    events.ScheduleEvent(EVENT_WARDEN_FORCEFUL_SWING, urand(5000, 12000));
+                    events.ScheduleEvent(EVENT_WARDEN_TOUCH_OF_NALAK_SHA, urand(15000, 20000));
+                    events.ScheduleEvent(EVENT_WARDEN_WARDEN_S_FURY, urand(22000, 28000));
+                }
             }
             
             void JustDied(Unit* killer)
             {
-                if (me->GetEntry() == NPC_MOGUSHAN_WARDEN)
-                    if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
+                Creature* warden1  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN,        50.0f, true);
+                Creature* warden2  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN_2,      50.0f, true);
+                Creature* arcanist = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ARCANIST,      50.0f, true);
+                Creature* keeper   = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ENGINE_KEEPER, 50.0f, true);
+
+                if (!warden1 && !warden2 && !arcanist && !keeper)
+                    if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 150.0f, true))
                         cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
             }
 
@@ -2012,6 +2164,7 @@ class mob_mogu_warden : public CreatureScript
         }
 };
 
+// 64068 - Mogu'shan Engine Keeper
 class mob_mogu_engine_keeper : public CreatureScript
 {
     public:
@@ -2034,8 +2187,14 @@ class mob_mogu_engine_keeper : public CreatureScript
             
             void JustDied(Unit* killer)
             {
-                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 120.0f, true))
-                    cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                Creature* warden1  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN,        50.0f, true);
+                Creature* warden2  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN_2,      50.0f, true);
+                Creature* arcanist = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ARCANIST,      50.0f, true);
+                Creature* keeper   = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ENGINE_KEEPER, 50.0f, true);
+
+                if (!warden1 && !warden2 && !arcanist && !keeper)
+                    if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 150.0f, true))
+                        cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
             }
 
             void UpdateAI(const uint32 diff)

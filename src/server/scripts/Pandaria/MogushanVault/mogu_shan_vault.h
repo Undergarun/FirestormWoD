@@ -90,6 +90,12 @@ enum eActions
     // Heroic Stone Guard
     ACTION_POWER_DOWN                       = 36,
     ACTION_TILING                           = 37,
+    ACTION_UNTILING                         = 38,
+
+    ACTION_OPEN_STONEGUARD_DOOR             = 39,
+    ACTION_REACH_HOME                       = 40,
+
+    ACTION_CHECK_SPIRITKINGS                = 41,
 };
 
 enum eCreatures
@@ -158,11 +164,18 @@ enum eCreatures
     NPC_TITAN_SPARK                 = 60480,
     NPC_LOREWALKER_CHO              = 61348,
     NPC_MOGUSHAN_WARDEN             = 64947,
+    NPC_MOGUSHAN_WARDEN_2           = 64061,
 
     NPC_SORCERER_MOGU               = 61250,
     NPC_MOGU_ARCHER                 = 61345,
     NPC_KINGSGUARD                  = 61347,
     NPC_MOUNTED_MOGU                = 61341,
+    NPC_ZANDALARI_SKULLCHARGER      = 60375,
+    NPC_ZANDALARI_INFILTRATOR       = 60381,
+    NPC_ZANDALARI_FIREDANCER        = 60402,
+    NPC_MOGU_SECRET_KEEPER          = 61131,
+    NPC_MOGUSHAN_ENGINE_KEEPER      = 64068,
+    NPC_MOGUSHAN_ARCANIST           = 64063,
 
     MOB_SUBETAI                     = 61427,
     MOB_MENG                        = 61429,

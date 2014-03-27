@@ -295,6 +295,5 @@ enum eTypes
 };
 
 #define DISPLAYID_INVISIBLE 11686
-#define PI 3.141593f
 
 #endif // HEART_OF_FEAR_H_

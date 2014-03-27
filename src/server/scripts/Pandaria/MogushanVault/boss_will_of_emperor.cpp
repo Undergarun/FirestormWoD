@@ -31,7 +31,7 @@ enum eSpells
     SPELL_ARC_VISUAL            = 116968,
     SPELL_MAGNETIC_ARMOR_QIN    = 116815,
     SPELL_MAGNETIZED_QIN        = 116818,
-    SPELL_MAGNETIC_PULL_QIN     = 116919,
+    SPELL_MAGNETIC_PULL_QIN     = 116819,
     SPELL_MAGNETIC_ARMOR_JAN    = 117193,
     SPELL_MAGNETIZED_JAN        = 117195,
     SPELL_MAGNETIC_PULL_JAN     = 117194,
@@ -64,6 +64,7 @@ enum eSpells
     SPELL_SUMMON_TITAN_SPARK    = 117746,
     SPELL_FOCALISED_ENERGY      = 116829,
     SPELL_ENERGY_OF_CREATION    = 116805,
+    SPELL_ENERGY_VISUAL         = 127758,
 
     // Shared
     SPELL_TERRACOTTA_SKYBEAM_S  = 118063,
@@ -106,10 +107,14 @@ enum eEvents
     // Strenght
     EVENT_ENERGIZING_SMASH      = 30,
     EVENT_SELECT_TARGET         = 31,
-    EVENT_ENERGIZING_VISUAL     = 33,
+    EVENT_ENERGIZING_VISUAL     = 32,
 
     // Rage
-    EVENT_RAGE_FIRST_ATTACK     = 32
+    EVENT_RAGE_FIRST_ATTACK     = 33,
+
+    // Titan Spark
+    EVENT_LEVITATING            = 34,
+    EVENT_CHECK_DISTANCE        = 35,
 };
 
 enum eAddActions
@@ -161,57 +166,37 @@ enum eTalk
 #define ACHIEVE 6455
 
 // Starting positions for adds
-float tabAlcoves[46][4] =
+float tabAlcoves[26][4] =
 {
     3810.64f, 1550.48f, 428.737f, 6.27265f,
-    3810.7f,  1550.43f, 459.262f, 6.27481f,
     3811.0f,  1550.39f, 367.725f, 6.2521f,
-    3811.32f, 1536.29f, 519.944f, 0.197641f,
     3811.62f, 1536.66f, 398.334f, 0.749377f,
-    3811.73f, 1536.68f, 489.336f, 0.178363f,
     3811.95f, 1536.81f, 428.738f, 0.172334f,
     3811.99f, 1536.68f, 367.726f, 0.22558f,
     3812.12f, 1550.07f, 398.25f,  0.00872824f,
     3812.12f, 1564.02f, 428.738f, 5.77924f,
     3812.33f, 1564.24f, 367.726f, 6.03922f,
-    3812.41f, 1563.64f, 489.336f, 5.78941f,
-    3812.53f, 1563.66f, 519.944f, 5.78551f,
     3812.83f, 1563.62f, 367.643f, 5.77969f,
     3813.13f, 1563.47f, 398.252f, 5.77872f,
     3813.35f, 1537.36f, 367.643f, 0.150286f,
-    3816.55f, 1583.32f, 489.92f,  5.64359f,
-    3816.64f, 1516.6f,  489.92f,  0.509466f,
-    3816.74f, 1516.6f,  459.844f, 0.512551f,
-    3816.99f, 1583.02f, 520.525f, 5.64269f,
-    3817.89f, 1517.4f,  520.525f, 0.503707f,
     3831.79f, 1602.73f, 398.912f, 5.41683f,
     3832.32f, 1498.53f, 368.308f, 0.842962f,
     3850.7f,  1613.53f, 368.308f, 5.07364f,
     3851.34f, 1486.52f, 368.308f, 1.23063f,
-    3873.66f, 1616.41f, 520.521f, 4.70287f,
-    3873.6f,  1616.08f, 459.841f, 4.70587f,
     3873.93f, 1615.6f,  429.237f, 4.68575f,
     3874.22f, 1484.84f, 429.236f, 1.57923f,
     3874.31f, 1483.42f, 368.308f, 1.55837f,
     3874.32f, 1618.01f, 368.308f, 4.71767f,
-    3874.39f, 1484.9f,  520.521f, 1.58646f,
     3874.55f, 1483.5f,  398.912f, 1.59109f,
     3874.61f, 1617.9f,  398.912f, 4.75497f,
-    3874.7f,  1485.1f,  489.917f, 1.59977f,
-    3874.86f, 1484.86f, 459.841f, 1.60658f,
     3894.75f, 1485.93f, 368.308f, 1.48814f,
-    3894.93f, 1615.93f, 459.841f, 4.62488f,
     3895.03f, 1483.62f, 398.912f, 1.48814f,
-    3895.04f, 1616.19f, 520.521f, 4.61926f,
-    3895.24f, 1484.05f, 520.522f, 1.58261f,
     3895.25f, 1485.82f, 368.226f, 1.56936f,
-    3895.26f, 1485.07f, 489.917f, 1.58457f,
-    3895.27f, 1484.05f, 459.841f, 1.58405f,
     3895.53f, 1617.47f, 398.912f, 4.8269f,
     3895.62f, 1485.9f,  398.829f, 1.56936f
 };
 
-#define NB_ALCOVES 46
+#define NB_ALCOVES 26
 
 // Qin-Xi - 60399
 // Jan-Xi - 60400
@@ -225,7 +210,6 @@ class boss_jin_qin_xi : public CreatureScript
             boss_jin_qin_xiAI(Creature* creature) : BossAI(creature, DATA_WILL_OF_EMPEROR), summons(creature)
             {
                 pInstance = creature->GetInstanceScript();
-                isActive = false;
                 me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -256,6 +240,9 @@ class boss_jin_qin_xi : public CreatureScript
 
             void Reset()
             {
+                _Reset();
+                isActive = false;
+
                 if (!me->isAlive())
                     return;
 
@@ -294,7 +281,10 @@ class boss_jin_qin_xi : public CreatureScript
                 summons.DespawnAll();
 
                 if (Creature* otherBoss = getOtherBoss())
+                {
                     otherBoss->AI()->DoAction(ACTION_REACHHOME);
+                    otherBoss->AI()->Reset();
+                }
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
@@ -347,11 +337,19 @@ class boss_jin_qin_xi : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
+                // Assume the 2 bosses die at the same time
+                if (Creature* otherBoss = getOtherBoss())
+                    if (otherBoss->isAlive())
+                        killer->Kill(otherBoss);
+
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
                         cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
 
                 if (pInstance)
+                {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
+                }
 
                 if (me->GetEntry() == NPC_QIN_XI)
                 {
@@ -373,7 +371,7 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_JAN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_QIN);
 
-                pInstance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon)
@@ -386,6 +384,7 @@ class boss_jin_qin_xi : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ACTIVATE:
+                    {
                         if (isActive)
                             return;
 
@@ -404,10 +403,20 @@ class boss_jin_qin_xi : public CreatureScript
                         events.ScheduleEvent(EVENT_DEVASTATING_COMBO, 115000);
                         events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 112000);
                         break;
+                    }
                     case ACTION_REACHHOME:
+                    {
+                        events.Reset();
+                        if (devastatingComboPhase)
+                        {
+                            devastatingComboPhase = 0;
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
+                        }
+
                         me->GetMotionMaster()->MovePoint(9, homePos);
                         me->SetReactState(REACT_PASSIVE);
                         break;
+                    }
                 }
             }
 
@@ -416,14 +425,21 @@ class boss_jin_qin_xi : public CreatureScript
                 if (spell->Id != SPELL_DEVAST_ARC && spell->Id != SPELL_STOMP)
                     return;
 
-                for (uint64 guid : playerList)
+                std::list<uint64>::iterator itr, next;
+                itr = playerList.begin();
+
+                while (itr != playerList.end())
                 {
-                    Player* player = me->GetPlayer(*me, guid);
+                    next = itr;
+                    ++next;
+
+                    Player* player = me->GetPlayer(*me, *itr);
                     if (player && player->GetGUID() == target->GetGUID())
                     {
-                        playerList.remove(guid);
-                        break;
+                        playerList.remove(*itr);
+                        return;
                     }
+                    itr = next;
                 }
             }
 
@@ -439,13 +455,10 @@ class boss_jin_qin_xi : public CreatureScript
             {
                 Creature* otherBoss = getOtherBoss();
 
-                if (!otherBoss)
-                    return;
-
-                if (attacker != otherBoss)
-                    me->DealDamage(otherBoss, damage);
+                if (!otherBoss || !otherBoss->isAlive())
+                    attacker->Kill(me);
                 else
-                    me->LowerPlayerDamageReq(damage);
+                    otherBoss->ModifyHealth(-int32(damage));
             }
 
             void UpdateAI(const uint32 diff)
@@ -506,7 +519,7 @@ class boss_jin_qin_xi : public CreatureScript
                         float x = me->GetPositionX() + (15 * cos(me->GetOrientation()));
                         float y = me->GetPositionY() + (15 * sin(me->GetOrientation()));
                         // Jump
-                        me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 2);
+                        me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 10.0f, 2);
                         break;
                     }
                     case EVENT_BOSS_EMOTE:
@@ -712,19 +725,73 @@ class boss_jin_qin_xi : public CreatureScript
                     /* END OF DEVASTATING COMBO */
                     case EVENT_CHECK_MAGNETIC_ARMOR:
                     {
-                        if (Unit* victim = me->getVictim())
+                        if (!me->getVictim())
                         {
-                            bool isJan = me->GetEntry() == NPC_JAN_XI;
-                            if (!victim->HasAura((isJan ? SPELL_MAGNETIC_ARMOR_JAN : SPELL_MAGNETIC_ARMOR_QIN)))
+                            if (!victimWithMagneticArmor)
                             {
-                                if (Player* player = ObjectAccessor::FindPlayer(victimWithMagneticArmor))
-                                    player->RemoveAurasDueToSpell(isJan ? SPELL_MAGNETIC_ARMOR_JAN : SPELL_MAGNETIC_ARMOR_QIN);
-
-                                me->AddAura(isJan ? SPELL_MAGNETIC_ARMOR_JAN : SPELL_MAGNETIC_ARMOR_QIN, victim);
-                                victimWithMagneticArmor = victim->GetGUID();
+                                events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 500);
+                                break;
+                            }
+                            else if (Player* player = me->GetPlayer(*me, victimWithMagneticArmor))
+                            {
+                                if (!player->isAlive())
+                                {
+                                    victimWithMagneticArmor = 0;
+                                    events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 500);
+                                    break;
+                                }
                             }
                         }
-                        events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 1000);
+                        else if (Unit* victim = me->getVictim())
+                        {
+                            if (victim->GetTypeId() != TYPEID_PLAYER)
+                            {
+                                victimWithMagneticArmor = 0;
+                                events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 500);
+                                break;
+                            }
+                        }
+
+                        bool isJan = me->GetEntry() == NPC_JAN_XI;
+                        Player* target;
+
+                        if (victimWithMagneticArmor)
+                            target = ObjectAccessor::FindPlayer(victimWithMagneticArmor);
+                        else
+                            target = me->getVictim()->ToPlayer();
+
+                        if (!target)
+                            break;
+
+                        // If victim already is marked as magnetized and it's farther than 16 yd, we pull it back to the boss
+                        if (target->GetGUID() == victimWithMagneticArmor)
+                        {
+                            if (me->GetDistance2d(target) > 16.0f)
+                            {
+                                me->CastSpell(target, isJan ? SPELL_MAGNETIC_PULL_JAN : SPELL_MAGNETIC_PULL_QIN, false);
+                                AttackStart(target);
+                                me->SetInCombatWith(target);
+                            }
+
+                            // If victim isn't magnetized anymore, we remagnetize it
+                            if (!target->HasAura(SPELL_MAGNETIZED_JAN) && !target->HasAura(SPELL_MAGNETIZED_QIN))
+                                me->AddAura(isJan ? SPELL_MAGNETIZED_JAN : SPELL_MAGNETIZED_QIN, target);
+                            // If victim has been magnetized by the other boss, we can't use it anymore as magnetized victim
+                            else if (target->HasAura(isJan ? SPELL_MAGNETIZED_QIN : SPELL_MAGNETIZED_JAN))
+                                victimWithMagneticArmor = 0;
+
+                        }
+                        // Else we "mark" the target as the new magnetized victim
+                        else
+                        {
+                            // We apply the magnetized aura on the target, but only if not already magnetized by any boss
+                            if (!target->HasAura(SPELL_MAGNETIZED_JAN) && !target->HasAura(SPELL_MAGNETIZED_QIN))
+                            {
+                                me->AddAura(isJan ? SPELL_MAGNETIZED_JAN : SPELL_MAGNETIZED_QIN, target);
+                                victimWithMagneticArmor = target->GetGUID();
+                            }
+                        }
+                        events.ScheduleEvent(EVENT_CHECK_MAGNETIC_ARMOR, 500);
                         break;
                     }
                     default:
@@ -833,6 +900,9 @@ class mob_woe_add_generic : public CreatureScript
                     me->CastSpell(me, SPELL_SUMMON_TITAN_SPARK, true);
                 // Cancel aura for add which are spawning in when bosses die
                 me->RemoveAllAuras();
+
+                if (me->GetEntry() == NPC_EMPEROR_COURAGE)
+                    ObjectAccessor::FindPlayer(targetGuid)->RemoveAura(SPELL_FOCALISED_ENERGY);
             }
 
             void DoAction(const int32 action)
@@ -949,7 +1019,7 @@ class mob_woe_add_generic : public CreatureScript
                             float x = me->GetPositionX() + (15 * cos(me->GetOrientation()));
                             float y = me->GetPositionY() + (15 * sin(me->GetOrientation()));
                             // Jump
-                            me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 1);
+                            me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 10.0f, 1);
                             break;
                         }
                         // Rage
@@ -1059,6 +1129,7 @@ class mob_woe_add_generic : public CreatureScript
                                             me->SetInCombatWith(target);
 
                                             me->CastSpell(target, SPELL_FOCALISED_DEFENSE, false);
+                                            me->AddAura(SPELL_FOCALISED_ENERGY, target);
                                             me->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_FOCALISED_DEFENSE);
                                         }
                                     }
@@ -1122,42 +1193,85 @@ class mob_woe_titan_spark : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            uint32 distanceCheckTimer;
             uint64 targetGuid;
 
             void Reset()
             {
-                targetGuid = 0;
-                distanceCheckTimer = 500;
-
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
                 DoZoneInCombat();
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 300.0f);
+
+                me->AddAura(SPELL_ENERGY_VISUAL, me);
+
+                // No player found: suicide
+                if (playerList.empty())
                 {
-                    targetGuid = target->GetGUID();
-                    AttackStart(target);
-                    me->SetInCombatWith(target);
-                    me->getThreatManager().addThreat(target, 300.0f);
-                    me->CastSpell(target, SPELL_FOCALISED_ENERGY, false);
+                    me->CastSpell(me, SPELL_ENERGY_OF_CREATION, true);
+                    me->Kill(me);
+                    return;
                 }
+
+                // Else, choosing a random target in the list
+                std::list<Player*>::iterator itr = playerList.begin();
+                bool searching = true;
+                Player* target;
+
+                while (searching)
+                {
+                    if (urand(0, 1))
+                    {
+                        target = *itr;
+                        searching = false;
+                    }
+                    ++itr;
+
+                    if (itr == playerList.end())
+                        itr = playerList.begin();
+                }
+
+                targetGuid = target->GetGUID();
+                me->AddAura(SPELL_FOCALISED_ENERGY, target);
+                events.ScheduleEvent(EVENT_CHECK_DISTANCE, 200);
             }
 
             void JustDied(Unit* attacker)
             {
                 me->CastSpell(me, SPELL_ENERGY_OF_CREATION, false);
+                me->RemoveAura(SPELL_ENERGY_OF_CREATION);
+                me->RemoveAura(SPELL_ENERGY_VISUAL);
+
+                if (Player* target = ObjectAccessor::FindPlayer(targetGuid))
+                    target->RemoveAura(SPELL_FOCALISED_ENERGY);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (distanceCheckTimer <= diff)
+                events.Update(diff);
+
+                if (events.ExecuteEvent() == EVENT_CHECK_DISTANCE)
                 {
-                    if (me->SelectNearestPlayerNotGM())
+                    if (Player* target = ObjectAccessor::FindPlayer(targetGuid))
+                    {
+                        if (me->GetDistance(target) < 0.5f)
+                        {
+                            me->CastSpell(target, SPELL_ENERGY_OF_CREATION, false);
+                            me->RemoveAura(SPELL_ENERGY_OF_CREATION);
+                            me->RemoveAura(SPELL_ENERGY_VISUAL);
+                            target->RemoveAura(SPELL_FOCALISED_ENERGY);
+                            me->Kill(me);
+                        }
+                        else
+                            events.ScheduleEvent(EVENT_CHECK_DISTANCE, 200);
+                    }
+                    else
+                    {
+                        me->CastSpell(me, SPELL_ENERGY_OF_CREATION, false);
+                        me->RemoveAura(SPELL_ENERGY_OF_CREATION);
+                        me->RemoveAura(SPELL_ENERGY_VISUAL);
                         me->Kill(me);
-                    distanceCheckTimer = 500;
+                    }
                 }
-                else
-                    distanceCheckTimer -= diff;
             }
         };
 

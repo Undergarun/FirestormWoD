@@ -37,7 +37,8 @@ enum eSpells
     // Platform
     SPELL_TOUCH_OF_THE_TITANS       = 130287,
     SPELL_TOUCH_OF_TITANS_VISUAL    = 117874,
-    SPELL_OVERCHARGED               = 117877,
+    SPELL_ELEGON_OVERCHARGED        = 117877,
+    SPELL_ELEGON_OVERCHARGED_2      = 117878,
 
     // Phase 1
     SPELL_CELESTIAL_BREATH          = 117960,
@@ -125,6 +126,7 @@ enum eEvents
     EVENT_END_OF_PHASE_3            = 12,
     EVENT_RADIATING_ENERGIES        = 13,
     EVENT_LAUNCH_COSMIC_SPARK       = 14,
+    EVENT_COSMICSPARK_ATTACK        = 15,
 };
 
 enum elegonActions
@@ -272,7 +274,8 @@ class boss_elegon : public CreatureScript
                 {
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
@@ -295,6 +298,12 @@ class boss_elegon : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
+                if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
                 {
                     cho->AI()->Talk(27);
@@ -481,8 +490,15 @@ class boss_elegon : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
+            void SpellHit(Unit* caster, const SpellInfo* spell)
+            {
+                if (me->GetDistance(caster) > 38.5f)
+                    caster->SendSpellMiss(me, spell->Id, SPELL_MISS_MISS);
+            }
+
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+
                 if (phase == PHASE_1 && me->HealthBelowPctDamaged(nextPhase1EndingHealthPct, damage))
                 {
                     phase = PHASE_2;
@@ -549,12 +565,13 @@ class boss_elegon : public CreatureScript
                 {
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
                 }
 
                 me->RemoveAurasDueToSpell(SPELL_RADIATING_ENERGIES_VISUAL);
-                me->RemoveAurasDueToSpell(SPELL_OVERCHARGED);
+                me->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED);
                 me->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                 Talk(TALK_DEATH);
 
@@ -571,9 +588,10 @@ class boss_elegon : public CreatureScript
                 if (!who || who->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (who->HasAura(SPELL_TOUCH_OF_THE_TITANS) || who->HasAura(SPELL_TOUCH_OF_TITANS_VISUAL) || who->HasAura(SPELL_OVERCHARGED))
+                if (who->HasAura(SPELL_TOUCH_OF_THE_TITANS) || who->HasAura(SPELL_TOUCH_OF_TITANS_VISUAL) || who->HasAura(SPELL_ELEGON_OVERCHARGED))
                     return;
 
+                /*
                 if (me->IsWithinDistInMap(who, 38.5f))
                 {
                     if (Player* player = who->ToPlayer())
@@ -585,10 +603,11 @@ class boss_elegon : public CreatureScript
                         {
                             player->CastSpell(player, SPELL_TOUCH_OF_THE_TITANS, true);
                             player->AddAura(SPELL_TOUCH_OF_TITANS_VISUAL, player);
-                            player->CastSpell(player, SPELL_OVERCHARGED, true);
+                            player->CastSpell(player, SPELL_ELEGON_OVERCHARGED, true);
                         }
                     }
                 }
+                */
             }
 
             void UpdateAI(const uint32 diff)
@@ -1123,18 +1142,17 @@ class mob_cosmic_spark : public CreatureScript
             {
                 events.Reset();
                 
+                // if (Player* player = me->SelectNearestPlayerNotGM())
+                if (Unit* player = SelectTarget(SELECT_TARGET_NEAREST))
+                    AttackStart(player);
+
                 events.ScheduleEvent(EVENT_CHECK_UNIT_ON_PLATFORM, 1000);
                 events.ScheduleEvent(EVENT_ICE_TRAP, 10000);
-
-                if (Player* player = me->SelectNearestPlayerNotGM())
-                    AttackStart(player);
+                events.ScheduleEvent(EVENT_COSMICSPARK_ATTACK, 1000);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-                
                 events.Update(diff);
                 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -1142,17 +1160,58 @@ class mob_cosmic_spark : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CHECK_UNIT_ON_PLATFORM:
-                            if (me->GetDistance(middlePos) <= 36.0f)
+                        {
+                            if (me->GetDistance(middlePos) <= 38.5f)
                                 me->CastSpell(me, SPELL_TOUCH_OF_THE_TITANS, true);
                             else
                                 me->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                             events.ScheduleEvent(EVENT_CHECK_UNIT_ON_PLATFORM, 1000);
                             break;
+                        }
                         case EVENT_ICE_TRAP:
+                        {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_ICE_TRAP, false);
                             events.ScheduleEvent(EVENT_ICE_TRAP,      60000);
                             break;
+                        }
+                        case EVENT_COSMICSPARK_ATTACK:
+                        {
+                            if (!me->getVictim() || !me->getVictim()->isAlive())
+                            {
+                                std::list<Player*> playerList;
+                                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                                Player* target;
+                                bool selected = false;
+
+                                if (!playerList.empty())
+                                {
+                                    std::list<Player*>::iterator itr;
+                                    itr = playerList.begin();
+
+                                    do
+                                    {
+                                        if (urand(0, 1))
+                                        {
+                                            target = *itr;
+                                            selected = true;
+                                        }
+
+                                        ++itr;
+                                        if (itr == playerList.end())
+                                            itr = playerList.begin();
+
+                                    } while (!selected);
+                                }
+                                else
+                                    break;
+
+                                AttackStart(target);
+                            }
+                            events.ScheduleEvent(EVENT_COSMICSPARK_ATTACK, 1000);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -1251,6 +1310,7 @@ enum infiniteEvents
     EVENT_FLASH_SPAWN       = 4,
     EVENT_BOSS_ACTIVATION   = 5,
     EVENT_BOSS_INTRO_2      = 6,
+    EVENT_CHECK_AURAS       = 7,
 };
 
 // Infinite Energy - 65293
@@ -1378,6 +1438,7 @@ class mob_infinite_energy : public CreatureScript
 
                                 moguRune.clear();
                             }
+                            events.ScheduleEvent(EVENT_CHECK_AURAS, 500);
                         }
                         break;
                     }
@@ -1440,7 +1501,6 @@ class mob_infinite_energy : public CreatureScript
                         if (pInstance)
                             if (Creature* elegon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ELEGON)))
                                 elegon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_15);
-
                         break;
                     }
                     case EVENT_BOSS_INTRO_2:
@@ -1448,6 +1508,36 @@ class mob_infinite_energy : public CreatureScript
                         if (pInstance)
                             if (Creature* elegon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ELEGON)))
                                 elegon->AI()->Talk(TALK_INTRO_2);
+                        break;
+                    }
+                    case EVENT_CHECK_AURAS:
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 60.0f);
+
+                        for (auto player : playerList)
+                        {
+                            // Removing auras if player outside of vortex
+                            if ((player->HasAura(SPELL_ELEGON_OVERCHARGED_2) || player->HasAura(SPELL_TOUCH_OF_THE_TITANS)) && me->GetDistance(player) > 38.5f)
+                            {
+                                player->RemoveAura(SPELL_ELEGON_OVERCHARGED_2);
+                                player->RemoveAura(SPELL_TOUCH_OF_THE_TITANS);
+                            }
+                            // Applying auras if player on vortex
+                            else if (me->GetDistance(player) <= 38.5f)
+                            {
+                                if (!player->HasAura(SPELL_ELEGON_OVERCHARGED))
+                                    me->AddAura(SPELL_ELEGON_OVERCHARGED, player);
+
+                                if (!player->HasAura(SPELL_TOUCH_OF_THE_TITANS))
+                                {
+                                    me->AddAura(SPELL_TOUCH_OF_TITANS_VISUAL, player);
+                                    me->AddAura(SPELL_TOUCH_OF_THE_TITANS, player);
+                                }
+                            }
+                        }
+
+                        events.ScheduleEvent(EVENT_CHECK_AURAS, 500);
                         break;
                     }
                     default:
@@ -1470,7 +1560,9 @@ class go_celestial_control_console : public GameObjectScript
             GetPlayerListInGrid(playerList, go, 10.0f);
 
             if (!playerList.empty())
+            {
                 for (auto player: playerList)
+                {
                         if (InstanceScript* pInstance = player->GetInstanceScript())
                         {
                             if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
@@ -1479,10 +1571,12 @@ class go_celestial_control_console : public GameObjectScript
                             if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
                                 titanDisk->SetGoState(GO_STATE_READY);
 
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            // go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                             return;
                         }
+                }
+            }
         }
 };
 
@@ -1596,11 +1690,12 @@ class spell_touch_of_titans : public SpellScriptLoader
 
                 if (Player* player = GetTarget()->ToPlayer())
                 {
-                    if (player->GetDistance(middlePos) > 36.0f)
+                    if (player->GetDistance(middlePos) > 38.5f)
                     {
                         player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                         player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_TITANS_VISUAL);
-                        player->RemoveAurasDueToSpell(SPELL_OVERCHARGED);
+                        player->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED);
+                        player->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED_2);
                     }
                 }
             }
@@ -1611,7 +1706,8 @@ class spell_touch_of_titans : public SpellScriptLoader
                 {
                     target->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                     target->RemoveAurasDueToSpell(SPELL_TOUCH_OF_TITANS_VISUAL);
-                    target->RemoveAurasDueToSpell(SPELL_OVERCHARGED);
+                    target->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED);
+                    target->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED_2);
                 }
             }
 
