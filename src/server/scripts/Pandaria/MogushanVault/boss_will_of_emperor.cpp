@@ -210,7 +210,6 @@ class boss_jin_qin_xi : public CreatureScript
             boss_jin_qin_xiAI(Creature* creature) : BossAI(creature, DATA_WILL_OF_EMPEROR), summons(creature)
             {
                 pInstance = creature->GetInstanceScript();
-                isActive = false;
                 me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -242,6 +241,7 @@ class boss_jin_qin_xi : public CreatureScript
             void Reset()
             {
                 _Reset();
+                isActive = false;
 
                 if (!me->isAlive())
                     return;
@@ -340,13 +340,16 @@ class boss_jin_qin_xi : public CreatureScript
                 // Assume the 2 bosses die at the same time
                 if (Creature* otherBoss = getOtherBoss())
                     if (otherBoss->isAlive())
-                        otherBoss->SetHealth(0);
+                        killer->Kill(otherBoss);
 
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
                         cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
 
                 if (pInstance)
+                {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
+                }
 
                 if (me->GetEntry() == NPC_QIN_XI)
                 {
@@ -368,7 +371,7 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_JAN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_QIN);
 
-                pInstance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon)
@@ -452,10 +455,10 @@ class boss_jin_qin_xi : public CreatureScript
             {
                 Creature* otherBoss = getOtherBoss();
 
-                if (!otherBoss)
-                    return;
-
-                otherBoss->ModifyHealth(-int32(damage));
+                if (!otherBoss || !otherBoss->isAlive())
+                    attacker->Kill(me);
+                else
+                    otherBoss->ModifyHealth(-int32(damage));
             }
 
             void UpdateAI(const uint32 diff)
@@ -516,7 +519,7 @@ class boss_jin_qin_xi : public CreatureScript
                         float x = me->GetPositionX() + (15 * cos(me->GetOrientation()));
                         float y = me->GetPositionY() + (15 * sin(me->GetOrientation()));
                         // Jump
-                        me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 2);
+                        me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 10.0f, 2);
                         break;
                     }
                     case EVENT_BOSS_EMOTE:
@@ -897,6 +900,9 @@ class mob_woe_add_generic : public CreatureScript
                     me->CastSpell(me, SPELL_SUMMON_TITAN_SPARK, true);
                 // Cancel aura for add which are spawning in when bosses die
                 me->RemoveAllAuras();
+
+                if (me->GetEntry() == NPC_EMPEROR_COURAGE)
+                    ObjectAccessor::FindPlayer(targetGuid)->RemoveAura(SPELL_FOCALISED_ENERGY);
             }
 
             void DoAction(const int32 action)
@@ -1013,7 +1019,7 @@ class mob_woe_add_generic : public CreatureScript
                             float x = me->GetPositionX() + (15 * cos(me->GetOrientation()));
                             float y = me->GetPositionY() + (15 * sin(me->GetOrientation()));
                             // Jump
-                            me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 1);
+                            me->GetMotionMaster()->MoveJump(x, y, 362.19f, 20.0f, 20.0f, 10.0f, 1);
                             break;
                         }
                         // Rage

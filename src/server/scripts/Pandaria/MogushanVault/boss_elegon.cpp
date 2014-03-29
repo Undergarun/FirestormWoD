@@ -275,6 +275,7 @@ class boss_elegon : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
@@ -565,6 +566,7 @@ class boss_elegon : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
                 }
 
@@ -1529,7 +1531,7 @@ class mob_infinite_energy : public CreatureScript
 
                                 if (!player->HasAura(SPELL_TOUCH_OF_THE_TITANS))
                                 {
-                                    me->CastSpell(player, SPELL_TOUCH_OF_TITANS_VISUAL, true);
+                                    me->AddAura(SPELL_TOUCH_OF_TITANS_VISUAL, player);
                                     me->AddAura(SPELL_TOUCH_OF_THE_TITANS, player);
                                 }
                             }
@@ -1693,6 +1695,7 @@ class spell_touch_of_titans : public SpellScriptLoader
                         player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                         player->RemoveAurasDueToSpell(SPELL_TOUCH_OF_TITANS_VISUAL);
                         player->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED);
+                        player->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED_2);
                     }
                 }
             }
@@ -1704,6 +1707,7 @@ class spell_touch_of_titans : public SpellScriptLoader
                     target->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
                     target->RemoveAurasDueToSpell(SPELL_TOUCH_OF_TITANS_VISUAL);
                     target->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED);
+                    target->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED_2);
                 }
             }
 
