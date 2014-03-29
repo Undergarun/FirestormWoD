@@ -164,12 +164,18 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 else if (id == DATA_TSULONG && state == DONE)
                 {
                     if (Creature* leiShi = instance->GetCreature(leiShiGuid))
+                    {
                         leiShi->AI()->DoAction(ACTION_SHOW_LEI_SHI);
+                        leiShi->AI()->Reset();
+                    }
                 }
                 else if (id == DATA_LEI_SHI && state == DONE)
                 {
                     if (Creature* shaOfFear = instance->GetCreature(shaOfFearGuid))
+                    {
                         shaOfFear->AI()->DoAction(ACTION_ACTIVATE_SHA_OF_FEAR);
+                        shaOfFear->AI()->Reset();
+                    }
                 }
 
                 return true;

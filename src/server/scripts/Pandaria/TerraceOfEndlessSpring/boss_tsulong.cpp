@@ -340,6 +340,9 @@ class boss_tsulong : public CreatureScript
                         EndOfFight();
                     }
                 }
+
+                if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
+                    damage = 0;
             }
 
             void EndOfFight()
@@ -579,7 +582,7 @@ class boss_tsulong : public CreatureScript
                             if (dummysRands.size())
                             {
                                 std::random_shuffle(dummysRands.begin(), dummysRands.end());
-                                for (int i = 0; i < (dummysRands.size() < 3 ? dummysRands.size() : 3); i++)
+                                for (uint32 i = 0; i < (dummysRands.size() < 3 ? dummysRands.size() : 3); i++)
                                     me->CastSpell(dummysRands[i], SPELL_SUMMON_UNSTABLE_SHA, false);
                             }
                             events.ScheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA-10000, 0, PHASE_DAY);

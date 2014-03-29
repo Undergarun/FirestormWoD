@@ -166,12 +166,6 @@ class boss_lei_shi : public CreatureScript
                     events.ScheduleEvent(EVENT_HIDE,        32000);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
-
-                if (GameObject* vortex = me->GetMap()->GetGameObject(pInstance->GetData64(GOB_LEI_SHIS_VORTEX)))
-                    vortex->SetGoState(GO_STATE_ACTIVE);
-
-                if (GameObject* wall = me->GetMap()->GetGameObject(pInstance->GetData64(GOB_WALL_OF_LEI_SHI)))
-                    wall->SetGoState(GO_STATE_ACTIVE);
  
                 if (pInstance)
                 {
@@ -321,6 +315,15 @@ class boss_lei_shi : public CreatureScript
                         default:
                             break;
                     }
+
+                    for (auto itr : animatedProtectors)
+                        if (Creature* protector = Creature::GetCreature(*me, itr))
+                            protector->DespawnOrUnsummon();
+
+                    Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        if (Player* player = itr->getSource())
+                            player->CombatStop();
                 }
             }
 
@@ -454,6 +457,12 @@ class boss_lei_shi : public CreatureScript
                         me->RestoreDisplayId();
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetReactState(REACT_AGGRESSIVE);
+
+                        if (GameObject* vortex = me->GetMap()->GetGameObject(pInstance->GetData64(GOB_LEI_SHIS_VORTEX)))
+                            vortex->SetGoState(GO_STATE_ACTIVE);
+
+                        if (GameObject* wall = me->GetMap()->GetGameObject(pInstance->GetData64(GOB_WALL_OF_LEI_SHI)))
+                            wall->SetGoState(GO_STATE_ACTIVE);
                         break;
                     }
                     default:
