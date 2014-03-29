@@ -35,6 +35,7 @@ enum eLeiShiSpells
     SPELL_PROTECT           = 123250,
     SPELL_PROTECT_RESPAWN   = 123493,
     SPELL_PROTECT_VISUAL    = 123505,
+    SPELL_BERSERK           = 26662,
 
     // This is for Heroic Mode
     SPELL_SCARY_FOG_CIRCLE  = 123797,
@@ -55,7 +56,8 @@ enum eLeiShiEvents
     EVENT_HIDE          = 6,
 
     // Lei Shi (hidden)
-    EVENT_HIDDEN_SPRAY  = 7
+    EVENT_HIDDEN_SPRAY  = 7,
+    EVENT_BERSERK       = 8
 };
 
 enum eLeiShiActions
@@ -121,9 +123,19 @@ class boss_lei_shi : public CreatureScript
 
             void Reset()
             {
+                if (pInstance && pInstance->GetBossState(DATA_TSULONG) != DONE)
+                {
+                    me->SetDisplayId(11686);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetReactState(REACT_PASSIVE);
+                    return;
+                }
+
                 _Reset();
  
                 summons.DespawnAll();
+
+                me->ReenableEvadeMode();
  
                 hidden              = false;
                 getAwayPhase        = false;
@@ -134,7 +146,7 @@ class boss_lei_shi : public CreatureScript
                 nextProtectPct      = 80;
                 endCombatPct        = 2;
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
                 me->RestoreDisplayId();
                 me->RemoveAura(SPELL_AFRAID);
                 me->RemoveAura(SPELL_HIDE);
@@ -152,6 +164,8 @@ class boss_lei_shi : public CreatureScript
                     events.ScheduleEvent(EVENT_GET_AWAY,    32000);
                 else
                     events.ScheduleEvent(EVENT_HIDE,        32000);
+
+                events.ScheduleEvent(EVENT_BERSERK, 600000);
 
                 if (GameObject* vortex = me->GetMap()->GetGameObject(pInstance->GetData64(GOB_LEI_SHIS_VORTEX)))
                     vortex->SetGoState(GO_STATE_ACTIVE);
@@ -199,6 +213,12 @@ class boss_lei_shi : public CreatureScript
             {
                 if (pInstance)
                 {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != DONE)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+
                     me->CastSpell(me, SPELL_AFRAID, true);
                     pInstance->SetBossState(DATA_LEI_SHI, IN_PROGRESS);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -284,10 +304,23 @@ class boss_lei_shi : public CreatureScript
 
                     pInstance->SetBossState(DATA_LEI_SHI, DONE);
 
-                    if (me->GetMap()->IsHeroic())
-                        me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                    else
-                        me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    switch (me->GetMap()->GetSpawnMode())
+                    {
+                        case MAN10_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        case MAN25_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        case MAN10_HEROIC_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        case MAN25_HEROIC_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 
@@ -416,6 +449,13 @@ class boss_lei_shi : public CreatureScript
                             events.ScheduleEvent(EVENT_GET_AWAY, 32000);
                         break;
                     }
+                    case ACTION_SHOW_LEI_SHI:
+                    {
+                        me->RestoreDisplayId();
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -519,6 +559,12 @@ class boss_lei_shi : public CreatureScript
                         me->CastSpell(me, SPELL_HIDE, false);
                         hidden = true;
                         me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
+                        me->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+                        break;
+                    }
+                    case EVENT_BERSERK:
+                    {
+                        me->CastSpell(me, SPELL_BERSERK, true);
                         break;
                     }
                     default:

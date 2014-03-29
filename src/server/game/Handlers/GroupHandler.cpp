@@ -259,9 +259,8 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
             return;
         }
 
-        // disable, make crash
-        //group->Create(GetPlayer());
-        //sGroupMgr->AddGroup(group);
+        group->Create(GetPlayer());
+        sGroupMgr->AddGroup(group);
     }
     else
     {

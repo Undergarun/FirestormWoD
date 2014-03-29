@@ -154,8 +154,23 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                     return false;
 
                 if (id == DATA_PROTECTORS && state == DONE)
-                    if (Creature* c = instance->GetCreature(GetData64(NPC_TSULONG)))
+                {
+                    if (Creature* c = instance->GetCreature(tsulongGuid))
                         c->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
+
+                    if (Creature* shaOfFear = instance->GetCreature(shaOfFearGuid))
+                        shaOfFear->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                }
+                else if (id == DATA_TSULONG && state == DONE)
+                {
+                    if (Creature* leiShi = instance->GetCreature(leiShiGuid))
+                        leiShi->AI()->DoAction(ACTION_SHOW_LEI_SHI);
+                }
+                else if (id == DATA_LEI_SHI && state == DONE)
+                {
+                    if (Creature* shaOfFear = instance->GetCreature(shaOfFearGuid))
+                        shaOfFear->AI()->DoAction(ACTION_ACTIVATE_SHA_OF_FEAR);
+                }
 
                 return true;
             }

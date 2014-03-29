@@ -3261,6 +3261,22 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 119890:// Death Blossom
+                    spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                    spellInfo->Effects[0].TargetB = 0;
+                    spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(139); // 40y
+                    break;
+                case 120629:// Huddle in Terror
+                    spellInfo->MaxAffectedTargets = 3;
+                    break;
+                case 119956:// Dread Spray (visual)
+                    spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                    break;
+                case 119958:// Dread Spray
+                    spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
+                    spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                    spellInfo->Effects[0].Effect = 0;
+                    break;
                 case 119414:// Breath of Fear
                     spellInfo->Effects[2].Effect = 0;
                     break;
@@ -3274,10 +3290,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                     spellInfo->Effects[0].TargetB = 0;
                     break;
-                case 117866:// Champion of Light
-                    spellInfo->MaxAffectedTargets = 1;
-                    spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(65); // 1,5s
-                    spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(15); // 3 yards
+                case 117865:// Wall of Light
+                    spellInfo->Effects[0].Effect = 0;
                     break;
                 case 126848:// Ritual of Purification
                     spellInfo->Effects[0].BasePoints = -10;
@@ -3564,6 +3578,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 117829:// Cowardice (DoT)
                 case 117006:// Devastating Arc
+                case 119775:// Reaching Attack
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     break;
                 case 117708:// Maddening Shout

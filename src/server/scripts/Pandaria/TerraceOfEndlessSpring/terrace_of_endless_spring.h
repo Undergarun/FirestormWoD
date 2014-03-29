@@ -41,8 +41,11 @@ enum eSpells
 
 enum eActions
 {
-    ACTION_START_TSULONG_WAYPOINT = 1,
-    ACTION_INTRO_FINISHED = 2
+    ACTION_START_TSULONG_WAYPOINT   = 1,
+    ACTION_INTRO_FINISHED           = 2,
+    ACTION_SHOW_LEI_SHI             = 30,
+    ACTION_ACTIVATE_SHA_OF_FEAR     = 31,
+    ACTION_SHA_OF_FEAR_STOP_ATTACK  = 32
 };
 
 enum eCreatures
@@ -68,6 +71,13 @@ enum eCreatures
     NPC_SHA_OF_FEAR                 = 60999,
     NPC_PURE_LIGHT_TERRACE          = 60788,
     NPC_TERROR_SPAWN                = 61034,
+    NPC_YANG_GUOSHI                 = 61038,
+    NPC_CHENG_KANG                  = 61042,
+    NPC_JINLUN_KUN                  = 61046,
+    NPC_RETURN_TO_THE_TERRACE       = 65736,
+    NPC_SHA_GLOBE                   = 65691,
+    NPC_WATERSPOUT                  = 63823,
+    NPC_DREAD_SPAWN                 = 61003,
 
     // Thrashs
     NPC_APPARITION_OF_FEAR          = 64368,
@@ -88,8 +98,10 @@ enum eGameObjects
 
     GOB_WALL_OF_LEI_SHI         = 214852,
     GOB_LEI_SHIS_VORTEX         = 214851,
-    GOB_LEI_SHI_CHEST_NORMAL    = 213076,
-    GOB_LEI_SHI_CHEST_HEROIC    = 213075
+    GOB_LEI_SHI_CHEST_NORMAL_10 = 213076,
+    GOB_LEI_SHI_CHEST_NORMAL_25 = 213074,
+    GOB_LEI_SHI_CHEST_HEROIC_10 = 213075,
+    GOB_LEI_SHI_CHEST_HEROIC_25 = 213073
 };
 
 enum ePhases
