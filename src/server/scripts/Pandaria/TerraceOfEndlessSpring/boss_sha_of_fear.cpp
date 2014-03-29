@@ -1349,7 +1349,7 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
                     player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_JINLUN_KUN, 50.0f);
                     if (shrineMobs.size() > 0)
                         continue;
-                    player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_PURE_LIGHT_TERRACE, 50.0f);
+                    player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_RETURN_TO_THE_TERRACE, 50.0f);
                     if (shrineMobs.size() > 0)
                         continue;
 
