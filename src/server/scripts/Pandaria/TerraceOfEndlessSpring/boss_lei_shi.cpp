@@ -304,10 +304,23 @@ class boss_lei_shi : public CreatureScript
 
                     pInstance->SetBossState(DATA_LEI_SHI, DONE);
 
-                    if (me->GetMap()->IsHeroic())
-                        me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                    else
-                        me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    switch (me->GetMap()->GetSpawnMode())
+                    {
+                        case MAN10_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        case MAN25_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        case MAN10_HEROIC_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        case MAN25_HEROIC_DIFFICULTY:
+                            me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 
