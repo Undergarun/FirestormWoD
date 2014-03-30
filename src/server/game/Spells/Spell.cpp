@@ -3536,10 +3536,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channeled triggers channeled
     if ((_triggeredCastFlags & TRIGGERED_CAST_DIRECTLY) && (!m_spellInfo->IsChanneled() || !m_spellInfo->GetMaxDuration()))
-    {
-        CallScriptBeforeCastHandlers();
         cast(true);
-    }
     else
     {
         // stealth must be removed at cast starting (at show channel bar)
@@ -3559,8 +3556,6 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
         m_caster->SetCurrentCastedSpell(this);
         SendSpellStart();
-
-        CallScriptBeforeCastHandlers();
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
@@ -3671,7 +3666,7 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
-    //CallScriptBeforeCastHandlers();
+    CallScriptBeforeCastHandlers();
 
     // skip check if done already (for instant cast spells for example)
     if (!skipCheck)
