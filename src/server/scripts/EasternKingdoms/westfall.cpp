@@ -264,7 +264,7 @@ public:
     };
 };
 
-enum clodoEnum {
+enum clodoEnum { 
 
     NPC_HOMELESS_STORMWIND_CITIZEN      = 42384,
     NPC_HOMELESS_STORMWIND_CITIZEN2     = 42386,
@@ -272,7 +272,7 @@ enum clodoEnum {
     KILL_CREDIT_WESTFALL_STEW           = 42617
 
 };
-//@todo rename variables
+
 class npc_westfall_stew : public CreatureScript
 {
 public:
@@ -282,47 +282,47 @@ public:
     {
         return new npc_westfall_stewAI (creature);
     }
-
+    
     struct npc_westfall_stewAI : public ScriptedAI
     {
         npc_westfall_stewAI(Creature* creature) : ScriptedAI(creature) {}
         uint32 time;
         bool booltest;
         std::list<Creature*> clodoList;
-
+            
         void Reset()
         {
             time = 30000;
             booltest = true;
-            if (Player* invocer = me->ToTempSummon()->GetSummoner()->ToPlayer())
-            {
+            if(Player* invocer = me->ToTempSummon()->GetSummoner()->ToPlayer()) 
+            {               
                 GetCreatureListWithEntryInGrid(clodoList, me, NPC_HOMELESS_STORMWIND_CITIZEN, 15.0f);
                 for (auto clodo: clodoList)
                 {
-                    if (clodo->getStandState() != UNIT_STAND_STATE_SIT)
+                    if(clodo->getStandState() != UNIT_STAND_STATE_SIT)
                     {
                         clodo->GetMotionMaster()->MoveFollow(me, 1, me->GetAngle(clodo));
                         clodo->SetStandState(UNIT_STAND_STATE_SIT);
                         invocer->KilledMonsterCredit(KILL_CREDIT_WESTFALL_STEW, 0);
                     }
-                }
+                }               
             }
         }
         void UpdateAI(const uint32 diff)
         {
-            if (booltest)
+            if(booltest)
             {
                 if (time < diff)
                 {
                     for (auto clodo: clodoList)
                     {
                         clodo->SetStandState(UNIT_STAND_STATE_STAND);
-                        clodo->SetDefaultMovementType(RANDOM_MOTION_TYPE);
-                    }
+                        clodo->SetDefaultMovementType(RANDOM_MOTION_TYPE);                   
+                    } 
                     me->DespawnOrUnsummon();
                     booltest = false;
                 }
-                else
+                else 
                     time -= diff;
             }
         }

@@ -382,32 +382,38 @@ class boss_rimefang : public CreatureScript
 class player_overlord_brandAI : public PlayerAI
 {
     public:
-        player_overlord_brandAI(Player* player) : PlayerAI(player)
+        player_overlord_brandAI(Player* player) : PlayerAI(player), tyrannusGuid(0)
         {
-            tyrannus = NULL;
         }
 
         void SetGUID(uint64 guid, int32 /*type*/)
         {
-            tyrannus = ObjectAccessor::GetCreature(*me, guid);
-            me->IsAIEnabled = tyrannus != NULL;
+            tyrannusGuid = guid;
+            if (!getTyrannus())
+                me->IsAIEnabled = false;
+        }
+
+        Creature* getTyrannus() const  {
+            return ObjectAccessor::GetCreature(*me, tyrannusGuid);
         }
 
         void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/)
         {
-            if (tyrannus->getVictim())
-                me->CastCustomSpell(SPELL_OVERLORD_BRAND_DAMAGE, SPELLVALUE_BASE_POINT0, damage, tyrannus->getVictim(), true, NULL, NULLAURA_EFFECT, tyrannus->GetGUID());
+            Creature* tyrannus = getTyrannus();
+            if (tyrannus && tyrannus->getVictim())
+                me->CastCustomSpell(SPELL_OVERLORD_BRAND_DAMAGE, SPELLVALUE_BASE_POINT0, damage, tyrannus->getVictim(), true, NULL, NULL, tyrannus->GetGUID());
         }
 
         void HealDone(Unit* /*target*/, uint32& addHealth)
         {
-            me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth*5.5f), tyrannus, true, NULL, NULLAURA_EFFECT, tyrannus->GetGUID());
+            if (Creature* tyrannus = getTyrannus())
+                me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth*5.5f), tyrannus, true, NULL, NULL, tyrannus->GetGUID());
         }
 
         void UpdateAI(const uint32 /*diff*/) { }
 
     private:
-        Creature* tyrannus;
+        uint64 tyrannusGuid;
 };
 
 class spell_tyrannus_overlord_brand : public SpellScriptLoader

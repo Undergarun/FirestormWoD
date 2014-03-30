@@ -1,169 +1,90 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* ScriptData
-SDName: Instance_Deadmines
-SD%Complete: 100
-SDComment:
-SDCategory: Deadmines
-EndScriptData */
-
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "ScriptPCH.h"
 #include "deadmines.h"
 
-enum Sounds
-{
-    SOUND_CANNONFIRE                                     = 1400,
-    SOUND_DESTROYDOOR                                    = 3079,
-    SOUND_MR_SMITE_ALARM1                                = 5775,
-    SOUND_MR_SMITE_ALARM2                                = 5777
-};
+#define MAX_ENCOUNTER 6
 
-#define SAY_MR_SMITE_ALARM1 "You there, check out that noise!"
-#define SAY_MR_SMITE_ALARM2 "We're under attack! A vast, ye swabs! Repel the invaders!"
-
-enum Misc
+static const DoorData doordata[] = 
 {
-    DATA_CANNON_BLAST_TIMER                                = 3000,
-    DATA_PIRATES_DELAY_TIMER                               = 1000
+    {GO_FACTORY_DOOR,   DATA_GLUBTOK,   DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_MAST_ROOM_DOOR, DATA_HELIX,     DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_FOUNDRY_DOOR,   DATA_FOEREAPER, DOOR_TYPE_PASSAGE,    BOUNDARY_NONE}
 };
 
 class instance_deadmines : public InstanceMapScript
 {
     public:
-        instance_deadmines()
-            : InstanceMapScript("instance_deadmines", 36)
+        instance_deadmines() : InstanceMapScript("instance_deadmines", 36) {}
+        
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
+            return new instance_deadmines_InstanceMapScript(pMap);
         }
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-            uint64 FactoryDoorGUID;
-            uint64 IronCladDoorGUID;
-            uint64 DefiasCannonGUID;
-            uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
-
-            uint32 State;
-            uint32 CannonBlast_Timer;
-            uint32 PiratesDelay_Timer;
-            uint64 uiSmiteChestGUID;
-
-            void Initialize()
+            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap) 
             {
-                FactoryDoorGUID = 0;
+                SetBossNumber(MAX_ENCOUNTER);
+                LoadDoorData(doordata);
+                
+                uiGlubtokGUID = 0;
+                uiHelixGUID = 0;
+                uiOafGUID = 0;
+                uiFoereaperGUID = 0;
+                uiAdmiralGUID = 0;
+                uiCaptainGUID = 0;
+
                 IronCladDoorGUID = 0;
                 DefiasCannonGUID = 0;
                 DoorLeverGUID = 0;
-                DefiasPirate1GUID = 0;
-                DefiasPirate2GUID = 0;
-                DefiasCompanionGUID = 0;
 
                 State = CANNON_NOT_USED;
-                uiSmiteChestGUID = 0;
-            }
+                uiVanessaEvent = 0;
+            };
 
-            virtual void Update(uint32 diff)
+            void OnCreatureCreate(Creature *pCreature)
             {
-                if (!IronCladDoorGUID || !DefiasCannonGUID || !DoorLeverGUID)
-                    return;
-
-                GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID);
-                if (!pIronCladDoor)
-                    return;
-
-                switch (State)
+                switch (pCreature->GetEntry())
                 {
-                    case CANNON_GUNPOWDER_USED:
-                        CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
-                        // it's a hack - Mr. Smite should do that but his too far away
-                        pIronCladDoor->SetName("Mr. Smite");
-                        pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, 0);
-                        DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM1);
-                        State = CANNON_BLAST_INITIATED;
+                    case NPC_GLUBTOK:
+                        uiGlubtokGUID = pCreature->GetGUID();
                         break;
-                    case CANNON_BLAST_INITIATED:
-                        PiratesDelay_Timer = DATA_PIRATES_DELAY_TIMER;
-                        if (CannonBlast_Timer <= diff)
-                        {
-                            SummonCreatures();
-                            ShootCannon();
-                            BlastOutDoor();
-                            LeverStucked();
-                            pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, 0);
-                            DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM2);
-                            State = PIRATES_ATTACK;
-                        } else CannonBlast_Timer -= diff;
+                    case NPC_HELIX:
+                        uiHelixGUID = pCreature->GetGUID();
                         break;
-                    case PIRATES_ATTACK:
-                        if (PiratesDelay_Timer <= diff)
-                        {
-                            MoveCreaturesInside();
-                            State = EVENT_DONE;
-                        } else PiratesDelay_Timer -= diff;
+                    case NPC_OAF:
+                        uiOafGUID = pCreature->GetGUID();
                         break;
+                    case NPC_FOEREAPER:
+                        uiFoereaperGUID = pCreature->GetGUID();
+                        break;
+                    case NPC_ADMIRAL:
+                        uiAdmiralGUID = pCreature->GetGUID();
+                        break;
+                    case NPC_CAPTAIN:
+                        uiCaptainGUID = pCreature->GetGUID();
+                       break;
                 }
             }
 
-            void SummonCreatures()
+            void OnGameObjectCreate(GameObject* pGo)
             {
-                if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
+                switch(pGo->GetEntry())
                 {
-                    Creature* DefiasPirate1 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() - 2, pIronCladDoor->GetPositionY()-7, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature* DefiasPirate2 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() + 3, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature* DefiasCompanion = pIronCladDoor->SummonCreature(3450, pIronCladDoor->GetPositionX() + 2, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-
-                    DefiasPirate1GUID = DefiasPirate1->GetGUID();
-                    DefiasPirate2GUID = DefiasPirate2->GetGUID();
-                    DefiasCompanionGUID = DefiasCompanion->GetGUID();
+                    case GO_FACTORY_DOOR:
+                    case GO_MAST_ROOM_DOOR:   
+                    case GO_FOUNDRY_DOOR:   
+                        AddDoor(pGo, true);
+                        break;
+                    case GO_IRONCLAD_DOOR:  IronCladDoorGUID = pGo->GetGUID();  break;
+                    case GO_DEFIAS_CANNON:  DefiasCannonGUID = pGo->GetGUID();  break;
+                    case GO_DOOR_LEVER:     DoorLeverGUID = pGo->GetGUID();     break;
                 }
-            }
-
-            void MoveCreaturesInside()
-            {
-                if (!DefiasPirate1GUID || !DefiasPirate2GUID || !DefiasCompanionGUID)
-                    return;
-
-                Creature* pDefiasPirate1 = instance->GetCreature(DefiasPirate1GUID);
-                Creature* pDefiasPirate2 = instance->GetCreature(DefiasPirate2GUID);
-                Creature* pDefiasCompanion = instance->GetCreature(DefiasCompanionGUID);
-                if (!pDefiasPirate1 || !pDefiasPirate2 || !pDefiasCompanion)
-                    return;
-
-                MoveCreatureInside(pDefiasPirate1);
-                MoveCreatureInside(pDefiasPirate2);
-                MoveCreatureInside(pDefiasCompanion);
-            }
-
-            void MoveCreatureInside(Creature* creature)
-            {
-                creature->SetWalk(false);
-                creature->GetMotionMaster()->MovePoint(0, -102.7f, -655.9f, creature->GetPositionZ());
             }
 
             void ShootCannon()
             {
-                if (GameObject* pDefiasCannon = instance->GetGameObject(DefiasCannonGUID))
+                if (GameObject *pDefiasCannon = instance->GetGameObject(DefiasCannonGUID))
                 {
                     pDefiasCannon->SetGoState(GO_STATE_ACTIVE);
                     DoPlaySound(pDefiasCannon, SOUND_CANNONFIRE);
@@ -172,55 +93,44 @@ class instance_deadmines : public InstanceMapScript
 
             void BlastOutDoor()
             {
-                if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
+                if (GameObject *pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
                 {
                     pIronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                     DoPlaySound(pIronCladDoor, SOUND_DESTROYDOOR);
                 }
             }
 
-            void LeverStucked()
+            void DoPlaySound(GameObject* unit, uint32 sound)
             {
-                if (GameObject* pDoorLever = instance->GetGameObject(DoorLeverGUID))
-                    pDoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
-            }
-
-            void OnGameObjectCreate(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID(); break;
-                    case GO_IRONCLAD_DOOR:  IronCladDoorGUID = go->GetGUID();  break;
-                    case GO_DEFIAS_CANNON:  DefiasCannonGUID = go->GetGUID();  break;
-                    case GO_DOOR_LEVER:     DoorLeverGUID = go->GetGUID();     break;
-                    case GO_MR_SMITE_CHEST: uiSmiteChestGUID = go->GetGUID();  break;
-                }
+                WorldPacket data(SMSG_PLAY_SOUND, 4);
+                data << uint32(sound);
+                unit->SendMessageToSet(&data, false);
             }
 
             void SetData(uint32 type, uint32 data)
             {
                 switch (type)
                 {
-                case EVENT_STATE:
-                    if (DefiasCannonGUID && IronCladDoorGUID)
-                        State=data;
-                    break;
-                case EVENT_RHAHKZOR:
-                    if (data == DONE)
-                        if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
-                            go->SetGoState(GO_STATE_ACTIVE);
-                    break;
+                    case DATA_CANNON_EVENT:
+                        State = data;
+                        if (data == CANNON_BLAST_INITIATED)
+                        {
+                            ShootCannon();
+                            BlastOutDoor();
+                        }    
+                        break;
+                    case DATA_VANESSA_EVENT:
+                        uiVanessaEvent = data;
+                        if (data == DONE)
+                            SaveToDB();
+                        break;
                 }
             }
 
             uint32 GetData(uint32 type)
             {
-                switch (type)
-                {
-                    case EVENT_STATE:
-                        return State;
-                }
-
+                if (type == DATA_VANESSA_EVENT)
+                    return uiVanessaEvent;
                 return 0;
             }
 
@@ -228,50 +138,98 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (data)
                 {
-                    case DATA_SMITE_CHEST:
-                        return uiSmiteChestGUID;
+                    case DATA_GLUBTOK:
+                        return uiGlubtokGUID;
+                    case DATA_HELIX:
+                        return uiHelixGUID;
+                    case DATA_OAF:
+                        return uiOafGUID;
+                    case DATA_FOEREAPER:
+                        return uiFoereaperGUID;
+                    case DATA_ADMIRAL:
+                        return uiAdmiralGUID;
                 }
-
                 return 0;
             }
 
-            void DoPlaySound(GameObject* unit, uint32 sound)
+            std::string GetSaveData()
             {
-                WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-                ObjectGuid guid = unit->GetGUID();
+                OUT_SAVE_INST_DATA;
 
-                uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-                data.WriteBitInOrder(guid, bits);
+                std::string str_data;
+                std::ostringstream saveStream;
+                saveStream << "D M " << GetBossSaveData() << State << " " << uiVanessaEvent << " ";
+                str_data = saveStream.str();
 
-                uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-                data.WriteBytesSeq(guid, bytes);
-
-                data << uint32(sound);
-
-                unit->SendMessageToSet(&data, false);
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return str_data;
             }
 
-            void DoPlaySoundCreature(Unit* unit, uint32 sound)
+            void Load(const char* in)
             {
-                WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-                ObjectGuid guid = unit->GetGUID();
+                if (!in)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
 
-                uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-                data.WriteBitInOrder(guid, bits);
+                OUT_LOAD_INST_DATA(in);
 
-                uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-                data.WriteBytesSeq(guid, bytes);
+                char dataHead1, dataHead2;
 
-                data << uint32(sound);
+                std::istringstream loadStream(in);
+                loadStream >> dataHead1 >> dataHead2;
 
-                unit->SendMessageToSet(&data, false);
+                if (dataHead1 == 'D' && dataHead2 == 'M')
+                {
+
+                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+
+                    loadStream >> State;
+
+                    if (State == CANNON_BLAST_INITIATED)
+                        if (GameObject *pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
+                            pIronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+
+                    loadStream >> uiVanessaEvent;
+                    if (uiVanessaEvent != DONE)
+                        uiVanessaEvent = NOT_STARTED;
+
+                }
+                else OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
+
+        private:
+            uint64 uiGlubtokGUID;
+            uint64 uiHelixGUID;
+            uint64 uiOafGUID;
+            uint64 uiFoereaperGUID;
+            uint64 uiAdmiralGUID;
+            uint64 uiCaptainGUID;
+
+            uint64 FactoryDoorGUID;
+            uint64 FoundryDoorGUID;
+            uint64 MastRoomDoorGUID;
+            uint64 IronCladDoorGUID;
+            uint64 DefiasCannonGUID;
+            uint64 DoorLeverGUID;
+            uint64 DefiasPirate1GUID;
+            uint64 DefiasPirate2GUID;
+            uint64 DefiasCompanionGUID;
+
+            uint32 State;
+            uint32 uiVanessaEvent;
+
         };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
-        {
-            return new instance_deadmines_InstanceMapScript(map);
-        }
 };
 
 void AddSC_instance_deadmines()

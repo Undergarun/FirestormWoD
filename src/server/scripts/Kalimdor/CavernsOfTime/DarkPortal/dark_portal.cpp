@@ -87,10 +87,6 @@ public:
         void Reset()
         {
             SpellCorrupt_Timer = 0;
-            Check_Timer = 0;
-            Life75 = true;
-            Life50 = true;
-            Life25 = true;
 
             if (!instance)
                 return;

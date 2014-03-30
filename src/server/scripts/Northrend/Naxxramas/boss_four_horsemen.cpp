@@ -84,6 +84,8 @@ const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
 
 #define SAY_BARON_AGGRO     RAND(-1533065, -1533066, -1533067)
 #define SAY_BARON_SLAY      RAND(-1533068, -1533069)
+#define ACTION_SET_ATTACK 1
+#define ACTION_SET_RESET 2
 
 class boss_four_horsemen : public CreatureScript
 {
@@ -140,6 +142,18 @@ public:
             _Reset();
         }
 
+        void DoAction(const int32 action)
+        {
+            if (action == ACTION_SET_ATTACK)
+            {
+                encounterActionAttack = true;
+            }
+            else if (action == ACTION_SET_RESET)
+            {
+                encounterActionReset = true;
+            }
+        }
+
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
             if (!instance)
@@ -154,15 +168,15 @@ public:
             {
                 if (attack && who)
                 {
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
+                    Thane->AI()->DoAction(ACTION_SET_ATTACK);
+                    Lady->AI()->DoAction(ACTION_SET_ATTACK);
+                    Baron->AI()->DoAction(ACTION_SET_ATTACK);
+                    Sir->AI()->DoAction(ACTION_SET_ATTACK);
 
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->AttackStart(who);
-                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->AttackStart(who);
+                    Thane->AI()->AttackStart(who);
+                    Lady->AI()->AttackStart(who);
+                    Baron->AI()->AttackStart(who);
+                    Sir->AI()->AttackStart(who);
                 }
 
                 if (reset)
@@ -181,15 +195,15 @@ public:
                         if (!Sir->isAlive())
                             Sir->Respawn();
 
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
+                        Thane->AI()->DoAction(ACTION_SET_RESET);
+                        Lady->AI()->DoAction(ACTION_SET_RESET);
+                        Baron->AI()->DoAction(ACTION_SET_RESET);
+                        Sir->AI()->DoAction(ACTION_SET_RESET);
 
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
-                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
+                        Thane->AI()->EnterEvadeMode();
+                        Lady->AI()->EnterEvadeMode();
+                        Baron->AI()->EnterEvadeMode();
+                        Sir->AI()->EnterEvadeMode();
                     }
                 }
 
@@ -451,6 +465,7 @@ class spell_four_horsemen_mark : public SpellScriptLoader
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
+
         };
 
         AuraScript* GetAuraScript() const

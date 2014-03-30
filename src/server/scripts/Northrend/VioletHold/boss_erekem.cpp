@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -169,9 +168,7 @@ public:
             {
                 DoCast(me, SPELL_EARTH_SHIELD);
                 uiEarthShieldTimer = 20000;
-            }
-            else
-                uiEarthShieldTimer -= diff;
+            } else uiEarthShieldTimer -= diff;
 
             if (uiChainHealTimer <= diff)
             {
@@ -185,34 +182,26 @@ public:
                     Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0);
                     uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
                 }
-            }
-            else
-                uiChainHealTimer -= diff;
+            } else uiChainHealTimer -= diff;
 
             if (uiBloodlustTimer <= diff)
             {
                 DoCast(me, SPELL_BLOODLUST);
                 uiBloodlustTimer = urand(35000, 45000);
-            }
-            else
-                uiBloodlustTimer -= diff;
+            } else uiBloodlustTimer -= diff;
 
             if (uiEarthShockTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_EARTH_SHOCK);
                 uiEarthShockTimer = urand(8000, 13000);
-            }
-            else
-                uiEarthShockTimer -= diff;
+            } else uiEarthShockTimer -= diff;
 
             if (uiLightningBoltTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_LIGHTNING_BOLT);
                 uiLightningBoltTimer = urand(18000, 24000);
-            }
-            else
-                uiLightningBoltTimer -= diff;
+            } else uiLightningBoltTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -326,25 +315,19 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_STRIKE);
                 uiStrikeTimer = urand(4000, 8000);
-            }
-            else
-                uiStrikeTimer -= diff;
+            } else uiStrikeTimer -= diff;
 
             if (uiHowlingScreechTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_HOWLING_SCREECH);
                 uiHowlingScreechTimer = urand(8000, 13000);
-            }
-            else
-                uiHowlingScreechTimer -= diff;
+            } else uiHowlingScreechTimer -= diff;
 
             if (uiGushingWoundTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_GUSHING_WOUND);
                 uiGushingWoundTimer = urand(7000, 12000);
-            }
-            else
-                uiGushingWoundTimer -= diff;
+            } else uiGushingWoundTimer -= diff;
         }
     };
 

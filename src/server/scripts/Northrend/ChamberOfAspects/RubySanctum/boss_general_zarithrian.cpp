@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,11 +44,12 @@ enum Events
 {
     // General Zarithrian
     EVENT_CLEAVE                    = 1,
-    EVENT_INTIDMDATING_ROAR         = 2,
+    EVENT_INTIMIDATING_ROAR         = 2,
     EVENT_SUMMON_ADDS               = 3,
+    EVENT_SUMMON_ADDS_25_MAN        = 4,
     // Onyx Flamecaller
-    EVENT_BLAST_NOVA                = 4,
-    EVENT_LAVA_GOUT                 = 5,
+    EVENT_BLAST_NOVA                = 5,
+    EVENT_LAVA_GOUT                 = 6,
 };
 
 uint32 const MAX_PATH_FLAMECALLER_WAYPOINTS = 12;
@@ -98,7 +99,7 @@ class boss_general_zarithrian : public CreatureScript
             {
                 _Reset();
                 if (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -107,8 +108,8 @@ class boss_general_zarithrian : public CreatureScript
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_CLEAVE, 15000);
-                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
-                events.ScheduleEvent(EVENT_SUMMON_ADDS, 40000);
+                events.ScheduleEvent(EVENT_INTIMIDATING_ROAR, 14000);
+                events.ScheduleEvent(EVENT_SUMMON_ADDS, 16000);
             }
 
             void JustReachedHome()
@@ -135,6 +136,11 @@ class boss_general_zarithrian : public CreatureScript
                     Talk(SAY_KILL);
             }
 
+            bool CanAIAttack(Unit const* /*target*/) const
+            {
+                return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE);
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
@@ -158,17 +164,29 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHIAN_SPAWN_STALKER_1)))
-                                stalker1->AI()->DoCast(stalker1, SPELL_SUMMON_FLAMECALLER);
-                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHIAN_SPAWN_STALKER_2)))
-                                stalker2->AI()->DoCast(stalker2, SPELL_SUMMON_FLAMECALLER);
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
+                                stalker1->CastSpell(stalker1, SPELL_SUMMON_FLAMECALLER, false);
+
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
+                                stalker2->CastSpell(stalker2, SPELL_SUMMON_FLAMECALLER, false);
+
                             Talk(SAY_ADDS);
+                            if (Is25ManRaid())
+                                events.ScheduleEvent(EVENT_SUMMON_ADDS_25_MAN, 2000);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS, 42000);
                             break;
                         }
-                        case EVENT_INTIDMDATING_ROAR:
-                            DoCast(me, SPELL_INTIMIDATING_ROAR, true);
-                            events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
+                        case EVENT_SUMMON_ADDS_25_MAN:
+                        {
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
+                                stalker1->AI()->DoCast(stalker1, SPELL_SUMMON_FLAMECALLER);
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
+                                stalker2->AI()->DoCast(stalker2, SPELL_SUMMON_FLAMECALLER);
+                            break;
+                        }
+                        case EVENT_INTIMIDATING_ROAR:
+                            DoCast(me, SPELL_INTIMIDATING_ROAR);
+                            events.ScheduleEvent(EVENT_INTIMIDATING_ROAR, 40000);
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE_ARMOR);
                             events.ScheduleEvent(EVENT_CLEAVE, 15000);
@@ -195,9 +213,8 @@ class npc_onyx_flamecaller : public CreatureScript
 
         struct npc_onyx_flamecallerAI : public npc_escortAI
         {
-            npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature)
+            npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
             {
-                _instance = creature->GetInstanceScript();
                 npc_escortAI::SetDespawnAtEnd(false);
             }
 
@@ -230,10 +247,12 @@ class npc_onyx_flamecaller : public CreatureScript
 
             void WaypointReached(uint32 waypointId)
             {
-                if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
+                if (waypointId == (MAX_PATH_FLAMECALLER_WAYPOINTS - 1) || waypointId == (MAX_PATH_FLAMECALLER_WAYPOINTS * 2 - 1))
                 {
-                    DoZoneInCombat();
                     SetEscortPaused(true);
+                    me->SetInCombatWithZone();
+                    if (Unit* victim = me->SelectVictim())
+                        AttackStart(victim);
                 }
             }
 
@@ -289,7 +308,6 @@ class npc_onyx_flamecaller : public CreatureScript
             }
         private:
             EventMap _events;
-            bool _movementComplete;
             InstanceScript* _instance;
             uint8 _lavaGoutCount;
         };

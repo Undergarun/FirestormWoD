@@ -85,17 +85,13 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_ECK_BITE);
                 uiBiteTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
-            }
-            else
-                uiBiteTimer -= diff;
+            } else uiBiteTimer -= diff;
 
             if (uiSpitTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ECK_SPIT);
                 uiSpitTimer = urand(6*IN_MILLISECONDS, 14*IN_MILLISECONDS);
-            }
-            else
-                uiSpitTimer -= diff;
+            } else uiSpitTimer -= diff;
 
             if (uiSpringTimer <= diff)
             {
@@ -105,9 +101,7 @@ public:
                     DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                     uiSpringTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 }
-            }
-            else
-                uiSpringTimer -= diff;
+            } else uiSpringTimer -= diff;
 
             //Berserk on timer or 20% of health
             if (!bBerserk)

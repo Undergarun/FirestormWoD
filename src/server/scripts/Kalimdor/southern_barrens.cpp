@@ -29,7 +29,7 @@ class mob_high_road_scout : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
+                
                 events.ScheduleEvent(EVENT_THROW,      7000);
             }
 
@@ -43,7 +43,7 @@ class mob_high_road_scout : public CreatureScript
                     return;
 
                 events.Update(diff);
-
+                
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -95,7 +95,9 @@ class mob_sabersnout : public CreatureScript
 
         struct mob_sabersnoutAI : public ScriptedAI
         {
-            mob_sabersnoutAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_sabersnoutAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
 
             EventMap events;
 
@@ -110,7 +112,9 @@ class mob_sabersnout : public CreatureScript
                 events.ScheduleEvent(EVENT_STRIKE,      50000);
             }
 
-            void JustDied(Unit* /*killer*/) { }
+            void JustDied(Unit* /*killer*/)
+            {
+            }
 
             void UpdateAI(const uint32 diff)
             {

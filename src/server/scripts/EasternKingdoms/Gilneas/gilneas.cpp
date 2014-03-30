@@ -533,10 +533,10 @@ public:
             if (tQuestCredit <= ((float)diff/8))
             {
                 opened = 0;
-
-                if (aPlayer)
+                
+                if(aPlayer)
                     aPlayer->KilledMonsterCredit(35830, 0);
-
+                
                 if (spawnKind == 3)
                 {
                     if (Creature* spawnedCreature = go->SummonCreature(NPC_RAMPAGING_WORGEN_2, wx, wy, z, angle, TEMPSUMMON_TIMED_DESPAWN, SUMMON1_TTL))
@@ -544,7 +544,7 @@ public:
                         spawnedCreature->SetPhaseMask(6, 1);
                         spawnedCreature->Respawn(1);
                         spawnedCreature->getThreatManager().resetAllAggro();
-                        if (aPlayer)
+                        if(aPlayer)
                             aPlayer->AddThreat(spawnedCreature, 1.0f);
                         spawnedCreature->AddThreat(aPlayer, 1.0f);
                     }
@@ -1162,7 +1162,7 @@ public:
                     switch (urand(0, 2)) // Perform one of 3 random attacks
                     {
                         case 0: // Do Left Hook
-                            if (me->GetOrientation() > 2.0f && me->GetOrientation() < 3.0f || me->GetOrientation() > 5.0f && me->GetOrientation() < 6.0f)
+                            if (me->GetOrientation() > 2.0f && me->GetOrientation() < 3.0f || me->GetOrientation() > 5.0f && me->GetOrientation() < 6.0f) 
                                 // If Orientation is outside of these ranges, there is a possibility the knockback could knock worgens off the platform
                                 // After which, Crowley would chase
                             {
@@ -2117,7 +2117,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (tYell <= diff)
+            if(tYell <= diff)
             {
                 if (WillSay <= SayChance)
                 {
@@ -2767,7 +2767,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (me->HasAura(SPELL_THROW_TORCH))
+            if(me->HasAura(SPELL_THROW_TORCH))
             {
                 Burning = true;
             }
@@ -2837,7 +2837,7 @@ public:
             {
                 Burning = true;
 
-                if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
+                if(me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
                 {
                     me->getThreatManager().resetAllAggro();//We need to aggro on crowley's horse, not the player
                     horse->AddThreat(me, 1.0f);

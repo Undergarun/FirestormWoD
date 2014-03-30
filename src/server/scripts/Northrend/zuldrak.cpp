@@ -1490,6 +1490,7 @@ class npc_storm_cloud : public CreatureScript
         }
 };
 
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles;

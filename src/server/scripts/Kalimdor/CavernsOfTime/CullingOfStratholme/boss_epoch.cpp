@@ -23,8 +23,7 @@ SDComment: TODO: Intro, consecutive attacks to a random target durin time wrap, 
 SDCategory:
 Script Data End */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -61,9 +60,9 @@ public:
 
     struct boss_epochAI : public ScriptedAI
     {
-        boss_epochAI(Creature* creature) : ScriptedAI(creature)
+        boss_epochAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint8 uiStep;
@@ -108,34 +107,26 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_CURSE_OF_EXERTION);
                 uiCurseOfExertionTimer = 9300;
-            }
-            else
-                uiCurseOfExertionTimer -= diff;
+            } else uiCurseOfExertionTimer -= diff;
 
             if (uiWoundingStrikeTimer < diff)
             {
                 DoCastVictim(SPELL_WOUNDING_STRIKE);
                 uiWoundingStrikeTimer = 5300;
-            }
-            else
-                uiWoundingStrikeTimer -= diff;
+            } else uiWoundingStrikeTimer -= diff;
 
             if (uiTimeStopTimer < diff)
             {
                 DoCastAOE(SPELL_TIME_STOP);
                 uiTimeStopTimer = 21300;
-            }
-            else
-                uiTimeStopTimer -= diff;
+            } else uiTimeStopTimer -= diff;
 
             if (uiTimeWarpTimer < diff)
             {
                 DoScriptText(RAND(SAY_TIME_WARP_1, SAY_TIME_WARP_2, SAY_TIME_WARP_3), me);
                 DoCastAOE(SPELL_TIME_WARP);
                 uiTimeWarpTimer = 25300;
-            }
-            else
-                uiTimeWarpTimer -= diff;
+            } else uiTimeWarpTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

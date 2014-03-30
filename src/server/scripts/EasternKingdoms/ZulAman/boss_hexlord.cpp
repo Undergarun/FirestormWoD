@@ -1,57 +1,32 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* ScriptData
-SDName: Boss_Hex_Lord_Malacrass
-SD%Complete:
-SDComment:
-SDCategory: Zul'Aman
-EndScriptData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "ScriptPCH.h"
 #include "zulaman.h"
 
-#define YELL_AGGRO              "Da shadow gonna fall on you... "
-#define SOUND_YELL_AGGRO        12041
-#define YELL_SPIRIT_BOLTS       "Your soul gonna bleed!"
-#define SOUND_YELL_SPIRIT_BOLTS 12047
-#define YELL_DRAIN_POWER        "Darkness comin\' for you"
-#define SOUND_YELL_DRAIN_POWER  12046
-#define YELL_KILL_ONE           "Dis a nightmare ya don\' wake up from!"
-#define SOUND_YELL_KILL_ONE     12043
-#define YELL_KILL_TWO           "Azzaga choogo zinn!"
-#define SOUND_YELL_KILL_TWO     12044
-#define YELL_DEATH              "Dis not... da end of me..."
-#define SOUND_YELL_DEATH        12051
-
-#define SPELL_SPIRIT_BOLTS      43383
-#define SPELL_DRAIN_POWER       44131
-#define SPELL_SIPHON_SOUL       43501
-
-#define MOB_TEMP_TRIGGER        23920
-
-//Defines for various powers he uses after using soul drain
+enum ScriptTexts
+{
+    SAY_AGGRO   = 0,
+    SAY_KILL    = 1,
+    SAY_SIPHON  = 2,
+    SAY_BOLTS   = 3,
+    SAY_PET     = 4,
+    SAY_DEATH   = 5,
+};
 
 enum Spells
 {
+    SPELL_SPIRIT_BOLTS              = 43383,
+    SPELL_DRAIN_POWER               = 44131,
+    SPELL_SIPHON_SOUL               = 43501,
+
+    
+    SPELL_FLASH_HEAL                = 43575,
+    SPELL_DISPEL_MAGIC              = 43577,
+
+    SPELL_FIREBOLT                  = 43584,
+
+    SPELL_PSYCHIC_WAIL              = 43590,
+
+    SPELL_VENOM_SPIT                = 43579,
+
     // Druid
     SPELL_DR_THORNS                 = 43420,
     SPELL_DR_LIFEBLOOM              = 43421,
@@ -103,22 +78,27 @@ enum Spells
     SPELL_WR_SPELL_REFLECT          = 43443
 };
 
-#define ORIENT                  1.5696f
-#define POS_Y                   921.2795f
-#define POS_Z                   33.8883f
-
-static float Pos_X[4] = {112.8827f, 107.8827f, 122.8827f, 127.8827f};
-
-static uint32 AddEntryList[8]=
+enum Events
 {
-    24240, //Alyson Antille
-    24241, //Thurg
-    24242, //Slither
-    24243, //Lord Raadan
-    24244, //Gazakroth
-    24245, //Fenstalker
-    24246, //Darkheart
-    24247  //Koragg
+    EVENT_SPIRIT_BOLTS          = 1,
+    EVENT_SIPHON_SOUL           = 2,
+    EVENT_DRAIN_POWER           = 3,
+    EVENT_PLAYER_ABILITY        = 4,
+    EVENT_PLAYER_ABILITY_OFF    = 5,
+};
+
+enum Adds
+{
+    NPC_ALYSON_ANTILE   = 24240,
+    NPC_SLITHER         = 24242, 
+    NPC_GAZAKROTH       = 24244, 
+    NPC_DARKHEART       = 24246,
+};
+
+const Position addPos[2] = 
+{
+    {109.43f, 922.57f, 33.90f, 1.57f},
+    {126.40f, 922.78f, 33.90f, 1.57f}
 };
 
 enum AbilityTarget
@@ -135,7 +115,7 @@ struct PlayerAbilityStruct
 {
     uint32 spell;
     AbilityTarget target;
-    uint32 cooldown; //FIXME - it's never used
+    uint32 cooldown;
 };
 
 static PlayerAbilityStruct PlayerAbility[][3] =
@@ -182,82 +162,68 @@ static PlayerAbilityStruct PlayerAbility[][3] =
     {SPELL_DR_MOONFIRE, ABILITY_TARGET_ENEMY, 8000}}
 };
 
-struct boss_hexlord_addAI : public ScriptedAI
-{
-    InstanceScript* instance;
-
-    boss_hexlord_addAI(Creature* creature) : ScriptedAI(creature)
-    {
-        instance = creature->GetInstanceScript();
-    }
-
-    void Reset() {}
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoZoneInCombat();
-    }
-
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        if (instance && instance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
-        {
-            EnterEvadeMode();
-            return;
-        }
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-class boss_hexlord_malacrass : public CreatureScript
+class boss_hex_lord_malacrass : public CreatureScript
 {
     public:
 
-        boss_hexlord_malacrass()
-            : CreatureScript("boss_hexlord_malacrass")
+        boss_hex_lord_malacrass() : CreatureScript("boss_hex_lord_malacrass") {}
+        
+        CreatureAI* GetAI(Creature* pCreature) const
         {
+            return new boss_hex_lord_malacrassAI(pCreature);
         }
 
-        struct boss_hex_lord_malacrassAI : public ScriptedAI
+        struct boss_hex_lord_malacrassAI : public BossAI
         {
-            boss_hex_lord_malacrassAI(Creature* creature) : ScriptedAI(creature)
+            boss_hex_lord_malacrassAI(Creature* pCreature) : BossAI(pCreature, DATA_HEX_LORD_MALACRASS)
             {
-                instance = creature->GetInstanceScript();
-                SelectAddEntry();
-                for (uint8 i = 0; i < 4; ++i)
-                    AddGUID[i] = 0;
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
-
-            InstanceScript* instance;
-
-            uint64 AddGUID[4];
-            uint32 AddEntry[4];
-
-            uint64 PlayerGUID;
-
-            uint32 SpiritBolts_Timer;
-            uint32 DrainPower_Timer;
-            uint32 SiphonSoul_Timer;
-            uint32 PlayerAbility_Timer;
-            uint32 CheckAddState_Timer;
-            uint32 ResetTimer;
 
             uint32 PlayerClass;
 
             void Reset()
             {
-                if (instance)
-                    instance->SetData(DATA_HEXLORDEVENT, NOT_STARTED);
+                _Reset();
 
-                SpiritBolts_Timer = 20000;
-                DrainPower_Timer = 60000;
-                SiphonSoul_Timer = 100000;
-                PlayerAbility_Timer = 99999;
-                CheckAddState_Timer = 5000;
-                ResetTimer = 5000;
-
-                SpawnAdds();
+                switch (urand(0, 5))
+                {
+                    case 0:
+                        me->SummonCreature(NPC_ALYSON_ANTILE, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
+                        me->SummonCreature(NPC_SLITHER, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
+                        break;
+                    case 1:
+                        me->SummonCreature(NPC_ALYSON_ANTILE, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
+                        me->SummonCreature(NPC_GAZAKROTH, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
+                        break;
+                    case 2:
+                        me->SummonCreature(NPC_ALYSON_ANTILE, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
+                        me->SummonCreature(NPC_DARKHEART, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
+                        break;
+                    case 3:
+                        me->SummonCreature(NPC_GAZAKROTH, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
+                        me->SummonCreature(NPC_SLITHER, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
+                        break;
+                    case 4:
+                        me->SummonCreature(NPC_GAZAKROTH, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
+                        me->SummonCreature(NPC_DARKHEART, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
+                        break;
+                    case 5:
+                        me->SummonCreature(NPC_SLITHER, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
+                        me->SummonCreature(NPC_DARKHEART, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
+                        break;
+                }       
 
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 46916);
                 me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
@@ -265,182 +231,77 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (instance)
-                    instance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
-
+                events.ScheduleEvent(EVENT_SPIRIT_BOLTS, 10000);
+                events.ScheduleEvent(EVENT_DRAIN_POWER, 6000);
+                Talk(SAY_AGGRO);
                 DoZoneInCombat();
-                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
-
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    Unit* Temp = Unit::GetUnit(*me, AddGUID[i]);
-                    if (Temp && Temp->isAlive())
-                        CAST_CRE(Temp)->AI()->AttackStart(me->getVictim());
-                    else
-                    {
-                        EnterEvadeMode();
-                        break;
-                    }
-                }
+                instance->SetBossState(DATA_HEX_LORD_MALACRASS, IN_PROGRESS);
             }
 
             void KilledUnit(Unit* /*victim*/)
             {
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
-                        break;
-                    case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
-                        break;
-                }
+                Talk(SAY_KILL);
+            }
+            
+            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            {
+                Talk(SAY_PET);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetData(DATA_HEXLORDEVENT, DONE);
-
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_YELL_DEATH);
-
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    Unit* Temp = Unit::GetUnit(*me, AddGUID[i]);
-                    if (Temp && Temp->isAlive())
-                        Temp->DealDamage(Temp, Temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                }
-            }
-
-            void SelectAddEntry()
-            {
-                std::vector<uint32> AddList;
-
-                for (uint8 i = 0; i < 8; ++i)
-                    AddList.push_back(AddEntryList[i]);
-
-                while (AddList.size() > 4)
-                    AddList.erase(AddList.begin()+rand()%AddList.size());
-
-                uint8 i = 0;
-                for (std::vector<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)
-                    AddEntry[i] = *itr;
-            }
-
-            void SpawnAdds()
-            {
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    Creature* creature = (Unit::GetCreature((*me), AddGUID[i]));
-                    if (!creature || !creature->isAlive())
-                    {
-                        if (creature) creature->setDeathState(DEAD);
-                        creature = me->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        if (creature) AddGUID[i] = creature->GetGUID();
-                    }
-                    else
-                    {
-                        creature->AI()->EnterEvadeMode();
-                        creature->SetPosition(Pos_X[i], POS_Y, POS_Z, ORIENT);
-                        creature->StopMoving();
-                    }
-                }
+                _JustDied();
+                Talk(SAY_DEATH);
             }
 
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
+                
+                events.Update(diff);
 
-                if (ResetTimer <= diff)
+                if (me->HasUnitState(UNIT_STATE_CASTING)) 
+                    return;
+                
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (me->IsWithinDist3d(119.223f, 1035.45f, 29.4481f, 10))
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                    ResetTimer = 5000;
-                } else ResetTimer -= diff;
+                     switch (eventId)
+                     {
+                        case EVENT_DRAIN_POWER:
+                            DoCast(me, SPELL_DRAIN_POWER, true);
+                            events.ScheduleEvent(EVENT_DRAIN_POWER, 40000);
+                            break;
+                        case EVENT_SPIRIT_BOLTS:
+                            Talk(SAY_BOLTS);
+                            DoCast(me, SPELL_SPIRIT_BOLTS);
+                            events.ScheduleEvent(EVENT_SPIRIT_BOLTS, 45000);
+                            events.ScheduleEvent(EVENT_SIPHON_SOUL, 10000);
+                            break;
+                        case EVENT_SIPHON_SOUL:
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            {
+                                PlayerClass = pTarget->getClass() - 1;
+                                if (PlayerClass == CLASS_DRUID-1)
+                                    PlayerClass = CLASS_DRUID;
+                                else if (PlayerClass == CLASS_PRIEST-1 && pTarget->HasSpell(15473))
+                                    PlayerClass = CLASS_PRIEST; // shadow priest
 
-                if (CheckAddState_Timer <= diff)
-                {
-                    for (uint8 i = 0; i < 4; ++i)
-                        if (Creature* temp = Unit::GetCreature(*me, AddGUID[i]))
-                            if (temp->isAlive() && !temp->getVictim())
-                                temp->AI()->AttackStart(me->getVictim());
-
-                    CheckAddState_Timer = 5000;
-                } else CheckAddState_Timer -= diff;
-
-                if (DrainPower_Timer <= diff)
-                {
-                    DoCast(me, SPELL_DRAIN_POWER, true);
-                    me->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
-                    DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
-                } else DrainPower_Timer -= diff;
-
-                if (SpiritBolts_Timer <= diff)
-                {
-                    if (DrainPower_Timer < 12000)    // channel 10 sec
-                        SpiritBolts_Timer = 13000;   // cast drain power first
-                    else
-                    {
-                        DoCast(me, SPELL_SPIRIT_BOLTS, false);
-                        me->MonsterYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_YELL_SPIRIT_BOLTS);
-                        SpiritBolts_Timer = 40000;
-                        SiphonSoul_Timer = 10000;    // ready to drain
-                        PlayerAbility_Timer = 99999;
-                    }
-                } else SpiritBolts_Timer -= diff;
-
-                if (SiphonSoul_Timer <= diff)
-                {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
-                    Unit* trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                    if (!target || !trigger)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                    else
-                    {
-                        trigger->SetDisplayId(11686);
-                        trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
-                        trigger->GetMotionMaster()->MoveChase(me);
-
-                        //DoCast(target, SPELL_SIPHON_SOUL, true);
-                        //me->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, target->GetGUID());
-                        //me->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SIPHON_SOUL);
-
-                        PlayerGUID = target->GetGUID();
-                        PlayerAbility_Timer = urand(8000, 10000);
-                        PlayerClass = target->getClass() - 1;
-
-                        if (PlayerClass == CLASS_DRUID-1)
-                            PlayerClass = CLASS_DRUID;
-                        else if (PlayerClass == CLASS_PRIEST-1 && target->HasSpell(15473))
-                            PlayerClass = CLASS_PRIEST; // shadow priest
-
-                        SiphonSoul_Timer = 99999;   // buff lasts 30 sec
-                    }
-                } else SiphonSoul_Timer -= diff;
-
-                if (PlayerAbility_Timer <= diff)
-                {
-                    //Unit* target = Unit::GetUnit(*me, PlayerGUID);
-                    //if (target && target->isAlive())
-                    //{
-                        UseAbility();
-                        PlayerAbility_Timer = urand(8000, 10000);
-                    //}
-                } else PlayerAbility_Timer -= diff;
+                                DoCast(pTarget, SPELL_SIPHON_SOUL);
+                                me->ClearUnitState(UNIT_STATE_CASTING);
+                                events.ScheduleEvent(EVENT_PLAYER_ABILITY, urand(5000, 8000));
+                                events.ScheduleEvent(EVENT_PLAYER_ABILITY_OFF, 30000);
+                            }
+                            break;
+                        case EVENT_PLAYER_ABILITY:
+                            UseAbility();
+                            events.ScheduleEvent(EVENT_PLAYER_ABILITY, urand(8000, 10000));
+                            break;
+                        case EVENT_PLAYER_ABILITY_OFF:
+                            events.CancelEvent(EVENT_PLAYER_ABILITY);
+                            break;
+                     }
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -476,89 +337,24 @@ class boss_hexlord_malacrass : public CreatureScript
                     DoCast(target, PlayerAbility[PlayerClass][random].spell, false);
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_hex_lord_malacrassAI(creature);
-        }
 };
 
-#define SPELL_BLOODLUST       43578
-#define SPELL_CLEAVE          15496
-
-class boss_thurg : public CreatureScript
+class npc_alyson_antille : public CreatureScript
 {
     public:
 
-        boss_thurg()
-            : CreatureScript("boss_thurg")
+        npc_alyson_antille() : CreatureScript("npc_alyson_antille") {}
+         
+        CreatureAI* GetAI(Creature* pCreature) const
         {
+            return new npc_alyson_antilleAI(pCreature);
         }
 
-        struct boss_thurgAI : public boss_hexlord_addAI
+        struct npc_alyson_antilleAI : public ScriptedAI
         {
-
-            boss_thurgAI(Creature* creature) : boss_hexlord_addAI(creature) {}
-
-            uint32 bloodlust_timer;
-            uint32 cleave_timer;
-
-            void Reset()
+            npc_alyson_antilleAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                bloodlust_timer = 15000;
-                cleave_timer = 10000;
-
-                boss_hexlord_addAI::Reset();
             }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (bloodlust_timer <= diff)
-                {
-                    std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, SPELL_BLOODLUST);
-                    if (!templist.empty())
-                    {
-                        if (Unit* target = *(templist.begin()))
-                            DoCast(target, SPELL_BLOODLUST, false);
-                    }
-                    bloodlust_timer = 12000;
-                } else bloodlust_timer -= diff;
-
-                if (cleave_timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_CLEAVE, false);
-                    cleave_timer = 12000; //3 sec cast
-                } else cleave_timer -= diff;
-
-                boss_hexlord_addAI::UpdateAI(diff);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_thurgAI(creature);
-        }
-};
-
-#define SPELL_FLASH_HEAL     43575
-#define SPELL_DISPEL_MAGIC   43577
-
-class boss_alyson_antille : public CreatureScript
-{
-    public:
-
-        boss_alyson_antille()
-            : CreatureScript("boss_alyson_antille")
-        {
-        }
-
-        struct boss_alyson_antilleAI : public boss_hexlord_addAI
-        {
-            //Holy Priest
-            boss_alyson_antilleAI(Creature* creature) : boss_hexlord_addAI(creature) {}
 
             uint32 flashheal_timer;
             uint32 dispelmagic_timer;
@@ -567,25 +363,6 @@ class boss_alyson_antille : public CreatureScript
             {
                 flashheal_timer = 2500;
                 dispelmagic_timer = 10000;
-
-                //AcquireGUID();
-
-                boss_hexlord_addAI::Reset();
-            }
-
-            void AttackStart(Unit* who)
-            {
-                if (!who)
-                    return;
-
-                if (who->isTargetableForAttack())
-                {
-                    if (me->Attack(who, false))
-                    {
-                        me->GetMotionMaster()->MoveChase(who, 20);
-                        me->AddThreat(who, 0.0f);
-                    }
-                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -619,149 +396,68 @@ class boss_alyson_antille : public CreatureScript
                     flashheal_timer = 2500;
                 } else flashheal_timer -= diff;
 
-                /*if (dispelmagic_timer <= diff)
-                {
-                if (urand(0, 1))
-                {
-                    Unit* target = SelectTarget();
-
-                    DoCast(target, SPELL_DISPEL_MAGIC, false);
-                }
-                else
-                    me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
-
-                dispelmagic_timer = 12000;
-                } else dispelmagic_timer -= diff;*/
-
-                boss_hexlord_addAI::UpdateAI(diff);
+                DoMeleeAttackIfReady();
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_alyson_antilleAI(creature);
-        }
 };
-
-#define SPELL_FIREBOLT        43584
-
-struct boss_gazakrothAI : public boss_hexlord_addAI
-{
-    boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
-
-    uint32 firebolt_timer;
-
-    void Reset()
-    {
-        firebolt_timer = 2000;
-        boss_hexlord_addAI::Reset();
-    }
-
-    void AttackStart(Unit* who)
-    {
-        if (!who)
-            return;
-
-        if (who->isTargetableForAttack())
-        {
-            if (me->Attack(who, false))
-            {
-                me->GetMotionMaster()->MoveChase(who, 20);
-                me->AddThreat(who, 0.0f);
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (firebolt_timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_FIREBOLT, false);
-            firebolt_timer = 700;
-        } else firebolt_timer -= diff;
-
-        boss_hexlord_addAI::UpdateAI(diff);
-    }
-};
-
-#define SPELL_FLAME_BREATH    43582
-#define SPELL_THUNDERCLAP     43583
-
-class boss_lord_raadan : public CreatureScript
+class npc_gazakroth : public CreatureScript
 {
     public:
 
-        boss_lord_raadan()
-            : CreatureScript("boss_lord_raadan")
+        npc_gazakroth() : CreatureScript("npc_gazakroth") {}
+         
+        CreatureAI* GetAI(Creature* pCreature) const
         {
+            return new npc_gazakrothAI(pCreature);
         }
 
-        struct boss_lord_raadanAI : public boss_hexlord_addAI
+        struct npc_gazakrothAI : public ScriptedAI
         {
-            boss_lord_raadanAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+            npc_gazakrothAI(Creature* pCreature) : ScriptedAI(pCreature)  {}
 
-            uint32 flamebreath_timer;
-            uint32 thunderclap_timer;
+            uint32 firebolt_timer;
 
             void Reset()
             {
-                flamebreath_timer = 8000;
-                thunderclap_timer = 13000;
-
-                boss_hexlord_addAI::Reset();
-
+                firebolt_timer = 2000;
             }
+
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (thunderclap_timer <= diff)
+                if (firebolt_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_THUNDERCLAP, false);
-                    thunderclap_timer = 12000;
-                } else thunderclap_timer -= diff;
+                    DoCast(me->getVictim(), SPELL_FIREBOLT, false);
+                    firebolt_timer = 700;
+                } else firebolt_timer -= diff;
 
-                if (flamebreath_timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_FLAME_BREATH, false);
-                    flamebreath_timer = 12000;
-                } else flamebreath_timer -= diff;
-
-                boss_hexlord_addAI::UpdateAI(diff);
+                DoMeleeAttackIfReady();
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_lord_raadanAI(creature);
-        }
 };
 
-#define SPELL_PSYCHIC_WAIL   43590
-
-class boss_darkheart : public CreatureScript
+class npc_darkheart : public CreatureScript
 {
     public:
 
-        boss_darkheart()
-            : CreatureScript("boss_darkheart")
+        npc_darkheart() : CreatureScript("npc_darkheart") {}
+
+        CreatureAI* GetAI(Creature* pCreature) const
         {
+            return new npc_darkheartAI(pCreature);
         }
 
-        struct boss_darkheartAI : public boss_hexlord_addAI
+        struct npc_darkheartAI : public ScriptedAI
         {
-            boss_darkheartAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+            npc_darkheartAI(Creature* pCreature) : ScriptedAI(pCreature)  {}
 
             uint32 psychicwail_timer;
 
             void Reset()
             {
                 psychicwail_timer = 8000;
-                boss_hexlord_addAI::Reset();
             }
             void UpdateAI(const uint32 diff)
             {
@@ -774,52 +470,33 @@ class boss_darkheart : public CreatureScript
                     psychicwail_timer = 12000;
                 } else psychicwail_timer -= diff;
 
-                boss_hexlord_addAI::UpdateAI(diff);
+                DoMeleeAttackIfReady();
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_darkheartAI(creature);
-        }
 };
 
-#define SPELL_VENOM_SPIT    43579
 
-class boss_slither : public CreatureScript
+
+class npc_slither : public CreatureScript
 {
     public:
 
-        boss_slither()
-            : CreatureScript("boss_slither")
+        npc_slither() : CreatureScript("npc_slither") {}
+        
+        CreatureAI* GetAI(Creature* pCreature) const
         {
+            return new npc_slitherAI(pCreature);
         }
 
-        struct boss_slitherAI : public boss_hexlord_addAI
+        struct npc_slitherAI : public ScriptedAI
         {
-            boss_slitherAI(Creature* creature) : boss_hexlord_addAI(creature) {}
+            npc_slitherAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
             uint32 venomspit_timer;
 
             void Reset()
             {
                 venomspit_timer = 5000;
-                boss_hexlord_addAI::Reset();
-            }
-
-            void AttackStart(Unit* who)
-            {
-                if (!who)
-                    return;
-
-                if (who->isTargetableForAttack())
-                {
-                    if (me->Attack(who, false))
-                    {
-                        me->GetMotionMaster()->MoveChase(who, 20);
-                        me->AddThreat(who, 0.0f);
-                    }
-                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -834,113 +511,9 @@ class boss_slither : public CreatureScript
                     venomspit_timer = 2500;
                 } else venomspit_timer -= diff;
 
-                boss_hexlord_addAI::UpdateAI(diff);
+                DoMeleeAttackIfReady();
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_slitherAI(creature);
-        }
-};
-
-//Fenstalker
-#define SPELL_VOLATILE_INFECTION 43586
-class boss_fenstalker : public CreatureScript
-{
-    public:
-
-        boss_fenstalker()
-            : CreatureScript("boss_fenstalker")
-        {
-        }
-
-        struct boss_fenstalkerAI : public boss_hexlord_addAI
-        {
-            boss_fenstalkerAI(Creature* creature) : boss_hexlord_addAI(creature) {}
-
-            uint32 volatileinf_timer;
-
-            void Reset()
-            {
-                volatileinf_timer = 15000;
-                boss_hexlord_addAI::Reset();
-
-            }
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (volatileinf_timer <= diff)
-                {
-                    // core bug
-                    me->getVictim()->CastSpell(me->getVictim(), SPELL_VOLATILE_INFECTION, false);
-                    volatileinf_timer = 12000;
-                } else volatileinf_timer -= diff;
-
-                boss_hexlord_addAI::UpdateAI(diff);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_fenstalkerAI(creature);
-        }
-};
-
-//Koragg
-#define SPELL_COLD_STARE      43593
-#define SPELL_MIGHTY_BLOW     43592
-
-class boss_koragg : public CreatureScript
-{
-    public:
-
-        boss_koragg()
-            : CreatureScript("boss_koragg")
-        {
-        }
-
-        struct boss_koraggAI : public boss_hexlord_addAI
-        {
-            boss_koraggAI(Creature* creature) : boss_hexlord_addAI(creature) {}
-
-            uint32 coldstare_timer;
-            uint32 mightyblow_timer;
-
-            void Reset()
-            {
-                coldstare_timer = 15000;
-                mightyblow_timer = 10000;
-                boss_hexlord_addAI::Reset();
-
-            }
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (mightyblow_timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_MIGHTY_BLOW, false);
-                    mightyblow_timer = 12000;
-                }
-                if (coldstare_timer <= diff)
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(victim, SPELL_COLD_STARE, false);
-                    coldstare_timer = 12000;
-                }
-
-                boss_hexlord_addAI::UpdateAI(diff);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_koraggAI(creature);
-        }
 };
 
 class spell_hexlord_unstable_affliction : public SpellScriptLoader
@@ -979,15 +552,11 @@ class spell_hexlord_unstable_affliction : public SpellScriptLoader
 
 void AddSC_boss_hex_lord_malacrass()
 {
-    new boss_hexlord_malacrass();
-    new boss_thurg();
-    // new boss_gazakroth();
-    new boss_lord_raadan();
-    new boss_darkheart();
-    new boss_slither();
-    new boss_fenstalker();
-    new boss_koragg();
-    new boss_alyson_antille();
+    new boss_hex_lord_malacrass();
+    new npc_gazakroth();
+    new npc_darkheart();
+    new npc_slither();
+    new npc_alyson_antille();
     new spell_hexlord_unstable_affliction();
 }
 

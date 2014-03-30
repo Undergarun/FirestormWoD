@@ -23,8 +23,7 @@ SDComment:
 SDCategory:
 Script Data End */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
@@ -121,9 +120,14 @@ public:
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
             }
-
+            
             m_uiActivedCreatureGUID = 0;
             m_uiOrbGUID = 0;
+
+            if (instance && instance->GetData(DATA_SKADI_THE_RUTHLESS_EVENT) != DONE)
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+            else
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         bool m_bIsWalking;

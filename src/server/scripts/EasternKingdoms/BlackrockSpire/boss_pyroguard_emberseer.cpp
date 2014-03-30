@@ -64,13 +64,14 @@ public:
 
         void Reset()
         {
-            if (instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
+            if(instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
                 OpenDoors(false);
             instance->SetBossState(DATA_PYROGAURD_EMBERSEER,NOT_STARTED);
             // respawn any dead Blackhand Incarcerators
             DoCast(me, SPELL_ENCAGED_EMBERSEER);
             //DoCast(me, SPELL_FIRE_SHIELD_TRIGGER);
             _Reset();
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC |  UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -81,7 +82,7 @@ public:
             events.ScheduleEvent(EVENT_PYROBLAST,  14 * IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*who*/)
         {
             instance->SetBossState(DATA_PYROGAURD_EMBERSEER,DONE);
             OpenDoors(true);

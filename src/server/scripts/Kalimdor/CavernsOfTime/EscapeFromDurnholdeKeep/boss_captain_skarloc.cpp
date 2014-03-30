@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,19 +27,25 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 
-#define SAY_ENTER                   -1560000
-#define SAY_TAUNT1                  -1560001
-#define SAY_TAUNT2                  -1560002
-#define SAY_SLAY1                   -1560003
-#define SAY_SLAY2                   -1560004
-#define SAY_DEATH                   -1560005
+/*######################
+# boss_captain_skarloc #
+#######################*/
 
-#define SPELL_HOLY_LIGHT            29427
-#define SPELL_CLEANSE               29380
-#define SPELL_HAMMER_OF_JUSTICE     13005
-#define SPELL_HOLY_SHIELD           31904
-#define SPELL_DEVOTION_AURA         8258
-#define SPELL_CONSECRATION          38385
+enum CaptainSkarloc
+{
+    SAY_ENTER                   = 0,
+    SAY_TAUNT1                  = 1,
+    SAY_TAUNT2                  = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
+
+    SPELL_HOLY_LIGHT            = 29427,
+    SPELL_CLEANSE               = 29380,
+    SPELL_HAMMER_OF_JUSTICE     = 13005,
+    SPELL_HOLY_SHIELD           = 31904,
+    SPELL_DEVOTION_AURA         = 8258,
+    SPELL_CONSECRATION          = 38385
+};
 
 class boss_captain_skarloc : public CreatureScript
 {
@@ -48,7 +54,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_captain_skarlocAI (creature);
+        return new boss_captain_skarlocAI(creature);
     }
 
     struct boss_captain_skarlocAI : public ScriptedAI
@@ -80,18 +86,18 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             //This is not correct. Should taunt Thrall before engage in combat
-            DoScriptText(SAY_TAUNT1, me);
-            DoScriptText(SAY_TAUNT2, me);
+            Talk(SAY_TAUNT1);
+            Talk(SAY_TAUNT2);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
                 instance->SetData(TYPE_THRALL_PART1, DONE);
@@ -108,54 +114,42 @@ public:
             {
                 DoCast(me, SPELL_HOLY_LIGHT);
                 Holy_Light_Timer = 30000;
-            }
-            else
-                Holy_Light_Timer -= diff;
+            } else Holy_Light_Timer -= diff;
 
             //Cleanse
             if (Cleanse_Timer <= diff)
             {
                 DoCast(me, SPELL_CLEANSE);
                 Cleanse_Timer = 10000;
-            }
-            else
-                Cleanse_Timer -= diff;
+            } else Cleanse_Timer -= diff;
 
             //Hammer of Justice
             if (HammerOfJustice_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMMER_OF_JUSTICE);
+                DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
                 HammerOfJustice_Timer = 60000;
-            }
-            else
-                HammerOfJustice_Timer -= diff;
+            } else HammerOfJustice_Timer -= diff;
 
             //Holy Shield
             if (HolyShield_Timer <= diff)
             {
                 DoCast(me, SPELL_HOLY_SHIELD);
                 HolyShield_Timer = 240000;
-            }
-            else
-                HolyShield_Timer -= diff;
+            } else HolyShield_Timer -= diff;
 
             //Devotion_Aura
             if (DevotionAura_Timer <= diff)
             {
                 DoCast(me, SPELL_DEVOTION_AURA);
                 DevotionAura_Timer = urand(45000, 55000);
-            }
-            else
-                DevotionAura_Timer -= diff;
+            } else DevotionAura_Timer -= diff;
 
             //Consecration
             if (Consecration_Timer <= diff)
             {
-                //DoCast(me->getVictim(), SPELL_CONSECRATION);
+                //DoCastVictim(SPELL_CONSECRATION);
                 Consecration_Timer = urand(5000, 10000);
-            }
-            else
-                Consecration_Timer -= diff;
+            } else Consecration_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }

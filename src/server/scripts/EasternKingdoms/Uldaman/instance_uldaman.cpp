@@ -23,8 +23,7 @@ SDComment: Need some cosmetics updates when archeadas door are closing (Guardian
 SDCategory: Uldaman
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "ScriptPCH.h"
 #include "uldaman.h"
 
 enum eSpells
@@ -64,6 +63,8 @@ class instance_uldaman : public InstanceMapScript
                 uiKeystoneGUID = 0;
 
                 uiIronayaSealDoorTimer = 27000; //animation time
+                altarClickCount = 0;
+                
                 bKeystoneCheck = false;
             }
 
@@ -88,6 +89,7 @@ class instance_uldaman : public InstanceMapScript
             uint64 uiKeystoneGUID;
 
             uint32 uiIronayaSealDoorTimer;
+            uint8 altarClickCount;
             bool bKeystoneCheck;
 
             std::vector<uint64> vStoneKeeper;
@@ -118,8 +120,6 @@ class instance_uldaman : public InstanceMapScript
                         break;
 
                     case GO_ANCIENT_VAULT_DOOR:
-                        go->SetGoState(GO_STATE_READY);
-                        go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
                         uiAncientVaultDoor = go->GetGUID();
 
                         if (m_auiEncounter[1] == DONE)
@@ -202,9 +202,6 @@ class instance_uldaman : public InstanceMapScript
                         continue;
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
                     target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    target->setFaction(14);
                     return;        // only want the first one we find
                 }
             }
@@ -374,6 +371,9 @@ class instance_uldaman : public InstanceMapScript
                     case DATA_IRONAYA_SEAL:
                         bKeystoneCheck = true;
                         break;
+                    case DATA_ALTAR_OF_KEEPERS:
+                        altarClickCount = data;
+                        break;
                 }
 
                 if (data == DONE)
@@ -483,6 +483,17 @@ class instance_uldaman : public InstanceMapScript
 
                 return 0;
             } // end GetData64
+
+            uint32 GetData(uint32 DataId)
+            {
+                switch(DataId)
+                {
+                case DATA_ALTAR_OF_KEEPERS:
+                    return altarClickCount;
+                default:
+                    return 0;
+                }
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

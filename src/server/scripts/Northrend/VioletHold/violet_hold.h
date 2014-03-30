@@ -33,7 +33,8 @@ enum Creatures
     CREATURE_CYANIGOSA                              = 31134,
     CREATURE_SINCLARI                               = 30658,
     CREATURE_SABOTEOUR                              = 31079,
-    NPC_VIOLET_HOLD_GUARD                           = 30659
+    NPC_VIOLET_HOLD_GUARD                           = 30659,
+    CREATURE_DEFENSE_SYSTEM                         = 30837
 };
 
 enum Data
@@ -79,8 +80,6 @@ enum Data64
     DATA_SINCLARI,
     DATA_TELEPORTATION_PORTAL,
     DATA_SABOTEUR_PORTAL,
-    DATA_ADD_TRASH_MOB,
-    DATA_DEL_TRASH_MOB
 };
 
 enum Bosses
@@ -99,7 +98,7 @@ enum VHWorldStates
 {
     WORLD_STATE_VH              = 3816,
     WORLD_STATE_VH_PRISON_STATE = 3815,
-    WORLD_STATE_VH_WAVE_COUNT   = 3810
+    WORLD_STATE_VH_WAVE_COUNT   = 3810,
 };
 
 #endif

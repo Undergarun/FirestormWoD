@@ -23,8 +23,7 @@ SDComment: TODO: Intro & outro
 SDCategory:
 Script Data End */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -36,7 +35,6 @@ enum Spells
     SPELL_SLEEP                                 = 52721, //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
     H_SPELL_SLEEP                               = 58849,
     SPELL_VAMPIRIC_TOUCH                        = 52723, //Heals the caster for half the damage dealt by a melee attack.
-    SPELL_MAL_GANIS_KILL_CREDIT                 = 58124, // Quest credit
     SPELL_KILL_CREDIT                           = 58630  // Non-existing spell as encounter credit, created in spell_dbc
 };
 
@@ -79,9 +77,9 @@ public:
 
     struct boss_mal_ganisAI : public ScriptedAI
     {
-        boss_mal_ganisAI(Creature* creature) : ScriptedAI(creature)
+        boss_mal_ganisAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiCarrionSwarmTimer;
@@ -207,7 +205,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(instance ? instance->GetData64(DATA_ARTHAS) : 0);
+                                me->SetUInt64Value(UNIT_FIELD_TARGET, instance ? instance->GetData64(DATA_ARTHAS) : 0);
                                 me->HandleEmoteCommand(29);
                                 DoScriptText(SAY_ESCAPE_SPEECH_2, me);
                                 ++uiOutroStep;
@@ -239,9 +237,13 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
-                DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
+
                 // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
-                DoCastAOE(SPELL_KILL_CREDIT);
+                DoCast(me, SPELL_KILL_CREDIT);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_CREDIT);
+
+                if (GameObject* go = me->SummonGameObject(IsHeroic() ? GO_MALGANIS_CHEST_H : GO_MALGANIS_CHEST_N, 2288.35f, 1498.73f, 128.414f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, DAY))
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
             }
         }
 
