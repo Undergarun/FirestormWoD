@@ -350,7 +350,7 @@ bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
     return true;
 }
 
-bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
+bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
 {
     try
     {
@@ -375,7 +375,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
 
 typedef wchar_t const* const* wstrlist;
 
-std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
+std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
     // supported only Cyrillic cases
     if (wname.size() < 1 || !isCyrillicCharacter(wname[0]) || declension > 5)

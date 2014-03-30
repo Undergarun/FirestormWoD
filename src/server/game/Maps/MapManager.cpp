@@ -253,6 +253,9 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                     //TODO: send some kind of error message to the player
                     return false;
                 }*/
+
+        if (!group->CanEnterInInstance())
+            return false;
     }
 
     // players are only allowed to enter 5 instances per hour

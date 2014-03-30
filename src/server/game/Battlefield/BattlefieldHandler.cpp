@@ -413,7 +413,7 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 
     WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
 
-    for (int i = 0; i < MAX_ARENA_SLOT; i++)
+    for (int i = 0; i < MAX_PVP_SLOT; i++)
     {
         data << uint32(_player->GetWeekGames(i)); // games of week
         data << uint32(_player->GetSeasonGames(i)); // games of season
@@ -424,16 +424,6 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
         data << uint32(_player->GetBestRatingOfWeek(i)); // best rating of week
         data << uint32(_player->GetPrevWeekWins(i)); // wins of prev week
     }
-
-    // rated bg part
-    data << uint32(0); // games of week
-    data << uint32(0); // games of season
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0); // wins of current week
-    data << uint32(0); // best rating of season
-    data << uint32(0); // best rating of week
-    data << uint32(0); // wins of prev week
 
     SendPacket(&data);
 }

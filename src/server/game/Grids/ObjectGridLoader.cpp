@@ -220,7 +220,8 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
             // If creature calling RemoveCharmedBy during EnterEvadeMode, RemoveCharmedBy call AIM_Initialize so AI() pointer may be corrupt
             // Maybe we need to lock AI during the call of EnterEvadeMode ?
             iter->getSource()->SetLockAI(true);
-            iter->getSource()->AI()->EnterEvadeMode();    // Calls RemoveAllAuras
+            if (iter->getSource()->IsAIEnabled)
+                iter->getSource()->AI()->EnterEvadeMode();    // Calls RemoveAllAuras
             iter->getSource()->SetLockAI(false);
         }
         iter->getSource()->RemoveAllDynObjects();

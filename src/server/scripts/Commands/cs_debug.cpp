@@ -32,6 +32,8 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
 #include "MapManager.h"
+#include "DisableMgr.h"
+#include "Group.h"
 
 #include <fstream>
 
@@ -97,6 +99,7 @@ class debug_commandscript : public CommandScript
                 { "jump",           SEC_ADMINISTRATOR,  false, &HandleDebugMoveJump,               "", NULL },
                 { "backward",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveBackward,           "", NULL },
                 { "load_z",         SEC_ADMINISTRATOR,  false, &HandleDebugLoadZ,                  "", NULL },
+                { "joinratedbg",    SEC_ADMINISTRATOR,  false, &HandleJoinRatedBg,                 "", NULL },
                 { "SetMaxMapDiff",  SEC_ADMINISTRATOR,  false, &HandleDebugSetMaxMapDiff,          "", NULL },
                 { "packet",         SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,          "", NULL },
                 { "guildevent",     SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,      "", NULL },
@@ -111,6 +114,111 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleJoinRatedBg(ChatHandler* handler, char const* args)
+        {
+            // ignore if we already in BG or BG queue
+            if (handler->GetSession()->GetPlayer()->InBattleground())
+                return false;
+
+            uint32 personalRating = 0;
+            uint32 matchmakerRating = 0;
+
+            //check existance
+            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_RATED_10_VS_10);
+            if (!bg)
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: template bg (10 vs 10) not found");
+                return false;
+            }
+
+            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_RATED_10_VS_10, NULL))
+                return false;
+
+            BattlegroundTypeId bgTypeId = bg->GetTypeID();
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
+
+            PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), handler->GetSession()->GetPlayer()->getLevel());
+            if (!bracketEntry)
+                return false;
+
+            GroupJoinBattlegroundResult err = ERR_BATTLEGROUND_NONE;
+
+            Group* grp = handler->GetSession()->GetPlayer()->GetGroup();
+
+            // no group found, error
+            if (!grp)
+                return false;
+
+            if (grp->GetLeaderGUID() != handler->GetSession()->GetPlayer()->GetGUID())
+                return false;
+
+            uint32 playerDivider = 0;
+            for (GroupReference const* ref = grp->GetFirstMember(); ref != NULL; ref = ref->next())
+            {
+                if (Player const* groupMember = ref->getSource())
+                {
+                    personalRating += groupMember->GetArenaPersonalRating(SLOT_RBG);
+                    matchmakerRating += groupMember->GetArenaMatchMakerRating(SLOT_RBG);
+                }
+            }
+
+            if (!playerDivider)
+                return false;
+
+            personalRating /= playerDivider;
+            matchmakerRating /= playerDivider;
+
+            if (personalRating <= 0)
+                personalRating = 1;
+            if (matchmakerRating <= 0)
+                matchmakerRating = 1;
+
+            BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+
+            uint32 avgTime = 0;
+            GroupQueueInfo* ginfo;
+
+            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10, 10, true, 0);
+            if (!err)
+            {
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
+
+                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, false, false, personalRating, matchmakerRating);
+                avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+            }
+
+            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* member = itr->getSource();
+                if (!member)
+                    continue;
+
+                if (err)
+                {
+                    WorldPacket data;
+                    sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
+                    member->GetSession()->SendPacket(&data);
+                    continue;
+                }
+
+                 // add to queue
+                uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
+
+                // add joined time data
+                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);
+
+                WorldPacket data; // send status packet (in queue)
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->JoinTime, ginfo->ArenaType);
+                member->GetSession()->SendPacket(&data);
+
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for rated battleground as group bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUIDLow(), member->GetName());
+            }
+
+            sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+
+            return true;
         }
 
         static bool HandleDebugMoveCommand(ChatHandler* handler, char const* args)

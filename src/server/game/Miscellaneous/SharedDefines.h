@@ -4305,7 +4305,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_BFG                = 120,  // Battle For Gilneas
     // 441 = "Icecrown Citadel"
     // 443 = "The Ruby Sanctum"
-    // 656 = "Rated Eye of the Storm"
+    BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
     BATTLEGROUND_KT                 = 699,  // Valley of Power
     BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
     BATTLEGROUND_SSM                = 708,  // Silver shard Mine

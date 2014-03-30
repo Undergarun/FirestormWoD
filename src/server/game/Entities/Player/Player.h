@@ -47,6 +47,7 @@
 
 #include<string>
 #include<vector>
+#include <ace/Stack_Trace.h>
 
 struct Mail;
 struct ItemExtendedCostEntry;
@@ -2122,21 +2123,21 @@ class Player : public Unit, public GridObject<Player>
         }
         
         // Arena
-        uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_ArenaPersonalRating[slot]; }
-        uint32 GetBestRatingOfWeek(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_BestRatingOfWeek[slot]; }
-        uint32 GetBestRatingOfSeason(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_BestRatingOfSeason[slot]; }
-        uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_WeekWins[slot]; }
-        uint32 GetPrevWeekWins(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_PrevWeekWins[slot]; }
-        uint32 GetSeasonWins(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_SeasonWins[slot]; }
-        uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_WeekGames[slot]; }
-        uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_SeasonGames[slot]; }
-        uint32 GetArenaMatchMakerRating(uint8 slot) const { ASSERT(slot < MAX_ARENA_SLOT); return m_ArenaMatchMakerRating[slot]; }
+        uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaPersonalRating[slot]; }
+        uint32 GetBestRatingOfWeek(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfWeek[slot]; }
+        uint32 GetBestRatingOfSeason(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfSeason[slot]; }
+        uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekWins[slot]; }
+        uint32 GetPrevWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekWins[slot]; }
+        uint32 GetSeasonWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonWins[slot]; }
+        uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekGames[slot]; }
+        uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonGames[slot]; }
+        uint32 GetArenaMatchMakerRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaMatchMakerRating[slot]; }
 
         uint32 GetMaxRating() const
         {
             uint32 max_value = 0;
 
-            for (uint8 i = 0; i < MAX_ARENA_SLOT; i++)
+            for (uint8 i = 0; i < MAX_PVP_SLOT; i++)
                 if (max_value < GetArenaPersonalRating(i))
                     max_value = GetArenaPersonalRating(i);
 
@@ -2145,11 +2146,18 @@ class Player : public Unit, public GridObject<Player>
 
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
-            if (slot >= MAX_ARENA_SLOT)
+            if (slot >= MAX_PVP_SLOT)
             {
                 sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
                 return;
             }
+
+            if (value > 3500)
+            {
+                ACE_Stack_Trace trace;
+                sLog->outError(LOG_FILTER_GENERAL, "Suspiciously high personal rating. Rating: %u, Slot: %u, Player: %u, Trace log: %s", value, slot, GUID_LOPART(GetGUID()), trace.c_str());
+            }
+
             m_ArenaPersonalRating[slot] = value;
             if (m_BestRatingOfWeek[slot] < value)
                 m_BestRatingOfWeek[slot] = value;
@@ -2159,16 +2167,23 @@ class Player : public Unit, public GridObject<Player>
 
         void SetArenaMatchMakerRating(uint8 slot, uint32 value)
         {
-            if (slot >= MAX_ARENA_SLOT)
+            if (slot >= MAX_PVP_SLOT)
             {
                 sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
                 return;
             }
+
+            if (value > 3500)
+            {
+                ACE_Stack_Trace trace;
+                sLog->outError(LOG_FILTER_GENERAL, "Suspiciously high match maker rating. Rating: %u, Slot: %u, Player: %u, Trace log: %s", value, slot, GUID_LOPART(GetGUID()), trace.c_str());
+            }
+
             m_ArenaMatchMakerRating[slot] = value;
         }
         void IncrementWeekGames(uint8 slot)
         {
-            if (slot >= MAX_ARENA_SLOT)
+            if (slot >= MAX_PVP_SLOT)
             {
                 sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
                 return;
@@ -2177,7 +2192,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void IncrementWeekWins(uint8 slot)
         {
-            if (slot >= MAX_ARENA_SLOT)
+            if (slot >= MAX_PVP_SLOT)
             {
                 sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
                 return;
@@ -2186,7 +2201,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void IncrementSeasonGames(uint8 slot)
         {
-            if (slot >= MAX_ARENA_SLOT)
+            if (slot >= MAX_PVP_SLOT)
             {
                 sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
                 return;
@@ -2195,7 +2210,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void IncrementSeasonWins(uint8 slot)
         {
-            if (slot >= MAX_ARENA_SLOT)
+            if (slot >= MAX_PVP_SLOT)
             {
                 sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
                 return;
@@ -2499,6 +2514,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool InBattleground()       const                { return m_bgData.bgInstanceID != 0; }
         bool InArena()              const;
+        bool InRatedBattleGround()  const;
         uint32 GetBattlegroundId()  const                { return m_bgData.bgInstanceID; }
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
@@ -3027,8 +3043,6 @@ class Player : public Unit, public GridObject<Player>
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
-        uint32 m_manaRegenTimerCount;
-        uint32 m_energyRegenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
         uint32 m_burningEmbersRegenTimerCount;
@@ -3414,15 +3428,15 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_bgRoles;
 
         // Arena
-        uint32 m_ArenaPersonalRating[MAX_ARENA_SLOT];
-        uint32 m_BestRatingOfWeek[MAX_ARENA_SLOT];
-        uint32 m_BestRatingOfSeason[MAX_ARENA_SLOT];
-        uint32 m_ArenaMatchMakerRating[MAX_ARENA_SLOT];
-        uint32 m_WeekWins[MAX_ARENA_SLOT];
-        uint32 m_PrevWeekWins[MAX_ARENA_SLOT];
-        uint32 m_SeasonWins[MAX_ARENA_SLOT];
-        uint32 m_WeekGames[MAX_ARENA_SLOT];
-        uint32 m_SeasonGames[MAX_ARENA_SLOT];
+        uint32 m_ArenaPersonalRating[MAX_PVP_SLOT];
+        uint32 m_BestRatingOfWeek[MAX_PVP_SLOT];
+        uint32 m_BestRatingOfSeason[MAX_PVP_SLOT];
+        uint32 m_ArenaMatchMakerRating[MAX_PVP_SLOT];
+        uint32 m_WeekWins[MAX_PVP_SLOT];
+        uint32 m_PrevWeekWins[MAX_PVP_SLOT];
+        uint32 m_SeasonWins[MAX_PVP_SLOT];
+        uint32 m_WeekGames[MAX_PVP_SLOT];
+        uint32 m_SeasonGames[MAX_PVP_SLOT];
         
         CUFProfiles m_cufProfiles;
 };
@@ -3436,6 +3450,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return 0;
+
     float totalmul = 1.0f;
     int32 totalflat = 0;
     bool chaosBolt = false;
@@ -3445,6 +3460,17 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     // Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)
         spell = m_spellModTakingSpell;
+
+    int32 playerWeaponMask = 0;
+
+    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    {
+        Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
+        if (!tmpitem || tmpitem->IsBroken() || !tmpitem->GetTemplate())
+            continue;
+
+        playerWeaponMask |= 1 << tmpitem->GetTemplate()->SubClass;
+    }
 
     for (SpellModList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
     {
@@ -3456,6 +3482,18 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
+
+        int32 spellWeaponMask = 0;
+        if (mod->ownerAura)
+        {
+            const auto temp = mod->ownerAura->GetSpellInfo();
+            if (temp)
+                spellWeaponMask = temp->EquippedItemSubClassMask;
+        }
+
+        if (spellWeaponMask > 0 && playerWeaponMask > 0)
+            if (!(playerWeaponMask & spellWeaponMask))
+                continue;
 
         if (mod->type == SPELLMOD_FLAT)
             totalflat += mod->value;

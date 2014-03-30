@@ -590,7 +590,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    memset(m_effectExecuteData, 0, MAX_SPELL_EFFECTS * sizeof(ByteBuffer*));
+    m_effectExecuteData.clear();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -3536,7 +3536,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channeled triggers channeled
     if ((_triggeredCastFlags & TRIGGERED_CAST_DIRECTLY) && (!m_spellInfo->IsChanneled() || !m_spellInfo->GetMaxDuration()))
+    {
+        CallScriptBeforeCastHandlers();
         cast(true);
+    }
     else
     {
         // stealth must be removed at cast starting (at show channel bar)
@@ -3556,6 +3559,8 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
         m_caster->SetCurrentCastedSpell(this);
         SendSpellStart();
+
+        CallScriptBeforeCastHandlers();
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
@@ -3666,7 +3671,7 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
-    CallScriptBeforeCastHandlers();
+    //CallScriptBeforeCastHandlers();
 
     // skip check if done already (for instant cast spells for example)
     if (!skipCheck)
@@ -5194,10 +5199,8 @@ void Spell::SendSpellGo()
     bool hasBit101 = false;
     bool hasBit102 = false;
     bool hasBit106 = false;
-    bool hasRuneStateBefore = m_runesState;
-    bool hasRuneStateAfter = false;
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT &&  m_caster->ToPlayer()->GetRunesState())
-        hasRuneStateAfter = true;
+    bool hasRuneStateBefore = false; // don't needed in spell_start
+    bool hasRuneStateAfter = false; // don't needed in spell_start
     bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;
@@ -5358,8 +5361,8 @@ void Spell::SendSpellGo()
         }
     }
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() ==  CLASS_DEATH_KNIGHT)
-        runeCooldownCount = 6;
+    /*if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() ==  CLASS_DEATH_KNIGHT)
+        runeCooldownCount = 6;*/
 
     data.WriteBit(itemCaster[0]);
     data.WriteBit(itemCaster[4]);
@@ -5782,103 +5785,159 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
 
 void Spell::SendLogExecute()
 {
-    WorldPacket data(SMSG_SPELLLOGEXECUTE, (8+4+4+4+4+8));
-
-    data.append(m_caster->GetPackGUID());
-
-    data << uint32(m_spellInfo->Id);
-
-    uint8 effCount = 0;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (m_effectExecuteData[i])
-            ++effCount;
-    }
-
-    if (!effCount)
+    if (m_effectExecuteData.size() <= 0)
         return;
 
-    data << uint32(effCount);
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    ObjectGuid guid = m_caster->GetGUID();
+    WorldPacket data(SMSG_SPELLLOGEXECUTE, (8+4+4+4+4+8));
+
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+
+    data.WriteBits(m_effectExecuteData.size(), 19);
+
+    for (auto itr : m_effectExecuteData)
     {
-        if (!m_effectExecuteData[i])
-            continue;
+        auto helper = itr.second;
 
-        data << uint32(m_spellInfo->Effects[i].Effect);             // spell effect
+        data.WriteBits(helper.CreatedItems.size(), 22);
+        data.WriteBit(false); // CasterData - temp disabled
+        data.WriteBits(0, 21); // unk block Guids1 in parser
+        data.WriteBits(0, 21); // unk block Guids2 in parser
+        data.WriteBits(helper.Targets.size(), 24);
 
-        data.append(*m_effectExecuteData[i]);
+        for (auto target : helper.Targets)
+        {
+            uint8 bitOrder[8] = {7, 1, 2, 5, 0, 3, 6, 4};
+            data.WriteBitInOrder(target, bitOrder);
+        }
 
-        delete m_effectExecuteData[i];
-        m_effectExecuteData[i] = NULL;
+        data.WriteBits(0, 22); // unk counter84
+        data.WriteBits(helper.Energizes.size(), 20);
+
+        for (auto energize : helper.Energizes)
+        {
+            uint8 bitOrder[8] = {6, 4, 1, 0, 5, 7, 3, 2};
+            data.WriteBitInOrder(energize.Guid, bitOrder);
+        }
     }
+
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[0]);
+
+    for (auto itr : m_effectExecuteData)
+    {
+        auto effIndex = itr.first;
+        auto helper = itr.second;
+
+        for (auto id : helper.CreatedItems)
+            data << uint32(id);
+
+        for (auto energize : helper.Energizes)
+        {
+            data.WriteByteSeq(energize.Guid[3]);
+            data.WriteByteSeq(energize.Guid[7]);
+            data << uint32(energize.PowerType);
+            data.WriteByteSeq(energize.Guid[5]);
+            data.WriteByteSeq(energize.Guid[0]);
+            data << uint32(energize.Value);
+            data.WriteByteSeq(energize.Guid[2]);
+            data << float(energize.Multiplier);
+            data.WriteByteSeq(energize.Guid[1]);
+            data.WriteByteSeq(energize.Guid[6]);
+            data.WriteByteSeq(energize.Guid[4]);
+        }
+
+        for (auto target : helper.Targets)
+        {
+            uint8 bytesOrder[8] = { 1, 0, 2, 3, 7, 4, 5, 6 };
+            data.WriteBytesSeq(target, bytesOrder);
+        }
+
+        data << uint32(m_spellInfo->Effects[effIndex].Effect);
+    }
+
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[6]);
+    data << uint32(m_spellInfo->Id);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
+
     m_caster->SendMessageToSet(&data, true);
+
+    m_effectExecuteData.clear();
 }
 
 void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 powerTaken, float gainMultiplier)
 {
     InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(target->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(powerTaken);
-    *m_effectExecuteData[effIndex] << uint32(powerType);
-    *m_effectExecuteData[effIndex] << float(gainMultiplier);
+    m_effectExecuteData[effIndex].AddEnergize(target->GetGUID(), gainMultiplier, powerTaken, powerType);
 }
 
 void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 attCount)
 {
-    InitEffectExecuteData(effIndex);
+    /*InitEffectExecuteData(effIndex);
     m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(attCount);
+    *m_effectExecuteData[effIndex] << uint32(attCount);*/
 }
 
 void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId)
 {
-    InitEffectExecuteData(effIndex);
+    /*InitEffectExecuteData(effIndex);
     m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(spellId);
+    *m_effectExecuteData[effIndex] << uint32(spellId);*/
 }
 
 void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 /*itemslot*/, uint32 damage)
 {
-    InitEffectExecuteData(effIndex);
+    /*InitEffectExecuteData(effIndex);
     m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
     *m_effectExecuteData[effIndex] << uint32(m_spellInfo->Id);
-    *m_effectExecuteData[effIndex] << uint32(damage);
+    *m_effectExecuteData[effIndex] << uint32(damage);*/
 }
 
 void Spell::ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj)
 {
     InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(obj->GetPackGUID());
+    m_effectExecuteData[effIndex].AddTarget(obj->GetGUID());
 }
 
 void Spell::ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry)
 {
     InitEffectExecuteData(effIndex);
-    *m_effectExecuteData[effIndex] << uint32(entry);
+    m_effectExecuteData[effIndex].AddCreatedItem(entry);
 }
 
 void Spell::ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry)
 {
     InitEffectExecuteData(effIndex);
-    *m_effectExecuteData[effIndex] << uint32(entry);
+    m_effectExecuteData[effIndex].AddCreatedItem(entry);
 }
 
 void Spell::ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj)
 {
     InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(obj->GetPackGUID());
+    m_effectExecuteData[effIndex].AddTarget(obj->GetGUID());
 }
 
 void Spell::ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj)
 {
     InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(obj->GetPackGUID());
+    m_effectExecuteData[effIndex].AddTarget(obj->GetGUID());
 }
 
 void Spell::ExecuteLogEffectResurrect(uint8 effIndex, Unit* target)
 {
     InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(target->GetPackGUID());
+    m_effectExecuteData[effIndex].AddTarget(target->GetGUID());
 }
 
 void Spell::SendInterrupted(uint8 result)
@@ -6158,10 +6217,14 @@ void Spell::TakePower()
     if (powerType >= MAX_POWERS)
         return;
 
+    int32 pct = 20;
+    if (powerType == POWER_RUNIC_POWER)
+        pct = 10;
+
     if (hit)
         m_caster->ModifyPower(powerType, -m_powerCost);
     else
-        m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost, 20)); // Refund 80% of power on fail 4.x
+        m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost, pct)); // Refund 80% of power on fail 4.x
 }
 
 void Spell::TakeAmmo()
@@ -6214,7 +6277,7 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
 
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         runeCost[i] = src->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
@@ -6269,7 +6332,8 @@ void Spell::TakeRunePower(bool didHit)
         }
     }
 
-    runeCost[RUNE_DEATH] = 0;                               // calculated later
+    /* In MOP there is a some spell, that use death rune, e.g - 73975, so don't reset it*/
+    //runeCost[RUNE_DEATH] = 0;                               // calculated later
 
     bool gain_runic = runeCostData->NoRuneCost();           //  if spell doesn't have runecost - player can have some runic power, Horn of Winter for example
     for (uint32 i = 0; i < MAX_RUNES; ++i)
@@ -6286,7 +6350,7 @@ void Spell::TakeRunePower(bool didHit)
         gain_runic = true;
     }
 
-    runeCost[RUNE_DEATH] = runeCost[RUNE_BLOOD] + runeCost[RUNE_UNHOLY] + runeCost[RUNE_FROST];
+    runeCost[RUNE_DEATH] += runeCost[RUNE_BLOOD] + runeCost[RUNE_UNHOLY] + runeCost[RUNE_FROST];
 
     if (runeCost[RUNE_DEATH] > 0)
     {
@@ -6768,7 +6832,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // do not allow spells to be cast in arenas or rated battlegrounds
     if (Player * player = m_caster->ToPlayer())
-        if (player->InArena()/* || player->InRatedBattleGround() NYI*/)
+        if (player->InArena() || player->InRatedBattleGround())
         {
             SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules();
             if (castResult != SPELL_CAST_OK)
@@ -8926,25 +8990,10 @@ void Spell::FinishTargetProcessing()
 
 void Spell::InitEffectExecuteData(uint8 effIndex)
 {
-    ASSERT(effIndex < MAX_SPELL_EFFECTS);
-    if (!m_effectExecuteData[effIndex])
-    {
-        m_effectExecuteData[effIndex] = new ByteBuffer(0x20);
-        // first dword - target counter
-        *m_effectExecuteData[effIndex] << uint32(1);
-    }
-    else
-    {
-        // increase target counter by one
-        uint32 count = (*m_effectExecuteData[effIndex]).read<uint32>(0);
-        (*m_effectExecuteData[effIndex]).put<uint32>(0, ++count);
-    }
 }
 
 void Spell::CheckEffectExecuteData()
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        ASSERT(!m_effectExecuteData[i]);
 }
 
 void Spell::LoadScripts()

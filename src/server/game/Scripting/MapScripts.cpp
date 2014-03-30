@@ -370,7 +370,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_TALK:
                 if (step.script->Talk.ChatType > CHAT_TYPE_WHISPER && step.script->Talk.ChatType != CHAT_MSG_RAID_BOSS_WHISPER)
                 {
-                    sLog->outError(LOG_FILTER_TSCR, "%s invalid chat type (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType);
+                    sLog->outError(LOG_FILTER_TSCR, "%s invalid chat type (%u), script type %u specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->Talk.ChatType, step.script->type);
                     break;
                 }
                 if (step.script->Talk.Flags & SF_TALK_USE_PLAYER)

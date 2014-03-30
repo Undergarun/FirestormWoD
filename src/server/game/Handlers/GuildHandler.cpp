@@ -498,7 +498,10 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
+        {
             guild->SendBankList(this, tabId, true, false);
+            guild->SendMoneyInfo(this);
+        }
 }
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)

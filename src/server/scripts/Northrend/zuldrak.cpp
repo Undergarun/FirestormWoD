@@ -1123,7 +1123,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->getVictim()->GetPositionZ() >= 286.276f)
+            if (me->getVictim() && me->getVictim()->GetPositionZ() >= 286.276f)
             {
                 std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)

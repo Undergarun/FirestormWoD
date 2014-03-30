@@ -761,8 +761,27 @@ void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult result, ui
         return;
     }
 
-    CharacterDatabase.PExecute("UPDATE character_pet SET slot = '%u' WHERE slot = '%u' AND owner='%u'", petId, slot, GetPlayer()->GetGUIDLow());
-    CharacterDatabase.PExecute("UPDATE character_pet SET slot = '%u' WHERE slot = '%u' AND owner='%u' AND id<>'%u'", slot, petId, GetPlayer()->GetGUIDLow(), pet_number);
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
+    {
+        stmt->setUInt32(0, petId);
+        stmt->setUInt32(1, slot);
+        stmt->setUInt32(2, GetPlayer()->GetGUIDLow());
+
+        trans->Append(stmt);
+    }
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
+    {
+        stmt->setUInt32(0, slot);
+        stmt->setUInt32(1, petId);
+        stmt->setUInt32(2, GetPlayer()->GetGUIDLow());
+        stmt->setUInt32(3, pet_number);
+
+        trans->Append(stmt);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
 
     if (petId != 100)
     {

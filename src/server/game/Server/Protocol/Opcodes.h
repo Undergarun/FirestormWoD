@@ -98,7 +98,7 @@ enum Opcodes
     CMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x000,  // 5.0.5 16048
     CMSG_BATTLEMASTER_JOIN                            = 0x133E, // 5.4.0 17399
     CMSG_BATTLEMASTER_JOIN_ARENA                      = 0x12EA, // 5.4.0 17399
-    CMSG_BATTLEMASTER_JOIN_RATED                      = 0x000,  // 5.0.5 16048
+    CMSG_BATTLEMASTER_JOIN_RATED                      = 0x10A3, // 5.4.0 17399
     CMSG_BEGIN_TRADE                                  = 0x1806, // 5.4.0 17399
     CMSG_BINDER_ACTIVATE                              = 0x1AE2, // 5.4.0 17399
     CMSG_BLACK_MARKET_HELLO                           = 0x1AFF, // 5.4.0 17399
@@ -985,7 +985,7 @@ enum Opcodes
     SMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0x000,  // 5.0.5 16048
     SMSG_GUILD_BANK_LIST                              = 0xC77,  // 5.4.0 17399
     SMSG_GUILD_BANK_LOG_QUERY_RESULT                  = 0x472,  // 5.4.0 17399
-    SMSG_GUILD_BANK_MONEY_WITHDRAWN                   = 0x557,  // 5.4.0 17399
+    SMSG_GUILD_BANK_MONEY_WITHDRAWN                   = 0x473,  // 5.4.0 17399
     SMSG_GUILD_BANK_QUERY_TEXT_RESULT                 = 0x54A,  // 5.4.0 17399
     SMSG_GUILD_CANCEL                                 = 0x000,  // 5.0.5 16048
     SMSG_GUILD_CHALLENGE_COMPLETED                    = 0x552,  // 5.4.0 17399
@@ -1031,7 +1031,7 @@ enum Opcodes
     SMSG_GUILD_TRADESKILL_UPDATE                      = 0x000,  // 5.0.5 16048
     SMSG_GUILD_UPDATE_ROSTER                          = 0x000,  // 5.0.5 16048
     SMSG_GUILD_XP                                     = 0x572,  // 5.4.0 17399
-    SMSG_GUILD_XP_GAIN                                = 0x473,  // 5.4.0 17399
+    SMSG_GUILD_XP_GAIN                                = 0x557,  // 5.4.0 17399
     SMSG_GUILD_XP_UPDATE                              = 0x000,  // 5.0.5 16048
     SMSG_HEALTH_UPDATE                                = 0x018,  // 5.4.0 17399 (JamList)
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x00B,  // 5.4.0 17399
@@ -1420,7 +1420,7 @@ enum Opcodes
     SMSG_SPELL_HEAL_LOG                               = 0x1594, // 5.4.0 17399
     SMSG_SPELLINSTAKILLLOG                            = 0x000,  // 5.0.5 16048
     SMSG_SPELL_INTERRUPT_LOG                          = 0x1980, // 5.4.0 17399
-    SMSG_SPELLLOGEXECUTE                              = 0x000,  // 5.0.5 16048
+    SMSG_SPELLLOGEXECUTE                              = 0x10A6, // 5.4.0 17399
     SMSG_SPELLLOGMISS                                 = 0x000,  // 5.0.5 16048
     SMSG_SPELL_NON_MELEE_DAMAGE_LOG                   = 0x1085, // 5.4.0 17399
     SMSG_SPELL_OR_DAMAGE_IMMUNE                       = 0x1837, // 5.4.0 17399
@@ -1595,7 +1595,7 @@ extern OpcodeHandler* opcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS];
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(Opcodes id)
+inline std::string GetOpcodeNameForLogging(Opcodes id, int direction)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
@@ -1603,19 +1603,10 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
 
     if (id < UNKNOWN_OPCODE)
     {
-        bool foundet = false;
-        for (int t = 0; t < 2; ++t)
-        {
-            OpcodeHandler* handler = opcodeTable[t][uint32(id) & 0x7FFF];
-            if (!handler)
-                continue;
-
-            foundet = true;
+        OpcodeHandler* handler = opcodeTable[direction][uint32(id) & 0x7FFF];
+        if (handler)
             ss << handler->name;
-            break;
-        }
-
-        if (!foundet)
+        else
             ss << "UNKNOWN OPCODE";
     }
     else

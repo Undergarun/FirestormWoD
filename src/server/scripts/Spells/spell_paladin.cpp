@@ -101,6 +101,78 @@ enum PaladinSpells
     PALADIN_SPELL_EXORCISM_ENERGIZE              = 147715
 };
 
+class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_devotian_aura() : SpellScriptLoader("spell_pal_glyph_of_devotian_aura") { }
+
+        class spell_pal_glyph_of_devotian_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_devotian_aura_SpellScript);
+
+            bool Load()
+            {
+                return true;
+            }
+
+            void CountTargets(std::list<WorldObject*>& targets)
+            {
+                if (GetCaster() && GetCaster()->HasAura(146955))
+                {
+                    targets.clear();
+                    targets.push_back(GetCaster());
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_devotian_aura_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_devotian_aura_SpellScript();
+        }
+};
+
+class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_devotian_trigger_aura() : SpellScriptLoader("spell_pal_glyph_of_devotian_trigger_aura") { }
+
+        class spell_pal_glyph_of_devotian_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_devotian_aura_SpellScript);
+
+            bool Load()
+            {
+                return true;
+            }
+
+            void CountTargets(std::list<WorldObject*>& targets)
+            {
+                if (GetCaster() && GetCaster()->HasAura(146955))
+                {
+                    targets.clear();
+                    targets.push_back(GetCaster());
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_devotian_aura_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_devotian_aura_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_devotian_aura_SpellScript::CountTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_devotian_aura_SpellScript();
+        }
+};
+
 // Exorcism - 879
 class spell_pal_exorcism_energize : public SpellScriptLoader
 {
@@ -1649,6 +1721,8 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_glyph_of_devotian_aura();
+    new spell_pal_glyph_of_devotian_trigger_aura();
     new spell_pal_exorcism_energize();
     new spell_pal_sanctified_wrath();
     new spell_pal_glyph_of_divine_storm();

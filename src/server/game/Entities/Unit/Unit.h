@@ -95,37 +95,40 @@ enum SpellAuraInterruptFlags
 
 enum SpellModOp
 {
-    SPELLMOD_DAMAGE                 = 0,
-    SPELLMOD_DURATION               = 1,
-    SPELLMOD_THREAT                 = 2,
-    SPELLMOD_EFFECT1                = 3,
-    SPELLMOD_CHARGES                = 4,
-    SPELLMOD_RANGE                  = 5,
-    SPELLMOD_RADIUS                 = 6,
-    SPELLMOD_CRITICAL_CHANCE        = 7,
-    SPELLMOD_ALL_EFFECTS            = 8,
-    SPELLMOD_NOT_LOSE_CASTING_TIME  = 9,
-    SPELLMOD_CASTING_TIME           = 10,
-    SPELLMOD_COOLDOWN               = 11,
-    SPELLMOD_EFFECT2                = 12,
-    SPELLMOD_IGNORE_ARMOR           = 13,
-    SPELLMOD_COST                   = 14,
-    SPELLMOD_CRIT_DAMAGE_BONUS      = 15,
-    SPELLMOD_RESIST_MISS_CHANCE     = 16,
-    SPELLMOD_JUMP_TARGETS           = 17,
-    SPELLMOD_CHANCE_OF_SUCCESS      = 18,
-    SPELLMOD_ACTIVATION_TIME        = 19,
-    SPELLMOD_DAMAGE_MULTIPLIER      = 20,
-    SPELLMOD_GLOBAL_COOLDOWN        = 21,
-    SPELLMOD_DOT                    = 22,
-    SPELLMOD_EFFECT3                = 23,
-    SPELLMOD_BONUS_MULTIPLIER       = 24,
+    SPELLMOD_DAMAGE                     = 0,
+    SPELLMOD_DURATION                   = 1,
+    SPELLMOD_THREAT                     = 2,
+    SPELLMOD_EFFECT1                    = 3,
+    SPELLMOD_CHARGES                    = 4,
+    SPELLMOD_RANGE                      = 5,
+    SPELLMOD_RADIUS                     = 6,
+    SPELLMOD_CRITICAL_CHANCE            = 7,
+    SPELLMOD_ALL_EFFECTS                = 8,
+    SPELLMOD_NOT_LOSE_CASTING_TIME      = 9,
+    SPELLMOD_CASTING_TIME               = 10,
+    SPELLMOD_COOLDOWN                   = 11,
+    SPELLMOD_EFFECT2                    = 12,
+    SPELLMOD_IGNORE_ARMOR               = 13,
+    SPELLMOD_COST                       = 14,
+    SPELLMOD_CRIT_DAMAGE_BONUS          = 15,
+    SPELLMOD_RESIST_MISS_CHANCE         = 16,
+    SPELLMOD_JUMP_TARGETS               = 17,
+    SPELLMOD_CHANCE_OF_SUCCESS          = 18,
+    SPELLMOD_ACTIVATION_TIME            = 19,
+    SPELLMOD_DAMAGE_MULTIPLIER          = 20,
+    SPELLMOD_GLOBAL_COOLDOWN            = 21,
+    SPELLMOD_DOT                        = 22,
+    SPELLMOD_EFFECT3                    = 23,
+    SPELLMOD_BONUS_MULTIPLIER           = 24,
     // spellmod 25
-    SPELLMOD_PROC_PER_MINUTE        = 26,
-    SPELLMOD_VALUE_MULTIPLIER       = 27,
-    SPELLMOD_RESIST_DISPEL_CHANCE   = 28,
-    SPELLMOD_CRIT_DAMAGE_BONUS_2    = 29, //one not used spell
-    SPELLMOD_SPELL_COST_REFUND_ON_FAIL = 30
+    SPELLMOD_PROC_PER_MINUTE            = 26,
+    SPELLMOD_VALUE_MULTIPLIER           = 27,
+    SPELLMOD_RESIST_DISPEL_CHANCE       = 28,
+    SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, //one not used spell
+    SPELLMOD_SPELL_COST_REFUND_ON_FAIL  = 30,
+    SPELLMOD_UNK31                      = 31,
+    SPELLMOD_UNK32                      = 32,
+    SPELLMOD_EFFECT5                    = 33
 };
 
 #define MAX_SPELLMOD 36
@@ -1279,6 +1282,7 @@ enum PlayerTotemType
 
     SUMMON_TYPE_TOTEM_EARTH  = 81,
     SUMMON_TYPE_TOTEM_EARTH2 = 3400,
+    SUMMON_TYPE_TOTEM_EARTH3 = 3404,
 
     SUMMON_TYPE_TOTEM_WATER  = 82,
     SUMMON_TYPE_TOTEM_WATER2 = 3402,
@@ -1286,7 +1290,8 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR    = 83,
     SUMMON_TYPE_TOTEM_AIR2   = 3405,
     SUMMON_TYPE_TOTEM_AIR3   = 3407,
-    SUMMON_TYPE_TOTEM_AIR4   = 3406
+    SUMMON_TYPE_TOTEM_AIR4   = 3406,
+    SUMMON_TYPE_TOTEM_AIR5   = 3399
 };
 
 enum Stagger
@@ -1308,9 +1313,9 @@ class Unit : public WorldObject
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
         typedef std::pair<uint32, uint8> spellEffectPair;
-        typedef std::multimap<uint32,  AuraPtr> AuraMap;
-        typedef std::multimap<uint32,  AuraApplication*> AuraApplicationMap;
-        typedef std::multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
+        typedef std::unordered_multimap<uint32,  AuraPtr> AuraMap;
+        typedef std::unordered_multimap<uint32,  AuraApplication*> AuraApplicationMap;
+        typedef std::unordered_multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
         typedef std::list<AuraEffectPtr> AuraEffectList;
         typedef std::list<AuraPtr> AuraList;
         typedef std::list<AuraApplication *> AuraApplicationList;
@@ -1318,7 +1323,7 @@ class Unit : public WorldObject
         typedef std::set<uint32> ComboPointHolderSet;
         typedef std::vector<uint32> AuraIdList;
 
-        typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
+        typedef UNORDERED_MAP<uint8, AuraApplication*> VisibleAuraMap;
 
         virtual ~Unit();
 
@@ -1464,7 +1469,7 @@ class Unit : public WorldObject
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
-        void SetPower(Powers power, int32 val);
+        void SetPower(Powers power, int32 val, bool regen = false);
         void SetMaxPower(Powers power, int32 val);
         SpellPowerEntry const* GetSpellPowerEntryBySpell(SpellInfo const* spell) const;
 
@@ -2497,6 +2502,10 @@ class Unit : public WorldObject
         void DisableSpline();
 
         uint32 m_SendTransportMoveTimer;
+
+        uint32 m_lastRegenTime[MAX_POWERS];
+        uint32 m_powers[MAX_POWERS];
+
     private:
         bool IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const* & spellProcEvent);
         bool HandleAuraProcOnPowerAmount(Unit* victim, uint32 damage, AuraEffectPtr triggeredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);

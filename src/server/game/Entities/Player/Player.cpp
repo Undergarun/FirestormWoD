@@ -774,8 +774,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_regenTimer = 0;
     m_regenTimerCount = 0;
-    m_manaRegenTimerCount = 0;
-    m_energyRegenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
@@ -972,7 +970,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
 
-    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    for (uint8 i = 0; i < MAX_PVP_SLOT; ++i)
     {
         m_ArenaPersonalRating[i] = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
         m_BestRatingOfWeek[i] = 0;
@@ -1176,11 +1174,11 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
     {
-        for (uint8 i=0; i<PLAYER_EXPLORED_ZONES_SIZE; i++)
+        for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
             SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
     }
 
-    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    for (uint8 i = 0; i < MAX_PVP_SLOT; ++i)
     {
         SetArenaPersonalRating(i, sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING));
         SetArenaMatchMakerRating(i, sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING));
@@ -2760,6 +2758,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!sMapMgr->CanPlayerEnter(mapid, this, false))
             return false;
 
+        if (Group* group = GetGroup())
+        {
+            if (mEntry->IsDungeon())
+                group->IncrementPlayersInInstance();
+            else
+                group->DecrementPlayersInInstance();
+        }
+
         //I think this always returns true. Correct me if I am wrong.
         // If the map is not created, assume it is possible to enter it.
         // It will be created in the WorldPortAck.
@@ -3026,9 +3032,6 @@ void Player::RegenerateAll()
     if (getClass() == CLASS_HUNTER)
         m_focusRegenTimerCount += m_regenTimer;
 
-    m_manaRegenTimerCount += m_regenTimer;
-    m_energyRegenTimerCount += m_regenTimer;
-
     if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
         m_demonicFuryPowerRegenTimerCount += m_regenTimer;
     else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
@@ -3036,11 +3039,8 @@ void Player::RegenerateAll()
     else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
         m_soulShardsRegenTimerCount += m_regenTimer;
 
-    if (m_manaRegenTimerCount >= 2000)
-        Regenerate(POWER_MANA);
-
-    if (m_energyRegenTimerCount >= 2000)
-        Regenerate(POWER_ENERGY);
+    Regenerate(POWER_MANA);
+    Regenerate(POWER_ENERGY);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
@@ -3135,7 +3135,6 @@ void Player::Regenerate(Powers power)
     if (powerIndex == MAX_POWERS)
         return;
 
-
     float addvalue = 0.0f;
 
     // Powers now benefit from haste.
@@ -3152,10 +3151,9 @@ void Player::Regenerate(Powers power)
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
             if (isInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_manaRegenTimerCount) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_manaRegenTimerCount) + CalculatePct(0.001f, spellHaste));
-            m_manaRegenTimerCount -= 2000;
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
             break;
         }
         // Regenerate Rage
@@ -3171,12 +3169,13 @@ void Player::Regenerate(Powers power)
         }
         // Regenerate Focus
         case POWER_FOCUS:
+        {
             addvalue += (6.0f + CalculatePct(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
             break;
+        }
         // Regenerate Energy
         case POWER_ENERGY:
-            addvalue += ((0.01f * m_energyRegenTimerCount) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
-            m_energyRegenTimerCount -= 2000;
+            addvalue += ((0.01f * m_regenTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
             break;
         // Regenerate Runic Power
         case POWER_RUNIC_POWER:
@@ -3379,7 +3378,7 @@ void Player::Regenerate(Powers power)
             m_powerFraction[powerIndex] = addvalue - integerValue;
     }
 
-    SetPower(power, curValue);
+    SetPower(power, curValue, true);
 }
 
 void Player::RegenerateHealth()
@@ -8385,7 +8384,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     UpdateHonorFields();
 
     // do not reward honor in arenas, but return true to enable onkill spellproc
-    if (InBattleground() && GetBattleground() && GetBattleground()->isArena())
+    if (InBattleground() && GetBattleground() && (GetBattleground()->isArena() || GetBattleground()->IsRatedBG()))
         return true;
 
     // Promote to float for calculations
@@ -8490,7 +8489,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (Battleground* bg = GetBattleground())
         {
-            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
+            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
         }
     }
 
@@ -8796,11 +8795,11 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     if (newTotalCount < 0)
         newTotalCount = 0;
 
-    int32 newWeekCount = int32(oldWeekCount) + (count > 0 ? count : 0);
+    int32 newWeekCount = !ignoreLimit ? (int32(oldWeekCount) + (count > 0 ? count : 0)) : int32(oldWeekCount);
     if (newWeekCount < 0)
         newWeekCount = 0;
 
-    int32 newSeasonTotalCount = int32(oldSeasonTotalCount) + (count > 0 ? count : 0);
+    int32 newSeasonTotalCount = !ignoreLimit ? (int32(oldSeasonTotalCount) + (count > 0 ? count : 0)) : int32(oldSeasonTotalCount);
 
     if (!ignoreLimit)
     {
@@ -8843,7 +8842,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         // probably excessive checks
         if (IsInWorld() && !GetSession()->PlayerLoading())
         {
-            if (count > 0)
+            if (count > 0 && !ignoreLimit)
                 UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
 
             if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
@@ -9120,7 +9119,7 @@ void Player::UpdateArea(uint32 newArea)
     phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
-    pvpInfo.inFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
+    pvpInfo.inFFAPvPArea = (area && (area->flags & AREA_FLAG_ARENA)) || InRatedBattleGround();
     UpdatePvPState(true);
 
     //Pandaria area update for monk level < 85
@@ -17970,6 +17969,12 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
     if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
         return true;
 
+    for (auto id : m_dailyQuestStorage)
+    {
+        if (qInfo->GetQuestId() == id)
+            return false;
+    }
+
     if (qInfo->IsDFQuest())
     {
         if (!m_DFQuests.empty())
@@ -19072,7 +19077,7 @@ void Player::_LoadArenaData(PreparedQueryResult result)
     // SELECT rating0, bestRatingOfWeek0, bestRatingOfSeason0, matchMakerRating0, weekGames0, weekWins0, prevWeekWins0, seasonGames0, seasonWins0, rating1, bestRatingOfWeek1, bestRatingOfSeason1, matchMakerRating1, weekGames1, weekWins1, prevWeekWins1, seasonGames1, seasonWins1, rating2, bestRatingOfWeek2, bestRatingOfSeason2, matchMakerRating2, weekGames2, weekWins2, prevWeekWins2, seasonGames2, seasonWins2 FROM character_arena_data WHERE guid = ?
 
     uint8 j = 0;
-    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    for (uint8 i = 0; i < MAX_PVP_SLOT; ++i)
     {
         m_ArenaPersonalRating[i] = fields[j++].GetUInt32();
         m_BestRatingOfWeek[i] = fields[j++].GetUInt32();
@@ -19323,6 +19328,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
+    _LoadArenaData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENADATA));
     _LoadCurrency(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADCURRENCY));
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[40].GetUInt32());
     SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[41].GetUInt16());
@@ -19330,7 +19336,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadBoundInstances(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES));
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES));
-    _LoadArenaData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENADATA));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
 
@@ -20717,6 +20722,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
     if (result)
     {
+        uint32 quest_daily_idx = 0;
         do
         {
             Field* fields = result->Fetch();
@@ -20740,6 +20746,8 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_dailyQuestStorage.insert(quest_id);
+            if (++quest_daily_idx < DynamicFields::Count)
+                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx++, quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -26125,6 +26133,9 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
             m_dailyQuestStorage.insert(quest_id);
             m_lastDailyQuestTime = time(NULL);              // last daily quest time
             m_DailyQuestChanged = true;
+
+            if (m_dailyQuestStorage.size() - 1 < DynamicFields::Count)
+                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, m_dailyQuestStorage.size() - 1, quest_id);
         }
         else
         {
@@ -26214,6 +26225,15 @@ bool Player::InArena() const
 {
     Battleground* bg = GetBattleground();
     if (!bg || !bg->isArena())
+        return false;
+
+    return true;
+}
+
+bool Player::InRatedBattleGround() const
+{
+    Battleground* bg = GetBattleground();
+    if (!bg || !bg->IsRatedBG())
         return false;
 
     return true;
@@ -27548,7 +27568,7 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES)
+        if ((*i)->GetMiscValue() == POWER_RUNES && RuneType((*i)->GetMiscValueB()) == runeType)
             cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
 
     // Runes cooldown are now affected by player's haste from equipment ...
@@ -28074,7 +28094,8 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     // 14.57 can be calculated by resolving damageperc formula below to 0
     if (z_diff >= 14.57f && !isDead() && !isGameMaster() &&
         !HasAuraType(SPELL_AURA_HOVER) && !HasAuraType(SPELL_AURA_FEATHER_FALL) &&
-        !HasAuraType(SPELL_AURA_FLY) && !IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
+        !HasAuraType(SPELL_AURA_FLY) && !IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL) &&
+        !(getClass() == CLASS_DEATH_KNIGHT && HasAura(59307) && HasAura(3714)))
     {
         //Safe fall, fall height reduction
         int32 safe_fall = GetTotalAuraModifier(SPELL_AURA_SAFE_FALL);
@@ -28588,7 +28609,7 @@ void Player::_SaveArenaData(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
 
     uint8 j = 1;
-    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+    for (uint8 i = 0; i < MAX_PVP_SLOT; ++i)
     {
         stmt->setUInt32(j++, m_ArenaPersonalRating[i]);
         stmt->setUInt32(j++, m_BestRatingOfWeek[i]);

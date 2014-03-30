@@ -1625,7 +1625,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
                 // Power Word: Shield
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x1 && m_spellInfo->SpellFamilyFlags[2] & 0x400 && GetEffect(0))
+                else if (m_spellInfo->Id == 17 && GetEffect(0))
                 {
                     // Glyph of Power Word: Shield
                     if (AuraEffectPtr glyph = caster->GetAuraEffect(55672, 0))
@@ -1752,6 +1752,18 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     default:
                         break;
+                }
+
+                if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_PRESENCE)
+                {
+                    if (!caster)
+                        return;
+
+                    int runicPowerSwitch = 0;
+                    if (caster->HasAura(58647)) // You retain 70% of your Runic Power when switching Presences.
+                        runicPowerSwitch = int(caster->GetPower(POWER_RUNIC_POWER) * 0.7f);
+
+                    caster->SetPower(POWER_RUNIC_POWER, runicPowerSwitch);
                 }
 
                 break;

@@ -67,6 +67,8 @@ Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL
 
     uint32 lowguid = sGroupMgr->GenerateGroupId();
     m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
+
+    m_membersInInstance = 0;
 }
 
 Group::~Group()
@@ -3678,6 +3680,35 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
     }
 }
 
+bool Group::CanEnterInInstance()
+{
+    uint8 maxplayers = 0;
+
+    if (!isRaidGroup())
+        maxplayers = 5;
+    else
+    {
+        switch (GetRaidDifficulty())
+        {
+            case MAN10_DIFFICULTY:
+            case MAN10_HEROIC_DIFFICULTY:
+                maxplayers = 10;
+                break;
+            case MAN25_DIFFICULTY:
+            case MAN25_HEROIC_DIFFICULTY:
+                maxplayers = 25;
+            case MAN40_DIFFICULTY:
+                maxplayers = 40;
+                break;
+        }
+    }
+
+    if (m_membersInInstance < maxplayers)
+        return true;
+    else
+        return false;
+}
+
 void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
 {
     // Called when the team has lost
@@ -3702,6 +3733,27 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
             player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
             player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
 
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
+        }
+    }
+}
+
+void Group::FinishGame(int32 rating_change, uint8 slot)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
+                rating_change = 0;
+
+            if (player->GetBattleground())
+                for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
+                    if (itr2->first == itr->guid)
+                        itr2->second->RatingChange = rating_change;
+
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);
         }
