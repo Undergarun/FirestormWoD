@@ -3721,7 +3721,7 @@ AuraApplication * Unit::_CreateAuraApplication(AuraPtr aura, uint32 effMask)
     }
 
     if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
-        m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, aurApp));
+        m_auraStateAuras.insert(AuraStateAurasMap::value_type(uint32(aState), aurApp));
 
     aura->_ApplyForTarget(this, caster, aurApp);
     return aurApp;

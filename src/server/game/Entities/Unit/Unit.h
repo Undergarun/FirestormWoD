@@ -1315,7 +1315,7 @@ class Unit : public WorldObject
         typedef std::pair<uint32, uint8> spellEffectPair;
         typedef std::unordered_multimap<uint32,  AuraPtr> AuraMap;
         typedef std::unordered_multimap<uint32,  AuraApplication*> AuraApplicationMap;
-        typedef std::unordered_multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
+        typedef std::unordered_multimap<uint32,  AuraApplication*> AuraStateAurasMap;
         typedef std::list<AuraEffectPtr> AuraEffectList;
         typedef std::list<AuraPtr> AuraList;
         typedef std::list<AuraApplication *> AuraApplicationList;
