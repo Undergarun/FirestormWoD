@@ -16,103 +16,73 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include "ulduar.h"
+#include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ulduar.h"
+#include "Spell.h"
 
-/*
-The teleporter appears to be active and stable.
-
-- Expedition Base Camp
-- Formation Grounds
-- Colossal Forge
-- Scrapyard
-- Antechamber of Ulduar
-- Shattered Walkway
-- Conservatory of Life
-*/
-
-enum UlduarTeleporter
-{
-    BASE_CAMP                                    = 200,
-    GROUNDS                                      = 201,
-    FORGE                                        = 202,
-    SCRAPYARD                                    = 203,
-    ANTECHAMBER                                  = 204,
-    WALKWAY                                      = 205,
-    CONSERVATORY                                 = 206,
-};
+#define GOSSIP_SENDER_ULDUAR_PORT 603
 
 class ulduar_teleporter : public GameObjectScript
 {
     public:
         ulduar_teleporter() : GameObjectScript("ulduar_teleporter") { }
 
-        bool OnGossipSelect(Player* player, GameObject* /*gameObject*/, uint32 sender, uint32 action)
-        {
-            player->PlayerTalkClass->ClearMenus();
-            if (sender != GOSSIP_SENDER_MAIN)
-                return false;
-            if (!player->getAttackers().empty())
-                return false;
-
-            switch (action)
-            {
-                case BASE_CAMP:
-                    player->TeleportTo(603, -706.122f, -92.6024f, 429.876f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case GROUNDS:
-                    player->TeleportTo(603, 131.248f, -35.3802f, 409.804f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case FORGE:
-                    player->TeleportTo(603, 553.233f, -12.3247f, 409.679f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case SCRAPYARD:
-                    player->TeleportTo(603, 926.292f, -11.4635f, 418.595f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case ANTECHAMBER:
-                    player->TeleportTo(603, 1498.09f, -24.246f, 420.967f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case WALKWAY:
-                    player->TeleportTo(603, 1859.45f, -24.1f, 448.9f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case CONSERVATORY:
-                    player->TeleportTo(603, 2086.27f, -24.3134f, 421.239f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-            }
-
-            return true;
-        }
-
         bool OnGossipHello(Player* player, GameObject* gameObject)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, BASE_CAMP);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_BASE_CAMP), GOSSIP_SENDER_ULDUAR_PORT, SPELL_BASE_CAMP_TELEPORT);
             if (InstanceScript* instance = gameObject->GetInstanceScript())
             {
                 if (instance->GetData(DATA_COLOSSUS) == 2) //count of 2 collossus death
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Formation Grounds", GOSSIP_SENDER_MAIN, GROUNDS);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_FORM_GROUNDS), GOSSIP_SENDER_ULDUAR_PORT, SPELL_FORMATION_GROUNDS_TELEPORT);
                 if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Colossal Forge", GOSSIP_SENDER_MAIN, FORGE);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_COLOS_FORGE), GOSSIP_SENDER_ULDUAR_PORT, SPELL_COLOSSAL_FORGE_TELEPORT);
                 if (instance->GetBossState(BOSS_XT002) == DONE)
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Scrapyard", GOSSIP_SENDER_MAIN, SCRAPYARD);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Antechamber of Ulduar", GOSSIP_SENDER_MAIN, ANTECHAMBER);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_SCRAPYARD), GOSSIP_SENDER_ULDUAR_PORT, SPELL_SCRAPYARD_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_ANTCHAMBER), GOSSIP_SENDER_ULDUAR_PORT, SPELL_ANTECHAMBER_TELEPORT);
                 }
                 if (instance->GetBossState(BOSS_KOLOGARN) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, WALKWAY);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_SHATTERED), GOSSIP_SENDER_ULDUAR_PORT, SPELL_SHATTERED_WALKWAY_TELEPORT);
                 if (instance->GetBossState(BOSS_AURIAYA) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, CONSERVATORY);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_CONSERVATORY), GOSSIP_SENDER_ULDUAR_PORT, SPELL_CONSERVATORY_TELEPORT);
+                if (instance->GetData(DATA_TRAM) == DONE || instance->GetBossState(BOSS_MIMIRON) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_IMAGINATION), GOSSIP_SENDER_ULDUAR_PORT, SPELL_SPARK_OF_IMAGINATION_TELEPORT);
+                /*if (instance->GetBossState(BOSS_VEZAX) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ULD_TEL_DESCENT), GOSSIP_SENDER_ULDUAR_PORT, SPELL_DESCENT_INTO_MADNESS_TELEPORT);*/
             }
 
-            player->SEND_GOSSIP_MENU(gameObject->GetGOInfo()->GetGossipMenuId(), gameObject->GetGUID());
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(gameObject), gameObject->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, GameObject* gameObject, uint32 sender, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(action);
+            if (!spell)
+                return false;
+
+            if (player->isInCombat())
+            {
+                Spell::SendCastResult(player, spell, NULL, 0, SPELL_FAILED_AFFECTING_COMBAT);
+                return true;
+            }
+
+            if (player->GetVehicle())
+                player->ExitVehicle();
+
+            if (player->IsMounted())
+            {
+                player->Dismount();
+                player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            }
+
+            if (sender == GOSSIP_SENDER_ULDUAR_PORT)
+                player->CastSpell(player, spell, true);
+
             return true;
         }
 };

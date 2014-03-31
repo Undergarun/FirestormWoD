@@ -175,7 +175,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
                 coneOfColdTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-            }
+            } 
             else
                 coneOfColdTimer -= diff;
 

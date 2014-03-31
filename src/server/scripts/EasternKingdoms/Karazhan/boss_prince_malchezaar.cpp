@@ -1,20 +1,20 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: Boss_Prince_Malchezzar
@@ -23,8 +23,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "karazhan.h"
 
 #define SAY_AGGRO           -1532091
@@ -141,7 +140,8 @@ public:
                     Cleanup();
                     CleanupTimer = 0;
                 }
-                else CleanupTimer -= diff;
+                else
+                    CleanupTimer -= diff;
             }
         }
 
@@ -150,9 +150,9 @@ public:
             if (!malchezaar)
                 return;
 
-            Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
-            if (pMalchezaar)
-                CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
+            Creature* pMalchezaar = Unit::GetCreature(*me, malchezaar);
+            if (pMalchezaar && pMalchezaar->isAlive())
+                pMalchezaar->AI()->KilledUnit(who);
         }
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spell)
@@ -195,7 +195,6 @@ public:
         boss_malchezaarAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            memset(axes, 0, sizeof(axes));
         }
 
         InstanceScript* instance;
@@ -227,10 +226,7 @@ public:
             positions.clear();
 
             for (uint8 i = 0; i < 5; ++i)
-            {
                 enfeeble_targets[i] = 0;
-                enfeeble_health[i] = 0;
-            }
 
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
@@ -256,7 +252,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -294,7 +290,7 @@ public:
                         pInfernal->setDeathState(JUST_DIED);
                     }
 
-                    infernals.clear();
+            infernals.clear();
         }
 
         void AxesCleanup()
@@ -314,13 +310,11 @@ public:
 
             //damage
             const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-
             if (cinfo)
             {
                 me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
                 me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
             }
-
             me->UpdateDamagePhysical(BASE_ATTACK);
         }
 
@@ -355,7 +349,7 @@ public:
                     enfeeble_targets[i] = target->GetGUID();
                     enfeeble_health[i] = target->GetHealth();
 
-                    target->CastSpell(target, SPELL_ENFEEBLE, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                    target->CastSpell(target, SPELL_ENFEEBLE, true, 0, 0, me->GetGUID());
                     target->SetHealth(1);
                 }
         }
@@ -380,13 +374,13 @@ public:
                 me->GetRandomNearPosition(pos, 60);
             else
             {
-                point = JadeCore::Containers::SelectRandomContainerElement(positions);
-                pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
+                std::vector<InfernalPoint*>::iterator itr = positions.begin()+rand()%positions.size();
+                point = *itr;
+                positions.erase(itr);
+                pos.Relocate(point->x, point->y, INFERNAL_Z);
             }
 
-            Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
-
-            if (Infernal)
+            if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000))
             {
                 Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
                 Infernal->setFaction(me->getFaction());
@@ -410,7 +404,7 @@ public:
             {
                 EnfeebleResetHealth();
                 EnfeebleResetTimer = 0;
-            }
+            } 
             else
                 EnfeebleResetTimer -= diff;
 
@@ -453,9 +447,9 @@ public:
                         //Sigh, updating only works on main attack, do it manually ....
                         me->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
                         me->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
-
-                        me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
                     }
+
+                    me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
                 }
             }
             else if (phase == 2)
@@ -486,7 +480,7 @@ public:
                             {
                                 axe->AI()->AttackStart(target);
                                 //axe->getThreatManager().tauntApply(target); //Taunt Apply and fade out does not work properly
-                                // So we'll use a hack to add a lot of threat to our target
+                                                                // So we'll use a hack to add a lot of threat to our target
                                 axe->AddThreat(target, 10000000.0f);
                             }
                         }
@@ -500,16 +494,16 @@ public:
 
                 if (SunderArmorTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
+                    DoCastVictim(SPELL_SUNDER_ARMOR);
                     SunderArmorTimer = urand(10000, 18000);
-
-                } else SunderArmorTimer -= diff;
+                }
+                else
+                    SunderArmorTimer -= diff;
 
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCastVictim(SPELL_CLEAVE);
                     Cleave_Timer = urand(6000, 12000);
-
                 }
                 else
                     Cleave_Timer -= diff;
@@ -544,7 +538,9 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(target, SPELL_AMPLIFY_DAMAGE);
                     AmplifyDamageTimer = urand(20000, 30000);
-                } else AmplifyDamageTimer -= diff;
+                }
+                else
+                    AmplifyDamageTimer -= diff;
             }
 
             //Time for global and double timers
@@ -558,7 +554,7 @@ public:
 
             if (ShadowNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWNOVA);
+                DoCastVictim(SPELL_SHADOWNOVA);
                 ShadowNovaTimer = phase == 3 ? 31000 : uint32(-1);
             }
             else
@@ -628,12 +624,12 @@ public:
 
             for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
                 if (*itr == infernal->GetGUID())
-                {
-                    infernals.erase(itr);
-                    break;
-                }
+            {
+                infernals.erase(itr);
+                break;
+            }
 
-                positions.push_back(point);
+            positions.push_back(point);
         }
     };
 
@@ -641,10 +637,10 @@ public:
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
-    Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
+    Creature* pMalchezaar = Unit::GetCreature(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->isAlive())
-        CAST_AI(boss_malchezaar::boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(me, point);
+        CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
 }
 
 void AddSC_boss_malchezaar()

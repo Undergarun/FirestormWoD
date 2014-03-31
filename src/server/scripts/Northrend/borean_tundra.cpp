@@ -1715,6 +1715,7 @@ public:
         uint64 CasterGUID;
 
         uint32 rebuff;
+    
 
     void Reset()
     {
@@ -1760,7 +1761,7 @@ public:
 
         void GotStinged(uint64 casterGUID)
         {
-            if (Player* caster = Player::GetPlayer(*me, casterGUID))
+            if(Player* caster = Player::GetPlayer(*me, casterGUID))
             {
                 uint32 step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE) + 1;
                 switch (step)
@@ -2135,8 +2136,7 @@ public:
                 (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
                 me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
             {
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
-                if (qInfo)
+                if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW))
                     player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
             }
         }

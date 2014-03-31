@@ -53,7 +53,7 @@ enum Events
     EVENT_THROW_SARONITE    = 1,
     EVENT_CHILLING_WAVE     = 2,
     EVENT_DEEP_FREEZE       = 3,
-    EVENT_JUMP_FORGEMASTER  = 4,
+    EVENT_JUMP_TO           = 4,
     EVENT_FORGING           = 5,
     EVENT_RESUME_ATTACK     = 6,
 };
@@ -143,7 +143,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE2);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_JUMP_FORGEMASTER, 1500);
+                    events.ScheduleEvent(EVENT_JUMP_TO, 1500);
                     return;
                 }
 
@@ -153,7 +153,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE3);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_JUMP_FORGEMASTER, 1500);
+                    events.ScheduleEvent(EVENT_JUMP_TO, 1500);
                     return;
                 }
             }
@@ -181,8 +181,7 @@ class boss_garfrost : public CreatureScript
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    AuraPtr aura = target->GetAura(SPELL_PERMAFROST_HELPER);
-                    if (aura != NULLAURA)
+                    if (AuraPtr aura = target->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
             }
@@ -226,7 +225,7 @@ class boss_garfrost : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
                             break;
-                        case EVENT_JUMP_FORGEMASTER:
+                        case EVENT_JUMP_TO:
                             me->AttackStop();
                             if (events.GetPhaseMask() & PHASE_TWO_MASK)
                                 me->GetMotionMaster()->MoveJump(northForgePos.GetPositionX(), northForgePos.GetPositionY(), northForgePos.GetPositionZ(), 25.0f, 15.0f);
@@ -246,6 +245,8 @@ class boss_garfrost : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+
+                EnterEvadeIfOutOfCombatArea(diff);
             }
 
         private:

@@ -268,8 +268,7 @@ class boss_palehoof : public CreatureScript
                         }
                     }
                     ++AddCount;
-                    if (move < 4)
-                        DoneAdds[move] = true;
+                    DoneAdds[move] = true;
                     move = (Phase)(move % 4);
                 }
 

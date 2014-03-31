@@ -36,7 +36,7 @@ public:
     struct npc_gnomeregan_survivorAI : public ScriptedAI
     {
         npc_gnomeregan_survivorAI(Creature* creature) : ScriptedAI(creature) {}
-
+        
         void Reset() {}
 
         void SpellHit(Unit* Caster, const SpellInfo* Spell)
@@ -177,7 +177,7 @@ public:
         uint32 timer;
         uint8 phase;
         Unit* Passenger;
-
+        
         void Reset()
         {
             timer = 0;
@@ -235,7 +235,7 @@ public:
                 timer -= diff;
                 return;
             }
-
+            
             timer = 0;
 
             switch(phase)

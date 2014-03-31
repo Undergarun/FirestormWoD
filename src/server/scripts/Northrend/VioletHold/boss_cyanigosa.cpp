@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -108,34 +107,26 @@ public:
             {
                 DoCast(SPELL_ARCANE_VACUUM);
                 uiArcaneVacuumTimer = 10000;
-            }
-            else
-                uiArcaneVacuumTimer -= diff;
+            } else uiArcaneVacuumTimer -= diff;
 
             if (uiBlizzardTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_BLIZZARD);
                 uiBlizzardTimer = 15000;
-            }
-            else
-                uiBlizzardTimer -= diff;
+            } else uiBlizzardTimer -= diff;
 
             if (uiTailSweepTimer <= diff)
             {
                 DoCast(SPELL_TAIL_SWEEP);
                 uiTailSweepTimer = 20000;
-            }
-            else
-                uiTailSweepTimer -= diff;
+            } else uiTailSweepTimer -= diff;
 
             if (uiUncontrollableEnergyTimer <= diff)
             {
                 DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
                 uiUncontrollableEnergyTimer = 25000;
-            }
-            else
-                uiUncontrollableEnergyTimer -= diff;
+            } else uiUncontrollableEnergyTimer -= diff;
 
             if (IsHeroic())
             {
@@ -144,9 +135,7 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(target, SPELL_MANA_DESTRUCTION);
                     uiManaDestructionTimer = 30000;
-                }
-                else
-                    uiManaDestructionTimer -= diff;
+                } else uiManaDestructionTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -179,7 +168,7 @@ class achievement_defenseless : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
-            if (!target)
+            if(!target)
                 return false;
 
             InstanceScript* instance = target->GetInstanceScript();

@@ -49,6 +49,13 @@ EndScriptData */
 2 - Ingvar the Plunderer
 */
 
+DoorData const doorData[] =
+{
+    {ENTRY_GIANT_PORTCULLIS_4,  DATA_PRINCEKELESETH,    DOOR_TYPE_ROOM,     BOUNDARY_NONE   },
+    {ENTRY_GIANT_PORTCULLIS_3,  DATA_INGVAR_EVENT,      DOOR_TYPE_ROOM,     BOUNDARY_NE     },
+    {0,                         0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE   }, // END
+};
+
 class instance_utgarde_keep : public InstanceMapScript
 {
 public:
@@ -61,7 +68,10 @@ public:
 
     struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
     {
-        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) 
+        {
+            LoadDoorData(doorData);
+        }
 
         uint64 Keleseth;
         uint64 Skarvald;
@@ -139,29 +149,68 @@ public:
         {
             switch (go->GetEntry())
             {
-            //door and object id
-            case ENTRY_BELLOW_1: forge_bellow[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_BELLOW_2: forge_bellow[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_BELLOW_3: forge_bellow[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_FORGEFIRE_1: forge_fire[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_FORGEFIRE_2: forge_fire[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_FORGEFIRE_3: forge_fire[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GIANT_PORTCULLIS_1: portcullis[0] = go->GetGUID();
-            if (m_auiEncounter[2] == DONE)HandleGameObject(0, true, go);break;
-            case ENTRY_GIANT_PORTCULLIS_2: portcullis[1] = go->GetGUID();
-            if (m_auiEncounter[2] == DONE)HandleGameObject(0, true, go);break;
+                // door and object id
+                case ENTRY_BELLOW_1: 
+                    forge_bellow[0] = go->GetGUID();
+                    if (forge_event[0] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_BELLOW_2: 
+                    forge_bellow[1] = go->GetGUID();
+                    if (forge_event[1] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                        break;
+                case ENTRY_BELLOW_3: 
+                    forge_bellow[2] = go->GetGUID();
+                    if (forge_event[2] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_FORGEFIRE_1: 
+                    forge_fire[0] = go->GetGUID();
+                    if (forge_event[0] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_FORGEFIRE_2: 
+                    forge_fire[1] = go->GetGUID();
+                    if (forge_event[1] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_FORGEFIRE_3: 
+                    forge_fire[2] = go->GetGUID();
+                    if (forge_event[2] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_GLOWING_ANVIL_1: 
+                    forge_anvil[0] = go->GetGUID();
+                    if (forge_event[0] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_GLOWING_ANVIL_2: 
+                    forge_anvil[1] = go->GetGUID();
+                    if (forge_event[1] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_GLOWING_ANVIL_3: 
+                    forge_anvil[2] = go->GetGUID();
+                    if (forge_event[2] != NOT_STARTED)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_GIANT_PORTCULLIS_1: 
+                    portcullis[0] = go->GetGUID();
+                    if (m_auiEncounter[2] == DONE)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_GIANT_PORTCULLIS_2: 
+                    portcullis[1] = go->GetGUID();
+                    if (m_auiEncounter[2] == DONE)
+                        HandleGameObject(0, true, go);
+                    break;
+                case ENTRY_GIANT_PORTCULLIS_3:
+                case ENTRY_GIANT_PORTCULLIS_4:
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -202,8 +251,7 @@ public:
                     HandleGameObject(forge_bellow[0], false);
                     HandleGameObject(forge_fire[0], false);
                     HandleGameObject(forge_anvil[0], false);
-                }
-                else
+                }else
                 {
                     HandleGameObject(forge_bellow[0], true);
                     HandleGameObject(forge_fire[0], true);
@@ -217,8 +265,7 @@ public:
                     HandleGameObject(forge_bellow[1], false);
                     HandleGameObject(forge_fire[1], false);
                     HandleGameObject(forge_anvil[1], false);
-                }
-                else
+                }else
                 {
                     HandleGameObject(forge_bellow[1], true);
                     HandleGameObject(forge_fire[1], true);
@@ -232,8 +279,7 @@ public:
                     HandleGameObject(forge_bellow[2], false);
                     HandleGameObject(forge_fire[2], false);
                     HandleGameObject(forge_anvil[2], false);
-                }
-                else
+                }else
                 {
                     HandleGameObject(forge_bellow[2], true);
                     HandleGameObject(forge_fire[2], true);

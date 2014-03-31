@@ -30,8 +30,7 @@ go_keystone_chamber
 at_map_chamber
 EndContentData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "uldaman.h"
 
 /*######
@@ -150,4 +149,3 @@ void AddSC_uldaman()
     new go_keystone_chamber();
     new AreaTrigger_at_map_chamber();
 }
-

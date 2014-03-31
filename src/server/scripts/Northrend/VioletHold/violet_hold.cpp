@@ -15,14 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "violet_hold.h"
 
 #define GOSSIP_START_EVENT  "Get your people to safety, we'll keep the Blue Dragonflight's forces at bay."
-#define GOSSIP_ITEM_1       "Activate the crystals when we get in trouble, right"
+#define GOSSIP_ITEM_1       "Activate the crystals when we get in trouble, right?"
 #define GOSSIP_I_WANT_IN    "I'm not fighting, so send me in now!"
 #define SPAWN_TIME          20000
 
@@ -39,7 +37,7 @@ enum PortalCreatures
     CREATURE_AZURE_CAPTAIN            = 30666,
     CREATURE_AZURE_SORCEROR           = 30667,
     CREATURE_AZURE_RAIDER             = 30668,
-    CREATURE_AZURE_STALKER            = 32191
+    CREATURE_AZURE_STALKER            = 32191,
 };
 
 enum AzureInvaderSpells
@@ -449,32 +447,32 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 uiWPointId)
         {
             switch (uiBoss)
             {
                 case 1:
-                    if (waypointId == 2)
+                    if (uiWPointId == 2)
                         FinishPointReached();
                     break;
                 case 2:
-                    if (waypointId == 2)
+                    if (uiWPointId == 2)
                         FinishPointReached();
                     break;
                 case 3:
-                    if (waypointId == 1)
+                    if (uiWPointId == 1)
                         FinishPointReached();
                     break;
                 case 4:
-                    if (waypointId == 0)
+                    if (uiWPointId == 0)
                         FinishPointReached();
                     break;
                 case 5:
-                    if (waypointId == 0)
+                    if (uiWPointId == 0)
                         FinishPointReached();
                     break;
                 case 6:
-                    if (waypointId == 4)
+                    if (uiWPointId == 4)
                         FinishPointReached();
                     break;
             }
@@ -608,9 +606,7 @@ public:
                                 DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
                             }
                             me->SetVisible(false);
-                        }
-                        else
-                            uiSpawnTimer -= diff;
+                        } else uiSpawnTimer -= diff;
                     }
                     else
                     {
@@ -643,9 +639,7 @@ public:
                                 me->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL, false);
                         }
                         uiSpawnTimer = SPAWN_TIME;
-                    }
-                    else
-                        uiSpawnTimer -= diff;
+                    } else uiSpawnTimer -= diff;
 
                     if (bPortalGuardianOrKeeperOrEliteSpawn && !me->IsNonMeleeSpellCasted(false))
                     {
@@ -665,15 +659,11 @@ public:
         void JustSummoned(Creature* summoned)
         {
             listOfMobs.Summon(summoned);
-            if (summoned)
-                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
         void SummonedMobDied(Creature* summoned)
         {
             listOfMobs.Despawn(summoned);
-            if (summoned)
-                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 
@@ -696,32 +686,32 @@ struct violet_hold_trashAI : public npc_escortAI
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
 
-    void WaypointReached(uint32 waypointId)
+    void WaypointReached(uint32 uiPointId)
     {
         switch (portalLocationID)
         {
             case 0:
-                if (waypointId == 5)
+                if (uiPointId == 5)
                    CreatureStartAttackDoor();
                 break;
             case 1:
-                if ((waypointId == 8 && secondPortalRouteID == 0) || (waypointId == 7 && secondPortalRouteID == 1))
+                if ((uiPointId == 8 && secondPortalRouteID == 0) || (uiPointId == 7 && secondPortalRouteID == 1))
                     CreatureStartAttackDoor();
                 break;
             case 2:
-                if (waypointId == 7)
+                if (uiPointId == 7)
                    CreatureStartAttackDoor();
                 break;
             case 3:
-                if (waypointId == 8)
+                if (uiPointId == 8)
                     CreatureStartAttackDoor();
                 break;
             case 4:
-                if (waypointId == 5)
+                if (uiPointId == 5)
                     CreatureStartAttackDoor();
                 break;
             case 5:
-                if (waypointId == 3)
+                if (uiPointId == 3)
                     CreatureStartAttackDoor();
                 break;
         }
@@ -784,14 +774,14 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*unit*/)
     {
         if (instance)
         {
             if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
                 CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);
-            if (instance)
-                instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
+
+            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
         }
     }
 
@@ -849,9 +839,7 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_CLEAVE);
                     uiCleaveTimer = 5000;
-                }
-                else
-                    uiCleaveTimer -= diff;
+                } else uiCleaveTimer -= diff;
 
                 if (uiImpaleTimer <= diff)
                 {
@@ -859,9 +847,7 @@ public:
                     if (target)
                         DoCast(target, SPELL_IMPALE);
                     uiImpaleTimer = 4000;
-                }
-                else
-                    uiImpaleTimer -= diff;
+                } else uiImpaleTimer -= diff;
             }
 
             if (me->GetEntry() == CREATURE_AZURE_INVADER_2)
@@ -870,17 +856,13 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_BRUTAL_STRIKE);
                     uiBrutalStrikeTimer = 5000;
-                }
-                else
-                    uiBrutalStrikeTimer -= diff;
+                } else uiBrutalStrikeTimer -= diff;
 
                 if (uiSunderArmorTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
                     uiSunderArmorTimer = urand(8000, 10000);
-                }
-                else
-                    uiSunderArmorTimer -= diff;
+                } else uiSunderArmorTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
@@ -935,9 +917,7 @@ public:
                 {
                     DoCast(DUNGEON_MODE(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
                     uiArcaneExplosionTimer = 5000;
-                }
-                else
-                    uiArcaneExplosionTimer -= diff;
+                } else uiArcaneExplosionTimer -= diff;
 
                     if (uiArcainBarrageTimer <= diff)
                 {
@@ -945,9 +925,7 @@ public:
                     if (target)
                             DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BARRAGE, H_SPELL_ARCANE_BARRAGE));
                     uiArcainBarrageTimer = 6000;
-                }
-                    else
-                        uiArcainBarrageTimer -= diff;
+                } else uiArcainBarrageTimer -= diff;
             }
 
             if (me->GetEntry() == CREATURE_AZURE_BINDER_2)
@@ -964,9 +942,7 @@ public:
                     if (target)
                         DoCast(target, DUNGEON_MODE(SPELL_FROSTBOLT, H_SPELL_FROSTBOLT));
                     uiFrostboltTimer = 6000;
-                }
-                else
-                    uiFrostboltTimer -= diff;
+                } else uiFrostboltTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -1015,9 +991,7 @@ public:
                 {
                     DoCast(me, SPELL_ARCANE_EMPOWERMENT);
                         uiArcaneEmpowermentTimer = 14000;
-                }
-                else
-                    uiArcaneEmpowermentTimer -= diff;
+                } else uiArcaneEmpowermentTimer -= diff;
             }
 
             if (me->GetEntry() == CREATURE_AZURE_MAGE_SLAYER_2)
@@ -1028,9 +1002,7 @@ public:
                     if (target)
                         DoCast(target, SPELL_SPELL_LOCK);
                     uiSpellLockTimer = 9000;
-                }
-                else
-                    uiSpellLockTimer -= diff;
+                } else uiSpellLockTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -1077,17 +1049,13 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CONCUSSION_BLOW);
                 uiConcussionBlowTimer = 5000;
-            }
-            else
-                uiConcussionBlowTimer -= diff;
+            } else uiConcussionBlowTimer -= diff;
 
             if (uiMagicReflectionTimer <= diff)
             {
                 DoCast(SPELL_MAGIC_REFLECTION);
                 uiMagicReflectionTimer = urand(10000, 15000);
-            }
-            else
-                uiMagicReflectionTimer -= diff;
+            } else uiMagicReflectionTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -1139,9 +1107,7 @@ public:
                         DoCast(target, SPELL_TACTICAL_BLINK);
                         uiTacticalBlinkTimer = 6000;
                     TacticalBlinkCasted = true;
-                }
-                else
-                    uiTacticalBlinkTimer -= diff;
+                } else uiTacticalBlinkTimer -= diff;
             }
 
             else
@@ -1152,9 +1118,7 @@ public:
                     DoCast(target, SPELL_BACKSTAB);
                     TacticalBlinkCasted = false;
                     uiBackstabTimer =1300;
-                }
-                else
-                    uiBackstabTimer -= diff;
+                } else uiBackstabTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -1204,9 +1168,7 @@ public:
                     if (target)
                         DoCast(target, DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
                     uiArcaneBlastTimer = 6000;
-                }
-                else
-                    uiArcaneBlastTimer -= diff;
+                } else uiArcaneBlastTimer -= diff;
 
                 if (uiSlowTimer <= diff)
                 {
@@ -1214,9 +1176,7 @@ public:
                         if (target)
                         DoCast(target, SPELL_SLOW);
                     uiSlowTimer = 5000;
-                }
-                else
-                    uiSlowTimer -= diff;
+                } else uiSlowTimer -= diff;
             }
 
             if (me->GetEntry() == CREATURE_AZURE_SPELLBREAKER_2)
@@ -1227,17 +1187,13 @@ public:
                     if (target)
                         DoCast(target, SPELL_CHAINS_OF_ICE);
                     uiChainsOfIceTimer = 7000;
-                }
-                else
-                    uiChainsOfIceTimer -= diff;
+                } else uiChainsOfIceTimer -= diff;
 
                 if (uiConeOfColdTimer <= diff)
                 {
                    DoCast(DUNGEON_MODE(SPELL_CONE_OF_COLD, H_SPELL_CONE_OF_COLD));
                     uiConeOfColdTimer = 5000;
-                }
-                else
-                    uiConeOfColdTimer -= diff;
+                } else uiConeOfColdTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -1288,17 +1244,13 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
                 uiMortalStrikeTimer = 5000;
-            }
-            else
-                uiMortalStrikeTimer -= diff;
+            } else uiMortalStrikeTimer -= diff;
 
             if (uiWhirlwindTimer <= diff)
             {
                 DoCast(me, SPELL_WHIRLWIND_OF_STEEL);
                 uiWhirlwindTimer = 8000;
-            }
-            else
-                uiWhirlwindTimer -= diff;
+            } else uiWhirlwindTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -1349,17 +1301,13 @@ public:
                     DoCast(target, DUNGEON_MODE(SPELL_ARCANE_STREAM, H_SPELL_ARCANE_STREAM));
                 uiArcaneStreamTimer = urand(0, 5000)+5000;
                 uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
-            }
-            else
-                uiArcaneStreamTimer -= diff;
+            } else uiArcaneStreamTimer -= diff;
 
             if (uiManaDetonationTimer <= diff && uiArcaneStreamTimer >=1500 && uiArcaneStreamTimer <= uiArcaneStreamTimerStartingValueHolder/2)
             {
                 DoCast(DUNGEON_MODE(SPELL_MANA_DETONATION, H_SPELL_MANA_DETONATION));
                 uiManaDetonationTimer = urand(2000, 6000);
-            }
-            else
-                uiManaDetonationTimer -= diff;
+            } else uiManaDetonationTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

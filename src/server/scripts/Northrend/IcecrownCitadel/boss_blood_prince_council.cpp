@@ -103,6 +103,7 @@ enum Spells
     SPELL_UNSTABLE                      = 72059,
     SPELL_KINETIC_BOMB_VISUAL           = 72054,
     SPELL_KINETIC_BOMB_EXPLOSION        = 72052,
+    SPELL_KINETIC_BOMB_KNOCKBACK        = 72087,
 
     // Shock Vortex
     SPELL_SHOCK_VORTEX_PERIODIC         = 71945,
@@ -211,19 +212,25 @@ class boss_blood_council_controller : public CreatureScript
                 if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_KELESETH_GUID)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, keleseth);
-                    DoZoneInCombat(keleseth);
+                    keleseth->SetInCombatWithZone();
+                    if (who && !keleseth->isInCombat())
+                        keleseth->AI()->EnterCombat(who);
                 }
 
                 if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_TALDARAM_GUID)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, taldaram);
-                    DoZoneInCombat(taldaram);
+                    taldaram->SetInCombatWithZone();
+                    if (who && !taldaram->isInCombat())
+                        taldaram->AI()->EnterCombat(who);
                 }
 
                 if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, valanar);
-                    DoZoneInCombat(valanar);
+                    valanar->SetInCombatWithZone();
+                    if (who && !valanar->isInCombat())
+                        valanar->AI()->EnterCombat(who);
                 }
 
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
@@ -238,25 +245,6 @@ class boss_blood_council_controller : public CreatureScript
                 {
                     _invocationOrder[1] = InvocationData(instance->GetData64(DATA_PRINCE_KELESETH_GUID), SPELL_INVOCATION_OF_BLOOD_KELESETH, EMOTE_KELESETH_INVOCATION, 71080);
                     _invocationOrder[2] = InvocationData(instance->GetData64(DATA_PRINCE_TALDARAM_GUID), SPELL_INVOCATION_OF_BLOOD_TALDARAM, EMOTE_TALDARAM_INVOCATION, 71081);
-                }
-
-                if (IsHeroic())
-                {
-                    Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-                    if (PlList.isEmpty())
-                        return;
-
-                    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                    {
-                        if (Player* player = i->getSource())
-                        {
-                            if (player->isGameMaster())
-                                continue;
-
-                            if (player->isAlive())
-                                player->AddAura(SPELL_SHADOW_PRISON_DUMMY, player);
-                        }
-                    }
                 }
             }
 
@@ -297,8 +285,6 @@ class boss_blood_council_controller : public CreatureScript
                         killer->Kill(prince);
                     }
                 }
-
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
             }
 
             void UpdateAI(uint32 const diff)
@@ -409,9 +395,6 @@ class boss_prince_keleseth_icc : public CreatureScript
                 me->SetHealth(_spawnHealth);
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
                 me->SetReactState(REACT_DEFENSIVE);
-
-                if (IsHeroic())
-                    DoCast(me, SPELL_SHADOW_PRISON);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -902,14 +885,17 @@ class boss_prince_valanar_icc : public CreatureScript
                 {
                     case NPC_KINETIC_BOMB_TARGET:
                         summon->SetReactState(REACT_PASSIVE);
-                        summon->CastSpell(summon, SPELL_KINETIC_BOMB, true, NULL, NULLAURA_EFFECT, me->GetGUID());
+                        summon->CastSpell(summon, SPELL_KINETIC_BOMB, true, NULL, NULL, me->GetGUID());
                         break;
                     case NPC_KINETIC_BOMB:
                     {
+                        summon->SetSpeed(MOVE_WALK, IsHeroic()? 0.3f: 0.15f, true);
+                        summon->SetSpeed(MOVE_RUN, IsHeroic()? 0.3f: 0.15f, true);
+                        summon->SetSpeed(MOVE_FLIGHT, IsHeroic()? 0.3f: 0.15f, true);
                         float x, y, z;
                         summon->GetPosition(x, y, z);
-                        float ground_Z = summon->GetMap()->GetHeight(x, y, z, true, 500.0f);
-                        summon->GetMotionMaster()->MoveCharge(x, y, ground_Z, summon->GetSpeed(MOVE_WALK), POINT_KINETIC_BOMB_IMPACT);
+                        float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseMask(), x, y, z, true, 500.0f);
+                        summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
                         summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     }
@@ -1075,7 +1061,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                //me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetDisableGravity(true);
                 if (_instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == DONE)
                 {
                     me->SetVisible(false);
@@ -1249,32 +1235,24 @@ class npc_kinetic_bomb : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                me->SetDisplayId(DISPLAY_KINETIC_BOMB);
-                me->SetSpeed(MOVE_WALK, 0.35f, true);
-                me->SetSpeed(MOVE_RUN, 0.70f, true);
+                me->SetWalk(true);
                 me->CastSpell(me, SPELL_UNSTABLE, true);
                 me->CastSpell(me, SPELL_KINETIC_BOMB_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->GetPosition(_x, _y, _groundZ);
                 me->DespawnOrUnsummon(60000);
-                _groundZ = me->GetMap()->GetHeight(_x, _y, _groundZ, true, 500.0f);
-                lastKnockbackTimestamp = 0;
+                _groundZ = me->GetMap()->GetHeight(me->GetPhaseMask(), _x, _y, _groundZ, true, 500.0f);
             }
 
             void DoAction(int32 const action)
             {
                 if (action == SPELL_KINETIC_BOMB_EXPLOSION)
                     _events.ScheduleEvent(EVENT_BOMB_DESPAWN, 1000);
-            }
-
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
-            {
-                if (GetMSTimeDiffToNow(lastKnockbackTimestamp) > 3000)
+                else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
-                    _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 3000);
-                    lastKnockbackTimestamp = getMSTime();
+                    if (!me->HasAura(SPELL_KINETIC_BOMB_KNOCKBACK))
+                        me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
+                    _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 5000);
                 }
             }
 
@@ -1292,7 +1270,8 @@ class npc_kinetic_bomb : public CreatureScript
                             break;
                         case EVENT_CONTINUE_FALLING:
                             me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveCharge(_x, _y, _groundZ, me->GetSpeed(MOVE_WALK), POINT_KINETIC_BOMB_IMPACT);
+                            me->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, _x, _y, _groundZ);
+                            //me->GetMotionMaster()->MoveCharge(_x, _y, _groundZ, me->GetSpeed(MOVE_WALK), POINT_KINETIC_BOMB_IMPACT);
                             break;
                         default:
                             break;
@@ -1305,7 +1284,6 @@ class npc_kinetic_bomb : public CreatureScript
             float _x;
             float _y;
             float _groundZ;
-            uint32 lastKnockbackTimestamp;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1323,8 +1301,8 @@ class npc_dark_nucleus : public CreatureScript
         {
             npc_dark_nucleusAI(Creature* creature) : ScriptedAI(creature)
             {
-                _lockedTarget = false;
-                _targetAuraCheck = 0;
+                lockedTarget = false;
+                targetAuraCheck = 0;
             }
 
             void Reset()
@@ -1335,7 +1313,7 @@ class npc_dark_nucleus : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                _targetAuraCheck = 1000;
+                targetAuraCheck = 1000;
                 if (me->GetDistance(who) >= 15.0f)
                 {
                     DoStartMovement(who);
@@ -1356,20 +1334,20 @@ class npc_dark_nucleus : public CreatureScript
                 if (attacker == me)
                     return;
 
-                me->DeleteThreatList();
-                me->AddThreat(attacker, 500000000.0f);
+                if (!lockedTarget)
+                    if (me->getVictim() == attacker)
+                        lockedTarget = true;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                if (!me->isInCombat())
                     return;
 
-                if (_targetAuraCheck <= diff)
+                if (targetAuraCheck <= diff)
                 {
-                    _targetAuraCheck = 1000;
+                    targetAuraCheck = 1000;
                     if (Unit* victim = me->getVictim())
-                    {
                         if (me->GetDistance(victim) < 15.0f &&
                             !victim->HasAura(SPELL_SHADOW_RESONANCE_RESIST, me->GetGUID()))
                         {
@@ -1378,15 +1356,31 @@ class npc_dark_nucleus : public CreatureScript
                         }
                         else
                             MoveInLineOfSight(me->getVictim());
-                    }
                 }
                 else
-                    _targetAuraCheck -= diff;
+                    targetAuraCheck -= diff;
+
+                if (!lockedTarget)
+                {
+                    if (Unit* victim = me->SelectVictim())
+                    {
+                        if (me->getVictim() && me->getVictim() != victim)
+                        {
+                            me->getVictim()->RemoveAurasDueToSpell(SPELL_SHADOW_RESONANCE_RESIST, me->GetGUID());
+                            lockedTarget = true;
+                        }
+
+                        lockedTarget = true;
+                        AttackStart(victim);
+                        DoCast(victim, SPELL_SHADOW_RESONANCE_RESIST);
+                        me->ClearUnitState(UNIT_STATE_CASTING);
+                    }
+                }
             }
 
         private:
-            uint32 _targetAuraCheck;
-            bool _lockedTarget;
+            uint32 targetAuraCheck; // no point for EventMap with only one timer
+            bool lockedTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1504,8 +1498,7 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
 
             void ModAuraStack()
             {
-                AuraPtr aur = GetHitAura();
-                if (aur != NULLAURA)
+                if (AuraPtr aur = GetHitAura())
                     aur->SetStackAmount(uint8(GetSpellInfo()->StackAmount));
             }
 
@@ -1533,14 +1526,15 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {
                 WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = {0.0f, 0.0f, 20.0f, 0.0f};
+                Position offset = {0.0f, 0.0f, 30.0f, 0.0f};
                 summonPos.RelocateOffset(offset);
                 SetExplTargetDest(summonPos);
+                GetHitDest()->RelocateOffset(offset);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_valanar_kinetic_bomb_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -1580,6 +1574,33 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
         }
 };
 
+class spell_valanar_kinetic_bomb_knockback : public SpellScriptLoader
+{
+    public:
+        spell_valanar_kinetic_bomb_knockback() : SpellScriptLoader("spell_valanar_kinetic_bomb_knockback") { }
+
+        class spell_valanar_kinetic_bomb_knockback_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_valanar_kinetic_bomb_knockback_SpellScript);
+
+            void KnockIntoAir()
+            {
+                if (Creature* target = GetHitCreature())
+                    target->AI()->DoAction(ACTION_KINETIC_BOMB_JUMP);
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_valanar_kinetic_bomb_knockback_SpellScript::KnockIntoAir);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_valanar_kinetic_bomb_knockback_SpellScript();
+        }
+};
+
 class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
 {
     public:
@@ -1591,7 +1612,7 @@ class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
 
             void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                //absorbAmount = CalculatePctN(dmgInfo.GetDamage(), aurEff->GetAmount());
+                absorbAmount = CalculatePct(dmgInfo.GetDamage(), aurEff->GetAmount());
                 RoundToInterval<uint32>(absorbAmount, 0, dmgInfo.GetDamage());
                 dmgInfo.AbsorbDamage(absorbAmount);
             }
@@ -1613,40 +1634,13 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
     public:
         spell_blood_council_shadow_prison() : SpellScriptLoader("spell_blood_council_shadow_prison") { }
 
-        class spell_blood_council_shadow_prison_init_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_blood_council_shadow_prison_init_SpellScript);
-
-            SpellCastResult CheckIfPlayer()
-            {
-                if (!GetExplTargetUnit())
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_TARGET_NOT_PLAYER;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_blood_council_shadow_prison_init_SpellScript::CheckIfPlayer);
-            }
-        };
-
         class spell_blood_council_shadow_prison_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript);
 
             void HandleDummyTick(constAuraEffectPtr aurEff)
             {
-                if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
-                {
-                    GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Id);
-                    return;
-                }
-
-                if (GetTarget()->isMoving())
+                if (GetTarget()->GetTypeId() == TYPEID_PLAYER && GetTarget()->isMoving())
                     GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
             }
 
@@ -1655,11 +1649,6 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_blood_council_shadow_prison_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_blood_council_shadow_prison_init_SpellScript();
-        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1678,8 +1667,7 @@ class spell_blood_council_shadow_prison_damage : public SpellScriptLoader
 
             void AddExtraDamage()
             {
-                AuraPtr aur = GetHitUnit()->GetAura(GetSpellInfo()->Id);
-                if (aur != NULLAURA)
+                if (AuraPtr aur = GetHitUnit()->GetAura(GetSpellInfo()->Id))
                     if (constAuraEffectPtr eff = aur->GetEffect(EFFECT_1))
                         SetHitDamage(GetHitDamage() + eff->GetAmount());
             }
@@ -1711,6 +1699,7 @@ void AddSC_boss_blood_prince_council()
     new spell_taldaram_flame_ball_visual();
     new spell_taldaram_ball_of_inferno_flame();
     new spell_valanar_kinetic_bomb();
+    new spell_valanar_kinetic_bomb_knockback();
     new spell_valanar_kinetic_bomb_absorb();
     new spell_blood_council_shadow_prison();
     new spell_blood_council_shadow_prison_damage();

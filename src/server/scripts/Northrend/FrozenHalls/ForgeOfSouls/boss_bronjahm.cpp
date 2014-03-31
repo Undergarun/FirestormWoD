@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
 #include "forge_of_souls.h"
+
+#define DATA_SOUL_POWER     1
 
 enum Yells
 {
@@ -60,6 +60,11 @@ enum CombatPhases
     PHASE_2 = 2
 };
 
+enum Actions
+{
+    ACTION_SUMMON_DIE   = 1
+};
+
 class boss_bronjahm : public CreatureScript
 {
     public:
@@ -89,6 +94,7 @@ class boss_bronjahm : public CreatureScript
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
 
                 instance->SetBossState(DATA_BRONJAHM, NOT_STARTED);
+                soulCount = 0;
             }
 
            void JustReachedHome()
@@ -122,7 +128,9 @@ class boss_bronjahm : public CreatureScript
                 if (events.GetPhaseMask() & (1 << PHASE_1) && !HealthAbovePct(30))
                 {
                     events.SetPhase(PHASE_2);
+                    me->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_TELEPORT);
+                    events.RescheduleEvent(EVENT_SHADOW_BOLT, 5000);
                     events.ScheduleEvent(EVENT_FEAR, urand(12000, 16000), 0, PHASE_2);
                     events.ScheduleEvent(EVENT_SOULSTORM, 100, 0, PHASE_2);
                 }
@@ -135,6 +143,30 @@ class boss_bronjahm : public CreatureScript
                 summon->GetMotionMaster()->Clear();
                 summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
                 summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
+                soulCount++;
+            }
+            
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+            {
+                if (soulCount > 0)
+                    soulCount--;
+            }
+
+            void DoAction(const int32 param)
+            {
+                if (!me->isAlive())
+                    return;
+
+                if (param == ACTION_SUMMON_DIE)
+                    soulCount--;
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                if (type == DATA_SOUL_POWER)
+                    return (soulCount >= 4) ? 1 : 0;
+
+                return 0;
             }
 
             void UpdateAI(const uint32 diff)
@@ -185,8 +217,9 @@ class boss_bronjahm : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+        private:
+            uint16 soulCount;
         };
-
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_bronjahmAI(creature);
@@ -207,9 +240,6 @@ class mob_corrupted_soul_fragment : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type != CHASE_MOTION_TYPE)
-                    return;
-
                 if (instance)
                 {
                     if (TempSummon* summ = me->ToTempSummon())
@@ -219,9 +249,14 @@ class mob_corrupted_soul_fragment : public CreatureScript
                             return;
 
                         if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
-                            me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
-
-                        summ->UnSummon();
+                        {
+                            if (me->GetDistance2d(bronjahm->GetPositionX(), bronjahm->GetPositionY()) <= 2.0f) 
+                            {
+                                me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
+                                bronjahm->AI()->DoAction(ACTION_SUMMON_DIE);
+                                summ->UnSummon();
+                            }
+                        }
                     }
                 }
             }
@@ -382,7 +417,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(DistanceCheck(GetCaster()));
+                targets.remove_if (DistanceCheck(GetCaster()));
                 sharedTargets = targets;
             }
 
@@ -407,6 +442,24 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
         }
 };
 
+class achievement_soul_power : public AchievementCriteriaScript
+{
+    public:
+        achievement_soul_power() : AchievementCriteriaScript("achievement_soul_power") { }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* bronjahm = target->ToCreature())
+                if (bronjahm->AI()->GetData(DATA_SOUL_POWER))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -416,4 +469,5 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_soulstorm_channel();
     new spell_bronjahm_soulstorm_visual();
     new spell_bronjahm_soulstorm_targeting();
+    new achievement_soul_power();
 }

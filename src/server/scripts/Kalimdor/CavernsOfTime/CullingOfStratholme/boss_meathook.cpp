@@ -23,8 +23,7 @@ SDComment: It may need timer adjustment
 SDCategory:
 Script Data End */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -58,9 +57,9 @@ public:
 
     struct boss_meathookAI : public ScriptedAI
     {
-        boss_meathookAI(Creature* creature) : ScriptedAI(creature)
+        boss_meathookAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             if (instance)
                 DoScriptText(SAY_SPAWN, me);
         }

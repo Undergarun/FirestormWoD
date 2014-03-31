@@ -44,6 +44,7 @@ enum Creatures
     MOB_TWISTED_VISAGE                            = 30625
 };
 
+
 enum Yells
 {
     SAY_AGGRO   = 0,
@@ -173,7 +174,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-           Talk(SAY_AGGRO);
+            Talk(SAY_AGGRO);
 
             if (instance)
             {
@@ -213,7 +214,7 @@ public:
 
         void SummonedCreatureDespawn(Creature* summon)
         {
-            uint32 phase= summon->GetPhaseMask();
+            uint32 phase = summon->GetPhaseMask();
             uint32 nextPhase = 0;
             Summons.Despawn(summon);
 

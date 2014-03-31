@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,14 +19,13 @@
 #include "ScriptedCreature.h"
 #include "halls_of_reflection.h"
 
-enum Yells
+enum Texts
 {
-    SAY_AGGRO                                     = -1668050,
-    SAY_SLAY_1                                    = -1668051,
-    SAY_SLAY_2                                    = -1668052,
-    SAY_DEATH                                     = -1668053,
-    SAY_IMPENDING_DESPAIR                         = -1668054,
-    SAY_DEFILING_HORROR                           = -1668055,
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_IMPENDING_DESPAIR                         = 3,
+    SAY_DEFILING_HORROR                           = 4,
 };
 
 enum Spells
@@ -34,8 +33,9 @@ enum Spells
     SPELL_QUIVERING_STRIKE                        = 72422,
     SPELL_IMPENDING_DESPAIR                       = 72426,
     SPELL_DEFILING_HORROR                         = 72435,
-    SPELL_HOPELESSNESS                            = 72395,
-    H_SPELL_HOPELESSNESS                          = 72390, // TODO: not in dbc. Add in DB.
+    SPELL_HOPELESSNESS_66                         = 72395,
+    SPELL_HOPELESSNESS_33                         = 72396,
+    SPELL_HOPELESSNESS_10                         = 72397,
 };
 
 enum Events
@@ -69,34 +69,55 @@ public:
             uiHopelessnessCount = 0;
 
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        {
+            if (uiHopelessnessCount == 0 && !HealthAbovePct(66))
+            {
+                DoCast(SPELL_HOPELESSNESS_66);
+                uiHopelessnessCount++;
+            }
+            else if (uiHopelessnessCount == 1 && !HealthAbovePct(33))
+            {
+                me->RemoveAllAuras();
+                DoCast(SPELL_HOPELESSNESS_33);
+                uiHopelessnessCount++;
+            }
+            else if (uiHopelessnessCount == 2 && !HealthAbovePct(10))
+            {
+                me->RemoveAllAuras();
+                DoCast(SPELL_HOPELESSNESS_10);
+                uiHopelessnessCount++;
+            }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, DONE);
+                instance->SetBossState(DATA_FALRIC_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
             // Return since we have no target
             if (!UpdateVictim())
@@ -116,23 +137,15 @@ public:
                 case EVENT_IMPENDING_DESPAIR:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     {
-                        DoScriptText(SAY_IMPENDING_DESPAIR, me);
+                        Talk(SAY_IMPENDING_DESPAIR);
                         DoCast(target, SPELL_IMPENDING_DESPAIR);
                     }
                     events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
                     break;
                 case EVENT_DEFILING_HORROR:
                     DoCast(SPELL_DEFILING_HORROR);
-                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
                     break;
-            }
-
-            if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
-                || (uiHopelessnessCount < 2 && HealthBelowPct(33))
-                || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
-            {
-                uiHopelessnessCount++;
-                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
             }
 
             DoMeleeAttackIfReady();
