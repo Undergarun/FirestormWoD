@@ -1008,7 +1008,10 @@ Player::~Player()
                 continue;
 
             if (m_items[i] == m_items[slot] && slot != i)
+            {
                 sLog->OutPandashan("Player[%u] have same item pointer in two slot ! (slot: %u, copy slot: %u)", GetGUIDLow(), i, slot);
+                m_items[i] = NULL;
+            }
         }
     }
 
