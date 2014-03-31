@@ -21245,11 +21245,11 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             if (GetGroup())
             {
                 if (Player* pLeader = ObjectAccessor::FindPlayer(GetGroup()->GetLeaderGUID()))
-                    if (!pLeader->HasAchieved(ar->leader_achievement))
+                    if (!pLeader->GetAchievementMgr().HasAchieved(ar->leader_achievement))
                         missingLeaderAchievement = ar->leader_achievement;
             }
             else
-                if (!HasAchieved(ar->leader_achievement))
+                if (!GetAchievementMgr().HasAchieved(ar->leader_achievement))
                     missingLeaderAchievement = ar->leader_achievement;
         }
 
