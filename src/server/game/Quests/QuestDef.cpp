@@ -65,7 +65,7 @@ Quest::Quest(Field* questRecord)
     SourceSpellid           = questRecord[index++].GetUInt32();
     Flags                   = questRecord[index++].GetUInt32();
     SpecialFlags            = questRecord[index++].GetUInt8();
-    MinimapTargetMark       = questRecord[index++].GetUInt8();
+    MinimapTargetMark       = questRecord[index++].GetUInt32();
     RewardTitleId           = questRecord[index++].GetUInt8();
     RequiredPlayerKills     = questRecord[index++].GetUInt8();
     RewardTalents           = questRecord[index++].GetUInt8();
@@ -139,13 +139,13 @@ Quest::Quest(Field* questRecord)
         RewardCurrencyId[i] = questRecord[index++].GetUInt16();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyCount[i] = questRecord[index++].GetUInt8();
+        RewardCurrencyCount[i] = questRecord[index++].GetUInt16();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
         RequiredCurrencyId[i] = questRecord[index++].GetUInt16();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyCount[i] = questRecord[index++].GetUInt8();
+        RequiredCurrencyCount[i] = questRecord[index++].GetUInt16();
 
     QuestGiverTextWindow    = questRecord[index++].GetString();
     QuestGiverTargetName    = questRecord[index++].GetString();
