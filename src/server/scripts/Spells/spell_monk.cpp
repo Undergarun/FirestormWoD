@@ -161,29 +161,62 @@ class spell_monk_chi_brew : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_brew_SpellScript);
 
+            bool Validate()
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BREW))
+                    return false;
+                return true;
+            }
+
             void HandleOnHit()
             {
-                if (!GetCaster())
-                    return;
-
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    switch (_player->GetSpecializationId(_player->GetActiveSpec()))
+                    if (Unit* target = GetHitUnit())
                     {
-                        case SPEC_MONK_BREWMASTER:
-                            for (uint8 i = 0; i < 5; ++i)
-                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
-                            break;
-                        case SPEC_MONK_MISTWEAVER:
-                            _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
-                            _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
-                            break;
-                        case SPEC_MONK_WINDWALKER:
-                            _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-                            _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-                            break;
-                        default:
-                            break;
+                        int32 stacks = 0;
+
+                        switch (_player->GetSpecializationId(_player->GetActiveSpec()))
+                        {
+                            case SPEC_MONK_BREWMASTER:
+                                if (AuraPtr elusiveBrewStacks = _player->GetAura(SPELL_MONK_ELUSIVE_BREW_STACKS))
+                                {
+                                    stacks = elusiveBrewStacks->GetStackAmount();
+                                    elusiveBrewStacks->SetStackAmount(stacks + 5);
+                                }
+                                else
+                                {
+                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
+                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
+                                }
+                                break;
+                            case SPEC_MONK_MISTWEAVER:
+                                if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
+                                {
+                                    stacks = manaTeaStacks->GetStackAmount();
+                                    manaTeaStacks->SetStackAmount(stacks + 2);
+                                }
+                                else
+                                {
+                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
+                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
+                                }
+                                break;
+                            case SPEC_MONK_WINDWALKER:
+                                if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
+                                {
+                                    stacks = tigereyeBrewStacks->GetStackAmount();
+                                    tigereyeBrewStacks->SetStackAmount(stacks + 2);
+                                }
+                                else
+                                {
+                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
+                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -3265,88 +3298,6 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
         }
 };
 
-// Chi Brew - 115399
-class spell_monk_chi_brew : public SpellScriptLoader
-{
-    public:
-        spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
-
-        class spell_monk_chi_brew_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_chi_brew_SpellScript);
-
-            bool Validate()
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BREW))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 stacks = 0;
-
-                        switch (_player->GetSpecializationId(_player->GetActiveSpec()))
-                        {
-                            case SPEC_MONK_BREWMASTER:
-                                if (AuraPtr elusiveBrewStacks = _player->GetAura(SPELL_MONK_ELUSIVE_BREW_STACKS))
-                                {
-                                    stacks = elusiveBrewStacks->GetStackAmount();
-                                    elusiveBrewStacks->SetStackAmount(stacks + 5);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
-                                }
-                                break;
-                            case SPEC_MONK_MISTWEAVER:
-                                if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
-                                {
-                                    stacks = manaTeaStacks->GetStackAmount();
-                                    manaTeaStacks->SetStackAmount(stacks + 2);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
-                                }
-                                break;
-                            case SPEC_MONK_WINDWALKER:
-                                if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
-                                {
-                                    stacks = tigereyeBrewStacks->GetStackAmount();
-                                    tigereyeBrewStacks->SetStackAmount(stacks + 2);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_chi_brew_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_chi_brew_SpellScript();
-        }
-};
-
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_muscle_memory();
@@ -3407,5 +3358,4 @@ void AddSC_monk_spell_scripts()
     new spell_monk_provoke();
     new spell_monk_roll();
     new spell_monk_tigereye_brew_stacks();
-    new spell_monk_chi_brew();
 }
