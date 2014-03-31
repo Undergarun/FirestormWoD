@@ -1638,7 +1638,7 @@ class spell_halion_marks : public SpellScriptLoader
                     return;
 
                 // Stacks marker
-                GetTarget()->CastCustomSpell(_summonSpellId, SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount(), GetTarget(), TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
+                GetTarget()->CastCustomSpell(_summonSpellId, SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount(), GetTarget(), true, NULL, NULL, GetCasterGUID());
             }
 
             void Register()

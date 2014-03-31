@@ -193,7 +193,7 @@ class boss_urom : public CreatureScript
                     Talk(SAY_PLAYER_KILL);
             }
 
-            void UpdateAI(uint32 diff) 
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;

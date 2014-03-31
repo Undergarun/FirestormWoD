@@ -382,11 +382,11 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
                 
                 if (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (eventId)
+                    /*switch (eventId)
                     {
                         default:
                             break;
-                    }
+                    }*/
                 }
 
                 DoMeleeAttackIfReady();
