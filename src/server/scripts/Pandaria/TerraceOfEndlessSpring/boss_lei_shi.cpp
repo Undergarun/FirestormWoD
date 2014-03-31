@@ -245,6 +245,12 @@ class boss_lei_shi : public CreatureScript
             {
                 if (!pInstance)
                     return;
+
+                if (leiShiFreed)
+                {
+                    damage = 0;
+                    return;
+                }
  
                 if (nextAfraidPct)
                 {
@@ -294,6 +300,7 @@ class boss_lei_shi : public CreatureScript
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARY_FOG_DOT);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARY_FOG_STACKS);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SPRAY);
+                        pInstance->SetBossState(DATA_LEI_SHI, DONE);
                     }
 
                     pInstance->SetBossState(DATA_LEI_SHI, DONE);

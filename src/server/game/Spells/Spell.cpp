@@ -5194,8 +5194,10 @@ void Spell::SendSpellGo()
     bool hasBit101 = false;
     bool hasBit102 = false;
     bool hasBit106 = false;
-    bool hasRuneStateBefore = false; // don't needed in spell_start
-    bool hasRuneStateAfter = false; // don't needed in spell_start
+    bool hasRuneStateBefore = m_runesState;
+    bool hasRuneStateAfter = false;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT &&  m_caster->ToPlayer()->GetRunesState())
+        hasRuneStateAfter = true;
     bool hasDelayMoment = m_delayMoment;
     bool hasBit368 = false;
     bool hasBit380 = false;
@@ -5356,8 +5358,8 @@ void Spell::SendSpellGo()
         }
     }
 
-    /*if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() ==  CLASS_DEATH_KNIGHT)
-        runeCooldownCount = 6;*/
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() ==  CLASS_DEATH_KNIGHT)
+        runeCooldownCount = 6;
 
     data.WriteBit(itemCaster[0]);
     data.WriteBit(itemCaster[4]);
