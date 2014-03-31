@@ -3165,7 +3165,7 @@ void World::LoadDBAllowedSecurityLevel()
 {
     QueryResult result = LoginDatabase.PQuery("SELECT allowedSecurityLevel from realmlist WHERE id = '%d'", realmID);
     if (result)
-        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt16()));
+        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt8()));
 }
 
 void World::SetPlayerSecurityLimit(AccountTypes _sec)
