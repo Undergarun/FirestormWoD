@@ -111,6 +111,44 @@ enum MonkSpells
     SPELL_MONK_CHI_WAVE_HEALING_BOLT            = 132464,
     SPELL_MONK_CHI_WAVE_TALENT_AURA             = 115098,
     SPELL_MONK_ITEM_PVP_GLOVES_BONUS            = 124489,
+    SPELL_MONK_MUSCLE_MEMORY                    = 139598,
+    SPELL_MONK_MUSCLE_MEMORY_EFFECT             = 139597,
+    SPELL_MONK_CHI_BREW                         = 115399
+};
+
+// Called by Jab - 100780
+// Muscle Memory - 139598
+class spell_monk_muscle_memory : public SpellScriptLoader
+{
+    public:
+        spell_monk_muscle_memory() : SpellScriptLoader("spell_monk_muscle_memory") { }
+
+        class spell_monk_muscle_memory_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_muscle_memory_SpellScript)
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                            _player->AddAura(SPELL_MONK_MUSCLE_MEMORY_EFFECT,_player);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_muscle_memory_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_muscle_memory_SpellScript();
+        }
 };
 
 // Chi Brew - 115399
@@ -853,6 +891,9 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
                     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));
                     summon->SetHealth(summon->GetMaxHealth());
+                    summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
+                    summon->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);
+                    summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
                 }
             }
 
@@ -1203,8 +1244,12 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
-                    if (roll_chance_i(25))
+                {
+                    if (roll_chance_i(30))
                         caster->CastSpell(caster, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
+                    if (caster->HasAura(103985) || caster->HasAura(115069))
+                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -20, POWER_ENERGY);
+                }
             }
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
@@ -1596,7 +1641,7 @@ class spell_monk_mana_tea : public SpellScriptLoader
                     if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
                         stacks = manaTeaStacks->GetStackAmount();
 
-                    int32 newDuration = stacks * IN_MILLISECONDS;
+                    int32 newDuration = (stacks * IN_MILLISECONDS) / 2;
 
                     spellMod = new SpellModifier();
                     spellMod->op = SPELLMOD_DURATION;
@@ -1613,7 +1658,16 @@ class spell_monk_mana_tea : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     _player->AddSpellMod(spellMod, false);
+
+                    if (AuraApplication* aura = _player->GetAuraApplication(SPELL_MONK_MANA_TEA_REGEN))
+                    {
+                        AuraPtr manaTea = aura->GetBase();
+                        int32 newDuration = manaTea->GetDuration() - 1000;
+                        manaTea->SetDuration(newDuration);
+                    }
+                }
             }
 
             void Register()
@@ -1688,6 +1742,18 @@ class spell_monk_mana_tea_stacks : public SpellScriptLoader
                     {
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
+                    }
+
+                    // Brewing: Mana Tea passive bonus
+                    float crit_chance = 0.0f;
+                    crit_chance += GetCaster()->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + SPELL_SCHOOL_MASK_NORMAL);
+                    if (roll_chance_f(crit_chance))
+                    {
+                        if (GetCaster())
+                        {
+                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
+                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
+                        }
                     }
                 }
             }
@@ -2215,6 +2281,10 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
                             int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
                             stacks = tigereyeBrewStacks->GetStackAmount();
 
+                            // Mastery: Bottled Fury
+                            if (_player->HasAura(115636) && roll_chance_i(20))
+                                stacks++;
+
                             if (stacks >= 10)
                                 effectAmount = 60;
 
@@ -2655,17 +2725,65 @@ class spell_monk_soothing_mist : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetTarget())
-                        // 25% to give 1 chi per tick
-                        if (roll_chance_i(25))
+                        // 30% to give 1 chi per tick
+                        if (roll_chance_i(30))
                             caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST_ENERGIZE, true);
             }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetTarget())
-                        if (target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
-                            target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
+                    {
+                        if (Player* _player = GetCaster()->ToPlayer())
+                        {
+                            std::list<Unit*> playerList;
+                            std::list<Creature*> tempList;
+                            std::list<Creature*> statueList;
+                            Creature* statue;
+
+                            _player->GetPartyMembers(playerList);
+
+                            if (playerList.size() > 1)
+                            {
+                                playerList.sort(JadeCore::HealthPctOrderPred());
+                                playerList.resize(1);
+                            }
+
+                            _player->GetCreatureListWithEntryInGrid(tempList, 60849, 100.0f);
+                            _player->GetCreatureListWithEntryInGrid(statueList, 60849, 100.0f);
+
+                            // Remove other players jade statue
+                            for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                            {
+                                Unit* owner = (*i)->GetOwner();
+                                if (owner && owner == _player && (*i)->isSummon())
+                                    continue;
+
+                                statueList.remove((*i));
+                            }
+
+                            for (auto itr : playerList)
+                            {
+                                if (statueList.size() == 1)
+                                {
+                                    for (auto itrBis : statueList)
+                                        statue = itrBis;
+
+                                    if (statue && (statue->isPet() || statue->isGuardian()))
+                                    {
+                                        if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _player->GetGUID())
+                                            statue->CastStop();
+                                    }
+                                }
+                            }
+
+                            if (target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
+                                target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -3147,8 +3265,91 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
         }
 };
 
+// Chi Brew - 115399
+class spell_monk_chi_brew : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
+
+        class spell_monk_chi_brew_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_brew_SpellScript);
+
+            bool Validate()
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BREW))
+                    return false;
+                return true;
+            }
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 stacks = 0;
+
+                        switch (_player->GetSpecializationId(_player->GetActiveSpec()))
+                        {
+                            case SPEC_MONK_BREWMASTER:
+                                if (AuraPtr elusiveBrewStacks = _player->GetAura(SPELL_MONK_ELUSIVE_BREW_STACKS))
+                                {
+                                    stacks = elusiveBrewStacks->GetStackAmount();
+                                    elusiveBrewStacks->SetStackAmount(stacks + 5);
+                                }
+                                else
+                                {
+                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
+                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
+                                }
+                                break;
+                            case SPEC_MONK_MISTWEAVER:
+                                if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
+                                {
+                                    stacks = manaTeaStacks->GetStackAmount();
+                                    manaTeaStacks->SetStackAmount(stacks + 2);
+                                }
+                                else
+                                {
+                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
+                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
+                                }
+                                break;
+                            case SPEC_MONK_WINDWALKER:
+                                if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
+                                {
+                                    stacks = tigereyeBrewStacks->GetStackAmount();
+                                    tigereyeBrewStacks->SetStackAmount(stacks + 2);
+                                }
+                                else
+                                {
+                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
+                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_chi_brew_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_brew_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
     new spell_monk_expel_harm();
@@ -3206,4 +3407,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_provoke();
     new spell_monk_roll();
     new spell_monk_tigereye_brew_stacks();
+    new spell_monk_chi_brew();
 }
