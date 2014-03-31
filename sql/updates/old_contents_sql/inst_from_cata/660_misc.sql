@@ -1,4 +1,4 @@
-﻿DELETE FROM `creature` WHERE `guid`=336972 AND `id`=23597;
+﻿/*DELETE FROM `creature` WHERE `guid`=336972 AND `id`=23597;
 DELETE FROM `creature_addon` WHERE `guid`=336972;
 DELETE FROM `creature` WHERE `guid`=337070 AND `id`=52962;
 DELETE FROM `creature_addon` WHERE `guid`=337070;
@@ -154,6 +154,7 @@ DELETE FROM `creature` WHERE `guid`=333261 AND `id`=52939;
 DELETE FROM `creature_addon` WHERE `guid`=333261;
 DELETE FROM `creature` WHERE `guid`=333248 AND `id`=52839;
 DELETE FROM `creature_addon` WHERE `guid`=333248;
+*/
 
 DELETE FROM `creature` WHERE `id`=24858 AND `map`=568;
 DELETE FROM `creature` WHERE `id`=52638 AND `map`=568;
@@ -163,13 +164,13 @@ DELETE FROM `creature` WHERE `id`=23818 AND `map`=568;
 DELETE FROM `creature` WHERE `id`=23598 AND `map`=568;
 DELETE FROM `creature` WHERE `id`=23920 AND `map`=568;
 DELETE FROM `creature` WHERE `id`=23817 AND `map`=568;
-DELETE FROM `creature` WHERE `guid`=336962 AND `id`=24549;
+-- DELETE FROM `creature` WHERE `guid`=336962 AND `id`=24549;
 
 UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry`=24858;
 UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry`=52638;
 UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `unit_flags`=0 WHERE `entry`=23920;
 UPDATE `creature_template` SET `faction_a`=16, `faction_h`=16 WHERE `entry`=23577;
-UPDATE `creature_addon` SET `emote`=0 WHERE  `guid`=336970;
+-- UPDATE `creature_addon` SET `emote`=0 WHERE  `guid`=336970;
 
 UPDATE `creature` SET `position_x`=-80.46, `position_y`=1297.48, `position_z`=48.50, `orientation`=1.65 WHERE `id`=23576;
 

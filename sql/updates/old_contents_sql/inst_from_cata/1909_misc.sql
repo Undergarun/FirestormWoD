@@ -199,10 +199,10 @@ UPDATE `gameobject_template` SET `flags`=16 WHERE `entry`=193967; -- Alexstrasza
 UPDATE `gameobject_template` SET `flags`=20 WHERE `entry`=194159; -- Heart of Magic
 
 -- Add some gameobject data update
-UPDATE `gameobject` SET `animprogress`=255,`spawntimesecs`=300 WHERE `guid` IN (47509); -- that spawn time has no influence, but having different values doesn't look correct
+-- UPDATE `gameobject` SET `animprogress`=255,`spawntimesecs`=300 WHERE `guid` IN (47509); -- that spawn time has no influence, but having different values doesn't look correct
 
 -- Delete static GO spawns of Alexstrasza's Gift Boxes, they are dynamic (10/25)
-DELETE FROM `gameobject` WHERE `guid` IN (47668,47669);
+-- DELETE FROM `gameobject` WHERE `guid` IN (47668,47669);
 
 -- Add map difficulty checks for achievement "Denyin the Scion"
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (7573,7574) AND `type`=12;
@@ -238,14 +238,14 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 
 -- /////////////// Various misc in creature, creature template and creature addon ///////////////
 -- Update some guids spawn positions
-UPDATE `creature` SET `position_x`=754.362,`position_y`=1301.61,`position_z`=266.171,`orientation`=4.24115 WHERE `guid`=116911; -- Alexstrasza the Life-Binder (Bunny)
-UPDATE `creature` SET `position_x`=747.61,`position_y`=1393.43,`position_z`=295.9722,`orientation`=3.03832 WHERE `guid`=116900; -- Malygos
+-- UPDATE `creature` SET `position_x`=754.362,`position_y`=1301.61,`position_z`=266.171,`orientation`=4.24115 WHERE `guid`=116911; -- Alexstrasza the Life-Binder (Bunny)
+-- UPDATE `creature` SET `position_x`=747.61,`position_y`=1393.43,`position_z`=295.9722,`orientation`=3.03832 WHERE `guid`=116900; -- Malygos
 
 -- Update some creature guids to be have static MovementType and spawn dist to 0 accordingly
-UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid` IN
-(116900, -- Malygos
-116899, -- Alexstrasza''s Gift Bunny
-116911); -- Alexstrasza the Life-Binder (Bunny)
+-- UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid` IN
+-- (116900, -- Malygos
+-- 116899, -- Alexstrasza''s Gift Bunny
+-- 116911); -- Alexstrasza the Life-Binder (Bunny)
 
 -- Update template to InhabitType "Air" for various creatures
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (28859,31734,30245,31750,30249,31751,32295,32448);
@@ -263,8 +263,8 @@ UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_static_field',`flag
 UPDATE `creature_template` SET `flags_extra`=130, `ScriptName`='' WHERE `entry`=31253;
 
 -- Remove uneeded creature_addon data
-DELETE FROM `creature_addon` WHERE `guid` IN
-(116900); -- Malygos is boss so is unique and needs only the template addon.
+-- DELETE FROM `creature_addon` WHERE `guid` IN
+-- (116900); -- Malygos is boss so is unique and needs only the template addon.
 
 -- Update templates for both types of hover disks
 UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14,`VehicleId`=223,`InhabitType`=4 WHERE `entry` IN (30248,31749); -- Hover disk for Scions
@@ -304,8 +304,8 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=58
 UPDATE `gameobject_template` SET `faction`=35,`data17`=1,`data18`=0 WHERE `entry`=193908;
 
 UPDATE `gameobject_template` SET `ScriptName` = '' WHERE `entry` IN (193958,193960);
-UPDATE `gameobject` SET `position_x` = 754.362, `position_y` = 1301.61, `position_z` = 266.171, `orientation` = 6.23742, `rotation2` = 0.022883, `rotation3` = '-0.999738', `spawntimesecs` = 300, `animprogress` = 0 WHERE guid = 47508;
-UPDATE `gameobject` SET `position_x` = 754.255, `position_y` = 1301.72, `position_z` = 266.17, `orientation` = -1.6057, `rotation2` = 0, `rotation3` = 0, `spawntimesecs` = 300, `animprogress` = 255 WHERE guid = 47509;
+-- UPDATE `gameobject` SET `position_x` = 754.362, `position_y` = 1301.61, `position_z` = 266.171, `orientation` = 6.23742, `rotation2` = 0.022883, `rotation3` = '-0.999738', `spawntimesecs` = 300, `animprogress` = 0 WHERE guid = 47508;
+-- UPDATE `gameobject` SET `position_x` = 754.255, `position_y` = 1301.72, `position_z` = 266.17, `orientation` = -1.6057, `rotation2` = 0, `rotation3` = 0, `spawntimesecs` = 300, `animprogress` = 255 WHERE guid = 47509;
 
 DELETE FROM `event_scripts` WHERE `id` = 20711;
 

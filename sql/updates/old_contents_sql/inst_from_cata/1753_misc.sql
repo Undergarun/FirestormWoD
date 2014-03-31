@@ -156,8 +156,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN 
 (17434, 18102, 17436, 17437, 18103, 18104, 18105, 18106, 17863);
 
-UPDATE `access_requirement` SET `leader_achievement`=5802 WHERE `mapId`=720 AND `difficulty`=2;
-UPDATE `access_requirement` SET `leader_achievement`=5802 WHERE `mapId`=720 AND `difficulty`=3;
+-- UPDATE `access_requirement` SET `leader_achievement`=5802 WHERE `mapId`=720 AND `difficulty`=2;
+-- UPDATE `access_requirement` SET `leader_achievement`=5802 WHERE `mapId`=720 AND `difficulty`=3;
 
 UPDATE `creature_template` SET `lootid`=0 WHERE `entry` IN (52409, 53797, 53798, 53799);
 

@@ -14,11 +14,12 @@ DELETE FROM `creature` WHERE `map`=671 AND `id` IN (46965, 43393, 43406, 47020, 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (46965, 43393, 43406, 47020, 47017, 43603, 43592, 47019, 47016, 43622, 44045, 43585, 43707, 45848, 45858, 45685, 45676,  45885, 43888, 43999);
 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (49825, 49817, 44600, 45992, 45993, 43687, 43686, 43688, 43689, 43735, 43324, 45213);
-UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (333273, 333542, 333541, 333540, 333539, 333285, 371187, 333564, 333548);
+-- UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (333273, 333542, 333541, 333540, 333539, 333285, 371187, 333564, 333548);
 
 UPDATE `creature` SET `phaseMask`=65535, `position_x`=-741.007, `position_y`=-614.859, `position_z`=836.694, `orientation`=4.72725 WHERE `id`=45992; 
 UPDATE `creature` SET `phaseMask`=65535, `position_x`=-740.975, `position_y`=-754.839, `position_z`=836.694, `orientation`=1.5621 WHERE `id`=45993; 
 
+/*
 DELETE FROM `creature` WHERE `guid`=333382 AND `id`=45267;
 DELETE FROM `creature_addon` WHERE `guid`=333382;
 DELETE FROM `creature` WHERE `guid`=333381 AND `id`=45267;
@@ -91,7 +92,7 @@ DELETE FROM `creature` WHERE `guid`=345414 AND `id`=49864;
 DELETE FROM `creature_addon` WHERE `guid`=345414;
 DELETE FROM `creature` WHERE `guid`=333489 AND `id`=46296;
 DELETE FROM `creature_addon` WHERE `guid`=333489;
-
+*/
 
 UPDATE `gameobject_template` SET `flags`=4 WHERE `entry`=205087;
 UPDATE `gameobject_template` SET `flags`=4 WHERE `entry`=205088;

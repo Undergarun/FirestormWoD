@@ -118,8 +118,8 @@ INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entr
 /*---------------------------------------------------------------------------------------------------------------*/
 --  Add Stalker
 DELETE FROM `creature` WHERE `id`=45124;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(330931, 45124, 755, 3, 1, 0, 0, -11095.4, -1633.63, 2.356323, 5.846853, 7200, 0, 0, 14921, 0, 0, 0, 0, 0);
+INSERT INTO `creature` ( `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(45124, 755, 3, 1, 0, 0, -11095.4, -1633.63, 2.356323, 5.846853, 7200, 0, 0, 14921, 0, 0, 0, 0, 0);
 /*---------------------------------------------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------------------------------------------*/
@@ -164,15 +164,15 @@ UPDATE `creature_model_info` SET `bounding_radius` = 2.13, `combat_reach` = 6, `
 /*---------------------------------------------------------------------------------------------------------------*/
 --  Bad Intentions Target
 DELETE FROM `creature` WHERE `id`=44586;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(330919, 44586, 755, 3, 1, 0, 0, -10869.8, -1389.6, 28.126, 0.0349066, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330920, 44586, 755, 3, 1, 0, 0, -10884.4, -1353.42, 27.9541, 4.99164, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330921, 44586, 755, 3, 1, 0, 0, -10872.4, -1394.33, 28.2015, 5.07891, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330922, 44586, 755, 3, 1, 0, 0, -10877.4, -1391.36, 27.9622, 3.47321, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330923, 44586, 755, 3, 1, 0, 0, -10889.8, -1350.47, 28.1352, 3.47321, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330924, 44586, 755, 3, 1, 0, 0, -10881.6, -1348.89, 27.9636, 0.279253, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330925, 44586, 755, 3, 1, 0, 0, -10874.1, -1386.26, 28.5751, 1.81514, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
-(330926, 44586, 755, 3, 1, 0, 0, -10886.3, -1345.1, 28.0851, 1.88496, 7200, 0, 0, 26962, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(44586, 755, 3, 1, 0, 0, -10869.8, -1389.6, 28.126, 0.0349066, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10884.4, -1353.42, 27.9541, 4.99164, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10872.4, -1394.33, 28.2015, 5.07891, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10877.4, -1391.36, 27.9622, 3.47321, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10889.8, -1350.47, 28.1352, 3.47321, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10881.6, -1348.89, 27.9636, 0.279253, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10874.1, -1386.26, 28.5751, 1.81514, 7200, 0, 0, 26962, 0, 0, 0, 0, 0),
+(44586, 755, 3, 1, 0, 0, -10886.3, -1345.1, 28.0851, 1.88496, 7200, 0, 0, 26962, 0, 0, 0, 0, 0);
 
 UPDATE `creature_template` SET `vehicleid` = 1037 WHERE `entry` = 44586;
 UPDATE `creature_template` SET `modelid1` = 27823, `modelid2` = 0, `modelid3` = 0, `modelid4` = 0 WHERE `entry` = 44586;

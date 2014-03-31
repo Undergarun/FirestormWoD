@@ -1,7 +1,7 @@
-﻿DELETE FROM `creature` WHERE `guid`=335685 AND `id`=52430;
-DELETE FROM `creature` WHERE `guid`=336878 AND `id`=52624;
-DELETE FROM `creature` WHERE `guid`=337684 AND `id`=52379;
-DELETE FROM `creature` WHERE `guid`=339055 AND `id`=52340;
+﻿-- DELETE FROM `creature` WHERE `guid`=335685 AND `id`=52430;
+-- DELETE FROM `creature` WHERE `guid`=336878 AND `id`=52624;
+-- DELETE FROM `creature` WHERE `guid`=337684 AND `id`=52379;
+-- DELETE FROM `creature` WHERE `guid`=339055 AND `id`=52340;
 
 DELETE FROM `creature` WHERE `map`=859 AND `id` IN (52430, 52400, 52407, 52730, 52222);
 

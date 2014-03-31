@@ -1,4 +1,5 @@
-﻿DELETE FROM `creature` WHERE `guid`=337779 AND `id`=52076;
+﻿/*
+DELETE FROM `creature` WHERE `guid`=337779 AND `id`=52076;
 DELETE FROM `creature_addon` WHERE `guid`=337779;
 DELETE FROM `creature` WHERE `guid`=335706 AND `id`=52079;
 DELETE FROM `creature_addon` WHERE `guid`=335706;
@@ -29,6 +30,7 @@ DELETE FROM `creature_addon` WHERE `guid`=336844;
 DELETE FROM `creature` WHERE `guid`=336846 AND `id`=15010;
 DELETE FROM `creature_addon` WHERE `guid`=336846;
 
+*/
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry` IN (52055, 52054);
 
 DELETE FROM `creature` WHERE `map`=859 AND `id` IN (52062, 52055, 52054);

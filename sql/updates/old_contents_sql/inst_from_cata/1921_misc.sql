@@ -20,10 +20,10 @@ UPDATE `creature` SET `spawnmask`=0 WHERE `map`=967 AND `id` IN
 (55294, 55312, 55308, 55689, 56427);
 
 UPDATE `creature_template_addon` SET `auras`='103494' WHERE `entry`=55346;
-UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343391;
-UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343384;
-UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343301;
-UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343403;
+-- UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343391;
+-- UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343384;
+-- UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343301;
+-- UPDATE `creature_addon` SET `auras`='109247' WHERE `guid`=343403;
 
 UPDATE `creature_template` SET `speed_walk`=1 WHERE `entry`=58226;
 UPDATE `creature_template` SET `speed_walk`=1 WHERE `entry`=55265;
@@ -47,33 +47,33 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=617299967 WHERE `entry` IN
 UPDATE `creature_template` SET `mindmg`=548, `maxdmg`=822, `dmg_multiplier`=97 WHERE `entry` IN (55265, 57773, 57409, 57774);
 UPDATE `creature_template` SET `mindmg`=548, `maxdmg`=822, `dmg_multiplier`=110 WHERE `entry` IN (57771, 57772, 57995, 57996);
 
-UPDATE `creature` SET `MovementType`=0 WHERE `guid` IN 
-(343408, 343447, 343448, 343445,
-343410, 343412, 343413, 343415,
-343418, 343420, 343422, 343424,
-343425, 343427, 343430, 343432,
-343436, 343441, 343755, 343757,
-343409, 343411, 343414, 343416,
-343417, 343419, 343423, 343426,
-343428, 343429, 343431, 343433);
-UPDATE `creature_addon` SET `path_id`=0 WHERE `guid` IN 
-(343408, 343447, 343448, 343445,
-343410, 343412, 343413, 343415,
-343418, 343420, 343422, 343424,
-343425, 343427, 343430, 343432,
-343436, 343441, 343755, 343757,
-343409, 343411, 343414, 343416,
-343417, 343419, 343423, 343426,
-343428, 343429, 343431, 343433);
-DELETE FROM `waypoint_data` WHERE `id` IN 
-(343408, 343447, 343448, 343445,
-343410, 343412, 343413, 343415,
-343418, 343420, 343422, 343424,
-343425, 343427, 343430, 343432,
-343436, 343441, 343755, 343757,
-343409, 343411, 343414, 343416,
-343417, 343419, 343423, 343426,
-343428, 343429, 343431, 343433);
+-- UPDATE `creature` SET `MovementType`=0 WHERE `guid` IN 
+-- (343408, 343447, 343448, 343445,
+-- 343410, 343412, 343413, 343415,
+-- 343418, 343420, 343422, 343424,
+-- 343425, 343427, 343430, 343432,
+-- 343436, 343441, 343755, 343757,
+-- 343409, 343411, 343414, 343416,
+-- 343417, 343419, 343423, 343426,
+-- 343428, 343429, 343431, 343433);
+-- UPDATE `creature_addon` SET `path_id`=0 WHERE `guid` IN 
+-- (343408, 343447, 343448, 343445,
+-- 343410, 343412, 343413, 343415,
+-- 343418, 343420, 343422, 343424,
+-- 343425, 343427, 343430, 343432,
+-- 343436, 343441, 343755, 343757,
+-- 343409, 343411, 343414, 343416,
+-- 343417, 343419, 343423, 343426,
+-- 343428, 343429, 343431, 343433);
+-- DELETE FROM `waypoint_data` WHERE `id` IN 
+-- (343408, 343447, 343448, 343445,
+-- 343410, 343412, 343413, 343415,
+-- 343418, 343420, 343422, 343424,
+-- 343425, 343427, 343430, 343432,
+-- 343436, 343441, 343755, 343757,
+-- 343409, 343411, 343414, 343416,
+-- 343417, 343419, 343423, 343426,
+-- 343428, 343429, 343431, 343433);
 
 UPDATE `access_requirement` SET `level_min`=85 WHERE `mapId`=967;
 UPDATE `instance_template` SET `script`='instance_dragon_soul' WHERE `map`=967;
@@ -112,7 +112,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (110041, 'spell_morchok_resonating_crystal_dmg'),
 (110040, 'spell_morchok_resonating_crystal_dmg');
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (55265, 396, 614, 0, 12000, 1, 0),
 (57409, 396, 614, 0, 14000, 1, 0),
 (57771, 396, 614, 0, 12000, 1, 0),

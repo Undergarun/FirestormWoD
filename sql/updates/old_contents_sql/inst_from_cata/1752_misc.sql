@@ -60,7 +60,7 @@ UPDATE `creature_loot_template` SET `mincountOrRef`=23, `maxcount`=26 WHERE `ent
 UPDATE `creature_loot_template` SET `mincountOrRef`=48, `maxcount`=55 WHERE `entry` IN (53576, 54044, 52559, 53856, 53587, 53979) AND `item`=69815;
 UPDATE `creature_loot_template` SET `mincountOrRef`=55, `maxcount`=66 WHERE `entry` IN (53578, 54046, 52561, 53858, 53589, 54080) AND `item`=69815;
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (52558, 396, 0, 0, 12000, 0, 0),
 (52560, 396, 0, 0, 12000, 0, 0),
 (52559, 396, 0, 0, 14000, 0, 0),

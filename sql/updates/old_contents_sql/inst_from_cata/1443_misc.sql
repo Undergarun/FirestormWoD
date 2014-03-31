@@ -1,7 +1,7 @@
 UPDATE `creature` SET `position_x`=59.823, `position_y`=383.280, `position_z`=74.05 WHERE `id`=52498;
 UPDATE `creature_model_info` SET `bounding_radius`=10, `combat_reach`=10 WHERE `modelid`=38227;
-REPLACE INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(341881, 0, 0, 0, 0, 0, '');
+-- REPLACE INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
+-- (341881, 0, 0, 0, 0, 0, '');
 REPLACE INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (52498, 0, 0, 0, 0, 0, '');
 
@@ -69,7 +69,7 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES (53856, 71785, 0, 1, 4, 1, 1);
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES (53856, 71787, 0, 1, 3, 1, 1);
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES
 (52498, 396, 0, 0, 12000, 0, 0),
 (53576, 396, 0, 0, 14000, 0, 0),
 (53577, 396, 0, 0, 12000, 0, 0),

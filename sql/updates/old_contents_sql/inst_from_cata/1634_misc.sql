@@ -1,12 +1,12 @@
-﻿DELETE FROM `creature` WHERE `guid`=340222 AND `id`=45979;
-DELETE FROM `creature_addon` WHERE `guid`=340222;
+﻿-- DELETE FROM `creature` WHERE `guid`=340222 AND `id`=45979;
+-- DELETE FROM `creature_addon` WHERE `guid`=340222;
 DELETE FROM `creature` WHERE `map`=938 AND `id` IN 
 (54574, 54580, 54581, 54582, 54939, 54940, 54941, 54942, 54197, 54952);
 
 UPDATE `creature` SET `spawnmask`=0 WHERE `map`=938 AND `id` IN (54700, 54688, 54699, 54512, 54701);
 
 UPDATE `creature` SET `position_x`=4169.71, `position_y`=-433.40, `position_z`=120.0, `orientation`=2.59 WHERE `id`=54432;
-UPDATE `creature_addon` SET `bytes1`=0 WHERE `guid`=340022;
+-- UPDATE `creature_addon` SET `bytes1`=0 WHERE `guid`=340022;
 UPDATE `creature_template_addon` SET `bytes1`=0 WHERE `entry`=54432;
 UPDATE `creature_template` SET `inhabittype`=1 WHERE `entry`=54432;
 

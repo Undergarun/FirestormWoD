@@ -69,7 +69,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (30824,0,0,'FIRE! FIRE!',14,0,100,0,0,0,'Korm SAY_KORM_FIRE'),
 (30824,1,0,'Quickly, climb aboard! We mustn''t tarry here. There''s no telling when this whole mountainside will collapse!',14,0,100,0,0,0,'Korm SAY_KORM_FINAL_1');
 
-DELETE FROM `creature` WHERE `guid` = 365133;
+-- DELETE FROM `creature` WHERE `guid` = 365133;
 UPDATE `creature_template` SET `gossip_menu_id` = 10950 WHERE `entry` = 37223;
 UPDATE `creature_template` SET `difficulty_entry_1` = 0 WHERE `entry` = 37221;
 
@@ -195,8 +195,8 @@ INSERT INTO `locales_creature_text` (`entry`,`textGroup`,`id`,`text_loc8`) VALUE
 ('36723','0','0','Вы недостойны предстать перед Королем - Личом!'),
 ('36723','1','0','Господин... Я подвел вас...');
 
-UPDATE `gossip_menu_option` SET `id` = 0 WHERE `menu_id` = 11031 AND `id` = 1;
-UPDATE `gossip_menu_option` SET `id` = 1 WHERE `menu_id` = 11031 AND `id` = 2;
+-- UPDATE `gossip_menu_option` SET `id` = 0 WHERE `menu_id` = 11031 AND `id` = 1;
+-- UPDATE `gossip_menu_option` SET `id` = 1 WHERE `menu_id` = 11031 AND `id` = 2;
 
 DELETE FROM `locales_gossip_menu_option` WHERE `menu_id` IN (10950,11031);
 INSERT INTO `locales_gossip_menu_option` (`menu_id`,`id`,`option_text_loc8`) VALUES

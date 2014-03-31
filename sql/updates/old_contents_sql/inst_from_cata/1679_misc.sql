@@ -255,7 +255,7 @@ INSERT INTO `locales_creature_text` (`entry`,`textGroup`,`id`,`text_loc8`) VALUE
 (54544, 20, 0, 'Рядом появляется озерцо темного лунного света!'),
 (54544, 21, 0, 'Лучик лунного света исчезает во тьме!');
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (54123, 395, 0, 0, 7000, 0, 0),
 (54431, 395, 0, 0, 7000, 0, 0),
 (54432, 395, 0, 0, 7000, 0, 0),

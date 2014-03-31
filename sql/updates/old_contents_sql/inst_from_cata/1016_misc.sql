@@ -117,14 +117,14 @@ UPDATE `creature_template` SET `minlevel` = 83, `maxlevel` = 83, `faction_A` = 1
 UPDATE `creature_template` SET `faction_A` = 16, `faction_H` = 16 WHERE `entry` IN (34004,34005);
 
 DELETE FROM `creature` WHERE `id` IN (34004,34005,33233);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('111480','33233','603','3','65535','0','0','572.411','-138.656','393.904','0','120','0','0','1','0','0','0','0','0'),
-('111484','33233','603','3','65535','0','0','630.244','-276.259','392.312','0','120','0','0','1','0','0','0','0','0'),
-('111485','33233','603','3','65535','0','0','638.242','-272.173','392.135','0','120','0','0','1','0','0','0','0','0'),
-('111483','33233','603','3','65535','0','0','605.928','-140.109','393.797','0','120','0','0','1','0','0','0','0','0'),
-('111482','33233','603','3','65535','0','0','589.729','-137.115','393.901','0','120','0','0','1','0','0','0','0','0'),
-('111481','33233','603','3','65535','0','0','585.928','-146.588','391.6','0','120','0','0','1','0','0','0','0','0'),
-('111479','33233','603','3','65535','0','0','560.133','-143.035','393.823','0','120','0','0','1','0','0','0','0','0');
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+('33233','603','3','65535','0','0','572.411','-138.656','393.904','0','120','0','0','1','0','0','0','0','0'),
+('33233','603','3','65535','0','0','630.244','-276.259','392.312','0','120','0','0','1','0','0','0','0','0'),
+('33233','603','3','65535','0','0','638.242','-272.173','392.135','0','120','0','0','1','0','0','0','0','0'),
+('33233','603','3','65535','0','0','605.928','-140.109','393.797','0','120','0','0','1','0','0','0','0','0'),
+('33233','603','3','65535','0','0','589.729','-137.115','393.901','0','120','0','0','1','0','0','0','0','0'),
+('33233','603','3','65535','0','0','585.928','-146.588','391.6','0','120','0','0','1','0','0','0','0','0'),
+('33233','603','3','65535','0','0','560.133','-143.035','393.823','0','120','0','0','1','0','0','0','0','0');
 
 DELETE FROM `creature_template` WHERE `entry` = 33233;
 INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES
@@ -443,15 +443,15 @@ INSERT INTO `locales_creature_text` (`entry`,`textGroup`,`id`,`text_loc8`) VALUE
 
 DELETE FROM `spell_target_position` WHERE `id` IN (64014,64032,64028,64031,64030,64029,64024,64025,64027);
 INSERT INTO `spell_target_position` VALUES
-(64014, 603, -706.122, -92.60, 429.876, 0.05),
-(64032, 603, 131.2480, -35.38, 409.803, 0),
-(64028, 603, 553.2329, -12.32, 410.120, 0),
-(64031, 603, 926.2920, -11.46, 418.595, 3.20),
-(64030, 603, 1498.090, -24.25, 420.967, 0),
-(64029, 603, 1859.450, -24.10, 448.812, 0),
-(64024, 603, 2086.270, -24.31, 421.239, 0),
-(64025, 603, 2517.058, 2569.1, 412.699, 6.28),
-(64027, 603, 1854.778, -11.58, 334.975, 5.50);
+(64014, 0, 603, -706.122, -92.60, 429.876, 0.05),
+(64032, 0, 603, 131.2480, -35.38, 409.803, 0),
+(64028, 0, 603, 553.2329, -12.32, 410.120, 0),
+(64031, 0, 603, 926.2920, -11.46, 418.595, 3.20),
+(64030, 0, 603, 1498.090, -24.25, 420.967, 0),
+(64029, 0, 603, 1859.450, -24.10, 448.812, 0),
+(64024, 0, 603, 2086.270, -24.31, 421.239, 0),
+(64025, 0, 603, 2517.058, 2569.1, 412.699, 6.28),
+(64027, 0, 603, 1854.778, -11.58, 334.975, 5.50);
 
 DELETE FROM `trinity_string` WHERE `entry` > 11999 AND `entry` < 12010;
 INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc8`) VALUES
@@ -597,11 +597,11 @@ INSERT INTO `locales_creature_text` (`entry`,`textGroup`,`id`,`text_loc8`) VALUE
 -- 335 кологарн
 
 DELETE FROM `creature` WHERE `id` IN (33661,33809);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('131927','33661','603','3','1','11686','0','1772.19','20.1654','448.888','4.69494','180','0','0','26066','0','0','0','0','0'),
-('131928','33661','603','3','1','11686','0','1772.63','9.11681','448.888','4.69494','180','0','0','26066','0','0','0','0','0'),
-('131815','33809','603','3','1','11686','0','1776.97','-44.8396','448.888','0','180','0','0','26066','0','0','0','0','0'),
-('131816','33809','603','3','1','11686','0','1777.82','-3.50803','448.888','0','180','0','0','26066','0','0','0','0','0');
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+('33661','603','3','1','11686','0','1772.19','20.1654','448.888','4.69494','180','0','0','26066','0','0','0','0','0'),
+('33661','603','3','1','11686','0','1772.63','9.11681','448.888','4.69494','180','0','0','26066','0','0','0','0','0'),
+('33809','603','3','1','11686','0','1776.97','-44.8396','448.888','0','180','0','0','26066','0','0','0','0','0'),
+('33809','603','3','1','11686','0','1777.82','-3.50803','448.888','0','180','0','0','26066','0','0','0','0','0');
 
 UPDATE `creature_template` SET `minlevel` = 81, `maxlevel` = 81, `faction_A` = 14, `faction_H` = 14 WHERE `entry` IN (33661,33809);
 
@@ -724,17 +724,17 @@ INSERT INTO `smart_scripts` VALUES
 (34135, 0, 2, 0, 0, 0, 100, 4, 3000, 6000, 8000, 12000, 11, 64654, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0,'Winter Rumbler - Cast Snow Blindness 25');
 
 DELETE FROM `creature` WHERE `id` = 34137;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('441850','34137','603','3','1','24862','0','1847.27','-262.982','413.15','1.01229','604800','5','0','91231','0','1','0','0','0'),
-('441851','34137','603','3','1','24862','0','1921.84','-166.264','410.243','3.00197','604800','5','0','91231','0','1','0','0','0'),
-('441852','34137','603','3','1','24862','0','1883.92','-202.018','408.454','2.11185','604800','5','0','91231','0','1','0','0','0'),
-('441853','34137','603','3','1','24862','0','1940','-345.904','417.956','2.21657','604800','5','0','91231','0','1','0','0','0'),
-('441854','34137','603','3','1','24862','0','1785.64','-349.025','407.647','4.85202','604800','5','0','91231','0','1','0','0','0'),
-('441855','34137','603','3','1','24862','0','1865.86','-147.47','408.727','6.17846','604800','5','0','91231','0','1','0','0','0'),
-('441856','34137','603','3','1','24862','0','1842.28','-344.044','408.305','5.75959','604800','5','0','91231','0','1','0','0','0'),
-('441857','34137','603','3','1','24862','0','1944.57','-390.783','422.564','1.71042','604800','5','0','91231','0','1','0','0','0'),
-('441858','34137','603','3','1','24862','0','1866.67','-382.491','408.028','1.85005','604800','5','0','91231','0','1','0','0','0'),
-('441859','34137','603','3','1','24862','0','1892.89','-345.69','408.066','3.735','604800','5','0','91231','0','1','0','0','0');
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+('34137','603','3','1','24862','0','1847.27','-262.982','413.15','1.01229','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1921.84','-166.264','410.243','3.00197','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1883.92','-202.018','408.454','2.11185','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1940','-345.904','417.956','2.21657','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1785.64','-349.025','407.647','4.85202','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1865.86','-147.47','408.727','6.17846','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1842.28','-344.044','408.305','5.75959','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1944.57','-390.783','422.564','1.71042','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1866.67','-382.491','408.028','1.85005','604800','5','0','91231','0','1','0','0','0'),
+('34137','603','3','1','24862','0','1892.89','-345.69','408.066','3.735','604800','5','0','91231','0','1','0','0','0');
 
 -- 357 торим
 
@@ -767,8 +767,8 @@ UPDATE `creature_template` SET `faction_A` = 1692, `faction_H` = 1692 WHERE `ent
 
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_controller' WHERE `entry` = 32879;
 DELETE FROM `creature` WHERE `id` = 32879;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(131860, 32879, 603, 3, 1, 0, 0, 2134.77, -262.307, 420.694, 1.3439, 604800, 0, 0, 12600, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(32879, 603, 3, 1, 0, 0, 2134.77, -262.307, 420.694, 1.3439, 604800, 0, 0, 12600, 0, 0, 0, 0, 0);
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=62042;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
@@ -801,17 +801,17 @@ UPDATE `creature_template` SET `mechanic_immune_mask`= 1|2|4|8|16|64|256|512|102
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912 WHERE `entry` IN (33149, 33148, 33196);
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_arena_phase_add' WHERE `entry` IN (32876, 32904, 32878, 32877, 32874, 32875, 33110);
 
-DELETE FROM `creature_addon` WHERE `guid` IN (131817, 131934);
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(131817, 0, 0, 0, 1, 0, '40775'),
-(131934, 0, 0, 0, 1, 0, '40775');
+-- DELETE FROM `creature_addon` WHERE `guid` IN (131817, 131934);
+-- INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
+-- (131817, 0, 0, 0, 1, 0, '40775'),
+-- (131934, 0, 0, 0, 1, 0, '40775');
 
 DELETE FROM `creature` WHERE `id` IN (33140, 33141); 
 UPDATE `creature_template` SET `ScriptName`='npc_runic_smash' WHERE `entry` IN (33140, 33141);
 
 UPDATE `gameobject_template` SET `ScriptName`='go_thorim_lever' WHERE `entry`=194264;
 UPDATE `gameobject_template` SET `size`=3, `data2`=6000, `flags`=16|32, `ScriptName`='go_thorim_lever' WHERE `entry`  =179148;
-UPDATE `gameobject` SET `id` = 179148 WHERE `guid` = 5504;
+-- UPDATE `gameobject` SET `id` = 179148 WHERE `guid` = 5504;
 
 DELETE FROM `script_texts` WHERE `npc_entry` IN (33413, 32865, 32872);
 DELETE FROM `creature_text` WHERE `entry` IN (33413, 32865, 32872);
@@ -954,11 +954,11 @@ UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` IN (32933,33910);
 -- 366 левиафан
 
 DELETE FROM `gameobject` WHERE `id` IN (194261,194262);
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-('73324','194261','603','3','1','130.553','-128.063','409.804','2.87979','0','0','0','1','180','255','1'),
-('73323','194261','603','3','1','138.516','56.1078','409.804','2.87979','0','0','0','1','180','255','1'),
-('191800','194262','603','3','1','131.895','-128.264','409.804','0','0','0','0','1','180','255','1'),
-('191801','194262','603','3','1','139.857','55.9064','409.804','0','0','0','0','1','180','255','1');
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+('194261','603','3','1','130.553','-128.063','409.804','2.87979','0','0','0','1','180','255','1'),
+('194261','603','3','1','138.516','56.1078','409.804','2.87979','0','0','0','1','180','255','1'),
+('194262','603','3','1','131.895','-128.264','409.804','0','0','0','0','1','180','255','1'),
+('194262','603','3','1','139.857','55.9064','409.804','0','0','0','0','1','180','255','1');
 
 UPDATE `creature_template` SET `unit_flags`=2 WHERE `entry`=33167;
 UPDATE `creature_template` SET `VehicleId`=338 WHERE `entry`=33109;
@@ -977,7 +977,7 @@ UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_ironwork_cannon' W
 
 DELETE FROM `creature` WHERE `id` = 33121;
 
-UPDATE `creature` SET `spawnMask` = 3 WHERE guid IN (131946,131947);
+-- UPDATE `creature` SET `spawnMask` = 3 WHERE guid IN (131946,131947);
 
 DELETE FROM `creature` WHERE `id`=33282 AND `phaseMask`=2;
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES

@@ -1,5 +1,5 @@
 ﻿
-DELETE FROM `gameobject` WHERE `guid`=191520 AND `id`=210132 AND `map`=967;
+-- DELETE FROM `gameobject` WHERE `guid`=191520 AND `id`=210132 AND `map`=967;
 DELETE FROM `creature` WHERE `map`=967 AND `id` IN
 (56136, 56165, 56108, 55695, 
 57867, 57929, 57809, 57817, 
@@ -9,7 +9,7 @@ DELETE FROM `creature` WHERE `map`=967 AND `id` IN
 
 UPDATE `creature` SET `spawnmask`=15, `position_x`=13587.4, `position_y`=13612.0, `position_z`=122.43, `orientation`=5.93 WHERE `id`=55689 AND `map`=967;
 
-UPDATE `creature_addon` SET `auras`=108203 WHERE `guid` IN (343192, 343211, 344315, 344192);
+-- UPDATE `creature_addon` SET `auras`=108203 WHERE `guid` IN (343192, 343211, 344315, 344192);
 
 UPDATE `creature_template_addon` SET `auras`='109247' WHERE `entry`=55695;
 UPDATE `creature_template_addon` SET `auras`='109247 109318 109295' WHERE `entry`=57860;
@@ -67,7 +67,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES 
 (105367, 105371, 1, 'Hagara the Stormbinder - Lightning Conduit');
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (55689, 396, 614, 0, 12000, 1, 0),
 (57462, 396, 614, 0, 14000, 1, 0),
 (57955, 396, 614, 0, 12000, 1, 0),

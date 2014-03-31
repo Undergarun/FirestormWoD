@@ -1313,9 +1313,9 @@ class Unit : public WorldObject
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
         typedef std::pair<uint32, uint8> spellEffectPair;
-        typedef std::unordered_multimap<uint32,  AuraPtr> AuraMap;
-        typedef std::unordered_multimap<uint32,  AuraApplication*> AuraApplicationMap;
-        typedef std::unordered_multimap<uint32,  AuraApplication*> AuraStateAurasMap;
+        typedef std::multimap<uint32,  AuraPtr> AuraMap;
+        typedef std::multimap<uint32,  AuraApplication*> AuraApplicationMap;
+        typedef std::multimap<uint32,  AuraApplication*> AuraStateAurasMap;
         typedef std::list<AuraEffectPtr> AuraEffectList;
         typedef std::list<AuraPtr> AuraList;
         typedef std::list<AuraApplication *> AuraApplicationList;
@@ -1323,7 +1323,7 @@ class Unit : public WorldObject
         typedef std::set<uint32> ComboPointHolderSet;
         typedef std::vector<uint32> AuraIdList;
 
-        typedef UNORDERED_MAP<uint8, AuraApplication*> VisibleAuraMap;
+        typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
         virtual ~Unit();
 

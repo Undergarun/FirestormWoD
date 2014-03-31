@@ -1,7 +1,7 @@
 ﻿UPDATE `creature_template` SET `ScriptName`='npc_mostrasz_56314' WHERE `entry`=56314;
 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=56314;
-UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (353934, 369663) AND `auras` LIKE '%85096%';
+-- UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (353934, 369663) AND `auras` LIKE '%85096%';
 
 DELETE FROM `creature` WHERE `id`=56375;
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 

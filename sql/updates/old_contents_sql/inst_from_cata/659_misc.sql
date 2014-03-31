@@ -1,4 +1,5 @@
-﻿DELETE FROM `creature` WHERE `guid`=345440 AND `id`=42362;
+﻿/*
+DELETE FROM `creature` WHERE `guid`=345440 AND `id`=42362;
 DELETE FROM `creature_addon` WHERE `guid`=345440;
 DELETE FROM `creature` WHERE `guid`=345441 AND `id`=42362;
 DELETE FROM `creature_addon` WHERE `guid`=345441;
@@ -18,6 +19,7 @@ DELETE FROM `creature` WHERE `guid`=335420 AND `id`=41270;
 DELETE FROM `creature_addon` WHERE `guid`=335420;
 DELETE FROM `creature` WHERE `guid`=334812 AND `id`=41442;
 DELETE FROM `creature_addon` WHERE `guid`=334812;
+*/
 
 DELETE FROM `creature` WHERE `map`=669 AND `id` IN (47196, 41440, 41841, 41576, 41961, 50030, 41901, 49811);
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (47196, 41440, 41841, 41576, 41961, 50030, 41901, 49811);
@@ -38,7 +40,7 @@ DELETE FROM `creature` WHERE `map`=669 AND `id` IN (49801, 43404, 43396, 43407, 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (49801, 43404, 43396, 43407, 43402, 43400);
 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (41570, 42347, 42186, 42166,  42179,  42178, 42180, 41378, 41442, 43296, 44418); 
-UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (334268, 334812, 335036, 345443, 345437, 345436, 345438, 345439, 334171, 335406, 334174, 335405);
+-- UPDATE `creature_addon` SET `auras`='' WHERE `guid` IN (334268, 334812, 335036, 345443, 345437, 345436, 345438, 345439, 334171, 335406, 334174, 335405);
 
 UPDATE `creature_template` SET `vehicleId`=0 WHERE `entry` IN (42166,  42179,  42178, 42180);
 
