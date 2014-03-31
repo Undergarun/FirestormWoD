@@ -72,7 +72,7 @@ enum DeathKnightSpells
     DK_SPELL_RUNIC_CORRUPTION_REGEN             = 51460,
     DK_SPELL_RUNIC_EMPOWERMENT                  = 81229,
     DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL       = 114869,
-    DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 49575,
+    DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 146599,
     DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION          = 127344,
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER            = 58680,
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920
@@ -88,7 +88,7 @@ class spell_dk_gorefiends_grasp : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_gorefiends_grasp_SpellScript);
 
-            void HandleOnHit()
+            void HandleScript(SpellEffIndex effIndex)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -97,17 +97,17 @@ class spell_dk_gorefiends_grasp : public SpellScriptLoader
                         std::list<Unit*> tempList;
                         std::list<Unit*> gripList;
 
-                        target->GetAttackableUnitListInRange(tempList, 20.0f);
+                        _player->GetAttackableUnitListInRange(tempList, 20.0f);
 
                         for (auto itr : tempList)
                         {
-                            if (itr->GetGUID() == target->GetGUID())
+                            if (itr->GetGUID() == _player->GetGUID())
                                 continue;
 
                             if (!_player->IsValidAttackTarget(itr))
                                 continue;
 
-                            if (!itr->IsWithinLOSInMap(target))
+                            if (!itr->IsWithinLOSInMap(_player))
                                 continue;
 
                             gripList.push_back(itr);
@@ -116,7 +116,7 @@ class spell_dk_gorefiends_grasp : public SpellScriptLoader
                         for (auto itr : gripList)
                         {
                             itr->CastSpell(target, DK_SPELL_DEATH_GRIP_ONLY_JUMP, true);
-                            target->CastSpell(itr, DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL, true);
+                            itr->CastSpell(target, DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL, true);
                         }
                     }
                 }
@@ -124,7 +124,7 @@ class spell_dk_gorefiends_grasp : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dk_gorefiends_grasp_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_gorefiends_grasp_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -428,56 +428,6 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_necrotic_strike_AuraScript();
-        }
-
-        class spell_dk_necrotic_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_necrotic_strike_SpellScript);
-
-            void HandleAfterHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        for (uint32 i = 0; i < MAX_RUNES; ++i)
-                        {
-                            RuneType rune = _player->GetCurrentRune(i);
-
-                            if (!_player->GetRuneCooldown(i) && rune == RUNE_DEATH)
-                            {
-                                uint32 cooldown = _player->GetRuneBaseCooldown(i);
-                                _player->SetRuneCooldown(i, cooldown);
-
-                                bool takePower = true;
-                                if (uint32 spell = _player->GetRuneConvertSpell(i))
-                                    takePower = spell != 54637;
-
-                                if (_player->IsRunePermanentlyConverted(i))
-                                    takePower = false;
-
-                                // keep Death Rune type if player has Blood of the North
-                                if (takePower)
-                                {
-                                    _player->RestoreBaseRune(i);
-                                    _player->SetDeathRuneUsed(i, true);
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_dk_necrotic_strike_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_necrotic_strike_SpellScript();
         }
 };
 

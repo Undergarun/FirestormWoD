@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "forge_of_souls.h"
 
 /*
@@ -307,7 +306,6 @@ class boss_devourer_of_souls : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 me->SetOrientation(me->GetAngle(target));
-                                me->SendMovementFlagUpdate();
                                 DoCast(me, SPELL_WAILING_SOULS_BEAM);
                             }
 
@@ -334,7 +332,6 @@ class boss_devourer_of_souls : public CreatureScript
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
                             me->SetOrientation(beamAngle);
-                            me->SendMovementFlagUpdate();
                             me->StopMoving();
 
                             DoCast(me, SPELL_WAILING_SOULS);

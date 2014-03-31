@@ -162,6 +162,7 @@ class BattlegroundMgr
         BattlegroundSet m_Battlegrounds[MAX_BATTLEGROUND_TYPE_ID];
         BattlegroundSelectionWeightMap m_ArenaSelectionWeights;
         BattlegroundSelectionWeightMap m_BGSelectionWeights;
+        BattlegroundSelectionWeightMap m_RatedBGSelectionWeights;
         std::vector<QueueSchedulerItem*> m_QueueUpdateScheduler;
         std::set<uint32> m_ClientBattlegroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
         uint32 m_NextRatedArenaUpdate;

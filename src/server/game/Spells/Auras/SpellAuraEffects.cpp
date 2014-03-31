@@ -1575,6 +1575,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
         case SPELLMOD_EFFECT1:
         case SPELLMOD_EFFECT2:
         case SPELLMOD_EFFECT3:
+        case SPELLMOD_EFFECT5:
         {
             uint64 guid = target->GetGUID();
             Unit::AuraApplicationMap & auras = target->GetAppliedAuras();
@@ -1603,9 +1604,14 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                        if (AuraEffectPtr aurEff = aura->GetEffect(1))
                             aurEff->RecalculateAmount();
                     }
-                    else //if (modOp == SPELLMOD_EFFECT3)
+                    else if (GetMiscValue() == SPELLMOD_EFFECT3)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(2))
+                            aurEff->RecalculateAmount();
+                    }
+                    else if (GetMiscValue() == SPELLMOD_EFFECT5)
+                    {
+                        if (AuraEffectPtr aurEff = aura->GetEffect(4))
                             aurEff->RecalculateAmount();
                     }
                 }
@@ -7281,6 +7287,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
         }
     }
+    else
+    {
+        switch (GetSpellInfo()->Id)
+        {
+            case 49016:
+            {
+                if (caster->HasAura(58616))
+                    return;
+                break;
+            }
+        }
+    }
 
     uint32 absorb = 0;
     uint32 resist = 0;
@@ -7773,15 +7791,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         // Tenacity increase healing % taken
         if (constAuraEffectPtr Tenacity = target->GetAuraEffect(58549, 0))
             AddPct(TakenTotalMod, Tenacity->GetAmount());
-
-        // Healing taken percent
-        float minval = (float)target->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
-        if (minval)
-            AddPct(TakenTotalMod, minval);
-
-        float maxval = (float)target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
-        if (maxval)
-            AddPct(TakenTotalMod, maxval);
 
         TakenTotalMod = std::max(TakenTotalMod, 0.0f);
 

@@ -432,18 +432,7 @@ class boss_algalon_the_observer : public CreatureScript
                 if (pointId == POINT_ALGALON_LAND)
                     me->SetDisableGravity(false);
                 else if (pointId == POINT_ALGALON_OUTRO)
-                {
                     me->SetFacingTo(1.605703f);
-                    events.ScheduleEvent(EVENT_OUTRO_3, 1200);
-                    events.ScheduleEvent(EVENT_OUTRO_4, 2400);
-                    events.ScheduleEvent(EVENT_OUTRO_5, 8500);
-                    events.ScheduleEvent(EVENT_OUTRO_6, 15500);
-                    events.ScheduleEvent(EVENT_OUTRO_7, 55500);
-                    events.ScheduleEvent(EVENT_OUTRO_8, 73500);
-                    events.ScheduleEvent(EVENT_OUTRO_9, 85500);
-                    events.ScheduleEvent(EVENT_OUTRO_10, 108500);
-                    events.ScheduleEvent(EVENT_OUTRO_11, 123500);
-                }
             }
 
             void JustSummoned(Creature* summon)
@@ -521,7 +510,7 @@ class boss_algalon_the_observer : public CreatureScript
                         if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
                             wormHole->m_Events.AddEvent(new SummonUnleashedDarkMatter(wormHole), wormHole->m_Events.CalculateTime(i >= 2 ? 8000 : 6000));
                 }
-                else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
+                else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct(float(me->GetMaxHealth()), 2.5f) && !_fightWon)
                 {
                     _fightWon = true;
                     damage = 0;
@@ -651,10 +640,17 @@ class boss_algalon_the_observer : public CreatureScript
                         case EVENT_OUTRO_1:
                             me->RemoveAllAuras();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME);
+                            events.ScheduleEvent(EVENT_OUTRO_3, 1200);
+                            events.ScheduleEvent(EVENT_OUTRO_4, 2400);
+                            events.ScheduleEvent(EVENT_OUTRO_5, 8500);
+                            events.ScheduleEvent(EVENT_OUTRO_6, 15500);
+                            events.ScheduleEvent(EVENT_OUTRO_7, 55500);
+                            events.ScheduleEvent(EVENT_OUTRO_8, 73500);
+                            events.ScheduleEvent(EVENT_OUTRO_9, 85500);
+                            events.ScheduleEvent(EVENT_OUTRO_10, 108500);
+                            events.ScheduleEvent(EVENT_OUTRO_11, 123500);
                             break;
                         case EVENT_OUTRO_2:
-                            _EnterEvadeMode();
-                            me->AddUnitState(UNIT_STATE_EVADE);
                             me->GetMotionMaster()->MovePoint(POINT_ALGALON_OUTRO, AlgalonOutroPos);
                             break;
                         case EVENT_OUTRO_3:
@@ -978,7 +974,7 @@ class go_celestial_planetarium_access : public GameObjectScript
                         if (!lock->Index[i])
                             continue;
 
-                        if (player->HasItemCount(lock->Index[i]))
+                        if (player->HasItemCount(lock->Index[i], 1))
                         {
                             hasKey = true;
                             break;
@@ -1210,8 +1206,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
             void CheckTargets()
             {
                 if (!_targetCount)
-                    if (GetCaster()->IsAIEnabled)
-                        GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
+                    GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
             }
 
             void Register()
@@ -1344,6 +1339,17 @@ class spell_algalon_supermassive_fail : public SpellScriptLoader
         }
 };
 
+class achievement_he_feeds_on_your_tears : public AchievementCriteriaScript
+{
+    public:
+        achievement_he_feeds_on_your_tears() : AchievementCriteriaScript("achievement_he_feeds_on_your_tears") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            return !target->GetAI()->GetData(DATA_HAS_FED_ON_TEARS);
+        }
+};
+
 void AddSC_boss_algalon_the_observer()
 {
     new boss_algalon_the_observer();
@@ -1360,4 +1366,5 @@ void AddSC_boss_algalon_the_observer()
     new spell_algalon_cosmic_smash();
     new spell_algalon_cosmic_smash_damage();
     new spell_algalon_supermassive_fail();
+    new achievement_he_feeds_on_your_tears();
 }

@@ -113,16 +113,12 @@ public:
                 events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_PHASE, 90000);
                 events.ScheduleEvent(EVENT_ERUPT, 15000);
-                me->GetMotionMaster()->MoveChase(me->getVictim());
             }
             else
             {
                 float x, y, z, o;
                 me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o - G3D::halfPi());
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveIdle();
-                me->SetTarget(0);
+                me->NearTeleportTo(x, y, z, o);
                 DoCastAOE(SPELL_PLAGUE_CLOUD);
                 events.ScheduleEvent(EVENT_PHASE, 45000);
                 events.ScheduleEvent(EVENT_ERUPT, 8000);
@@ -153,8 +149,7 @@ public:
                         EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
                         break;
                     case EVENT_ERUPT:
-                        if (instance)
-                            instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
+                        instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
                         TeleportCheaters();
 
                         if (eruptSection == 0)

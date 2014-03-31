@@ -3503,13 +3503,14 @@ class spell_gen_battle_fatigue : public SpellScriptLoader
             {
                 if (Unit* target = GetTarget())
                     if (target->GetTypeId() == TYPEID_PLAYER)
-                            if (target->ToPlayer()->GetBattleground())
-                                target->CastSpell(target, 134735, true);
+                        if (target->ToPlayer()->GetBattleground())
+                            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
+                                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target, spellInfo->spellPower);
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_battle_fatigue_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_battle_fatigue_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

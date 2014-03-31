@@ -1,0 +1,1 @@
+INSERT INTO `battleground_template` VALUES (100,10,10,90,90,0,0,0,0,0,1,0,'','Rated Battleground 10v10');

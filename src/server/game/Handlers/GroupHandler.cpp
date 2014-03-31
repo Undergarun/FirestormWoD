@@ -1568,9 +1568,14 @@ void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_REQUEST_JOIN_UPDATES");
 
-    uint8 unk;
-
+    uint8 unk = 0;
     recvData >> unk;
+
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
+
+    group->SendUpdate();
 }
 
 void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recvData)

@@ -42,6 +42,9 @@
 
 enum Spells
 {
+    // Npc Collosus
+    SPELL_GROUND_SLAM              = 62625,
+
     SPELL_PURSUED                  = 62374,
     SPELL_GATHERING_SPEED          = 62375,
     SPELL_BATTERING_RAM            = 62376,
@@ -139,6 +142,11 @@ enum Vehicles
     VEHICLE_SIEGE         = 33060,
     VEHICLE_CHOPPER       = 33062,
     VEHICLE_DEMOLISHER    = 33109,
+};
+
+enum DisplayIds
+{
+    DISPLAY_ID_DAMAGED_PYRITE_CONTAINER     = 28783
 };
 
 #define EMOTE_PURSUE      "Flame Leviathan pursues $N."
@@ -275,6 +283,7 @@ class boss_flame_leviathan : public CreatureScript
                 Shutdown = 0;
                 _pursueTarget = 0;
 
+                me->RemoveAllAuras();
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
@@ -328,8 +337,9 @@ class boss_flame_leviathan : public CreatureScript
                     DoScriptText(SAY_AGGRO, me);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*victim*/)
             {
+                me->RemoveAllAuras();
                 _JustDied();
                 // Set Field Flags 67108928 = 64 | 67108864 = UNIT_FLAG_UNK_6 | UNIT_FLAG_SKINNABLE
                 // Set DynFlags 12
@@ -487,17 +497,17 @@ class boss_flame_leviathan : public CreatureScript
                         me->RemoveLootMode(LOOT_MODE_HARD_MODE_4);
                         --ActiveTowersCount;
                     }
-                    if (me->HasLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1 | LOOT_MODE_HARD_MODE_2 | LOOT_MODE_HARD_MODE_3) && ActiveTowersCount == 3)
+                    else if (me->HasLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1 | LOOT_MODE_HARD_MODE_2 | LOOT_MODE_HARD_MODE_3) && ActiveTowersCount == 3)
                     {
                         me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
                         --ActiveTowersCount;
                     }
-                    if (me->HasLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1 | LOOT_MODE_HARD_MODE_2) && ActiveTowersCount == 2)
+                    else if (me->HasLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1 | LOOT_MODE_HARD_MODE_2) && ActiveTowersCount == 2)
                     {
                         me->RemoveLootMode(LOOT_MODE_HARD_MODE_2);
                         --ActiveTowersCount;
                     }
-                    if (me->HasLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1) && ActiveTowersCount == 1)
+                    else if (me->HasLootMode(LOOT_MODE_DEFAULT | LOOT_MODE_HARD_MODE_1) && ActiveTowersCount == 1)
                     {
                         me->RemoveLootMode(LOOT_MODE_HARD_MODE_1);
                         --ActiveTowersCount;
@@ -720,13 +730,15 @@ class boss_flame_leviathan_overload_device : public CreatureScript
             {
             }
 
-            void OnSpellClick(Unit* /*clicker*/)
+            void OnSpellClick(Unit* /*clicker*/, bool& result)
             {
+                if (!result)
+                    return;
+
                 if (me->GetVehicle())
                 {
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
                     if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
                         me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
@@ -817,7 +829,7 @@ class npc_mechanolift : public CreatureScript
             {
                 if (MoveTimer <= diff)
                 {
-                    if (me->GetVehicleKit()->HasEmptySeat(-1))
+                    if (me->GetVehicleKit() && me->GetVehicleKit()->HasEmptySeat(-1))
                     {
                         Creature* container = me->FindNearestCreature(NPC_CONTAINER, 50, true);
                         if (container && !container->GetVehicle())
@@ -834,6 +846,59 @@ class npc_mechanolift : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_mechanoliftAI(creature);
+        }
+};
+
+class npc_liquid_pyrite : public CreatureScript
+{
+    public:
+        npc_liquid_pyrite() : CreatureScript("npc_liquid_pyrite") {}
+
+        struct npc_liquid_pyriteAI : public PassiveAI
+        {
+            npc_liquid_pyriteAI(Creature* creature) : PassiveAI(creature) {}
+
+            void Reset()
+            {
+                DoCast(me, SPELL_LIQUID_PYRITE, true);
+                me->SetDisplayId(28476);
+                despawnTimer = 5*IN_MILLISECONDS;
+            }
+
+            void MovementInform(uint32 type, uint32 /*id*/)
+            {
+                if (type == POINT_MOTION_TYPE)
+                {
+                    DoCast(me, SPELL_DUSTY_EXPLOSION, true);
+                    DoCast(me, SPELL_DUST_CLOUD_IMPACT, true);
+                    me->SetDisplayId(DISPLAY_ID_DAMAGED_PYRITE_CONTAINER);
+                }
+            }
+
+            void DamageTaken(Unit* /*who*/, uint32& damage)
+            {
+                damage = 0;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (despawnTimer <= diff)
+                {
+                    if (me->GetVehicle())
+                        me->DisappearAndDie();
+                    despawnTimer = 5*IN_MILLISECONDS;
+                }
+                else
+                    despawnTimer -= diff;
+            }
+
+            private:
+                uint32 despawnTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_liquid_pyriteAI(creature);
         }
 };
 
@@ -874,7 +939,7 @@ class npc_pool_of_tar : public CreatureScript
 class npc_colossus : public CreatureScript
 {
     public:
-        npc_colossus() : CreatureScript("npc_colossus") { }
+        npc_colossus() : CreatureScript("npc_colossus") {}
 
         struct npc_colossusAI : public ScriptedAI
         {
@@ -883,26 +948,43 @@ class npc_colossus : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
-            void JustDied(Unit* /*killer*/)
+            void Reset()
             {
-                if (me->GetHomePosition().IsInDist(Center, 50.f))
-                    instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS)+1);
+                groundSlamTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void JustDied(Unit* /*Who*/)
+            {
+                // Check is required, since there are 5 colossus in the instance :: Check if the distance is enough
+                // Given distance ends up with ~106 x/y distance.
+                if (me->GetDistance2d(Center->GetPositionX(), Center->GetPositionY()) < 150.0f)
+                    instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS) + 1);
+            }
+
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
+                if (groundSlamTimer <= diff)
+                {
+                    DoCastVictim(SPELL_GROUND_SLAM);
+                    groundSlamTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
+                }
+                else
+                    groundSlamTimer -= diff;
+
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                InstanceScript* instance;
+                uint32 groundSlamTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_colossusAI(creature);
+            return GetUlduarAI<npc_colossusAI>(creature);
         }
 };
 
@@ -962,9 +1044,8 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void WaypointReached(uint32 /*waypointId*/)
+        void WaypointReached(uint32 /*i*/)
         {
-
         }
 
         void Reset()
@@ -1230,7 +1311,7 @@ public:
     //bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     //{
     //    player->PlayerTalkClass->ClearMenus();
-    //    switch (action)
+    //    switch(action)
     //    {
     //        case GOSSIP_ACTION_INFO_DEF+1:
     //            if (player)
@@ -1670,21 +1751,21 @@ class spell_pursue : public SpellScriptLoader
                 targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
                 if (targets.empty())
                 {
+                    FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
                     if (Creature* caster = GetCaster()->ToCreature())
                         caster->AI()->EnterEvadeMode();
+                    return;
                 }
-                else
-                {
-                    //! In the end, only one target should be selected
-                    _target = JadeCore::Containers::SelectRandomContainerElement(targets);
-                    FilterTargetsSubsequently(targets);
-                }
+
+                //! In the end, only one target should be selected
+                _target = JadeCore::Containers::SelectRandomContainerElement(targets);
+                FilterTargetsSubsequently(targets);
             }
 
             void FilterTargetsSubsequently(std::list<WorldObject*>& targets)
             {
                 targets.clear();
-                if (_target)
+                if(_target)
                     targets.push_back(_target);
             }
 
@@ -1796,6 +1877,7 @@ void AddSC_boss_flame_leviathan()
     new boss_flame_leviathan_overload_device();
     new boss_flame_leviathan_safety_container();
     new npc_mechanolift();
+    new npc_liquid_pyrite();
     new npc_pool_of_tar();
     new npc_colossus();
     new npc_thorims_hammer();

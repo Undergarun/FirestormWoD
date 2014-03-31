@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,9 +45,6 @@ enum Spells
     SPELL_GAS_SPORE             = 69278,
     SPELL_VILE_GAS              = 69240,
     SPELL_INOCULATED            = 69291,
-    SPELL_GAS_SPORE_DOT         = 69290,
-
-    SPELL_RESIDU                = 72144,
 
     // Stinky
     SPELL_MORTAL_WOUND          = 71127,
@@ -93,11 +90,10 @@ class boss_festergut : public CreatureScript
             void Reset()
             {
                 _Reset();
-                me->SetReactState(REACT_DEFENSIVE);
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
-                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
+                events.ScheduleEvent(EVENT_INHALE_BLIGHT, 34000);
+                events.ScheduleEvent(EVENT_GAS_SPORE, 20000);
+                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, 11000);
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
                 me->RemoveAurasDueToSpell(SPELL_BERSERK2);
@@ -136,8 +132,6 @@ class boss_festergut : public CreatureScript
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
-
-                instance->DoCastSpellOnPlayers(SPELL_RESIDU);
 
                 RemoveBlight();
             }
@@ -200,7 +194,7 @@ class boss_festergut : public CreatureScript
                                 // just cast and dont bother with target, conditions will handle it
                                 ++_inhaleCounter;
                                 if (_inhaleCounter < 3)
-                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], true, NULL, NULLAURA_EFFECT, me->GetGUID());
+                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], true, NULL, NULL, me->GetGUID());
                             }
 
                             events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
@@ -229,7 +223,7 @@ class boss_festergut : public CreatureScript
                             break;
                         case EVENT_GASTRIC_BLOAT:
                             DoCastVictim(SPELL_GASTRIC_BLOAT);
-                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15000, 17500));
+                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12000, 12500));
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK2);
@@ -289,6 +283,8 @@ class npc_stinky_icc : public CreatureScript
             npc_stinky_iccAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = creature->GetInstanceScript();
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void Reset()
@@ -296,6 +292,10 @@ class npc_stinky_icc : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
 
@@ -319,7 +319,7 @@ class npc_stinky_icc : public CreatureScript
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(5000, 7000));
                             break;
                         default:
                             break;
@@ -329,7 +329,7 @@ class npc_stinky_icc : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Creature* festergut = me->GetCreature(*me, _instance->GetData64(DATA_FESTERGUT)))
                     if (festergut->isAlive())
@@ -437,78 +437,27 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster())
+                if (GetDuration())
                     return;
 
-                uint32 currStack = 0;
-                uint32 inoculatedId = sSpellMgr->GetSpellIdForDifficulty(SPELL_INOCULATED, GetCaster());
-                if (constAuraPtr inoculate = GetTarget()->GetAura(inoculatedId))
-                    currStack = inoculate->GetStackAmount();
-
-                GetTarget()->CastSpell(GetTarget(), inoculatedId, true);
-                ++currStack;
-
-                if (InstanceScript * instance = GetCaster()->GetInstanceScript())
-                    if (Creature* festergut = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_FESTERGUT)))
-                        festergut->AI()->SetData(DATA_INOCULATED_STACK, currStack);
-
-                currStack = 0;
-                uint32 dotId = sSpellMgr->GetSpellIdForDifficulty(SPELL_GAS_SPORE_DOT, GetCaster());
-                if (AuraPtr dot = GetTarget()->GetAura(dotId))
-                {
-                    currStack = dot->GetStackAmount();
-                    dot->SetStackAmount(currStack + 1);
-                }
+                GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
+                if (InstanceScript* instance = GetTarget()->GetInstanceScript())
+                    if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_FESTERGUT)))
+                        if (AuraEffectPtr aurEff1 = GetTarget()->GetAuraEffect(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, SPELLFAMILY_GENERIC, 1614, EFFECT_0))
+                            festergut->AI()->SetData(DATA_INOCULATED_STACK, aurEff1->GetBase()->GetStackAmount());
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_festergut_blighted_spores_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_festergut_blighted_spores_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_festergut_blighted_spores_AuraScript();
-        }
-};
-
-// Gaseous Blight - 69159
-class spell_festergut_gaseous_blight : public SpellScriptLoader
-{
-    public:
-        spell_festergut_gaseous_blight() : SpellScriptLoader("spell_festergut_gaseous_blight") { }
-
-        class spell_festergut_gaseous_blight_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_festergut_gaseous_blight_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ORANGE_BLIGHT_RESIDUE))
-                    return false;
-                return true;
-            }
-
-            void ExtraEffect()
-            {
-                if (GetHitUnit()->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
-                    return;
-
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ORANGE_BLIGHT_RESIDUE, true);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_festergut_gaseous_blight_SpellScript::ExtraEffect);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_festergut_gaseous_blight_SpellScript();
         }
 };
 
@@ -533,6 +482,5 @@ void AddSC_boss_festergut()
     new spell_festergut_pungent_blight();
     new spell_festergut_gastric_bloat();
     new spell_festergut_blighted_spores();
-    new spell_festergut_gaseous_blight();
     new achievement_flu_shot_shortage();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,9 +61,7 @@ enum Phases
 {
     PHASE_ALL       = 0,
     PHASE_INTRO     = 1,
-    PHASE_COMBAT    = 2,
-
-    PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
+    PHASE_COMBAT    = 2
 };
 
 class boss_baltharus_the_warborn : public CreatureScript
@@ -83,7 +81,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 _Reset();
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_OOC_CHANNEL, 0, 0, PHASE_INTRO);
-                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
+                _cloneCount = RAID_MODE<uint8>(1, 2, 1, 2);
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
             }
 
@@ -100,7 +98,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                         break;
                     case ACTION_CLONE:
                     {
+                        me->AttackStop();
+                        me->InterruptNonMeleeSpells(true);
                         DoCast(me, SPELL_CLEAR_DEBUFFS);
+                        me->RemoveNegativeAuras();
                         DoCast(me, SPELL_CLONE);
                         DoCast(me, SPELL_REPELLING_WAVE);
                         Talk(SAY_CLONE);
@@ -147,7 +148,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if (GetDifficulty() == MAN10_DIFFICULTY)
+                if (!Is25ManRaid())
                 {
                     if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 1)
                         DoAction(ACTION_CLONE);
@@ -166,16 +167,21 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                bool introPhase = events.IsInPhase(PHASE_INTRO);
+                if (!UpdateVictim() && !introPhase)
                     return;
 
-                if (!(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (!introPhase)
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (me->HasUnitState(UNIT_STATE_CASTING) && !introPhase)
                     return;
+
+                if (Unit* victim = me->getVictim())
+                    if (victim->HasAura(SPELL_REPELLING_WAVE))
+                        return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -198,7 +204,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                             events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(1, 2, 2, 3); i++)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000, 0, PHASE_COMBAT);
@@ -271,6 +277,10 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                if (Unit* victim = me->getVictim())
+                    if (victim->HasAura(SPELL_REPELLING_WAVE))
+                        return;
+
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -284,7 +294,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                             _events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000);
                            break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(1, 2, 2, 3); i++)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             _events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000);
@@ -292,7 +302,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                         default:
                             break;
                     }
-               }
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -322,7 +332,8 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
                 if (Unit* caster = GetOriginalCaster())
                 {
                     if (Unit* target = GetHitUnit())
-                        target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
+                        if (target->IsWithinDist(caster, 50.0f))
+                            target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true, NULL, NULL, caster->GetGUID());
                 }
             }
 

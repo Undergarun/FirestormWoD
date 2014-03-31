@@ -1117,6 +1117,9 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & recvData)
     if (!pet)
         return;
 
+    if (pet->getPetType() != PetType::HUNTER_PET)
+        return;
+
     if (pet->GetSpecializationId())
         pet->UnlearnSpecializationSpell();
 

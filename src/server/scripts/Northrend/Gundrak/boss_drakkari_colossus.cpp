@@ -144,14 +144,15 @@ class boss_drakkari_colossus : public CreatureScript
                 switch (action)
                 {
                     case ACTION_SUMMON_ELEMENTAL:
-                        DoCast(SPELL_EMERGE);
+                        DoCast(me, SPELL_EMERGE, true);
                         break;
                     case ACTION_FREEZE_COLOSSUS:
                         me->GetMotionMaster()->MoveIdle();
-
+                        me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
+                        me->RemoveAllAuras();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                        DoCast(me, SPELL_FREEZE_ANIM);
+                        //DoCast(me, SPELL_FREEZE_ANIM);
                         break;
                     case ACTION_UNFREEZE_COLOSSUS:
 
@@ -474,17 +475,13 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_MOJO_WAVE);
                 mojoWaveTimer = 15*IN_MILLISECONDS;
-            }
-            else
-                mojoWaveTimer -= diff;
+            } else mojoWaveTimer -= diff;
 
             if (mojoPuddleTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MOJO_PUDDLE);
                 mojoPuddleTimer = 18*IN_MILLISECONDS;
-            }
-            else
-                mojoPuddleTimer -= diff;
+            } else mojoPuddleTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

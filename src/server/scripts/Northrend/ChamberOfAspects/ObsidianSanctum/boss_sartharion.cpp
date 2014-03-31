@@ -1018,8 +1018,6 @@ public:
             m_uiHatchEggTimer = 30000;
 
             m_bHasPortalOpen = false;
-
-            dummy_dragonAI::Reset();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1115,8 +1113,6 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
 
             m_bHasPortalOpen = false;
-
-            dummy_dragonAI::Reset();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1215,7 +1211,6 @@ public:
             m_uiAcolyteVesperonTimer = 60000;
 
             m_bHasPortalOpen = false;
-            dummy_dragonAI::Reset();
         }
 
         void EnterCombat(Unit* /*who*/)

@@ -45,8 +45,8 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 
     uint32 count = recvData.ReadBits(23);
 
-    ObjectGuid* guids;
-    guids = new ObjectGuid[count];
+    std::vector<ObjectGuid> guids;
+    guids.resize(count);
 
     uint8 bitOrder[8] = { 3, 7, 2, 4, 0, 5, 6, 1 };
     for (uint32 i = 0; i < count; i++)
@@ -260,8 +260,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                             guildGold = MAX_MONEY_AMOUNT;
 
                         uint64 amount = guild->GetBankMoney();
-                        if ((amount + guildGold) > MAX_MONEY_AMOUNT)
-                            guildGold = uint64(MAX_MONEY_AMOUNT - guildGold);
+                        uint64 after = amount + guildGold;
+                        if (after > MAX_MONEY_AMOUNT)
+                            guildGold = uint64(MAX_MONEY_AMOUNT) - amount; // do not cast MAX_MONEY_AMOUNT to uint since MAX_MONEY_AMOUNT is 9.999 billions, that more that uint32 max
 
                         if (guildGold)
                             guild->DepositMoney(guildGold);
@@ -289,8 +290,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                         guildGold = MAX_MONEY_AMOUNT;
 
                     uint64 amount = guild->GetBankMoney();
-                    if ((amount + guildGold) > MAX_MONEY_AMOUNT)
-                        guildGold = uint64(MAX_MONEY_AMOUNT - guildGold);
+                    uint64 after = amount + guildGold;
+                    if (after > MAX_MONEY_AMOUNT)
+                        guildGold = uint64(MAX_MONEY_AMOUNT) - amount; // do not cast MAX_MONEY_AMOUNT to uint since MAX_MONEY_AMOUNT is 9.999 billions, that more that uint32 max
 
                     if (guildGold)
                         guild->DepositMoney(guildGold);

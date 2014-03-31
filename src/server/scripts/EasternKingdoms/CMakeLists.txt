@@ -69,6 +69,28 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BaradinHold/boss_alizabal.cpp
   EasternKingdoms/BaradinHold/instance_baradin_hold.cpp
   EasternKingdoms/BaradinHold/baradin_hold.h
+  EasternKingdoms/TheStonecore/boss_corborus.cpp
+  EasternKingdoms/TheStonecore/boss_slabhide.cpp
+  EasternKingdoms/TheStonecore/boss_ozruk.cpp
+  EasternKingdoms/TheStonecore/boss_high_priestess_azil.cpp
+  EasternKingdoms/TheStonecore/instance_the_stonecore.cpp
+  EasternKingdoms/TheStonecore/the_stonecore.cpp
+  EasternKingdoms/TheStonecore/the_stonecore.h
+  EasternKingdoms/GrimBatol/boss_general_umbriss.cpp
+  EasternKingdoms/GrimBatol/boss_forgemaster_throngus.cpp
+  EasternKingdoms/GrimBatol/boss_drahga_shadowburner.cpp
+  EasternKingdoms/GrimBatol/boss_erudax.cpp
+  EasternKingdoms/GrimBatol/instance_grim_batol.cpp
+  EasternKingdoms/GrimBatol/grim_batol.cpp
+  EasternKingdoms/GrimBatol/grim_batol.h
+  EasternKingdoms/BastionOfTwilight/boss_halfus_wyrmbreaker.cpp
+  EasternKingdoms/BastionOfTwilight/boss_theralion_and_valiona.cpp
+  EasternKingdoms/BastionOfTwilight/boss_council_of_ascendents.cpp
+  EasternKingdoms/BastionOfTwilight/boss_chogall.cpp
+  EasternKingdoms/BastionOfTwilight/boss_sinestra.cpp
+  EasternKingdoms/BastionOfTwilight/instance_bastion_of_twilight.cpp
+  EasternKingdoms/BastionOfTwilight/bastion_of_twilight.cpp
+  EasternKingdoms/BastionOfTwilight/bastion_of_twilight.h
   EasternKingdoms/ironforge.cpp
   EasternKingdoms/ScarletEnclave/chapter2.cpp
   EasternKingdoms/ScarletEnclave/chapter5.cpp
@@ -131,6 +153,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackrockSpire/boss_highlord_omokk.cpp
   EasternKingdoms/BlackrockSpire/boss_the_beast.cpp
   EasternKingdoms/BlackrockSpire/blackrock_spire.h
+  EasternKingdoms/BlackrockSpire/blackrock_spire.cpp
   EasternKingdoms/BlackrockSpire/instance_blackrock_spire.cpp
   EasternKingdoms/SunwellPlateau/boss_eredar_twins.cpp
   EasternKingdoms/SunwellPlateau/boss_kiljaeden.cpp
@@ -142,9 +165,14 @@ set(scripts_STAT_SRCS
   EasternKingdoms/SunwellPlateau/sunwell_plateau.cpp
   EasternKingdoms/SunwellPlateau/boss_felmyst.cpp
   EasternKingdoms/stranglethorn_vale.cpp
+  EasternKingdoms/Deadmines/boss_glubtok.cpp
+  EasternKingdoms/Deadmines/boss_helix_gearbreaker.cpp
+  EasternKingdoms/Deadmines/boss_foereaper5000.cpp
+  EasternKingdoms/Deadmines/boss_admiral_ripsnarl.cpp
+  EasternKingdoms/Deadmines/boss_captain_cookie.cpp
+  EasternKingdoms/Deadmines/boss_vanessa_vancleef.cpp
   EasternKingdoms/Deadmines/deadmines.h
   EasternKingdoms/Deadmines/deadmines.cpp
-  EasternKingdoms/Deadmines/boss_mr_smite.cpp
   EasternKingdoms/Deadmines/instance_deadmines.cpp
   EasternKingdoms/duskwood.cpp
   EasternKingdoms/ScarletMonastery/boss_azshir_the_sleepless.cpp
@@ -162,6 +190,11 @@ set(scripts_STAT_SRCS
   EasternKingdoms/undercity.cpp
   EasternKingdoms/silvermoon_city.cpp
   EasternKingdoms/loch_modan.cpp
+  EasternKingdoms/ShadowfangKeep/boss_baron_ashbury.cpp
+  EasternKingdoms/ShadowfangKeep/boss_baron_silverlaine.cpp
+  EasternKingdoms/ShadowfangKeep/boss_commander_springvale.cpp
+  EasternKingdoms/ShadowfangKeep/boss_lord_valden.cpp
+  EasternKingdoms/ShadowfangKeep/boss_lord_godfrey.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
@@ -180,7 +213,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/stormwind_city.cpp
   EasternKingdoms/ZulAman/boss_halazzi.cpp
   EasternKingdoms/ZulAman/boss_hexlord.cpp
-  EasternKingdoms/ZulAman/boss_zuljin.cpp
+  EasternKingdoms/ZulAman/boss_daakara.cpp
   EasternKingdoms/ZulAman/boss_akilzon.cpp
   EasternKingdoms/ZulAman/instance_zulaman.cpp
   EasternKingdoms/ZulAman/boss_janalai.cpp
@@ -207,6 +240,21 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/karazhan.h
   EasternKingdoms/Gilneas/gilneas.cpp
   EasternKingdoms/Gilneas/gilneas.h
+  EasternKingdoms/ThroneOfTheTides/boss_lady_nazjar.cpp
+  EasternKingdoms/ThroneOfTheTides/boss_commander_ulthok.cpp
+  EasternKingdoms/ThroneOfTheTides/boss_mindebender_ghursha.cpp
+  EasternKingdoms/ThroneOfTheTides/boss_ozumat.cpp
+  EasternKingdoms/ThroneOfTheTides/instance_throne_of_the_tides.cpp
+  EasternKingdoms/ThroneOfTheTides/throne_of_the_tides.cpp
+  EasternKingdoms/ThroneOfTheTides/throne_of_the_tides.h
+  EasternKingdoms/BlackrockCaverns/boss_romogg_bonecrusher.cpp
+  EasternKingdoms/BlackrockCaverns/boss_corla_hearld_of_twilight.cpp
+  EasternKingdoms/BlackrockCaverns/boss_karsh_steelbender.cpp
+  EasternKingdoms/BlackrockCaverns/boss_beauty.cpp
+  EasternKingdoms/BlackrockCaverns/boss_ascendant_lord_obsidius.cpp
+  EasternKingdoms/BlackrockCaverns/instance_blackrock_caverns.cpp
+  EasternKingdoms/BlackrockCaverns/blackrock_caverns_teleport.cpp
+  EasternKingdoms/BlackrockCaverns/blackrock_caverns.h
 )
 
 message("  -> Prepared: Eastern Kingdoms")

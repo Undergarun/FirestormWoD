@@ -66,8 +66,6 @@ public:
 
         void Reset()
         {
-            Yell30 = false;
-            Yell60 = false;
             ShadowWordPain_Timer = 5000;
         }
 

@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -309,7 +308,6 @@ public:
                 summoned->SetSpeed(MOVE_RUN, 0.3f);
                 summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
                 m_waterElements.push_back(summoned->GetGUID());
-                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
 
@@ -318,7 +316,6 @@ public:
             if (summoned)
             {
                 m_waterElements.remove(summoned->GetGUID());
-                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
 

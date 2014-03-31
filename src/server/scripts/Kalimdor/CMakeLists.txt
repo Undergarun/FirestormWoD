@@ -52,6 +52,28 @@ set(scripts_STAT_SRCS
   Kalimdor/CavernsOfTime/DarkPortal/dark_portal.cpp
   Kalimdor/CavernsOfTime/DarkPortal/boss_aeonus.cpp
   Kalimdor/CavernsOfTime/DarkPortal/boss_temporus.cpp
+  Kalimdor/CavernsOfTime/EndTime/boss_echo_of_tyrande.cpp
+  Kalimdor/CavernsOfTime/EndTime/boss_echo_of_baine.cpp
+  Kalimdor/CavernsOfTime/EndTime/boss_echo_of_sylvanas.cpp
+  Kalimdor/CavernsOfTime/EndTime/boss_echo_of_jaina.cpp
+  Kalimdor/CavernsOfTime/EndTime/boss_murozond.cpp
+  Kalimdor/CavernsOfTime/EndTime/end_time_teleport.cpp
+  Kalimdor/CavernsOfTime/EndTime/instance_end_time.cpp
+  Kalimdor/CavernsOfTime/EndTime/end_time.cpp
+  Kalimdor/CavernsOfTime/EndTime/end_time.h
+  Kalimdor/CavernsOfTime/WellofEternity/boss_perotharn.cpp
+  Kalimdor/CavernsOfTime/WellofEternity/boss_queen_azshara.cpp
+  Kalimdor/CavernsOfTime/WellofEternity/boss_mannoroth.cpp
+  Kalimdor/CavernsOfTime/WellofEternity/instance_well_of_eternity.cpp
+  Kalimdor/CavernsOfTime/WellofEternity/well_of_eternity_teleport.cpp
+  Kalimdor/CavernsOfTime/WellofEternity/well_of_eternity.cpp
+  Kalimdor/CavernsOfTime/WellofEternity/well_of_eternity.h
+  Kalimdor/CavernsOfTime/HourofTwilight/boss_arcurion.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/boss_asira_dawnslayer.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/boss_archbishop_benedictus.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/instance_hour_of_twilight.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/hour_of_twilight.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/hour_of_twilight.h
   Kalimdor/BlackfathomDeeps/boss_kelris.cpp
   Kalimdor/BlackfathomDeeps/instance_blackfathom_deeps.cpp
   Kalimdor/BlackfathomDeeps/boss_gelihast.cpp
@@ -99,6 +121,29 @@ set(scripts_STAT_SRCS
   Kalimdor/WailingCaverns/wailing_caverns.h
   Kalimdor/WailingCaverns/instance_wailing_caverns.cpp
   Kalimdor/WailingCaverns/wailing_caverns.cpp
+  Kalimdor/TheVortexPinnacle/boss_grand_vizier_ertan.cpp
+  Kalimdor/TheVortexPinnacle/boss_altairus.cpp
+  Kalimdor/TheVortexPinnacle/boss_asaad.cpp
+  Kalimdor/TheVortexPinnacle/instance_the_vortex_pinnacle.cpp
+  Kalimdor/TheVortexPinnacle/the_vortex_pinnacle.cpp
+  Kalimdor/TheVortexPinnacle/the_vortex_pinnacle.h
+  Kalimdor/LostCityOfTheTolvir/boss_general_husam.cpp
+  Kalimdor/LostCityOfTheTolvir/boss_lockmaw_augh.cpp
+  Kalimdor/LostCityOfTheTolvir/boss_high_prophet_barim.cpp
+  Kalimdor/LostCityOfTheTolvir/boss_siamat.cpp
+  Kalimdor/LostCityOfTheTolvir/instance_lost_city_of_the_tolvir.cpp
+  Kalimdor/LostCityOfTheTolvir/lost_city_of_the_tolvir.cpp
+  Kalimdor/LostCityOfTheTolvir/lost_city_of_the_tolvir.h 
+  Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp
+  Kalimdor/HallsOfOrigination/boss_earthrager_ptah.cpp
+  Kalimdor/HallsOfOrigination/boss_anraphet.cpp
+  Kalimdor/HallsOfOrigination/boss_ammunae.cpp
+  Kalimdor/HallsOfOrigination/boss_setesh.cpp
+  Kalimdor/HallsOfOrigination/boss_isiset.cpp
+  Kalimdor/HallsOfOrigination/boss_rajh.cpp
+  Kalimdor/HallsOfOrigination/instance_halls_of_origination.cpp
+  Kalimdor/HallsOfOrigination/halls_of_origination.cpp
+  Kalimdor/HallsOfOrigination/halls_of_origination.h
   Kalimdor/durotar.cpp
   Kalimdor/felwood.cpp
   Kalimdor/tanaris.cpp
@@ -111,7 +156,6 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
   Kalimdor/southern_barrens.cpp
-  Kalimdor/Uldum.cpp
 )
 
 message("  -> Prepared: Kalimdor")

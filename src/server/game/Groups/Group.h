@@ -342,6 +342,7 @@ class Group
         uint32 GetRating(uint8 slot);
         void WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot);
         void LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot);
+        void FinishGame(int32 rating_change, uint8 slot);
 
         /*********************************************************/
         /***                   LOOT SYSTEM                     ***/
@@ -379,6 +380,10 @@ class Group
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
+
+        void IncrementPlayersInInstance() { m_membersInInstance++; }
+        void DecrementPlayersInInstance() { m_membersInInstance--; }
+        bool CanEnterInInstance();
 
         void SetReadyCheckCount(uint8 count) { m_readyCheckCount = count; }
         uint8 GetReadyCheckCount() { return m_readyCheckCount; }
@@ -419,6 +424,7 @@ class Group
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         uint8               m_readyCheckCount;
+        uint8               m_membersInInstance;
         bool                m_readyCheck;
 };
 #endif

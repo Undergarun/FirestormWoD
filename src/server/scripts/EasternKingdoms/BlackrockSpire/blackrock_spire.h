@@ -35,6 +35,9 @@ enum Data
     DATA_THE_BEAST,
     DATA_GENERAL_DRAKKISATH,
     DATA_DRAGONSPIRE_ROOM,
+
+    EVENT_LEEEROY, 
+    WHELP_DEATH_COUNT
 };
 enum Npc
 {
@@ -54,7 +57,7 @@ enum Npc
     NPC_GENERAL_DRAKKISATH          = 10363,
     NPC_BLACKHAND_DREADWEAVER       = 9817,
     NPC_BLACKHAND_SUMMONER          = 9818,
-    NPC_BLACKHAND_VETERAN           = 9819
+    NPC_BLACKHAND_VETERAN           = 9819,
 };
 
 enum AdditionalData
@@ -64,7 +67,7 @@ enum AdditionalData
     MAX_DRAGONSPIRE_HALL_RUNES      = 7,
     EVENT_PYROGUARD_EMBERSEER       = 4884,
     AREATRIGGER_ENTER_UBRS          = 2046,
-    AREATRIGGER_STADIUM             = 2026
+    AREATRIGGER_STADIUM             = 2026,
 };
 
 enum GameObjects
@@ -96,8 +99,7 @@ enum GameObjects
     GO_EMBERSEER_RUNE_4             = 175269,
     GO_EMBERSEER_RUNE_5             = 175270,
     GO_EMBERSEER_RUNE_6             = 175271,
-    GO_EMBERSEER_RUNE_7             = 175272
+    GO_EMBERSEER_RUNE_7             = 175272,
 };
 
 #endif
-

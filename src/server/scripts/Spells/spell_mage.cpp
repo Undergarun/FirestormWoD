@@ -209,7 +209,7 @@ class spell_mage_glyph_of_slow : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_glyph_of_slow_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -240,7 +240,7 @@ class spell_mage_glyph_of_slow : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_glyph_of_slow_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_glyph_of_slow_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -766,9 +766,28 @@ class spell_mage_frostbolt : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleBeforeCast()
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(148022);
+                if (!spellInfo)
+                    return;
+
+                SpellCastTargets targets;
+                targets.SetUnitTarget(GetHitUnit());
+
+                CustomSpellValues values;
+                values.AddSpellMod(SPELLVALUE_BASE_POINT0, 100);
+                values.AddSpellMod(SPELLVALUE_BASE_POINT1, 100);
+                values.AddSpellMod(SPELLVALUE_BASE_POINT2, 100);
+
+                GetCaster()->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
+                GetCaster()->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, GetCaster()->GetGUID());
+            }
+
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
+                BeforeCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleBeforeCast);
             }
         };
 

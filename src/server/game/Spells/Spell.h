@@ -91,6 +91,54 @@ struct SpellDestination
     Position _transportOffset;
 };
 
+struct SpellLog_EnergyzeHelper
+{
+    uint32 Value;
+    float Multiplier;
+    uint8 PowerType;
+    ObjectGuid Guid;
+};
+
+struct SpellLogHelper
+{
+    std::list<ObjectGuid> Targets; // Guid3
+    std::list<SpellLog_EnergyzeHelper> Energizes; // Guid4
+    std::list<uint32> CreatedItems;
+
+    SpellLogHelper()
+    {
+        Targets.clear();
+        Energizes.clear();
+        CreatedItems.clear();
+    }
+
+    void AddTarget(ObjectGuid guid)
+    {
+        Targets.push_back(guid);
+    }
+
+    void AddCreatedItem(uint32 id)
+    {
+        CreatedItems.push_back(id);
+    }
+
+    void AddEnergize(SpellLog_EnergyzeHelper energize)
+    {
+        Energizes.push_back(energize);
+    }
+
+    void AddEnergize(ObjectGuid guid, float mult, uint32 val, uint8 type)
+    {
+        SpellLog_EnergyzeHelper helper;
+        helper.Value = val;
+        helper.PowerType = type;
+        helper.Guid = guid;
+        helper.Multiplier = mult;
+
+        AddEnergize(helper);
+    }
+};
+
 class SpellCastTargets
 {
     public:
@@ -727,7 +775,8 @@ class Spell
         bool m_skipCheck;
         uint32 m_auraScaleMask;
 
-        ByteBuffer * m_effectExecuteData[MAX_SPELL_EFFECTS];
+        typedef std::map<uint32, SpellLogHelper> LogHelperMap;
+        LogHelperMap m_effectExecuteData;
         SpellPowerEntry const* m_spellPowerData;
 
         bool m_redirected;

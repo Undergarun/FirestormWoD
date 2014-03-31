@@ -136,6 +136,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->BgTypeId                  = BgTypeId;
     ginfo->ArenaType                 = ArenaType;
     ginfo->IsRated                   = isRated;
+    ginfo->IsRatedBG                 = BgTypeId == BATTLEGROUND_RATED_10_VS_10;
     ginfo->IsInvitedToBGInstanceGUID = 0;
     ginfo->JoinTime                  = getMSTime();
     ginfo->RemoveInviteTime          = 0;
@@ -193,7 +194,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
         m_QueuedGroups[bracketId][index].push_back(ginfo);
 
         //announce to world, this code needs mutex
-        if (!isRated && !isPremade && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
+        if (!isRated && !isPremade && !ginfo->IsRatedBG && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
         {
             if (Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(ginfo->BgTypeId))
             {
@@ -825,7 +826,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
     m_SelectionPools[BG_TEAM_ALLIANCE].Init();
     m_SelectionPools[BG_TEAM_HORDE].Init();
 
-    if (bg_template->isBattleground())
+    if (bg_template->isBattleground() && !bg_template->IsRatedBG())
     {
         //check if there is premade against premade match
         if (CheckPremadeMatch(bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam))
@@ -850,7 +851,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
     }
 
     // now check if there are in queues enough players to start new game of (normal battleground, or non-rated arena)
-    if (!isRated)
+    if (!isRated && !bg_template->IsRatedBG())
     {
         // if there are enough players in pools, start new battleground or non rated arena
         if (CheckNormalMatch(bg_template, bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam)
@@ -999,6 +1000,120 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
 
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Starting rated arena match!");
             arena->StartBattleground();
+        }
+    }
+    else if (bg_template->IsRatedBG())
+    {
+        // found out the minimum and maximum ratings the newly added team should battle against
+        // arenaRating is the rating of the latest joined team, or 0
+        // 0 is on (automatic update call) and we must set it to team's with longest wait time
+        if (!arenaRating)
+        {
+            GroupQueueInfo* front1 = NULL;
+            GroupQueueInfo* front2 = NULL;
+            if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].empty())
+            {
+                front1 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].front();
+                arenaRating = front1->ArenaMatchmakerRating;
+            }
+            if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].empty())
+            {
+                front2 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].front();
+                arenaRating = front2->ArenaMatchmakerRating;
+            }
+            if (front1 && front2)
+            {
+                if (front1->JoinTime < front2->JoinTime)
+                    arenaRating = front1->ArenaMatchmakerRating;
+            }
+            else if (!front1 && !front2)
+                return; //queues are empty
+        }
+
+        //set rating range
+        uint32 arenaMinRating = (arenaRating <= sBattlegroundMgr->GetMaxRatingDifference()) ? 0 : arenaRating - sBattlegroundMgr->GetMaxRatingDifference();
+        uint32 arenaMaxRating = arenaRating + sBattlegroundMgr->GetMaxRatingDifference();
+        // if max rating difference is set and the time past since server startup is greater than the rating discard time
+        // (after what time the ratings aren't taken into account when making teams) then
+        // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
+        // else leave the discard time on 0, this way all ratings will be discarded
+        uint32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
+
+        // we need to find 2 teams which will play next game
+        GroupsQueueType::iterator itr_teams[BG_TEAMS_COUNT];
+        uint8 found = 0;
+        uint8 team = 0;
+
+        for (uint8 i = BG_QUEUE_PREMADE_ALLIANCE; i < BG_QUEUE_NORMAL_ALLIANCE; i++)
+        {
+            // take the group that joined first
+            GroupsQueueType::iterator itr2 = m_QueuedGroups[bracket_id][i].begin();
+            for (; itr2 != m_QueuedGroups[bracket_id][i].end(); ++itr2)
+            {
+                // if group match conditions, then add it to pool
+                if (!(*itr2)->IsInvitedToBGInstanceGUID
+                    && (((*itr2)->ArenaMatchmakerRating >= arenaMinRating && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating)
+                        || (*itr2)->JoinTime < discardTime))
+                {
+                    itr_teams[found++] = itr2;
+                    team = i;
+                    break;
+                }
+            }
+        }
+
+        if (!found)
+            return;
+
+        if (found == 1)
+        {
+            for (GroupsQueueType::iterator itr3 = itr_teams[0]; itr3 != m_QueuedGroups[bracket_id][team].end(); ++itr3)
+            {
+                if (!(*itr3)->IsInvitedToBGInstanceGUID
+                    && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
+                        || (*itr3)->JoinTime < discardTime)
+                    && (*itr_teams[0])->group != (*itr3)->group)
+                {
+                    itr_teams[found++] = itr3;
+                    break;
+                }
+            }
+        }
+
+        //if we have 2 teams, then start new rated bg and invite players!
+        if (found == 2)
+        {
+            GroupQueueInfo* aTeam = *itr_teams[BG_TEAM_ALLIANCE];
+            GroupQueueInfo* hTeam = *itr_teams[BG_TEAM_HORDE];
+            Battleground* rated_bg = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, 0, false);
+            if (!rated_bg)
+            {
+                sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue::Update couldn't create rated bg instance for rated bg match!");
+                return;
+            }
+
+            aTeam->OpponentsTeamRating = hTeam->ArenaTeamRating;
+            hTeam->OpponentsTeamRating = aTeam->ArenaTeamRating;
+            aTeam->OpponentsMatchmakerRating = hTeam->ArenaMatchmakerRating;
+            hTeam->OpponentsMatchmakerRating = aTeam->ArenaMatchmakerRating;
+
+            // now we must move team if we changed its faction to another faction queue, because then we will spam log by errors in Queue::RemovePlayer
+            if (aTeam->Team != ALLIANCE)
+            {
+                m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].push_front(aTeam);
+                m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].erase(itr_teams[BG_TEAM_ALLIANCE]);
+            }
+            if (hTeam->Team != HORDE)
+            {
+                m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].push_front(hTeam);
+                m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].erase(itr_teams[BG_TEAM_HORDE]);
+            }
+
+            InviteGroupToBG(aTeam, rated_bg, ALLIANCE);
+            InviteGroupToBG(hTeam, rated_bg, HORDE);
+
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Starting rated battleground!");
+            rated_bg->StartBattleground();
         }
     }
 }

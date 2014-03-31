@@ -498,7 +498,7 @@ void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     else if (type == SCORE_DESTROYED_WALL)
         ((BattlegroundSAScore*)itr->second)->gates_destroyed += value;
     else
-        Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+        Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
 }
 
 void BattlegroundSA::TeleportPlayers()

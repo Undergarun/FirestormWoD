@@ -3329,15 +3329,26 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].Effect = 0;
                     spellInfo->Effects[2].Effect = 0;
                     break;
+                case 82366:
+                case 110704:
+                case 116467:
+                    spellInfo->Effects[2].Effect = SPELL_EFFECT_DUMMY;
+                    break;
+                case 124009:
+                case 130793:
+                case 123996:
+                    spellInfo->StartRecoveryTime = 1500;
+                    spellInfo->StartRecoveryCategory = 133;
+                    break;
                 case 127424:
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                     spellInfo->Effects[0].TargetB = 0;
                     break;
-            case 45257: // Using Steam Tonk Controller
-            case 45440: // Steam Tonk Controller
-            case 49352: // Crashin' Thrashin' Racer Controller
-            case 75111: // Blue Crashin' Thrashin' Racer Controller
-            case 60256: // Collect Sample
+                case 45257: // Using Steam Tonk Controller
+                case 45440: // Steam Tonk Controller
+                case 49352: // Crashin' Thrashin' Racer Controller
+                case 75111: // Blue Crashin' Thrashin' Racer Controller
+                case 60256: // Collect Sample
                     //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
                     spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                     break;
@@ -4422,10 +4433,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 113072:// Might of Ursoc (Symbiosis)
                     spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                     break;
-                case 111771:// Demonic Gateway
-                    spellInfo->Effects[2].Effect = 0;
-                    spellInfo->Effects[2].TriggerSpell = 0;
-                    break;
                 case 117828:// Backdraft
                     spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
                     spellInfo->Effects[0].MiscValue = SPELLMOD_CASTING_TIME;
@@ -4524,6 +4531,16 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
                     spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SCALE;
                     spellInfo->Effects[2].BasePoints = 30;
+                    break;
+                case 111546:
+                    spellInfo->Effects[1].Effect = 0;
+                    spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
+                    break;
+                case 113890:
+                    spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                    break;
+                case 113886:
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                     break;
                 case 122292:// Intervene (Symbiosis)
                     spellInfo->Effects[1].BasePoints = 100;
@@ -4809,6 +4826,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->ProcChance = 100;
                     spellInfo->ProcCharges = 1;
                     spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
+                    spellInfo->Effects[1].SpellClassMask = spellInfo->Effects[0].SpellClassMask;
                     break;
                 case 54785: // Demonic Leap
                     spellInfo->DmgClass = SPELL_DAMAGE_CLASS_NONE;

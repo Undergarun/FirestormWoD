@@ -119,7 +119,16 @@ struct ArenaTeamStats
     uint32 Rank;
 };
  
-#define MAX_ARENA_SLOT 3                                    // 0..2 slots
+enum ArenaSlots
+{
+    SLOT_ARENA_2V2 = 0,
+    SLOT_ARENA_3V3 = 1,
+    SLOT_ARENA_5V5 = 2,
+    MAX_ARENA_SLOT = 3,
+    SLOT_RBG       = 3,
+    MAX_PVP_SLOT   = 4
+};
+
 #define MAX_ARENA_TYPE 6                                    // type : 2, 3 or 5
  
 namespace Arena
@@ -128,9 +137,9 @@ namespace Arena
     {
         switch (type)
         {
-            case ARENA_TEAM_2v2: return 0;
-            case ARENA_TEAM_3v3: return 1;
-            case ARENA_TEAM_5v5: return 2;
+            case ARENA_TEAM_2v2: return SLOT_ARENA_2V2;
+            case ARENA_TEAM_3v3: return SLOT_ARENA_3V3;
+            case ARENA_TEAM_5v5: return SLOT_ARENA_5V5;
             default:
                 break;
         }

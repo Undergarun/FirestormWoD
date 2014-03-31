@@ -556,7 +556,7 @@ class npc_stillpine_capitive : public CreatureScript
                     return;
 
                 if (_player)
-                    _player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                    _player->KilledMonsterCredit(me->GetEntry(), 0);
 
                 _movementComplete = true;
                 _events.ScheduleEvent(EVENT_DESPAWN, 3500);

@@ -7,32 +7,38 @@
 
 enum
 {
-    TYPE_BEASTS                          = 0,
-    TYPE_JARAXXUS                        = 1,
-    TYPE_CRUSADERS                       = 2,
-    TYPE_VALKIRIES                       = 3,
-    TYPE_LICH_KING                       = 4,
-    TYPE_ANUBARAK                        = 5,
-    MAX_ENCOUNTERS                       = 6,
+    BOSS_BEASTS                 = 0,
+    BOSS_JARAXXUS               = 1,
+    BOSS_CRUSADERS              = 2,
+    BOSS_VALKIRIES              = 3,
+    BOSS_LICH_KING              = 4,    // not really a boss but oh well
+    BOSS_ANUBARAK               = 5,
+    MAX_ENCOUNTERS              = 6,
 
-    TYPE_COUNTER                         = 8,
-    TYPE_EVENT                           = 9,
+    TYPE_COUNTER                = 8,
+    TYPE_EVENT                  = 9,
 
-    TYPE_EVENT_TIMER                     = 101,
-    TYPE_EVENT_NPC                       = 102,
-    TYPE_NORTHREND_BEASTS                = 103,
+    TYPE_EVENT_TIMER            = 101,
+    TYPE_EVENT_NPC              = 102,
+    TYPE_NORTHREND_BEASTS       = 103,
 
     DATA_SNOBOLD_COUNT                   = 301,
     DATA_MISTRESS_OF_PAIN_COUNT          = 302,
     DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
 
-    INCREASE                             = 501,
-    DECREASE                             = 502,
+    INCREASE                    = 501,
+    DECREASE                    = 502,
 
-    SPELL_WILFRED_PORTAL                 = 68424,
-    SPELL_JARAXXUS_CHAINS                = 67924,
+    SPELL_WILFRED_PORTAL        = 68424,
+    SPELL_JARAXXUS_CHAINS       = 67924,
+    SPELL_FEL_LIGHTNING_INSTANT = 67888,
+    SPELL_CORPSE_TELEPORT       = 69016,
+    SPELL_ARTHAS_PORTAL         = 51807,
+    SPELL_DESTROY_FLOOR_KNOCKUP = 68193,
 
-    DESPAWN_TIME                         = 300000
+    DESPAWN_TIME                = 300000,
+
+    DISPLAYID_DESTROYED_FLOOR   = 9060
 };
 
 const Position ToCSpawnLoc[]=
@@ -107,26 +113,26 @@ const Position FactionChampionLoc[]=
 
 const Position TwinValkyrsLoc[]=
 {
-    {586.060242f, 117.514809f, 394.314026f, 0},      // 0 - Dark essence 1
-    {541.602112f, 161.879837f, 394.587952f, 0},      // 1 - Dark essence 2
-    {541.021118f, 117.262932f, 395.314819f, 0},      // 2 - Light essence 1
-    {586.200562f, 162.145523f, 394.626129f, 0}       // 3 - Light essence 2
+    {586.060242f, 117.514809f, 394.41f, 0}, // 0 - Dark essence 1
+    {541.602112f, 161.879837f, 394.41f, 0}, // 1 - Dark essence 2
+    {541.021118f, 117.262932f, 394.41f, 0}, // 2 - Light essence 1
+    {586.200562f, 162.145523f, 394.41f, 0}  // 3 - Light essence 2
 };
 
 const Position LichKingLoc[]=
 {
-    {563.549f, 152.474f, 394.393f, 0},               // 0 - Lich king start
-    {563.547f, 141.613f, 393.908f, 0}                // 1 - Lich king end
+    {563.549f, 152.474f, 394.393f, 0},          // 0 - Lich king start
+    {563.547f, 141.613f, 393.908f, 0}           // 1 - Lich king end
 };
 
 const Position AnubarakLoc[]=
 {
-    {787.932556f, 133.289780f, 142.612152f, 0},      // 0 - Anub'arak start location
-    {695.240051f, 137.834824f, 142.200000f, 0},      // 1 - Anub'arak move point location
-    {694.886353f, 102.484665f, 142.119614f, 0},      // 3 - Nerub Spawn
-    {694.500671f, 185.363968f, 142.117905f, 0},      // 5 - Nerub Spawn
-    {731.987244f, 83.3824690f, 142.119614f, 0},      // 2 - Nerub Spawn
-    {740.184509f, 193.443390f, 142.117584f, 0}       // 4 - Nerub Spawn
+    {787.932556f, 133.289780f, 142.612152f, 0},  // 0 - Anub'arak start location
+    {695.240051f, 137.834824f, 142.200000f, 0},  // 1 - Anub'arak move point location
+    {694.886353f, 102.484665f, 142.119614f, 0},  // 3 - Nerub Spawn
+    {694.500671f, 185.363968f, 142.117905f, 0},  // 5 - Nerub Spawn
+    {731.987244f, 83.3824690f, 142.119614f, 0},  // 2 - Nerub Spawn
+    {740.184509f, 193.443390f, 142.117584f, 0}   // 4 - Nerub Spawn
 };
 
 const Position EndSpawnLoc[]=
@@ -167,29 +173,29 @@ enum eAnnouncerMessages
 
 enum eCreature
 {
-    NPC_BARRENT                         = 34816,
-    NPC_TIRION                          = 34996,
-    NPC_TIRION_FORDRING                 = 36095,
-    NPC_ARGENT_MAGE                     = 36097,
-    NPC_FIZZLEBANG                      = 35458,
-    NPC_GARROSH                         = 34995,
-    NPC_VARIAN                          = 34990,
-    NPC_LICH_KING_0                     = 16980,
-    NPC_LICH_KING_1                     = 35877,
+    NPC_BARRENT                 = 34816,
+    NPC_TIRION                  = 34996,
+    NPC_TIRION_FORDRING         = 36095,
+    NPC_ARGENT_MAGE             = 36097,
+    NPC_FIZZLEBANG              = 35458,
+    NPC_GARROSH                 = 34995,
+    NPC_VARIAN                  = 34990,
+    NPC_LICH_KING_0             = 16980,
+    NPC_LICH_KING_1             = 35877,
 
-    NPC_THRALL                          = 34994,
-    NPC_PROUDMOORE                      = 34992,
-    NPC_WILFRED_PORTAL                  = 17965,
-    NPC_TRIGGER                         = 35651,
+    NPC_THRALL                  = 34994,
+    NPC_PROUDMOORE              = 34992,
+    NPC_WILFRED_PORTAL          = 17965,
+    NPC_TRIGGER                 = 35651,
 
-    NPC_ICEHOWL                         = 34797,
-    NPC_GORMOK                          = 34796,
-    NPC_DREADSCALE                      = 34799,
-    NPC_ACIDMAW                         = 35144,
+    NPC_ICEHOWL                 = 34797,
+    NPC_GORMOK                  = 34796,
+    NPC_DREADSCALE              = 34799,
+    NPC_ACIDMAW                 = 35144,
 
-    NPC_JARAXXUS                        = 34780,
+    NPC_JARAXXUS                = 34780,
 
-    NPC_CHAMPIONS_CONTROLLER            = 34781,
+    NPC_CHAMPIONS_CONTROLLER    = 34781,
 
     NPC_ALLIANCE_DEATH_KNIGHT           = 34461,
     NPC_ALLIANCE_DRUID_BALANCE          = 34460,
@@ -221,39 +227,39 @@ enum eCreature
     NPC_HORDE_WARLOCK                   = 34450,
     NPC_HORDE_WARRIOR                   = 34453,
 
-    NPC_LIGHTBANE                       = 34497,
-    NPC_DARKBANE                        = 34496,
+    NPC_LIGHTBANE               = 34497,
+    NPC_DARKBANE                = 34496,
 
-    NPC_DARK_ESSENCE                    = 34567,
-    NPC_LIGHT_ESSENCE                   = 34568,
+    NPC_DARK_ESSENCE            = 34567,
+    NPC_LIGHT_ESSENCE           = 34568,
 
-    NPC_ANUBARAK                        = 34564
+    NPC_ANUBARAK                = 34564
 };
 
 enum eGameObject
 {
-    GO_CRUSADERS_CACHE_10               = 195631,
-    GO_CRUSADERS_CACHE_25               = 195632,
-    GO_CRUSADERS_CACHE_10_H             = 195633,
-    GO_CRUSADERS_CACHE_25_H             = 195635,
+    GO_CRUSADERS_CACHE_10       = 195631,
+    GO_CRUSADERS_CACHE_25       = 195632,
+    GO_CRUSADERS_CACHE_10_H     = 195633,
+    GO_CRUSADERS_CACHE_25_H     = 195635,
 
     // Tribute Chest (heroic)
     // 10-man modes
-    GO_TRIBUTE_CHEST_10H_25             = 195668,   // 10man 01-24 attempts
-    GO_TRIBUTE_CHEST_10H_45             = 195667,   // 10man 25-44 attempts
-    GO_TRIBUTE_CHEST_10H_50             = 195666,   // 10man 45-49 attempts
-    GO_TRIBUTE_CHEST_10H_99             = 195665,   // 10man 50 attempts
+    GO_TRIBUTE_CHEST_10H_25     = 195665, // 10man 01-24 attempts
+    GO_TRIBUTE_CHEST_10H_45     = 195666, // 10man 25-44 attempts
+    GO_TRIBUTE_CHEST_10H_50     = 195667, // 10man 45-49 attempts
+    GO_TRIBUTE_CHEST_10H_99     = 195668, // 10man 50 attempts
     // 25-man modes
-    GO_TRIBUTE_CHEST_25H_25             = 195672,   // 25man 01-24 attempts
-    GO_TRIBUTE_CHEST_25H_45             = 195671,   // 25man 25-44 attempts
-    GO_TRIBUTE_CHEST_25H_50             = 195670,   // 25man 45-49 attempts
-    GO_TRIBUTE_CHEST_25H_99             = 195669,   // 25man 50 attempts
+    GO_TRIBUTE_CHEST_25H_25     = 195669, // 25man 01-24 attempts
+    GO_TRIBUTE_CHEST_25H_45     = 195670, // 25man 25-44 attempts
+    GO_TRIBUTE_CHEST_25H_50     = 195671, // 25man 45-49 attempts
+    GO_TRIBUTE_CHEST_25H_99     = 195672, // 25man 50 attempts
 
-    GO_ARGENT_COLISEUM_FLOOR            = 195527,   //20943
-    GO_MAIN_GATE_DOOR                   = 195647,
-    GO_EAST_PORTCULLIS                  = 195648,
-    GO_WEB_DOOR                         = 195485,
-    GO_PORTAL_TO_DALARAN                = 19568
+    GO_ARGENT_COLISEUM_FLOOR    = 195527, //20943
+    GO_MAIN_GATE_DOOR           = 195647,
+    GO_EAST_PORTCULLIS          = 195648,
+    GO_WEB_DOOR                 = 195485,
+    GO_PORTAL_TO_DALARAN        = 195682
 };
 
 enum eAchievementData

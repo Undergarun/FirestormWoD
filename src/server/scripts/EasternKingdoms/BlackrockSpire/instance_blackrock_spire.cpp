@@ -19,6 +19,11 @@
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
 
+enum Achievements
+{
+    ACHIEVEMENT_LEROY_JENKINS   = 2188
+};
+
 class instance_blackrock_spire : public InstanceMapScript
 {
 public:
@@ -56,6 +61,11 @@ public:
         uint8 Runemaxprotectors[MAX_DRAGONSPIRE_HALL_RUNES];
         uint8 Runeprotectorsdead[MAX_DRAGONSPIRE_HALL_RUNES];
 
+        uint32 LeeroyTimer;
+        uint32 WhelpCount;
+        uint32 LeroyData;
+        bool Leeeeeeeeroy;
+
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
@@ -76,6 +86,11 @@ public:
             go_emberseerin          = 0;
             go_doors                = 0;
             go_emberseerout         = 0;
+
+            LeeroyTimer = 15 * IN_MILLISECONDS;
+            WhelpCount = 0;
+            Leeeeeeeeroy = true;
+            LeroyData = 0; 
         }
 
         bool IsEncounterInProgress() const
@@ -180,6 +195,54 @@ public:
                     break;
             }
         }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            switch(type) 
+            {
+                case EVENT_LEEEROY: 
+                    if (data == DONE) 
+                        DoCompleteAchievement(ACHIEVEMENT_LEROY_JENKINS);
+                    LeroyData = data; 
+                    break;
+                case WHELP_DEATH_COUNT: 
+                    if (data == 1)
+                        SetData(EVENT_LEEEROY, IN_PROGRESS);
+                    WhelpCount = data;
+                    break;
+            }  
+        } 
+        
+        uint32 GetData(uint32 type)
+        {
+            switch(type)
+            {
+                case EVENT_LEEEROY:      return LeroyData;
+                case WHELP_DEATH_COUNT:  return WhelpCount;
+            }
+            return 0;
+        }
+
+        void Update(uint32 diff)
+        {
+            if (GetData(EVENT_LEEEROY) != FAIL && GetData(EVENT_LEEEROY) == IN_PROGRESS)
+            {
+                if (LeeroyTimer <= diff)
+                {
+                    SetData(EVENT_LEEEROY, FAIL);
+                    Leeeeeeeeroy = false;
+                    DoSendNotifyToInstance("Leeeeeeeeeeeeeroy! achievement failed");
+                } 
+                else 
+                    LeeroyTimer -= diff;
+
+                if (WhelpCount >= 50 && Leeeeeeeeroy)
+                {
+                    SetData(EVENT_LEEEROY, DONE);
+                    DoSendNotifyToInstance("Leeeeeeeeeeeeeroy! achievement completed");
+                }
+            }
+        } 
 
         bool SetBossState(uint32 type, EncounterState state)
         {

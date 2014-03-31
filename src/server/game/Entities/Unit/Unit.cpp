@@ -287,6 +287,13 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_VisibilityUpdScheduled = false;
 
     m_SendTransportMoveTimer = 0;
+
+    for (int i = 0; i < MAX_POWERS; ++i)
+        m_lastRegenTime[i] = getMSTime();
+
+    for (int i = 0; i < MAX_POWERS; ++i)
+        m_powers[i] = 0;
+
     m_lastVisibilityUpdPos = *this;
 }
 
@@ -1035,7 +1042,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         // in bg, count dmg if victim is also a player
         if (victim->GetTypeId() == TYPEID_PLAYER)
             if (Battleground* bg = killer->GetBattleground())
-                bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
+                bg->UpdatePlayerScore(killer, NULL, SCORE_DAMAGE_DONE, damage);
 
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, 0, victim);
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
@@ -1048,7 +1055,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
             if (victim->GetTypeId() == TYPEID_PLAYER)
                 if (Battleground* bg = killerOwner->GetBattleground())
-                    bg->UpdatePlayerScore(killerOwner, SCORE_DAMAGE_DONE, damage);
+                    bg->UpdatePlayerScore(killerOwner, NULL, SCORE_DAMAGE_DONE, damage);
         }
     }
 
@@ -3215,10 +3222,7 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
 
 void Unit::_DeleteRemovedAuras()
 {
-    while (!m_removedAuras.empty())
-    {
-        m_removedAuras.pop_front();
-    }
+    m_removedAuras.clear();
 }
 
 void Unit::_UpdateSpells(uint32 time)
@@ -3717,7 +3721,7 @@ AuraApplication * Unit::_CreateAuraApplication(AuraPtr aura, uint32 effMask)
     }
 
     if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
-        m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, aurApp));
+        m_auraStateAuras.insert(AuraStateAurasMap::value_type(uint32(aState), aurApp));
 
     aura->_ApplyForTarget(this, caster, aurApp);
     return aurApp;
@@ -10898,6 +10902,8 @@ void Unit::setPowerType(Powers new_powertype)
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             break;
     }
+
+    SetPower(new_powertype, GetPower(new_powertype));
 }
 
 FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
@@ -11825,7 +11831,7 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
     if (Player* player = unit->ToPlayer())
     {
         if (Battleground* bg = player->GetBattleground())
-            bg->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
+            bg->UpdatePlayerScore(player, NULL, SCORE_HEALING_DONE, gain);
 
         // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
         if (gain)
@@ -13383,14 +13389,9 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 127626)
         return healamount;
 
-    // Healing taken percent
-    float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-    if (minval)
-        AddPct(TakenTotalMod, minval);
-
-    float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-    if (maxval)
-        AddPct(TakenTotalMod, maxval);
+    AuraEffectList const& modHealingPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT);
+    for (AuraEffectList::const_iterator i = modHealingPct.begin(); i != modHealingPct.end(); ++i)
+        AddPct(TakenTotalMod, (*i)->GetAmount());
 
     // Tenacity increase healing % taken
     if (constAuraEffectPtr Tenacity = GetAuraEffect(58549, 0))
@@ -14141,6 +14142,19 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
+void Unit::ApplyUberImmune(uint32 spellid, bool apply)
+{
+    if (apply)
+        RemoveAurasWithMechanic(IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK, AURA_REMOVE_BY_DEFAULT, spellid);
+    for (uint32 mech=MECHANIC_CHARM; mech!=MECHANIC_ENRAGED; ++mech)
+    {
+        if (mech == MECHANIC_DISARM)
+            continue;
+        if (1<<mech & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK)
+            ApplySpellImmune(spellid, IMMUNITY_MECHANIC, mech, apply);
+    }
+}
+
 void Unit::ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply)
 {
     if (apply)
@@ -14266,11 +14280,17 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             }
         }
 
+        if (player->HasAura(56232) && (creatureEntry == 304 || creatureEntry == 73965 || creatureEntry == 73966))
+            player->CastSpell(player, 143314, true);
+
         // don't unsummon pet but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
         if (Pet* pet = player->GetPet())
             pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
+
+        if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
+            player->AddAura(20217, player);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -14285,7 +14305,10 @@ void Unit::Dismount()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
     if (Player* thisPlayer = ToPlayer())
+    {
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
+        thisPlayer->RemoveAurasDueToSpell(143314);
+    }
 
     ObjectGuid guid = GetGUID();
 
@@ -15844,6 +15867,9 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
             case 2:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT3, value);
                 break;
+            case 4:
+                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT5, value);
+                break;
         }
     }
     return value;
@@ -16532,7 +16558,7 @@ int32 Unit::GetPower(Powers power) const
     if (powerIndex == MAX_POWERS)
         return 0;
 
-    return GetUInt32Value(UNIT_FIELD_POWER1 + powerIndex);
+    return m_powers[powerIndex];
 }
 
 int32 Unit::GetMaxPower(Powers power) const
@@ -16544,7 +16570,7 @@ int32 Unit::GetMaxPower(Powers power) const
     return GetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
 }
 
-void Unit::SetPower(Powers power, int32 val)
+void Unit::SetPower(Powers power, int32 val, bool regen)
 {
     uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
@@ -16554,9 +16580,16 @@ void Unit::SetPower(Powers power, int32 val)
     if (maxPower < val)
         val = maxPower;
 
-    SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+    m_powers[powerIndex] = val;
+    uint32 regen_diff = getMSTime() - m_lastRegenTime[powerIndex];
 
-    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER)
+    if (regen)
+        m_lastRegenTime[powerIndex] = getMSTime();
+
+    if (!regen || regen_diff > 2000)
+        SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+
+    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER && (!regen || regen_diff > 2000))
     {
         WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
         ObjectGuid guid = GetGUID();
@@ -20911,6 +20944,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             totemType = SUMMON_TYPE_TOTEM_FIRE;
             break;
         case SUMMON_TYPE_TOTEM_EARTH2:
+        case SUMMON_TYPE_TOTEM_EARTH3:
             totemType = SUMMON_TYPE_TOTEM_EARTH;
             break;
         case SUMMON_TYPE_TOTEM_WATER2:
@@ -20919,6 +20953,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         case SUMMON_TYPE_TOTEM_AIR2:
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
+        case SUMMON_TYPE_TOTEM_AIR5:
             totemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }

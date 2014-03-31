@@ -199,6 +199,14 @@ class InstanceScript : public ZoneScript
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 
+        void DoSetAlternatePowerOnPlayers(int32 value);
+
+        void DoModifyPlayerCurrencies(uint32 id, int32 value);
+
+        void DoNearTeleportPlayers(const Position pos, bool casting = false);
+
+        void DoKilledMonsterKredit(uint32 questId, uint32 entry, uint64 guid = 0);
+
         // Add aura on all players in instance
         void DoAddAuraOnPlayers(uint32 spell);
 

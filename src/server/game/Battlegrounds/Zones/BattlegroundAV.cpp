@@ -563,7 +563,7 @@ void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
             ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += value;
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+            Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
             break;
     }
 }

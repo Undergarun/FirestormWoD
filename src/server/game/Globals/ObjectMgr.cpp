@@ -6123,8 +6123,8 @@ void ObjectMgr::LoadAccessRequirements()
 
     _accessRequirementStore.clear();                                  // need for reload case
 
-    //                                               0      1           2          3          4     5      6             7             8                      9              10             11
-    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, itemlevel_min, itemlevel_max, quest_failed_text FROM access_requirement");
+    //                                               0      1           2          3          4     5      6             7             8                      9                     10             11               12
+    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, leader_achievement, itemlevel_min, itemlevel_max, quest_failed_text FROM access_requirement");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 access requirement definitions. DB table `access_requirement` is empty.");
@@ -6152,9 +6152,10 @@ void ObjectMgr::LoadAccessRequirements()
         ar.quest_A                  = fields[6].GetUInt32();
         ar.quest_H                  = fields[7].GetUInt32();
         ar.achievement              = fields[8].GetUInt32();
-        ar.itemlevelMin             = fields[9].GetUInt32();
-        ar.itemlevelMax             = fields[10].GetUInt32();
-        ar.questFailedText          = fields[11].GetString();
+        ar.leader_achievement       = fields[9].GetUInt32();
+        ar.itemlevelMin             = fields[10].GetUInt32();
+        ar.itemlevelMax             = fields[11].GetUInt32();
+        ar.questFailedText          = fields[12].GetString();
 
         if (ar.item)
         {
@@ -6200,6 +6201,15 @@ void ObjectMgr::LoadAccessRequirements()
             {
                 sLog->outError(LOG_FILTER_SQL, "Required Achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar.achievement, mapid, difficulty);
                 ar.achievement = 0;
+            }
+        }
+
+        if (ar.leader_achievement)
+        {
+            if (!sAchievementMgr->GetAchievement(ar.leader_achievement))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Required Leader achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar.leader_achievement, mapid, difficulty);
+                ar.leader_achievement = 0;
             }
         }
 

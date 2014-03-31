@@ -23,8 +23,7 @@ SDComment:
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "sunwell_plateau.h"
 
 enum Yells
@@ -270,7 +269,6 @@ public:
                         }
                         else
                         {
-                            sLog->outError(LOG_FILTER_TSCR, "Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }
@@ -307,7 +305,7 @@ public:
                     std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
                     std::list<Unit*> targetList;
                     for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
-                        if (me->getVictim() && (*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
+                        if ((*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
                             targetList.push_back((*itr)->getTarget());
                     if (targetList.empty())
                     {
@@ -635,12 +633,6 @@ public:
                 Kalec->setActive(true);
             }
             DoScriptText(SAY_SATH_AGGRO, me);
-        }
-
-        void DamageTaken(Unit* done_by, uint32 &damage)
-        {
-            if (damage >= me->GetHealth() && done_by != me)
-                damage = 0;
         }
 
         void KilledUnit(Unit* target)

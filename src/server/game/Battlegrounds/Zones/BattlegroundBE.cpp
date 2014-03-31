@@ -167,7 +167,7 @@ void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
         return;
 
     //there is nothing special in this score
-    Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+    Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
 
 }
 

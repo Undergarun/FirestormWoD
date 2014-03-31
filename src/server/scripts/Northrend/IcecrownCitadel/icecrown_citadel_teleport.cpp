@@ -43,7 +43,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                 }
                 if (instance->GetData(DATA_COLDFLAME_JETS) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
-                if (instance->GetData(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                if (instance->GetData(DATA_SINDRAGOSA_GAUNTLET) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
             }
 

@@ -347,14 +347,14 @@ public:
                     waveTimer -= uiDiff;
             }
         }
-
+        
     private:
         uint8 wave;
         uint32 waveTimer;
         uint64 valrothGUID;
 
     };
-
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_koltira_deathweaverAI(creature);
@@ -679,6 +679,7 @@ public:
                     if (player->GetQuestStatus(28650) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
+                    
             }
 
             return false;

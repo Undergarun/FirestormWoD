@@ -26,8 +26,7 @@ At 33%, he will awaken the Vault Walkers
 On his death the vault door opens.
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "uldaman.h"
 
 #define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
@@ -95,17 +94,14 @@ class boss_archaedas : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void ActivateMinion(uint64 uiGuid, bool flag)
+            void ActivateMinion(uint64 uiGuid, bool bFlag)
             {
-                Unit* minion = Unit::GetUnit(*me, uiGuid);
+                Unit* pMinion = Unit::GetUnit(*me, uiGuid);
 
-                if (minion && minion->isAlive())
+                if (pMinion && pMinion->isAlive())
                 {
-                   DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
-                   minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
-                   minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                   minion->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
-                   minion->setFaction(14);
+                    DoCast(pMinion, SPELL_AWAKEN_VAULT_WALKER, bFlag);
+                    pMinion->CastSpell(pMinion, SPELL_ARCHAEDAS_AWAKEN, true);
                 }
             }
 
@@ -143,8 +139,7 @@ class boss_archaedas : public CreatureScript
                 {
                     iAwakenTimer -= uiDiff;
                     return;        // dont do anything until we are done
-                }
-                else if (bWakingUp && iAwakenTimer <= 0)
+                } else if (bWakingUp && iAwakenTimer <= 0)
                 {
                     bWakingUp = false;
                     AttackStart(Unit::GetUnit(*me, instance->GetData64(0)));
@@ -161,8 +156,7 @@ class boss_archaedas : public CreatureScript
                     instance->SetData(DATA_MINIONS, IN_PROGRESS);
 
                     uiWallMinionTimer = 10000;
-                }
-                else uiWallMinionTimer -= uiDiff;
+                } else uiWallMinionTimer -= uiDiff;
 
                 //If we are <66 summon the guardians
                 if (!bGuardiansAwake && !HealthAbovePct(66))
@@ -197,9 +191,7 @@ class boss_archaedas : public CreatureScript
 
                     //45 seconds until we should cast this agian
                     uiTremorTimer  = 45000;
-                }
-                else
-                    uiTremorTimer  -= uiDiff;
+                } else uiTremorTimer  -= uiDiff;
 
                 DoMeleeAttackIfReady();
             }
@@ -297,8 +289,7 @@ class mob_archaedas_minions : public CreatureScript
                 {
                     iAwakenTimer -= uiDiff;
                     return;        // dont do anything until we are done
-                }
-                else if (bWakingUp && iAwakenTimer <= 0)
+                } else if (bWakingUp && iAwakenTimer <= 0)
                 {
                     bWakingUp = false;
                     bAmIAwake = true;
@@ -403,11 +394,13 @@ class go_altar_of_archaedas : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        bool OnGossipHello(Player* player, GameObject* go)
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance)
                 return false;
+
+            go->SetLootState(GO_JUST_DEACTIVATED);
 
             player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
 
@@ -434,14 +427,18 @@ class go_altar_of_the_keepers : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        bool OnGossipHello(Player* player, GameObject* go)
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance)
                 return false;
 
-            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
+            uint8 clickCount = instance->GetData(DATA_ALTAR_OF_KEEPERS);
+            if (clickCount == 5)
+                go->SetLootState(GO_JUST_DEACTIVATED);
 
+            instance->SetData(DATA_ALTAR_OF_KEEPERS, clickCount + 1);
+            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
             instance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS); // activate the Stone Keepers
             return false;
         }
@@ -457,4 +454,3 @@ void AddSC_boss_archaedas()
     new go_altar_of_archaedas();
     new go_altar_of_the_keepers();
 }
-

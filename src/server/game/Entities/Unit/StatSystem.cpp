@@ -344,6 +344,7 @@ void Player::UpdateMaxPower(Powers power)
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    value = floor(value + 0.5f);
     SetMaxPower(power, uint32(value));
 }
 

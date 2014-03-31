@@ -70,5 +70,5 @@ void BattlegroundRB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
-    Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
+    Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
 }

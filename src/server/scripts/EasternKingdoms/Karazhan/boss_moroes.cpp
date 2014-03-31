@@ -566,9 +566,8 @@ public:
 
             if (GreaterHeal_Timer <= diff)
             {
-                Unit* target = SelectGuestTarget();
-
-                DoCast(target, SPELL_GREATERHEAL);
+                if (Unit* target = SelectGuestTarget())
+                    DoCast(target, SPELL_GREATERHEAL);
                 GreaterHeal_Timer = 17000;
             } else GreaterHeal_Timer -= diff;
 
@@ -645,10 +644,8 @@ public:
 
             if (GreaterBless_Timer <= diff)
             {
-                Unit* target = SelectGuestTarget();
-
-                DoCast(target, SPELL_GREATERBLESSOFMIGHT);
-
+                if (Unit* target = SelectGuestTarget())
+                    DoCast(target, SPELL_GREATERHEAL);
                 GreaterBless_Timer = 50000;
             } else GreaterBless_Timer -= diff;
 
