@@ -93,7 +93,7 @@ class boss_varos : public CreatureScript
                 return coreEnergizeOrientation;
             }
 
-            void UpdateAI(uint32 diff) 
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -192,7 +192,7 @@ class npc_azure_ring_captain : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/) 
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -212,7 +212,7 @@ class npc_azure_ring_captain : public CreatureScript
                     DoCast(target, SPELL_ICE_BEAM);
             }
 
-            void DoAction(int32 action) 
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {

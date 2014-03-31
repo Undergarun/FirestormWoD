@@ -408,6 +408,47 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
                 player->CastSpell(player, spell, true);
 }
 
+void InstanceScript::DoSetAlternatePowerOnPlayers(int32 value)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                pPlayer->SetPower(POWER_ALTERNATE_POWER, value);
+}
+
+void InstanceScript::DoModifyPlayerCurrencies(uint32 id, int32 value)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                pPlayer->ModifyCurrency(id, value);
+}
+
+void InstanceScript::DoNearTeleportPlayers(const Position pos, bool casting /*=false*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                pPlayer->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), casting);
+}
+
+void InstanceScript::DoKilledMonsterKredit(uint32 questId, uint32 entry, uint64 guid/* =0*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                if (pPlayer->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                    pPlayer->KilledMonsterCredit(entry, guid);
+}
+
 // Add aura on all players in instance
 void InstanceScript::DoAddAuraOnPlayers(uint32 spell)
 {

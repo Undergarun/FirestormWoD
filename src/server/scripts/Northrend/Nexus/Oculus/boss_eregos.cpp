@@ -136,7 +136,7 @@ class boss_eregos : public CreatureScript
                 return 0;
             }
 
-            void DoAction(int32 action) 
+            void DoAction(const int32 action)
             {
                 if (action != ACTION_SET_NORMAL_EVENTS)
                     return;
@@ -190,7 +190,7 @@ class boss_eregos : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) 
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;

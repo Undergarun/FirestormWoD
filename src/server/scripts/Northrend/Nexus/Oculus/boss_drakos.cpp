@@ -76,7 +76,7 @@ class boss_drakos : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) 
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -168,7 +168,7 @@ class npc_unstable_sphere : public CreatureScript
                 me->DespawnOrUnsummon(19000);
             }
 
-            void UpdateAI(uint32 diff) 
+            void UpdateAI(uint32 const diff)
             {
                 if (pulseTimer <= diff)
                 {

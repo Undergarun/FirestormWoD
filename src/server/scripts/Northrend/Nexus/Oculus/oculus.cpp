@@ -300,7 +300,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) 
+            void UpdateAI(uint32 const diff)
             {
                 if (_healthWarning)
                 {
