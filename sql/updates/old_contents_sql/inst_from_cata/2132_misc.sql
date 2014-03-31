@@ -1,13 +1,14 @@
 ﻿
 DELETE FROM `creature` WHERE `id`=55294 AND `map`=967;
 
+/*
 UPDATE `creature` SET `phaseMask`=17 WHERE `guid`=344360 AND `map`=967;
 UPDATE `creature` SET `phaseMask`=17 WHERE `guid`=344326 AND `map`=967;
 UPDATE `creature` SET `phaseMask`=17 WHERE `guid`=344319 AND `map`=967;
 UPDATE `creature` SET `phaseMask`=17 WHERE `guid`=344357 AND `map`=967;
 UPDATE `creature` SET `phaseMask`=17 WHERE `guid`=344364 AND `map`=967;
 UPDATE `creature` SET `phaseMask`=17 WHERE `guid`=343321 AND `map`=967;
-
+*/
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (55294, 56576, 56577, 56578);
 
 UPDATE `creature_template` SET `modelid2`=0 WHERE `entry`=56668;
@@ -67,10 +68,10 @@ REPLACE INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spel
 (105900, 0, 0, 0, 0, 0, 278528, 0, 0, 0, 0);
 
 DELETE FROM `spell_group` WHERE `id`=3000;
-INSERT INTO `spell_group` (`id`, `spell_id`, `comments`) VALUES (3000, 105896, 'Gift of Life');
-INSERT INTO `spell_group` (`id`, `spell_id`, `comments`) VALUES (3000, 105900, 'Essence of Dreams');
-INSERT INTO `spell_group` (`id`, `spell_id`, `comments`) VALUES (3000, 105903, 'Source of Magic');
-REPLACE INTO `spell_group_stack_rules` (`group_id`, `stack_rule`, `comments`) VALUES (3000, 1, 'Ultraxion auras');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES (3000, 105896);
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES (3000, 105900);
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES (3000, 105903);
+REPLACE INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES (3000, 1);
 
 
 DELETE FROM `creature_text` WHERE `entry`=55294;

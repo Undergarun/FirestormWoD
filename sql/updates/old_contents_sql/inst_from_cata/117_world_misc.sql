@@ -1,4 +1,4 @@
-﻿
+﻿/*
 DELETE FROM `creature` WHERE `guid`=332167 AND `id`=45915;
 DELETE FROM `creature_addon` WHERE `guid`=332167;
 DELETE FROM `creature` WHERE `guid`=332204 AND `id`=45704;
@@ -23,6 +23,7 @@ DELETE FROM `creature` WHERE `guid`=332086 AND `id`=45924;
 DELETE FROM `creature_addon` WHERE `guid`=332086;
 DELETE FROM `creature` WHERE `guid`=332124 AND `id`=45981;
 DELETE FROM `creature_addon` WHERE `guid`=332124;
+*/
 DELETE FROM `creature` WHERE `id`=46007 AND `map`=657;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=46007;
 DELETE FROM `creature` WHERE `id`=46492 AND `map`=657;
@@ -44,8 +45,8 @@ DELETE FROM `creature` WHERE `id`=42844 AND `map`=657;
 DELETE FROM `creature` WHERE `id`=47085 AND `map`=657;
 DELETE FROM `creature` WHERE `id`=45981 AND `map`=657;
 
-INSERT IGNORE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`) VALUES (371471, 45455, 657, 3, 1, 0, 0, -1198.79, 107.046, 740.707, 6.0055, 300, 0, 0, 64496, 0);
-INSERT IGNORE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`) VALUES (371473, 45455, 657, 3, 1, 0, 0, -765.44, -41.37, 639.93, 4.16842, 604800, 0, 0, 42, 0);
+INSERT IGNORE INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`) VALUES (45455, 657, 3, 1, 0, 0, -1198.79, 107.046, 740.707, 6.0055, 300, 0, 0, 64496, 0);
+INSERT IGNORE INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`) VALUES (45455, 657, 3, 1, 0, 0, -765.44, -41.37, 639.93, 4.16842, 604800, 0, 0, 42, 0);
 
 UPDATE `creature_template` SET `unit_flags`=0, `dynamicflags`=0, `InhabitType`=1 WHERE `entry`=43873;
 UPDATE `creature_template` SET `unit_flags`=0, `dynamicflags`=0, `InhabitType`=1 WHERE `entry`=43874;

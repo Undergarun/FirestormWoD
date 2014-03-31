@@ -475,7 +475,7 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (17542, 18096);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (17542, 11, 0, 0, 'achievement_death_from_above');
 
-?REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES (53082, 98997, 1, 0);
+REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES (53082, 98997, 1, 0);
 
 UPDATE `creature_template` SET `ScriptName`='npc_lord_rhyolith_rhyolith' WHERE `entry`=53772;
 

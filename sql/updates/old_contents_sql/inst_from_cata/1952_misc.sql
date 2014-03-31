@@ -12,9 +12,9 @@ DELETE FROM `creature` WHERE `id` IN (53700, 53398, 53400, 53406);
 
 DELETE FROM `creature` WHERE `id` IN (53392, 53396, 53422, 53394, 53408);
 
-DELETE FROM `game_event_creature` WHERE `guid`=305518 AND `eventEntry`=29;
-DELETE FROM `game_event_creature` WHERE `guid`=305529 AND `eventEntry`=29;
-DELETE FROM `game_event_creature` WHERE `guid`=356789 AND `eventEntry`=29;
+-- DELETE FROM `game_event_creature` WHERE `guid`=305518 AND `eventEntry`=29;
+-- DELETE FROM `game_event_creature` WHERE `guid`=305529 AND `eventEntry`=29;
+-- DELETE FROM `game_event_creature` WHERE `guid`=356789 AND `eventEntry`=29;
 
 DELETE FROM `creature` WHERE `id` IN (53371, 53466);
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 

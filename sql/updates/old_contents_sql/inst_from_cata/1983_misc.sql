@@ -1,9 +1,9 @@
 DELETE FROM `creature` WHERE `id`=26123;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
-(353189, 26123, 1, 1, 65535, 16541, 0, 9968.46, 2234.55, 1331.86, 4.72984, 300, 0, 0, 4700, 0, 0),
-(353264, 26123, 0, 1, 65535, 16541, 0, -4707.91, -1226.09, 501.743, 2.14675, 300, 0, 0, 4700, 0, 0),
-(353227, 26123, 530, 1, 65535, 16541, 0, -3792.68, -11515.7, -134.693, 6.24828, 300, 0, 0, 4700, 0, 0),
-(353301, 26123, 0, 1, 65535, 16541, 0, -8829.35, 871.23, 98.7679, 4.53786, 300, 0, 0, 4700, 0, 0);
+INSERT INTO `creature` (`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
+(26123, 1, 1, 65535, 16541, 0, 9968.46, 2234.55, 1331.86, 4.72984, 300, 0, 0, 4700, 0, 0),
+(26123, 0, 1, 65535, 16541, 0, -4707.91, -1226.09, 501.743, 2.14675, 300, 0, 0, 4700, 0, 0),
+(26123, 530, 1, 65535, 16541, 0, -3792.68, -11515.7, -134.693, 6.24828, 300, 0, 0, 4700, 0, 0),
+(26123, 0, 1, 65535, 16541, 0, -8829.35, 871.23, 98.7679, 4.53786, 300, 0, 0, 4700, 0, 0);
 DELETE FROM `creature_questrelation` WHERE `quest` = 11749;
 DELETE FROM `gameobject_questrelation` WHERE `quest` = 11749;
 UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 11749;

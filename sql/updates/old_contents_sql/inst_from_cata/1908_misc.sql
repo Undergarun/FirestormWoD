@@ -6,39 +6,39 @@
 56036, 56002, 57410, 55762,
 55502, 55837, 55419, 55838);
 
-DELETE FROM `creature` WHERE `guid`=340540 AND `id`=55500 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340523 AND `id`=55500 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340530 AND `id`=55500 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340697 AND `id`=57117 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340698 AND `id`=57118 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340695 AND `id`=54645 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340696 AND `id`=54645 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340431 AND `id`=54020 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340428 AND `id`=45979 AND `map`=939;
-DELETE FROM `creature` WHERE `guid`=340429 AND `id`=45979 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340540 AND `id`=55500 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340523 AND `id`=55500 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340530 AND `id`=55500 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340697 AND `id`=57117 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340698 AND `id`=57118 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340695 AND `id`=54645 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340696 AND `id`=54645 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340431 AND `id`=54020 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340428 AND `id`=45979 AND `map`=939;
+-- DELETE FROM `creature` WHERE `guid`=340429 AND `id`=45979 AND `map`=939;
 
-UPDATE `creature` SET `spawnmask`=0 WHERE `guid`=339887 AND `id`=55656 AND `map`=939;
-UPDATE `creature` SET `spawnmask`=0 WHERE `guid`=339886 AND `id`=55656 AND `map`=939;
-UPDATE `creature` SET `spawnmask`=0 WHERE `guid`=339885 AND `id`=55654 AND `map`=939;
+-- UPDATE `creature` SET `spawnmask`=0 WHERE `guid`=339887 AND `id`=55656 AND `map`=939;
+-- UPDATE `creature` SET `spawnmask`=0 WHERE `guid`=339886 AND `id`=55656 AND `map`=939;
+-- UPDATE `creature` SET `spawnmask`=0 WHERE `guid`=339885 AND `id`=55654 AND `map`=939;
 UPDATE `creature` SET `spawnmask`=0 WHERE `map`=939 AND `id` IN 
 (54513, 55965, 56389, 55700, 55393, 55394, 55391, 57458, 56102, 55395, 55366, 55390, 55453, 55426, 55465);
 
-UPDATE `creature_addon` SET `auras`='' WHERE `guid`=339888;
-UPDATE `creature_addon` SET `auras`='' WHERE `guid`=339884;
+-- UPDATE `creature_addon` SET `auras`='' WHERE `guid`=339888;
+-- UPDATE `creature_addon` SET `auras`='' WHERE `guid`=339884;
 
-DELETE FROM `waypoint_data` WHERE `id` IN (340397, 340398, 340424);
-UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=340397;
-UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=340398;
-UPDATE `creature` SET `MovementType`=0 WHERE `guid`=340397;
-UPDATE `creature` SET `MovementType`=0 WHERE `guid`=340398;
-UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=340424;
-UPDATE `creature` SET `MovementType`=0 WHERE `guid`=340424;
+-- DELETE FROM `waypoint_data` WHERE `id` IN (340397, 340398, 340424);
+-- UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=340397;
+-- UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=340398;
+-- UPDATE `creature` SET `MovementType`=0 WHERE `guid`=340397;
+-- UPDATE `creature` SET `MovementType`=0 WHERE `guid`=340398;
+-- UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=340424;
+-- UPDATE `creature` SET `MovementType`=0 WHERE `guid`=340424;
 
 UPDATE `creature` SET `position_x`=3127.861572, `position_y`=-5560.419922, `position_z`=18.02, `orientation`=6.03 WHERE `guid`=340424 AND `id`=55570 AND `map`=939;
 UPDATE `creature` SET `position_x`=3125.645508, `position_y`=-5552.871094, `position_z`=18.03, `orientation`=5.78 WHERE `guid`=340425 AND `id`=55532 AND `map`=939;
 
 UPDATE `creature_template_addon` SET `auras`='104746' WHERE `entry`=55532;
-UPDATE `creature_addon` SET `auras`='104746' WHERE `guid`=340425;
+-- UPDATE `creature_addon` SET `auras`='104746' WHERE `guid`=340425;
 
 UPDATE `creature_template` SET `unit_flags`=64 WHERE `entry`=55503;
 UPDATE `creature_template` SET `unit_flags`=32768, `dynamicflags`=4 WHERE `entry`=55085;
@@ -82,7 +82,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_well_of_eternity_illidan_1' WHE
 UPDATE `creature_template` SET `ScriptName`='boss_perotharn' WHERE `entry`=55085;
 UPDATE `creature_template` SET `ScriptName`='npc_perotharn_eye_of_perotharn' WHERE `entry` IN (55868, 55879);
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (55085, 395, NULL, NULL, 7000, NULL, NULL);
 
 DELETE FROM `conditions` WHERE `SourceEntry` IN (105543, 105546, 105509);
@@ -107,10 +107,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_well_of_eternity_enchanted_high
 UPDATE `creature_template` SET `ScriptName`='npc_well_of_eternity_enchanted_highmistress' WHERE `entry`=54589;
 UPDATE `creature_template` SET `ScriptName`='npc_well_of_eternity_royal_handmaiden' WHERE `entry`=54645;
 
-REPLACE INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
-(340392, 340392, 0, 0, 2),
-(340392, 340393, 5, 90, 2),
-(340392, 340394, 5, 270, 2);
+-- REPLACE INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
+-- (340392, 340392, 0, 0, 2),
+-- (340392, 340393, 5, 90, 2),
+-- (340392, 340394, 5, 270, 2);
 
 UPDATE `creature_template` SET `ScriptName`='boss_queen_azshara' WHERE `entry`=54853;
 UPDATE `creature_template` SET `ScriptName`='npc_queen_azshara_enchanted_magus' WHERE `entry` IN (54884, 54883, 54882);

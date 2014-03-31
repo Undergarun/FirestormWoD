@@ -5,10 +5,10 @@ DELETE FROM `creature` WHERE `map`=967 AND `id`=49794;
 UPDATE `creature` SET `spawnmask`=15 WHERE `id`=55308 AND `map`=967;
 
 DELETE FROM `creature` WHERE `map`=967 AND `id` IN (55416, 57875);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 
-(343899, 57875, 967, 15, 1, 28615, 0, -1792.2, -1988.63, -221.373, 1.41372, 7200, 0, 0, 2402190, 0, 0, 0, 0, 0),
-(343908, 57875, 967, 15, 1, 28615, 0, -1839.37, -1895.09, -221.381, 5.98648, 7200, 0, 0, 2402190, 0, 0, 0, 0, 0),
-(343636, 57875, 967, 15, 1, 28615, 0, -1696.95, -1941.09, -221.292, 1.90241, 7200, 0, 0, 2402190, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 
+(57875, 967, 15, 1, 28615, 0, -1792.2, -1988.63, -221.373, 1.41372, 7200, 0, 0, 2402190, 0, 0, 0, 0, 0),
+(57875, 967, 15, 1, 28615, 0, -1839.37, -1895.09, -221.381, 5.98648, 7200, 0, 0, 2402190, 0, 0, 0, 0, 0),
+(57875, 967, 15, 1, 28615, 0, -1696.95, -1941.09, -221.292, 1.90241, 7200, 0, 0, 2402190, 0, 0, 0, 0, 0);
 
 
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=55334;
@@ -61,7 +61,7 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (18494, 18481, 18
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `ScriptName`) VALUES 
 (18494, 11, 'achievement_ping_pong_champion');
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (55308, 396, 614, 0, 12000, 1, 0),
 (55309, 396, 614, 0, 14000, 1, 0),
 (55310, 396, 614, 0, 12000, 1, 0),

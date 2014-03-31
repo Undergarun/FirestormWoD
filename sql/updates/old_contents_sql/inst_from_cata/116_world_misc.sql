@@ -1,4 +1,5 @@
-﻿DELETE FROM `creature` WHERE `guid`=327611 AND `id`=39987;
+﻿/*
+DELETE FROM `creature` WHERE `guid`=327611 AND `id`=39987;
 DELETE FROM `creature_addon` WHERE `guid`=327611;
 DELETE FROM `creature` WHERE `guid`=327610 AND `id`=39987;
 DELETE FROM `creature_addon` WHERE `guid`=327610;
@@ -64,6 +65,7 @@ DELETE FROM `creature` WHERE `guid`=327573 AND `id`=40017;
 DELETE FROM `creature_addon` WHERE `guid`=327573;
 DELETE FROM `creature` WHERE `guid`=327656 AND `id`=40017;
 DELETE FROM `creature_addon` WHERE `guid`=327656;
+*/
 DELETE FROM `creature` WHERE `id`=40401 AND `map`=645;
 DELETE FROM `creature` WHERE `id`=40447 AND `map`=645;
 DELETE FROM `creature` WHERE `id`=50376 AND `map`=645;
@@ -84,7 +86,7 @@ UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=39699;
 DELETE FROM `creature_addon` WHERE `guid`=327649;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=39705;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=39706;
-DELETE FROM `creature_addon` WHERE `guid`=327593;
+-- DELETE FROM `creature_addon` WHERE `guid`=327593;
 
 UPDATE `creature` SET `position_x`=214.59, `position_y`=950.40, `position_z`=191.10, `orientation`=3.17 WHERE `guid`=327588;
 

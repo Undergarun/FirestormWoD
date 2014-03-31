@@ -89,8 +89,8 @@ UPDATE `creature_template` SET `ScriptName`='generic_vehicleAI_toc5' WHERE `entr
 DELETE FROM `creature` WHERE `map`=650 AND `id` IN 
 (34887, 34900, 34906, 34908, 34909, 34910, 35005, 36557, 36559);
 
-REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 
-(130983, 35491, 650, 3, 1, 0, 0, 799.806, 639.236, 475.88, 2.18738, 86400, 0, 0, 189000, 0, 0, 0, 0, 0);
+REPLACE INTO `creature` ( `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 
+(35491, 650, 3, 1, 0, 0, 799.806, 639.236, 475.88, 2.18738, 86400, 0, 0, 189000, 0, 0, 0, 0, 0);
 
 UPDATE `gameobject_template` SET `flags`=0 WHERE `entry` IN (195709, 195710, 195374, 195375, 195323, 195324);
 

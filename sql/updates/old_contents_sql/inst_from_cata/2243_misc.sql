@@ -107,7 +107,7 @@ UPDATE `creature_template` SET `mindmg`=548, `maxdmg`=822, `dmg_multiplier`=100 
 
 UPDATE `creature_template` SET `lootid`=0 WHERE `entry` IN (56427, 57699, 57847, 57848);
 
-REPLACE INTO `creature_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
+REPLACE INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES 
 (56427, 396, 614, 0, 12000, 1, 0),
 (57699, 396, 614, 0, 14000, 1, 0),
 (57847, 396, 614, 0, 12000, 1, 0),

@@ -28,14 +28,14 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=617299967 WHERE `entry` IN
 (57386, 57428, 57387, 57429, 57333, 57425, 57382, 57426, 57388, 57430, 57384, 57427);
 
 DELETE FROM `creature` WHERE `map`=967 AND `id` IN (55865, 55862, 55864, 55867, 55863, 55866);
-DELETE FROM `creature` WHERE `guid`=343659 AND `id`=55544 AND `map`=967;
+-- DELETE FROM `creature` WHERE `guid`=343659 AND `id`=55544 AND `map`=967;
 
 UPDATE `creature` SET `spawnMask`=15 WHERE `id`=55312 AND `map`=967;
 
 UPDATE `creature_template_addon` SET `auras`='108203' WHERE `entry` IN 
 (57328, 57377, 57378, 57379,  57443, 57882);
-UPDATE `creature_addon` SET `auras`='108203' WHERE `guid` IN 
-(343210, 343212, 344192, 344316, 343192, 345724, 343211, 344315, 344317);
+-- UPDATE `creature_addon` SET `auras`='108203' WHERE `guid` IN 
+-- (343210, 343212, 344192, 344316, 343192, 345724, 343211, 344315, 344317);
 UPDATE `creature_template` SET `modelid1`=24719, `modelid2`=0, `npcflag`=1, `unit_flags`=0, `InhabitType`=5 WHERE `entry` IN (57328, 57377, 57378, 57379,  57443, 57882);
 UPDATE `creature_template` SET `npcflag`=1 WHERE `entry`=57288;
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (57328, 57377, 57378, 57379,  57443, 57882);

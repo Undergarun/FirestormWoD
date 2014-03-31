@@ -1,7 +1,7 @@
 ﻿DELETE FROM `creature` WHERE `id`=47242 AND `map`=36;
 
-UPDATE `creature` SET `MovementType`=0 WHERE `guid`=319043;
-UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=319043;
+-- UPDATE `creature` SET `MovementType`=0 WHERE `guid`=319043;
+-- UPDATE `creature_addon` SET `path_id`=0 WHERE `guid`=319043;
 
 DELETE FROM `waypoint_data`WHERE `id`=319043;
 
@@ -18,7 +18,7 @@ REPLACE INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `
 (48298, 0, 0, 0, 1, 0, '89734'),
 (48302, 0, 0, 0, 1, 0, '89734');
 
-UPDATE `creature_addon` SET `auras`='87239' WHERE `guid`=319033;
+-- UPDATE `creature_addon` SET `auras`='87239' WHERE `guid`=319033;
 
 UPDATE `creature_template` SET `unit_flags`=67108928 WHERE `entry` IN (43778, 48941);
 

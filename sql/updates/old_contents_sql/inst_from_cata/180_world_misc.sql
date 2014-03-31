@@ -1,4 +1,4 @@
-﻿DELETE FROM `creature` WHERE `guid`=345529 AND `id`=43552;
+﻿/*DELETE FROM `creature` WHERE `guid`=345529 AND `id`=43552;
 DELETE FROM `creature_addon` WHERE `guid`=345529;
 DELETE FROM `creature` WHERE `guid`=329688 AND `id`=43537;
 DELETE FROM `creature_addon` WHERE `guid`=329688;
@@ -24,6 +24,7 @@ DELETE FROM `creature` WHERE `guid`=329686 AND `id`=42696;
 DELETE FROM `creature_addon` WHERE `guid`=329686;
 DELETE FROM `creature` WHERE `guid`=329692 AND `id`=42696;
 DELETE FROM `creature_addon` WHERE `guid`=329692;
+*/
 
 DELETE FROM `creature` WHERE `id`=43917 AND `map`=725;
 DELETE FROM `creature` WHERE `id`=49267 AND `map`=725;

@@ -1,4 +1,4 @@
-﻿DELETE FROM `creature` WHERE `id`=52059 AND `guid`=335593;
+﻿-- DELETE FROM `creature` WHERE `id`=52059 AND `guid`=335593;
 DELETE FROM `creature` WHERE `id` IN (52061, 52147, 52160, 52387, 53108);
 
 UPDATE `creature_template` SET `faction_a`=14 WHERE `faction_a` IN (16, 7) AND `entry` IN 
@@ -54,7 +54,7 @@ UPDATE `creature_template` SET `faction_h`=14 WHERE `faction_h` IN (16, 7) AND `
 53044, 53088, 53151, 53488);
 
 UPDATE `creature` SET `spawnmask`=2 WHERE `id`=52059;
-UPDATE `creature_addon` SET `auras`='8279' WHERE `guid`=338987;
+-- UPDATE `creature_addon` SET `auras`='8279' WHERE `guid`=338987;
 UPDATE `creature_template_addon` SET `auras`='8279' WHERE `entry`=52059;
 
 UPDATE `creature_template` SET `inhabittype`=5, `unit_flags`=0 WHERE `entry`=52160;

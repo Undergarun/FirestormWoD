@@ -14,32 +14,32 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 REPLACE INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES 
 (30010, 2, 'Cataclysm rare elite bosses');
-UPDATE `creature` SET `spawntimesecs`=259200 WHERE `guid` IN (317090, 371477, 371491, 318795, 371485);
-DELETE FROM `pool_creature` WHERE `guid` IN (317090, 371477, 371491, 318795, 371485);
-INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES 
-(317090, 30010, 0, 'Cataclysm rare bosses - Mobus'),
-(371477, 30010, 0, 'Cataclysm rare bosses - Garr'),
-(371491, 30010, 0, 'Cataclysm rare bosses - Xariona'),
-(318795, 30010, 0, 'Cataclysm rare bosses - Akma\'hat'),
-(371485, 30010, 0, 'Cataclysm rare bosses - Julak-Doom');
+-- UPDATE `creature` SET `spawntimesecs`=259200 WHERE `guid` IN (317090, 371477, 371491, 318795, 371485);
+-- DELETE FROM `pool_creature` WHERE `guid` IN (317090, 371477, 371491, 318795, 371485);
+-- INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES 
+-- (317090, 30010, 0, 'Cataclysm rare bosses - Mobus'),
+-- (371477, 30010, 0, 'Cataclysm rare bosses - Garr'),
+-- (371491, 30010, 0, 'Cataclysm rare bosses - Xariona'),
+-- (318795, 30010, 0, 'Cataclysm rare bosses - Akma\'hat'),
+-- (371485, 30010, 0, 'Cataclysm rare bosses - Julak-Doom');
 
-REPLACE INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES 
-(30011, 1, 'Ankha and Magria');
-UPDATE `creature` SET `spawntimesecs`=43200 WHERE `guid` IN (318193, 373801, 304256);
-DELETE FROM `pool_creature` WHERE `guid` IN (318193, 373801, 304256);
-INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES 
-(318193, 30011, 0, 'Ankha and Magria - Ankha'),
-(373801, 30011, 0, 'Ankha and Magria - Magria');
+-- REPLACE INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES 
+-- (30011, 1, 'Ankha and Magria');
+-- UPDATE `creature` SET `spawntimesecs`=43200 WHERE `guid` IN (318193, 373801, 304256);
+-- DELETE FROM `pool_creature` WHERE `guid` IN (318193, 373801, 304256);
+-- INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES 
+-- (318193, 30011, 0, 'Ankha and Magria - Ankha'),
+-- (373801, 30011, 0, 'Ankha and Magria - Magria');
 
-UPDATE `creature` SET `spawntimesecs`=86400 WHERE `guid`=371493;
-DELETE FROM `pool_creature` WHERE `guid`=371493;
+-- UPDATE `creature` SET `spawntimesecs`=86400 WHERE `guid`=371493;
+-- DELETE FROM `pool_creature` WHERE `guid`=371493;
 
 UPDATE `creature_template` SET `mechanic_immune_mask`=613097436, `InhabitType`=5 WHERE `entry`=50062;
 UPDATE `creature_template` SET `ScriptName`='boss_aeonaxx' WHERE `entry`=50062;
 UPDATE `creature` SET `MovementType`=2, `position_x`=691.109253, `position_y`=441.321045, `position_z`=159.917511 WHERE `id`=50062 AND `guid`=371493;
 
-REPLACE INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
-(371493, 371493, 0, 0, 0, 0, '');
+-- REPLACE INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+-- (371493, 371493, 0, 0, 0, 0, '');
 
 DELETE FROM `waypoint_data` WHERE `id`=371493;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) VALUES

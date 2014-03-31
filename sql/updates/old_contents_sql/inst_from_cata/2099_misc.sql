@@ -50,7 +50,7 @@ UPDATE `creature_model_info` SET `bounding_radius`=1.085, `combat_reach`=10.5 WH
 UPDATE `creature_model_info` SET `bounding_radius`=1.24, `combat_reach`=12 WHERE `modelid`=29815;
 
 -- spawn the Anub'arak gate in all versions of the instance
-UPDATE `gameobject` SET `spawnMask`=15 WHERE `guid`=151192;
+-- UPDATE `gameobject` SET `spawnMask`=15 WHERE `guid`=151192;
 
 -- adding ToC boss immunities
 UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` | 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192 | 65536 | 131072 | 524288 | 4194304 | 8388608 | 67108864 | 536870912 
@@ -166,15 +166,15 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`auras`
 (@NPC_ORB2,0,0x3000000,0x1,'');
 
 -- East Porticullis(195648): close and corrections
-DELETE FROM `gameobject` WHERE `guid`=207834 and `id`=195648;
+-- DELETE FROM `gameobject` WHERE `guid`=207834 and `id`=195648;
 UPDATE `gameobject` SET `phaseMask`=1,`rotation2`=0.7071065,`rotation3`=0.707107,`spawntimesecs`=7200,`animprogress`=255,`state`=0 WHERE `id`=195648;
 
 -- North Portcullis(195650): delete extra spawn and corrections
-DELETE FROM `gameobject` WHERE `guid`=207833 and `id`=195650;
-UPDATE `gameobject` SET `phaseMask`=1,`rotation2`=0.7071065,`rotation3`=0.707107,`spawntimesecs`=7200,`animprogress`=255,`state`=1 WHERE `guid`=28044;
+-- DELETE FROM `gameobject` WHERE `guid`=207833 and `id`=195650;
+-- UPDATE `gameobject` SET `phaseMask`=1,`rotation2`=0.7071065,`rotation3`=0.707107,`spawntimesecs`=7200,`animprogress`=255,`state`=1 WHERE `guid`=28044;
 
 -- Web Door(195485): corrections
-UPDATE `gameobject` SET `spawnMask`=15,`rotation2`=0.7071067,`rotation3`=0.7071068,`spawntimesecs`=7200,`animprogress`=255 WHERE `guid`=2358;
+-- UPDATE `gameobject` SET `spawnMask`=15,`rotation2`=0.7071067,`rotation3`=0.7071068,`spawntimesecs`=7200,`animprogress`=255 WHERE `guid`=2358;
 
 -- Added trigger flags to triggers
 UPDATE `creature_template` SET `flags_extra` = flags_extra | 128 WHERE `entry` = 34862;
@@ -371,7 +371,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854271 WHERE `entry` IN (34813,35265,35266,35267,34825,35278,35279,35280);
 
-DELETE FROM `creature` WHERE `guid`=399968 AND `id`=34816 AND `map`=649;
+-- DELETE FROM `creature` WHERE `guid`=399968 AND `id`=34816 AND `map`=649;
 
 DELETE FROM `creature` WHERE `map`=649 AND `id` IN 
 (16980, 22517, 23033, 30298, 35035, 35226, 35458, 35651, 35766, 35770, 35771, 35909, 36097, 51339);

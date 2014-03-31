@@ -1,4 +1,4 @@
-DELETE FROM `creature` WHERE `id`=52368;
+/*DELETE FROM `creature` WHERE `id`=52368;
 DELETE FROM `creature` WHERE `id`=52389;
 DELETE FROM `creature` WHERE `id`=52369;
 DELETE FROM `creature` WHERE `guid`=345427 AND `id`=52428;
@@ -15,6 +15,7 @@ DELETE FROM `creature` WHERE `guid`=345425 AND `id`=52428;
 DELETE FROM `creature_addon` WHERE `guid`=345425;
 DELETE FROM `creature` WHERE `guid`=345421 AND `id`=52428;
 DELETE FROM `creature_addon` WHERE `guid`=345421;
+*/
 
 UPDATE `gameobject_template` SET `flags`=4 WHERE `entry`=207619;
 UPDATE `gameobject_template` SET `flags`=4 WHERE `entry`=208953;

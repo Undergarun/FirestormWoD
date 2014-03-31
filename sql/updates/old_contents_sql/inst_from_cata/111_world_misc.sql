@@ -37,6 +37,8 @@ UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=49108;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=40597;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=40784;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=40765;
+
+/*
 DELETE FROM `creature` WHERE `guid`=331794 AND `id`=45620;
 DELETE FROM `creature_addon` WHERE `guid`=331794;
 DELETE FROM `creature` WHERE `guid`=332010 AND `id`=45672;
@@ -91,15 +93,15 @@ DELETE FROM `creature` WHERE `guid`=331719 AND `id`=39960;
 DELETE FROM `creature_addon` WHERE `guid`=331719;
 DELETE FROM `creature` WHERE `guid`=331720 AND `id`=39960;
 DELETE FROM `creature_addon` WHERE `guid`=331720;
-
+*/
 UPDATE `creature` SET `position_x`=191.59, `position_y`=802.23, `position_z`=807.64, `orientation`=3.19 WHERE `id`=40586;
 UPDATE `creature` SET `position_x`=54.21, `position_y`=800.90, `position_z`=805.74, `orientation`=3.19 WHERE `id`=40765;
 
 
-INSERT IGNORE INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (216088, 207997, 643, 3, 1, -315.556, 758.404, 275.665, -1.5708, 0, 0, -0.707107, 0.707107, 604800, 255, 1);
-INSERT IGNORE INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (216089, 207998, 643, 3, 1, -319.797, 857.663, 271.239, 1.5708, 0, 0, 0.707107, 0.707107, 604800, 255, 1);
-INSERT IGNORE INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (216090, 208302, 643, 3, 1, -309.753, 685.567, 286.198, 1.5708, 0, 0, 0.707107, 0.707107, 604800, 255, 1);
-INSERT IGNORE INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (216091, 208301, 643, 3, 1, -311.465, 932.898, 247.927, -1.5708, 0, 0, -0.707107, 0.707107, 604800, 255, 1);
+INSERT IGNORE INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (207997, 643, 3, 1, -315.556, 758.404, 275.665, -1.5708, 0, 0, -0.707107, 0.707107, 604800, 255, 1);
+INSERT IGNORE INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (207998, 643, 3, 1, -319.797, 857.663, 271.239, 1.5708, 0, 0, 0.707107, 0.707107, 604800, 255, 1);
+INSERT IGNORE INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (208302, 643, 3, 1, -309.753, 685.567, 286.198, 1.5708, 0, 0, 0.707107, 0.707107, 604800, 255, 1);
+INSERT IGNORE INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (208301, 643, 3, 1, -311.465, 932.898, 247.927, -1.5708, 0, 0, -0.707107, 0.707107, 604800, 255, 1);
 
 UPDATE `creature_template` SET `npcflag`=16777217 WHERE `entry`=51395;
 UPDATE `creature_template` SET `npcflag`=16777217 WHERE `entry`=51391;
