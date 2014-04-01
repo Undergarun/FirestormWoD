@@ -4180,10 +4180,6 @@ void Player::InitSpellForLevel()
         }
     }
 
-    // Hack fix for Sparring - Not applied
-    if (HasSpell(116023))
-        CastSpell(this, 116023, true);
-
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));
@@ -25775,6 +25771,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     // Hack fix for remove flags auras after crash
     if (!GetMap()->IsBattlegroundOrArena())
         RemoveFlagsAuras();
+
+    // Hack fix for Sparring - Not applied
+    if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
+        AddAura(116023, this);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()

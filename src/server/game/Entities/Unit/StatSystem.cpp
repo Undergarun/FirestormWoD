@@ -653,7 +653,7 @@ void Player::UpdateParryPercentage()
         145.560408f,    // Shaman
         0.0f,           // Mage
         0.0f,           // Warlock
-        0.0f,           // Monk
+        65.631440f,     // Monk
         0.0f            // Druid
     };
 
