@@ -2754,6 +2754,12 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
                     }
                 }
             break;
+        case 77443:
+        {
+            // Steady Focus increases Focus regen by 3 for Steady Shot
+            damage += m_caster->HasAura(53220) ? 3 : 0;
+            break;
+        }
         default:
             break;
     }
