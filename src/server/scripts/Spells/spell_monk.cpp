@@ -98,7 +98,7 @@ enum MonkSpells
     SPELL_MONK_BEAR_HUG                         = 127361,
     ITEM_MONK_T14_TANK_4P                       = 123159,
     MONK_NPC_BLACK_OX_STATUE                    = 61146,
-    SPELL_MONK_GUARD                            = 115295,
+    SPELL_MONK_GUARD                            = 118604,
     SPELL_MONK_ITEM_2_S12_MISTWEAVER            = 131561,
     SPELL_MONK_ITEM_4_S12_MISTWEAVER            = 124487,
     SPELL_MONK_ZEN_FOCUS                        = 124488,
@@ -1054,7 +1054,7 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
         }
 };
 
-// Guard - 115295
+// Guard - 115295 and Guard - 118604
 class spell_monk_guard : public SpellScriptLoader
 {
     public:
@@ -1069,7 +1069,9 @@ class spell_monk_guard : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (Unit* caster = GetCaster())
+                Unit* caster = GetCaster();
+
+                if (caster->GetTypeId() == TYPEID_PLAYER)
                 {
                     amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
 
@@ -1080,14 +1082,14 @@ class spell_monk_guard : public SpellScriptLoader
                         amount = int32(amount * 1.15f);
                 }
                 // For Black Ox Statue
-                else if (Unit* caster = GetCaster()->GetOwner())
+                else if (Unit* player = GetCaster()->GetOwner())
                 {
-                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
 
-                    if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
+                    if (player->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
 
-                    if (caster->HasAura(SPELL_MONK_POWER_GUARD))
+                    if (player->HasAura(SPELL_MONK_POWER_GUARD))
                         amount = int32(amount * 1.15f);
                 }
             }
