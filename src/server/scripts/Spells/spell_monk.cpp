@@ -157,7 +157,7 @@ class spell_monk_brewmaster_training_tiger_palm : public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780
+// Called by Jab - 100780 / 108557 / 115698 / 115687 / 115693 / 115695
 // Muscle Memory - 139598
 class spell_monk_muscle_memory : public SpellScriptLoader
 {
