@@ -3556,148 +3556,6 @@ class npc_demonic_gateway_green : public CreatureScript
 };
 
 /*######
-# npc_xuen_the_white_tiger
-######*/
-
-enum xuenSpells
-{
-    CRACKLING_TIGER_LIGHTNING   = 123996,
-    PROVOKE                     = 130793,
-    TIGER_LEAP                  = 124007,
-    TIGER_LUST                  = 124009,
-};
-
-enum xuenEvents
-{
-    EVENT_LIGHTNING = 1,
-    EVENT_PROVOKE   = 2,
-    EVENT_LEAP      = 3,
-};
-
-class npc_xuen_the_white_tiger : public CreatureScript
-{
-    public:
-        npc_xuen_the_white_tiger() : CreatureScript("npc_xuen_the_white_tiger") { }
-
-        struct npc_xuen_the_white_tigerAI : public ScriptedAI
-        {
-            EventMap events;
-
-            npc_xuen_the_white_tigerAI(Creature* creature) : ScriptedAI(creature)
-            {
-                me->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void Reset()
-            {
-                events.Reset();
-
-                events.ScheduleEvent(EVENT_LIGHTNING, 500);
-                events.ScheduleEvent(EVENT_LEAP,      200);
-                events.ScheduleEvent(EVENT_PROVOKE,   200);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                {
-                    if (me->GetOwner())
-                        if (Unit* victim = me->GetOwner()->getAttackerForHelper())
-                            AttackStart(victim);
-
-                    return;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_LIGHTNING:
-                        {
-                            if (Unit* target = me->getVictim())
-                            {
-                                me->CastSpell(target, CRACKLING_TIGER_LIGHTNING, false);
-                            }
-                            else if (me->GetOwner())
-                            {
-                                if (Unit* target = me->GetOwner()->getAttackerForHelper())
-                                    me->CastSpell(target, CRACKLING_TIGER_LIGHTNING, false);
-                            }
-
-                            events.ScheduleEvent(EVENT_LIGHTNING, 6000);
-                            break;
-                        }
-                        case EVENT_LEAP:
-                        {
-                            if (Unit* target = me->getVictim())
-                            {
-                                me->CastSpell(target, TIGER_LEAP, false);
-                            }
-                            else if (me->GetOwner())
-                            {
-                                if (Unit* target = me->GetOwner()->getAttackerForHelper())
-                                    me->CastSpell(target, TIGER_LEAP, false);
-                            }
-
-                            me->CastSpell(me, TIGER_LUST, false);
-                            events.ScheduleEvent(EVENT_LEAP, 15000);
-
-                            break;
-                        }
-                        case EVENT_PROVOKE:
-                        {
-                            Unit* m_owner = me->GetOwner();
-                            if (!m_owner || m_owner->GetTypeId() != TYPEID_PLAYER)
-                                break;
-
-                            Player* p_owner = m_owner->ToPlayer();
-                            if (p_owner->GetSpecializationId(p_owner->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                                break;
-
-                            if (Unit* target = me->getVictim())
-                            {
-                                if (target->GetTypeId() == TYPEID_UNIT)
-                                    if (target->ToCreature()->IsDungeonBoss() || target->ToCreature()->isWorldBoss())
-                                        break;
-
-                                me->CastSpell(target, PROVOKE, false);
-                            }
-                            else if (me->GetOwner())
-                            {
-                                if (Unit* target = me->GetOwner()->getAttackerForHelper())
-                                {
-                                    if (target->GetTypeId() == TYPEID_UNIT)
-                                        if (target->ToCreature()->IsDungeonBoss() || target->ToCreature()->isWorldBoss())
-                                            break;
-
-                                    me->CastSpell(target, PROVOKE, false);
-                                }
-                            }
-
-                            events.ScheduleEvent(EVENT_PROVOKE, 15000);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_xuen_the_white_tigerAI(creature);
-        }
-};
-
-/*######
 # npc_murder_of_crows
 ######*/
 
@@ -4803,7 +4661,7 @@ class npc_force_of_nature : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case ENTRY_TREANT_GUARDIAN:
-                        me->CastSpell(target, PROVOKE, true); // Taunt
+                        me->CastSpell(target, 130793, true); // Taunt
                         me->AI()->AttackStart(target);
                         break;
                     case ENTRY_TREANT_FERAL:
@@ -4920,7 +4778,6 @@ void AddSC_npcs_special()
     new npc_power_word_barrier();
     new npc_demonic_gateway_purple();
     new npc_demonic_gateway_green();
-    new npc_xuen_the_white_tiger();
     new npc_murder_of_crows();
     new npc_dire_beast();
     new npc_wild_imp();
