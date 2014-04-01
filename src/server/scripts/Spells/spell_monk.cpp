@@ -177,7 +177,7 @@ class spell_monk_chi_brew : public SpellScriptLoader
                     {
                         bool mastery = false;
                         // Mastery: Bottled Fury
-                        float Mastery = _player->GetFloatValue(PLAYER_MASTERY) * 1.4f;
+                        float Mastery = _player->GetFloatValue(PLAYER_MASTERY) * 2.5f;
                         if (_player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
                             mastery = true;
 
@@ -2301,9 +2301,11 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
                             if (stacks >= 10)
                                 effectAmount = 60;
 
-                            AuraApplication* tigereyeBrew = _player->GetAuraApplication(SPELL_MONK_TIGEREYE_BREW, _player->GetGUID());
-                            if (tigereyeBrew)
-                                tigereyeBrew->GetBase()->GetEffect(0)->ChangeAmount(effectAmount);
+                            if (AuraPtr tigereyeBrew = _player->GetAura(SPELL_MONK_TIGEREYE_BREW))
+                            {
+                                tigereyeBrew->GetEffect(0)->ChangeAmount(effectAmount);
+                                tigereyeBrew->GetEffect(1)->ChangeAmount(effectAmount);
+                            }
 
                             if (stacks >= 10)
                                 tigereyeBrewStacks->SetStackAmount(stacks - 10);
@@ -3269,7 +3271,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
                         player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
                         // Mastery: Bottled Fury
-                        float Mastery = player->GetFloatValue(PLAYER_MASTERY) * 1.4f;
+                        float Mastery = player->GetFloatValue(PLAYER_MASTERY) * 2.5f;
                         if (player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
                             player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
                     }
