@@ -719,24 +719,9 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
         data << uint32(pageID);
         
         if (pageText)
-        {
-            if (pageID == pageText->NextPage)
-            {
-                GameObject* go = GetPlayer()->GetMap()->GetGameObject(objectGuid);
-                Unit* unit = Unit::GetUnit(*(GetPlayer()), objectGuid);
-
-                if (go)
-                    sLog->OutPandashan("WorldSession::HandlePageTextQueryOpcode, maybe infinite loop for GameObject:Entry[%u], PageID[%u].", go->GetEntry(), pageID);
-                else if (unit)
-                    sLog->OutPandashan("WorldSession::HandlePageTextQueryOpcode, maybe infinite loop for Unit:Entry[%u], PageID[%u].", unit->GetEntry(), pageID);
-                else
-                    sLog->OutPandashan("WorldSession::HandlePageTextQueryOpcode, maybe infinite loop for PageID[%u].", pageID);
-
-                break;
-            }
-
             pageID = pageText->NextPage;
-        }
+        else
+            pageID = 0;
 
         SendPacket(&data);
 
