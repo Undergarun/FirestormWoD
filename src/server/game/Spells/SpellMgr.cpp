@@ -5497,11 +5497,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 spellInfo->Effects[0].TargetB = TARGET_UNK_119;
                 break;
-                case 1543: // Flare
-                    spellInfo->Effects[0].TriggerSpell = 94528;
-                    break;
-                default:
-                    break;
+            case 1543: // Flare
+                spellInfo->Effects[0].TriggerSpell = 94528;
+                break;
+            // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
+            // @TODO: Remove this hack when we out S14
+            case 142689:
+                spellInfo->Effects[0].BasePoints = -2500;
+                break;
+            default:
+                break;
             }
 
         switch (spellInfo->Id)
