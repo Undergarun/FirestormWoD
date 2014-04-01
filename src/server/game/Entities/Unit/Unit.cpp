@@ -10411,6 +10411,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 131542:// Relentless Grip
         case 56420: // Glyph of Denounce
         case 126046:// Adaptation
+        case 117967:// Brewmaster Training
             return false;
         case 35551: // Combat Potency
         {

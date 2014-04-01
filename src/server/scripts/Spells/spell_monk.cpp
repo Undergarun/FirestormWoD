@@ -2418,7 +2418,7 @@ class spell_monk_flying_serpent_kick : public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnCast()
+            void HandleBeforeCast()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2429,21 +2429,42 @@ class spell_monk_flying_serpent_kick : public SpellScriptLoader
 
                         if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
                             caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-
-                        _player->CastSpell(_player, SPELL_MONK_FLYING_SERPENT_KICK_AOE, true);
                     }
                 }
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_monk_flying_serpent_kick_SpellScript::HandleOnCast);
+                BeforeCast += SpellCastFn(spell_monk_flying_serpent_kick_SpellScript::HandleBeforeCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_flying_serpent_kick_SpellScript();
+        }
+
+        class spell_monk_flying_serpent_kick_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_flying_serpent_kick_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
+
+                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_FLYING_SERPENT_KICK_AOE, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_flying_serpent_kick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_flying_serpent_kick_AuraScript();
         }
 };
 
