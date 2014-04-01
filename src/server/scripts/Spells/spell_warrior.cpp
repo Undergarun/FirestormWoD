@@ -954,7 +954,7 @@ class spell_warr_shockwave : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shockwave_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
@@ -963,7 +963,7 @@ class spell_warr_shockwave : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_shockwave_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
