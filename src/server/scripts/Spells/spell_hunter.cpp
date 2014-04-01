@@ -2228,15 +2228,6 @@ class spell_hun_disengage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_disengage_SpellScript);
 
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() == TYPEID_PLAYER && !caster->isInCombat())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
@@ -2265,7 +2256,6 @@ class spell_hun_disengage : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_hun_disengage_SpellScript::HandleAfterCast);
             }
         };
