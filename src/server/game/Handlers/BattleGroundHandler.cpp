@@ -388,8 +388,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
 
     if (queueSlot == 3)
         queueSlot = 0;
-    else
-        queueSlot--;
 
     if (!_player->InBattlegroundQueue())
     {
