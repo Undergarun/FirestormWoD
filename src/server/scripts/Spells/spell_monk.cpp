@@ -69,7 +69,7 @@ enum MonkSpells
     SPELL_MONK_ZEN_SPHERE_HEAL                  = 124081,
     SPELL_MONK_ZEN_SPHERE_DETONATE_HEAL         = 124101,
     SPELL_MONK_ZEN_SPHERE_DETONATE_DAMAGE       = 125033,
-    SPELL_MONK_HEALING_ELIXIRS_AURA             = 122280,
+    SPELL_MONK_HEALING_ELIXIRS_AURA             = 134563,
     SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH   = 122281,
     SPELL_MONK_RENEWING_MIST_HOT                = 119611,
     SPELL_MONK_RENEWING_MIST_JUMP_AURA          = 119607,
@@ -2063,6 +2063,51 @@ class spell_monk_renewing_mist : public SpellScriptLoader
         }
 };
 
+// Healing Elixirs (aura) - 134563
+class spell_monk_healing_elixirs_aura : public SpellScriptLoader
+{
+    public:
+        spell_monk_healing_elixirs_aura() : SpellScriptLoader("spell_monk_healing_elixirs_aura") { }
+
+        class spell_monk_healing_elixirs_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_healing_elixirs_aura_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                if (!eventInfo.GetDamageInfo())
+                    return;
+
+                if (!eventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HealthBelowPctDamaged(35, eventInfo.GetDamageInfo()->GetDamage()))
+                    {
+                        caster->CastSpell(caster, SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, true);
+                        caster->RemoveAura(SPELL_MONK_HEALING_ELIXIRS_AURA);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_healing_elixirs_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_healing_elixirs_aura_AuraScript();
+        }
+};
+
 // Called by : Fortifying Brew - 115203, Chi Brew - 115399, Elusive Brew - 115308, Tigereye Brew - 116740
 // Purifying Brew - 119582, Mana Tea - 115294, Thunder Focus Tea - 116680 and Energizing Brew - 115288
 // Healing Elixirs - 122280
@@ -2077,18 +2122,12 @@ class spell_monk_healing_elixirs : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(SPELL_MONK_HEALING_ELIXIRS_AURA))
+                    if (caster->HasAura(SPELL_MONK_HEALING_ELIXIRS_AURA) && !caster->IsFullHealth())
                     {
-                        int32 bp = 10;
-
-                        if (!_player->HasSpellCooldown(SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH))
-                        {
-                            _player->CastCustomSpell(_player, SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, &bp, NULL, NULL, true);
-                            // This effect cannot occur more than once per 18s
-                            _player->AddSpellCooldown(SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, 0, time(NULL) + 18);
-                        }
+                        caster->CastSpell(caster, SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, true);
+                        caster->RemoveAura(SPELL_MONK_HEALING_ELIXIRS_AURA);
                     }
                 }
             }
@@ -3383,6 +3422,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_enveloping_mist();
     new spell_monk_surging_mist();
     new spell_monk_renewing_mist();
+    new spell_monk_healing_elixirs_aura();
     new spell_monk_healing_elixirs();
     new spell_monk_zen_sphere();
     new spell_monk_zen_sphere_hot();

@@ -10401,7 +10401,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 108942:// Phantasm
         case 113043:// Omen of Clarity (new)
         case 122464:// Dematerialize
-        case 122280:// Healing Elixirs
         case 54927: // Glyph of Avenging Wrath
         case 124487:// Zen Focus
         case 88764: // Rolling Thunder
@@ -10412,6 +10411,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 56420: // Glyph of Denounce
         case 126046:// Adaptation
         case 117967:// Brewmaster Training
+        case 134563:// Healing Elixirs
             return false;
         case 35551: // Combat Potency
         {
