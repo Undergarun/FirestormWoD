@@ -69,7 +69,7 @@ enum MonkSpells
     SPELL_MONK_ZEN_SPHERE_HEAL                  = 124081,
     SPELL_MONK_ZEN_SPHERE_DETONATE_HEAL         = 124101,
     SPELL_MONK_ZEN_SPHERE_DETONATE_DAMAGE       = 125033,
-    SPELL_MONK_HEALING_ELIXIRS_AURA             = 122280,
+    SPELL_MONK_HEALING_ELIXIRS_AURA             = 134563,
     SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH   = 122281,
     SPELL_MONK_RENEWING_MIST_HOT                = 119611,
     SPELL_MONK_RENEWING_MIST_JUMP_AURA          = 119607,
@@ -91,6 +91,7 @@ enum MonkSpells
     SPELL_MONK_JADE_LIGHTNING_ENERGIZE          = 123333,
     SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP        = 117962,
     SPELL_MONK_POWER_STRIKES_TALENT             = 121817,
+    SPELL_MONK_POWER_STRIKES_AURA               = 129914,
     SPELL_MONK_CREATE_CHI_SPHERE                = 121286,
     SPELL_MONK_GLYPH_OF_ZEN_FLIGHT              = 125893,
     SPELL_MONK_ZEN_FLIGHT                       = 125883,
@@ -113,7 +114,47 @@ enum MonkSpells
     SPELL_MONK_ITEM_PVP_GLOVES_BONUS            = 124489,
     SPELL_MONK_MUSCLE_MEMORY                    = 139598,
     SPELL_MONK_MUSCLE_MEMORY_EFFECT             = 139597,
-    SPELL_MONK_CHI_BREW                         = 115399
+    SPELL_MONK_CHI_BREW                         = 115399,
+    SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636,
+    SPELL_MONK_BREWMASTER_TRAINING              = 117967,
+    SPELL_MONK_POWER_GUARD                      = 118636
+};
+
+// Called by Tiger Palm - 100787
+// Brewmaster Training (Tiger Palm part) - 117967
+class spell_monk_brewmaster_training_tiger_palm : public SpellScriptLoader
+{
+    public:
+        spell_monk_brewmaster_training_tiger_palm() : SpellScriptLoader("spell_monk_brewmaster_training_tiger_palm") { }
+
+        class spell_monk_brewmaster_training_tiger_palm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_brewmaster_training_tiger_palm_SpellScript)
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (caster->HasAura(SPELL_MONK_BREWMASTER_TRAINING))
+                        {
+                            caster->CastSpell(caster, SPELL_MONK_POWER_GUARD, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_brewmaster_training_tiger_palm_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_brewmaster_training_tiger_palm_SpellScript();
+        }
 };
 
 // Called by Jab - 100780
@@ -174,45 +215,28 @@ class spell_monk_chi_brew : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 stacks = 0;
+                        bool mastery = false;
+                        // Mastery: Bottled Fury
+                        float Mastery = _player->GetFloatValue(PLAYER_MASTERY) * 2.5f;
+                        if (_player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
+                            mastery = true;
 
                         switch (_player->GetSpecializationId(_player->GetActiveSpec()))
                         {
                             case SPEC_MONK_BREWMASTER:
-                                if (AuraPtr elusiveBrewStacks = _player->GetAura(SPELL_MONK_ELUSIVE_BREW_STACKS))
-                                {
-                                    stacks = elusiveBrewStacks->GetStackAmount();
-                                    elusiveBrewStacks->SetStackAmount(stacks + 5);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
-                                }
+                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
+                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
                                 break;
                             case SPEC_MONK_MISTWEAVER:
-                                if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
-                                {
-                                    stacks = manaTeaStacks->GetStackAmount();
-                                    manaTeaStacks->SetStackAmount(stacks + 2);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
-                                }
+                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
+                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
                                 break;
                             case SPEC_MONK_WINDWALKER:
-                                if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
-                                {
-                                    stacks = tigereyeBrewStacks->GetStackAmount();
-                                    tigereyeBrewStacks->SetStackAmount(stacks + 2);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
-                                }
+                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+
+                                if (mastery)
+                                    _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
                                 break;
                             default:
                                 break;
@@ -1045,23 +1069,26 @@ class spell_monk_guard : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (Player* _plr = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    amount += int32(_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
 
-                    if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
+                    if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
+
+                    if (caster->HasAura(SPELL_MONK_POWER_GUARD))
+                        amount = int32(amount * 1.15f);
                 }
                 // For Black Ox Statue
-                else if (GetCaster()->GetOwner())
+                else if (Unit* caster = GetCaster()->GetOwner())
                 {
-                    if (Player* _plr = GetCaster()->GetOwner()->ToPlayer())
-                    {
-                        amount += int32(_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
 
-                        if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
-                            amount = int32(amount * 1.2f);
-                    }
+                    if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
+                        amount = int32(amount * 1.2f);
+
+                    if (caster->HasAura(SPELL_MONK_POWER_GUARD))
+                        amount = int32(amount * 1.15f);
                 }
             }
 
@@ -1215,7 +1242,8 @@ class spell_monk_glyph_of_zen_flight : public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780
+// Called by Jab - 100780, Soothing Mist (Energize) - 116335, Spinning Crane Kick (Energize) - 129881
+// Crackling Jade Lightning (Energize) - 123333 and Expel Harm - 115072
 // Power Strikes - 121817
 class spell_monk_power_strikes : public SpellScriptLoader
 {
@@ -1232,21 +1260,12 @@ class spell_monk_power_strikes : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->GetGUID() != _player->GetGUID())
+                        if (_player->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
                         {
-                            if (_player->HasAura(SPELL_MONK_POWER_STRIKES_TALENT))
-                            {
-                                if (!_player->HasSpellCooldown(SPELL_MONK_POWER_STRIKES_TALENT))
-                                {
-                                    if (_player->GetPower(POWER_CHI) < _player->GetMaxPower(POWER_CHI))
-                                    {
-                                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 1, POWER_CHI);
-                                        _player->AddSpellCooldown(SPELL_MONK_POWER_STRIKES_TALENT, 0, time(NULL) + 20);
-                                    }
-                                    else
-                                        _player->CastSpell(_player, SPELL_MONK_CREATE_CHI_SPHERE, true);
-                                }
-                            }
+                            if (_player->GetPower(POWER_CHI) < _player->GetMaxPower(POWER_CHI))
+                                _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 1, POWER_CHI);
+                            else
+                                _player->CastSpell(_player, SPELL_MONK_CREATE_CHI_SPHERE, true);
                         }
                     }
                 }
@@ -1392,7 +1411,7 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleAfterHit()
+            void HandleBeforeHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1400,7 +1419,9 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
                     {
                         if (target->GetDistance(_player) > 10.0f)
                         {
-                            SetHitDamage(int32(GetHitDamage() * 1.5f));
+                            int32 damage = GetHitDamage();
+                            AddPct(damage, 50);
+                            SetHitDamage(damage);
                             _player->CastSpell(target, SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT, true);
                         }
                     }
@@ -1410,7 +1431,7 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_monk_spinning_fire_blossom_damage_SpellScript::CheckTarget);
-                AfterHit += SpellHitFn(spell_monk_spinning_fire_blossom_damage_SpellScript::HandleAfterHit);
+                BeforeHit += SpellHitFn(spell_monk_spinning_fire_blossom_damage_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -2042,6 +2063,51 @@ class spell_monk_renewing_mist : public SpellScriptLoader
         }
 };
 
+// Healing Elixirs (aura) - 134563
+class spell_monk_healing_elixirs_aura : public SpellScriptLoader
+{
+    public:
+        spell_monk_healing_elixirs_aura() : SpellScriptLoader("spell_monk_healing_elixirs_aura") { }
+
+        class spell_monk_healing_elixirs_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_healing_elixirs_aura_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                if (!eventInfo.GetDamageInfo())
+                    return;
+
+                if (!eventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HealthBelowPctDamaged(35, eventInfo.GetDamageInfo()->GetDamage()))
+                    {
+                        caster->CastSpell(caster, SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, true);
+                        caster->RemoveAura(SPELL_MONK_HEALING_ELIXIRS_AURA);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_healing_elixirs_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_healing_elixirs_aura_AuraScript();
+        }
+};
+
 // Called by : Fortifying Brew - 115203, Chi Brew - 115399, Elusive Brew - 115308, Tigereye Brew - 116740
 // Purifying Brew - 119582, Mana Tea - 115294, Thunder Focus Tea - 116680 and Energizing Brew - 115288
 // Healing Elixirs - 122280
@@ -2056,18 +2122,12 @@ class spell_monk_healing_elixirs : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(SPELL_MONK_HEALING_ELIXIRS_AURA))
+                    if (caster->HasAura(SPELL_MONK_HEALING_ELIXIRS_AURA) && !caster->IsFullHealth())
                     {
-                        int32 bp = 10;
-
-                        if (!_player->HasSpellCooldown(SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH))
-                        {
-                            _player->CastCustomSpell(_player, SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, &bp, NULL, NULL, true);
-                            // This effect cannot occur more than once per 18s
-                            _player->AddSpellCooldown(SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, 0, time(NULL) + 18);
-                        }
+                        caster->CastSpell(caster, SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH, true);
+                        caster->RemoveAura(SPELL_MONK_HEALING_ELIXIRS_AURA);
                     }
                 }
             }
@@ -2314,16 +2374,14 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
                             int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
                             stacks = tigereyeBrewStacks->GetStackAmount();
 
-                            // Mastery: Bottled Fury
-                            if (_player->HasAura(115636) && roll_chance_i(20))
-                                stacks++;
-
                             if (stacks >= 10)
                                 effectAmount = 60;
 
-                            AuraApplication* tigereyeBrew = _player->GetAuraApplication(SPELL_MONK_TIGEREYE_BREW, _player->GetGUID());
-                            if (tigereyeBrew)
-                                tigereyeBrew->GetBase()->GetEffect(0)->ChangeAmount(effectAmount);
+                            if (AuraPtr tigereyeBrew = _player->GetAura(SPELL_MONK_TIGEREYE_BREW))
+                            {
+                                tigereyeBrew->GetEffect(0)->ChangeAmount(effectAmount);
+                                tigereyeBrew->GetEffect(1)->ChangeAmount(effectAmount);
+                            }
 
                             if (stacks >= 10)
                                 tigereyeBrewStacks->SetStackAmount(stacks - 10);
@@ -2399,7 +2457,7 @@ class spell_monk_flying_serpent_kick : public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnCast()
+            void HandleBeforeCast()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2410,21 +2468,42 @@ class spell_monk_flying_serpent_kick : public SpellScriptLoader
 
                         if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
                             caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-
-                        _player->CastSpell(_player, SPELL_MONK_FLYING_SERPENT_KICK_AOE, true);
                     }
                 }
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_monk_flying_serpent_kick_SpellScript::HandleOnCast);
+                BeforeCast += SpellCastFn(spell_monk_flying_serpent_kick_SpellScript::HandleBeforeCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_flying_serpent_kick_SpellScript();
+        }
+
+        class spell_monk_flying_serpent_kick_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_flying_serpent_kick_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
+
+                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_FLYING_SERPENT_KICK_AOE, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_flying_serpent_kick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_flying_serpent_kick_AuraScript();
         }
 };
 
@@ -3276,13 +3355,23 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
             void SetData(uint32 type, uint32 data)
             {
-                while ((chiConsumed += data) >= 4)
-                {
-                    chiConsumed = 0;
-                    data = data > 4 ? data - 4: 0;
+                if (!GetCaster())
+                    return;
 
-                    if (GetCaster())
-                        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    while ((chiConsumed += data) >= 4)
+                    {
+                        chiConsumed = 0;
+                        data = data > 4 ? data - 4: 0;
+
+                        player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+
+                        // Mastery: Bottled Fury
+                        float Mastery = player->GetFloatValue(PLAYER_MASTERY) * 2.5f;
+                        if (player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
+                            player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                    }
                 }
             }
 
@@ -3300,6 +3389,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_brewmaster_training_tiger_palm();
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
@@ -3332,6 +3422,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_enveloping_mist();
     new spell_monk_surging_mist();
     new spell_monk_renewing_mist();
+    new spell_monk_healing_elixirs_aura();
     new spell_monk_healing_elixirs();
     new spell_monk_zen_sphere();
     new spell_monk_zen_sphere_hot();
