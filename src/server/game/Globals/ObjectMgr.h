@@ -320,6 +320,11 @@ struct ScriptInfo
         } PlayMovie;
     };
 
+    ScriptInfo()
+    {
+        memset(this, 0, sizeof(ScriptInfo));
+    }
+
     std::string GetDebugInfo() const;
 };
 
