@@ -115,7 +115,46 @@ enum MonkSpells
     SPELL_MONK_MUSCLE_MEMORY                    = 139598,
     SPELL_MONK_MUSCLE_MEMORY_EFFECT             = 139597,
     SPELL_MONK_CHI_BREW                         = 115399,
-    SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636
+    SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636,
+    SPELL_MONK_BREWMASTER_TRAINING              = 117967,
+    SPELL_MONK_POWER_GUARD                      = 118636
+};
+
+// Called by Tiger Palm - 100787
+// Brewmaster Training (Tiger Palm part) - 117967
+class spell_monk_brewmaster_training_tiger_palm : public SpellScriptLoader
+{
+    public:
+        spell_monk_brewmaster_training_tiger_palm() : SpellScriptLoader("spell_monk_brewmaster_training_tiger_palm") { }
+
+        class spell_monk_brewmaster_training_tiger_palm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_brewmaster_training_tiger_palm_SpellScript)
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (caster->HasAura(SPELL_MONK_BREWMASTER_TRAINING))
+                        {
+                            caster->CastSpell(caster, SPELL_MONK_POWER_GUARD, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_brewmaster_training_tiger_palm_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_brewmaster_training_tiger_palm_SpellScript();
+        }
 };
 
 // Called by Jab - 100780
@@ -1030,23 +1069,26 @@ class spell_monk_guard : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (Player* _plr = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    amount += int32(_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
 
-                    if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
+                    if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
+
+                    if (caster->HasAura(SPELL_MONK_POWER_GUARD))
+                        amount = int32(amount * 1.15f);
                 }
                 // For Black Ox Statue
-                else if (GetCaster()->GetOwner())
+                else if (Unit* caster = GetCaster()->GetOwner())
                 {
-                    if (Player* _plr = GetCaster()->GetOwner()->ToPlayer())
-                    {
-                        amount += int32(_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
 
-                        if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
-                            amount = int32(amount * 1.2f);
-                    }
+                    if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
+                        amount = int32(amount * 1.2f);
+
+                    if (caster->HasAura(SPELL_MONK_POWER_GUARD))
+                        amount = int32(amount * 1.15f);
                 }
             }
 
@@ -3287,6 +3329,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_brewmaster_training_tiger_palm();
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
