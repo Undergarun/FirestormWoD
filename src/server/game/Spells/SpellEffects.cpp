@@ -842,6 +842,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     case 107270:// Spinning Crane Kick
+                    case 148187:// Rushing Jade Wind
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             damage = CalculateMonkMeleeAttacks(m_caster, 1.59f, 14);
                         break;
