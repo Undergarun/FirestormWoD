@@ -91,6 +91,7 @@ enum MonkSpells
     SPELL_MONK_JADE_LIGHTNING_ENERGIZE          = 123333,
     SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP        = 117962,
     SPELL_MONK_POWER_STRIKES_TALENT             = 121817,
+    SPELL_MONK_POWER_STRIKES_AURA               = 129914,
     SPELL_MONK_CREATE_CHI_SPHERE                = 121286,
     SPELL_MONK_GLYPH_OF_ZEN_FLIGHT              = 125893,
     SPELL_MONK_ZEN_FLIGHT                       = 125883,
@@ -1199,7 +1200,8 @@ class spell_monk_glyph_of_zen_flight : public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780
+// Called by Jab - 100780, Soothing Mist (Energize) - 116335, Spinning Crane Kick (Energize) - 129881
+// Crackling Jade Lightning (Energize) - 123333 and Expel Harm - 115072
 // Power Strikes - 121817
 class spell_monk_power_strikes : public SpellScriptLoader
 {
@@ -1216,21 +1218,12 @@ class spell_monk_power_strikes : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->GetGUID() != _player->GetGUID())
+                        if (_player->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
                         {
-                            if (_player->HasAura(SPELL_MONK_POWER_STRIKES_TALENT))
-                            {
-                                if (!_player->HasSpellCooldown(SPELL_MONK_POWER_STRIKES_TALENT))
-                                {
-                                    if (_player->GetPower(POWER_CHI) < _player->GetMaxPower(POWER_CHI))
-                                    {
-                                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 1, POWER_CHI);
-                                        _player->AddSpellCooldown(SPELL_MONK_POWER_STRIKES_TALENT, 0, time(NULL) + 20);
-                                    }
-                                    else
-                                        _player->CastSpell(_player, SPELL_MONK_CREATE_CHI_SPHERE, true);
-                                }
-                            }
+                            if (_player->GetPower(POWER_CHI) < _player->GetMaxPower(POWER_CHI))
+                                _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 1, POWER_CHI);
+                            else
+                                _player->CastSpell(_player, SPELL_MONK_CREATE_CHI_SPHERE, true);
                         }
                     }
                 }
