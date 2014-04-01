@@ -1369,7 +1369,7 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleAfterHit()
+            void HandleBeforeHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1377,7 +1377,9 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
                     {
                         if (target->GetDistance(_player) > 10.0f)
                         {
-                            SetHitDamage(int32(GetHitDamage() * 1.5f));
+                            int32 damage = GetHitDamage();
+                            AddPct(damage, 50);
+                            SetHitDamage(damage);
                             _player->CastSpell(target, SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT, true);
                         }
                     }
@@ -1387,7 +1389,7 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_monk_spinning_fire_blossom_damage_SpellScript::CheckTarget);
-                AfterHit += SpellHitFn(spell_monk_spinning_fire_blossom_damage_SpellScript::HandleAfterHit);
+                BeforeHit += SpellHitFn(spell_monk_spinning_fire_blossom_damage_SpellScript::HandleBeforeHit);
             }
         };
 
