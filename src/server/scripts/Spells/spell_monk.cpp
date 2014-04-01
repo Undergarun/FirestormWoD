@@ -113,7 +113,8 @@ enum MonkSpells
     SPELL_MONK_ITEM_PVP_GLOVES_BONUS            = 124489,
     SPELL_MONK_MUSCLE_MEMORY                    = 139598,
     SPELL_MONK_MUSCLE_MEMORY_EFFECT             = 139597,
-    SPELL_MONK_CHI_BREW                         = 115399
+    SPELL_MONK_CHI_BREW                         = 115399,
+    SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636
 };
 
 // Called by Jab - 100780
@@ -174,45 +175,28 @@ class spell_monk_chi_brew : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 stacks = 0;
+                        bool mastery = false;
+                        // Mastery: Bottled Fury
+                        float Mastery = _player->GetFloatValue(PLAYER_MASTERY) * 1.4f;
+                        if (_player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
+                            mastery = true;
 
                         switch (_player->GetSpecializationId(_player->GetActiveSpec()))
                         {
                             case SPEC_MONK_BREWMASTER:
-                                if (AuraPtr elusiveBrewStacks = _player->GetAura(SPELL_MONK_ELUSIVE_BREW_STACKS))
-                                {
-                                    stacks = elusiveBrewStacks->GetStackAmount();
-                                    elusiveBrewStacks->SetStackAmount(stacks + 5);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_ELUSIVE_BREW_STACKS, _player);
-                                }
+                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
+                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
                                 break;
                             case SPEC_MONK_MISTWEAVER:
-                                if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
-                                {
-                                    stacks = manaTeaStacks->GetStackAmount();
-                                    manaTeaStacks->SetStackAmount(stacks + 2);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_MANA_TEA_STACKS, _player);
-                                }
+                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
+                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
                                 break;
                             case SPEC_MONK_WINDWALKER:
-                                if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
-                                {
-                                    stacks = tigereyeBrewStacks->GetStackAmount();
-                                    tigereyeBrewStacks->SetStackAmount(stacks + 2);
-                                }
-                                else
-                                {
-                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
-                                    _player->AddAura(SPELL_MONK_TIGEREYE_BREW_STACKS, _player);
-                                }
+                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+
+                                if (mastery)
+                                    _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
                                 break;
                             default:
                                 break;
@@ -2314,10 +2298,6 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
                             int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
                             stacks = tigereyeBrewStacks->GetStackAmount();
 
-                            // Mastery: Bottled Fury
-                            if (_player->HasAura(115636) && roll_chance_i(20))
-                                stacks++;
-
                             if (stacks >= 10)
                                 effectAmount = 60;
 
@@ -3276,13 +3256,23 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
             void SetData(uint32 type, uint32 data)
             {
-                while ((chiConsumed += data) >= 4)
-                {
-                    chiConsumed = 0;
-                    data = data > 4 ? data - 4: 0;
+                if (!GetCaster())
+                    return;
 
-                    if (GetCaster())
-                        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    while ((chiConsumed += data) >= 4)
+                    {
+                        chiConsumed = 0;
+                        data = data > 4 ? data - 4: 0;
+
+                        player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+
+                        // Mastery: Bottled Fury
+                        float Mastery = player->GetFloatValue(PLAYER_MASTERY) * 1.4f;
+                        if (player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
+                            player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                    }
                 }
             }
 
