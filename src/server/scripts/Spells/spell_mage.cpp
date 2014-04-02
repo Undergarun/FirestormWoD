@@ -821,7 +821,7 @@ class spell_mage_invocation : public SpellScriptLoader
                         caster->CastSpell(caster, SPELL_MAGE_INVOKERS_ENERGY, true);
 
                         if (caster->HasAura(SPELL_MAGE_GLYPH_OF_EVOCATION))
-                            caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(12051), caster->CountPctFromMaxHealth(40), false);
+                            caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(12051), caster->CountPctFromMaxHealth(10), false);
                     }
                 }
             }

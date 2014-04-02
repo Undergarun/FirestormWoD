@@ -3503,8 +3503,11 @@ class npc_power_word_barrier : public CreatureScript
         }
 };
 
+const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
+const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
+
 /*######
-# npc_demonic_gateway_purple
+# npc_demonic_gateway_purple - 59271
 ######*/
 
 class npc_demonic_gateway_purple : public CreatureScript
@@ -3514,12 +3517,77 @@ class npc_demonic_gateway_purple : public CreatureScript
 
         struct npc_demonic_gateway_purpleAI : public ScriptedAI
         {
-            npc_demonic_gateway_purpleAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Unit* owner = creature->GetOwner();
+            npc_demonic_gateway_purpleAI(Creature* creature) : ScriptedAI(creature) { }
 
-                if (owner)
-                    creature->CastSpell(creature, 113901, true); // Periodic add charge
+            void Reset()
+            {
+                me->CastSpell(me, 113901, true); // Periodic add charge
+                me->CastSpell(me, 113900, true); // Portal Visual
+                me->CastSpell(me, 113931, true); // 0 Purple Charge
+                me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
+            void OnSpellClick(Unit* clicker)
+            {
+                if (clicker->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                // Demonic Gateway cooldown marker
+                if (clicker->HasAura(113942))
+                    return;
+
+                Unit* owner = me->GetOwner();
+                if (!owner || !owner->ToPlayer())
+                    return;
+
+                if (Group* group = clicker->ToPlayer()->GetGroup())
+                {
+                    if (group != owner->ToPlayer()->GetGroup())
+                        return;
+                }
+                else if (owner != clicker)
+                    return;
+
+                AuraEffectPtr charges = me->GetAuraEffect(113901, EFFECT_0);
+                if (!charges)
+                    return;
+
+                if (charges->GetAmount() == 0)
+                    return;
+
+                std::list<Creature*> greenGates;
+                me->GetCreatureListWithEntryInGrid(greenGates, 59262, 75.0f);
+
+                if (greenGates.empty())
+                    return;
+
+                greenGates.sort(JadeCore::DistanceCompareOrderPred(me));
+                for (auto itr : greenGates)
+                {
+                    clicker->CastSpell(clicker, 113942, true);
+
+                    // Init dest coordinates
+                    float x, y, z;
+                    itr->GetPosition(x, y, z);
+
+                    float speedXY;
+                    float speedZ = 5;
+
+                    speedXY = clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
+                    clicker->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+                    break;
+                }
+
+                charges->SetAmount(charges->GetAmount() - 1);
+
+                for (int i = 0; i < 6; ++i)
+                {
+                    if (i <= charges->GetAmount())
+                        me->CastSpell(me, purpleAuras[i], true);
+                    else
+                        me->RemoveAura(purpleAuras[i]);
+                }
             }
         };
 
@@ -3530,7 +3598,7 @@ class npc_demonic_gateway_purple : public CreatureScript
 };
 
 /*######
-# new npc_demonic_gateway_green
+# new npc_demonic_gateway_green - 59262
 ######*/
 
 class npc_demonic_gateway_green : public CreatureScript
@@ -3540,12 +3608,76 @@ class npc_demonic_gateway_green : public CreatureScript
 
         struct npc_demonic_gateway_greenAI : public ScriptedAI
         {
-            npc_demonic_gateway_greenAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Unit* owner = creature->GetOwner();
+            npc_demonic_gateway_greenAI(Creature* creature) : ScriptedAI(creature) { }
 
-                if (owner)
-                    creature->CastSpell(creature, 113901, true); // Periodic add charges
+            void Reset()
+            {
+                me->CastSpell(me, 113901, true); // Periodic add charges
+                me->CastSpell(me, 113900, true); // Portal Visual
+                me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
+            void OnSpellClick(Unit* clicker)
+            {
+                if (clicker->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                // Demonic Gateway cooldown marker
+                if (clicker->HasAura(113942))
+                    return;
+
+                Unit* owner = me->GetOwner();
+                if (!owner || !owner->ToPlayer())
+                    return;
+
+                if (Group* group = clicker->ToPlayer()->GetGroup())
+                {
+                    if (group != owner->ToPlayer()->GetGroup())
+                        return;
+                }
+                else if (owner != clicker)
+                    return;
+
+                AuraEffectPtr charges = me->GetAuraEffect(113901, EFFECT_0);
+                if (!charges)
+                    return;
+
+                if (charges->GetAmount() == 0)
+                    return;
+
+                std::list<Creature*> purpleGates;
+                me->GetCreatureListWithEntryInGrid(purpleGates, 59271, 75.0f);
+
+                if (purpleGates.empty())
+                    return;
+
+                purpleGates.sort(JadeCore::DistanceCompareOrderPred(me));
+                for (auto itr : purpleGates)
+                {
+                    clicker->CastSpell(clicker, 113942, true);
+
+                    // Init dest coordinates
+                    float x, y, z;
+                    itr->GetPosition(x, y, z);
+
+                    float speedXY;
+                    float speedZ = 5;
+
+                    speedXY = clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
+                    clicker->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+                    break;
+                }
+
+                charges->SetAmount(charges->GetAmount() - 1);
+
+                for (int i = 0; i < 6; ++i)
+                {
+                    if (i <= charges->GetAmount())
+                        me->CastSpell(me, greenAuras[i], true);
+                    else
+                        me->RemoveAura(greenAuras[i]);
+                }
             }
         };
 

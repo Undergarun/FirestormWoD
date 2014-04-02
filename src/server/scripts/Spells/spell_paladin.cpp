@@ -40,6 +40,7 @@ enum PaladinSpells
     PALADIN_SPELL_HOLY_SHOCK_R1                  = 20473,
     PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE           = 25912,
     PALADIN_SPELL_HOLY_SHOCK_R1_HEALING          = 25914,
+    PALADIN_SPELL_HOLY_SHOCK_ENERGIZE            = 148976,
     SPELL_BLESSING_OF_LOWER_CITY_DRUID           = 37878,
     SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
@@ -1562,6 +1563,8 @@ class spell_pal_holy_shock : public SpellScriptLoader
                         if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
                             if (roll_chance_i(50))
                                 caster->CastSpell(caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
+
+                        caster->CastSpell(caster, PALADIN_SPELL_HOLY_SHOCK_ENERGIZE, true);
                     }
                 }
             }

@@ -44,7 +44,6 @@ enum HunterSpells
     HUNTER_SPELL_SERPENT_STING                      = 118253,
     HUNTER_SPELL_SERPENT_SPREAD                     = 87935,
     HUNTER_SPELL_CHIMERA_SHOT_HEAL                  = 53353,
-    HUNTER_SPELL_RAPID_INTENSITY                    = 131564,
     HUNTER_SPELL_RAPID_FIRE                         = 3045,
     HUNTER_SPELL_STEADY_SHOT_ENERGIZE               = 77443,
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
@@ -118,7 +117,37 @@ enum HunterSpells
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT = 121414,
     HUNTER_SPELL_ASPECT_OF_THE_BEAST                = 61648,
     HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
-    HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254
+    HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254,
+    HUNTER_SPELL_ARCANE_INTENSITY                   = 142978
+};
+
+// Called by Arcane Shot - 3044
+// Item PvP - Hunter S13 2P - 131564
+class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
+{
+    public:
+        spell_hun_item_pvp_s13_2p() : SpellScriptLoader("spell_hun_item_pvp_s13_2p") { }
+
+        class spell_hun_item_pvp_s13_2p_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_item_pvp_s13_2p_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_item_pvp_s13_2p_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_item_pvp_s13_2p_SpellScript();
+        }
 };
 
 // Spirit Bond - 118694
@@ -1665,55 +1694,6 @@ class spell_hun_kill_command : public SpellScriptLoader
         }
 };
 
-// Rapid Fire - 3045
-class spell_hun_rapid_fire : public SpellScriptLoader
-{
-    public:
-        spell_hun_rapid_fire() : SpellScriptLoader("spell_hun_rapid_fire") { }
-
-        class spell_hun_rapid_fire_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_rapid_fire_SpellScript);
-
-            // CRASHFIX: crash in 5.4.0 due to GetEffect), effect 1 doesn't exist in DBC in 5.4
-            void HandleOnHit()
-            {
-                /*if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // Item - Bonus season 12 PvP
-                    if (_player->HasAura(HUNTER_SPELL_RAPID_INTENSITY))
-                    {
-                        if (AuraApplication* aura = _player->GetAuraApplication(HUNTER_SPELL_RAPID_FIRE))
-                        {
-                            AuraPtr rapidFire = aura->GetBase();
-
-                            rapidFire->GetEffect(1)->ChangeAmount(3200);
-                        }
-                    }
-                    else
-                    {
-                        if (AuraApplication* aura = _player->GetAuraApplication(HUNTER_SPELL_RAPID_FIRE))
-                        {
-                            AuraPtr rapidFire = aura->GetBase();
-
-                            rapidFire->GetEffect(1)->ChangeAmount(0);
-                        }
-                    }
-                }*/
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_rapid_fire_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_rapid_fire_SpellScript();
-        }
-};
-
 // Cobra Shot - 77767
 class spell_hun_cobra_shot : public SpellScriptLoader
 {
@@ -2329,6 +2309,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_item_pvp_s13_2p();
     new spell_hun_spirit_bond();
     new spell_hun_glyph_of_aspect_of_the_beast();
     new spell_hun_glaive_toss_damage();
@@ -2357,7 +2338,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();
     new spell_hun_kill_command();
-    new spell_hun_rapid_fire();
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
     new spell_hun_chimera_shot();

@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (89485, 'spell_pri_inner_focus_immunity');

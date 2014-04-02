@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (3044, 'spell_hun_item_pvp_s13_2p');
