@@ -720,6 +720,8 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
         
         if (pageText)
             pageID = pageText->NextPage;
+        else
+            pageID = 0;
 
         SendPacket(&data);
 

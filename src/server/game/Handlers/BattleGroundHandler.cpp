@@ -37,7 +37,6 @@
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
-    return;
     uint64 guid;
     recvData >> guid;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
@@ -73,7 +72,6 @@ void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId
 
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 {
-    return;
     ObjectGuid guid;
     uint32 bgTypeId_ = 0;
     uint32 instanceId = 0;
@@ -323,7 +321,6 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 {
-    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
     Battleground* bg = _player->GetBattleground();
@@ -343,7 +340,6 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
-    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
 
     uint32 bgTypeId;
@@ -363,7 +359,6 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
 {
-    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
 
     uint32 time;
@@ -393,8 +388,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
 
     if (queueSlot == 3)
         queueSlot = 0;
-    else
-        queueSlot--;
 
     if (!_player->InBattlegroundQueue())
     {
@@ -628,7 +621,6 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 {
-    return;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
     uint8 arenaslot;                                        // 2v2, 3v3 or 5v5

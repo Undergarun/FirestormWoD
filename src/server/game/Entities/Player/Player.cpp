@@ -1008,7 +1008,10 @@ Player::~Player()
                 continue;
 
             if (m_items[i] == m_items[slot] && slot != i)
+            {
                 sLog->OutPandashan("Player[%u] have same item pointer in two slot ! (slot: %u, copy slot: %u)", GetGUIDLow(), i, slot);
+                m_items[i] = NULL;
+            }
         }
     }
 
@@ -4176,10 +4179,6 @@ void Player::InitSpellForLevel()
                 removeSpell(132627, false, false);
         }
     }
-
-    // Hack fix for Sparring - Not applied
-    if (HasSpell(116023))
-        CastSpell(this, 116023, true);
 
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
@@ -21239,12 +21238,26 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             if (!leader || !leader->GetAchievementMgr().HasAchieved(ar->achievement))
                 missingAchievement = ar->achievement;
 
+        uint32 missingLeaderAchievement = 0;
+        if (ar->leader_achievement)
+        {
+            if (GetGroup())
+            {
+                if (Player* pLeader = ObjectAccessor::FindPlayer(GetGroup()->GetLeaderGUID()))
+                    if (!pLeader->GetAchievementMgr().HasAchieved(ar->leader_achievement))
+                        missingLeaderAchievement = ar->leader_achievement;
+            }
+            else
+                if (!GetAchievementMgr().HasAchieved(ar->leader_achievement))
+                    missingLeaderAchievement = ar->leader_achievement;
+        }
+
         Difficulty target_difficulty = GetDifficulty(mapEntry->IsRaid());
         MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (!mapDiff)
             return false;
 
-        if (LevelMin || LevelMax || missingItem || missingQuest || missingAchievement)
+        if (LevelMin || LevelMax || missingItem || missingQuest || missingAchievement || missingLeaderAchievement)
         {
             if (report)
             {
@@ -25758,6 +25771,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     // Hack fix for remove flags auras after crash
     if (!GetMap()->IsBattlegroundOrArena())
         RemoveFlagsAuras();
+
+    // Hack fix for Sparring - Not applied
+    if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
+        AddAura(116023, this);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
