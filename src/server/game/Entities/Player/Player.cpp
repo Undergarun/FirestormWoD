@@ -4117,11 +4117,17 @@ void Player::InitSpellForLevel()
             learnSpell(spellId, false);
     }
 
-    // Aberration
+    // Aberration and Two Forms
     if (getRace() == RACE_WORGEN)
+    {
         learnSpell(68976, false);
+        learnSpell(68996, false);
+    }
     else
+    {
+        removeSpell(68996, false, false);
         removeSpell(68976, false, false);
+    }
 
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
     // http://www.wowhead.com/spell=33388
