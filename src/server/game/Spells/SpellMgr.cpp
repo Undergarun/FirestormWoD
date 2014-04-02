@@ -3804,10 +3804,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Dispel = DISPEL_NONE;
                     spellInfo->SpellIconID = 2819;
                     break;
-                case 120699:// Lynx Crush damage
-                    spellInfo->Effects[1].BasePoints = 100;
-                    spellInfo->Effects[1].Effect = SPELL_EFFECT_WEAPON_PERCENT_DAMAGE;
-                    break;
                 case 124271:// Sanguinary Vein
                     spellInfo->Effects[0].BasePoints = 35;
                     break;
