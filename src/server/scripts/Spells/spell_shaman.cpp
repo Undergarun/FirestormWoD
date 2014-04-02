@@ -40,6 +40,7 @@ enum ShamanSpells
     SPELL_SHA_ASCENDANCE                    = 114049,
     SPELL_SHA_HEALING_RAIN                  = 142923,
     SPELL_SHA_HEALING_RAIN_TICK             = 73921,
+    SPELL_SHA_HEALING_RAIN_AURA             = 73920,
     SPELL_SHA_EARTHQUAKE                    = 61882,
     SPELL_SHA_EARTHQUAKE_TICK               = 77478,
     SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN      = 77505,
@@ -405,48 +406,20 @@ class spell_sha_conductivity : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_player->HasAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                        if (AuraPtr conductivity = _player->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                         {
                             if (DynamicObject* dynObj = _player->GetDynObject(SPELL_SHA_HEALING_RAIN))
                             {
-                                std::list<Unit*> tempList;
-                                std::list<Unit*> memberList;
+                                uint32 remainingDuration = conductivity->GetEffect(2)->GetAmount();
+                                uint32 addDuration = std::min(remainingDuration, uint32(4000));
 
-                                _player->GetPartyMembers(tempList);
+                                dynObj->SetDuration(dynObj->GetDuration() + addDuration);
+                                conductivity->GetEffect(2)->SetAmount(remainingDuration - addDuration);
 
-                                for (auto itr : tempList)
-                                    if (itr->GetDistance(dynObj) <= 10.0f)
-                                        memberList.push_back(itr);
-
-                                if (memberList.empty())
-                                    return;
-
-                                memberList.sort(JadeCore::DistanceCompareOrderPred(dynObj));
-                                memberList.resize(1);
-
-                                // When you cast Healing Wave, Greater Healing Wave, or Healing Surge
-                                // allies within your Healing Rain share healing equal to 30% of the initial healing done
-                                if (GetSpellInfo()->IsPositive())
+                                if (AuraPtr healingRain = _player->GetAura(SPELL_SHA_HEALING_RAIN_AURA))
                                 {
-                                    int32 bp = int32(GetHitHeal() * 0.30f) / memberList.size();
-
-                                    for (auto itr : memberList)
-                                    {
-                                        _player->CastCustomSpell(itr, SPELL_SHA_CONDUCTIVITY_HEAL, &bp, NULL, NULL, true);
-                                        break;
-                                    }
-                                }
-                                // If your Lightning Bolt, Chain Lightning, Earth Shock, or Stormstrike damages an enemy
-                                // allies within your Healing Rain share healing equal to 50% of the initial damage done
-                                else
-                                {
-                                    int32 bp = int32(GetHitDamage() * 0.50f) / memberList.size();
-
-                                    for (auto itr : memberList)
-                                    {
-                                        _player->CastCustomSpell(itr, SPELL_SHA_CONDUCTIVITY_HEAL, &bp, NULL, NULL, true);
-                                        break;
-                                    }
+                                    healingRain->SetDuration(healingRain->GetDuration() + addDuration);
+                                    healingRain->SetMaxDuration(healingRain->GetMaxDuration() + addDuration);
                                 }
                             }
                         }
@@ -1523,7 +1496,21 @@ class spell_sha_healing_rain : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (WorldLocation const* loc = GetExplTargetDest())
-                    GetCaster()->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        // Casting a second healing rain after prolonging the previous one using conductivity
+                        // will replace the old healing rain with base amount of duration (in other words, you will not have 2 healing rains).
+                        if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
+                            caster->RemoveDynObject(SPELL_SHA_HEALING_RAIN);
+
+                        caster->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
+
+                        // Reset amount of Conductivity
+                        if (AuraPtr conductivity = caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                            conductivity->GetEffect(2)->SetAmount(40000);
+                    }
+                }
             }
 
             void Register()
