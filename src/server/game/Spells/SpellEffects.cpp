@@ -279,6 +279,11 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206
     &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207
     &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
+    &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
+    &Spell::EffectNULL,                                     //210 SPELL_EFFECT_210
+    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
+    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
+    &Spell::EffectNULL,                                     //213 SPELL_EFFECT_213
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
@@ -842,6 +847,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     case 107270:// Spinning Crane Kick
+                    case 148187:// Rushing Jade Wind
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             damage = CalculateMonkMeleeAttacks(m_caster, 1.59f, 14);
                         break;
@@ -2754,6 +2760,12 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
                     }
                 }
             break;
+        case 77443:
+        {
+            // Steady Focus increases Focus regen by 3 for Steady Shot
+            damage += m_caster->HasAura(53220) ? 3 : 0;
+            break;
+        }
         default:
             break;
     }

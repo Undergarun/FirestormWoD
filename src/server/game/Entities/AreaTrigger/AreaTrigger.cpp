@@ -91,8 +91,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
         case 116235:// Amethyst Pool
             SetVisualRadius(3.5f);
             break;
-        case 123811:
-            SetDuration(500000000);
+        case 123811:// Pheromones of Zeal - 2h
+            SetDuration(7200000);
             break;
         default:
             break;
@@ -258,6 +258,32 @@ void AreaTrigger::Update(uint32 p_time)
             }
             break;
         }
+        case 123811:// Pheromones of Zeal
+        {
+            std::list<Unit*> targetList;
+            radius = 35.0f;
+
+            // GetPlayerListInGrid(targetList, 200.0f);
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+            VisitNearbyObject(radius, searcher);
+
+            if (!targetList.empty())
+            {
+                for (auto itr : targetList)
+                {
+                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        // Pheromones of Zeal - Periodic Damage
+                        if (itr->GetDistance(this) > radius)
+                            itr->RemoveAura(123812);
+                        else if (!itr->HasAura(123812))
+                            caster->AddAura(123812, itr);
+                    }
+                }
+            }
+            break;
+        }
         case 123461:// Get Away!
         {
             std::list<Player*> playerList;
@@ -279,26 +305,6 @@ void AreaTrigger::Update(uint32 p_time)
                     player->SendApplyMovementForce(false, pos);
             }
 
-            break;
-        }
-        case 123811:// Pheromones of Zeal
-        {
-            std::list<Player*> targetList;
-            radius = 35.0f;
-
-            GetPlayerListInGrid(targetList, 200.0f);
-
-            if (!targetList.empty())
-            {
-                for (auto itr : targetList)
-                {
-                    // Pheromones of Zeal - Periodic Damage
-                    if (itr->GetDistance(this) > radius)
-                        itr->RemoveAura(123812);
-                    else if (!itr->HasAura(123812))
-                        caster->AddAura(123812, itr);
-                }
-            }
             break;
         }
         case 116546:// Draw Power

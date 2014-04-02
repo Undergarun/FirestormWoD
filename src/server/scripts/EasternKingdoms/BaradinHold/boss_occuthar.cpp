@@ -234,8 +234,15 @@ class spell_occuthar_eye_of_occuthar : public SpellScriptLoader
                     pEye->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_DMG, true); 
             }
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.clear();
+                targets.push_back(GetCaster());
+            }
+
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_occuthar_eye_of_occuthar_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnEffectHitTarget += SpellEffectFn(spell_occuthar_eye_of_occuthar_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };

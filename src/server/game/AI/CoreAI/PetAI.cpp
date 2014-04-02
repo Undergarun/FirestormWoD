@@ -461,6 +461,10 @@ void PetAI::DoAttack(Unit* target, bool chase)
     // (Follow && (Aggressive || Defensive))
     // ((Stay || Follow) && (Passive && player clicked attack))
 
+    // Blink Strikes (Hack Fix)
+    if (target && (me->HasAura(130392) || (me->GetOwner() && me->GetOwner()->HasAura(130392))))
+        me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation());
+
     if (chase)
     {
         if (me->Attack(target, true))

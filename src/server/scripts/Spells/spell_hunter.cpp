@@ -117,7 +117,40 @@ enum HunterSpells
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT  = 120761,
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT = 121414,
     HUNTER_SPELL_ASPECT_OF_THE_BEAST                = 61648,
-    HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301
+    HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
+    HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254
+};
+
+// Spirit Bond - 118694
+class spell_hun_spirit_bond : public SpellScriptLoader
+{
+    public:
+        spell_hun_spirit_bond() : SpellScriptLoader("spell_hun_spirit_bond") { }
+
+        class spell_hun_spirit_bond_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_spirit_bond_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetTarget())
+                    return;
+
+                if (Player* player = GetTarget()->ToPlayer())
+                    if (Pet* pet = player->GetPet())
+                        pet->CastSpell(pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_spirit_bond_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_spirit_bond_AuraScript();
+        }
 };
 
 // Glyph of Aspect of the Beast - 125042
@@ -2195,15 +2228,6 @@ class spell_hun_disengage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_disengage_SpellScript);
 
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() == TYPEID_PLAYER && !caster->isInCombat())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
@@ -2232,7 +2256,6 @@ class spell_hun_disengage : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_hun_disengage_SpellScript::HandleAfterCast);
             }
         };
@@ -2306,6 +2329,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_spirit_bond();
     new spell_hun_glyph_of_aspect_of_the_beast();
     new spell_hun_glaive_toss_damage();
     new spell_hun_glaive_toss_missile();

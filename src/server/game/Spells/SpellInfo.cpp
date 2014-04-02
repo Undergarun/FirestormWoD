@@ -3517,6 +3517,7 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
         case 60503: // Overpower !
         case 121153:// Blindside
         case 131116:// Raging Blow !
+        case 134563:// Healing Elixirs
             return true;
     }
 
