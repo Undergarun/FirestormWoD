@@ -10,49 +10,6 @@
 
 include(${CMAKE_SOURCE_DIR}/cmake/macros/EnsureVersion.cmake)
 
-set(_REQUIRED_GIT_VERSION "1.7")
-
-find_program(_GIT_EXEC
-  NAMES
-    git git.cmd
-  HINTS
-    ENV PATH
-  DOC "git installation path"
-)
-
-if(_GIT_EXEC)
-  execute_process(
-    COMMAND "${_GIT_EXEC}" --version
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE _GIT_VERSION
-    ERROR_QUIET
-  )
-
-  # make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
-  ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
-endif()
-
-if(_GIT_VERSION_OK)
-  execute_process(
-    COMMAND "${_GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE rev_info
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
-  execute_process(
-    COMMAND "${_GIT_EXEC}" show -s --format=%ci
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE rev_date
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
-else()
-  message("")
-  message(STATUS "WARNING - Missing or outdated git - did you forget to install a recent version?")
-  message(STATUS "WARNING - Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}")
-endif()
-
 # Last minute check - ensure that we have a proper revision
 # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
 if(NOT rev_info)
