@@ -1049,7 +1049,7 @@ class spell_arterial_bleed : public SpellScriptLoader
                     if (Unit* target = GetTarget())
                     {
                         uint32 dmgIni = target->GetDamageTakenInPastSecs(1);
-                        (int32)GetSpellInfo()->Effects[0].MiscValue = dmgIni * 0.5;
+                        //(int32)GetSpellInfo()->Effects[0].MiscValue = dmgIni * 0.5;
                     }
                 }
             }
