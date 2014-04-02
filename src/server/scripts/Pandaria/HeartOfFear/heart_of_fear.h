@@ -53,6 +53,7 @@ enum eSpells
     SPELL_SONIC_RING_AURA       = 122336,
     SPELL_INHALE_PHEROMONES     = 124018,
     SPELL_REINFORCE             = 123833,
+    SPELL_BERSERK               = 120207,
 
     // --- Blade Lord Ta'yak ---
     SPELL_TEMPEST_SLASH         = 122842,
@@ -232,7 +233,7 @@ enum eEvents
     // Zor'lok
     EVENT_INHALE                    = 1,
     EVENT_EXHALE                    = 2,
-    EVENT_SONG_EMPRESS              = 3,
+    EVENT_BERSERK                   = 3,
     EVENT_ATTENUATION               = 4,
     EVENT_SUMMON_RINGS              = 5,
     EVENT_SUMMON_RINGS1             = 6,

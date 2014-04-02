@@ -49,10 +49,15 @@ class mob_kor_thik_slicer : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 5000);
                 events.ScheduleEvent(EVENT_VITAL_STRIKES, 12000);
+                if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
+                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
             }
 
             void DamageTaken(Unit* killer, uint32& damage)
             {
+                if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
+                    me->ClearUnitState(UNIT_STATE_NOT_MOVE);
+
                 if(!eventScheduled)
                 {
                     if (me->HealthBelowPctDamaged(25, damage))
@@ -199,6 +204,15 @@ class mob_sra_thik_shield_master : public CreatureScript
                 events.ScheduleEvent(EVENT_MASS_SPELL_REFLEXION, 19000);
                 events.ScheduleEvent(EVENT_SHIELD_SLAM, 26000);
                 events.ScheduleEvent(EVENT_STUNNING_STRIKE, 35000);
+
+                if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
+                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
+            }
+
+            void DamageTaken(Unit* attacker, uint32 &damage)
+            {
+                if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
+                    me->ClearUnitState(UNIT_STATE_NOT_MOVE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -277,10 +291,19 @@ class mob_set_thik_swiftblade : public CreatureScript
             {
                 events.Reset();
 
-                if (!IsHeroic())
+                if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_BLURRING_SLASH, 7000);
                 events.ScheduleEvent(EVENT_RIPOSTE, 12000);
+
+                if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
+                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
+            }
+
+            void DamageTaken(Unit* attacker, uint32 &damage)
+            {
+                if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
+                    me->ClearUnitState(UNIT_STATE_NOT_MOVE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1009,6 +1032,69 @@ class mob_coagulated_amber : public CreatureScript
         }
 };
 
+// 123422 - Arterial Bleeding
+class spell_arterial_bleed : public SpellScriptLoader
+{
+    public:
+        spell_arterial_bleed() : SpellScriptLoader("spell_arterial_bleed") { }
+
+        class spell_arterial_bleed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_arterial_bleed_AuraScript);
+
+            void Apply(constAuraEffectPtr /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetTarget())
+                    {
+                        uint32 dmgIni = target->GetDamageTakenInPastSecs(1);
+                        (int32)GetSpellInfo()->Effects[0].MiscValue = dmgIni * 0.5;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_arterial_bleed_AuraScript::Apply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_arterial_bleed_AuraScript();
+        }
+};
+
+// 123421 - Vital Strikes
+class spell_vital_strikes : public SpellScriptLoader
+{
+    public:
+        spell_vital_strikes() : SpellScriptLoader("spell_vital_strikes") { }
+
+        class spell_vital_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_vital_strikes_AuraScript);
+
+            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetTarget())
+                        caster->AddAura(SPELL_VITAL_STRIKES, target);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_vital_strikes_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_vital_strikes_AuraScript();
+        };
+};
+
 void AddSC_heart_of_fear()
 {
     // Trashes
@@ -1028,4 +1114,6 @@ void AddSC_heart_of_fear()
     new mob_kor_thik_swarmer();
     new mob_set_thik_gustwing();
     new mob_coagulated_amber();
+    new spell_arterial_bleed();
+    new spell_vital_strikes();
 }

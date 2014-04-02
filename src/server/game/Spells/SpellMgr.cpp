@@ -3997,6 +3997,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 123811:// Pheromones of Zeal
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                     break;
+                case 122706:// Noise Cancelling
+                    spellInfo->Effects[0].BasePoints = 40;
+                    spellInfo->Effects[1].BasePoints = 75;
+                    break;
+                case 122707:// Noise Cancelling
+                    spellInfo->Effects[0].BasePoints = 10;
+                    spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                    spellInfo->Effects[0].TargetB = 0;
+                    break;
+                case 122731:// Create Noise Cancelling AreaTrigger
+                    spellInfo->Effects[0].BasePoints = 351;
+                    spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                    spellInfo->Effects[0].TargetB = 0;
                 case 108503:// Grimoire of Sacrifice
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                     break;
