@@ -1251,6 +1251,10 @@ class spell_sha_lava_surge : public SpellScriptLoader
                         {
                             if (roll_chance_i(20))
                             {
+                                if (Spell* lavaBurst = _player->GetCurrentSpell(CURRENT_GENERIC_SPELL))
+                                    if (lavaBurst->GetSpellInfo() && lavaBurst->GetSpellInfo()->Id == 51505)
+                                        _player->InterruptSpell(CURRENT_GENERIC_SPELL);
+
                                 _player->CastSpell(_player, SPELL_SHA_LAVA_SURGE_CAST_TIME, true);
                                 _player->RemoveSpellCooldown(51505, true);
                             }
