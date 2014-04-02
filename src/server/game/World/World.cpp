@@ -3160,7 +3160,6 @@ void World::ResetCurrencyWeekCap()
 
     sLog->OutPandashan("World::ResetCurrencyWeekCap()");
 }
-}
 
 void World::LoadDBAllowedSecurityLevel()
 {
