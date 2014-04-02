@@ -35,6 +35,7 @@ void VisibleNotifier::SendToSelf()
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
     // but exist one case when this possible and object not out of range: transports
     if (Transport* transport = i_player.GetTransport())
+    {
         for (Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr != transport->GetPassengers().end();++itr)
         {
             if (vis_guids.find((*itr)->GetGUID()) != vis_guids.end())
@@ -45,6 +46,20 @@ void VisibleNotifier::SendToSelf()
                 (*itr)->UpdateVisibilityOf(&i_player);
             }
         }
+    }
+
+    if (!i_player.m_Controlled.empty())
+    {
+        for (auto itr : i_player.m_Controlled)
+        {
+            if (vis_guids.find(itr->GetGUID()) != vis_guids.end())
+            {
+                vis_guids.erase(itr->GetGUID());
+                if (itr->GetTypeId() == TYPEID_UNIT)
+                    i_player.UpdateVisibilityOf((Creature*)(itr), i_data, i_visibleNow);
+            }
+        }
+    }
 
     for (Player::ClientGUIDs::const_iterator it = vis_guids.begin();it != vis_guids.end(); ++it)
     {
