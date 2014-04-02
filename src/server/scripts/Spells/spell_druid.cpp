@@ -122,7 +122,7 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_SHRED_OVERRIDE     = 114235,
     SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE = 122114,
     SPELL_DRUID_GLYPH_OF_BLOOMING           = 121840,
-    SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282,
+    SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282
 };
 
 // Glyph of the Treant - 125047
@@ -512,14 +512,17 @@ class spell_dru_soul_of_the_forest : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST))
+                    if (GetSpellInfo()->Id == 18562)
+                        caster->CastSpell(GetHitUnit(), SPELL_DRUID_SWIFTMEND, true);
+
+                    if (caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST))
                     {
                         if (GetSpellInfo()->Id == 18562)
-                            _player->CastSpell(_player, SPELL_DRUID_SOUL_OF_THE_FOREST_HASTE, true);
+                            caster->CastSpell(caster, SPELL_DRUID_SOUL_OF_THE_FOREST_HASTE, true);
                         else
-                            _player->EnergizeBySpell(_player, SPELL_DRUID_SOUL_OF_THE_FOREST, 40, POWER_RAGE);
+                            caster->EnergizeBySpell(caster, SPELL_DRUID_SOUL_OF_THE_FOREST, 40, POWER_RAGE);
                     }
                 }
             }
@@ -2622,6 +2625,48 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
         }
 };
 
+// Swiftmend (heal) - 81269
+class spell_dru_swiftmend_heal : public SpellScriptLoader
+{
+    public:
+        spell_dru_swiftmend_heal() : SpellScriptLoader("spell_dru_swiftmend_heal") { }
+
+        class spell_dru_swiftmend_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_swiftmend_heal_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<Unit*> unitList;
+
+                for (auto itr : targets)
+                    if (itr->ToUnit())
+                        unitList.push_back(itr->ToUnit());
+
+                targets.clear();
+
+                unitList.sort(JadeCore::HealthPctOrderPred());
+                unitList.resize(3);
+
+                for (auto itr : unitList)
+                    targets.push_back(itr);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_swiftmend_heal_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_swiftmend_heal_SpellScript();
+        }
+};
+
 // Swiftmend - 81262
 class spell_dru_swiftmend : public SpellScriptLoader
 {
@@ -3588,6 +3633,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_mushroom_bloom();
     new spell_dru_wild_mushroom_detonate();
     new spell_dru_wild_mushroom();
+    new spell_dru_swiftmend_heal();
     new spell_dru_swiftmend();
     new spell_dru_astral_communion();
     new spell_dru_shooting_stars();
