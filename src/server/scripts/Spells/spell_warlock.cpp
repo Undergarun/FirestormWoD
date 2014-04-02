@@ -127,6 +127,71 @@ enum WarlockSpells
     WARLOCK_SOULSHATTER                     = 32835
 };
 
+const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
+const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
+
+// Demonic Gateway (charges periodic) - 113901
+class spell_warl_demonic_gateway_charges : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonic_gateway_charges() : SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
+
+        class spell_warl_demonic_gateway_charges_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_demonic_gateway_charges_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 charges = aurEff->GetAmount();
+                    if (charges > 4)
+                        return;
+                    else
+                        aurEff->GetBase()->GetEffect(0)->SetAmount(++charges);
+
+                    switch (caster->GetEntry())
+                    {
+                        case 59262: // Green
+                        {
+                            for (int i = 0; i < 6; ++i)
+                            {
+                                if (i <= charges)
+                                    caster->CastSpell(caster, greenAuras[i], true);
+                                else
+                                    caster->RemoveAura(greenAuras[i]);
+                            }
+
+                            break;
+                        }
+                        case 59271: // Purple
+                        {
+                            for (int i = 0; i < 6; ++i)
+                            {
+                                if (i <= charges)
+                                    caster->CastSpell(caster, purpleAuras[i], true);
+                                else
+                                    caster->RemoveAura(purpleAuras[i]);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_gateway_charges_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_demonic_gateway_charges_AuraScript();
+        }
+};
+
 // Grimoire of Supremacy - 108499
 class spell_warl_grimoire_of_supremacy : public SpellScriptLoader
 {
@@ -1999,35 +2064,6 @@ class spell_warl_drain_soul : public SpellScriptLoader
         }
 };
 
-// Demonic Gateway (periodic add charge) - 113901
-class spell_warl_demonic_gateway_charges : public SpellScriptLoader
-{
-    public:
-        spell_warl_demonic_gateway_charges() : SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
-
-        class spell_warl_demonic_gateway_charges_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_demonic_gateway_charges_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* target = GetTarget())
-                    if (AuraPtr demonicGateway = target->GetAura(WARLOCK_DEMONIC_GATEWAY_PERIODIC_CHARGE))
-                        demonicGateway->ModCharges(1);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_gateway_charges_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_demonic_gateway_charges_AuraScript();
-        }
-};
-
 // Demonic Gateway - 111771
 class spell_warl_demonic_gateway : public SpellScriptLoader
 {
@@ -2959,6 +2995,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_drain_life();
     new spell_warl_soulburn_health_funnel();
@@ -3001,7 +3038,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap();
     new spell_warl_nightfall();
     new spell_warl_drain_soul();
-    new spell_warl_demonic_gateway_charges();
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();
     new spell_warl_chaos_bolt();
