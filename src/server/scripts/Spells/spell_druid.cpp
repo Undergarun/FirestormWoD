@@ -122,7 +122,61 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_SHRED_OVERRIDE     = 114235,
     SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE = 122114,
     SPELL_DRUID_GLYPH_OF_BLOOMING           = 121840,
-    SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282
+    SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282,
+    SPELL_DRUID_REJUVENATION                = 774
+};
+
+// Genesis - 145518
+class spell_dru_genesis : public SpellScriptLoader
+{
+    public:
+        spell_dru_genesis() : SpellScriptLoader("spell_dru_genesis") { }
+
+        class spell_dru_genesis_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_genesis_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    std::list<Unit*> partyMembers;
+                    plr->GetPartyMembers(partyMembers);
+
+                    for (auto itr : partyMembers)
+                    {
+                        if (!itr->IsWithinDist(plr, 60.0f))
+                            continue;
+
+                        if (!itr->IsWithinLOSInMap(plr))
+                            continue;
+
+                        if (AuraEffectPtr rejuvenation = itr->GetAuraEffect(SPELL_DRUID_REJUVENATION, EFFECT_0))
+                        {
+                            int32 duration = rejuvenation->GetBase()->GetDuration();
+                            int32 periodic = rejuvenation->GetAmplitude();
+
+                            rejuvenation->GetBase()->SetDuration(duration / 4);
+                            rejuvenation->SetPeriodicTimer(periodic / 4);
+                            rejuvenation->SetAmplitude(periodic / 4);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_genesis_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_genesis_SpellScript();
+        }
 };
 
 // Glyph of the Treant - 125047
@@ -3587,6 +3641,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_genesis();
     new spell_dru_glyph_of_the_treant();
     new spell_dru_incarnation_chosen_of_elune();
     new spell_dru_incarnation_skins();

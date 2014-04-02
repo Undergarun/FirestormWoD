@@ -3411,6 +3411,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 145518:// Genesis
+                    spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                    spellInfo->Effects[0].TargetB = 0;
+                    break;
                 case 119890:// Death Blossom
                     spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                     spellInfo->Effects[0].TargetB = 0;

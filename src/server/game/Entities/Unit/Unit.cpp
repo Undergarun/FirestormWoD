@@ -10412,6 +10412,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 126046:// Adaptation
         case 117967:// Brewmaster Training
         case 134563:// Healing Elixirs
+        case 131564:// Arcane Intensity
             return false;
         case 35551: // Combat Potency
         {
