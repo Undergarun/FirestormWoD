@@ -1947,7 +1947,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(WARLOCK_NIGHTFALL))
-                        if (roll_chance_i(5))
+                        if (roll_chance_i(10))
                             caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
