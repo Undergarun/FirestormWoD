@@ -47,8 +47,8 @@ class mob_kor_thik_slicer : public CreatureScript
 
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
-                events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 5000);
-                events.ScheduleEvent(EVENT_VITAL_STRIKES, 12000);
+                events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 10000);
+                events.ScheduleEvent(EVENT_VITAL_STRIKES, 5000);
                 if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
                     me->AddUnitState(UNIT_STATE_NOT_MOVE);
             }
@@ -1033,39 +1033,6 @@ class mob_coagulated_amber : public CreatureScript
 };
 
 // 123422 - Arterial Bleeding
-class spell_arterial_bleed : public SpellScriptLoader
-{
-    public:
-        spell_arterial_bleed() : SpellScriptLoader("spell_arterial_bleed") { }
-
-        class spell_arterial_bleed_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_arterial_bleed_AuraScript);
-
-            void Apply(constAuraEffectPtr /*aurEff*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        uint32 dmgIni = target->GetDamageTakenInPastSecs(1);
-                        (int32)GetSpellInfo()->Effects[0].MiscValue = dmgIni * 0.5;
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_arterial_bleed_AuraScript::Apply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_arterial_bleed_AuraScript();
-        }
-};
-
 // 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
@@ -1076,23 +1043,30 @@ class spell_vital_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_vital_strikes_AuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetTarget())
-                        caster->AddAura(SPELL_VITAL_STRIKES, target);
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                int32 bp = (eventInfo.GetDamageInfo()->GetDamage() / 2) / 6;
+
+                if (Unit* victim = eventInfo.GetProcTarget())
+                    if (!victim->HasAura(SPELL_ARTERIAL_SPIRIT))
+                        GetCaster()->CastCustomSpell(victim, SPELL_ARTERIAL_SPIRIT, &bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_vital_strikes_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectProc += AuraEffectProcFn(spell_vital_strikes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_vital_strikes_AuraScript();
-        };
+        }
 };
 
 void AddSC_heart_of_fear()
@@ -1114,6 +1088,5 @@ void AddSC_heart_of_fear()
     new mob_kor_thik_swarmer();
     new mob_set_thik_gustwing();
     new mob_coagulated_amber();
-    new spell_arterial_bleed();
     new spell_vital_strikes();
 }

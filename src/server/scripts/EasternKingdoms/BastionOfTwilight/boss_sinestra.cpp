@@ -262,11 +262,11 @@ class boss_sinestra : public CreatureScript
             EventMap events;
             SummonList summons;
             uint8 phase;
-            Creature* pEgg1;
-            Creature* pEgg2;
-            Creature* pCalen;
-            Creature* pOrb1;
-            Creature* pOrb2;
+            uint64 pEgg1;
+            uint64 pEgg2;
+            uint64 pCalen;
+            uint64 pOrb1;
+            uint64 pOrb2;
             uint8 eggs;
 
             void Reset()
@@ -283,12 +283,15 @@ class boss_sinestra : public CreatureScript
 
                 me->SetHealth(RAID_MODE(SINESTRA_HEALTH_10H, SINESTRA_HEALTH_25H, SINESTRA_HEALTH_10H, SINESTRA_HEALTH_25H));
 
-                pEgg1 = me->SummonCreature(NPC_PULSING_TWILIGHT_EGG, addsPos[1], TEMPSUMMON_DEAD_DESPAWN);
-                pEgg2 = me->SummonCreature(NPC_PULSING_TWILIGHT_EGG, addsPos[3], TEMPSUMMON_DEAD_DESPAWN);
+                if (Creature*c = me->SummonCreature(NPC_PULSING_TWILIGHT_EGG, addsPos[1], TEMPSUMMON_DEAD_DESPAWN))
+                    pEgg1 = c->GetGUID();
 
-                pOrb1 = NULL;
-                pOrb2 = NULL;
-                pCalen = NULL;
+                if (Creature* c = me->SummonCreature(NPC_PULSING_TWILIGHT_EGG, addsPos[3], TEMPSUMMON_DEAD_DESPAWN))
+                    pEgg2 = c->GetGUID();
+
+                pOrb1 = 0;
+                pOrb2 = 0;
+                pCalen = 0;
 
                 if (!pInstance)
                     return;
@@ -431,8 +434,9 @@ class boss_sinestra : public CreatureScript
                 else if (me->GetPower(POWER_MANA) < 1 && phase == 1)
                 {
                     phase = 2;
-                    if (pCalen)
-                        pCalen->AI()->Talk(SAY_CALEN_PHASE_2_2);
+                    if (Creature*c = me->GetMap()->GetCreature(pCalen))
+                        if (c->AI())
+                            c->AI()->Talk(SAY_CALEN_PHASE_2_2);
                     if (Creature* pStalker = me->FindNearestCreature(NPC_BARRIER_COSMETIC_STALKER, 100.0f))
                     {
                         pStalker->GetMotionMaster()->MovementExpired(false);
@@ -483,10 +487,12 @@ class boss_sinestra : public CreatureScript
                             JadeCore::RandomResizeList<Unit*>(targetList, 2);
 
                             std::list<Unit*>::const_iterator iter = targetList.begin();
-                            pOrb1 = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000);
+                            if (Creature*c = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000))
+                                pOrb1 = c->GetGUID();
                             
                             ++iter;
-                            pOrb2 = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000);
+                            if (Creature* c = me->SummonCreature(NPC_SHADOW_ORB, (*iter)->GetPositionX(), (*iter)->GetPositionY(), (*iter)->GetPositionZ(), (*iter)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 14000))
+                                pOrb2 = c->GetGUID();
 
                             events.ScheduleEvent(EVENT_TWILIGHT_SLICER, 5500);
                             events.ScheduleEvent(EVENT_SUMMON_ORB, 30000);
@@ -495,9 +501,13 @@ class boss_sinestra : public CreatureScript
                         case EVENT_TWILIGHT_SLICER:
                             if (pOrb1 && pOrb2)
                             {
-                                
-                                pOrb1->CastSpell(pOrb2, SPELL_TWILIGHT_SLICER, true);
-                                pOrb1->ClearUnitState(UNIT_STATE_CASTING);
+                                Creature* c1 = me->GetMap()->GetCreature(pOrb1);
+                                Creature* c2 = me->GetMap()->GetCreature(pOrb2);
+                                if (c1 && c2)
+                                {
+                                    c1->CastSpell(c2, SPELL_TWILIGHT_SLICER, true);
+                                    c1->ClearUnitState(UNIT_STATE_CASTING);
+                                }
                             }
                             break;
                         case EVENT_SUMMON_WHELP:
@@ -517,7 +527,8 @@ class boss_sinestra : public CreatureScript
                             DoCast(me, SPELL_TWILIGHT_EXTINCTION);
                             break;
                         case EVENT_SUMMON_CALEN:
-                            pCalen = me->SummonCreature(NPC_CALEN, addsPos[0]);
+                            if (Creature* c = me->SummonCreature(NPC_CALEN, addsPos[0]))
+                                pCalen = c->GetGUID();
                             break;
                         case EVENT_TWILIGHT_POWER:
                             if (Creature* pStalker = me->FindNearestCreature(NPC_BARRIER_COSMETIC_STALKER, 200.0f))
@@ -562,8 +573,8 @@ class boss_sinestra : public CreatureScript
                             break;
                         }
                         case EVENT_KILL_CALEN:
-                            if (pCalen)
-                                DoCast(pCalen, SPELL_TWILIGHT_BLAST_DUMMY);
+                            if (Creature*c = me->GetMap()->GetCreature(pCalen))
+                                DoCast(c, SPELL_TWILIGHT_BLAST_DUMMY);
                             events.ScheduleEvent(EVENT_START_PHASE_3, 18000);
                             break;
                         case EVENT_START_PHASE_3:
@@ -1374,10 +1385,10 @@ class spell_sinestra_twilight_slicer : public SpellScriptLoader
                 {
                     if (boss_sinestra::boss_sinestraAI* SinestraAI = CAST_AI(boss_sinestra::boss_sinestraAI, pSinestra->GetAI()))
                     {
-                        if (SinestraAI->pOrb1 && SinestraAI->pOrb2)
-                        {
-                            targets.remove_if(TwilightSlicerTargetSelector(SinestraAI->pOrb1, SinestraAI->pOrb2));
-                        }
+                        Creature* c1 = pSinestra->GetMap()->GetCreature(SinestraAI->pOrb1);
+                        Creature* c2 = pSinestra->GetMap()->GetCreature(SinestraAI->pOrb2);
+                        if (c1 && c2)
+                            targets.remove_if(TwilightSlicerTargetSelector(c1, c2));
                     }
                 }
             }
