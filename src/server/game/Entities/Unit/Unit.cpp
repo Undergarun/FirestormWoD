@@ -703,6 +703,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
 
+    // Dealing damage to another player in battle causes them to receive 60% less healing.
+    if (ToPlayer() && ToPlayer()->HasAura(134732) && plr && ToPlayer()->GetBattleground() && plr->GetBattleground())
+        plr->CastSpell(plr, 134735, true);
+
     // Log damage > 1 000 000 on worldboss
     if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
         sLog->OutPandashan("World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
@@ -12143,10 +12147,6 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, int32 damage, Powers po
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
-    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
-            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
-
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return pdamage;
 
@@ -13708,10 +13708,6 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 
 uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
 {
-    if (victim && victim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && !victim->HasAura(134735))
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(134735))
-            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, victim, victim, spellInfo->spellPower);
-
     if (!victim || pdamage == 0)
         return 0;
 
