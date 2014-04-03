@@ -124,7 +124,8 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_SOUL_SWAP              = 56226,
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
-    WARLOCK_SOULSHATTER                     = 32835
+    WARLOCK_SOULSHATTER                     = 32835,
+    WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040
 };
 
 const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
@@ -1693,7 +1694,7 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
         }
 };
 
-// Hand of Gul'Dan - 86040
+// Hand of Gul'Dan - 143381
 class spell_warl_hand_of_guldan : public SpellScriptLoader
 {
     public:
@@ -1707,7 +1708,7 @@ class spell_warl_hand_of_guldan : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARLOCK_SHADOWFLAME, true);
+                        caster->CastSpell(target, WARLOCK_HAND_OF_GULDAN_DAMAGE, true);
             }
 
             void Register()
@@ -1719,6 +1720,35 @@ class spell_warl_hand_of_guldan : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_hand_of_guldan_SpellScript();
+        }
+};
+
+// Hand of Gul'Dan (damage) - 86040
+class spell_warl_hand_of_guldan_damage : public SpellScriptLoader
+{
+    public:
+        spell_warl_hand_of_guldan_damage() : SpellScriptLoader("spell_warl_hand_of_guldan_damage") { }
+
+        class spell_warl_hand_of_guldan_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_hand_of_guldan_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, WARLOCK_SHADOWFLAME, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_hand_of_guldan_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_hand_of_guldan_damage_SpellScript();
         }
 };
 
@@ -3029,6 +3059,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_leech();
     new spell_warl_sacrificial_pact();
     new spell_warl_hand_of_guldan();
+    new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire();
     new spell_warl_demonic_leap_jump();
