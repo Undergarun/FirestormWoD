@@ -128,6 +128,36 @@ enum WarlockSpells
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040
 };
 
+// Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
+// Glyph of Siphon Life - 56218
+class spell_warl_siphon_life : public SpellScriptLoader
+{
+    public:
+        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
+
+        class spell_warl_siphon_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_siphon_life_AuraScript();
+        }
+};
+
 const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
 const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
@@ -2046,7 +2076,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                             caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->GetMaxHealth() / 200), false);
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
                 }
             }
 
@@ -3025,6 +3055,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_siphon_life();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_drain_life();
