@@ -1175,36 +1175,6 @@ class spell_monk_zen_flight_check : public SpellScriptLoader
         {
             return new spell_monk_zen_flight_check_SpellScript();
         }
-
-        class spell_monk_zen_flight_check_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_zen_flight_check_AuraScript);
-
-            bool Load()
-            {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* caster = GetCaster()->ToPlayer())
-                    if (caster->GetSkillValue(SKILL_RIDING) >= 375)
-                        amount = 310;
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_zen_flight_check_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_zen_flight_check_AuraScript();
-        }
 };
 
 // Glyph of Zen Flight - 125893
