@@ -1061,6 +1061,7 @@ void Channel::MakeVoiceOff(WorldPacket* data, uint64 guid)
 
 void Channel::JoinNotify(uint64 guid)
 {
+    return;
     ObjectGuid playerGuid = guid;
     WorldPacket data(SMSG_USERLIST_ADD);
 
@@ -1097,6 +1098,7 @@ void Channel::JoinNotify(uint64 guid)
 
 void Channel::LeaveNotify(uint64 guid)
 {
+    return;
     WorldPacket data(SMSG_USERLIST_REMOVE);
     ObjectGuid playerGuid = guid;
 
