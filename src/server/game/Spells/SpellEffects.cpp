@@ -7297,6 +7297,15 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         for (uint8 i = 0; i < MAX_RUNES; i++)
             if (player->GetRuneCooldown(i) && player->GetCurrentRune(i) != RUNE_DEATH)
                 runes.insert(i);
+
+        // Recalculate list if all runes are RUNE_DEATH
+        if (runes.empty())
+        {
+            for (uint8 i = 0; i < MAX_RUNES; i++)
+                if (player->GetRuneCooldown(i) && player->GetCurrentRune(i) != RUNE_DEATH)
+                    runes.insert(i);
+        }
+
         if (!runes.empty())
         {
             std::set<uint8>::iterator itr = runes.begin();
