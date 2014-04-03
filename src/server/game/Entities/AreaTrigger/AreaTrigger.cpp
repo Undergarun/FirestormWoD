@@ -82,15 +82,13 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
+    SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE_X));
+
+    if (float radius = sSpellMgr->GetAreaTriggerVisual(spell->Id))
+        SetVisualRadius(radius);
 
     switch (spell->Id)
     {
-        case 116011:// Rune of Power
-            SetVisualRadius(3.5f);
-            break;
-        case 116235:// Amethyst Pool
-            SetVisualRadius(3.5f);
-            break;
         case 123811:// Pheromones of Zeal - 2h
             SetDuration(7200000);
             break;
@@ -412,27 +410,6 @@ void AreaTrigger::Update(uint32 p_time)
                 for (auto itr : targetList)
                 {
                     caster->CastSpell(itr, 121557, true); // Angelic Feather increase speed
-                    SetDuration(0);
-                    return;
-                }
-            }
-
-            break;
-        }
-        case 122035:// Path of Blossom
-        {
-            std::list<Unit*> targetList;
-            radius = 1.0f;
-
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
-
-            if (!targetList.empty())
-            {
-                for (auto itr : targetList)
-                {
-                    caster->CastSpell(itr, 122036, true); // Path of Blossom damage
                     SetDuration(0);
                     return;
                 }

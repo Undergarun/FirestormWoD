@@ -560,6 +560,7 @@ typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
+typedef std::map<uint32, float>  AreaTriggerVisuals;
 typedef std::map<uint16, uint16> ItemUpgradeDatas;
 
 struct PetDefaultSpellsEntry
@@ -704,8 +705,10 @@ class SpellMgr
 
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
+        float GetAreaTriggerVisual(uint32 spellId) { return mAreaTriggerVisuals.find(spellId) != mAreaTriggerVisuals.end() ? mAreaTriggerVisuals[spellId] : 0; }
+
         // Item Upgrade datas
-        uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; };
+        uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; }
 
     // Modifiers
     public:
@@ -735,6 +738,7 @@ class SpellMgr
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellCustomAttr();
+        void LoadAreaTriggerVisuals();
         void LoadDbcDataCorrections();
         void LoadTalentSpellInfo();
         void LoadSpellPowerInfo();
@@ -778,6 +782,7 @@ class SpellMgr
         SpellPowerVector           mSpellPowerInfo;
         std::list<uint32>          mForbiddenSpells;
         ItemUpgradeDatas           mItemUpgradeDatas;
+        AreaTriggerVisuals         mAreaTriggerVisuals;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

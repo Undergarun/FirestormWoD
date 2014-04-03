@@ -408,6 +408,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
+        data->WriteBit(false);
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
@@ -503,9 +504,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        *data << uint32(8);
-        *data << float(((AreaTrigger*)this)->GetVisualRadius()); // scale
-        *data << float(((AreaTrigger*)this)->GetVisualRadius()); // scale
+        *data << uint32(8);                                         // ObjectType AreaTrigger
+        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
