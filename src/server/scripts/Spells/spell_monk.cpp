@@ -83,7 +83,6 @@ enum MonkSpells
     MONK_NPC_JADE_SERPENT_STATUE                = 60849,
     SPELL_MONK_UPLIFT_ALLOWING_CAST             = 123757,
     SPELL_MONK_THUNDER_FOCUS_TEA                = 116680,
-    SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER      = 122035,
     SPELL_MONK_SPINNING_FIRE_BLOSSOM_DAMAGE     = 123408,
     SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE    = 118852,
     SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT       = 123407,
@@ -1500,34 +1499,6 @@ class spell_monk_spinning_fire_blossom : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_spinning_fire_blossom_SpellScript();
-        }
-};
-
-// Path of Blossom - 124336
-class spell_monk_path_of_blossom : public SpellScriptLoader
-{
-    public:
-        spell_monk_path_of_blossom() : SpellScriptLoader("spell_monk_path_of_blossom") { }
-
-        class spell_monk_path_of_blossom_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_path_of_blossom_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (GetCaster())
-                    GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_path_of_blossom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_path_of_blossom_AuraScript();
         }
 };
 
@@ -3415,7 +3386,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_touch_of_karma();
     new spell_monk_spinning_fire_blossom_damage();
     new spell_monk_spinning_fire_blossom();
-    new spell_monk_path_of_blossom();
     new spell_monk_thunder_focus_tea();
     new spell_monk_jade_serpent_statue();
     new spell_monk_teachings_of_the_monastery();
