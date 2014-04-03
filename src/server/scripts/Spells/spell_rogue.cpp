@@ -1320,7 +1320,6 @@ class spell_rog_preparation : public SpellScriptLoader
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
                         if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT ||   // Vanish, Evasion, Sprint
-                            spellInfo->Id == 31224 ||
                             spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE)          // Dismantle
                             caster->RemoveSpellCooldown((itr++)->first, true);
                         else
