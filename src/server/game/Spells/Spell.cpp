@@ -6315,7 +6315,7 @@ void Spell::TakeRunePower(bool didHit)
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
     SpellSchools school = GetFirstSchoolInMask(m_spellSchoolMask);
 
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
