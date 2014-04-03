@@ -6815,7 +6815,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!target)
                         return false;
 
-                    triggered_spell_id = 26654;
+                    if (!damage)
+                        return false;
+
+                    basepoints0 = CalculatePct(damage, 50);
+                    triggered_spell_id = 12723;
                     break;
                 }
                 // Victorious
