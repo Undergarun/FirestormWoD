@@ -3157,6 +3157,16 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
     Unit* target = aurApp->GetTarget();
 
+    switch (m_spellInfo->Id)
+    {
+        case 18498: // Silenced - Gag Order
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                return;
+            break;
+        default:
+            break;
+    }
+
     if (apply)
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
