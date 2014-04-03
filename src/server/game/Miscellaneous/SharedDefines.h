@@ -1170,8 +1170,8 @@ enum SpellEffects
     SPELL_EFFECT_210                                = 210, // Unk 5.4.0
     SPELL_EFFECT_211                                = 211, // Unk 5.4.0
     SPELL_EFFECT_212                                = 212, // Unk 5.4.0
-    SPELL_EFFECT_213                                = 213, // Unk 5.4.0
-    TOTAL_SPELL_EFFECTS                             = 214,
+    SPELL_EFFECT_DEATH_GRIP                         = 213,
+    TOTAL_SPELL_EFFECTS                             = 214
 };
 
 enum PetTameResult
