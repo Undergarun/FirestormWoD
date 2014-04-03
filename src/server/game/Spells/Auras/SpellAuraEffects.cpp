@@ -1844,6 +1844,9 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
     // Fix Item - Druid PvP Set Balance 4P Bonus
     if (m_spellInfo->Id == 131536 && spell->Id == 127663)
         return true;
+    // Glyph of Shadow Word: Death
+    if (m_spellInfo->Id == 120583 && spell->Id == 32379)
+        return true;
 
     return false;
 }
