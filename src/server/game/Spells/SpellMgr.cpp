@@ -4488,9 +4488,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                     spellInfo->Effects[0].TargetB = 0;
                     break;
-                case 47515: // Divine Aegis
-                    spellInfo->Effects[0].BasePoints = 50;
-                    break;
                 case 108201:// Desecrated Ground
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;

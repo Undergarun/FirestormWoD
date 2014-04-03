@@ -7054,7 +7054,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 if (!procSpell)
                     return false;
 
-                if (procSpell->Id != 596 && !(procEx & PROC_EX_CRITICAL_HIT))
+                if (!(procEx & PROC_EX_CRITICAL_HIT))
                     return false;
 
                 basepoints0 = CalculatePct(int32(damage), triggerAmount);
