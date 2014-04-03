@@ -1033,6 +1033,7 @@ class mob_coagulated_amber : public CreatureScript
 };
 
 // 123422 - Arterial Bleeding
+// 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
     public:

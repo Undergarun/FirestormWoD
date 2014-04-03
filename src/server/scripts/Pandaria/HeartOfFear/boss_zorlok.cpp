@@ -160,7 +160,7 @@ class boss_zorlok : public CreatureScript
                 actualPlatform = 0;
                 sonicSpirals = 0;
                 clocksideRings = true;
-                exhaleTarget = NULL;
+                exhaleTarget = 0;
 
                 platforms.clear();
                 // In heroic mode, the platforms are ordered, so we just need to increase numPlat and having it matching to ePlatforms values, which

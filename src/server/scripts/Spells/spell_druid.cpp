@@ -123,6 +123,60 @@ enum DruidSpells
     SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE = 122114,
     SPELL_DRUID_GLYPH_OF_BLOOMING           = 121840,
     SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282,
+    SPELL_DRUID_REJUVENATION                = 774
+};
+
+// Genesis - 145518
+class spell_dru_genesis : public SpellScriptLoader
+{
+    public:
+        spell_dru_genesis() : SpellScriptLoader("spell_dru_genesis") { }
+
+        class spell_dru_genesis_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_genesis_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    std::list<Unit*> partyMembers;
+                    plr->GetPartyMembers(partyMembers);
+
+                    for (auto itr : partyMembers)
+                    {
+                        if (!itr->IsWithinDist(plr, 60.0f))
+                            continue;
+
+                        if (!itr->IsWithinLOSInMap(plr))
+                            continue;
+
+                        if (AuraEffectPtr rejuvenation = itr->GetAuraEffect(SPELL_DRUID_REJUVENATION, EFFECT_0))
+                        {
+                            int32 duration = rejuvenation->GetBase()->GetDuration();
+                            int32 periodic = rejuvenation->GetAmplitude();
+
+                            rejuvenation->GetBase()->SetDuration(duration / 4);
+                            rejuvenation->SetPeriodicTimer(periodic / 4);
+                            rejuvenation->SetAmplitude(periodic / 4);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_genesis_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_genesis_SpellScript();
+        }
 };
 
 // Glyph of the Treant - 125047
@@ -512,14 +566,17 @@ class spell_dru_soul_of_the_forest : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (_player->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST))
+                    if (GetSpellInfo()->Id == 18562)
+                        caster->CastSpell(GetHitUnit(), SPELL_DRUID_SWIFTMEND, true);
+
+                    if (caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST))
                     {
                         if (GetSpellInfo()->Id == 18562)
-                            _player->CastSpell(_player, SPELL_DRUID_SOUL_OF_THE_FOREST_HASTE, true);
+                            caster->CastSpell(caster, SPELL_DRUID_SOUL_OF_THE_FOREST_HASTE, true);
                         else
-                            _player->EnergizeBySpell(_player, SPELL_DRUID_SOUL_OF_THE_FOREST, 40, POWER_RAGE);
+                            caster->EnergizeBySpell(caster, SPELL_DRUID_SOUL_OF_THE_FOREST, 40, POWER_RAGE);
                     }
                 }
             }
@@ -2338,6 +2395,71 @@ class spell_dru_faerie_swarm : public SpellScriptLoader
         }
 };
 
+// Wild Mushroom (Restoration) - 145205
+class spell_dru_wild_mushroom_resto : public SpellScriptLoader
+{
+    public:
+        spell_dru_wild_mushroom_resto() : SpellScriptLoader("spell_dru_wild_mushroom_resto") { }
+
+        class spell_dru_wild_mushroom_resto_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_wild_mushroom_resto_SpellScript)
+
+            void HandleSummon(SpellEffIndex effIndex)
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    PreventHitDefaultEffect(effIndex);
+
+                    const SpellInfo* spell = GetSpellInfo();
+                    std::list<Creature*> tempList;
+                    std::list<Creature*> mushroomlist;
+
+                    player->GetCreatureListWithEntryInGrid(tempList, DRUID_NPC_WILD_MUSHROOM, 500.0f);
+
+                    mushroomlist = tempList;
+
+                    // Remove other players mushrooms
+                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                    {
+                        Unit* owner = (*i)->GetOwner();
+                        if (owner && owner == player && (*i)->isSummon())
+                            continue;
+
+                        mushroomlist.remove((*i));
+                    }
+
+                    // 1 mushrooms max
+                    if ((int32)mushroomlist.size() >= spell->Effects[effIndex].BasePoints)
+                        mushroomlist.back()->ToTempSummon()->UnSummon();
+
+                    Position pos;
+                    GetExplTargetDest()->GetPosition(&pos);
+                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
+                    TempSummon* summon = player->SummonCreature(spell->Effects[effIndex].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
+                    if (!summon)
+                        return;
+
+                    summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+                    summon->setFaction(player->getFaction());
+                    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                    summon->SetMaxHealth(5);
+                    summon->CastSpell(summon, DRUID_SPELL_MUSHROOM_BIRTH_VISUAL, true); // Wild Mushroom : Detonate Birth Visual
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_dru_wild_mushroom_resto_SpellScript::HandleSummon, EFFECT_1, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_wild_mushroom_resto_SpellScript();
+        }
+};
+
 // Wild Mushroom - 88747
 class spell_dru_wild_mushroom : public SpellScriptLoader
 {
@@ -2619,6 +2741,48 @@ class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_wild_mushroom_bloom_SpellScript();
+        }
+};
+
+// Swiftmend (heal) - 81269
+class spell_dru_swiftmend_heal : public SpellScriptLoader
+{
+    public:
+        spell_dru_swiftmend_heal() : SpellScriptLoader("spell_dru_swiftmend_heal") { }
+
+        class spell_dru_swiftmend_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_swiftmend_heal_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<Unit*> unitList;
+
+                for (auto itr : targets)
+                    if (itr->ToUnit())
+                        unitList.push_back(itr->ToUnit());
+
+                targets.clear();
+
+                unitList.sort(JadeCore::HealthPctOrderPred());
+                unitList.resize(3);
+
+                for (auto itr : unitList)
+                    targets.push_back(itr);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_swiftmend_heal_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_swiftmend_heal_SpellScript();
         }
 };
 
@@ -3542,6 +3706,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_genesis();
     new spell_dru_glyph_of_the_treant();
     new spell_dru_incarnation_chosen_of_elune();
     new spell_dru_incarnation_skins();
@@ -3585,9 +3750,11 @@ void AddSC_druid_spell_scripts()
     new spell_dru_cat_form();
     new spell_dru_skull_bash();
     new spell_dru_faerie_swarm();
+    new spell_dru_wild_mushroom_resto();
     new spell_dru_wild_mushroom_bloom();
     new spell_dru_wild_mushroom_detonate();
     new spell_dru_wild_mushroom();
+    new spell_dru_swiftmend_heal();
     new spell_dru_swiftmend();
     new spell_dru_astral_communion();
     new spell_dru_shooting_stars();

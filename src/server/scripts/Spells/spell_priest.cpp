@@ -125,7 +125,36 @@ enum PriestSpells
     PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
-    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562
+    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562,
+    PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267
+};
+
+// Inner Focus - 89485
+class spell_pri_inner_focus_immunity : public SpellScriptLoader
+{
+    public:
+        spell_pri_inner_focus_immunity() : SpellScriptLoader("spell_pri_inner_focus_immunity") { }
+
+        class spell_pri_inner_focus_immunity_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_inner_focus_immunity_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, PRIEST_SPELL_INNER_FOCUS_IMMUNITY, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_inner_focus_immunity_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_inner_focus_immunity_SpellScript();
+        }
 };
 
 // Power Word : Fortitude - 21562
@@ -2624,6 +2653,7 @@ class spell_pri_levitate : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_inner_focus_immunity();
     new spell_pri_power_word_fortitude();
     new spell_pri_spectral_guise_charges();
     new spell_pri_psyfiend_hit_me_driver();

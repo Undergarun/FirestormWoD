@@ -1099,7 +1099,7 @@ class spell_rog_paralytic_poison : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_paralytic_poison_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1107,7 +1107,7 @@ class spell_rog_paralytic_poison : public SpellScriptLoader
                     {
                         if (AuraPtr paralyticPoison = target->GetAura(ROGUE_SPELL_PARALYTIC_POISON_DEBUFF))
                         {
-                            if (paralyticPoison->GetStackAmount() == 5 && !target->HasAura(ROGUE_SPELL_TOTAL_PARALYSIS))
+                            if (paralyticPoison->GetStackAmount() >= 4 && !target->HasAura(ROGUE_SPELL_TOTAL_PARALYSIS))
                             {
                                 caster->CastSpell(target, ROGUE_SPELL_TOTAL_PARALYSIS, true);
                                 target->RemoveAura(ROGUE_SPELL_PARALYTIC_POISON_DEBUFF);
@@ -1119,7 +1119,7 @@ class spell_rog_paralytic_poison : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_rog_paralytic_poison_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_rog_paralytic_poison_SpellScript::HandleAfterHit);
             }
         };
 

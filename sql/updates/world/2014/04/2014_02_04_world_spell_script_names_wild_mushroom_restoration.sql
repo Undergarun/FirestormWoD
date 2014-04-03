@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (145205, 'spell_dru_wild_mushroom_resto');
