@@ -4039,10 +4039,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 27285: // Seed of Corruption
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 Yards
                     break;
-                case 104220:// Soulburn : Health Funnel
-                    spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                    spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                    break;
                 case 87385: // Soulburn : Seed of Corruption - damage
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENEMY;
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 Yards
