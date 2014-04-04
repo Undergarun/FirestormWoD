@@ -147,6 +147,12 @@ class boss_zorlok : public CreatureScript
                 isEcho    = (isAttEcho || isFaVEcho);
 
                 isActive = false;
+                if (pInstance)
+                {
+                    bool bossState = pInstance->GetBossState(DATA_ZORLOK);
+                    if (bossState != DONE && bossState != NOT_STARTED)
+                        pInstance->SetBossState(DATA_ZORLOK, NOT_STARTED);
+                }
                 numPlat = 0;
                 phase = 0;
                 platformToUse = 0;

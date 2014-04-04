@@ -4039,10 +4039,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 27285: // Seed of Corruption
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 Yards
                     break;
-                case 104220:// Soulburn : Health Funnel
-                    spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                    spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                    break;
                 case 87385: // Soulburn : Seed of Corruption - damage
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENEMY;
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 Yards
@@ -4491,9 +4487,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 81751: // Atonement
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                     spellInfo->Effects[0].TargetB = 0;
-                    break;
-                case 47515: // Divine Aegis
-                    spellInfo->Effects[0].BasePoints = 50;
                     break;
                 case 108201:// Desecrated Ground
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -5747,6 +5740,34 @@ void SpellMgr::LoadSpellCustomAttr()
     CreatureAI::FillAISpellInfo();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadAreaTriggerVisuals()
+{
+    uint32 oldMSTime = getMSTime();
+
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_VISUAL);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Visuals. DB table `areatrigger_visual` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        mAreaTriggerVisuals.insert(std::make_pair(fields[0].GetUInt32(), fields[1].GetFloat()));
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u AreaTrigger visuals in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadTalentSpellInfo()

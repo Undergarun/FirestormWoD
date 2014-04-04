@@ -642,6 +642,35 @@ class spell_warr_berzerker_rage : public SpellScriptLoader
         }
 };
 
+// Enrage - 12880
+class spell_warr_enrage : public SpellScriptLoader
+{
+    public:
+        spell_warr_enrage() : SpellScriptLoader("spell_warr_enrage") { }
+
+        class spell_warr_enrage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_enrage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_FURY && _player->getLevel() >= 30)
+                        _player->AddAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW, _player);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_enrage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_enrage_SpellScript();
+        }
+};
+
 // Mocking Banner - 114192
 class spell_warr_mocking_banner : public SpellScriptLoader
 {
@@ -1245,6 +1274,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_taste_for_blood();
     new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
+    new spell_warr_enrage();
     new spell_warr_mocking_banner();
     new spell_warr_raging_blow();
     new spell_warr_sword_and_board();

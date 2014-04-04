@@ -2384,8 +2384,7 @@ class spell_pri_penance : public SpellScriptLoader
                         // Divine Insight (Discipline)
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
                             if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
-                                if (roll_chance_i(40))
-                                    _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE, true);
+                                _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE, true);
                     }
                 }
             }

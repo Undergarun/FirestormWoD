@@ -6326,7 +6326,7 @@ void Spell::TakeRunePower(bool didHit)
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
     SpellSchools school = GetFirstSchoolInMask(m_spellSchoolMask);
 
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
@@ -6353,6 +6353,28 @@ void Spell::TakeRunePower(bool didHit)
         uint32 cooldown = ((m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE) > 0 || didHit) ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN);
         player->SetRuneCooldown(i, cooldown);
         player->SetDeathRuneUsed(i, false);
+
+        switch (m_spellInfo->Id)
+        {
+            case 45477: // Icy Touch
+            case 45902: // Blood Strike
+            case 48721: // Blood Boil
+            case 50842: // Pestilence
+            case 85948: // Festering Strike
+            {
+                // Reaping
+                player->AddRuneBySpell(i, RUNE_DEATH, 56835);
+                break;
+            }
+            case 49998: // Death Strike
+            {
+                // Blood Rites
+                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
+                break;
+            }
+            default:
+                break;
+        }
 
         runeCost[rune]--;
         gain_runic = true;
