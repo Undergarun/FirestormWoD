@@ -134,7 +134,7 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
 }
 
 //this function sends notification, if bidder is online
-void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 itemEntry)
+void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint64 bidSum, uint32 diff, uint32 itemEntry)
 {
     ObjectGuid bidderGuid = bidder;
 
@@ -145,7 +145,7 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
 
         data << uint32(itemEntry);
         data << uint32(location);
-        data << uint32(bidSum);
+        data << uint32(bidSum); // 64 needed, struct is wrong ?
         data << uint32(auctionId);
         data << uint32(diff);
 

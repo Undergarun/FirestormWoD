@@ -71,9 +71,9 @@ struct AuctionEntry
     uint32 itemEntry;
     uint32 itemCount;
     uint32 owner;
-    uint32 startbid;                                        //maybe useless
-    uint32 bid;
-    uint32 buyout;
+    uint64 startbid;                                        //maybe useless
+    uint64 bid;
+    uint64 buyout;
     time_t expire_time;
     uint32 bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction

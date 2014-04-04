@@ -675,12 +675,12 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(1, auctioneer);
     stmt->setUInt32(2, itemGUIDLow);
     stmt->setUInt32(3, owner);
-    stmt->setInt32 (4, int32(buyout));
+    stmt->setUInt64(4, buyout);
     stmt->setUInt64(5, uint64(expire_time));
     stmt->setUInt32(6, bidder);
-    stmt->setInt32 (7, int32(bid));
-    stmt->setInt32 (8, int32(startbid));
-    stmt->setInt32 (9, int32(deposit));
+    stmt->setUInt64(7, bid);
+    stmt->setUInt64(8, startbid);
+    stmt->setInt32(9, int32(deposit));
     trans->Append(stmt);
 }
 
@@ -694,11 +694,11 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     itemEntry   = fields[index++].GetUInt32();
     itemCount   = fields[index++].GetUInt32();
     owner       = fields[index++].GetUInt32();
-    buyout      = fields[index++].GetUInt32();
+    buyout      = fields[index++].GetUInt64();
     expire_time = fields[index++].GetUInt32();
     bidder      = fields[index++].GetUInt32();
-    bid         = fields[index++].GetUInt32();
-    startbid    = fields[index++].GetUInt32();
+    bid         = fields[index++].GetUInt64();
+    startbid    = fields[index++].GetUInt64();
     deposit     = fields[index++].GetUInt32();
 
     CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(auctioneer);
