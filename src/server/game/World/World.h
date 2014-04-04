@@ -876,6 +876,14 @@ class World
 
         void ResetCurrencyWeekCap();
 
+        std::map<Object*, bool> deleteUnits; 
+        bool isDelete(Object* obj)
+        {
+            if (deleteUnits.find(obj) != deleteUnits.end())
+                if (deleteUnits[obj])
+                    return true;
+            return false;
+        }
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

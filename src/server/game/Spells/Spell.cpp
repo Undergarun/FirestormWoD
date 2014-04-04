@@ -592,7 +592,16 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     CleanupTargetList();
     m_effectExecuteData.clear();
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    if (m_caster == NULL)
+    {
+        sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
+    }
+    else if (sWorld->isDelete(m_caster))
+    {
+        sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
+    }
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)     
         m_destTargets[i] = SpellDestination(*m_caster);
 }
 
