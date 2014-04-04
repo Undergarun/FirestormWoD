@@ -66,7 +66,58 @@ enum WarriorSpells
     WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277,
     WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
     WARRIOR_SPELL_DOUBLE_TIME                   = 103827,
-    WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356
+    WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356,
+    WARRIOR_SPELL_SWEEPING_STRIKES              = 12328,
+    WARRIOR_SPELL_SLAM_AOE                      = 146361
+};
+
+// Slam - 1464
+class spell_warr_slam : public SpellScriptLoader
+{
+    public:
+        spell_warr_slam() : SpellScriptLoader("spell_warr_slam") { }
+
+        class spell_warr_slam_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_slam_SpellScript);
+
+            void HandleBeforeHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->HasAura(WARRIOR_SPELL_COLOSSUS_SMASH, caster->GetGUID()))
+                            SetHitDamage(int32(GetHitDamage() * 1.1f));
+                    }
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 damage = CalculatePct(GetHitDamage(), 35);
+
+                        if (caster->HasAura(WARRIOR_SPELL_SWEEPING_STRIKES))
+                            caster->CastCustomSpell(target, WARRIOR_SPELL_SLAM_AOE, &damage, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_warr_slam_SpellScript::HandleBeforeHit);
+                AfterHit += SpellHitFn(spell_warr_slam_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_slam_SpellScript();
+        }
 };
 
 // Victorious State - 32216
@@ -1258,6 +1309,7 @@ class spell_warr_charge : public SpellScriptLoader
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_slam();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
     new spell_warr_stampeding_shout();
