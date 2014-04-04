@@ -594,13 +594,11 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     if (m_caster == NULL)
     {
-        ACE_Stack_Trace trace;
-        sLog->OutPandashan("m_caster is null!! spellId %u stack: %s", m_spellInfo->Id, trace.c_str());
+        sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
     }
     else if (sWorld->isDelete(m_caster))
     {
-        ACE_Stack_Trace trace;
-        sLog->OutPandashan("m_caster is null!! spellId %u deleteStack: %s, current stack: %s", m_spellInfo->Id, sWorld->deleteUnits[m_caster].c_str(), trace.c_str());
+        sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)     

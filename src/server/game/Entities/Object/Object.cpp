@@ -90,7 +90,7 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     m_PackGUID.appendPackGUID(0);
 
     if (sWorld->deleteUnits.find(this) != sWorld->deleteUnits.end())
-       sWorld->deleteUnits[this] = std::string();
+       sWorld->deleteUnits[this] = false;
 }
 
 WorldObject::~WorldObject()
@@ -109,11 +109,10 @@ WorldObject::~WorldObject()
 
 Object::~Object()
 {
-    ACE_Stack_Trace trace;
     if (sWorld->deleteUnits.find(this) != sWorld->deleteUnits.end())
-        sWorld->deleteUnits.insert(std::make_pair(this, std::string(trace.c_str())));
+        sWorld->deleteUnits.insert(std::make_pair(this, true));
     else
-        sWorld->deleteUnits[this] = std::string(trace.c_str());
+        sWorld->deleteUnits[this] = true;
 
     if (IsInWorld())
     {
@@ -286,13 +285,13 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (sWorld->isDelete((Object*)this))
     {
         ACE_Stack_Trace trace;
-        sLog->OutPandashan("BuildValuesUpdateBlockForPlayer this delete !!! deleteStack: %s, current stack: %s", sWorld->deleteUnits[(Object*)this].c_str(), trace.c_str());
+        sLog->OutPandashan("BuildValuesUpdateBlockForPlayer this delete !!!");
     }
 
     if (sWorld->isDelete(target))
     {
         ACE_Stack_Trace trace;
-        sLog->OutPandashan("BuildValuesUpdateBlockForPlayer target delete !!! deleteStack: %s, current stack: %s", sWorld->deleteUnits[(Object*)target].c_str(), trace.c_str());
+        sLog->OutPandashan("BuildValuesUpdateBlockForPlayer target delete !!!");
     }
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
