@@ -13082,6 +13082,9 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
         case SPELL_DAMAGE_CLASS_MELEE:
             if (victim)
             {
+                crit_chance += GetUnitCriticalChance(attackType, victim);
+                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
@@ -13127,6 +13130,9 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
         {
             if (victim)
             {
+                crit_chance += GetUnitCriticalChance(attackType, victim);
+                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+
                 // Ranged Spell (hunters)
                 switch (spellProto->Id)
                 {
@@ -13138,9 +13144,6 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                                 crit_chance += 75.0f;
                         break;
                 }
-
-                crit_chance += GetUnitCriticalChance(attackType, victim);
-                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
             }
             break;
         }

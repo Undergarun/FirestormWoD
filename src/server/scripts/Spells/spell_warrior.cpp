@@ -1073,7 +1073,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
                     {
                         caster->CastSpell(caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
 
-                        if (caster->HasAura(WARRIOR_SPELL_BLOODSURGE))
+                        if (caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(20))
                             caster->CastSpell(caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
                     }
                 }
