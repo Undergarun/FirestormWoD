@@ -4877,6 +4877,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 120552:// Mantid Munition Explosion
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
                     break;
+                case 132404:// Shield Block
+                    spellInfo->ProcCharges = 2;
+                    break;
                 case 107570:// Storm Bolt
                     spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                     spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_STUN;
