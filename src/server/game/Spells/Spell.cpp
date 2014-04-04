@@ -8601,9 +8601,6 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
                 if (eff == EFFECT_1 && !m_caster->HasAura(56851))
                     return false;
             }
-            // Colossus Smash (Battle, Berserker Stance)
-            else if (m_spellInfo->Id == 86346 && eff == EFFECT_1)
-                return false;
 
             if (target->GetEntry() == 5925)
                 return true;
