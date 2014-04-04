@@ -2036,7 +2036,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051))
+                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
@@ -2064,8 +2064,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades for rogues
-                    if (!HasAura(114051) && !HasAura(121471))
+                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
+                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
                     {
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
@@ -2077,9 +2077,19 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         resetAttackTimer(BASE_ATTACK);
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471))
+                    else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121473, true);
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    else if (HasAura(137586) && !HasAura(121471))
+                    {
+                        CastSpell(victim, 137584, true); // Shuriken Toss
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    else if (HasAura(137586) && HasAura(121471))
+                    {
+                        CastSpell(victim, 140308, true); // Shadow Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
                 }
@@ -2087,7 +2097,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051))
+                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -2097,8 +2107,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades for rogues
-                    if (!HasAura(114051) && !HasAura(121471))
+                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
+                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
@@ -2110,9 +2120,19 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         resetAttackTimer(OFF_ATTACK);
                     }
                     // Shadow Blades - Off Hand
-                    else if (HasAura(121471))
+                    else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121474, true);
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    else if (HasAura(137586) && !HasAura(121471))
+                    {
+                        CastSpell(victim, 137585, true); // Shuriken Toss
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    else if (HasAura(137586) && HasAura(121471))
+                    {
+                        CastSpell(victim, 140309, true); // Shadow Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
                 }

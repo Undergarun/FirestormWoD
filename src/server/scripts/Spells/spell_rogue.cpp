@@ -82,7 +82,38 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGE              = 56807,
     ROGUE_SPELL_CLOAK_AND_DAGGER                 = 138106,
     ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY         = 128766,
-    ROGUE_SPELL_MARKED_FOR_DEATH                 = 137619
+    ROGUE_SPELL_MARKED_FOR_DEATH                 = 137619,
+    ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE       = 137586
+};
+
+// Shuriken Toss - 114014
+class spell_rog_shuriken_toss : public SpellScriptLoader
+{
+    public:
+        spell_rog_shuriken_toss() : SpellScriptLoader("spell_rog_shuriken_toss") { }
+
+        class spell_rog_shuriken_toss_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_shuriken_toss_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        if (caster->GetDistance(target) > 10.0f)
+                            caster->CastSpell(caster, ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_shuriken_toss_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_shuriken_toss_SpellScript();
+        }
 };
 
 // Marked for Death - 137619
@@ -1524,6 +1555,7 @@ class spell_rog_shadowstep : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_shuriken_toss();
     new spell_rog_marked_for_death();
     new spell_rog_cloak_and_dagger();
     new spell_rog_glyph_of_expose_armor();
