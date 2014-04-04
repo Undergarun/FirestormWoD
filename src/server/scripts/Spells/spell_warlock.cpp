@@ -2056,7 +2056,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 172
+// Called by Corruption - 172 and Corruption - 146739
 // Nightfall - 108558
 class spell_warl_nightfall : public SpellScriptLoader
 {
