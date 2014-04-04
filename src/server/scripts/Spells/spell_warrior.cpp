@@ -287,16 +287,9 @@ class spell_warr_storm_bolt : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN))
-                    {
-                        if (Unit* unitTarget = GetHitUnit())
-                        {
-                            if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), 0))
-                                SetHitDamage(GetHitDamage() * 4);
-
-                            caster->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
-                        }
-                    }
+                    if (Unit* unitTarget = GetHitUnit())
+                        if (unitTarget->IsImmunedToSpellEffect(GetSpellInfo(), EFFECT_1))
+                            SetHitDamage(GetHitDamage() * 6);
                 }
             }
 
