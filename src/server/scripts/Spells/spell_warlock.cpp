@@ -126,7 +126,8 @@ enum WarlockSpells
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
     WARLOCK_SOULSHATTER                     = 32835,
-    WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040
+    WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
+    WARLOCK_HELLFIRE_DAMAGE                 = 5857
 };
 
 // Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
@@ -1551,12 +1552,15 @@ class spell_warl_immolation_aura : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
+                {
                     caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -25, POWER_DEMONIC_FURY);
+                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+                }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_immolation_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_immolation_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1878,7 +1882,7 @@ class spell_warl_hellfire_periodic : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, 5857, true);
+                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
             }
 
             void Register()

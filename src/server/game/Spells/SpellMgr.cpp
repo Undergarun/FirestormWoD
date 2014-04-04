@@ -3416,6 +3416,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                     spellInfo->Effects[1].BasePoints = 20;
                     break;
+                case 103965:// Metamorphosis (override auras)
+                    spellInfo->Effects[2].SpellClassMask[0] = 64;
+                    break;
                 case 145518:// Genesis
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                     spellInfo->Effects[0].TargetB = 0;
