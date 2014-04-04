@@ -68,7 +68,9 @@ enum WarriorSpells
     WARRIOR_SPELL_DOUBLE_TIME                   = 103827,
     WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356,
     WARRIOR_SPELL_SWEEPING_STRIKES              = 12328,
-    WARRIOR_SPELL_SLAM_AOE                      = 146361
+    WARRIOR_SPELL_SLAM_AOE                      = 146361,
+    WARRIOR_SPELL_BLOODSURGE                    = 46915,
+    WARRIOR_SPELL_BLOODSURGE_PROC               = 46916
 };
 
 // Slam - 1464
@@ -1066,8 +1068,15 @@ class spell_warr_bloodthirst : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (GetHitDamage())
+                    {
                         caster->CastSpell(caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
+
+                        if (caster->HasAura(WARRIOR_SPELL_BLOODSURGE))
+                            caster->CastSpell(caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
+                    }
+                }
             }
 
             void Register()
