@@ -25759,6 +25759,15 @@ void Player::SendInitialPacketsAfterAddToMap()
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
     }
 
+    SendRefreshSpellMods();
+
+    if (hasForcedMovement)
+    {
+        Position pos;
+        GetPosition(&pos);
+        SendApplyMovementForce(false, pos);
+    }
+
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
 
@@ -30381,4 +30390,82 @@ void Player::SendTokenResponse()
     data << uint32(m_tokenCounter);
     GetSession()->SendPacket(&data);
     ++m_tokenCounter;
+}
+
+void Player::SendRefreshSpellMods()
+{
+    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    {
+        for (auto mod : m_spellMods[i])
+        {
+            Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+
+            int i = 0;
+            flag96 _mask = 0;
+            uint32 modTypeCount = 0; // count of mods per one mod->op
+
+            ByteBuffer dataBuffer;
+            WorldPacket data(opcode);
+            data.WriteBits(1, 22);  // count of different mod->op's in packet
+
+            for (int eff = 0; eff < 96; ++eff)
+            {
+                if (eff != 0 && (eff % 32) == 0)
+                    _mask[i++] = 0;
+
+                _mask[i] = uint32(1) << (eff - (32 * i));
+                if (mod->mask & _mask)
+                {
+                    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+                    {
+                        float val = 1;
+                        for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                                val += (*itr)->value/100;
+
+                        if (mod->value)
+                            val += float(mod->value)/100;
+
+                        dataBuffer << float(val);
+                        dataBuffer << uint8(eff);
+                        ++modTypeCount;
+                        continue;
+                    }
+
+                    int32 val = 0;
+                    for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                        if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                            val += (*itr)->value;
+
+                    val += float(mod->value);
+
+                    dataBuffer << float(val);
+                    dataBuffer << uint8(eff);
+                    ++modTypeCount;
+                }
+            }
+
+            data.WriteBits(modTypeCount, 21);
+
+            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            {
+                data << uint8(mod->op);
+
+                if (dataBuffer.size())
+                    data.append(dataBuffer);
+            }
+            else
+            {
+                if (dataBuffer.size())
+                {
+                    data.FlushBits();
+                    data.append(dataBuffer);
+                }
+
+                data << uint8(mod->op);
+            }
+
+            SendDirectMessage(&data);
+        }
+    }
 }

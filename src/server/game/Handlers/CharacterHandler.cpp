@@ -957,47 +957,6 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 
     recvPacket >> mapID;
     recvPacket.ReadBit();
-
-    // Refresh spellmods for client
-    // This is Hackypig fix : find a better way
-    if (Player* _plr = GetPlayer())
-    {
-        Unit::AuraApplicationMap AuraList = _plr->GetAppliedAuras();
-        std::list<AuraPtr> auraModsList;
-        for (Unit::AuraApplicationMap::iterator iter = AuraList.begin(); iter != AuraList.end(); ++iter)
-        {
-            AuraPtr aura = iter->second->GetBase();
-            if (!aura)
-                continue;
-
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            {
-                if (AuraEffectPtr aurEff = aura->GetEffect(i))
-                {
-                    if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
-                    {
-                        auraModsList.push_back(aura);
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!auraModsList.empty())
-            for (auto itr : auraModsList)
-                _plr->RemoveAura(itr->GetSpellInfo()->Id, _plr->GetGUID());
-
-        if (!auraModsList.empty())
-            for (auto itr : auraModsList)
-                _plr->CastSpell(_plr, itr->GetSpellInfo()->Id, true);
-
-        if (_plr->hasForcedMovement)
-        {
-            Position pos;
-            _plr->GetPosition(&pos);            
-            _plr->SendApplyMovementForce(false, pos);
-        }
-    }
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResult accountResult)
