@@ -1859,6 +1859,34 @@ class spell_warl_hellfire : public SpellScriptLoader
         }
 };
 
+// Hellfire - 1949
+class spell_warl_hellfire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warl_hellfire_periodic() : SpellScriptLoader("spell_warl_hellfire_periodic") { }
+
+        class spell_warl_hellfire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, 5857, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_hellfire_periodic_AuraScript();
+        }
+};
+
 // Demonic Leap (jump) - 54785
 class spell_warl_demonic_leap_jump : public SpellScriptLoader
 {
@@ -3093,6 +3121,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire();
+    new spell_warl_hellfire_periodic();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
     new spell_warl_burning_rush();
