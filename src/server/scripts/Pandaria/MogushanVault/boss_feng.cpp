@@ -266,7 +266,7 @@ class boss_feng : public CreatureScript
                     availablePos[i - 1] = i;
 
                 // Desactivate old statue
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();

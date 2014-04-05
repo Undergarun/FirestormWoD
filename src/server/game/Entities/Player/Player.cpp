@@ -24998,6 +24998,12 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 
         uint32 _cur_gem = curcount[Condition->Color[i] - 1];
 
+        if ((Condition->CompareColor[i] - 1) > 3)
+        {
+	    sLog->OutPandashan("curcount out of bound ! %u", Condition->CompareColor[i] - 1);
+            continue;
+        }
+
         // if have <CompareColor> use them as count, else use <value> from Condition
         uint32 _cmp_gem = Condition->CompareColor[i] ? curcount[Condition->CompareColor[i] - 1]: Condition->Value[i];
 
