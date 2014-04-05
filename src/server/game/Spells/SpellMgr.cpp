@@ -3411,6 +3411,14 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 48505: // Starfall
+                    spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
+                    spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
+                    spellInfo->Effects[1].BasePoints = 20;
+                    break;
+                case 103965:// Metamorphosis (override auras)
+                    spellInfo->Effects[2].SpellClassMask[0] = 64;
+                    break;
                 case 145518:// Genesis
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                     spellInfo->Effects[0].TargetB = 0;
@@ -4871,6 +4879,15 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 120552:// Mantid Munition Explosion
                     spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
+                    break;
+                case 132404:// Shield Block
+                    spellInfo->ProcCharges = 2;
+                    break;
+                case 107570:// Storm Bolt
+                    spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
+                    spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_STUN;
+                    spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(35); // 4s
+                    spellInfo->Mechanic = MECHANIC_STUN;
                     break;
                 case 119684:// Ground Slam
                     spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_24;

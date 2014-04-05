@@ -45,6 +45,7 @@ enum WarlockSpells
     WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 172,
+    WARLOCK_CORRUPTION_OTHER                = 146739,
     WARLOCK_AGONY                           = 980,
     WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
@@ -125,7 +126,8 @@ enum WarlockSpells
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
     WARLOCK_SOULSHATTER                     = 32835,
-    WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040
+    WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
+    WARLOCK_HELLFIRE_DAMAGE                 = 5857
 };
 
 // Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
@@ -1459,6 +1461,11 @@ class spell_warl_void_ray : public SpellScriptLoader
                             corruption->SetDuration(corruption->GetDuration() + 4000);
                             corruption->SetNeedClientUpdateForTargets();
                         }
+                        else if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION_OTHER, caster->GetGUID()))
+                        {
+                            corruption->SetDuration(corruption->GetDuration() + 4000);
+                            corruption->SetNeedClientUpdateForTargets();
+                        }
                     }
                 }
             }
@@ -1545,12 +1552,15 @@ class spell_warl_immolation_aura : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
+                {
                     caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -25, POWER_DEMONIC_FURY);
+                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+                }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_immolation_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_immolation_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1859,6 +1869,34 @@ class spell_warl_hellfire : public SpellScriptLoader
         }
 };
 
+// Hellfire - 1949
+class spell_warl_hellfire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warl_hellfire_periodic() : SpellScriptLoader("spell_warl_hellfire_periodic") { }
+
+        class spell_warl_hellfire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_hellfire_periodic_AuraScript();
+        }
+};
+
 // Demonic Leap (jump) - 54785
 class spell_warl_demonic_leap_jump : public SpellScriptLoader
 {
@@ -2056,7 +2094,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 172
+// Called by Corruption - 172 and Corruption - 146739
 // Nightfall - 108558
 class spell_warl_nightfall : public SpellScriptLoader
 {
@@ -3093,6 +3131,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire();
+    new spell_warl_hellfire_periodic();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
     new spell_warl_burning_rush();

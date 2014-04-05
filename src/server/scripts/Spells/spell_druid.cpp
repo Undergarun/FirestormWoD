@@ -123,7 +123,8 @@ enum DruidSpells
     SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE = 122114,
     SPELL_DRUID_GLYPH_OF_BLOOMING           = 121840,
     SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282,
-    SPELL_DRUID_REJUVENATION                = 774
+    SPELL_DRUID_REJUVENATION                = 774,
+    SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655
 };
 
 // Genesis - 145518
@@ -3562,6 +3563,7 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
+// Starfall (triggered) - 50286
 class spell_dru_starfall_dummy : public SpellScriptLoader
 {
     public:
@@ -3571,14 +3573,16 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                JadeCore::Containers::RandomResizeList(targets, 2);
-            }
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
                 // Shapeshifting into an animal form or mounting cancels the effect
                 if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
                 {
@@ -3591,12 +3595,26 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
                 if (caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
-                caster->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+                // Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
+                if (caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
+                    if (!target->HasAura(SPELL_DRUID_MOONFIRE) && !target->HasAura(SPELL_DRUID_SUNFIRE))
+                        return;
+
+                caster->CastSpell(target, uint32(GetEffectValue()), true);
+
+                // Starfall can only launch 20 stars
+                if (AuraEffectPtr starfall = caster->GetAuraEffect(SPELL_DRUID_STARFALL, EFFECT_1))
+                {
+                    int32 amount = starfall->GetAmount();
+                    if (amount > 1)
+                        starfall->SetAmount(amount - 1);
+                    else
+                        caster->RemoveAura(SPELL_DRUID_STARFALL);
+                }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_starfall_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_starfall_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };

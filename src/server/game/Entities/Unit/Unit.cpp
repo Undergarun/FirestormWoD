@@ -707,6 +707,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (ToPlayer() && ToPlayer()->HasAura(134732) && plr && ToPlayer()->GetBattleground() && plr->GetBattleground())
         plr->CastSpell(plr, 134735, true);
 
+    // Reduce cooldown of Howl of Terror by 1s if hit
+    if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
+        plr->ReduceSpellCooldown(5484, 1000);
+
     // Log damage > 1 000 000 on worldboss
     if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
         sLog->OutPandashan("World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
@@ -6798,17 +6802,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     int32 bp = int32(CalculatePct(damage, triggerAmount) / 6); // damage / tick_number
                     CastCustomSpell(victim, 113344, &bp, NULL, NULL, true);
-
-                    break;
-                }
-                // Bloodsurge
-                case 46915:
-                {
-                    if (!procSpell)
-                        return false;
-
-                    if (procSpell->Id != 23881)
-                        return false;
 
                     break;
                 }
@@ -13089,6 +13082,9 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
         case SPELL_DAMAGE_CLASS_MELEE:
             if (victim)
             {
+                crit_chance += GetUnitCriticalChance(attackType, victim);
+                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
@@ -13134,6 +13130,9 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
         {
             if (victim)
             {
+                crit_chance += GetUnitCriticalChance(attackType, victim);
+                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+
                 // Ranged Spell (hunters)
                 switch (spellProto->Id)
                 {
@@ -13145,9 +13144,6 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                                 crit_chance += 75.0f;
                         break;
                 }
-
-                crit_chance += GetUnitCriticalChance(attackType, victim);
-                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
             }
             break;
         }

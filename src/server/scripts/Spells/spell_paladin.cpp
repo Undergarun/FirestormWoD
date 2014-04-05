@@ -285,8 +285,12 @@ class spell_pal_daybreak : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (_player->HasAura(PALADIN_SPELL_DAYBREAK_AURA))
                         _player->CastSpell(_player, PALADIN_SPELL_DAYBREAK_PROC, true);
+
+                    _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                }
             }
 
             void Register()

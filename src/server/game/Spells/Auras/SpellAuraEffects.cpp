@@ -7277,8 +7277,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 break;
             }
             // Custom MoP Script
-            case 172:   // Corruption
-                caster->EnergizeBySpell(caster, 172, 4, POWER_DEMONIC_FURY);
+            case 146739:// Corruption
+                caster->EnergizeBySpell(caster, 146739, 4, POWER_DEMONIC_FURY);
                 break;
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound
@@ -7511,9 +7511,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
                 // ... and deals instantly 100% of tick-damage for each affliction effects on the target
                 // Corruption ...
-                if (AuraPtr corruption = target->GetAura(172, caster->GetGUID()))
+                if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
                 {
-                    afflictionSpell = sSpellMgr->GetSpellInfo(172);
+                    afflictionSpell = sSpellMgr->GetSpellInfo(146739);
                     afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);

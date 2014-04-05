@@ -2036,7 +2036,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051))
+                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
@@ -2064,8 +2064,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades for rogues
-                    if (!HasAura(114051) && !HasAura(121471))
+                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
+                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
                     {
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
@@ -2077,9 +2077,19 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         resetAttackTimer(BASE_ATTACK);
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471))
+                    else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121473, true);
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    else if (HasAura(137586) && !HasAura(121471))
+                    {
+                        CastSpell(victim, 137584, true); // Shuriken Toss
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    else if (HasAura(137586) && HasAura(121471))
+                    {
+                        CastSpell(victim, 140308, true); // Shadow Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
                 }
@@ -2087,7 +2097,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051))
+                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -2097,8 +2107,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades for rogues
-                    if (!HasAura(114051) && !HasAura(121471))
+                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
+                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
@@ -2110,9 +2120,19 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         resetAttackTimer(OFF_ATTACK);
                     }
                     // Shadow Blades - Off Hand
-                    else if (HasAura(121471))
+                    else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121474, true);
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    else if (HasAura(137586) && !HasAura(121471))
+                    {
+                        CastSpell(victim, 137585, true); // Shuriken Toss
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    else if (HasAura(137586) && HasAura(121471))
+                    {
+                        CastSpell(victim, 140309, true); // Shadow Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
                 }
@@ -25745,6 +25765,15 @@ void Player::SendInitialPacketsAfterAddToMap()
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
     }
 
+    SendRefreshSpellMods();
+
+    if (hasForcedMovement)
+    {
+        Position pos;
+        GetPosition(&pos);
+        SendApplyMovementForce(false, pos);
+    }
+
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
 
@@ -30367,4 +30396,82 @@ void Player::SendTokenResponse()
     data << uint32(m_tokenCounter);
     GetSession()->SendPacket(&data);
     ++m_tokenCounter;
+}
+
+void Player::SendRefreshSpellMods()
+{
+    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    {
+        for (auto mod : m_spellMods[i])
+        {
+            Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+
+            int i = 0;
+            flag96 _mask = 0;
+            uint32 modTypeCount = 0; // count of mods per one mod->op
+
+            ByteBuffer dataBuffer;
+            WorldPacket data(opcode);
+            data.WriteBits(1, 22);  // count of different mod->op's in packet
+
+            for (int eff = 0; eff < 96; ++eff)
+            {
+                if (eff != 0 && (eff % 32) == 0)
+                    _mask[i++] = 0;
+
+                _mask[i] = uint32(1) << (eff - (32 * i));
+                if (mod->mask & _mask)
+                {
+                    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+                    {
+                        float val = 1;
+                        for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                                val += (*itr)->value/100;
+
+                        if (mod->value)
+                            val += float(mod->value)/100;
+
+                        dataBuffer << float(val);
+                        dataBuffer << uint8(eff);
+                        ++modTypeCount;
+                        continue;
+                    }
+
+                    int32 val = 0;
+                    for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                        if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                            val += (*itr)->value;
+
+                    val += float(mod->value);
+
+                    dataBuffer << float(val);
+                    dataBuffer << uint8(eff);
+                    ++modTypeCount;
+                }
+            }
+
+            data.WriteBits(modTypeCount, 21);
+
+            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            {
+                data << uint8(mod->op);
+
+                if (dataBuffer.size())
+                    data.append(dataBuffer);
+            }
+            else
+            {
+                if (dataBuffer.size())
+                {
+                    data.FlushBits();
+                    data.append(dataBuffer);
+                }
+
+                data << uint8(mod->op);
+            }
+
+            SendDirectMessage(&data);
+        }
+    }
 }

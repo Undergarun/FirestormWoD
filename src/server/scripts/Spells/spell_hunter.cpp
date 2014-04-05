@@ -1348,7 +1348,7 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
                                 {
                                     int32 bp = _player->SpellDamageBonusDone(target, GetSpellInfo(), serpentSting->GetEffect(0)->GetAmount(), DOT);
                                     bp *= serpentSting->GetMaxDuration() / serpentSting->GetEffect(0)->GetAmplitude();
-                                    bp = CalculatePct(bp, 30);
+                                    bp = CalculatePct(bp, 15);
 
                                     _player->CastCustomSpell(target, HUNTER_SPELL_IMPROVED_SERPENT_STING, &bp, NULL, NULL, true);
                                 }
