@@ -364,11 +364,14 @@ class boss_feng : public CreatureScript
                 if (Creature* controler = GetClosestCreatureWithEntry(me, NPC_PHASE_CONTROLER, 20.0f))
                     controler->DespawnOrUnsummon();
 
-                // Desactivate old statue and enable the new one
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                if (actualPhase != PHASE_NONE)
                 {
-                    oldStatue->SetLootState(GO_READY);
-                    oldStatue->UseDoorOrButton();
+                    // Desactivate old statue and enable the new one
+                    if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                    {
+                        oldStatue->SetLootState(GO_READY);
+                        oldStatue->UseDoorOrButton();
+                    }
                 }
 
                 if (GameObject* newStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[newPhase - 1])))
