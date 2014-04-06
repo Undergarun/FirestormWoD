@@ -5710,6 +5710,8 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
     SendMessageToSet(&data, true);
 }
 
+// Do not use this function
+// We need to analyze UnfriendlyMessageDistDeliverer, because it's use delete pointer in somes cases
 void Unit::SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist)
 {
     JadeCore::UnfriendlyMessageDistDeliverer notifier(this, data, GetVisibilityRange());
