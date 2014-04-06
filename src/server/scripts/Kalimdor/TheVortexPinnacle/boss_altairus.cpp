@@ -69,7 +69,7 @@ class boss_altairus : public CreatureScript
                 me->setActive(true);
             }
 
-            Creature* _aircurrent;
+            uint64 _aircurrent;
             uint8 _twisternum;
 
             void InitializeAI()
@@ -146,26 +146,32 @@ class boss_altairus : public CreatureScript
                             events.ScheduleEvent(EVENT_CHILLING_BREATH, urand(10000, 16000));
                             break;
                         case EVENT_RESET_WIND:
-                            if (_aircurrent)
-                                _aircurrent->DespawnOrUnsummon();
+                            if (Creature*c = me->GetMap()->GetCreature(_aircurrent))
+                                c->DespawnOrUnsummon();
                             events.DelayEvents(1000);
                             events.ScheduleEvent(EVENT_CALL_OF_WIND, 800);
                             break;
                         case EVENT_CALL_OF_WIND:
-                            _aircurrent = me->SummonCreature(NPC_AIR_CURRENT,
+                            if (Creature* c = me->SummonCreature(NPC_AIR_CURRENT,
                                 me->GetPositionX(),
                                 me->GetPositionY(),
                                 me->GetPositionZ(),
-                                orientations[urand(0, 3)]);
+                                orientations[urand(0, 3)]))
+                                _aircurrent = c->GetGUID();
                             events.ScheduleEvent(EVENT_RESET_WIND, 18000);
                             break;
                         case EVENT_CHECK_FACING:
-                            if (me->GetMap()->GetPlayers().isEmpty() || !_aircurrent)
+                        {
+                            if (me->GetMap()->GetPlayers().isEmpty())
+                                break;
+                            
+                            Creature* c =me->GetMap()->GetCreature(_aircurrent);
+                            if (!c)
                                 break;
 
                             for (Map::PlayerList::const_iterator itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); ++itr) 
                             {
-                                if (CheckOrientation(itr->getSource()->GetOrientation(), _aircurrent->GetOrientation()))
+                                if (CheckOrientation(itr->getSource()->GetOrientation(), c->GetOrientation()))
                                 {
                                     itr->getSource()->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
                                     me->AddAura(SPELL_UPWIND_OF_ALTAIRUS, itr->getSource());
@@ -178,6 +184,7 @@ class boss_altairus : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_CHECK_FACING, 3000);
                             break;
+                        }
                     }
                 }
 
