@@ -1131,6 +1131,7 @@ public:
 
             if (me->getVictim() && me->getVictim()->GetPositionZ() >= 286.276f)
             {
+                bool evadeMode = false;
                 std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
@@ -1142,9 +1143,12 @@ public:
                             me->AddThreat(unit, 5.0f);
                             break;
                         }
-                        EnterEvadeMode();
+                        evadeMode = true;
                     }
                 }
+
+                if (evadeMode)
+                    EnterEvadeMode();
             }
 
             if (uiElementalSpellTimer <= uiDiff)
