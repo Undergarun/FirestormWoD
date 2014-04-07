@@ -124,7 +124,10 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_BLOOMING           = 121840,
     SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282,
     SPELL_DRUID_REJUVENATION                = 774,
-    SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655
+    SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655,
+    SPELL_DRUID_TOOTH_AND_CLAW_AURA         = 135286,
+    SPELL_DRUID_TOOTH_AND_CLAW_ABSORB       = 135597,
+    SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
 };
 
 // Genesis - 145518
@@ -486,7 +489,7 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
@@ -497,6 +500,20 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
                         {
                             AddPct(damage, 20);
                             SetHitDamage(damage);
+                        }
+
+                        if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                        {
+                            int32 bp = CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 88);
+                            int32 agi = CalculatePct(caster->GetStat(STAT_AGILITY), 176);
+                            if (agi > bp)
+                                bp = agi;
+                            if (caster->GetStat(STAT_STAMINA) > bp)
+                                bp = caster->GetStat(STAT_STAMINA);
+
+                            caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
+                            caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);
+                            caster->CastCustomSpell(target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &bp, NULL, NULL, true);
                         }
                     }
                 }

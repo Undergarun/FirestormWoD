@@ -10793,6 +10793,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
             break;
         }
+        case 135288:// Tooth and Claw
+        {
+            if (procSpell)
+                return false;
+
+            if (!roll_chance_i(40))
+                return false;
+
+            break;
+        }
     }
 
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
