@@ -130,6 +130,35 @@ enum DruidSpells
     SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
 };
 
+// Tooth and Claw - 135597
+class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
+{
+    public:
+        spell_dru_tooth_and_claw_absorb() : SpellScriptLoader("spell_dru_tooth_and_claw_absorb") { }
+
+        class spell_dru_tooth_and_claw_absorb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
+
+            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                if (Unit* attacker = dmgInfo.GetAttacker())
+                    if (!attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
+                        absorbAmount = 0;
+            }
+
+            void Register()
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::OnAbsorb, EFFECT_1);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_tooth_and_claw_absorb_AuraScript();
+        }
+};
+
 // Genesis - 145518
 class spell_dru_genesis : public SpellScriptLoader
 {
@@ -3738,6 +3767,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();
     new spell_dru_glyph_of_the_treant();
     new spell_dru_incarnation_chosen_of_elune();
