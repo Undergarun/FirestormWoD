@@ -92,7 +92,17 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
     LFGuildPlayer settings(player->GetGUIDLow(), classRoles, availability, guildInterests, ANY_FINDER_LEVEL);
     LFGuildStore guildList = sGuildFinderMgr->GetGuildsMatchingSetting(settings, player->GetTeamId());
-    uint32 guildCount = guildList.size();
+    uint32 guildCount = 0;
+
+    for (LFGuildStore::const_iterator itr = guildList.begin(); itr != guildList.end(); ++itr)
+    {
+        LFGuildSettings guildSettings = itr->second;
+        Guild* guild = sGuildMgr->GetGuildById(itr->first);
+
+        if (guild != nullptr)
+	    guildCount++;
+    }
+
 
     if (guildCount == 0)
     {
@@ -130,7 +140,9 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
     {
         LFGuildSettings guildSettings = itr->second;
         Guild* guild = sGuildMgr->GetGuildById(itr->first);
-
+        if (guild == nullptr)
+            continue;
+ 
         ObjectGuid guildGUID = ObjectGuid(guild->GetGUID());
 
         data.WriteBit(guildGUID[4]);

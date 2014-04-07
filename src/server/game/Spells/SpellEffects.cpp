@@ -283,7 +283,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //210 SPELL_EFFECT_210
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
-    &Spell::EffectNULL,                                     //213 SPELL_EFFECT_213
+    &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
@@ -7297,6 +7297,15 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         for (uint8 i = 0; i < MAX_RUNES; i++)
             if (player->GetRuneCooldown(i) && player->GetCurrentRune(i) != RUNE_DEATH)
                 runes.insert(i);
+
+        // Recalculate list if all runes are RUNE_DEATH
+        if (runes.empty())
+        {
+            for (uint8 i = 0; i < MAX_RUNES; i++)
+                if (player->GetRuneCooldown(i) && player->GetCurrentRune(i) != RUNE_DEATH)
+                    runes.insert(i);
+        }
+
         if (!runes.empty())
         {
             std::set<uint8>::iterator itr = runes.begin();
@@ -8072,4 +8081,25 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
         default:
             break;
     }
+}
+
+void Spell::EffectDeathGrip(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    if (m_caster->isInFlight())
+        return;
+
+    if (!m_targets.HasDst())
+        return;
+
+    // Init dest coordinates
+    float x, y, z;
+    destTarget->GetPosition(x, y, z);
+
+    float speedXY, speedZ;
+    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+
+    m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
 }

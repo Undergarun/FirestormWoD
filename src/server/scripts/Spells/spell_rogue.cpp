@@ -81,7 +81,90 @@ enum RogueSpells
     ROGUE_SPELL_DEADLY_BREW                      = 51626,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGE              = 56807,
     ROGUE_SPELL_CLOAK_AND_DAGGER                 = 138106,
-    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY         = 128766
+    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY         = 128766,
+    ROGUE_SPELL_MARKED_FOR_DEATH                 = 137619,
+    ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE       = 137586
+};
+
+// Shuriken Toss - 114014
+class spell_rog_shuriken_toss : public SpellScriptLoader
+{
+    public:
+        spell_rog_shuriken_toss() : SpellScriptLoader("spell_rog_shuriken_toss") { }
+
+        class spell_rog_shuriken_toss_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_shuriken_toss_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        if (caster->GetDistance(target) > 10.0f)
+                            caster->CastSpell(caster, ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_shuriken_toss_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_shuriken_toss_SpellScript();
+        }
+};
+
+// Marked for Death - 137619
+class spell_rog_marked_for_death : public SpellScriptLoader
+{
+    public:
+        spell_rog_marked_for_death() : SpellScriptLoader("spell_rog_marked_for_death") { }
+
+        class spell_rog_marked_for_death_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_marked_for_death_AuraScript);
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            {
+                if (!GetCaster())
+                    return;
+
+                Player* plr = GetCaster()->ToPlayer();
+                if (!plr)
+                    return;
+
+                if (!GetTargetApplication())
+                    return;
+
+                if (!GetTargetApplication()->GetBase())
+                    return;
+
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode == AURA_REMOVE_BY_DEATH)
+                {
+                    int32 baseDuration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_MARKED_FOR_DEATH)->GetMaxDuration();
+                    int32 remainingDur = GetTargetApplication()->GetBase()->GetDuration();
+
+                    if ((baseDuration - remainingDur) <= (60 * IN_MILLISECONDS))
+                    {
+                        if (plr->HasSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH))
+                            plr->RemoveSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_marked_for_death_AuraScript();
+        }
 };
 
 // Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
@@ -1099,7 +1182,7 @@ class spell_rog_paralytic_poison : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_paralytic_poison_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1107,7 +1190,7 @@ class spell_rog_paralytic_poison : public SpellScriptLoader
                     {
                         if (AuraPtr paralyticPoison = target->GetAura(ROGUE_SPELL_PARALYTIC_POISON_DEBUFF))
                         {
-                            if (paralyticPoison->GetStackAmount() == 5 && !target->HasAura(ROGUE_SPELL_TOTAL_PARALYSIS))
+                            if (paralyticPoison->GetStackAmount() >= 4 && !target->HasAura(ROGUE_SPELL_TOTAL_PARALYSIS))
                             {
                                 caster->CastSpell(target, ROGUE_SPELL_TOTAL_PARALYSIS, true);
                                 target->RemoveAura(ROGUE_SPELL_PARALYTIC_POISON_DEBUFF);
@@ -1119,7 +1202,7 @@ class spell_rog_paralytic_poison : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_rog_paralytic_poison_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_rog_paralytic_poison_SpellScript::HandleAfterHit);
             }
         };
 
@@ -1320,7 +1403,6 @@ class spell_rog_preparation : public SpellScriptLoader
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
                         if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT ||   // Vanish, Evasion, Sprint
-                            spellInfo->Id == 31224 ||
                             spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE)          // Dismantle
                             caster->RemoveSpellCooldown((itr++)->first, true);
                         else
@@ -1473,6 +1555,8 @@ class spell_rog_shadowstep : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_shuriken_toss();
+    new spell_rog_marked_for_death();
     new spell_rog_cloak_and_dagger();
     new spell_rog_glyph_of_expose_armor();
     new spell_rog_cheat_death();

@@ -327,14 +327,14 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         triggerSpawnID = AV_CPLACE_TRIGGER19;
         newFaction = 83;
     }
-    if (triggerSpawnID && newFaction)
+    /*if (triggerSpawnID && newFaction)
     {
         if (Creature* trigger = AddCreature(WORLD_TRIGGER, triggerSpawnID, BG_AV_CreatureInfo[creature->GetEntry()][1], BG_AV_CreaturePos[triggerSpawnID][0], BG_AV_CreaturePos[triggerSpawnID][1], BG_AV_CreaturePos[triggerSpawnID][2], BG_AV_CreaturePos[triggerSpawnID][3]))
         {
             trigger->setFaction(newFaction);
             trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
         }
-    }
+    }*/
 
     return creature;
 }

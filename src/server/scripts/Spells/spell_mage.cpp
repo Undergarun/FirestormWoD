@@ -766,28 +766,9 @@ class spell_mage_frostbolt : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleBeforeCast()
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(148022);
-                if (!spellInfo)
-                    return;
-
-                SpellCastTargets targets;
-                targets.SetUnitTarget(GetHitUnit());
-
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_BASE_POINT0, 100);
-                values.AddSpellMod(SPELLVALUE_BASE_POINT1, 100);
-                values.AddSpellMod(SPELLVALUE_BASE_POINT2, 100);
-
-                GetCaster()->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
-                GetCaster()->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, GetCaster()->GetGUID());
-            }
-
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
-                BeforeCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleBeforeCast);
             }
         };
 
@@ -821,7 +802,7 @@ class spell_mage_invocation : public SpellScriptLoader
                         caster->CastSpell(caster, SPELL_MAGE_INVOKERS_ENERGY, true);
 
                         if (caster->HasAura(SPELL_MAGE_GLYPH_OF_EVOCATION))
-                            caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(12051), caster->CountPctFromMaxHealth(40), false);
+                            caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(12051), caster->CountPctFromMaxHealth(10), false);
                     }
                 }
             }

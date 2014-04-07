@@ -1170,8 +1170,8 @@ enum SpellEffects
     SPELL_EFFECT_210                                = 210, // Unk 5.4.0
     SPELL_EFFECT_211                                = 211, // Unk 5.4.0
     SPELL_EFFECT_212                                = 212, // Unk 5.4.0
-    SPELL_EFFECT_213                                = 213, // Unk 5.4.0
-    TOTAL_SPELL_EFFECTS                             = 214,
+    SPELL_EFFECT_DEATH_GRIP                         = 213,
+    TOTAL_SPELL_EFFECTS                             = 214
 };
 
 enum PetTameResult
@@ -4110,7 +4110,10 @@ enum DiminishingGroup
     DIMINISHING_DRAGONS_BREATH      = 20,
     DIMINISHING_DEEP_FREEZE         = 21,
     DIMINISHING_RING_OF_FROST       = 22,
-    DIMINISHING_PARALYTIC_POISON    = 23
+    DIMINISHING_PARALYTIC_POISON    = 23,
+    DIMINISHING_ICE_WARD            = 24,
+    DIMINISHING_DOMINATE_MIND       = 25,
+    DIMINISHING_BIND_ELEMENTAL      = 26
 };
 
 enum SummonCategory

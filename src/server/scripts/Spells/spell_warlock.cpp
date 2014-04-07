@@ -45,6 +45,7 @@ enum WarlockSpells
     WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 172,
+    WARLOCK_CORRUPTION_OTHER                = 146739,
     WARLOCK_AGONY                           = 980,
     WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
@@ -124,7 +125,104 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_SOUL_SWAP              = 56226,
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
-    WARLOCK_SOULSHATTER                     = 32835
+    WARLOCK_SOULSHATTER                     = 32835,
+    WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
+    WARLOCK_HELLFIRE_DAMAGE                 = 5857
+};
+
+// Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
+// Glyph of Siphon Life - 56218
+class spell_warl_siphon_life : public SpellScriptLoader
+{
+    public:
+        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
+
+        class spell_warl_siphon_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_siphon_life_AuraScript();
+        }
+};
+
+const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
+const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
+
+// Demonic Gateway (charges periodic) - 113901
+class spell_warl_demonic_gateway_charges : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonic_gateway_charges() : SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
+
+        class spell_warl_demonic_gateway_charges_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_demonic_gateway_charges_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 charges = aurEff->GetAmount();
+                    if (charges > 4)
+                        return;
+                    else
+                        aurEff->GetBase()->GetEffect(0)->SetAmount(++charges);
+
+                    switch (caster->GetEntry())
+                    {
+                        case 59262: // Green
+                        {
+                            for (int i = 0; i < 6; ++i)
+                            {
+                                if (i <= charges)
+                                    caster->CastSpell(caster, greenAuras[i], true);
+                                else
+                                    caster->RemoveAura(greenAuras[i]);
+                            }
+
+                            break;
+                        }
+                        case 59271: // Purple
+                        {
+                            for (int i = 0; i < 6; ++i)
+                            {
+                                if (i <= charges)
+                                    caster->CastSpell(caster, purpleAuras[i], true);
+                                else
+                                    caster->RemoveAura(purpleAuras[i]);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_gateway_charges_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_demonic_gateway_charges_AuraScript();
+        }
 };
 
 // Grimoire of Supremacy - 108499
@@ -1363,6 +1461,11 @@ class spell_warl_void_ray : public SpellScriptLoader
                             corruption->SetDuration(corruption->GetDuration() + 4000);
                             corruption->SetNeedClientUpdateForTargets();
                         }
+                        else if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION_OTHER, caster->GetGUID()))
+                        {
+                            corruption->SetDuration(corruption->GetDuration() + 4000);
+                            corruption->SetNeedClientUpdateForTargets();
+                        }
                     }
                 }
             }
@@ -1449,12 +1552,15 @@ class spell_warl_immolation_aura : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
+                {
                     caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -25, POWER_DEMONIC_FURY);
+                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+                }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_immolation_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_immolation_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1628,7 +1734,7 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
         }
 };
 
-// Hand of Gul'Dan - 86040
+// Hand of Gul'Dan - 143381
 class spell_warl_hand_of_guldan : public SpellScriptLoader
 {
     public:
@@ -1642,7 +1748,7 @@ class spell_warl_hand_of_guldan : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARLOCK_SHADOWFLAME, true);
+                        caster->CastSpell(target, WARLOCK_HAND_OF_GULDAN_DAMAGE, true);
             }
 
             void Register()
@@ -1654,6 +1760,35 @@ class spell_warl_hand_of_guldan : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_hand_of_guldan_SpellScript();
+        }
+};
+
+// Hand of Gul'Dan (damage) - 86040
+class spell_warl_hand_of_guldan_damage : public SpellScriptLoader
+{
+    public:
+        spell_warl_hand_of_guldan_damage() : SpellScriptLoader("spell_warl_hand_of_guldan_damage") { }
+
+        class spell_warl_hand_of_guldan_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_hand_of_guldan_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, WARLOCK_SHADOWFLAME, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_hand_of_guldan_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_hand_of_guldan_damage_SpellScript();
         }
 };
 
@@ -1731,6 +1866,34 @@ class spell_warl_hellfire : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_hellfire_SpellScript();
+        }
+};
+
+// Hellfire - 1949
+class spell_warl_hellfire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warl_hellfire_periodic() : SpellScriptLoader("spell_warl_hellfire_periodic") { }
+
+        class spell_warl_hellfire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_hellfire_periodic_AuraScript();
         }
 };
 
@@ -1931,7 +2094,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 172
+// Called by Corruption - 172 and Corruption - 146739
 // Nightfall - 108558
 class spell_warl_nightfall : public SpellScriptLoader
 {
@@ -1947,11 +2110,11 @@ class spell_warl_nightfall : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(WARLOCK_NIGHTFALL))
-                        if (roll_chance_i(5))
+                        if (roll_chance_i(10))
                             caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->GetMaxHealth() / 200), false);
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
                 }
             }
 
@@ -1996,35 +2159,6 @@ class spell_warl_drain_soul : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_drain_soul_AuraScript();
-        }
-};
-
-// Demonic Gateway (periodic add charge) - 113901
-class spell_warl_demonic_gateway_charges : public SpellScriptLoader
-{
-    public:
-        spell_warl_demonic_gateway_charges() : SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
-
-        class spell_warl_demonic_gateway_charges_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_demonic_gateway_charges_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* target = GetTarget())
-                    if (AuraPtr demonicGateway = target->GetAura(WARLOCK_DEMONIC_GATEWAY_PERIODIC_CHARGE))
-                        demonicGateway->ModCharges(1);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_gateway_charges_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_demonic_gateway_charges_AuraScript();
         }
 };
 
@@ -2959,6 +3093,8 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_siphon_life();
+    new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_drain_life();
     new spell_warl_soulburn_health_funnel();
@@ -2992,8 +3128,10 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_leech();
     new spell_warl_sacrificial_pact();
     new spell_warl_hand_of_guldan();
+    new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire();
+    new spell_warl_hellfire_periodic();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
     new spell_warl_burning_rush();
@@ -3001,7 +3139,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap();
     new spell_warl_nightfall();
     new spell_warl_drain_soul();
-    new spell_warl_demonic_gateway_charges();
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();
     new spell_warl_chaos_bolt();

@@ -10,6 +10,7 @@ static const DoorData doordata[] =
     {GO_HALAZZI_EXIT,           DATA_HALAZZI,            DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_MALACRASS_EXIT,         DATA_HEX_LORD_MALACRASS, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_DAAKARA_EXIT,           DATA_DAAKARA,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
 class instance_zulaman : public InstanceMapScript

@@ -1,0 +1,1 @@
+ALTER TABLE `auctionhouse` CHANGE `buyoutprice` `buyoutprice` BIGINT(20) UNSIGNED DEFAULT '0' NOT NULL, CHANGE `lastbid` `lastbid` BIGINT(20) UNSIGNED DEFAULT '0' NOT NULL, CHANGE `startbid` `startbid` BIGINT(20) UNSIGNED DEFAULT '0' NOT NULL;

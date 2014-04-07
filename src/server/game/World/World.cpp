@@ -1462,6 +1462,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Areatrigger visuals...");
+    sSpellMgr->LoadAreaTriggerVisuals();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Zones...");
     sObjectMgr->LoadResearchSiteZones();
 
@@ -3155,8 +3158,8 @@ void World::ResetCurrencyWeekCap()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
-    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL));
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
+    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
+    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 
     sLog->OutPandashan("World::ResetCurrencyWeekCap()");
 }

@@ -336,6 +336,7 @@ class Spell
         void EffectHealMechanical(SpellEffIndex effIndex);
         void EffectJump(SpellEffIndex effIndex);
         void EffectJumpDest(SpellEffIndex effIndex);
+        void EffectDeathGrip(SpellEffIndex effIndex);
         void EffectLeapBack(SpellEffIndex effIndex);
         void EffectQuestClear(SpellEffIndex effIndex);
         void EffectTeleUnitsFaceCaster(SpellEffIndex effIndex);

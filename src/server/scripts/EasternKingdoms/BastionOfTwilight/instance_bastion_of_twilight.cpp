@@ -14,6 +14,7 @@ static const DoorData doordata[] =
     {DOOR_CHOGALL_ENTRANCE, DATA_CHOGALL,           DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_CHOGALL_FLOOR,      DATA_CHOGALL,           DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_SINESTRA_DOOR,      DATA_SINESTRA,          DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {0,                     0,                      DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
 };
 
 class instance_bastion_of_twilight : public InstanceMapScript

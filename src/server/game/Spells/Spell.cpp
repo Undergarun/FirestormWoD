@@ -592,7 +592,16 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     CleanupTargetList();
     m_effectExecuteData.clear();
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    if (m_caster == NULL)
+    {
+        sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
+    }
+    else if (sWorld->isDelete(m_caster))
+    {
+        sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
+    }
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)     
         m_destTargets[i] = SpellDestination(*m_caster);
 }
 
@@ -1562,15 +1571,32 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             unitTargets.remove(m_targets.GetUnitTarget());
 
         // Custom MoP Script
-        // 107270 / 117640 / 148187 - Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if ((m_spellInfo->Id == 107270 || m_spellInfo->Id == 117640 || m_spellInfo->Id == 148187) && unitTargets.size() >= 3 && !m_caster->ToPlayer()->HasSpellCooldown(129881))
+            switch (m_spellInfo->Id)
             {
-                m_caster->CastSpell(m_caster, 129881, true);
-                m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
-                if (m_caster->HasAura(139598))
-                    m_caster->AddAura(139597, m_caster);
+                case 46968: // Shockwave
+                    if (unitTargets.size() < 3)
+                        break;
+
+                    if (m_caster->ToPlayer()->HasSpellCooldown(46968))
+                        m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
+
+                    break;
+                // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
+                case 107270:
+                case 117640:
+                case 148187:
+                    if (m_caster->ToPlayer()->HasSpellCooldown(129881) || unitTargets.size() < 3)
+                        break;
+
+                    m_caster->CastSpell(m_caster, 129881, true);
+                    m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
+                    if (m_caster->HasAura(139598))
+                        m_caster->AddAura(139597, m_caster);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -6315,7 +6341,7 @@ void Spell::TakeRunePower(bool didHit)
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
     SpellSchools school = GetFirstSchoolInMask(m_spellSchoolMask);
 
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
@@ -6342,6 +6368,28 @@ void Spell::TakeRunePower(bool didHit)
         uint32 cooldown = ((m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE) > 0 || didHit) ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN);
         player->SetRuneCooldown(i, cooldown);
         player->SetDeathRuneUsed(i, false);
+
+        switch (m_spellInfo->Id)
+        {
+            case 45477: // Icy Touch
+            case 45902: // Blood Strike
+            case 48721: // Blood Boil
+            case 50842: // Pestilence
+            case 85948: // Festering Strike
+            {
+                // Reaping
+                player->AddRuneBySpell(i, RUNE_DEATH, 56835);
+                break;
+            }
+            case 49998: // Death Strike
+            {
+                // Blood Rites
+                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
+                break;
+            }
+            default:
+                break;
+        }
 
         runeCost[rune]--;
         gain_runic = true;
@@ -8562,9 +8610,6 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
                 if (eff == EFFECT_1 && !m_caster->HasAura(56851))
                     return false;
             }
-            // Colossus Smash (Battle, Berserker Stance)
-            else if (m_spellInfo->Id == 86346 && eff == EFFECT_1)
-                return false;
 
             if (target->GetEntry() == 5925)
                 return true;

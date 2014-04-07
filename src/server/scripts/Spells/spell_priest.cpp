@@ -125,7 +125,138 @@ enum PriestSpells
     PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
-    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562
+    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562,
+    PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
+    PRIEST_SPELL_HOLY_NOVA                          = 132157,
+    PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455
+};
+
+// Holy Nova (heal) - 23455
+class spell_pri_holy_nova_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_holy_nova_heal() : SpellScriptLoader("spell_pri_holy_nova_heal") { }
+
+        class spell_pri_holy_nova_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_nova_heal_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() < 6)
+                    return;
+
+                JadeCore::RandomResizeList(targets, 5);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_nova_heal_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_nova_heal_SpellScript();
+        }
+};
+
+// Holy Nova - 132157
+class spell_pri_holy_nova : public SpellScriptLoader
+{
+    public:
+        spell_pri_holy_nova() : SpellScriptLoader("spell_pri_holy_nova") { }
+
+        class spell_pri_holy_nova_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_nova_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, PRIEST_SPELL_HOLY_NOVA_HEAL, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pri_holy_nova_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_nova_SpellScript();
+        }
+};
+
+// Glyph of Holy Nova - 125045
+class spell_pri_glyph_of_holy_nova : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_holy_nova() : SpellScriptLoader("spell_pri_glyph_of_holy_nova") { }
+
+        class spell_pri_glyph_of_holy_nova_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_glyph_of_holy_nova_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetTarget())
+                    return;
+
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(PRIEST_SPELL_HOLY_NOVA, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetTarget())
+                    return;
+
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(PRIEST_SPELL_HOLY_NOVA))
+                        _player->removeSpell(PRIEST_SPELL_HOLY_NOVA, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_holy_nova_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_holy_nova_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_glyph_of_holy_nova_AuraScript();
+        }
+};
+
+// Inner Focus - 89485
+class spell_pri_inner_focus_immunity : public SpellScriptLoader
+{
+    public:
+        spell_pri_inner_focus_immunity() : SpellScriptLoader("spell_pri_inner_focus_immunity") { }
+
+        class spell_pri_inner_focus_immunity_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_inner_focus_immunity_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, PRIEST_SPELL_INNER_FOCUS_IMMUNITY, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_inner_focus_immunity_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_inner_focus_immunity_SpellScript();
+        }
 };
 
 // Power Word : Fortitude - 21562
@@ -2355,8 +2486,7 @@ class spell_pri_penance : public SpellScriptLoader
                         // Divine Insight (Discipline)
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
                             if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
-                                if (roll_chance_i(40))
-                                    _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE, true);
+                                _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE, true);
                     }
                 }
             }
@@ -2624,6 +2754,10 @@ class spell_pri_levitate : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_holy_nova_heal();
+    new spell_pri_holy_nova();
+    new spell_pri_glyph_of_holy_nova();
+    new spell_pri_inner_focus_immunity();
     new spell_pri_power_word_fortitude();
     new spell_pri_spectral_guise_charges();
     new spell_pri_psyfiend_hit_me_driver();
