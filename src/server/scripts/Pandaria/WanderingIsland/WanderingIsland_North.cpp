@@ -307,13 +307,14 @@ public:
         
         void Reset()
         {
+            events.Reset();
             me->SetReactState(REACT_DEFENSIVE);
             me->CombatStop(true);
             me->SetDisplayId(39755);
             hasSaidIntro = false;
             hasScheduledFalcon = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
-            me->GetMotionMaster()->MovePoint(1, 1380.35f, 3170.68f, 136.93f);
+            me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
             playerGuid = 0;
         }
 
@@ -323,6 +324,7 @@ public:
             {
                 me->EnterVehicle(summoned);
                 summoned->CastSpell(me->getVictim(), 108935, true);
+                me->ExitVehicle();
                 summoned->DespawnOrUnsummon();
             }
         }
@@ -333,7 +335,7 @@ public:
             {
                 playerGuid = player->GetGUID();
 
-                if (me->HealthBelowPctDamaged(30, damage))
+                /*if (me->HealthBelowPctDamaged(30, damage))
                 {
                     if (!hasScheduledFalcon)
                     {
@@ -345,7 +347,7 @@ public:
                     events.CancelEvent(EVENT_JAOMIN_JUMP);
                     events.CancelEvent(EVENT_JAOMIN_BUMP);
                     events.CancelEvent(EVENT_HIT_CIRCLE);
-                }
+                }*/
 
                 if (me->HealthBelowPctDamaged(5, damage))
                 {
@@ -356,7 +358,6 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     Talk(urand(1,6));
-                    events.Reset();
                     events.ScheduleEvent(EVENT_RESET, 5000);
                     damage = 0;
                 }
