@@ -1441,7 +1441,7 @@ class spell_dru_symbiosis : public SpellScriptLoader
                             }
 
                             if (spellCaster)
-                                _player->CastCustomSpell(_player, SPELL_DRUID_SYMBIOSIS_FOR_CASTER, &spellCaster, NULL, NULL, true);
+                                symbiosis->GetEffect(0)->ChangeAmount(spellCaster);
 
                             if (bpTarget && spellTarget)
                                 _player->CastCustomSpell(target, spellTarget, &bpTarget, NULL, NULL, true);
@@ -1452,7 +1452,7 @@ class spell_dru_symbiosis : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_symbiosis_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_symbiosis_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
