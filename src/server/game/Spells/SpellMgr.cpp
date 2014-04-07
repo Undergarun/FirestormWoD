@@ -3420,6 +3420,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 104232:// Rain of Fire (Aftermath)
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 135299:// Ice Trap (snare)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
+                break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
                 spellInfo->Effects[0].BasePoints = 30;
                 spellInfo->Effects[1].BasePoints = 30;
