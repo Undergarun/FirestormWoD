@@ -3420,6 +3420,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 104232:// Rain of Fire (Aftermath)
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 130392:// Blink Strikes
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_PET;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_PET;
+                break;
+            case 130393:// Blink Strike
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
+                break;
             case 135299:// Ice Trap (snare)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
