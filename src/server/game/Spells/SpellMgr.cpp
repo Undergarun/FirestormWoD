@@ -3416,6 +3416,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 5740:  // Rain of Fire
+            case 104232:// Rain of Fire (Aftermath)
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
                 spellInfo->Effects[0].BasePoints = 30;
                 spellInfo->Effects[1].BasePoints = 30;
