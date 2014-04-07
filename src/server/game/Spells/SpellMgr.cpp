@@ -293,7 +293,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 case 91644:  // Snatch
                     return DIMINISHING_DISARM;
                 case 19386:  // Wyvern Sting
-                case 43448:  // Freezing Trap
+                case 3355:   // Freezing Trap
                     return DIMINISHING_DISORIENT;
                 case 1513:   // Scare Beast
                     return DIMINISHING_FEAR;
