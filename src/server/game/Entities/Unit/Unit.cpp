@@ -12594,11 +12594,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 if (AuraEffectPtr aurEff = GetAuraEffect(64962, EFFECT_1))
                     DoneTotal += aurEff->GetAmount();
             break;
-        case SPELLFAMILY_SHAMAN:
-            // Chain Lightning (Mastery)
-            if (spellProto->Id == 45297 && HasAura(62099))
-                AddPct(DoneTotalMod, 70);
-            break;
     }
 
     // Done fixed damage bonus auras

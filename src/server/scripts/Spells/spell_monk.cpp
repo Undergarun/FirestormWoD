@@ -1825,6 +1825,35 @@ class spell_monk_surging_mist : public SpellScriptLoader
         }
 };
 
+// Renewing Mist (heal) - 115151
+class spell_monk_renewing_mist_hot : public SpellScriptLoader
+{
+    public:
+        spell_monk_renewing_mist_hot() : SpellScriptLoader("spell_monk_renewing_mist_hot") { }
+
+        class spell_monk_renewing_mist_hot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_renewing_mist_hot_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, SPELL_MONK_RENEWING_MIST_HOT, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_renewing_mist_hot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_renewing_mist_hot_SpellScript();
+        }
+};
+
 // Renewing Mist - 119611
 class spell_monk_renewing_mist : public SpellScriptLoader
 {
@@ -3363,6 +3392,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_mana_tea_stacks();
     new spell_monk_enveloping_mist();
     new spell_monk_surging_mist();
+    new spell_monk_renewing_mist_hot();
     new spell_monk_renewing_mist();
     new spell_monk_healing_elixirs_aura();
     new spell_monk_healing_elixirs();
