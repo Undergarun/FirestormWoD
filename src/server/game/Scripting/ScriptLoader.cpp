@@ -797,6 +797,8 @@ void AddSC_WanderingIsland_East();
 void AddSC_WanderingIsland_West();
 void AddSC_WanderingIsland_South();
 
+void AddSC_timeless_isle();
+
 // battlegrounds
 
 // outdoor pvp
@@ -1630,6 +1632,8 @@ void AddPandarieScripts()
     AddSC_WanderingIsland_East();
     AddSC_WanderingIsland_West();
     AddSC_WanderingIsland_South();
+
+    AddSC_timeless_isle();
 #endif
 }
 
