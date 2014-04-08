@@ -6109,7 +6109,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
             return;
     }
 
-    /*switch (m_spellInfo->Id)
+    switch (m_spellInfo->Id)
     {
         case 84996: // Raid Marker 1
         case 84997: // Raid Marker 2
@@ -6130,7 +6130,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         }
         default:
             break;
-    }*/
+    }
 
     uint64 guid = m_caster->m_ObjectSlot[slot];
     if (guid != 0)
