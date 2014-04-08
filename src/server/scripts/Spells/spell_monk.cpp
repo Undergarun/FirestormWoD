@@ -2180,8 +2180,8 @@ class spell_monk_zen_sphere_hot : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, SPELL_MONK_ZEN_SPHERE_DAMAGE, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_MONK_ZEN_SPHERE_DAMAGE, true);
             }
 
             void Register()
