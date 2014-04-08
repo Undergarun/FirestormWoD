@@ -276,6 +276,13 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                             pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
+                            // Blink Strikes
+                            if (pet->HasAura(130392))
+                            {
+                                pet->GetMotionMaster()->Clear();
+                                pet->NearTeleportTo(TargetUnit->GetPositionX(), TargetUnit->GetPositionY(), TargetUnit->GetPositionZ(), TargetUnit->GetOrientation());
+                            }
+
                             //10% chance to play special pet attack talk, else growl
                             if (pet->ToCreature()->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
                                 pet->SendPetTalk((uint32)PET_TALK_ATTACK);

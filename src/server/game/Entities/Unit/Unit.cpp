@@ -10793,6 +10793,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
             break;
         }
+        case 135288:// Tooth and Claw
+        {
+            if (procSpell)
+                return false;
+
+            if (!roll_chance_i(40))
+                return false;
+
+            break;
+        }
     }
 
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
@@ -12593,11 +12603,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             if (spellProto->SpellFamilyFlags[0] & 0x2000)
                 if (AuraEffectPtr aurEff = GetAuraEffect(64962, EFFECT_1))
                     DoneTotal += aurEff->GetAmount();
-            break;
-        case SPELLFAMILY_SHAMAN:
-            // Chain Lightning (Mastery)
-            if (spellProto->Id == 45297 && HasAura(62099))
-                AddPct(DoneTotalMod, 70);
             break;
     }
 

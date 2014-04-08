@@ -609,6 +609,17 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellShapeshiftStore,        dbcPath, "SpellShapeshift.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellShapeshiftFormStore,    dbcPath, "SpellShapeshiftForm.dbc");                                          // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");                                             // 17399
+
+    // Since mop, we count 7 entries with slot = -1, we must set them at 0, if not, crash !
+    for (uint32 i = 0; i < sSummonPropertiesStore.GetNumRows(); ++i)
+    {
+        if (SummonPropertiesEntry const* prop = sSummonPropertiesStore.LookupEntry(i))
+        {
+            if (prop->Slot >= MAX_SUMMON_SLOT)
+                ((SummonPropertiesEntry*)prop)->Slot = 0;
+        }
+    }
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");                                                       // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiNodesStore,              dbcPath, "TaxiNodes.dbc");                                                    // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiPathStore,               dbcPath, "TaxiPath.dbc");                                                     // 17399

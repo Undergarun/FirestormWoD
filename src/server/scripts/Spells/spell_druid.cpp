@@ -124,7 +124,39 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_BLOOMING           = 121840,
     SPELL_DRUID_GLYPH_OF_THE_TREANT         = 114282,
     SPELL_DRUID_REJUVENATION                = 774,
-    SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655
+    SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655,
+    SPELL_DRUID_TOOTH_AND_CLAW_AURA         = 135286,
+    SPELL_DRUID_TOOTH_AND_CLAW_ABSORB       = 135597,
+    SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
+};
+
+// Tooth and Claw - 135597
+class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
+{
+    public:
+        spell_dru_tooth_and_claw_absorb() : SpellScriptLoader("spell_dru_tooth_and_claw_absorb") { }
+
+        class spell_dru_tooth_and_claw_absorb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
+
+            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                if (Unit* attacker = dmgInfo.GetAttacker())
+                    if (!attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
+                        absorbAmount = 0;
+            }
+
+            void Register()
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::OnAbsorb, EFFECT_1);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_tooth_and_claw_absorb_AuraScript();
+        }
 };
 
 // Genesis - 145518
@@ -486,7 +518,7 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
@@ -497,6 +529,20 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
                         {
                             AddPct(damage, 20);
                             SetHitDamage(damage);
+                        }
+
+                        if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                        {
+                            int32 bp = CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 88);
+                            int32 agi = CalculatePct(caster->GetStat(STAT_AGILITY), 176);
+                            if (agi > bp)
+                                bp = agi;
+                            if (caster->GetStat(STAT_STAMINA) > bp)
+                                bp = caster->GetStat(STAT_STAMINA);
+
+                            caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
+                            caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);
+                            caster->CastCustomSpell(target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &bp, NULL, NULL, true);
                         }
                     }
                 }
@@ -1395,7 +1441,7 @@ class spell_dru_symbiosis : public SpellScriptLoader
                             }
 
                             if (spellCaster)
-                                _player->CastCustomSpell(_player, SPELL_DRUID_SYMBIOSIS_FOR_CASTER, &spellCaster, NULL, NULL, true);
+                                symbiosis->GetEffect(0)->ChangeAmount(spellCaster);
 
                             if (bpTarget && spellTarget)
                                 _player->CastCustomSpell(target, spellTarget, &bpTarget, NULL, NULL, true);
@@ -1406,7 +1452,7 @@ class spell_dru_symbiosis : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_symbiosis_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_symbiosis_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2931,21 +2977,18 @@ class spell_dru_celestial_alignment : public SpellScriptLoader
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    _player->RemoveAura(SPELL_DRUID_SOLAR_ECLIPSE);
-                    _player->RemoveAura(SPELL_DRUID_LUNAR_ECLIPSE);
-                    _player->RemoveAura(SPELL_DRUID_NATURES_GRACE);
-                    _player->RemoveAura(SPELL_DRUID_LUNAR_ECLIPSE_OVERRIDE);
+                    caster->RemoveAura(SPELL_DRUID_SOLAR_ECLIPSE);
+                    caster->RemoveAura(SPELL_DRUID_LUNAR_ECLIPSE);
+                    caster->RemoveAura(SPELL_DRUID_NATURES_GRACE);
+                    caster->RemoveAura(SPELL_DRUID_LUNAR_ECLIPSE_OVERRIDE);
                 }
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_dru_celestial_alignment_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_celestial_alignment_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3724,6 +3767,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();
     new spell_dru_glyph_of_the_treant();
     new spell_dru_incarnation_chosen_of_elune();
