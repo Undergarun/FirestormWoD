@@ -11636,7 +11636,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             break;
         case INVTYPE_RANGED:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11655,11 +11655,11 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             break;
         case INVTYPE_2HWEAPON:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+           /* if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11678,7 +11678,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
@@ -11697,7 +11697,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
         case INVTYPE_THROWN:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11716,11 +11716,11 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             break;
         case INVTYPE_RANGEDRIGHT:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11739,7 +11739,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             break;
         case INVTYPE_BAG:
             slots[0] = INVENTORY_SLOT_BAG_START + 0;
@@ -11753,7 +11753,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                playerClass == CLASS_SHAMAN || playerClass == CLASS_DEATH_KNIGHT)
            {
                slots[0] = EQUIPMENT_SLOT_MAINHAND;
-               if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+               /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                {
                    if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                    {
@@ -11772,7 +11772,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                        const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                        break;
                    }
-               }
+               }*/
            }
            break;
         }
