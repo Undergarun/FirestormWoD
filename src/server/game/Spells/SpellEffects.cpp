@@ -1134,6 +1134,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         pet->CastSpell(pet, 51753, true);
 
                     break;
+                case 63487: // Ice Trap
+                    if (Unit* owner = m_caster->GetOwner())
+                        owner->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 13810, true);
+                    break;
                 default:
                     break;
             }

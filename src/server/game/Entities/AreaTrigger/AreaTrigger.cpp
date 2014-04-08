@@ -127,6 +127,20 @@ void AreaTrigger::Update(uint32 p_time)
     // Custom MoP Script
     switch (m_spellInfo->Id)
     {
+        case 13810: // Ice Trap
+        {
+            std::list<Unit*> targetList;
+            radius = 10.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+            VisitNearbyObject(radius, searcher);
+
+            for (auto itr : targetList)
+                itr->CastSpell(itr, 135299, true);
+
+            break;
+        }
         case 102793:// Ursol's Vortex
         {
             std::list<Unit*> targetList;

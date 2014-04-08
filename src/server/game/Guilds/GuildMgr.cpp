@@ -433,7 +433,13 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 10. Loading Guild news
+    // 10. Deleting old Guild News (older than one week)
+    sLog->outInfo(LOG_FILTER_GENERAL, "Deleting old Guild News");
+    {
+        CharacterDatabase.PQuery("DELETE FROM guild_news_log WHERE date < %u;", uint32(time(NULL) - DAY * 7));
+    }
+
+    // 11. Loading Guild news
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
     {
         for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
@@ -443,8 +449,8 @@ void GuildMgr::LoadGuilds()
             itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
         }
     }
-    
-    // 11. Validate loaded guild data
+
+    // 12. Validate loaded guild data
     sLog->outInfo(LOG_FILTER_GENERAL, "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();

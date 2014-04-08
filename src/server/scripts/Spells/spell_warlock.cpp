@@ -58,7 +58,7 @@ enum WarlockSpells
     WARLOCK_BACKDRAFT                       = 117828,
     WARLOCK_PYROCLASM                       = 123686,
     WARLOCK_RAIN_OF_FIRE                    = 104232,
-    WARLOCK_RAIN_OF_FIRE_TRIGGERED          = 42223,
+    WARLOCK_RAIN_OF_FIRE_TRIGGERED          = 104233,
     WARLOCK_SPAWN_PURPLE_DEMONIC_GATEWAY    = 113890,
     WARLOCK_DEMONIC_GATEWAY_TELEPORT_GREEN  = 113896,
     WARLOCK_DEMONIC_GATEWAY_TELEPORT_PURPLE = 120729,
@@ -2202,6 +2202,9 @@ class spell_warl_rain_of_fire : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
+                if (!GetTarget() || GetTarget()->GetTypeId() == TYPEID_UNIT)
+                    return;
+
                 if (Unit* caster = GetCaster())
                     if (DynamicObject* dynObj = caster->GetDynObject(WARLOCK_RAIN_OF_FIRE))
                         caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), WARLOCK_RAIN_OF_FIRE_TRIGGERED, true);
