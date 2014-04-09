@@ -797,22 +797,18 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     // Custom MoP script
                     case 123408:// Spinning Fire Blossom
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                            damage = CalculateMonkMeleeAttacks(m_caster, 1.5f, 6);
+                        damage = CalculateMonkMeleeAttacks(m_caster, 1.5f, 6);
                         break;
                     case 117418:// Fists of Fury
                     {
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            damage = CalculateMonkMeleeAttacks(m_caster, 7.5f, 14);
+                        damage = CalculateMonkMeleeAttacks(m_caster, 7.5f, 14);
 
-                            uint32 count = 0;
-                            for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                                if (ihit->effectMask & (1<<effIndex))
-                                    ++count;
+                        uint32 count = 0;
+                        for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                            if (ihit->effectMask & (1<<effIndex))
+                                ++count;
 
-                            damage /= count;
-                        }
+                        damage /= count;
 
                         break;
                     }
@@ -822,8 +818,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     case 115687:// Jab (Axes)
                     case 115693:// Jab (Maces)
                     case 115695:// Jab (Swords)
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                            damage = CalculateMonkMeleeAttacks(m_caster, 1.5f, 14);
+                        damage = CalculateMonkMeleeAttacks(m_caster, 1.5f, 14);
                         break;
                     case 115080:// Touch of Death
                         if (Unit* caster = GetCaster())
@@ -839,30 +834,20 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         return;
                     case 100787:// Tiger Palm
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            damage = CalculateMonkMeleeAttacks(m_caster, 3.0f, 14);
-                            m_caster->RemoveAurasDueToSpell(118864); // Combo Breaker
-                        }
-
+                        damage = CalculateMonkMeleeAttacks(m_caster, 3.0f, 14);
+                        m_caster->RemoveAurasDueToSpell(118864); // Combo Breaker
                         break;
                     case 107270:// Spinning Crane Kick
                     case 148187:// Rushing Jade Wind
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                            damage = CalculateMonkMeleeAttacks(m_caster, 1.59f, 14);
+                        damage = CalculateMonkMeleeAttacks(m_caster, 1.59f, 14);
                         break;
                     case 107428:// Rising Sun Kick
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                            damage = CalculateMonkMeleeAttacks(m_caster, 12.816f, 14);
+                        damage = CalculateMonkMeleeAttacks(m_caster, 12.816f, 14);
                         m_caster->CastSpell(unitTarget, 130320, true);
                         break;
                     case 100784:// Blackout Kick
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            damage = CalculateMonkMeleeAttacks(m_caster, 7.12f, 14);
-                            m_caster->RemoveAurasDueToSpell(116768); // Combo Breaker
-                        }
-
+                        damage = CalculateMonkMeleeAttacks(m_caster, 7.12f, 14);
+                        m_caster->RemoveAurasDueToSpell(116768); // Combo Breaker
                         break;
                     case 124335:// Swift Reflexes
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -884,8 +869,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         }
                         break;
                     case 121253:// Keg Smash
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                            damage = CalculateMonkMeleeAttacks(m_caster, 8.12f, 11);
+                        damage = CalculateMonkMeleeAttacks(m_caster, 8.12f, 11);
                         break;
                     default:
                         break;
@@ -6109,7 +6093,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
             return;
     }
 
-    /*switch (m_spellInfo->Id)
+    switch (m_spellInfo->Id)
     {
         case 84996: // Raid Marker 1
         case 84997: // Raid Marker 2
@@ -6130,7 +6114,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         }
         default:
             break;
-    }*/
+    }
 
     uint64 guid = m_caster->m_ObjectSlot[slot];
     if (guid != 0)
@@ -7929,59 +7913,85 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
 int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier)
 {
-    Item* mainItem = caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    Item* offItem = caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
     float minDamage = 0;
     float maxDamage = 0;
-    bool dualwield = (mainItem && offItem) ? 1 : 0;
+    bool dualwield  = false;
     int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
-    if (coeff < 0)
-        coeff = 0.0f;
-
-    // Main Hand
-    if (mainItem && !caster->HasAuraType(SPELL_AURA_MOD_DISARM))
+    if (Player* plr = caster->ToPlayer())
     {
-        minDamage += mainItem->GetTemplate()->DamageMin;
-        maxDamage += mainItem->GetTemplate()->DamageMax;
+        Item* mainItem = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        Item* offItem = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+        dualwield = (mainItem && offItem) ? 1 : 0;
+
+        if (coeff < 0)
+            coeff = 0.0f;
+
+        // Main Hand
+        if (mainItem && !caster->HasAuraType(SPELL_AURA_MOD_DISARM))
+        {
+            minDamage += mainItem->GetTemplate()->DamageMin;
+            maxDamage += mainItem->GetTemplate()->DamageMax;
+
+            minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+            maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+        }
+
+        // Off Hand
+        if (offItem && !caster->HasAuraType(SPELL_AURA_MOD_DISARM))
+        {
+            minDamage += offItem->GetTemplate()->DamageMin / 2.0f;
+            maxDamage += offItem->GetTemplate()->DamageMax / 2.0f;
+
+            minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+            maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+        }
+
+        // DualWield coefficient
+        if (dualwield)
+        {
+            minDamage *= 0.898882275f;
+            maxDamage *= 0.898882275f;
+        }
+
+        minDamage += float(AP / APmultiplier);
+        maxDamage += float(AP / APmultiplier);
+
+        // Off Hand penalty reapplied if only equiped by an off hand weapon
+        if (offItem && !mainItem)
+        {
+            minDamage /= 2.0f;
+            maxDamage /= 2.0f;
+        }
+    }
+    else
+    {
+        if (caster->GetEntry() != 69792) // Earth Spirit
+            dualwield = true;
+
+        if (dualwield)
+        {
+            minDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+            minDamage += caster->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2;
+            maxDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+            maxDamage += caster->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2;
+
+            minDamage *= 0.898882275f;
+            maxDamage *= 0.898882275f;
+        }
+        else
+        {
+            minDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+            maxDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+        }
 
         minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
         maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+
+        minDamage += float(AP / APmultiplier);
+        maxDamage += float(AP / APmultiplier);
     }
-
-    // Off Hand
-    if (offItem && !caster->HasAuraType(SPELL_AURA_MOD_DISARM))
-    {
-        minDamage += offItem->GetTemplate()->DamageMin / 2.0f;
-        maxDamage += offItem->GetTemplate()->DamageMax / 2.0f;
-
-        minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
-        maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
-    }
-
-    // DualWield coefficient
-    if (dualwield)
-    {
-        minDamage *= 0.898882275f;
-        maxDamage *= 0.898882275f;
-    }
-
-    minDamage += float(AP / APmultiplier);
-    maxDamage += float(AP / APmultiplier);
-
-    // Off Hand penalty reapplied if only equiped by an off hand weapon
-    if (offItem && !mainItem)
-    {
-        minDamage /= 2.0f;
-        maxDamage /= 2.0f;
-    }
-
-    /*if (caster->HasAura(115697) || caster->HasAura(108561))
-    {
-        minDamage *= 0.89f;
-        maxDamage *= 0.89f;
-    }*/
 
     return irand(int32(minDamage * coeff), int32(maxDamage * coeff));
 }

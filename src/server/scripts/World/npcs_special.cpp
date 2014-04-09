@@ -4869,6 +4869,167 @@ class npc_luo_meng : public CreatureScript
         }
 };
 
+/*######
+## npc_monk_spirit - 69791
+######*/
+
+enum eSpiritEntries
+{
+    NPC_STORM_SPIRIT    = 69680,
+    NPC_EARTH_SPIRIT    = 69792,
+    NPC_FIRE_SPIRIT     = 69791
+};
+
+enum eSpiritEquips
+{
+    EQUIP_STORM_TWO_HANDS   = 25197,
+    EQUIP_EARTH_STAFF       = 86218,
+    EQUIP_FIRE_TWO_HANDS    = 82224
+};
+
+enum eSpiritActions
+{
+    ACTION_DESPAWN_SPIRIT
+};
+
+enum eSpiritMoves
+{
+    MOVE_DESPAWN    = 1
+};
+
+const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
+
+class npc_monk_spirit : public CreatureScript
+{
+    public:
+        npc_monk_spirit() : CreatureScript("npc_monk_spirit") { }
+
+        struct npc_monk_spiritAI : public ScriptedAI
+        {
+            npc_monk_spiritAI(Creature* creature) : ScriptedAI(creature)
+            {
+                targetGuid = 0;
+            }
+
+            uint64 targetGuid;
+
+            void Reset()
+            {
+                me->SetDisplayId(38551);
+
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    return;
+
+                me->SetShapeshiftForm(owner->GetShapeshiftForm());
+
+                switch (me->GetEntry())
+                {
+                    case NPC_STORM_SPIRIT:
+                        me->CastSpell(me, visualMorph[0], true);
+                        SetEquipmentSlots(false, EQUIP_STORM_TWO_HANDS, EQUIP_STORM_TWO_HANDS, EQUIP_NO_CHANGE);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2);
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2);
+                        break;
+                    case NPC_EARTH_SPIRIT:
+                        me->CastSpell(me, visualMorph[1], true);
+                        SetEquipmentSlots(false, EQUIP_EARTH_STAFF, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
+                        break;
+                    case NPC_FIRE_SPIRIT:
+                        me->CastSpell(me, visualMorph[2], true);
+                        SetEquipmentSlots(false, EQUIP_FIRE_TWO_HANDS, EQUIP_FIRE_TWO_HANDS, EQUIP_NO_CHANGE);
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
+                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2);
+                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2);
+                        break;
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 data /*= 0*/)
+            {
+                targetGuid = guid;
+
+                if (Unit* victim = Unit::GetUnit(*me, targetGuid))
+                {
+                    me->CastSpell(victim, 138104, true);    // Jump
+                    me->CastSpell(me, 138130, true);
+                    AttackStart(victim);
+                }
+            }
+
+            uint64 GetGUID(int32 data /*= 0*/)
+            {
+                return targetGuid;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (!summoner || summoner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                summoner->CastSpell(me, 119051, true);
+                me->SetLevel(summoner->getLevel());
+                me->SetHealth(summoner->CountPctFromMaxHealth(10));
+                me->SetMaxHealth(summoner->CountPctFromMaxHealth(10));
+                me->SetFullHealth();
+            }
+
+            void DoAction(const int32 action)
+            {
+                switch (action)
+                {
+                    case ACTION_DESPAWN_SPIRIT:
+                    {
+                        if (Unit* owner = me->GetOwner())
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveJump(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), 15.0f, 10.0f, me->GetOrientation(), MOVE_DESPAWN);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetGUID() == targetGuid)
+                    DoAction(ACTION_DESPAWN_SPIRIT);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (id == MOVE_DESPAWN)
+                    me->DespawnOrUnsummon(500);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (targetGuid)
+                {
+                    if (me->getVictim() && me->getVictim()->GetGUID() != targetGuid)
+                        DoAction(0);
+                    else if (!me->getVictim())
+                        DoAction(0);
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_monk_spiritAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4930,4 +5091,5 @@ void AddSC_npcs_special()
     new npc_shadowy_apparition();
     new npc_force_of_nature();
     new npc_luo_meng();
+    new npc_monk_spirit();
 }
