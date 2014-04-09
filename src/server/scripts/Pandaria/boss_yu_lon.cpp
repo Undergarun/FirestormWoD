@@ -44,14 +44,14 @@ enum eActions
 {
 };
 
-class boss_yu_lon : public CreatureScript
+class world_boss_yu_lon : public CreatureScript
 {
     public:
-        boss_yu_lon() : CreatureScript("boss_yu_lon") { }
+        world_boss_yu_lon() : CreatureScript("world_boss_yu_lon") { }
 
-        struct boss_yu_lonAI : public BossAI
+        struct world_boss_yu_lonAI : public BossAI
         {
-            boss_yu_lonAI(Creature* creature) : BossAI(creature, BOSS_YU_LON) { }
+            world_boss_yu_lonAI(Creature* creature) : BossAI(creature, BOSS_YU_LON) { }
 
             EventMap events;
 
@@ -103,11 +103,11 @@ class boss_yu_lon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_yu_lonAI(creature);
+            return new world_boss_yu_lonAI(creature);
         }
 };
 
 void AddSC_boss_yu_lon()
 {
-    new boss_yu_lon();
+    new world_boss_yu_lon();
 }
