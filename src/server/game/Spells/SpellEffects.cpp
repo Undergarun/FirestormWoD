@@ -2591,8 +2591,26 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
     Player* player = unitTarget->ToPlayer();
 
     if (player && (m_spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) || m_spellInfo->IsCustomArchaeologySpell()))
+    {
         if (!player->GetArchaeologyMgr().SolveResearchProject(m_spellInfo->ResearchProject))
             return;
+
+        // Some MoP's projects give no skill points
+        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(m_spellInfo->Id);
+
+        bool found = false;
+        for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+        {
+            if (_spell_idx->second->skillId)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+            player->UpdateSkillPro(SKILL_ARCHAEOLOGY, 1000, 5);
+    }
 
     uint32 item_id = m_spellInfo->Effects[effIndex].ItemType;
 

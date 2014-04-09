@@ -517,8 +517,13 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     // Check for project id
     ResearchProjectEntry const* entry = NULL;
     for (std::set<ResearchProjectEntry const*>::const_iterator itr = sResearchProjectSet.begin(); itr != sResearchProjectSet.end(); ++itr)
+    {
         if ((*itr)->ID == projectId)
+        {
             entry = (*itr);
+            break;
+        }
+    }
     
     if (!entry)
         return false;
