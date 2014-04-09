@@ -340,40 +340,40 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
 
 void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
 {
-    WorldPacket data(SMSG_BLACK_MARKET_OUT_BID, 12);
-
-    data << uint32(auction->bm_template->itemEntry);
-    data << uint32(1);
-    data << uint32(1);
-
-    if (Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER)))
+    Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER));
+    if (bidder)
     {
+        WorldPacket data(SMSG_BLACK_MARKET_OUT_BID, 12);
+        data << uint32(auction->bm_template->itemEntry);
+        data << uint32(1);
+        data << uint32(1);
         bidder->GetSession()->SendPacket(&data);
-
-        MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_OUTBIDDED), auction->BuildAuctionMailBody(auction->bm_template->seller))
-        .AddMoney(auction->bid)
-        .SendMailTo(trans, MailReceiver(bidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
     }
+
+    MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_OUTBIDDED), auction->BuildAuctionMailBody(auction->bm_template->seller))
+    .AddMoney(auction->bid)
+    .SendMailTo(trans, MailReceiver(bidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
 }
 
 void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans)
 {
-    if (Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER)))
+    Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER));
+    if (bidder)
     {
         WorldPacket data(SMSG_BLACK_MARKET_WON, 12);
         data << uint32(1);
         data << uint32(1);
         data << uint32(auction->bm_template->itemEntry);
         bidder->GetSession()->SendPacket(&data);
-
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(auction->bm_template->itemEntry);
-        if (!itemTemplate)
-            return;
-
-        Item* pItem = Item::CreateItem(auction->bm_template->itemEntry, auction->bm_template->itemCount, bidder);
-
-        MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_WON), auction->BuildAuctionMailBody(auction->bidder))
-        .AddItem(pItem)
-        .SendMailTo(trans, MailReceiver(bidder, auction->bidder), MailSender(auction), MAIL_CHECK_MASK_COPIED);
     }
+
+    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(auction->bm_template->itemEntry);
+    if (!itemTemplate)
+        return;
+
+    Item* pItem = Item::CreateItem(auction->bm_template->itemEntry, auction->bm_template->itemCount, bidder);
+
+    MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_WON), auction->BuildAuctionMailBody(auction->bidder))
+    .AddItem(pItem)
+    .SendMailTo(trans, MailReceiver(bidder, auction->bidder), MailSender(auction), MAIL_CHECK_MASK_COPIED);
 }
