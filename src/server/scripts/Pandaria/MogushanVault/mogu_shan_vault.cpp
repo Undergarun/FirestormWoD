@@ -599,6 +599,7 @@ class mob_zandalari_skullcharger : public CreatureScript
         }
 };
 
+// 125092 - Petrification
 class spell_mogu_petrification : public SpellScriptLoader
 {
     public:

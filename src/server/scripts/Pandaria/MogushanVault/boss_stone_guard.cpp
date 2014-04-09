@@ -857,7 +857,7 @@ enum eMineSpell
     SPELL_COBALT_MINE_EXPLOSION = 116281
 };
 
-// 65083 - Cobalt mine
+// 65803 - Cobalt mine
 class mob_cobalt_mine : public CreatureScript
 {
     public:

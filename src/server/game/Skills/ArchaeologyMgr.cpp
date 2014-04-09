@@ -272,7 +272,7 @@ void ArchaeologyMgr::ShowResearchSites()
     for (ResearchSiteSet::const_iterator itr = tempSet.begin(); itr != tempSet.end(); ++itr)
     {
         uint32 id = (*itr);
-        if (CanResearchWithLevel((*itr)) == RS_RESULT_HIDE)
+        if (CanResearchWithLevel(id) == RS_RESULT_HIDE)
             id = 0;
 
         _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, count, id);
@@ -284,6 +284,8 @@ void ArchaeologyMgr::ShowResearchSites()
                 _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, _digSites[i].count);
                 break;
             }
+            else
+                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, 0);
         }
 
         ++count;
@@ -515,8 +517,13 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     // Check for project id
     ResearchProjectEntry const* entry = NULL;
     for (std::set<ResearchProjectEntry const*>::const_iterator itr = sResearchProjectSet.begin(); itr != sResearchProjectSet.end(); ++itr)
+    {
         if ((*itr)->ID == projectId)
+        {
             entry = (*itr);
+            break;
+        }
+    }
     
     if (!entry)
         return false;
