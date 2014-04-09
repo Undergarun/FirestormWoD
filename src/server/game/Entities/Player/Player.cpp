@@ -22882,11 +22882,12 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     uint32 speakerNameLength = strlen(GetName());
     uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
     uint32 receiverLength = 0;
+
     uint32 channelLength = channel.length();
 
-    ObjectGuid senderGuid = GetGUID();
+    ObjectGuid senderUnkGuid = GetGUID();
     ObjectGuid groupGuid = 0;
-    ObjectGuid receiverGuid = 0;
+    ObjectGuid senderGuid = GetGUID();
     ObjectGuid guildGuid = 0;
 
     bool sendRealmID = false;
@@ -22901,7 +22902,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     data->WriteBit(1);                                          // has sender GUID
 
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
-    data->WriteBitInOrder(senderGuid, bitsOrder);
+    data->WriteBitInOrder(senderUnkGuid, bitsOrder);
 
     data->WriteBit(0);                                          // has group GUID
 
@@ -22915,10 +22916,10 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     data->WriteBits(speakerNameLength, 11);
 
-    data->WriteBit(receiverGuid ? 1 : 0);                       // has receiver GUID
+    data->WriteBit(senderGuid ? 1 : 0);                       // has receiver GUID
 
     uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
-    data->WriteBitInOrder(receiverGuid, bitsOrder3);
+    data->WriteBitInOrder(senderGuid, bitsOrder3);
 
     if (prefixeLength)
         data->WriteBits(prefixeLength, 5);
@@ -22961,12 +22962,12 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     data->WriteBytesSeq(groupGuid, byteOrder);
 
     uint8 byteOrder1[8] = { 0, 4, 1, 3, 5, 7, 2, 6 };
-    data->WriteBytesSeq(receiverGuid, byteOrder1);
+    data->WriteBytesSeq(senderGuid, byteOrder1);
 
     *data << uint8(msgtype);
 
     uint8 byteOrder2[8] = { 7, 6, 5, 4, 0, 2, 1, 3 };
-    data->WriteBytesSeq(senderGuid, byteOrder2);
+    data->WriteBytesSeq(senderUnkGuid, byteOrder2);
 
     if (prefixeLength)
         data->WriteString(addonPrefix);
