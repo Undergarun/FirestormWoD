@@ -87,8 +87,9 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
     for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
     {
         ResearchLootEntry entry = (*itr);
-        if (entry.id != zoneid)
-            continue;
+        if (entry.id != zoneid)          
+  continue;
+
 
         if (site.loot_id == 0)
         {
@@ -271,7 +272,7 @@ void ArchaeologyMgr::ShowResearchSites()
     for (ResearchSiteSet::const_iterator itr = tempSet.begin(); itr != tempSet.end(); ++itr)
     {
         uint32 id = (*itr);
-        if (CanResearchWithLevel((*itr)) == RS_RESULT_HIDE)
+        if (CanResearchWithLevel(id) == RS_RESULT_HIDE)
             id = 0;
 
         _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, count, id);
@@ -283,6 +284,8 @@ void ArchaeologyMgr::ShowResearchSites()
                 _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, _digSites[i].count);
                 break;
             }
+            else
+                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, 0);
         }
 
         ++count;
@@ -303,11 +306,9 @@ void ArchaeologyMgr::ShowResearchProjects()
         {
             newvalue |= (*itr);
             _player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + count / 2, newvalue);
-        }
-        else if (count == 11)
-        {
-            _player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + count / 2, (*itr));
-            break;
+
+            if (count == 15)
+                break;
         }
         else
             newvalue = (*itr) << 16;
@@ -456,7 +457,7 @@ void ArchaeologyMgr::GenerateResearchProjects()
         tempProjects[entry->branchId].insert(entry->ID);
     }
 
-    uint8 const* race = _races;
+/*    uint8 const* race = _races;
     ProjectSet::const_iterator itr;
     do
     {
@@ -464,7 +465,35 @@ void ArchaeologyMgr::GenerateResearchProjects()
         std::advance(itr, urand(0, tempProjects[*race].size() - 1));
         _researchProjects.insert((*itr));
     }
-    while (*++race);
+    while (*++race);*/
+    for (int i = 0; i < 12; i++)
+/*    {
+        uint32 raceIndex = _races[i];
+        if (tempProjects.find(raceIndex) == tempProjects.end())
+            continue;
+
+        Projects& proj = tempProjects[raceIndex];
+        if (proj.empty())
+            continue;
+        
+        auto itr = proj.begin();
+        std::advance(itr, rand() % proj.size());
+        _researchProjects.insert(*itr);
+    }*/
+    for (int i = 0; i < 12; i++)
+    {
+        uint32 raceIndex = _races[i];
+        if (tempProjects.find(raceIndex) == tempProjects.end())
+            continue;
+
+        ProjectSet& proj = tempProjects[raceIndex];
+        if (proj.empty())
+            continue;
+        
+        ProjectSet::iterator itr = proj.begin();
+        std::advance(itr, rand() % proj.size());
+        _researchProjects.insert(*itr);
+    }
 
     _archaeologyChanged = true;
 
@@ -488,8 +517,13 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     // Check for project id
     ResearchProjectEntry const* entry = NULL;
     for (std::set<ResearchProjectEntry const*>::const_iterator itr = sResearchProjectSet.begin(); itr != sResearchProjectSet.end(); ++itr)
+    {
         if ((*itr)->ID == projectId)
+        {
             entry = (*itr);
+            break;
+        }
+    }
     
     if (!entry)
         return false;

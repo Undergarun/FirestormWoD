@@ -169,18 +169,15 @@ class spell_mastery_icicles_trigger : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 currentMinAura = 0;
-                        // We need to find how much icicles we have, and which is the first.
-                        for (int i = 4; i >= 0; i--)
-                            if (_player->HasAura(IcicleAuras[i]))
-                                currentMinAura = i;
-
-                        if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[currentMinAura]))
+                        for (uint8 i = 0; i < 5; ++i)
                         {
-                            int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                            _player->CastSpell(target, IcicleHits[currentMinAura], true);
-                            _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                            _player->RemoveAura(IcicleAuras[currentMinAura]);
+                            if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[i]))
+                            {
+                                int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
+                                _player->CastSpell(target, IcicleHits[i], true);
+                                _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
+                                _player->RemoveAura(IcicleAuras[i]);
+                            }
                         }
 
                         IcicleOverstack = false;

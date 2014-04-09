@@ -98,9 +98,9 @@ class boss_asaad : public CreatureScript
             }
 
             bool bField;
-            Creature* _field1;
-            Creature* _field2;
-            Creature* _field3;
+            uint64 _field1;
+            uint64 _field2;
+            uint64 _field3;
 
             void InitializeAI()
             {
@@ -178,27 +178,42 @@ class boss_asaad : public CreatureScript
                             Talk(SAY_SPELL);
                             me->AttackStop();
                             me->SetReactState(REACT_PASSIVE);
-                            if (_field1 = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[0]))
-                                DoCast(_field1, SPELL_UNSTABLE_GROUNDING_FIELD);
+                            if (Creature*c  = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[0]))
+                            {
+                                _field1 = c->GetGUID();
+                                DoCast(c, SPELL_UNSTABLE_GROUNDING_FIELD);
+                            }
                             events.ScheduleEvent(EVENT_FIELD_4, 20000);
                             events.ScheduleEvent(EVENT_FIELD_1, 6000); 
                             break;
                         case EVENT_FIELD_1:
-                            if (_field2 = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[1]))
-                                if (_field1)
-                                    _field1->CastSpell(_field2, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                            if (Creature*c = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[1]))
+                            {
+                                _field2 = c->GetGUID();
+                                
+                                if (Creature*c2 = me->GetMap()->GetCreature(_field1))
+                                    c2->CastSpell(c, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                            }
                             events.ScheduleEvent(EVENT_FIELD_2, 6000);
                             break;
                         case EVENT_FIELD_2:
-                            if (_field3 = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[2]))
-                                if (_field2)
-                                    _field2->CastSpell(_field3, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                            if (Creature*c = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[2]))
+                            {
+                                _field3 = c->GetGUID();
+                                if (Creature* c2 = me->GetMap()->GetCreature(_field2))
+                                    c2->CastSpell(c, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                            }
                             events.ScheduleEvent(EVENT_FIELD_3, 6000);
                             break;
                         case EVENT_FIELD_3:
-                            if (_field3 && _field1)
-                                _field3->CastSpell(_field1, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                        {
+                            Creature* c1 = me->GetMap()->GetCreature(_field1);
+                            Creature* c2 = me->GetMap()->GetCreature(_field3);
+                            if (c1 && c2)
+                                c2->CastSpell(c1, SPELL_UNSTABLE_GROUNDING_FIELD, true);
+                            
                             break;
+                        }
                         case EVENT_FIELD_4:
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
@@ -214,12 +229,12 @@ class boss_asaad : public CreatureScript
                             events.ScheduleEvent(EVENT_FIELD_6, 6000);
                             break;
                         case EVENT_FIELD_6:
-                            if (_field1)
-                                _field1->DespawnOrUnsummon();
-                            if (_field2)
-                                _field2->DespawnOrUnsummon();
-                            if (_field3)
-                                _field3->DespawnOrUnsummon();
+                            if (Creature* c = me->GetMap()->GetCreature(_field1))
+                                c->DespawnOrUnsummon();
+                            if (Creature* c = me->GetMap()->GetCreature(_field2))
+                                c->DespawnOrUnsummon();
+                            if (Creature* c = me->GetMap()->GetCreature(_field3))
+                                c->DespawnOrUnsummon();
                             bField = false;
                             me->SetCanFly(false);
                             me->SetDisableGravity(false);;

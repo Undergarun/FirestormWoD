@@ -65,6 +65,8 @@ enum PaladinSpells
     PALADIN_SPELL_ARCING_LIGHT_DAMAGE            = 114919,
     PALADIN_SPELL_EXECUTION_SENTENCE             = 114916,
     PALADIN_SPELL_STAY_OF_EXECUTION              = 114917,
+    PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE        = 146585,
+    PALADIN_SPELL_EXECUTION_DISPEL_HEAL          = 146586,
     PALADIN_SPELL_INQUISITION                    = 84963,
     PALADIN_SPELL_GLYPH_OF_BLINDING_LIGHT        = 54934,
     PALADIN_SPELL_BLINDING_LIGHT_CONFUSE         = 105421,
@@ -283,8 +285,12 @@ class spell_pal_daybreak : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (_player->HasAura(PALADIN_SPELL_DAYBREAK_AURA))
                         _player->CastSpell(_player, PALADIN_SPELL_DAYBREAK_PROC, true);
+
+                    _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                }
             }
 
             void Register()
@@ -954,6 +960,49 @@ class spell_pal_inquisition : public SpellScriptLoader
         }
 };
 
+// Execution Sentence - 114916 and Stay of Execution - 114917
+class spell_pal_execution_sentence_dispel : public SpellScriptLoader
+{
+    public:
+        spell_pal_execution_sentence_dispel() : SpellScriptLoader("spell_pal_execution_sentence_dispel") { }
+
+        class spell_pal_execution_sentence_dispel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_execution_sentence_dispel_AuraScript);
+
+            void HandleDispel(DispelInfo* dispelData)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 spellPowerBonus = int32(5.936 * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
+                    int32 damage = 12989 + spellPowerBonus;
+                    damage = int32(damage * 0.444f); // Final: 44.4%
+
+                    if (GetSpellInfo()->Id == PALADIN_SPELL_EXECUTION_SENTENCE)
+                    {
+                        if (Unit* target = GetAura()->GetOwner()->ToUnit())
+                            caster->CastCustomSpell(target, PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE, &damage, NULL, NULL, true);
+                    }
+                    else
+                    {
+                        if (Unit* target = GetAura()->GetOwner()->ToUnit())
+                            caster->CastCustomSpell(target, PALADIN_SPELL_EXECUTION_DISPEL_HEAL, &damage, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnDispel += AuraDispelFn(spell_pal_execution_sentence_dispel_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_execution_sentence_dispel_AuraScript();
+        }
+};
+
 // Execution Sentence - 114157
 class spell_pal_execution_sentence : public SpellScriptLoader
 {
@@ -964,25 +1013,25 @@ class spell_pal_execution_sentence : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_execution_sentence_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* target = GetExplTargetUnit())
                     {
-                        if (_player->IsValidAttackTarget(target))
-                            _player->CastSpell(target, PALADIN_SPELL_EXECUTION_SENTENCE, true);
-                        else if (_player->GetGUID() == target->GetGUID())
-                            _player->CastSpell(_player, PALADIN_SPELL_STAY_OF_EXECUTION, true);
+                        if (caster->IsValidAttackTarget(target))
+                            caster->CastSpell(target, PALADIN_SPELL_EXECUTION_SENTENCE, true);
+                        else if (caster->GetGUID() == target->GetGUID())
+                            caster->CastSpell(caster, PALADIN_SPELL_STAY_OF_EXECUTION, true);
                         else
-                            _player->CastSpell(target, PALADIN_SPELL_STAY_OF_EXECUTION, true);
+                            caster->CastSpell(target, PALADIN_SPELL_STAY_OF_EXECUTION, true);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_execution_sentence_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_pal_execution_sentence_SpellScript::HandleAfterCast);
             }
         };
 
@@ -1746,6 +1795,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_cleanse();
     new spell_pal_divine_shield();
     new spell_pal_inquisition();
+    new spell_pal_execution_sentence_dispel();
     new spell_pal_execution_sentence();
     new spell_pal_lights_hammer();
     new spell_pal_holy_prism_visual();

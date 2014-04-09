@@ -2036,7 +2036,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051))
+                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
@@ -2064,8 +2064,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades for rogues
-                    if (!HasAura(114051) && !HasAura(121471))
+                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
+                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
                     {
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
@@ -2077,9 +2077,19 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         resetAttackTimer(BASE_ATTACK);
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471))
+                    else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121473, true);
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    else if (HasAura(137586) && !HasAura(121471))
+                    {
+                        CastSpell(victim, 137584, true); // Shuriken Toss
+                        resetAttackTimer(BASE_ATTACK);
+                    }
+                    else if (HasAura(137586) && HasAura(121471))
+                    {
+                        CastSpell(victim, 140308, true); // Shadow Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
                 }
@@ -2087,7 +2097,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051))
+                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -2097,8 +2107,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades for rogues
-                    if (!HasAura(114051) && !HasAura(121471))
+                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
+                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
@@ -2110,9 +2120,19 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         resetAttackTimer(OFF_ATTACK);
                     }
                     // Shadow Blades - Off Hand
-                    else if (HasAura(121471))
+                    else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121474, true);
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    else if (HasAura(137586) && !HasAura(121471))
+                    {
+                        CastSpell(victim, 137585, true); // Shuriken Toss
+                        resetAttackTimer(OFF_ATTACK);
+                    }
+                    else if (HasAura(137586) && HasAura(121471))
+                    {
+                        CastSpell(victim, 140309, true); // Shadow Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
                 }
@@ -11616,7 +11636,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             break;
         case INVTYPE_RANGED:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11635,11 +11655,11 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             break;
         case INVTYPE_2HWEAPON:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+           /* if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11658,7 +11678,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
@@ -11677,7 +11697,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
         case INVTYPE_THROWN:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11696,11 +11716,11 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             break;
         case INVTYPE_RANGEDRIGHT:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
@@ -11719,7 +11739,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
-            }
+            }*/
             break;
         case INVTYPE_BAG:
             slots[0] = INVENTORY_SLOT_BAG_START + 0;
@@ -11733,7 +11753,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                playerClass == CLASS_SHAMAN || playerClass == CLASS_DEATH_KNIGHT)
            {
                slots[0] = EQUIPMENT_SLOT_MAINHAND;
-               if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+               /*if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                {
                    if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                    {
@@ -11752,7 +11772,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                        const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                        break;
                    }
-               }
+               }*/
            }
            break;
         }
@@ -14540,6 +14560,8 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         return;
     }
 
+     sLog->OutPandashan("Player::SplitItem[%u] srcbag : %u destbag : %u pSrcItem %u count %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, count);
+
     if (pSrcItem->m_lootGenerated)                           // prevent split looting item (item
     {
         //best error message found for attempting to split while looting
@@ -14651,6 +14673,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
     Item* pSrcItem = GetItemByPos(srcbag, srcslot);
     Item* pDstItem = GetItemByPos(dstbag, dstslot);
 
+    sLog->OutPandashan("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+
     if (!pSrcItem)
         return;
 
@@ -14748,7 +14772,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 SendEquipError(msg, pSrcItem, NULL);
                 return;
             }
-
+            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 1", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             StoreItem(dest, pSrcItem, true);
             if (IsBankPos(src))
@@ -14764,6 +14788,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 return;
             }
 
+            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
@@ -14783,7 +14808,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 SendEquipError(msg, pSrcItem, NULL);
                 return;
             }
-
+            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 3", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
@@ -14903,6 +14928,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         {
             if (pSrcItem->GetCount() + pDstItem->GetCount() <= pSrcItem->GetTemplate()->GetMaxStackSize())
             {
+                sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 4", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
                 RemoveItem(srcbag, srcslot, true);
 
                 if (IsInventoryPos(dst))
@@ -14917,6 +14943,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
             else
             {
+                sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 5", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
                 pSrcItem->SetCount(pSrcItem->GetCount() + pDstItem->GetCount() - pSrcItem->GetTemplate()->GetMaxStackSize());
                 pDstItem->SetCount(pSrcItem->GetTemplate()->GetMaxStackSize());
                 pSrcItem->SetState(ITEM_CHANGED, this);
@@ -15047,6 +15074,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
     }
+
+    sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 7", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     // now do moves, remove...
     RemoveItem(dstbag, dstslot, false);
@@ -22853,11 +22882,12 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     uint32 speakerNameLength = strlen(GetName());
     uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
     uint32 receiverLength = 0;
+
     uint32 channelLength = channel.length();
 
-    ObjectGuid senderGuid = GetGUID();
+    ObjectGuid senderUnkGuid = GetGUID();
     ObjectGuid groupGuid = 0;
-    ObjectGuid receiverGuid = 0;
+    ObjectGuid senderGuid = GetGUID();
     ObjectGuid guildGuid = 0;
 
     bool sendRealmID = false;
@@ -22872,7 +22902,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     data->WriteBit(1);                                          // has sender GUID
 
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
-    data->WriteBitInOrder(senderGuid, bitsOrder);
+    data->WriteBitInOrder(senderUnkGuid, bitsOrder);
 
     data->WriteBit(0);                                          // has group GUID
 
@@ -22886,10 +22916,10 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     data->WriteBits(speakerNameLength, 11);
 
-    data->WriteBit(receiverGuid ? 1 : 0);                       // has receiver GUID
+    data->WriteBit(senderGuid ? 1 : 0);                       // has receiver GUID
 
     uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
-    data->WriteBitInOrder(receiverGuid, bitsOrder3);
+    data->WriteBitInOrder(senderGuid, bitsOrder3);
 
     if (prefixeLength)
         data->WriteBits(prefixeLength, 5);
@@ -22932,12 +22962,12 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     data->WriteBytesSeq(groupGuid, byteOrder);
 
     uint8 byteOrder1[8] = { 0, 4, 1, 3, 5, 7, 2, 6 };
-    data->WriteBytesSeq(receiverGuid, byteOrder1);
+    data->WriteBytesSeq(senderGuid, byteOrder1);
 
     *data << uint8(msgtype);
 
     uint8 byteOrder2[8] = { 7, 6, 5, 4, 0, 2, 1, 3 };
-    data->WriteBytesSeq(senderGuid, byteOrder2);
+    data->WriteBytesSeq(senderUnkGuid, byteOrder2);
 
     if (prefixeLength)
         data->WriteString(addonPrefix);
@@ -24998,6 +25028,12 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 
         uint32 _cur_gem = curcount[Condition->Color[i] - 1];
 
+        if ((Condition->CompareColor[i] - 1) > 3)
+        {
+	    sLog->OutPandashan("curcount out of bound ! %u", Condition->CompareColor[i] - 1);
+            continue;
+        }
+
         // if have <CompareColor> use them as count, else use <value> from Condition
         uint32 _cmp_gem = Condition->CompareColor[i] ? curcount[Condition->CompareColor[i] - 1]: Condition->Value[i];
 
@@ -25737,6 +25773,15 @@ void Player::SendInitialPacketsAfterAddToMap()
         Unit::AuraEffectList const& auraList = GetAuraEffectsByType(*itr);
         if (!auraList.empty())
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+    }
+
+    SendRefreshSpellMods();
+
+    if (hasForcedMovement)
+    {
+        Position pos;
+        GetPosition(&pos);
+        SendApplyMovementForce(false, pos);
     }
 
     if (HasAuraType(SPELL_AURA_MOD_STUN))
@@ -29818,7 +29863,7 @@ void Player::SendMovementSetCollisionHeight(float height)
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[0]);
-    data.WriteBit(true); // mountDisplayInfo scale, inverse
+    data.WriteBit(!mountDisplayInfo);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[3]);
@@ -29835,7 +29880,7 @@ void Player::SendMovementSetCollisionHeight(float height)
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[2]);
-    //data << float(mountDisplayInfo ? mountDisplayInfo->scale : 1.0f);
+    data << float(mountDisplayInfo ? mountDisplayInfo->scale : 1.0f);
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[4]);
@@ -30361,4 +30406,82 @@ void Player::SendTokenResponse()
     data << uint32(m_tokenCounter);
     GetSession()->SendPacket(&data);
     ++m_tokenCounter;
+}
+
+void Player::SendRefreshSpellMods()
+{
+    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    {
+        for (auto mod : m_spellMods[i])
+        {
+            Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+
+            int i = 0;
+            flag96 _mask = 0;
+            uint32 modTypeCount = 0; // count of mods per one mod->op
+
+            ByteBuffer dataBuffer;
+            WorldPacket data(opcode);
+            data.WriteBits(1, 22);  // count of different mod->op's in packet
+
+            for (int eff = 0; eff < 96; ++eff)
+            {
+                if (eff != 0 && (eff % 32) == 0)
+                    _mask[i++] = 0;
+
+                _mask[i] = uint32(1) << (eff - (32 * i));
+                if (mod->mask & _mask)
+                {
+                    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+                    {
+                        float val = 1;
+                        for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                                val += (*itr)->value/100;
+
+                        if (mod->value)
+                            val += float(mod->value)/100;
+
+                        dataBuffer << float(val);
+                        dataBuffer << uint8(eff);
+                        ++modTypeCount;
+                        continue;
+                    }
+
+                    int32 val = 0;
+                    for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                        if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                            val += (*itr)->value;
+
+                    val += float(mod->value);
+
+                    dataBuffer << float(val);
+                    dataBuffer << uint8(eff);
+                    ++modTypeCount;
+                }
+            }
+
+            data.WriteBits(modTypeCount, 21);
+
+            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            {
+                data << uint8(mod->op);
+
+                if (dataBuffer.size())
+                    data.append(dataBuffer);
+            }
+            else
+            {
+                if (dataBuffer.size())
+                {
+                    data.FlushBits();
+                    data.append(dataBuffer);
+                }
+
+                data << uint8(mod->op);
+            }
+
+            SendDirectMessage(&data);
+        }
+    }
 }

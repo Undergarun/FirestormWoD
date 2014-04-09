@@ -88,6 +88,9 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     m_objectUpdated     = false;
 
     m_PackGUID.appendPackGUID(0);
+
+    if (sWorld->deleteUnits.find(this) != sWorld->deleteUnits.end())
+       sWorld->deleteUnits[this] = false;
 }
 
 WorldObject::~WorldObject()
@@ -106,6 +109,11 @@ WorldObject::~WorldObject()
 
 Object::~Object()
 {
+    if (sWorld->deleteUnits.find(this) != sWorld->deleteUnits.end())
+        sWorld->deleteUnits.insert(std::make_pair(this, true));
+    else
+        sWorld->deleteUnits[this] = true;
+
     if (IsInWorld())
     {
         sLog->outFatal(LOG_FILTER_GENERAL, "Object::~Object - guid=" UI64FMTD ", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
@@ -251,7 +259,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
-    BuildDynamicValuesUpdate(&buf);
+    BuildDynamicValuesUpdate(updateType, &buf);
 
     data->AddUpdateBlock(buf);
 }
@@ -274,8 +282,20 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
+    if (sWorld->isDelete((Object*)this))
+    {
+        ACE_Stack_Trace trace;
+        sLog->OutPandashan("BuildValuesUpdateBlockForPlayer this delete !!!");
+    }
+
+    if (sWorld->isDelete(target))
+    {
+        ACE_Stack_Trace trace;
+        sLog->OutPandashan("BuildValuesUpdateBlockForPlayer target delete !!!");
+    }
+
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
-    BuildDynamicValuesUpdate(&buf);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf);
 
     data->AddUpdateBlock(buf);
 }
@@ -408,6 +428,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
+        data->WriteBit(false);
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
@@ -503,9 +524,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        *data << uint32(8);
-        *data << float(((AreaTrigger*)this)->GetVisualRadius()); // scale
-        *data << float(((AreaTrigger*)this)->GetVisualRadius()); // scale
+        *data << uint32(8);                                         // ObjectType AreaTrigger
+        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
@@ -779,7 +800,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     data->append(fieldBuffer);
 }
 
-void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
+void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data) const
 {
     // Crashfix, prevent use of bag with dynamic field
     Item* temp = ((Item*)this);
@@ -805,7 +826,8 @@ void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
 
         for (int index = 0; index < DynamicFields::Count; ++index)
         {
-            if (!_dynamicFields[i]._dynamicChangedFields[index])
+            if (updateType == UPDATETYPE_VALUES ? (!_dynamicFields[i]._dynamicChangedFields[index])
+                                                : (!_dynamicFields[i]._dynamicValues[index]))
                 continue;
 
             dynamicTabMask |= 1 << i;

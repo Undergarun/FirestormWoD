@@ -3496,6 +3496,9 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
                 procSpell->Id == 115192 ||  // Subterfuge
                 procSpell->Id == 114842 ||  // Shadow Walk
                 procSpell->Id == 5171 ||    // Slice and Dice
+                procSpell->Id == 2983 ||    // Sprint
+                procSpell->Id == 6770 ||    // Sap
+                procSpell->Id == 137573 ||  // Burst of Speed
                 procSpell->Id == 98440 ||   // Relentless Strikes
                 procSpell->Id == 12323)     // Piercing Howl
                 return true;

@@ -2127,9 +2127,9 @@ bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint3
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);
-    Object::_Create(guidlow, pet_number, HIGHGUID_PET);
+    Object::_Create(pet_number, Entry, HIGHGUID_PET);
 
-    m_DBTableGuid = guidlow;
+    m_DBTableGuid = pet_number;
     m_originalEntry = Entry;
 
     if (!InitEntry(Entry))

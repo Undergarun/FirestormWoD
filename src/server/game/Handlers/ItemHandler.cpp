@@ -174,6 +174,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
         return;
     }
 
+    sLog->OutPandashan("HandleSwapItem[%u] %u %u", _player->GetGUIDLow(), src, dst);
     _player->SwapItem(src, dst);
 }
 
@@ -184,6 +185,8 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
 
     recvData >> srcslot >> srcbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+
+    sLog->OutPandashan("HandleAutoEquipItemOpcode[%u] %u %u", _player->GetGUIDLow(), srcslot, srcbag);
 
     Item* pSrcItem  = _player->GetItemByPos(srcbag, srcslot);
     if (!pSrcItem)
@@ -315,6 +318,8 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
             return;
         }
     }
+
+    sLog->OutPandashan("HandleDestroyItemOpcode[%u] %u %u", _player->GetGUIDLow(), pos, count);
 
     if (count)
     {
@@ -593,6 +598,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     Item* pItem = _player->GetItemByGuid(itemguid);
     if (pItem)
     {
+        sLog->OutPandashan("HandleSellItemOpcode[%u] %u %u", GetPlayer()->GetGUIDLow(), pItem->GetEntry(), count);
         // prevent sell not owner item
         if (_player->GetGUID() != pItem->GetOwnerGUID())
         {
@@ -711,6 +717,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     Item* pItem = _player->GetItemFromBuyBackSlot(slot);
     if (pItem)
     {
+        sLog->OutPandashan("HandleBuybackItem[%u] %u %u", _player->GetGUIDLow(), pItem->GetEntry(), slot);
         uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(uint64(price)))
         {
@@ -766,6 +773,8 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     if (bag == NULL_BAG)
         return;
 
+    sLog->OutPandashan("HandleBuyItemInSlotOpcode[%u] %u %u %u %u", _player->GetGUIDLow(), item, slot, count, bagslot);
+
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
@@ -820,6 +829,8 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         --slot;
     else
         return; // cheating
+
+    sLog->OutPandashan("HandleBuyItemOpcode[%u] %u %u %u %u", _player->GetGUIDLow(), bag, count, item, slot);
 
     if (itemType == ITEM_VENDOR_TYPE_ITEM)
         GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, NULL_BAG, NULL_SLOT);
@@ -1138,6 +1149,8 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
         return;
     }
 
+    sLog->OutPandashan("HandleAutoStoreBagItemOpcode[%u] %u %u %u", _player->GetGUIDLow(), dstbag, srcbag, srcslot);
+
     _player->RemoveItem(srcbag, srcslot, true);
     _player->StoreItem(dest, pItem, true);
 }
@@ -1218,6 +1231,8 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    sLog->OutPandashan("HandleAutoBankItemOpcode[%u] %u %u %u", _player->GetGUID(), srcbag, srcslot, pItem->GetEntry());
+
     _player->RemoveItem(srcbag, srcslot, true);
     _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
     _player->BankItem(dest, pItem, true);
@@ -1234,6 +1249,8 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     Item* pItem = _player->GetItemByPos(srcbag, srcslot);
     if (!pItem)
         return;
+
+    sLog->OutPandashan("HandleAutoStoreBankItemOpcode[%u] %u %u %u", _player->GetGUID(), srcbag, srcslot, pItem->GetEntry());
 
     if (_player->IsBankPos(srcbag, srcslot))                 // moving from bank to inventory
     {

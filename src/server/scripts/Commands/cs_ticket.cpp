@@ -267,9 +267,6 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName() : "Console");
         handler->SendGlobalGMSysMessage(msg.c_str());
 
-        sTicketMgr->RemoveTicket(ticket->GetId());
-        sTicketMgr->UpdateLastChange();
-
         if (Player* player = ticket->GetPlayer())
         {
             if (player->IsInWorld())
@@ -280,6 +277,9 @@ public:
                 player->GetSession()->SendPacket(&data);
             }
         }
+
+        sTicketMgr->RemoveTicket(ticket->GetId());
+        sTicketMgr->UpdateLastChange();
 
         return true;
     }

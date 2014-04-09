@@ -1580,7 +1580,6 @@ void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
 
 void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recvData)
 {
-    // Not needed
     uint8 markerId = recvData.read<uint8>();
 
     Player* plr = GetPlayer();

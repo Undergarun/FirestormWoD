@@ -1294,7 +1294,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             if (data.bgTypeId != BATTLEGROUND_AA)
                 m_ArenaSelectionWeights[data.bgTypeId] = selectionWeight;
         }
-        else if (data.bgTypeId != BATTLEGROUND_RB)
+        else if (data.bgTypeId != BATTLEGROUND_RB && data.bgTypeId != BATTLEGROUND_RATED_10_VS_10
+            && data.bgTypeId != BATTLEGROUND_RATED_15_VS_15 && data.bgTypeId != BATTLEGROUND_RATED_25_VS_25)
             m_BGSelectionWeights[data.bgTypeId] = selectionWeight;
 
         for (int i = 0; i < 11; ++i)

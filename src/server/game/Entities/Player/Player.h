@@ -3026,7 +3026,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendResumeToken(uint32 token);
         void SendTokenResponse();
-
+        void SendRefreshSpellMods();
 
         /*********************************************************/
         /***              BATTLE PET SYSTEM                    ***/

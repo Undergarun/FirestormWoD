@@ -282,6 +282,8 @@ class boss_hex_lord_malacrass : public CreatureScript
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 PlayerClass = pTarget->getClass() - 1;
+				if (PlayerClass > 9)
+					PlayerClass = 0;
                                 if (PlayerClass == CLASS_DRUID-1)
                                     PlayerClass = CLASS_DRUID;
                                 else if (PlayerClass == CLASS_PRIEST-1 && pTarget->HasSpell(15473))

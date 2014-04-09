@@ -307,13 +307,14 @@ public:
         
         void Reset()
         {
+            events.Reset();
             me->SetReactState(REACT_DEFENSIVE);
             me->CombatStop(true);
             me->SetDisplayId(39755);
             hasSaidIntro = false;
             hasScheduledFalcon = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
-            me->GetMotionMaster()->MovePoint(1, 1380.35f, 3170.68f, 136.93f);
+            me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
             playerGuid = 0;
         }
 
@@ -321,7 +322,6 @@ public:
         {
             if (summoned->GetEntry() == 57750) // Script of the falcon attack
             {
-                me->EnterVehicle(summoned);
                 summoned->CastSpell(me->getVictim(), 108935, true);
                 summoned->DespawnOrUnsummon();
             }
@@ -356,7 +356,6 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     Talk(urand(1,6));
-                    events.Reset();
                     events.ScheduleEvent(EVENT_RESET, 5000);
                     damage = 0;
                 }
@@ -366,7 +365,7 @@ public:
             }
         }
 
-        void DoAction(uint32 action)
+        void DoAction(const int32 action)
         {
             switch (action)
             {
@@ -437,9 +436,8 @@ public:
                             me->CastSpell(target, 108935, true);
                         events.ScheduleEvent(EVENT_FALCON_ATTACK, 12000);
                         break;
-                    case EVENT_STUNNED: // Here, gets stunned for 5 secs
-                        if (me->isInCombat())
-                            me->CastSpell(me, 123930, true); // Original is 108959, but it takes way more time than in official game
+                    case EVENT_STUNNED: // Here, gets stunned
+                            me->CastSpell(me, 108959, true);
                         events.ScheduleEvent(EVENT_STUNNED, 12000);
                         break;
                     case EVENT_RESET: // Comes back to initial pos
@@ -789,7 +787,7 @@ public:
             }
         }
 
-        void DoAction(uint8 action)
+        void DoAction(const int32 action)
         {
             switch (action)
             {
@@ -1299,7 +1297,7 @@ public:
             hasSaidIntro = false;
         }
 
-        void DoAction(uint32 action)
+        void DoAction(const int32 action)
         {
             switch (action)
             {
@@ -1828,7 +1826,7 @@ void AddSC_WanderingIsland_North()
     new mob_training_target();
     new mob_tushui_trainee();
     new mob_huojin_trainee();
-    new mob_jaomin_ro();
+//    new mob_jaomin_ro();
     new boss_jaomin_ro();
     new mob_attacker_dimwind();
     new mob_min_dimwind();

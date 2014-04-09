@@ -5,7 +5,9 @@ DoorData const doorData[] =
 {
     {GO_COURTYARD_DOOR, DATA_ASHBURY,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_SORCERER_DOOR,  DATA_VALDEN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
-    {GO_ARUGAL_DOOR,    DATA_VALDEN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},      
+    {GO_ARUGAL_DOOR,    DATA_VALDEN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+    {0,                 0,              DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+
 };
 
 class instance_shadowfang_keep : public InstanceMapScript

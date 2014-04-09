@@ -1844,6 +1844,9 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
     // Fix Item - Druid PvP Set Balance 4P Bonus
     if (m_spellInfo->Id == 131536 && spell->Id == 127663)
         return true;
+    // Glyph of Shadow Word: Death
+    if (m_spellInfo->Id == 120583 && spell->Id == 32379)
+        return true;
 
     return false;
 }
@@ -2314,9 +2317,9 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
 
         target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
 
-        WorldPacket data(SMSG_CLEAR_TARGET, 8);
-        data << uint64(target->GetGUID());
-        target->SendMessageUnfriendlyToSetInRange(&data, true);
+        //WorldPacket data(SMSG_CLEAR_TARGET, 8);
+        //data << uint64(target->GetGUID());
+        //target->SendMessageUnfriendlyToSetInRange(&data, true);
 
         Unit::AttackerSet const& attackers = target->getAttackers();
         for (Unit::AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
@@ -3156,6 +3159,16 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
+
+    switch (m_spellInfo->Id)
+    {
+        case 18498: // Silenced - Gag Order
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                return;
+            break;
+        default:
+            break;
+    }
 
     if (apply)
     {
@@ -7197,6 +7210,17 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             }
             case 106768:
                 return;
+            case 5740:  // Rain of Fire
+            {
+                if (caster && target)
+                {
+                    if (caster != target)
+                        return;
+                }
+                break;
+            }
+            default:
+                break;
         }
     }
 
@@ -7264,8 +7288,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 break;
             }
             // Custom MoP Script
-            case 172:   // Corruption
-                caster->EnergizeBySpell(caster, 172, 4, POWER_DEMONIC_FURY);
+            case 146739:// Corruption
+                caster->EnergizeBySpell(caster, 146739, 4, POWER_DEMONIC_FURY);
                 break;
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound
@@ -7498,9 +7522,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
                 // ... and deals instantly 100% of tick-damage for each affliction effects on the target
                 // Corruption ...
-                if (AuraPtr corruption = target->GetAura(172, caster->GetGUID()))
+                if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
                 {
-                    afflictionSpell = sSpellMgr->GetSpellInfo(172);
+                    afflictionSpell = sSpellMgr->GetSpellInfo(146739);
                     afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
