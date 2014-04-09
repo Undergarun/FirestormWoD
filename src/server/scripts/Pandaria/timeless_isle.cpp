@@ -180,7 +180,7 @@ class npc_kairoz : public CreatureScript
                             case EVENT_PRINCE_TALK_4:
                                 if (!princeAnduinList.empty())
                                     for (auto princeAnduin: princeAnduinList)
-                                        DoAction(ACTION_PRINCE_TALK_4);
+                                        princeAnduin->AI()->DoAction(ACTION_PRINCE_TALK_4);
                                 break;
                             case EVENT_KAIROZ_TALK_4:
                                 DoAction(ACTION_KAIROZ_TALK_4);
