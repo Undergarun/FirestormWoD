@@ -49,15 +49,10 @@ class mob_kor_thik_slicer : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 10000);
                 events.ScheduleEvent(EVENT_VITAL_STRIKES, 5000);
-                if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
-                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
             }
 
             void DamageTaken(Unit* killer, uint32& damage)
             {
-                if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
-                    me->ClearUnitState(UNIT_STATE_NOT_MOVE);
-
                 if(!eventScheduled)
                 {
                     if (me->HealthBelowPctDamaged(25, damage))
@@ -70,10 +65,7 @@ class mob_kor_thik_slicer : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -142,10 +134,7 @@ class mob_kor_thik_extremist : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -205,22 +194,11 @@ class mob_sra_thik_shield_master : public CreatureScript
                 events.ScheduleEvent(EVENT_SHIELD_SLAM, 26000);
                 events.ScheduleEvent(EVENT_STUNNING_STRIKE, 35000);
 
-                if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
-                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
-            }
-
-            void DamageTaken(Unit* attacker, uint32 &damage)
-            {
-                if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
-                    me->ClearUnitState(UNIT_STATE_NOT_MOVE);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -296,22 +274,11 @@ class mob_set_thik_swiftblade : public CreatureScript
                 events.ScheduleEvent(EVENT_BLURRING_SLASH, 7000);
                 events.ScheduleEvent(EVENT_RIPOSTE, 12000);
 
-                if (me->GetPositionY() > 348.5f && me->GetPositionY() < 403.3f)
-                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
-            }
-
-            void DamageTaken(Unit* attacker, uint32 &damage)
-            {
-                if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
-                    me->ClearUnitState(UNIT_STATE_NOT_MOVE);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -376,10 +343,7 @@ class mob_zar_thik_supplicant : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -442,10 +406,7 @@ class mob_enslaved_bonesmasher : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -501,10 +462,7 @@ class mob_set_thik_tempest : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -554,10 +512,7 @@ class mob_set_thik_fanatic : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -618,10 +573,7 @@ class mob_set_thik_zephyrian : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -669,10 +621,7 @@ class mob_set_thik_gale_slicer : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -721,10 +670,7 @@ class mob_instructor_kli_thak : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -780,10 +726,7 @@ class mob_instructor_tak_thok : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -833,10 +776,7 @@ class mob_zar_thik_zealot : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -892,10 +832,7 @@ class mob_kor_thik_swarmer : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -944,10 +881,7 @@ class mob_set_thik_gustwing : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -1003,10 +937,7 @@ class mob_coagulated_amber : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
@@ -1032,7 +963,59 @@ class mob_coagulated_amber : public CreatureScript
         }
 };
 
-// 123422 - Arterial Bleeding
+
+// 64355 - Kor'thik Silentwing
+class mob_kor_thik_silentwing : public CreatureScript
+{
+    public:
+        mob_kor_thik_silentwing() : CreatureScript("mob_kor_thik_silentwing") { }
+
+        struct mob_kor_thik_silentwingAI : public ScriptedAI
+        {
+            mob_kor_thik_silentwingAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 84677);
+                events.ScheduleEvent(EVENT_ICE_TRAP, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 id = events.ExecuteEvent())
+                {
+                    switch (id)
+                    {
+                        case EVENT_ICE_TRAP:
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_ICE_TRAP, true);
+                            events.ScheduleEvent(EVENT_ICE_TRAP, 22000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_kor_thik_silentwingAI(creature);
+        }
+};
+
 // 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
@@ -1088,5 +1071,6 @@ void AddSC_heart_of_fear()
     new mob_kor_thik_swarmer();
     new mob_set_thik_gustwing();
     new mob_coagulated_amber();
+    new mob_kor_thik_silentwing();
     new spell_vital_strikes();
 }

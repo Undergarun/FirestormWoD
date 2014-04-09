@@ -116,7 +116,330 @@ enum MonkSpells
     SPELL_MONK_CHI_BREW                         = 115399,
     SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636,
     SPELL_MONK_BREWMASTER_TRAINING              = 117967,
-    SPELL_MONK_POWER_GUARD                      = 118636
+    SPELL_MONK_POWER_GUARD                      = 118636,
+    SPELL_MONK_STORM_EARTH_AND_FIRE             = 137639
+};
+
+const uint32 spiritEntry[3] = { 69680,  69792,  69791  }; // Storm, Earth and Fire
+const uint32 summonsMonk[3] = { 138122, 138121, 138123 }; // Storm, Earth and Fire
+const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
+
+/*
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_monk_storm_earth_and_fire' OR ScriptName = 'spell_monk_storm_earth_and_fire_stats';
+INSERT INTO spell_script_names VALUES
+(137639, 'spell_monk_storm_earth_and_fire'),
+(138130, 'spell_monk_storm_earth_and_fire_stats');
+UPDATE creature_template SET ScriptName = 'npc_monk_spirit' WHERE entry IN (69680, 69791, 69792);
+*/
+
+// Storm, Earth and Fire - 138130
+class spell_monk_storm_earth_and_fire_stats : public SpellScriptLoader
+{
+    public:
+        spell_monk_storm_earth_and_fire_stats() : SpellScriptLoader("spell_monk_storm_earth_and_fire_stats") { }
+
+        class spell_monk_storm_earth_and_fire_stats_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_storm_earth_and_fire_stats_AuraScript);
+
+            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Unit* caster = GetCaster()->GetOwner())
+                {
+                    if (AuraEffectPtr stormAura = caster->GetAuraEffect(SPELL_MONK_STORM_EARTH_AND_FIRE, EFFECT_1))
+                    {
+                        if (aurEff->GetAmount() != stormAura->GetAmount())
+                            aurEff->ChangeAmount(stormAura->GetAmount());
+                    }
+                }
+            }
+
+            void CalculateReducedDamage(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (!GetCaster() || !GetCaster()->GetOwner())
+                    return;
+
+                if (Unit* owner = GetCaster()->GetOwner())
+                    if (AuraEffectPtr stormAura = owner->GetAuraEffect(SPELL_MONK_STORM_EARTH_AND_FIRE, EFFECT_1))
+                        amount = stormAura->GetAmount();
+            }
+
+            void CalculateHealing(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (!GetCaster() || !GetCaster()->GetOwner())
+                    return;
+
+                if (Unit* owner = GetCaster()->GetOwner())
+                    amount = owner->GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+            }
+
+            void CalculateAttackPower(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (!GetCaster() || !GetCaster()->GetOwner())
+                    return;
+
+                if (Unit* owner = GetCaster()->GetOwner())
+                    amount = owner->GetTotalAttackPowerValue(BASE_ATTACK);
+            }
+
+            void CalculateHaste(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (!GetCaster() || !GetCaster()->GetOwner())
+                    return;
+
+                if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        // Convert Owner's haste into the Spirit haste
+                        float ownerHaste = 1.0f  +  owner->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) *
+                                                    owner->GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+                        caster->ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
+                        caster->ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, ownerHaste, false);
+                        caster->ApplyPercentModFloatValue(UNIT_MOD_HASTE, ownerHaste, false);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_monk_storm_earth_and_fire_stats_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_storm_earth_and_fire_stats_AuraScript::CalculateReducedDamage, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_storm_earth_and_fire_stats_AuraScript::CalculateHealing, EFFECT_3, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_storm_earth_and_fire_stats_AuraScript::CalculateAttackPower, EFFECT_4, SPELL_AURA_MOD_ATTACK_POWER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_storm_earth_and_fire_stats_AuraScript::CalculateHaste, EFFECT_5, SPELL_AURA_MOD_MELEE_HASTE_3);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_storm_earth_and_fire_stats_AuraScript();
+        }
+};
+
+// Storm, Earth and Fire - 137639
+class spell_monk_storm_earth_and_fire : public SpellScriptLoader
+{
+    public:
+        spell_monk_storm_earth_and_fire() : SpellScriptLoader("spell_monk_storm_earth_and_fire") { }
+
+        class spell_monk_storm_earth_and_fire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_storm_earth_and_fire_SpellScript);
+
+            uint8 summonsCount;
+            uint8 firstSpirit;
+
+            bool Load()
+            {
+                summonsCount = 0;
+                firstSpirit  = 3;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        for (uint8 i = 0; i < 3; ++i)
+                        {
+                            for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                            {
+                                if ((*itr)->GetEntry() == spiritEntry[i])
+                                {
+                                    ++summonsCount;
+
+                                    if (firstSpirit == 3)
+                                        firstSpirit = i;
+                                }
+                            }
+                        }
+
+                        if (!summonsCount)
+                            caster->CastSpell(caster, visualMorph[urand(0, 2)], true);
+
+                        ++summonsCount;
+
+                        // Find summonned spirit
+                        for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                        {
+                            if (Creature* spirit = (*itr)->ToCreature())
+                            {
+                                if (spirit->AI() && spirit->AI()->GetGUID() == target->GetGUID())
+                                {
+                                    spirit->AI()->DoAction(0);
+                                    return;
+                                }
+                            }
+                        }
+
+                        Unit* spiritRemoved = NULL;
+                        if (summonsCount > 2)
+                        {
+                            for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                            {
+                                if ((*itr)->GetEntry() == spiritEntry[firstSpirit])
+                                {
+                                    if (Creature* spirit = (*itr)->ToCreature())
+                                    {
+                                        spirit->GetMotionMaster()->Clear();
+                                        spirit->GetMotionMaster()->MoveJump(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 15.0f, 10.0f, spirit->GetOrientation(), 1);
+                                        spiritRemoved = spirit->ToUnit();
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        Unit* pPet = NULL;
+                        if (spiritRemoved)
+                        {
+                            for (uint8 i = 0; i < 3; ++i)
+                            {
+                                if (spiritEntry[i] == spiritRemoved->GetEntry())
+                                {
+                                    caster->CastSpell(caster, summonsMonk[i], true);
+
+                                    // Find summonned spirit
+                                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                                    {
+                                        if ((*itr)->GetEntry() == spiritEntry[i] && (*itr) != spiritRemoved)
+                                        {
+                                            pPet = *itr;
+                                            break;
+                                        }
+                                    }
+
+                                    if (pPet && pPet->GetAI())
+                                        pPet->GetAI()->SetGUID(target->GetGUID());
+
+                                    return;
+                                }
+                            }
+                        }
+
+                        for (uint8 i = 0; i < 3; ++i)
+                        {
+                            if (caster->HasAura(visualMorph[i]))
+                                continue;
+
+                            if (firstSpirit < 3 && firstSpirit == i)
+                                continue;
+
+                            caster->CastSpell(caster, summonsMonk[i], true);
+
+                            // Find summonned spirit
+                            for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                            {
+                                if ((*itr)->GetEntry() == spiritEntry[i] && (*itr) != spiritRemoved)
+                                {
+                                    pPet = *itr;
+                                    break;
+                                }
+                            }
+
+                            if (pPet && pPet->GetAI())
+                                pPet->GetAI()->SetGUID(target->GetGUID());
+
+                            if (firstSpirit == 3)
+                                firstSpirit = i;
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_storm_earth_and_fire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_storm_earth_and_fire_SpellScript();
+        }
+
+        class spell_monk_storm_earth_and_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_storm_earth_and_fire_AuraScript);
+
+            void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    uint8 count = 0;
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == 69680 || (*itr)->GetEntry() == 69792 || (*itr)->GetEntry() == 69791)
+                            ++count;
+
+                    if (!count)
+                    {
+                        caster->RemoveAura(GetSpellInfo()->Id);
+                        return;
+                    }
+
+                    if (AuraPtr stormAura = caster->GetAura(GetSpellInfo()->Id))
+                    {
+                        if (count != stormAura->GetStackAmount())
+                            stormAura->SetStackAmount(count);
+
+                        if (stormAura->GetStackAmount() > 1)
+                        {
+                            stormAura->GetEffect(1)->ChangeAmount(-70);
+                            stormAura->GetEffect(2)->ChangeAmount(-70);
+                            stormAura->GetEffect(3)->ChangeAmount(-70);
+                            stormAura->GetEffect(4)->ChangeAmount(-70);
+                        }
+                        else
+                        {
+                            stormAura->GetEffect(1)->ChangeAmount(-30);
+                            stormAura->GetEffect(2)->ChangeAmount(-30);
+                            stormAura->GetEffect(3)->ChangeAmount(-30);
+                            stormAura->GetEffect(4)->ChangeAmount(-30);
+                        }
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    for (uint8 i = 0; i < 3; ++i)
+                        caster->RemoveAura(visualMorph[i]);
+
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->GetEntry() == 69680 || (*itr)->GetEntry() == 69792 || (*itr)->GetEntry() == 69791)
+                        {
+                            if (Creature* spirit = (*itr)->ToCreature())
+                            {
+                                spirit->GetMotionMaster()->Clear();
+                                spirit->GetMotionMaster()->MoveJump(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 15.0f, 10.0f, spirit->GetOrientation(), 1);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_monk_storm_earth_and_fire_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_storm_earth_and_fire_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_storm_earth_and_fire_AuraScript();
+        }
 };
 
 // Called by Tiger Palm - 100787
@@ -3361,6 +3684,8 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_storm_earth_and_fire_stats();
+    new spell_monk_storm_earth_and_fire();
     new spell_monk_brewmaster_training_tiger_palm();
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();

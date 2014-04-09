@@ -6182,6 +6182,8 @@ void Spell::TakePower()
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_POWER))
             return;
     }
+    else if (m_caster->GetEntry() == 69680 || m_caster->GetEntry() == 69792 || m_caster->GetEntry() == 69791)
+        return;
 
     Powers powerType = Powers(m_spellPowerData->powerType);
     bool hit = true;
@@ -7388,6 +7390,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_AURA_MOD_POSSESS_PET:
             {
+                // Storm, Earth and Fire (for spirits)
+                if (m_spellInfo->Id == 138130)
+                    break;
+
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_NO_PET;
 

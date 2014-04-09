@@ -59,12 +59,7 @@ enum eSpells
     SPELL_TEMPEST_SLASH         = 122842,
     SPELL_TEMPEST_TARGET        = 122838,
     SPELL_TEMPEST_GESTURE       = 122850,
-    SPELL_TEMPEST_VISUAL        = 122854,
-    SPELL_UNSEEN_STRIKE         = 122994,
     SPELL_WIND_STEP_2           = 123175,
-    SPELL_WIND_STEP_HIT         = 123459,
-    SPELL_WIND_STEP_3           = 123460,
-    SPELL_INTENSIFY             = 123471,
     SPELL_OVERWHELMING_ASSAULT  = 123474,
     SPELL_BLADE_TEMPEST         = 125310,
     SPELL_STORM_UNLEASHED       = 123815,
@@ -165,7 +160,7 @@ enum eCreatures
     // Ta'yak
     NPC_TAYAK                       = 62543,
     NPC_TEMPEST_TARGET              = 62897,
-    NPC_TEMPEST_STALKER             = 62908,
+    NPC_TEMPEST_STALKER             = 64373, //62908,
     NPC_STORM_UNLEASHED_EAST1       = 63301,
     NPC_STORM_UNLEASHED_EAST2       = 63302,
     NPC_STORM_UNLEASHED_EAST3       = 63303,
@@ -215,7 +210,7 @@ enum eGameObjects
 enum ePhases
 {
     PHASE_ZORLOK1                   = 1,
-    PHASE_ZORLOK2                   = 4, // value '4' needed, don't change it!
+    PHASE_ZORLOK2                   = 4, // value '4' needed, DON'T CHANGE IT !!!
 
     PHASE_TAYAK1                    = 2,
     PHASE_TAYAK2                    = 3,
@@ -244,13 +239,13 @@ enum eEvents
     EVENT_CONVERT                   = 11,
 
     // Ta'yak
-    EVENT_TEMPEST_SLASH             = 15,
-    EVENT_TAYAK_WIND_STEP           = 16,
-    EVENT_UNSEEN_STRIKE             = 17,
+    // EVENT_TEMPEST_SLASH             = 15,
+    // EVENT_TAYAK_WIND_STEP           = 16,
+    // EVENT_UNSEEN_STRIKE             = 17,
     EVENT_INTENSIFY                 = 18,
     EVENT_TAYAK_OVERW_ASSAULT       = 19,
-    EVENT_BLADE_TEMPEST             = 20,
-    EVENT_STORM_UNLEASHED           = 21,
+    // EVENT_BLADE_TEMPEST             = 20,
+    // EVENT_STORM_UNLEASHED           = 21,
     EVENT_TEMPEST_MOVE              = 22,
 
     // Sonic Ring
@@ -290,9 +285,10 @@ enum eEvents
 enum eTypes
 {
     // Tayak
-    TYPE_NEW_STORMID        = 1,
-    TYPE_CURRENT_STORMID    = 2,
-    TYPE_TARGET_ID          = 3,
+    TYPE_STORM_POINT    = 1,
+    TYPE_PHASE_TAYAK    = 2,
+    TYPE_STORM_PHASE    = 3,
+
 };
 
 #define DISPLAYID_INVISIBLE 11686

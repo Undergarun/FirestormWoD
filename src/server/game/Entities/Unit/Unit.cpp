@@ -8992,6 +8992,44 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
+                case 137639:// Storm, Earth and Fire
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (effIndex != 2)
+                        return false;
+
+                    if (!damage || !procSpell)
+                        return false;
+
+                    Unit* firstSpirit = NULL;
+                    Unit* secondSpirit = NULL;
+
+                    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr) // Find spirits
+                    {
+                        if ((*itr)->GetEntry() == 69680 || (*itr)->GetEntry() == 69792 || (*itr)->GetEntry() == 69791)
+                        {
+                            if (!firstSpirit)
+                            {
+                                firstSpirit = *itr;
+                                continue;
+                            }
+                            if (!secondSpirit)
+                            {
+                                secondSpirit = *itr;
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (firstSpirit && (firstSpirit->getVictim() || getVictim()))
+                        firstSpirit->CastSpell(firstSpirit->getVictim() ? firstSpirit->getVictim() : getVictim(), procSpell->Id, true);
+                    if (secondSpirit && (secondSpirit->getVictim() || getVictim()))
+                        secondSpirit->CastSpell(secondSpirit->getVictim() ? secondSpirit->getVictim() : getVictim(), procSpell->Id, true);
+
+                    return true;
+                }
             }
             break;
         }

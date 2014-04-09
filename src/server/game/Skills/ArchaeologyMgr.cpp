@@ -272,7 +272,7 @@ void ArchaeologyMgr::ShowResearchSites()
     for (ResearchSiteSet::const_iterator itr = tempSet.begin(); itr != tempSet.end(); ++itr)
     {
         uint32 id = (*itr);
-        if (CanResearchWithLevel((*itr)) == RS_RESULT_HIDE)
+        if (CanResearchWithLevel(id) == RS_RESULT_HIDE)
             id = 0;
 
         _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, count, id);
@@ -284,6 +284,8 @@ void ArchaeologyMgr::ShowResearchSites()
                 _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, _digSites[i].count);
                 break;
             }
+            else
+                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, 0);
         }
 
         ++count;
@@ -292,65 +294,6 @@ void ArchaeologyMgr::ShowResearchSites()
 
 void ArchaeologyMgr::ShowResearchProjects()
 {
-// tmp disable
-/*
-==20514== ERROR: AddressSanitizer: global-buffer-overflow on address 0x0000033dfacc at pc 0x144edfa bp 0x7feae75e17c0 sp 0x7feae75e17b8
-READ of size 1 at 0x0000033dfacc thread T30
-llvm-symbolizer: Unknown command line argument '--default-arch=i386'.  Try: 'llvm-symbolizer -help'
-llvm-symbolizer: Did you mean '-disable-ssc=i386'?
-    #0 0x144edf9 in _ZN14ArchaeologyMgr24GenerateResearchProjectsEv /root/Garrosh/src/server/game/Skills/ArchaeologyMgr.cpp:461
-    #1 0x144f0a5 in _ZN14ArchaeologyMgr16ValidateProjectsEv /root/Garrosh/src/server/game/Skills/ArchaeologyMgr.cpp:781
-    #2 0x1450389 in _ZN14ArchaeologyMgr15LoadArchaeologyEN8JadeCore7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEES4_ /root/Garrosh/src/server/game/Skills/ArchaeologyMgr.cpp:719
-    #3 0xe51946 in _ZN6Player10LoadFromDBEjP14SQLQueryHolderN8JadeCore7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEE /root/Garrosh/src/server/game/Entities/Player/Player.cpp:19690 (discriminator 2)
-    #4 0x17f9873 in _ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolderN8JadeCore7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEE /root/Garrosh/src/server/game/Handlers/CharacterHandler.cpp:1014 (discriminator 2)
-    #5 0x143ab7b in _ZN12WorldSession21ProcessQueryCallbacksEv /root/Garrosh/src/server/game/Server/WorldSession.cpp:1159
-    #6 0x143ede7 in _ZN12WorldSession6UpdateEjR12PacketFilter /root/Garrosh/src/server/game/Server/WorldSession.cpp:461
-    #7 0x1604ec5 in _ZN5World14UpdateSessionsEj /root/Garrosh/src/server/game/World/World.cpp:2918
-    #8 0x16082fa in _ZN5World6UpdateEj /root/Garrosh/src/server/game/World/World.cpp:2206
-    #9 0xaafc14 in _ZN13WorldRunnable3runEv /root/Garrosh/src/server/worldserver/WorldThread/WorldRunnable.cpp:60
-    #10 0x1a6a092 in _ZN9ACE_Based6Thread10ThreadTaskEPv /root/Garrosh/src/server/shared/Threading/Threading.cpp:183
-    #11 0x7feb1e3eb585 in _ZN21ACE_OS_Thread_Adapter6invokeEv /root/ACE_wrappers/obj/ace/../../ace/OS_Thread_Adapter.cpp:103
-    #12 0x7feb1e8f1aa7 in __asan_describe_address ??:?
-    #13 0x7feb1ccc4e0d in start_thread /build/eglibc-TepTGA/eglibc-2.17/nptl/pthread_create.c:311
-    #14 0x7feb1c9f993c in clone /build/eglibc-TepTGA/eglibc-2.17/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:113
-0x0000033dfacc is located 52 bytes to the left of global variable 'piecewise_construct (/root/Garrosh/src/server/game/Skills/ArchaeologyMgr.cpp)' (0x33dfb00) of size 1
-  'piecewise_construct (/root/Garrosh/src/server/game/Skills/ArchaeologyMgr.cpp)' is ascii string ''
-0x0000033dfacc is located 0 bytes to the right of global variable '_races (/root/Garrosh/src/server/game/Skills/ArchaeologyMgr.cpp)' (0x33dfac0) of size 12
-Shadow bytes around the buggy address:
-  0x000080673f00: f9 f9 f9 f9 00 00 00 00 00 00 05 f9 f9 f9 f9 f9
-  0x000080673f10: 00 00 00 04 f9 f9 f9 f9 00 00 00 00 00 00 00 00
-  0x000080673f20: 06 f9 f9 f9 f9 f9 f9 f9 00 00 00 00 00 00 00 00
-  0x000080673f30: 02 f9 f9 f9 f9 f9 f9 f9 07 f9 f9 f9 f9 f9 f9 f9
-  0x000080673f40: 06 f9 f9 f9 f9 f9 f9 f9 00 00 06 f9 f9 f9 f9 f9
-=>0x000080673f50: 00 00 f9 f9 f9 f9 f9 f9 00[04]f9 f9 f9 f9 f9 f9
-  0x000080673f60: 01 f9 f9 f9 f9 f9 f9 f9 00 00 00 00 00 02 f9 f9
-  0x000080673f70: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 06 f9 f9
-  0x000080673f80: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 07 f9
-  0x000080673f90: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 03
-  0x000080673fa0: f9 f9 f9 f9 00 03 f9 f9 f9 f9 f9 f9 00 00 04 f9
-Shadow byte legend (one shadow byte represents 8 application bytes):
-  Addressable:           00
-  Partially addressable: 01 02 03 04 05 06 07
-  Heap left redzone:     fa
-  Heap righ redzone:     fb
-  Freed Heap region:     fd
-  Stack left redzone:    f1
-  Stack mid redzone:     f2
-  Stack right redzone:   f3
-  Stack partial redzone: f4
-  Stack after return:    f5
-  Stack use after scope: f8
-  Global redzone:        f9
-  Global init order:     f6
-  Poisoned by user:      f7
-  ASan internal:         fe
-Thread T30 created by T0 here:
-    #0 0x7feb1e8e3afb in __interceptor_pthread_create ??:?
-    #1 0x7feb1e3e8b29 in _ZN6ACE_OS10thr_createEPFPvS0_ES0_lPmS3_lS0_mP23ACE_Base_Thread_AdapterPPKc /root/ACE_wrappers/obj/ace/../../ace/OS_NS_Thread.cpp:4182
-==20514== ABORTING
-
-*/
-return;
     if (!_player->GetSkillValue(SKILL_ARCHAEOLOGY))
         return;
 
@@ -363,11 +306,9 @@ return;
         {
             newvalue |= (*itr);
             _player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + count / 2, newvalue);
-        }
-        else if (count == 11)
-        {
-            _player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + count / 2, (*itr));
-            break;
+
+            if (count == 15)
+                break;
         }
         else
             newvalue = (*itr) << 16;
@@ -576,8 +517,13 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     // Check for project id
     ResearchProjectEntry const* entry = NULL;
     for (std::set<ResearchProjectEntry const*>::const_iterator itr = sResearchProjectSet.begin(); itr != sResearchProjectSet.end(); ++itr)
+    {
         if ((*itr)->ID == projectId)
+        {
             entry = (*itr);
+            break;
+        }
+    }
     
     if (!entry)
         return false;

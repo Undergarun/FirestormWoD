@@ -278,6 +278,12 @@ class boss_spirit_kings_controler : public CreatureScript
                         spiritKingsEntry[i] = tmpEntry;
                     }
                 }
+                if (pInstance)
+                {
+                    EncounterState bossState = pInstance->GetBossState(DATA_SPIRIT_KINGS);
+                    if (bossState != DONE && bossState != NOT_STARTED)
+                        pInstance->SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
+                }
             }
 
             InstanceScript* pInstance;
@@ -536,7 +542,37 @@ class boss_spirit_kings_controler : public CreatureScript
                             if (pInstance->IsWipe())
                             {
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
-                                Reset();
+                                // Reset each spirit
+                                for (uint8 i = 0; i < 4; ++i)
+                                {
+                                    if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritsOrder[i])))
+                                    {
+                                        spirit->RemoveAura(SPELL_INACTIVE_STUN);
+                                        spirit->ClearUnitState(UNIT_STATE_NOT_MOVE);
+                                        spirit->GetMotionMaster()->MoveTargetedHome();
+                                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, spirit);
+                                    }
+                                }
+
+                                fightInProgress   = false;
+                                _introZianDone    = false;
+                                _introSubetaiDone = false;
+                                _introMengDone    = false;
+                                vanquishedCount   = 0;
+                                nextSpirit        = 0;
+
+                                for (uint8 i = 0; i < MAX_FLANKING_MOGU; ++i)
+                                    flankingGuid[i] = 0;
+
+                                if (pInstance)
+                                    if (Creature* Qiang = pInstance->instance->GetCreature(pInstance->GetData64(NPC_QIANG)))
+                                        Qiang->AI()->DoAction(ACTION_FIRST_FIGHT);
+
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
+
+                                summons.DespawnAll();
                             }
                             else
                                 events.ScheduleEvent(EVENT_CHECK_WIPE, 2500);
@@ -627,6 +663,27 @@ class boss_spirit_kings : public CreatureScript
             {
                 if (pInstance)
                     pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
+
+                if (me->GetEntry() != NPC_QIANG)
+                {
+                    me->AddAura(SPELL_INACTIVE, me);
+                    me->AddAura(SPELL_INACTIVE_STUN, me);
+
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                }
+                shadowCount = 0;
+                maxShadowCount = 3;
+
+                vanquished        = false;
+                _introQiangDone   = false;
+                lowLife           = false;
+                preEventDone      = false;
+
+                summons.DespawnAll();
+
+                me->SetFullHealth();
+                if (!me->isAlive())
+                    me->Respawn(true);
             }
 
             Creature* GetControler()
@@ -652,21 +709,20 @@ class boss_spirit_kings : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
-                if (!pInstance->CheckRequiredBosses(DATA_SPIRIT_KINGS))
-                {
-                    EnterEvadeMode();
-                    return;
-                }
 
                 if (pInstance)
                 {
+                    if (!pInstance->CheckRequiredBosses(DATA_SPIRIT_KINGS))
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     pInstance->SetBossState(DATA_SPIRIT_KINGS, IN_PROGRESS);
 
                     DoAction(ACTION_CHECK_SPIRITKINGS);
 
-                    if (!pInstance->CheckRequiredBosses(DATA_SPIRIT_KINGS))
-                        pInstance->DoCastSpellOnPlayers(7); // Suicide
                 }
 
                 switch (me->GetEntry())
@@ -841,6 +897,7 @@ class boss_spirit_kings : public CreatureScript
                     me->getThreatManager().resetAllAggro();
                     me->SetSpeed(MOVE_RUN, 0.0f, true);
                     me->SetSpeed(MOVE_WALK, 0.0f, true);
+                    me->AddUnitState(UNIT_STATE_NOT_MOVE);
 
                     if (pInstance)
                         pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

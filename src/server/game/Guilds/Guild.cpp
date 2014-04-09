@@ -3007,11 +3007,15 @@ void Guild::AutoStoreItemInInventory(Player* player, uint8 tabId, uint8 slotId, 
         return;
     }
 
+    if (_GetMemberRemainingSlots(player->GetGUID(), tabId) == 0)
+        return;
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     if (BankTab* tab = GetBankTab(tabId))
         tab->SetItem(trans, slotId, NULL);
 
+    _DecreaseMemberRemainingSlots(trans, player->GetGUID(), tabId);
     _LogBankEvent(trans, GUILD_BANK_LOG_MOVE_ITEM, tabId, player->GetGUIDLow(), item->GetEntry(), amount, 0);
 
     CharacterDatabase.CommitTransaction(trans);

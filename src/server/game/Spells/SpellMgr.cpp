@@ -3416,6 +3416,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 137639:// Storm, Earth and Fire
+                spellInfo->AttributesCu &= ~(SPELL_ATTR0_CU_NEGATIVE_EFF1|SPELL_ATTR0_CU_NEGATIVE_EFF0);
+                break;
+            case 138130:// Storm, Earth and Fire (for spirits)
+                spellInfo->Effects[0].Effect = 0;
+                break;
             case 5740:  // Rain of Fire
             case 104232:// Rain of Fire (Aftermath)
                 spellInfo->Effects[0].TargetB = 0;
@@ -3432,8 +3438,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
-                spellInfo->Effects[0].BasePoints = 30;
-                spellInfo->Effects[1].BasePoints = 30;
+                spellInfo->Effects[0].BasePoints = -30;
+                spellInfo->Effects[1].BasePoints = -30;
                 break;
             case 103965:// Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
@@ -4066,6 +4072,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 27285: // Seed of Corruption
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 Yards
                 break;
+            case 104220:// Soulburn : Health Funnel
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 87385: // Soulburn : Seed of Corruption - damage
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); // 10 Yards
@@ -4183,6 +4193,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 351;
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 122853:// Tempest Slash
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->Effects[0].BasePoints = urand(190000, 210000);
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_KNOCK_BACK;
+                spellInfo->Effects[1].BasePoints = 75;
+                spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[1].MiscValue = 150;
+                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[2].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
@@ -4514,6 +4539,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81751: // Atonement
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 47515: // Divine Aegis
+                spellInfo->Effects[0].BasePoints = 50;
                 break;
             case 108201:// Desecrated Ground
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -4898,15 +4926,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 120552:// Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
-                break;
-            case 132404:// Shield Block
-                spellInfo->ProcCharges = 2;
-                break;
-            case 107570:// Storm Bolt
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_STUN;
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(35); // 4s
-                spellInfo->Mechanic = MECHANIC_STUN;
                 break;
             case 119684:// Ground Slam
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_24;

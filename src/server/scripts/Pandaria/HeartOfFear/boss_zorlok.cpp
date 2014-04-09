@@ -149,7 +149,7 @@ class boss_zorlok : public CreatureScript
                 isActive = false;
                 if (pInstance)
                 {
-                    bool bossState = pInstance->GetBossState(DATA_ZORLOK);
+                    EncounterState bossState = pInstance->GetBossState(DATA_ZORLOK);
                     if (bossState != DONE && bossState != NOT_STARTED)
                         pInstance->SetBossState(DATA_ZORLOK, NOT_STARTED);
                 }

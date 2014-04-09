@@ -259,7 +259,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
-    BuildDynamicValuesUpdate(&buf);
+    BuildDynamicValuesUpdate(updateType, &buf);
 
     data->AddUpdateBlock(buf);
 }
@@ -295,7 +295,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
-    BuildDynamicValuesUpdate(&buf);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf);
 
     data->AddUpdateBlock(buf);
 }
@@ -800,7 +800,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     data->append(fieldBuffer);
 }
 
-void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
+void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data) const
 {
     // Crashfix, prevent use of bag with dynamic field
     Item* temp = ((Item*)this);
@@ -826,7 +826,8 @@ void Object::BuildDynamicValuesUpdate(ByteBuffer* data) const
 
         for (int index = 0; index < DynamicFields::Count; ++index)
         {
-            if (!_dynamicFields[i]._dynamicChangedFields[index])
+            if (updateType == UPDATETYPE_VALUES ? (!_dynamicFields[i]._dynamicChangedFields[index])
+                                                : (!_dynamicFields[i]._dynamicValues[index]))
                 continue;
 
             dynamicTabMask |= 1 << i;

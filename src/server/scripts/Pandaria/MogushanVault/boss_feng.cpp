@@ -1533,6 +1533,7 @@ void AddSC_boss_feng()
     new mob_soul_fragment();
     new spell_mogu_epicenter();
     new spell_mogu_wildfire_spark();
+    new spell_wildfire_spark();
     new spell_wildfire_infusion_stacks();
     new spell_mogu_wildfire_infusion();
     new spell_draw_flame();
