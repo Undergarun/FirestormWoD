@@ -64,7 +64,6 @@ struct ProjectCost
 
 struct CompletedProject
 {
-    uint32 projectId;
     uint32 count;
     uint32 first_date;
 };
@@ -75,7 +74,7 @@ typedef std::map<uint32, ProjectSet> Projects;
 
 typedef std::set<uint32> ResearchSiteSet;
 typedef std::set<uint32> ResearchProjectSet;
-typedef std::list<CompletedProject> CompletedProjectSet;
+typedef std::map<uint32, CompletedProject> CompletedProjectMap;
 
 class ArchaeologyMgr
 {
@@ -100,7 +99,7 @@ class ArchaeologyMgr
         bool SolveResearchProject(uint32 projectId);
         uint32 GetSurveyBotEntry(float &orientation);
 
-        CompletedProjectSet GetCompletedProjects() { return _completedProjects; }
+        CompletedProjectMap& GetCompletedProjects() { return _completedProjects; }
 
         void GenerateResearchProjects();
         void GenerateResearchSites();
@@ -121,7 +120,7 @@ class ArchaeologyMgr
         DigitSite _digSites[20];
         ResearchSiteSet _researchSites[5];
         ResearchProjectSet _researchProjects;
-        CompletedProjectSet _completedProjects;
+        CompletedProjectMap _completedProjects;
         bool _archaeologyChanged;
 
         bool HasResearchSite(uint32 id, uint32 mapId) const
@@ -146,7 +145,6 @@ class ArchaeologyMgr
         bool GenerateDigitLoot(uint16 zoneid, DigitSite &site);
         
         uint16 GetResearchSiteID();
-        bool IsCompletedProject(uint32 id);
         
         void GenerateResearchSiteInMap(uint32 mapId, uint32 map);
         ResearchWithLevelResult CanResearchWithLevel(uint32 siteId);
