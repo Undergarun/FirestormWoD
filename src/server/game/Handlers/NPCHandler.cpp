@@ -370,6 +370,12 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     SendTrainerService(guid, spellId, 2);
 
+    // Archaeology
+    if (spellId == 78670)
+    {
+        _player->GetArchaeologyMgr().GenerateResearchSites();
+        _player->GetArchaeologyMgr().GenerateResearchProjects();
+    }
 }
 
 void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
