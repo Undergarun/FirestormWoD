@@ -44,7 +44,7 @@ enum CreatureIds
     NPC_NERUBIAN_FLYER      = 55573,
 };
 
-const Position questPos[3] = 
+const Position questPos[3] =
 {
     {551.382751f, 271.983917f, 223.45f, 4.73f}, // Reclaimer Azak
     {567.213135f, 265.146698f, 223.45f, 3.88f}, // Azjol-Anak Warrior

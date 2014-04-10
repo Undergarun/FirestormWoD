@@ -1720,6 +1720,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
 void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 {
+    sLog->OutPandashan("Group::NeedBeforeGreed: lootedObject[entry: %u, type: %u]", lootedObject->GetEntry(), lootedObject->GetTypeId());
     ItemTemplate const* item;
     uint8 itemSlot = 0;
     for (std::vector<LootItem>::iterator i = loot->items.begin(); i != loot->items.end(); ++i, ++itemSlot)
@@ -3278,7 +3279,7 @@ void Group::SendRaidMarkersUpdate()
     // @TODO: Send in classic order instead of summon order
     for (auto itr : GetRaidMarkers())
     {
-        ObjectGuid guid = NULL;
+        ObjectGuid guid = 0;
 
         uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
         data.WriteBitInOrder(guid, bits);

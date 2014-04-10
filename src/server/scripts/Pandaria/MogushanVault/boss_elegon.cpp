@@ -560,7 +560,7 @@ class boss_elegon : public CreatureScript
 
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveLand(2, middlePos);
-                
+
                 if (pInstance)
                 {
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
@@ -1040,7 +1040,7 @@ class mob_celestial_protector : public CreatureScript
                 if (me->GetHealth() < damage)
                 {
                     damage = 0;
-                    
+
                     if (!totalAnnihilationCasted)
                     {
                         me->CastSpell(me, SPELL_TOTAL_ANNIHILATION, false);
@@ -1056,9 +1056,9 @@ class mob_celestial_protector : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                
+
                 events.Update(diff);
-                
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -1141,7 +1141,7 @@ class mob_cosmic_spark : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                
+
                 // if (Player* player = me->SelectNearestPlayerNotGM())
                 if (Unit* player = SelectTarget(SELECT_TARGET_NEAREST))
                     AttackStart(player);
@@ -1154,7 +1154,7 @@ class mob_cosmic_spark : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 events.Update(diff);
-                
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)

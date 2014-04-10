@@ -902,7 +902,8 @@ class mob_woe_add_generic : public CreatureScript
                 me->RemoveAllAuras();
 
                 if (me->GetEntry() == NPC_EMPEROR_COURAGE)
-                    ObjectAccessor::FindPlayer(targetGuid)->RemoveAura(SPELL_FOCALISED_ENERGY);
+                    if (Player* target = ObjectAccessor::FindPlayer(targetGuid))
+                        target->RemoveAura(SPELL_FOCALISED_ENERGY);
             }
 
             void DoAction(const int32 action)

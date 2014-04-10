@@ -95,7 +95,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 bidError)
 {
     ObjectGuid guid = 0;
-    
+
     WorldPacket data(SMSG_AUCTION_COMMAND_RESULT);
     data << uint32(action);
     data << uint32(errorCode);
@@ -759,7 +759,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[2]);
     recvData.ReadByteSeq(guid[3]);
     recvData.ReadByteSeq(guid[7]);
-    
+
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {

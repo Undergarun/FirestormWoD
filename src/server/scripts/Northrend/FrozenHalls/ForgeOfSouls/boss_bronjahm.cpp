@@ -145,7 +145,7 @@ class boss_bronjahm : public CreatureScript
                 summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
                 soulCount++;
             }
-            
+
             void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
             {
                 if (soulCount > 0)
@@ -250,7 +250,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
 
                         if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
                         {
-                            if (me->GetDistance2d(bronjahm->GetPositionX(), bronjahm->GetPositionY()) <= 2.0f) 
+                            if (me->GetDistance2d(bronjahm->GetPositionX(), bronjahm->GetPositionY()) <= 2.0f)
                             {
                                 me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
                                 bronjahm->AI()->DoAction(ACTION_SUMMON_DIE);
