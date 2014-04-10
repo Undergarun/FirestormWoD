@@ -719,10 +719,7 @@ class spell_monk_chi_wave_bolt : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (!GetOriginalCaster())
-                    return;
-
-                if (Unit* _player = GetOriginalCaster()->ToPlayer())
+                if (Unit* _player = GetOriginalCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
