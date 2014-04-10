@@ -84,6 +84,7 @@ class ArchaeologyMgr
             for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
                 _digSites[i].clear();
         }
+
         ~ArchaeologyMgr() { }
 
         void LoadArchaeology(PreparedQueryResult result, PreparedQueryResult resultProjects);
