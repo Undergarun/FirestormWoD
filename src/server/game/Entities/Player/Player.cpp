@@ -30255,10 +30255,6 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
             if (!HasAura(108499))
                 AddAura(108499, this);
             break;
-        case 108505:// Archimonde's Vengeance
-            if (!HasAura(116403))
-                CastSpell(this, 116403, true); // Passive
-            break;
         case 119049:// Kil'Jaeden's Cunning
             if (!HasAura(108507))
                 CastSpell(this, 108507, true); // Passive
@@ -30291,9 +30287,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
             break;
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
-            break;
-        case 108505:// Archimonde's Vengeance
-            RemoveAura(116403);
             break;
         case 119049:// Kil'Jaeden's Cunning
             RemoveAura(108507);

@@ -82,9 +82,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CALL                    = 114925,
     WARLOCK_DECIMATE_AURA                   = 108869,
     WARLOCK_SOUL_LEECH_AURA                 = 108370,
-    WARLOCK_ARCHIMONDES_VENGEANCE_COOLDOWN  = 116405,
-    WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE    = 124051,
-    WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE   = 116403,
     WARLOCK_SOUL_LINK_DUMMY_AURA            = 108446,
     WARLOCK_GLYPH_OF_CONFLAGRATE            = 56235,
     WARLOCK_SHIELD_OF_SHADOW                = 115232,
@@ -1158,175 +1155,6 @@ class spell_warl_soul_link : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_soul_link_SpellScript();
-        }
-};
-
-// Archimonde's Vengeance (Cooldown marker) - 108505
-class spell_warl_archimondes_vengeance_cooldown : public SpellScriptLoader
-{
-    public:
-        spell_warl_archimondes_vengeance_cooldown() : SpellScriptLoader("spell_warl_archimondes_vengeance_cooldown") { }
-
-        class spell_warl_archimondes_vengeance_cooldown_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_archimondes_vengeance_cooldown_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetHitUnit())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (!_player->HasSpellCooldown(WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE))
-                        _player->AddSpellCooldown(WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE, 0, time(NULL) + 120);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_archimondes_vengeance_cooldown_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_archimondes_vengeance_cooldown_SpellScript();
-        }
-};
-
-// Archimonde's Vengeance - 108505
-class spell_warl_archimondes_vengance : public SpellScriptLoader
-{
-    public:
-        spell_warl_archimondes_vengance() : SpellScriptLoader("spell_warl_archimondes_vengance") { }
-
-        class spell_warl_archimondes_vengance_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_archimondes_vengance_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                if (!GetTarget())
-                    return;
-
-                std::list<Unit*> tempList;
-                std::list<Unit*> targetList;
-                Unit* target = NULL;
-
-                GetCaster()->GetAttackableUnitListInRange(tempList, 100.0f);
-
-                if (tempList.empty())
-                    return;
-
-                for (auto itr : tempList)
-                {
-                    if (itr->GetGUID() == GetCaster()->GetGUID())
-                        continue;
-
-                    if (itr->HasAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        targetList.push_back(itr);
-                }
-
-                if (targetList.empty())
-                    return;
-
-                if (targetList.size() > 1)
-                    return;
-
-                for (auto itr : targetList)
-                    target = itr;
-
-                if (!target)
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() == GetTarget()->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (target->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
-                    {
-                        int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() / 4);
-
-                        if (!bp)
-                            return;
-
-                        _player->CastCustomSpell(target, WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE, &bp, NULL, NULL, true);
-                    }
-                }
-
-                tempList.clear();
-                targetList.clear();
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_archimondes_vengance_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_archimondes_vengance_AuraScript();
-        }
-};
-
-// Archimonde's Vengeance (5% passive) - 116403
-class spell_warl_archimondes_vengance_passive : public SpellScriptLoader
-{
-    public:
-        spell_warl_archimondes_vengance_passive() : SpellScriptLoader("spell_warl_archimondes_vengance_passive") { }
-
-        class spell_warl_archimondes_vengance_passive_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_archimondes_vengance_passive_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() == GetTarget()->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasSpellCooldown(WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE))
-                        return;
-
-                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
-                    {
-                        int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() / 20);
-
-                        if (!bp)
-                            return;
-
-                        _player->CastCustomSpell(eventInfo.GetActor(), WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE, &bp, NULL, NULL, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_archimondes_vengance_passive_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_archimondes_vengance_passive_AuraScript();
         }
 };
 
@@ -3116,9 +2944,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_flames_of_xoroth();
     new spell_warl_soul_link_dummy();
     new spell_warl_soul_link();
-    new spell_warl_archimondes_vengeance_cooldown();
-    new spell_warl_archimondes_vengance();
-    new spell_warl_archimondes_vengance_passive();
     new spell_warl_molten_core_dot();
     new spell_warl_decimate();
     new spell_warl_demonic_call();
