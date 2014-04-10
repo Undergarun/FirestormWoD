@@ -87,7 +87,7 @@ class boss_eregos : public CreatureScript
         {
             boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS) { }
 
-            void Reset() 
+            void Reset()
             {
                 _Reset();
                 _phase = PHASE_NORMAL;
@@ -99,12 +99,12 @@ class boss_eregos : public CreatureScript
                 DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void KilledUnit(Unit* /*victim*/) 
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
 
@@ -120,7 +120,7 @@ class boss_eregos : public CreatureScript
                     _amberVoid = false;
             }
 
-            uint32 GetData(uint32 type) const 
+            uint32 GetData(uint32 type) const
             {
                switch (type)
                {
@@ -148,7 +148,7 @@ class boss_eregos : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15, 30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
             }
 
-            void JustSummoned(Creature* summon) 
+            void JustSummoned(Creature* summon)
             {
                 BossAI::JustSummoned(summon);
 
@@ -160,7 +160,7 @@ class boss_eregos : public CreatureScript
                 summon->GetMotionMaster()->MoveRandom(100.0f);
             }
 
-            void SummonedCreatureDespawn(Creature* summon) 
+            void SummonedCreatureDespawn(Creature* summon)
             {
                 if (summon->GetEntry() != NPC_PLANAR_ANOMALY)
                     return;
@@ -169,7 +169,7 @@ class boss_eregos : public CreatureScript
                 summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) 
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
                 if (!IsHeroic())
                     return;
@@ -230,7 +230,7 @@ class boss_eregos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) 
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
 
@@ -244,7 +244,7 @@ class boss_eregos : public CreatureScript
              bool _amberVoid;
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_eregosAI(creature);
         }
@@ -265,13 +265,13 @@ class spell_eregos_planar_shift : public SpellScriptLoader
                     creature->AI()->DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void Register() 
+            void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_eregos_planar_shift_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const 
+        AuraScript* GetAuraScript() const
         {
             return new spell_eregos_planar_shift_AuraScript();
         }
@@ -282,7 +282,7 @@ class achievement_gen_eregos_void : public AchievementCriteriaScript
     public:
         achievement_gen_eregos_void(char const* name, uint32 data) : AchievementCriteriaScript(name), _data(data) { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) 
+        bool OnCheck(Player* /*player*/, Unit* target)
         {
             return target && target->GetAI()->GetData(_data);
         }

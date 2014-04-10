@@ -268,7 +268,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
 {
     if (!player)
         return;
-    
+
     if (player->GetTeamId() >= 2)
         return;
 
@@ -421,7 +421,7 @@ void Battlefield::PlayerAcceptInviteToWar(Player* player)
     if (AddOrSetPlayerToCorrectBfGroup(player))
     {
         player->GetSession()->SendBfEntered(m_Guid);
-        
+
         if (player->GetTeamId() < 2)
         {
             m_PlayersInWar[player->GetTeamId()].insert(player->GetGUID());
@@ -921,7 +921,7 @@ bool BfCapturePoint::HandlePlayerEnter(Player* player)
         player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate2, uint32(ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f)));
         player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
     }
-    
+
     if (player->GetTeamId() >= 2)
         return false;
 

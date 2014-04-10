@@ -141,11 +141,11 @@ void WorldSession::HandleArcheologyRequestHistory(WorldPacket& recvPacket)
     {
         for (auto itr : GetPlayer()->GetArchaeologyMgr().GetCompletedProjects())
         {
-            if (ResearchProjectEntry const* project = sResearchProjectStore.LookupEntry(itr.projectId))
+            if (ResearchProjectEntry const* project = sResearchProjectStore.LookupEntry(itr.first))
             {
-                data << uint32(itr.projectId);
-                data << uint32(itr.count);
-                data << uint32(itr.first_date);
+                data << uint32(itr.first);
+                data << uint32(itr.second.count);
+                data << uint32(itr.second.first_date);
             }
             else
                 data << uint32(0) << uint32(0) << uint32(0);

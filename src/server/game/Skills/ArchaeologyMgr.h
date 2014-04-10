@@ -80,8 +80,8 @@ typedef std::list<CompletedProject> CompletedProjectSet;
 class ArchaeologyMgr
 {
     public:
-        ArchaeologyMgr(Player* player) : _player(player) 
-        { 
+        ArchaeologyMgr(Player* player) : _player(player)
+        {
             for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
                 _digSites[i].clear();
         }
@@ -89,7 +89,7 @@ class ArchaeologyMgr
 
         void LoadArchaeology(PreparedQueryResult result, PreparedQueryResult resultProjects);
         void SaveArchaeology(SQLTransaction& trans);
-        
+
         void AddProjectCost(uint32 entry, uint32 count, bool isCurrency)
         {
             costData.push_back(ProjectCost(entry, count, isCurrency));
@@ -144,10 +144,10 @@ class ArchaeologyMgr
         }
 
         bool GenerateDigitLoot(uint16 zoneid, DigitSite &site);
-        
+
         uint16 GetResearchSiteID();
         bool IsCompletedProject(uint32 id);
-        
+
         void GenerateResearchSiteInMap(uint32 mapId, uint32 map);
         ResearchWithLevelResult CanResearchWithLevel(uint32 siteId);
 
