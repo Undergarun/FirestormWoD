@@ -398,7 +398,7 @@ class Object
 
         void BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
-        void BuildDynamicValuesUpdate(ByteBuffer* data) const;
+        void BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data) const;
 
         uint16 m_objectType;
 

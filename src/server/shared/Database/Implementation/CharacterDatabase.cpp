@@ -305,7 +305,13 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_PLAYER_CURRENCY, "SELECT currency, week_count, total_count, season_total, flags, weekCap, needResetCap FROM character_currency WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_PLAYER_CURRENCY, "UPDATE character_currency SET week_count = ?, total_count = ?, season_total = ?, flags = ?, weekCap = ?, needResetCap = ? WHERE guid = ? AND currency = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_REP_PLAYER_CURRENCY, "REPLACE INTO character_currency (guid, currency, week_count, total_count, season_total, flags, weekCap, needResetCap) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
- 
+
+    // Archaeology
+    PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY, "DELETE FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY, "INSERT INTO character_archaeology  (guid, sites0, sites1, sites2, sites3, sites4, counts, projects) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS, "DELETE FROM character_archaeology_projects WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS, "INSERT INTO character_archaeology_projects (guid, project, count, first_date) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+
     // Account data
     PREPARE_STATEMENT(CHAR_SEL_ACCOUNT_DATA, "SELECT type, time, data FROM account_data WHERE accountId = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(CHAR_REP_ACCOUNT_DATA, "REPLACE INTO account_data (accountId, type, time, data) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC)

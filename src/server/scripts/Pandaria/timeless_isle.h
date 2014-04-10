@@ -1,8 +1,6 @@
 #ifndef TIMELESS_ISLE_H
 #define TIMELESS_ISLE_H
 
-#define MAX_ENCOUNTER  2
-
 enum eQuests
 {
     QUEST_TIME_KEEPER_KAIROZ_H       = 33156,

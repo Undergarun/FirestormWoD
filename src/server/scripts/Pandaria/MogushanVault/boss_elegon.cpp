@@ -2009,5 +2009,7 @@ void AddSC_boss_elegon()
     new spell_draw_power();
     new spell_core_checker();
     new spell_grasping_energy_tendrils();
+    new spell_destabilizing_energies();
+    new spell_total_annihilation();
     new spell_unstable_energy();
 }

@@ -854,4 +854,5 @@ void AddSC_boss_garajal()
     new mob_spirit_totem_intro();
     new spell_soul_back();
     new spell_final_destination();
+    new spell_voodoo_doll();
 }
