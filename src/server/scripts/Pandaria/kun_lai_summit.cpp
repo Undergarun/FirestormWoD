@@ -445,8 +445,6 @@ class mob_zhi_the_harmonious : public CreatureScript
             {
             }
 
-            EventMap events;
-
             void Reset()
             {
             }
@@ -489,8 +487,6 @@ class mob_andruin_wrynn : public CreatureScript
             mob_andruin_wrynnAI(Creature* creature) : ScriptedAI(creature)
             {
             }
-
-            EventMap events;
 
             void Reset()
             {
@@ -540,8 +536,6 @@ class mob_taran_zhu_white_tiger : public CreatureScript
             mob_taran_zhu_white_tigerAI(Creature* creature) : ScriptedAI(creature)
             {
             }
-
-            EventMap events;
 
             void Reset()
             {
@@ -717,6 +711,10 @@ class npc_xuen : public CreatureScript
 
                 if (Player* player = Player::GetPlayer(*me, playerGuid))
                 {
+
+                    if (player->GetQuestStatus(QUEST_A_CELESTIAL_EXPERIENCE_H) != QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_A_CELESTIAL_EXPERIENCE_A) != QUEST_STATUS_INCOMPLETE)
+                        return;
+
                     std::list<Creature*> TaranZhuList;
                     GetCreatureListWithEntryInGrid(TaranZhuList, me, NPC_TARAN_ZHU, 15.0f);
 
@@ -809,7 +807,12 @@ class npc_xuen : public CreatureScript
                                         andruinWrynn->AI()->DoAction(ACTION_ANDRUIN_TALK_4);
                                 break;
                             case EVENT_FINAL_KILL_CREDIT:
-                                player->KilledMonsterCredit(KILLED_CREDIT_FOURTH_PHASE);
+                                if (player->GetQuestStatus(QUEST_A_CELESTIAL_EXPERIENCE_H) == QUEST_STATUS_INCOMPLETE)
+                                    player->KilledMonsterCredit(KILLED_CREDIT_FOURTH_PHASE_H);
+
+                                if (player->GetQuestStatus(QUEST_A_CELESTIAL_EXPERIENCE_A) == QUEST_STATUS_INCOMPLETE)
+                                    player->KilledMonsterCredit(KILLED_CREDIT_FOURTH_PHASE_A);
+
                                 Reset();
                                 break;
                             default:

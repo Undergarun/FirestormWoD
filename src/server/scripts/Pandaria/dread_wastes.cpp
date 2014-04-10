@@ -1982,33 +1982,6 @@ class mob_nalash_verdantis : public CreatureScript
         };
 };
 
-class mob_hisek_the_swarmkeeper : public CreatureScript
-{
-    public:
-        mob_hisek_the_swarmkeeper() : CreatureScript("mob_hisek_the_swarmkeeper") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_hisek_the_swarmkeeperAI(creature);
-        }
-
-        struct mob_hisek_the_swarmkeeperAI : public ScriptedAI
-        {
-            mob_hisek_the_swarmkeeperAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void UpdateAI(const uint32 diff)
-            {
-                std::list<Player*> playerList;
-                playerList.clear();
-                GetPlayerListInGrid(playerList, me, 5.0f);
-
-                for (auto player: playerList)
-                    if (player->GetQuestStatus(31439) == QUEST_STATUS_INCOMPLETE)
-                        player->KilledMonsterCredit(64645);
-            }
-        };
-};
-
 enum eVengefulSpiritEvents
 {
     EVENT_UNSTABLE_SERUM_21       = 1,
@@ -2078,6 +2051,281 @@ class mob_vengeful_spirit : public CreatureScript
         };
 };
 
+class mob_hisek_the_swarmkeeper : public CreatureScript
+{
+    public:
+        mob_hisek_the_swarmkeeper() : CreatureScript("mob_hisek_the_swarmkeeper")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 31441) // Corruption Runs Deep
+            {
+                creature->SummonCreature(64705, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
+                creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_hisek_the_swarmkeeperAI(creature);
+        }
+
+        struct mob_hisek_the_swarmkeeperAI : public ScriptedAI
+        {
+            mob_hisek_the_swarmkeeperAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void JustSummoned(Creature* summoned)
+            {
+                summoned->GetMotionMaster()->MovePoint(1, -644.502f, 3133.263f, 146.412f);
+            }
+        };
+};
+
+#define ACTION_START_SPEAKING 1
+#define ACTION_START_COMBAT 2
+
+class mob_hisek_the_swarmkeeper_two : public CreatureScript
+{
+    public:
+        mob_hisek_the_swarmkeeper_two() : CreatureScript("mob_hisek_the_swarmkeeper_two")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_hisek_the_swarmkeeper_twoAI(creature);
+        }
+
+        struct mob_hisek_the_swarmkeeper_twoAI : public ScriptedAI
+        {
+            mob_hisek_the_swarmkeeper_twoAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            enum eEvents
+            {
+                EVENT_START_COMBAT    = 1,
+                EVENT_HISEK_TALK_1    = 2,
+                EVENT_HISEK_TALK_2    = 3,
+                EVENT_HISEK_TALK_3    = 4,
+                EVENT_HISEK_TALK_4    = 5,
+                EVENT_HISEK_TALK_5    = 6,
+                EVENT_TRAITOR_TALK_1  = 7,
+                EVENT_TRAITOR_TALK_2  = 8,
+                EVENT_TRAITOR_TALK_3  = 9,
+                EVENT_TRAITOR_TALK_4  = 10,
+                EVENT_TRAITOR_TALK_5  = 11,
+            };
+
+            EventMap events;
+
+            void IsSummonedBy(Unit* owner)
+            {
+                if (owner->ToCreature()->GetEntry() == 64672)
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            }
+
+            void MovementInform (uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                if (id = 1)
+                {
+                    DoAction(ACTION_START_SPEAKING);
+                    me->SummonCreature(64583, -637.653f, 3134.079f, 146.444f, 3.333f); // Klaxxi Traitor
+                }
+            }
+
+            void DoAction(const int32 action)
+            {
+                switch (action)
+                {
+                    case ACTION_START_SPEAKING:
+                        events.ScheduleEvent(EVENT_HISEK_TALK_1, 2000);
+                        events.ScheduleEvent(EVENT_HISEK_TALK_2, 5000);
+                        events.ScheduleEvent(EVENT_TRAITOR_TALK_1, 8000);
+                        events.ScheduleEvent(EVENT_HISEK_TALK_3, 11000);
+                        events.ScheduleEvent(EVENT_TRAITOR_TALK_2, 15000);
+                        events.ScheduleEvent(EVENT_TRAITOR_TALK_3, 19000);
+                        events.ScheduleEvent(EVENT_HISEK_TALK_4, 23000);
+                        events.ScheduleEvent(EVENT_HISEK_TALK_5, 27000);
+                        events.ScheduleEvent(EVENT_TRAITOR_TALK_4, 31000);
+                        events.ScheduleEvent(EVENT_TRAITOR_TALK_5, 36000);
+                        break;
+                    case ACTION_START_COMBAT:
+                        events.ScheduleEvent(EVENT_START_COMBAT, 2000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                std::list<Creature*> traitorList;
+                GetCreatureListWithEntryInGrid(traitorList, me, 64583, 15.0f);
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_HISEK_TALK_1:
+                            Talk(0);
+                            break;
+                        case EVENT_HISEK_TALK_2:
+                            Talk(1);
+                            break;
+                        case EVENT_TRAITOR_TALK_1:
+                            for (auto traitor: traitorList)
+                                if (traitor->AI())
+                                    traitor->AI()->Talk(0);
+                            break;
+                        case EVENT_HISEK_TALK_3:
+                            Talk(2);
+                            break;
+                        case EVENT_TRAITOR_TALK_2:
+                            for (auto traitor: traitorList)
+                                if (traitor->AI())
+                                    traitor->AI()->Talk(1);
+                            break;
+                        case EVENT_TRAITOR_TALK_3:
+                            for (auto traitor: traitorList)
+                                if (traitor->AI())
+                                    traitor->AI()->Talk(2);
+                            break;
+                        case EVENT_HISEK_TALK_4:
+                            Talk(3);
+                            break;
+                        case EVENT_HISEK_TALK_5:
+                            Talk(4);
+                            break;
+                        case EVENT_TRAITOR_TALK_4:
+                            for (auto traitor: traitorList)
+                                if (traitor->AI())
+                                    traitor->AI()->Talk(3);
+                            break;
+                        case EVENT_TRAITOR_TALK_5:
+                            for (auto traitor: traitorList)
+                                if (traitor->AI())
+                                    traitor->AI()->Talk(4);
+                            DoAction(ACTION_START_COMBAT);
+                            break;
+                        case EVENT_START_COMBAT:
+                            for (auto traitor: traitorList)
+                                if (traitor->AI())
+                                    traitor->AI()->DoAction(ACTION_START_COMBAT);
+                            me->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        };
+};
+
+class mob_klaxxi_traitor : public CreatureScript
+{
+    public:
+        mob_klaxxi_traitor() : CreatureScript("mob_klaxxi_traitor")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_klaxxi_traitorAI(creature);
+        }
+
+        struct mob_klaxxi_traitorAI : public ScriptedAI
+        {
+            mob_klaxxi_traitorAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+
+            enum eEvents
+            {
+                EVENT_START_COMBAT    = 1,
+                EVENT_HISEK_TALK_1    = 2,
+                EVENT_HISEK_TALK_2    = 3,
+                EVENT_HISEK_TALK_3    = 4,
+                EVENT_HISEK_TALK_4    = 5,
+                EVENT_HISEK_TALK_5    = 6,
+                EVENT_TRAITOR_TALK_1  = 7,
+                EVENT_TRAITOR_TALK_2  = 8,
+                EVENT_TRAITOR_TALK_3  = 9,
+                EVENT_TRAITOR_TALK_4  = 10,
+                EVENT_TRAITOR_TALK_5  = 11,
+            };
+
+            EventMap events;
+
+            void MovementInform (uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                if (id = 1)
+                {
+                    DoAction(ACTION_START_SPEAKING);
+                    me->SummonCreature(64583, -637.653f, 3134.079f, 146.444f, 3.333f); // Klaxxi Traitor
+                }
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (Player* player = killer->ToPlayer())
+                    player->KilledMonsterCredit(64583);
+            }
+
+            void SetGUID(uint64 guid, int32 bab /*= 0*/)
+            {
+                playerGuid = guid;
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action == ACTION_START_COMBAT)
+                {
+                     me->setFaction(14);
+
+                    if (Player* player = Player::GetPlayer(*me, playerGuid))
+                    {
+                            AttackStart(player);
+                    }
+                }
+            }
+        };
+};
+
+class go_ancient_amber_chunk : public GameObjectScript
+{
+public:
+    go_ancient_amber_chunk() : GameObjectScript("go_ancient_amber_chunk")
+    {
+    }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        if (player->GetQuestStatus(31439) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(64645);
+
+        go->DestroyForPlayer(player, false);
+        return true;
+    }
+};
+
 void AddSC_dread_wastes()
 {
     //Rare Mobs
@@ -2106,4 +2354,8 @@ void AddSC_dread_wastes()
     //Standard Mobs
     new mob_overgrown_seacarp();
     new mob_hisek_the_swarmkeeper();
+    new mob_hisek_the_swarmkeeper_two();
+    new mob_klaxxi_traitor();
+    //Game Objects
+    new go_ancient_amber_chunk();
 }
