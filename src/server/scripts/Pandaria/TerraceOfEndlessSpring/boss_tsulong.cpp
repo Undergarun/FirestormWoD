@@ -479,10 +479,7 @@ class boss_tsulong : public CreatureScript
                     {
                         case EVENT_SWITCH_TO_NIGHT_PHASE:
                             if (!start)
-                            {
-                                me->SetHealth(me->GetMaxHealth() - me->GetHealth());
                                 Talk(VO_TES_SERPENT_EVENT_DAYTONIGHT);
-                            }
                             else
                                 start = false;
                             me->SetDisplayId(DISPLAY_TSULON_NIGHT);
@@ -525,6 +522,7 @@ class boss_tsulong : public CreatureScript
                                 me->SetPower(POWER_ENERGY, 0);
                                 events.SetPhase(PHASE_DAY);
                                 phase = PHASE_DAY;
+                                me->SetHealth(std::max(1, int(me->GetMaxHealth() - me->GetHealth())));
                                 events.ScheduleEvent(EVENT_SWITCH_TO_DAY_PHASE, 0, 0, PHASE_DAY);
                             }
                             else
@@ -556,7 +554,6 @@ class boss_tsulong : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             me->GetMotionMaster()->MovePoint(WAYPOINT_TO_DAY_PHASE, -1017.83f, -3040.70f, 12.823f);
-                            me->SetHealth(std::max(1, int(me->GetMaxHealth() - me->GetHealth())));
                             events.RescheduleEvent(EVENT_SUN_BREATH, TIMER_SUN_BREATH, 0, PHASE_DAY);
                             events.RescheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR, 0, PHASE_DAY);
                             events.RescheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA, 0, PHASE_DAY);
@@ -598,6 +595,7 @@ class boss_tsulong : public CreatureScript
                         me->SetPower(POWER_ENERGY, 0);
                         events.SetPhase(PHASE_NIGHT);
                         phase = PHASE_NIGHT;
+                        me->SetHealth(me->GetMaxHealth() - me->GetHealth());
                         events.ScheduleEvent(EVENT_SWITCH_TO_NIGHT_PHASE, 0, 0, PHASE_NIGHT);
                     }
                 }
