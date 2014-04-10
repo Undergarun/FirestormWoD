@@ -892,13 +892,13 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                 {
                     // EFFECT_0 : Instakill
                     // EFFECT_1 : 2% health every 5s
-                    // EFFECT_2 : +50% DOT damage for Malefic Grasp, Drain Life and Drain Soul
+                    // EFFECT_2 : +20% DOT damage for Malefic Grasp, Drain Life and Drain Soul
                     // EFFECT_3 : +30% damage for Shadow Bolt, Hand of Gul'Dan, Soul Fire, Wild Imps and Fel Flame
                     // EFFECT_4 : +25% damage for Incinerate, Conflagrate, Chaos Bolt, Shadowburn and Fel Flame
                     // EFFECT_5 : +50% damage for Fel Flame
                     // EFFECT_6 : +20% Health if Soul Link talent is also chosen
-                    // EFFECT_7 : +50% on EFFECT_2 of Malefic Grasp
-                    // EFFECT_8 : +50% on EFFECT_4 and EFFECT_5 of Drain Soul -> Always set to 0
+                    // EFFECT_7 : +20% on EFFECT_2 of Malefic Grasp
+                    // EFFECT_8 : +20% on EFFECT_4 and EFFECT_5 of Drain Soul -> Always set to 0
                     // EFFECT_9 : Always set to 0
                     // EFFECT_10 : Always set to 0
                     if (AuraPtr grimoireOfSacrifice = player->GetAura(WARLOCK_GRIMOIRE_OF_SACRIFICE))

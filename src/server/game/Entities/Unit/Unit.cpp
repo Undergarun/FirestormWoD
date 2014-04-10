@@ -8178,12 +8178,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // -- http://www.wowhead.com/spell=120668#comments:id=1707196
                     // -- The base damage is 20% of AP or 30% of SP, whichever is higher.
                     // -- That amount is multiplied by 0.2 for normal pets, and by 0 for guardian pets.
-                    // -- Next, if it�s an autoattack (or spell that we count as an autoattack such as Wind Lash or Shadow Blades or Tiger Strikes),
-                    // -- then it�s multiplied by 0.4, and then by WeaponSpeed / 2.6. And if it�s an offhand attack, it�s then multiplied by 0.5.
-                    // -- If it�s periodic damage, it doesn�t Stormlash, unless it�s Mind Flay, Malefic Grasp, or Drain Soul.
-                    // -- For all other spells, it�s then multiplied by BaseCastTime / 1.5 sec, with a floor on the BaseCastTime of 1.5 sec.
+                    // -- Next, if it's an autoattack (or spell that we count as an autoattack such as Wind Lash or Shadow Blades or Tiger Strikes),
+                    // -- then it's multiplied by 0.4, and then by WeaponSpeed / 2.6. And if it's an offhand attack, it's then multiplied by 0.5.
+                    // -- If it's periodic damage, it doesn't Stormlash, unless it's Mind Flay, Malefic Grasp, or Drain Soul.
+                    // -- For all other spells, it's then multiplied by BaseCastTime / 1.5 sec, with a floor on the BaseCastTime of 1.5 sec.
                     // -- And then there are multipliers for certain spells: 2x for Lightning Bolt, 2x for Lava Burst, 2x for Drain Soul, 0.5x for Sinister Strike.
-                    // -- Finally, that�s the average damage it deals. It will actually deal that +/- 15 %.
+                    // -- Finally, that's the average damage it deals. It will actually deal that +/- 15 %.
                     // -- It also has a 0.1 sec ICD on triggering, and can miss based on spell hit.
 
                     // Can't proc off from itself

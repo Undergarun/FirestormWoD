@@ -7455,7 +7455,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     caster->CastCustomSpell(pet, 108366, &bp, NULL, NULL, true);
             }
 
-            // Every tick, Malefic Grasp deals instantly 50% of tick-damage for each affliction effects on the target
+            // Every tick, Malefic Grasp deals instantly 30% of tick-damage for each affliction effects on the target
             // Corruption ...
             if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
             {
@@ -7507,7 +7507,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if (GetSpellInfo()->Id == 1120)
         {
             // Energize one soul shard every 2 ticks
-            if (m_tickNumber == 2 || m_tickNumber == 4 || m_tickNumber == 6)
+            if ((m_tickNumber == 2 || m_tickNumber == 4 || m_tickNumber == 6) && target->GetTypeId() == TYPEID_PLAYER)
                 caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
 
             // if target is below 20% of life ...
@@ -7520,7 +7520,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 SpellInfo const* afflictionSpell;
                 bool grimoireOfSacrifice = caster->HasAura(108503);
 
-                // ... and deals instantly 100% of tick-damage for each affliction effects on the target
+                // ... and deals instantly 60% of tick-damage for each affliction effects on the target
                 // Corruption ...
                 if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
                 {
@@ -7528,6 +7528,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
 
                     if (grimoireOfSacrifice)
                         AddPct(afflictionDamage, 50);
@@ -7541,6 +7542,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
 
                     if (grimoireOfSacrifice)
                         AddPct(afflictionDamage, 50);
@@ -7554,6 +7556,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
 
                     if (grimoireOfSacrifice)
                         AddPct(afflictionDamage, 50);
@@ -7567,6 +7570,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
 
                     if (grimoireOfSacrifice)
                         AddPct(afflictionDamage, 50);
