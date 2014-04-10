@@ -554,6 +554,7 @@ class Spell
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
+        int32 GetTimer() const { return m_timer; }
         bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const { return _triggeredCastFlags & TRIGGERED_FULL_MASK; };
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }

@@ -117,20 +117,42 @@ enum MonkSpells
     SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636,
     SPELL_MONK_BREWMASTER_TRAINING              = 117967,
     SPELL_MONK_POWER_GUARD                      = 118636,
-    SPELL_MONK_STORM_EARTH_AND_FIRE             = 137639
+    SPELL_MONK_STORM_EARTH_AND_FIRE             = 137639,
+    SPELL_MONK_ZEN_MEDITATION                   = 115176,
+    SPELL_MONK_ZEN_MEDITATION_AURA              = 131523
+};
+
+// Zen Meditation = 115176
+class spell_monk_zen_meditation : public SpellScriptLoader
+{
+    public:
+        spell_monk_zen_meditation() : SpellScriptLoader("spell_monk_zen_meditation") { }
+
+        class spell_monk_zen_meditation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_zen_meditation_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->RemoveAura(SPELL_MONK_ZEN_MEDITATION_AURA);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_zen_meditation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SPELL_MAGNET, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_zen_meditation_AuraScript();
+        }
 };
 
 const uint32 spiritEntry[3] = { 69680,  69792,  69791  }; // Storm, Earth and Fire
 const uint32 summonsMonk[3] = { 138122, 138121, 138123 }; // Storm, Earth and Fire
 const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
-
-/*
-DELETE FROM spell_script_names WHERE ScriptName = 'spell_monk_storm_earth_and_fire' OR ScriptName = 'spell_monk_storm_earth_and_fire_stats';
-INSERT INTO spell_script_names VALUES
-(137639, 'spell_monk_storm_earth_and_fire'),
-(138130, 'spell_monk_storm_earth_and_fire_stats');
-UPDATE creature_template SET ScriptName = 'npc_monk_spirit' WHERE entry IN (69680, 69791, 69792);
-*/
 
 // Storm, Earth and Fire - 138130
 class spell_monk_storm_earth_and_fire_stats : public SpellScriptLoader
@@ -3684,6 +3706,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_zen_meditation();
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();
     new spell_monk_brewmaster_training_tiger_palm();
