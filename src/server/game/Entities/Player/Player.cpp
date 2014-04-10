@@ -23502,10 +23502,10 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                 float val = 1;
                 for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                     if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                        val += (*itr)->value/100;
+                        val += float((*itr)->value)/100;
 
                 if (mod->value)
-                    val += apply ? float(mod->value)/100 : -(float((mod->value))/100);
+                    val += apply ? float(mod->value)/100 : -(float(mod->value)/100);
 
                 dataBuffer << float(val);
                 dataBuffer << uint8(eff);
@@ -23516,7 +23516,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    val += (*itr)->value;
+                    val += float((*itr)->value);
 
             val += apply ? float(mod->value) : -float(mod->value);
 
