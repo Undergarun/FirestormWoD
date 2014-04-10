@@ -181,35 +181,24 @@ void Totem::UnSummon(uint32 msTime)
         return;
     }
 
-    // Totemic Restoration
-    if (m_duration > 0 || !GetHealth())
+    // Totemic Persistence
+    if (AuraEffectPtr totemicPersistence = m_owner->GetAuraEffect(108284, EFFECT_0))
     {
-        if (m_owner->HasAura(108284))
+        if (totemicPersistence->GetAmount() == 50)
         {
-            float pct = m_duration * 100.0f / GetTimer();
-
-            if (pct > 50.0f)
-                pct = 50.0f;
-
-            Player* _player = m_owner->ToPlayer();
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL));
-            if (_player && spellInfo)
+            // Does not affect Fire totems
+            for (int i = SUMMON_SLOT_TOTEM + 1; i < MAX_TOTEM_SLOT; ++i)
             {
-                if (_player->HasSpellCooldown(spellInfo->Id))
+                if (m_owner->m_SummonSlot[i] == GetGUID())
                 {
-                    uint32 newCooldownDelay = _player->GetSpellCooldownDelay(spellInfo->Id);
-                    uint32 totalCooldown = spellInfo->RecoveryTime;
-                    if (!totalCooldown)
-                        totalCooldown = spellInfo->CategoryRecoveryTime;
-                    int32 lessCooldown = CalculatePct(totalCooldown, int32(pct));
-
-                    newCooldownDelay -= lessCooldown;
-
-                    _player->AddSpellCooldown(spellInfo->Id, 0, uint32(time(NULL) + newCooldownDelay));
-                    _player->ReduceSpellCooldown(spellInfo->Id, lessCooldown);
+                    m_owner->m_SummonSlot[i] = 0;
+                    totemicPersistence->SetAmount(GetEntry());
+                    return;
                 }
             }
         }
+        else if (totemicPersistence->GetAmount() == GetEntry())
+            totemicPersistence->SetAmount(50);
     }
 
     CombatStop();
