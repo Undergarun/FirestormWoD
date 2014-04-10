@@ -1720,6 +1720,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
 void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 {
+    sLog->OutPandashan("Group::NeedBeforeGreed: lootedObject[entry: %u, type: %u]", lootedObject->GetEntry(), lootedObject->GetTypeId());
     ItemTemplate const* item;
     uint8 itemSlot = 0;
     for (std::vector<LootItem>::iterator i = loot->items.begin(); i != loot->items.end(); ++i, ++itemSlot)
