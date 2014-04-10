@@ -15,20 +15,20 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef ARENATEAM_H
 #define ARENATEAM_H
- 
+
 #include "QueryResult.h"
 #include <ace/Singleton.h>
 #include <list>
 #include <map>
- 
+
 class WorldSession;
 class WorldPacket;
 class Player;
 class Group;
- 
+
 enum ArenaTeamCommandTypes
 {
     ERR_ARENA_TEAM_CREATE_S                 = 0x00,
@@ -36,14 +36,14 @@ enum ArenaTeamCommandTypes
     ERR_ARENA_TEAM_QUIT_S                   = 0x03,
     ERR_ARENA_TEAM_FOUNDER_S                = 0x0E
 };
- 
+
 enum ArenaType
 {
     ARENA_TYPE_2v2          = 2,
     ARENA_TYPE_3v3          = 3,
     ARENA_TYPE_5v5          = 5
 };
- 
+
 enum ArenaTeamCommandErrors
 {
     ERR_ARENA_TEAM_CREATED                  = 0x01,
@@ -67,7 +67,7 @@ enum ArenaTeamCommandErrors
     ERR_ARENA_TEAMS_LOCKED                  = 0x1E,
     ERR_ARENA_TEAM_TOO_MANY_CREATE          = 0x21,
 };
- 
+
 enum ArenaTeamEvents
 {
     ERR_ARENA_TEAM_JOIN_SS                  = 4,            // player name + arena team name
@@ -77,7 +77,7 @@ enum ArenaTeamEvents
     ERR_ARENA_TEAM_LEADER_CHANGED_SSS       = 8,            // old captain + new captain + arena team name
     ERR_ARENA_TEAM_DISBANDED_S              = 9             // captain name + arena team name
 };
- 
+
 /*
 need info how to send these ones:
 ERR_ARENA_TEAM_YOU_JOIN_S - client show it automatically when accept invite
@@ -85,14 +85,14 @@ ERR_ARENA_TEAM_TARGET_TOO_LOW_S
 ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S
 ERR_ARENA_TEAM_LEVEL_TOO_LOW_I
 */
- 
+
 enum ArenaTeamTypes
 {
     ARENA_TEAM_2v2      = 2,
     ARENA_TEAM_3v3      = 3,
     ARENA_TEAM_5v5      = 5
 };
- 
+
 struct ArenaTeamMember
 {
     uint64 Guid;
@@ -104,11 +104,11 @@ struct ArenaTeamMember
     uint16 SeasonWins;
     uint16 PersonalRating;
     uint16 MatchMakerRating;
- 
+
     void ModifyPersonalRating(Player* player, int32 mod, uint32 type);
     void ModifyMatchmakerRating(int32 mod, uint32 slot);
 };
- 
+
 struct ArenaTeamStats
 {
     uint16 Rating;
@@ -118,7 +118,7 @@ struct ArenaTeamStats
     uint16 SeasonWins;
     uint32 Rank;
 };
- 
+
 enum ArenaSlots
 {
     SLOT_ARENA_2V2 = 0,
@@ -130,7 +130,7 @@ enum ArenaSlots
 };
 
 #define MAX_ARENA_TYPE 6                                    // type : 2, 3 or 5
- 
+
 namespace Arena
 {
     inline uint8 GetSlotByType(uint32 type)
@@ -146,7 +146,7 @@ namespace Arena
         sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team type %u for some arena team", type);
         return 0xFF;
     }
- 
+
     inline uint8 GetTypeBySlot(uint8 slot)
     {
         switch (slot)
@@ -163,24 +163,24 @@ namespace Arena
         sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team slot %u for some arena team", slot);
         return 0xFF;
     }
- 
+
     inline float GetChanceAgainst(uint32 ownRating, uint32 opponentRating)
     {
         // Returns the chance to win against a team with the given rating, used in the rating adjustment calculation
         // ELO system
         return 1.0f / (1.0f + exp(log(10.0f) * (float)((float)opponentRating - (float)ownRating) / 650.0f));
     }
- 
+
     inline int32 GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float confidence_factor*/)
     {
         // 'Chance' calculation - to beat the opponent
         // This is a simulation. Not much info on how it really works
         float chance = GetChanceAgainst(ownRating, opponentRating);
         float won_mod = (won) ? 1.0f : 0.0f;
- 
+
         // Calculate the rating modification
         float mod;
- 
+
         // TODO: Replace this hack with using the confidence factor (limiting the factor to 2.0f)
         if (won && ownRating < 1300)
         {
@@ -191,10 +191,10 @@ namespace Arena
         }
         else
             mod = 24.0f * (won_mod - chance);
- 
+
         return (int32)ceil(mod);
     }
- 
+
     inline int32 GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float& confidence_factor*/)
     {
         // 'Chance' calculation - to beat the opponent
@@ -202,24 +202,24 @@ namespace Arena
         float chance = GetChanceAgainst(ownRating, opponentRating);
         float won_mod = (won) ? 1.0f : 0.0f;
         float mod = won_mod - chance;
- 
+
         // Work in progress:
         /*
         // This is a simulation, as there is not much info on how it really works
         float confidence_mod = min(1.0f - fabs(mod), 0.5f);
- 
+
         // Apply confidence factor to the mod:
         mod *= confidence_factor
- 
+
         // And only after that update the new confidence factor
         confidence_factor -= ((confidence_factor - 1.0f) * confidence_mod) / confidence_factor;
         */
- 
+
         // Real rating modification
         mod *= 24.0f;
- 
+
         return (int32)ceil(mod);
     }
 };
- 
+
 #endif

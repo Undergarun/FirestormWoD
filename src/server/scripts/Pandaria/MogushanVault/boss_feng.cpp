@@ -49,7 +49,7 @@ enum eSpells
     SPELL_WILDFIRE_INFUSION             = 116817,
     SPELL_ARCHIMONDES_FIRE              = 116787,
 
-    // Spirit of the Staff 
+    // Spirit of the Staff
     SPELL_ARCANE_SHOCK                  = 131790,
     SPELL_ARCANE_VELOCITY               = 116364,
     SPELL_ARCANE_RESONANCE              = 116417,
@@ -591,8 +591,7 @@ class boss_feng : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->GetMotionMaster()->MoveChase(target);
-                        
-                        me->SetReactState(REACT_AGGRESSIVE);
+                            me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     }
                     // Fist Phase
@@ -620,7 +619,7 @@ class boss_feng : public CreatureScript
                         events.ScheduleEvent(EVENT_WILDFIRE_SPARK, urand(25000, 35000));
                         break;
                     }
-                    case EVENT_DRAW_FLAME: 
+                    case EVENT_DRAW_FLAME:
                     {
                         me->MonsterTextEmote("Feng the Accursed begins to |cffba2200|Hspell:116711|h[Draw Flame]|h|r to his weapon !", 0, true);
                         me->CastSpell(me, SPELL_DRAW_FLAME, false);
@@ -858,7 +857,7 @@ class mob_siphon_shield : public CreatureScript
                             }
 
                             soulsCount = potenTargets.size();
-                            
+
                             // Attacking targets -- Souls are summoned by player
                             for (auto target : potenTargets)
                                 target->CastSpell(target, SPELL_SUMMON_SOUL_FRAGMENT, false);
@@ -1057,7 +1056,7 @@ class mob_wild_spark : public CreatureScript
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveRandom(5.0f);
             }
-    
+
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_DRAW_FLAME)
@@ -1114,7 +1113,7 @@ class spell_mogu_epicenter : public SpellScriptLoader
 
                 if (!caster || !target)
                     return;
-                
+
                 float distance = caster->GetExactDist2d(target);
 
                 if (distance >= 0.0f && distance <= 100.0f)
@@ -1325,7 +1324,7 @@ class spell_mogu_arcane_velocity : public SpellScriptLoader
 
                 if (!caster || !target)
                     return;
-                
+
                 float distance = caster->GetExactDist2d(target);
 
                 uint8 mode = GetCaster()->GetInstanceScript()->instance->GetSpawnMode();

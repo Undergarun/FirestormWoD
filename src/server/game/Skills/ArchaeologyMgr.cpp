@@ -87,7 +87,7 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
     for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
     {
         ResearchLootEntry entry = (*itr);
-        if (entry.id != zoneid)          
+        if (entry.id != zoneid)
   continue;
 
 
@@ -262,7 +262,7 @@ void ArchaeologyMgr::ShowResearchSites()
 
     uint8 count = 0;
     uint32 newvalue = 0;
-    
+
     ResearchSiteSet tempSet;
 
     for (uint8 i = 0; i < 5; ++i)
@@ -272,7 +272,7 @@ void ArchaeologyMgr::ShowResearchSites()
     for (ResearchSiteSet::const_iterator itr = tempSet.begin(); itr != tempSet.end(); ++itr)
     {
         uint32 id = (*itr);
-        if (CanResearchWithLevel(id) == RS_RESULT_HIDE)
+        if (CanResearchWithLevel((*itr)) == RS_RESULT_HIDE)
             id = 0;
 
         _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, count, id);
@@ -284,8 +284,6 @@ void ArchaeologyMgr::ShowResearchSites()
                 _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, _digSites[i].count);
                 break;
             }
-            else
-                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, 0);
         }
 
         ++count;
@@ -307,7 +305,7 @@ void ArchaeologyMgr::ShowResearchProjects()
             newvalue |= (*itr);
             _player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + count / 2, newvalue);
 
-            if (count >= MAX_RESEARCH_PROJECTS)
+            if (count == 15)
                 break;
         }
         else
@@ -451,12 +449,35 @@ void ArchaeologyMgr::GenerateResearchProjects()
         if (!entry)
             continue;
 
-        if ((entry->rare && !roll_chance_i(chance)))
+        if ((entry->rare && !roll_chance_i(chance)) || IsCompletedProject(entry->ID))
             continue;
 
         tempProjects[entry->branchId].insert(entry->ID);
     }
 
+/*    uint8 const* race = _races;
+    ProjectSet::const_iterator itr;
+    do
+    {
+        itr = tempProjects[*race].begin();
+        std::advance(itr, urand(0, tempProjects[*race].size() - 1));
+        _researchProjects.insert((*itr));
+    }
+    while (*++race);*/
+    for (int i = 0; i < 12; i++)
+/*    {
+        uint32 raceIndex = _races[i];
+        if (tempProjects.find(raceIndex) == tempProjects.end())
+            continue;
+
+        Projects& proj = tempProjects[raceIndex];
+        if (proj.empty())
+            continue;
+
+        auto itr = proj.begin();
+        std::advance(itr, rand() % proj.size());
+        _researchProjects.insert(*itr);
+    }*/
     for (int i = 0; i < 12; i++)
     {
         uint32 raceIndex = _races[i];
@@ -466,7 +487,7 @@ void ArchaeologyMgr::GenerateResearchProjects()
         ProjectSet& proj = tempProjects[raceIndex];
         if (proj.empty())
             continue;
-        
+
         ProjectSet::iterator itr = proj.begin();
         std::advance(itr, rand() % proj.size());
         _researchProjects.insert(*itr);
@@ -494,14 +515,9 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     // Check for project id
     ResearchProjectEntry const* entry = NULL;
     for (std::set<ResearchProjectEntry const*>::const_iterator itr = sResearchProjectSet.begin(); itr != sResearchProjectSet.end(); ++itr)
-    {
         if ((*itr)->ID == projectId)
-        {
             entry = (*itr);
-            break;
-        }
-    }
-    
+
     if (!entry)
         return false;
 
@@ -524,17 +540,24 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS, projectId, 1);
 
-    // Already Completed
-    if (_completedProjects.find(projectId) != _completedProjects.end())
-        ++_completedProjects[projectId].count;
-    else
-    {
-        CompletedProject project;
-        project.count = 1;
-        project.first_date = time(NULL);
+    CompletedProject project;
+    project.projectId = projectId;
+    project.count = 1;
+    project.first_date = time(NULL);
 
-        _completedProjects.insert(std::make_pair(projectId, project));
+    if (IsCompletedProject(projectId))
+    {
+        for (auto itr : _completedProjects)
+        {
+            if (itr.projectId == projectId)
+            {
+                project.count = itr.count + 1;
+                project.first_date = itr.first_date;
+            }
+        }
     }
+
+    _completedProjects.push_back(project);
 
     // Add new project
     ProjectSet tempProjects;
@@ -544,7 +567,7 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     {
         if ((*itr)->branchId == entry->branchId)
         {
-            if (((*itr)->rare && !roll_chance_i(chance)))
+            if (((*itr)->rare && !roll_chance_i(chance)) || IsCompletedProject((*itr)->ID))
                 continue;
 
             tempProjects.insert((*itr)->ID);
@@ -558,6 +581,20 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     return true;
 }
 
+bool ArchaeologyMgr::IsCompletedProject(uint32 id)
+{
+    bool found = false;
+    for (auto itr : _completedProjects)
+    {
+        if (itr.projectId == id)
+        {
+            found = true;
+            break;
+        }
+    }
+    return found;
+}
+
 void ArchaeologyMgr::SaveArchaeology(SQLTransaction& trans)
 {
     if (!_player->GetSkillValue(SKILL_ARCHAEOLOGY))
@@ -566,75 +603,65 @@ void ArchaeologyMgr::SaveArchaeology(SQLTransaction& trans)
     if (!_archaeologyChanged)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY);
-    stmt->setUInt32(0, _player->GetGUIDLow());
-    trans->Append(stmt);
+    trans->PAppend("DELETE FROM character_archaeology WHERE guid = '%u'", GUID_LOPART(_player->GetGUID()));
 
     std::ostringstream ss;
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY);
-    stmt->setUInt32(0, _player->GetGUIDLow());
+    ss << "INSERT INTO character_archaeology  (guid, sites0, sites1, sites2, sites3, sites4, counts, projects) VALUES (";
+
+    ss << GUID_LOPART(_player->GetGUID()) << ", '";
 
     if (!_researchSites[0].empty())
         for (ResearchSiteSet::const_iterator itr = _researchSites[0].begin(); itr != _researchSites[0].end(); ++itr)
             ss << (*itr) << " ";
 
-    stmt->setString(1, ss.str().c_str());
-    ss.str("");
+    ss << "', '";
 
     if (!_researchSites[1].empty())
         for (ResearchSiteSet::const_iterator itr = _researchSites[1].begin(); itr != _researchSites[1].end(); ++itr)
             ss << (*itr) << " ";
 
-    stmt->setString(2, ss.str().c_str());
-    ss.str("");
+    ss << "', '";
 
     if (!_researchSites[2].empty())
         for (ResearchSiteSet::const_iterator itr = _researchSites[2].begin(); itr != _researchSites[2].end(); ++itr)
             ss << (*itr) << " ";
 
-    stmt->setString(3, ss.str().c_str());
-    ss.str("");
+    ss << "', '";
 
     if (!_researchSites[3].empty())
         for (ResearchSiteSet::const_iterator itr = _researchSites[3].begin(); itr != _researchSites[3].end(); ++itr)
             ss << (*itr) << " ";
 
-    stmt->setString(4, ss.str().c_str());
-    ss.str("");
+    ss << "', '";
 
     if (!_researchSites[4].empty())
         for (ResearchSiteSet::const_iterator itr = _researchSites[4].begin(); itr != _researchSites[4].end(); ++itr)
             ss << (*itr) << " ";
 
-    stmt->setString(5, ss.str().c_str());
-    ss.str("");
+    ss << "', '";
 
     for (uint8 j = 0; j < MAX_RESEARCH_SITES; ++j)
         ss << uint32(_digSites[j].count) << " ";
 
-    stmt->setString(6, ss.str().c_str());
-    ss.str("");
+    ss << "', '";
 
     for (ResearchProjectSet::const_iterator itr = _researchProjects.begin(); itr != _researchProjects.end(); ++itr)
         ss << (*itr) << " ";
 
-    stmt->setString(7, ss.str().c_str());
+    ss << "')";
 
-    trans->Append(stmt);
+    trans->Append(ss.str().c_str());
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS);
-    stmt->setUInt32(0, _player->GetGUIDLow());
-    trans->Append(stmt);
+    trans->PAppend("DELETE FROM character_archaeology_projects WHERE guid = '%u'", GUID_LOPART(_player->GetGUID()));
 
     for (auto itr : _completedProjects)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS);
-        stmt->setUInt32(0, _player->GetGUIDLow());
-        stmt->setUInt32(1, itr.first);
-        stmt->setUInt32(2, itr.second.count);
-        stmt->setUInt32(3, itr.second.first_date);
-        trans->Append(stmt);
+        trans->PAppend("INSERT INTO character_archaeology_projects  (guid, project, count, first_date) VALUES (%u, %u, %u, %u)",
+            GUID_LOPART(_player->GetGUID()),
+            itr.projectId,
+            itr.count,
+            itr.first_date);
     }
 
     _archaeologyChanged = false;
@@ -728,12 +755,11 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult result, PreparedQueryRe
         Field* fields2 = resultProjects->Fetch();
 
         CompletedProject project;
-        uint32 projectId = fields2[0].GetUInt32();
+        project.projectId = fields2[0].GetUInt32();
         project.count = fields2[1].GetUInt32();
         project.first_date = fields2[2].GetUInt32();
 
-        if (_completedProjects.find(projectId) == _completedProjects.end())
-            _completedProjects.insert(std::make_pair(projectId, project));
+        _completedProjects.push_back(project);
     }
     while (resultProjects->NextRow());
 }
@@ -786,7 +812,7 @@ bool ArchaeologyMgr::ValidateCostData()
 {
     if (costData.empty())
         return false;
-    
+
     for (std::vector<ProjectCost>::const_iterator itr = costData.begin(); itr != costData.end(); ++itr)
     {
         if ((*itr).currency)
@@ -830,7 +856,7 @@ uint16 ArchaeologyMgr::GetRandomActiveSiteInMap(uint32 mapId)
 
 void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteId)
 {
-    uint32 race = 0;
+    uint16 race = 0;
     ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
     if (!loot.empty())
     {
@@ -840,7 +866,7 @@ void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteI
             if (entry.id != siteId)
                 continue;
 
-            race = uint32(entry.race);
+            race = entry.race;
             break;
         }
     }
@@ -849,7 +875,7 @@ void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteI
 
     data << uint32(count);
     data << uint32(6);
-    data << race;
+    data << uint32(race);
 
     data.WriteBit(finished);
     data.FlushBits();
@@ -857,7 +883,7 @@ void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteI
     _player->GetSession()->SendPacket(&data);
 
     if (count == 6)
-        SendSearchSiteComplete(siteId);
+        SendSearchSiteComplete(uint16(siteId));
 }
 
 void ArchaeologyMgr::SendSearchSiteComplete(uint16 siteId)

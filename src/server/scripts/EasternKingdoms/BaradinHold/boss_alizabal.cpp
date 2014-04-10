@@ -3,11 +3,10 @@
 
 enum ScriptTexts
 {
-    
     SAY_AGGRO           = 0,
     SAY_DEATH           = 1,
     SAY_INTRO           = 2,
-    SAY_WIPE            = 3, 
+    SAY_WIPE            = 3,
     SAY_KILL            = 4,
     SAY_SEETHING_HATE   = 5,
     SAY_SKEWER          = 6,
@@ -50,7 +49,7 @@ class boss_alizabal : public CreatureScript
 
         struct boss_alizabalAI : public BossAI
         {
-            boss_alizabalAI(Creature* pCreature) : BossAI(pCreature, DATA_ALIZABAL) 
+            boss_alizabalAI(Creature* pCreature) : BossAI(pCreature, DATA_ALIZABAL)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 				me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -81,7 +80,7 @@ class boss_alizabal : public CreatureScript
             void Reset()
             {
                 _Reset();
-                
+
                 events.Reset();
             }
 

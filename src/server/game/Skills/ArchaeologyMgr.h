@@ -64,6 +64,7 @@ struct ProjectCost
 
 struct CompletedProject
 {
+    uint32 projectId;
     uint32 count;
     uint32 first_date;
 };
@@ -74,13 +75,13 @@ typedef std::map<uint32, ProjectSet> Projects;
 
 typedef std::set<uint32> ResearchSiteSet;
 typedef std::set<uint32> ResearchProjectSet;
-typedef std::map<uint32, CompletedProject> CompletedProjectMap;
+typedef std::list<CompletedProject> CompletedProjectSet;
 
 class ArchaeologyMgr
 {
     public:
-        ArchaeologyMgr(Player* player) : _player(player) 
-        { 
+        ArchaeologyMgr(Player* player) : _player(player)
+        {
             for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
                 _digSites[i].clear();
         }
@@ -89,7 +90,7 @@ class ArchaeologyMgr
 
         void LoadArchaeology(PreparedQueryResult result, PreparedQueryResult resultProjects);
         void SaveArchaeology(SQLTransaction& trans);
-        
+
         void AddProjectCost(uint32 entry, uint32 count, bool isCurrency)
         {
             costData.push_back(ProjectCost(entry, count, isCurrency));
@@ -100,7 +101,7 @@ class ArchaeologyMgr
         bool SolveResearchProject(uint32 projectId);
         uint32 GetSurveyBotEntry(float &orientation);
 
-        CompletedProjectMap& GetCompletedProjects() { return _completedProjects; }
+        CompletedProjectSet GetCompletedProjects() { return _completedProjects; }
 
         void GenerateResearchProjects();
         void GenerateResearchSites();
@@ -121,7 +122,7 @@ class ArchaeologyMgr
         DigitSite _digSites[20];
         ResearchSiteSet _researchSites[5];
         ResearchProjectSet _researchProjects;
-        CompletedProjectMap _completedProjects;
+        CompletedProjectSet _completedProjects;
         bool _archaeologyChanged;
 
         bool HasResearchSite(uint32 id, uint32 mapId) const
@@ -144,9 +145,10 @@ class ArchaeologyMgr
         }
 
         bool GenerateDigitLoot(uint16 zoneid, DigitSite &site);
-        
+
         uint16 GetResearchSiteID();
-        
+        bool IsCompletedProject(uint32 id);
+
         void GenerateResearchSiteInMap(uint32 mapId, uint32 map);
         ResearchWithLevelResult CanResearchWithLevel(uint32 siteId);
 

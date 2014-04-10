@@ -33,7 +33,7 @@ enum eSpells
     SPELL_RESIDUAL_BURN             = 144007, // This is for Heroic Mode
     SPELL_CORRUPTION_SHOCK          = 144018,
     SPELL_CORRUPTION_CHAIN          = 145631, // This is for Heroic Mode
-    
+
     // Sun Thenderheart
     SPELL_CALAMITY_AOE              = 143491,
     SPELL_CALAMITY                  = 143544,
@@ -796,7 +796,7 @@ class mob_embodied_sorrow : public CreatureScript
                     case EVENT_INFERNO_STRIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(target, SPELL_INFERNO_STRIKE, false);
-                        
+
                         events.ScheduleEvent(EVENT_INFERNO_STRIKE, 5000);
                         break;
                     default:

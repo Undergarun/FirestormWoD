@@ -276,7 +276,7 @@ class npc_iron_roots : public CreatureScript
             npc_iron_rootsAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
             }
-            
+
             void InitializeAI()
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -345,7 +345,7 @@ class boss_freya : public CreatureScript
         {
             boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
             {
-               _encounterFinished = false; 
+               _encounterFinished = false;
             }
 
             bool _checkElementalAlive[2];
@@ -389,7 +389,7 @@ class boss_freya : public CreatureScript
                             elder->AI()->EnterEvadeMode();
                         }
                     }
-                } 
+                }
             }
 
             void KilledUnit(Unit* who)
@@ -477,7 +477,7 @@ class boss_freya : public CreatureScript
                         Brightleaf->AddAura(SPELL_DRAINED_OF_POWER, Brightleaf);
                         events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(15000, 30000));
                     }
-            
+
                 if (Creature* Ironbranch = me->GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                     if (Ironbranch->isAlive())
                     {
@@ -490,7 +490,7 @@ class boss_freya : public CreatureScript
                         Ironbranch->AddAura(SPELL_DRAINED_OF_POWER, Ironbranch);
                         events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(45000, 60000));
                     }
-            
+
                 if (Creature* Stonebark = me->GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                     if (Stonebark->isAlive())
                     {
@@ -1308,7 +1308,7 @@ class npc_detonating_lasher : public CreatureScript
                     me->DespawnOrUnsummon(1);
                 }
             }
-            
+
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -1401,7 +1401,7 @@ class npc_ancient_water_spirit : public CreatureScript
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(1);
                 }
             }
-            
+
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -1484,7 +1484,7 @@ class npc_storm_lasher : public CreatureScript
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(2);
                 }
             }
-            
+
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -1564,7 +1564,7 @@ class npc_snaplasher : public CreatureScript
             void Reset()
             {
             }
-            
+
             void JustDied(Unit* /*who*/)
             {
                 if (Creature* Freya = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_FREYA)))
@@ -1824,7 +1824,7 @@ class npc_eonars_gift : public CreatureScript
                 }
                 else
                     me->DisappearAndDie();
-                
+
                 if (!_cast)
                 {
                     if (_lifeBindersGiftTimer <= diff)
@@ -1912,7 +1912,7 @@ class npc_unstable_sun_beam : public CreatureScript
                 DoCast(me, SPELL_UNSTABLE_SUN_BEAM);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
-            
+
             void MoveInLineOfSight(Unit* target)
             {
                 if (target && target->GetTypeId() == TYPEID_UNIT)
