@@ -249,7 +249,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_CombatTimer = 0;
 
-    simulacrumTargetGUID = NULL;
+    simulacrumTargetGUID = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
