@@ -51,7 +51,7 @@ class boss_akilzon : public CreatureScript
 {
     public:
         boss_akilzon() : CreatureScript("boss_akilzon") {}
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new boss_akilzonAI(pCreature);
@@ -74,7 +74,7 @@ class boss_akilzon : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
-            
+
             uint64 Eagles[8];
 
             void Reset()
@@ -101,12 +101,12 @@ class boss_akilzon : public CreatureScript
                 _JustDied();
                 Talk(SAY_DEATH);
             }
-            
+
             void JustSummoned(Creature* summon)
             {
                 BossAI::JustSummoned(summon);
             }
-            
+
             void SummonedCreatureDespawn(Creature* summon)
             {
                 BossAI::SummonedCreatureDespawn(summon);
@@ -126,7 +126,7 @@ class boss_akilzon : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-                
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                      switch (eventId)
@@ -165,7 +165,7 @@ class boss_akilzon : public CreatureScript
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_PLUCKED))
                                 if (Creature* pKidnapper = me->SummonCreature(NPC_AMANI_KIDNAPPER, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ() + 3, pTarget->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 5000))
                                     pTarget->CastSpell(pKidnapper, SPELL_PLUCKED, true);
-                                
+
                             break;
                      }
                 }
@@ -179,7 +179,7 @@ class npc_akilzon_soaring_eagle : public CreatureScript
 {
     public:
         npc_akilzon_soaring_eagle() : CreatureScript("npc_akilzon_soaring_eagle") { }
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_akilzon_soaring_eagleAI(pCreature);
@@ -187,7 +187,7 @@ class npc_akilzon_soaring_eagle : public CreatureScript
 
         struct npc_akilzon_soaring_eagleAI : public ScriptedAI
         {
-            npc_akilzon_soaring_eagleAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_akilzon_soaring_eagleAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -201,14 +201,14 @@ class npc_akilzon_soaring_eagle : public CreatureScript
                 me->GetPosition(&homePos);
                 events.Reset();
             }
-            
-            void EnterCombat(Unit* who) 
+
+            void EnterCombat(Unit* who)
             {
                 events.ScheduleEvent(EVENT_EAGLE_SWOOP, urand(100, 6000));
             }
 
             void MovementInform(uint32 type, uint32 id)
-            { 
+            {
                 if (type == POINT_MOTION_TYPE)
                 {
                     if (id == EVENT_CHARGE)
@@ -250,7 +250,7 @@ class npc_akilzon_amani_kidnapper : public CreatureScript
 {
     public:
         npc_akilzon_amani_kidnapper() : CreatureScript("npc_akilzon_amani_kidnapper") { }
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_akilzon_amani_kidnapperAI(pCreature);
@@ -258,7 +258,7 @@ class npc_akilzon_amani_kidnapper : public CreatureScript
 
         struct npc_akilzon_amani_kidnapperAI : public ScriptedAI
         {
-            npc_akilzon_amani_kidnapperAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_akilzon_amani_kidnapperAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -283,7 +283,7 @@ class spell_akilzon_electrical_storm : public SpellScriptLoader
             {
                 if (!GetTarget())
                     return;
-               
+
                 if (Player* pPlayer = GetTarget()->ToPlayer())
                 {
                     pPlayer->CastSpell(pPlayer, SPELL_ELECTRICAL_SAFE, true);
@@ -304,7 +304,7 @@ class spell_akilzon_electrical_storm : public SpellScriptLoader
                     pPlayer->SetClientControl(pPlayer, 1);
                     pPlayer->SetCanFly(false);
                     pPlayer->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-                }                
+                }
             }
 
             void Register()

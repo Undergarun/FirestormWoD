@@ -27,7 +27,7 @@ class boss_argaloth : public CreatureScript
 
         struct boss_argalothAI : public BossAI
         {
-            boss_argalothAI(Creature* pCreature) : BossAI(pCreature, DATA_ARGALOTH) 
+            boss_argalothAI(Creature* pCreature) : BossAI(pCreature, DATA_ARGALOTH)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 				me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);

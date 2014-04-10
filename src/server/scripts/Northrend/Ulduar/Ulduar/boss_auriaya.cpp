@@ -159,7 +159,7 @@ class boss_auriaya : public CreatureScript
                 defenderLives = 9;
                 crazyCatLady = true;
                 nineLives = false;
-                
+
                 // Guardians are despawned by _Reset, but since they walk around with Auriaya, summon them again.
                 for (uint8 i = 0; i < SENTRY_NUMBER; i++)
                     if (Creature* sentry = me->SummonCreature(NPC_SANCTUM_SENTRY, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000)) // 30 secs equal the automated respawn time (due to script)
@@ -240,7 +240,7 @@ class boss_auriaya : public CreatureScript
                         break;
                }
             }
-            
+
             void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
             {
                 switch (summon->GetEntry())
@@ -314,7 +314,7 @@ class boss_auriaya : public CreatureScript
                                 {
                                     corpse->DespawnOrUnsummon();
                                     if (Creature* feralDefender = me->SummonCreature(NPC_FERAL_DEFENDER, *corpse))
-                                        feralDefender->CastSpell(feralDefender, SPELL_FULL_HEAL, true);                                    
+                                        feralDefender->CastSpell(feralDefender, SPELL_FULL_HEAL, true);
                                 }
                             return;
                         case EVENT_BERSERK:
@@ -347,7 +347,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
         struct npc_auriaya_seeping_triggerAI : public ScriptedAI
         {
             npc_auriaya_seeping_triggerAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
-            
+
             void Reset()
             {
                 me->SetDisplayId(MODEL_INVISIBLE);
@@ -394,7 +394,7 @@ class npc_sanctum_sentry : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 //DoCast(me, SPELL_STRENGHT_OF_THE_PACK, true);
-                
+
                 if (me->ToTempSummon())
                 {
                     Unit* auriaya = me->ToTempSummon()->GetSummoner();
@@ -663,10 +663,10 @@ void AddSC_boss_auriaya()
     new achievement_crazy_cat_lady();
 }
 
-#undef SPELL_SENTINEL_BLAST 
-#undef SPELL_SONIC_SCREECH 
-#undef SPELL_FERAL_RUSH 
-#undef SPELL_FERAL_POUNCE 
-#undef SPELL_SEEPING_FERAL_ESSENCE 
-#undef SPELL_SAVAGE_POUNCE 
+#undef SPELL_SENTINEL_BLAST
+#undef SPELL_SONIC_SCREECH
+#undef SPELL_FERAL_RUSH
+#undef SPELL_FERAL_POUNCE
+#undef SPELL_SEEPING_FERAL_ESSENCE
+#undef SPELL_SAVAGE_POUNCE
 #undef SPELL_RIP_FLESH

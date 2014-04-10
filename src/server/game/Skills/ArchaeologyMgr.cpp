@@ -87,7 +87,7 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
     for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
     {
         ResearchLootEntry entry = (*itr);
-        if (entry.id != zoneid)          
+        if (entry.id != zoneid)
   continue;
 
 
@@ -262,7 +262,7 @@ void ArchaeologyMgr::ShowResearchSites()
 
     uint8 count = 0;
     uint32 newvalue = 0;
-    
+
     ResearchSiteSet tempSet;
 
     for (uint8 i = 0; i < 5; ++i)
@@ -473,7 +473,7 @@ void ArchaeologyMgr::GenerateResearchProjects()
         Projects& proj = tempProjects[raceIndex];
         if (proj.empty())
             continue;
-        
+
         auto itr = proj.begin();
         std::advance(itr, rand() % proj.size());
         _researchProjects.insert(*itr);
@@ -487,7 +487,7 @@ void ArchaeologyMgr::GenerateResearchProjects()
         ProjectSet& proj = tempProjects[raceIndex];
         if (proj.empty())
             continue;
-        
+
         ProjectSet::iterator itr = proj.begin();
         std::advance(itr, rand() % proj.size());
         _researchProjects.insert(*itr);
@@ -517,7 +517,7 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
     for (std::set<ResearchProjectEntry const*>::const_iterator itr = sResearchProjectSet.begin(); itr != sResearchProjectSet.end(); ++itr)
         if ((*itr)->ID == projectId)
             entry = (*itr);
-    
+
     if (!entry)
         return false;
 
@@ -614,7 +614,7 @@ void ArchaeologyMgr::SaveArchaeology(SQLTransaction& trans)
     if (!_researchSites[0].empty())
         for (ResearchSiteSet::const_iterator itr = _researchSites[0].begin(); itr != _researchSites[0].end(); ++itr)
             ss << (*itr) << " ";
-    
+
     ss << "', '";
 
     if (!_researchSites[1].empty())
@@ -812,7 +812,7 @@ bool ArchaeologyMgr::ValidateCostData()
 {
     if (costData.empty())
         return false;
-    
+
     for (std::vector<ProjectCost>::const_iterator itr = costData.begin(); itr != costData.end(); ++itr)
     {
         if ((*itr).currency)

@@ -401,7 +401,7 @@ class boss_anubarak_trial : public CreatureScript
 
                 }
 
-                if (HealthBelowPct(30) && events.IsInPhase(PHASE_MELEE) && !_reachedPhase3) 
+                if (HealthBelowPct(30) && events.IsInPhase(PHASE_MELEE) && !_reachedPhase3)
                 {
                     _reachedPhase3 = true;
                     DoCastAOE(SPELL_LEECHING_SWARM);
@@ -409,7 +409,7 @@ class boss_anubarak_trial : public CreatureScript
                     Talk(SAY_LEECHING_SWARM);
                 }
 
-                if (events.IsInPhase(PHASE_MELEE)) 
+                if (events.IsInPhase(PHASE_MELEE))
                     DoMeleeAttackIfReady();
             }
 
