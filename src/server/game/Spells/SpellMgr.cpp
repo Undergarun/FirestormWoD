@@ -3416,6 +3416,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 119403:// Glyph of Explosive Trap
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 149575:// Explosive Trap (knock back)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[1].TargetA = TARGET_DEST_DEST;
+                break;
             case 108287:// Totemic Projection
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;

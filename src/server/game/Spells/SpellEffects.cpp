@@ -744,9 +744,11 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 switch (m_spellInfo->Id)
                 {
                     case 13812: // Explosive Trap
+                    {
                         if (m_caster->HasAura(119403)) // Glyph of Explosive Trap
                             return;
                         break;
+                    }
                     case 16827: // Claw
                     case 17253: // Bite
                     {
@@ -2683,6 +2685,14 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
         if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_AREA_SPELL))
         {
             delete dynObj;
+            return;
+        }
+
+        // Glyph of Explosive Trap
+        if (m_spellInfo->Id == 13812 && caster->HasAura(119403))
+        {
+            m_caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 149575, true);
+            dynObj->SetDuration(0);
             return;
         }
 
@@ -6567,7 +6577,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 13812: // Explosive Trap
+        case 149575: // Explosive Trap
             if (!m_caster->HasAura(119403)) // Glyph of Explosive Trap
                 return;
             break;
