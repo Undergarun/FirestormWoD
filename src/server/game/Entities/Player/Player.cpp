@@ -23626,6 +23626,9 @@ void Player::RemoveSpellMods(Spell* spell)
     if (spell->m_appliedMods.empty())
         return;
 
+    // Hack fix for "double proc" for pyroblast! + Presence of Mind
+    bool magePyroblast = false;
+
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
         for (SpellModList::const_iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
@@ -23644,6 +23647,11 @@ void Player::RemoveSpellMods(Spell* spell)
 
             // remove from list
             spell->m_appliedMods.erase(iterMod);
+
+            if (mod->ownerAura->GetId() == 48108)
+                magePyroblast = true;
+            else if (mod->ownerAura->GetId() == 12043 && magePyroblast)
+                continue;
 
             if (!(mod->ownerAura->GetId() == 117828 && spell->GetSpellInfo()->Id == 116858))
                 if (std::const_pointer_cast<Aura>(mod->ownerAura)->DropCharge(AURA_REMOVE_BY_EXPIRE))

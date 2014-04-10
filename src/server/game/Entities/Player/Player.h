@@ -3456,6 +3456,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     int32 totalflat = 0;
     bool chaosBolt = false;
     bool soulFire = false;
+    bool pyroblast = false;
     int32 value = 0;
 
     // Drop charges for triggering spells instead of triggered ones
@@ -3532,6 +3533,14 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                     m_isMoltenCored = true;
 
                 value = mod->value / mod->charges;
+            }
+            // Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
+            else if ((mod->spellId == 48108 || mod->spellId == 12043) && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 11366)
+            {
+                if (pyroblast)
+                    continue;
+                else
+                    pyroblast = true;
             }
 
             totalmul += CalculatePct(1.0f, value);
