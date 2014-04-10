@@ -735,13 +735,19 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster())
+                if (!GetCaster() || !GetTarget())
                     return;
 
                 if (Player* plr = GetCaster()->ToPlayer())
                 {
-                    if (plr->HasSpellCooldown(GetSpellInfo()->Id))
-                        plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    if (Unit* target = GetTarget())
+                    {
+                        if (target->GetHealthPct() <= 20.0f)
+                        {
+                            if (plr->HasSpellCooldown(GetSpellInfo()->Id))
+                                plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        }
+                    }
                 }
             }
 
