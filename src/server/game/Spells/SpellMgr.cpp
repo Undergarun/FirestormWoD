@@ -5716,6 +5716,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 142689:
                 spellInfo->Effects[0].BasePoints = -2500;
                 break;
+            // Terrorize Player (tsulong spell)
+            case 123011:
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             default:
                 break;
         }
