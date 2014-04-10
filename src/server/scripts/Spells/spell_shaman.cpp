@@ -97,6 +97,87 @@ enum ShamanSpells
     SPELL_SHA_FROST_SHOCK                   = 8056
 };
 
+// Totemic Projection - 108287
+class spell_sha_totemic_projection : public SpellScriptLoader
+{
+    public:
+        spell_sha_totemic_projection() : SpellScriptLoader("spell_sha_totemic_projection") { }
+
+        class spell_sha_totemic_projection_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_totemic_projection_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Creature*> leapList;
+                    Unit* leapTarget = NULL;
+
+                    caster->GetCreatureListWithEntryInGrid(leapList, 47319, 45.0f);
+
+                    for (auto itr : leapList)
+                    {
+                        if (!itr->ToUnit() || !itr->ToTempSummon())
+                            continue;
+
+                        if (!itr->ToTempSummon()->GetSummoner())
+                            continue;
+
+                        if (itr->ToTempSummon()->GetSummoner()->GetGUID() != caster->GetGUID())
+                            continue;
+
+                        leapTarget = itr->ToUnit();
+                        break;
+                    }
+
+                    if (!leapTarget)
+                        return;
+
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->isTotem())
+                        {
+                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo((*itr)->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+                            if (!spellInfo)
+                                continue;
+
+                            float objSize = caster->GetObjectSize();
+                            float angle = spellInfo->Effects[0].TargetA.CalcDirectionAngle();
+                            float dist = spellInfo->Effects[0].CalcRadius(caster);
+
+                            if (dist < objSize)
+                                dist = objSize;
+
+                            Position pos;
+                            leapTarget->GetPosition(&pos);
+
+                            angle += (*itr)->GetOrientation();
+                            float destx, desty, destz, ground, floor;
+                            destx = pos.m_positionX + dist * std::cos(angle);
+                            desty = pos.m_positionY + dist * std::sin(angle);
+                            ground = (*itr)->GetMap()->GetHeight((*itr)->GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+                            floor = (*itr)->GetMap()->GetHeight((*itr)->GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+                            destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+
+                            (*itr)->NearTeleportTo(destx, desty, destz, (*itr)->GetOrientation());
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_totemic_projection_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_totemic_projection_SpellScript();
+        }
+};
+
 // Hex - 51514
 class spell_sha_hex : public SpellScriptLoader
 {
@@ -1929,6 +2010,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_totemic_projection();
     new spell_sha_hex();
     new spell_sha_water_ascendant();
     new spell_sha_prowl();

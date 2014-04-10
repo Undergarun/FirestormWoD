@@ -3416,6 +3416,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 108287:// Totemic Projection
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 115176:// Zen Meditation
                 spellInfo->ProcCharges = 5;
                 spellInfo->Effects[0].BasePoints = 5;
