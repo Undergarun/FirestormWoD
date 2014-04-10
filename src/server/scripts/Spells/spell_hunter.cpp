@@ -76,8 +76,6 @@ enum HunterSpells
     HUNTER_SPELL_FRENZY_STACKS                      = 19615,
     HUNTER_SPELL_FOCUS_FIRE_READY                   = 88843,
     HUNTER_SPELL_FOCUS_FIRE_AURA                    = 82692,
-    HUNTER_SPELL_A_MURDER_OF_CROWS_SUMMON           = 129179,
-    HUNTER_NPC_MURDER_OF_CROWS                      = 61994,
     HUNTER_SPELL_DIRE_BEAST                         = 120679,
     DIRE_BEAST_JADE_FOREST                          = 121118,
     DIRE_BEAST_KALIMDOR                             = 122802,
@@ -117,7 +115,8 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_BEAST                = 61648,
     HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
     HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254,
-    HUNTER_SPELL_ARCANE_INTENSITY                   = 142978
+    HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
+    HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900
 };
 
 // Called by Arcane Shot - 3044
@@ -734,46 +733,28 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    if (plr->HasSpellCooldown(GetSpellInfo()->Id))
+                        plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                }
+            }
+
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
-                {
-                    if (!GetCaster())
-                        return;
-
-                    if (aurEff->GetTickNumber() > 15)
-                        return;
-
-                    if (Player* _player = GetCaster()->ToPlayer())
-                    {
-                        _player->CastSpell(target, HUNTER_SPELL_A_MURDER_OF_CROWS_SUMMON, true);
-
-                        std::list<Creature*> tempList;
-                        std::list<Creature*> crowsList;
-
-                        _player->GetCreatureListWithEntryInGrid(tempList, HUNTER_NPC_MURDER_OF_CROWS, 100.0f);
-
-                        for (auto itr : tempList)
-                            crowsList.push_back(itr);
-
-                        // Remove other players Crows
-                        for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                        {
-                            Unit* owner = (*i)->GetOwner();
-                            if (owner && owner == _player && (*i)->isSummon())
-                                continue;
-
-                            crowsList.remove((*i));
-                        }
-
-                        for (auto itr : crowsList)
-                            itr->AI()->AttackStart(target);
-                    }
-                }
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
             }
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };

@@ -3688,43 +3688,6 @@ class npc_demonic_gateway_green : public CreatureScript
 };
 
 /*######
-# npc_murder_of_crows
-######*/
-
-class npc_murder_of_crows : public CreatureScript
-{
-    public:
-        npc_murder_of_crows() : CreatureScript("npc_murder_of_crows") { }
-
-        struct npc_murder_of_crowsAI : public ScriptedAI
-        {
-            npc_murder_of_crowsAI(Creature *creature) : ScriptedAI(creature)
-            {
-                me->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (me->GetReactState() != REACT_DEFENSIVE)
-                    me->SetReactState(REACT_DEFENSIVE);
-
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_murder_of_crowsAI(creature);
-        }
-};
-
-/*######
 # npc_dire_beast
 ######*/
 
@@ -5064,7 +5027,6 @@ void AddSC_npcs_special()
     new npc_power_word_barrier();
     new npc_demonic_gateway_purple();
     new npc_demonic_gateway_green();
-    new npc_murder_of_crows();
     new npc_dire_beast();
     new npc_wild_imp();
     new npc_stone_bulwark_totem();
