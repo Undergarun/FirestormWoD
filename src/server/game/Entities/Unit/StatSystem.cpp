@@ -1508,6 +1508,12 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+
+    if (GetEntry() == ENTRY_WRATHGUARD || GetEntry() == ENTRY_SHIVARRA)
+    {
+        SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage / 2);
+        SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, maxdamage / 2);
+    }
 }
 
 void Guardian::SetBonusDamage(int32 damage)

@@ -1052,21 +1052,18 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     break;
                 }
                 case ENTRY_FEL_IMP:
-                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
-                    break;
+                case ENTRY_ABYSSAL:
+                case ENTRY_TERRORGUARD:
                 case ENTRY_VOIDLORD:
-                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
-                    break;
-                case ENTRY_SHIVARRA:
-                    CastSpell(this, 114355, true); // Dual-Wield
-                    CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
-                    break;
                 case ENTRY_OBSERVER:
                     CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
                     break;
                 case ENTRY_WRATHGUARD:
+                case ENTRY_SHIVARRA:
                     CastSpell(this, 114355, true); // Dual-Wield
                     CastSpell(this, 115578, true); // Grimoire of Supremacy - +20% damage done
+                    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
+                    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
                     break;
                 default:
                     break;
