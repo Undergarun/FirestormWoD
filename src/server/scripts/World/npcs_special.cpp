@@ -4410,7 +4410,7 @@ enum TranscendenceSpiritSpells
 
 enum transcendenceActions
 {
-    ACTION_TELEPORT     = 1,
+    ACTION_TELEPORT
 };
 
 class npc_transcendence_spirit : public CreatureScript
@@ -4427,34 +4427,24 @@ class npc_transcendence_spirit : public CreatureScript
 
             void Reset()
             {
-                if (!me->HasAura(SPELL_MEDITATE))
-                    me->AddAura(SPELL_MEDITATE, me);
+                me->CastSpell(me, SPELL_MEDITATE, true);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* owner)
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->SetMaxHealth(owner->GetMaxHealth() / 2);
-                    me->SetHealth(me->GetMaxHealth());
-
-                    me->CastSpell(me, SPELL_VISUAL_SPIRIT, true);
-                    owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
-                    owner->CastSpell(me, SPELL_CLONE_CASTER, true);
-                    owner->AddAura(SPELL_MEDITATE, me);
-                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
-                }
-                else
-                    me->DespawnOrUnsummon();
-            }
-
-            void MovementInform(uint32 type, uint32 id)
-            {
-                if (type != POINT_MOTION_TYPE)
+                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (id == 0)
-                    me->SetSpeed(MOVE_RUN, 0.0f);
+                me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                me->SetHealth(me->GetMaxHealth());
+
+                me->CastSpell(me, SPELL_VISUAL_SPIRIT, true);
+                owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
+                owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                owner->AddAura(SPELL_MEDITATE, me);
+                me->AddAura(SPELL_ROOT_FOR_EVER, me);
             }
 
             void DoAction(int32 const action)
@@ -4462,16 +4452,18 @@ class npc_transcendence_spirit : public CreatureScript
                 switch (action)
                 {
                     case ACTION_TELEPORT:
-                        if (!me->GetOwner())
+                    {
+                        if (Unit* owner = me->GetOwner())
                         {
-                            me->DespawnOrUnsummon(500);
-                            break;
+                            Position ownerPos;
+                            owner->GetPosition(&ownerPos);
+
+                            owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                            me->NearTeleportTo(ownerPos.m_positionX, ownerPos.m_positionY, ownerPos.m_positionZ, ownerPos.m_orientation);
                         }
 
-                        me->SetSpeed(MOVE_RUN, 10.0f);
-                        me->GetMotionMaster()->MovePoint(0, me->GetOwner()->GetPositionX(), me->GetOwner()->GetPositionY(), me->GetOwner()->GetPositionZ());
-                        me->SetOrientation(me->GetOwner()->GetOrientation());
                         break;
+                    }
                     default:
                         break;
                 }

@@ -4160,9 +4160,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 83968: // Mass Resurrect
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
-            case 102141:// Transcendence (summon)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
-                break;
             case 108507:// Kil'Jaeden's Cunning (passive)
                 spellInfo->Effects[1].SpellClassMask[0] = 0x7C01487D;
                 spellInfo->Effects[1].SpellClassMask[1] = 0x48022DF0;

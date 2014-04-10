@@ -966,11 +966,18 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex effIndex)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (Pet* pet = target->ToPet())
-                            if (pet->AI())
-                                pet->AI()->DoAction(1);
+                if (Unit* caster = GetCaster())
+                {
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->GetEntry() == 54569)
+                        {
+                            Creature* clone = (*itr)->ToCreature();
+                            if (clone && clone->AI())
+                                clone->AI()->DoAction(0);
+                        }
+                    }
+                }
             }
 
             void Register()
