@@ -272,6 +272,7 @@ class boss_ancient_regail : public CreatureScript
 			{
                 SetEquipmentSlots(false, REGAIL_ITEMS, REGAIL_ITEMS, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
+                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -492,6 +493,7 @@ class boss_ancient_regail : public CreatureScript
                     if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
                         me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
 
+                    EnterEvadeMode();
                     return;
                 }
 
@@ -563,6 +565,7 @@ class boss_ancient_asani : public CreatureScript
 			{
                 SetEquipmentSlots(false, ASANI_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
+                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -778,6 +781,7 @@ class boss_ancient_asani : public CreatureScript
                     if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
                         me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
 
+                    EnterEvadeMode();
                     return;
                 }
 
@@ -829,6 +833,7 @@ class boss_protector_kaolan : public CreatureScript
             boss_protector_kaolanAI(Creature* creature) : BossAI(creature, DATA_PROTECTORS)
             {
                 pInstance = creature->GetInstanceScript();
+                introDone = false;
             }
 
             InstanceScript* pInstance;
@@ -842,6 +847,7 @@ class boss_protector_kaolan : public CreatureScript
 			{
                 SetEquipmentSlots(false, KAOLAN_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
+                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -851,7 +857,6 @@ class boss_protector_kaolan : public CreatureScript
 
                 firstSpecialEnabled = false;
                 secondSpecialEnabled = false;
-                introDone = false;
 
                 me->RemoveAura(SPELL_SHA_CORRUPTION);
                 me->RemoveAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE);
@@ -1063,6 +1068,7 @@ class boss_protector_kaolan : public CreatureScript
                     if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
                         me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
 
+                    EnterEvadeMode();
                     return;
                 }
 

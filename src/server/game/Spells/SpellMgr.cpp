@@ -3416,6 +3416,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 115176:// Zen Meditation
+                spellInfo->ProcCharges = 5;
+                spellInfo->Effects[0].BasePoints = 5;
+                break;
             case 137639:// Storm, Earth and Fire
                 spellInfo->AttributesCu &= ~(SPELL_ATTR0_CU_NEGATIVE_EFF1|SPELL_ATTR0_CU_NEGATIVE_EFF0);
                 break;
