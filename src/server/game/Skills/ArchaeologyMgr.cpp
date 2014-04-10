@@ -87,9 +87,8 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
     for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
     {
         ResearchLootEntry entry = (*itr);
-        if (entry.id != zoneid)          
-  continue;
-
+        if (entry.id != zoneid)
+            continue;
 
         if (site.loot_id == 0)
         {
@@ -262,7 +261,7 @@ void ArchaeologyMgr::ShowResearchSites()
 
     uint8 count = 0;
     uint32 newvalue = 0;
-    
+
     ResearchSiteSet tempSet;
 
     for (uint8 i = 0; i < 5; ++i)
@@ -466,7 +465,7 @@ void ArchaeologyMgr::GenerateResearchProjects()
         ProjectSet& proj = tempProjects[raceIndex];
         if (proj.empty())
             continue;
-        
+
         ProjectSet::iterator itr = proj.begin();
         std::advance(itr, rand() % proj.size());
         _researchProjects.insert(*itr);
@@ -501,7 +500,7 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
             break;
         }
     }
-    
+
     if (!entry)
         return false;
 
@@ -524,7 +523,7 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS, projectId, 1);
 
-    // Already Completed
+     // Already Completed
     if (_completedProjects.find(projectId) != _completedProjects.end())
         ++_completedProjects[projectId].count;
     else
@@ -786,7 +785,7 @@ bool ArchaeologyMgr::ValidateCostData()
 {
     if (costData.empty())
         return false;
-    
+
     for (std::vector<ProjectCost>::const_iterator itr = costData.begin(); itr != costData.end(); ++itr)
     {
         if ((*itr).currency)

@@ -3278,7 +3278,7 @@ void Group::SendRaidMarkersUpdate()
     // @TODO: Send in classic order instead of summon order
     for (auto itr : GetRaidMarkers())
     {
-        ObjectGuid guid = NULL;
+        ObjectGuid guid = 0;
 
         uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
         data.WriteBitInOrder(guid, bits);

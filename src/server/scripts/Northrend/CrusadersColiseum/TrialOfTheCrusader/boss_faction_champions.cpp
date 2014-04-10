@@ -1475,7 +1475,7 @@ class mob_toc_hunter : public CreatureScript
                             events.ScheduleEvent(EVENT_STEADY_SHOT, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_WING_CLIP:
-                            if (Unit* target = me->getVictim()) 
+                            if (Unit* target = me->getVictim())
                             {
                                 if (me->GetDistance2d(target) < 6.0f)
                                     DoCastVictim(SPELL_WING_CLIP);

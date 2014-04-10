@@ -1715,7 +1715,7 @@ public:
         uint64 CasterGUID;
 
         uint32 rebuff;
-    
+
 
     void Reset()
     {

@@ -430,7 +430,7 @@ public:
             Talk(SAY_COMMON_KILL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 & damage) 
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
         {
             if(defeated)
             {
@@ -524,7 +524,7 @@ public:
                     renewTimer = urand(15000, 17000);
                 } else renewTimer -= diff;
             }
-            
+
             if (!shielded && !HealthAbovePct(25))
             {
                 me->InterruptNonMeleeSpells(true);

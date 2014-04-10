@@ -249,7 +249,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_CombatTimer = 0;
 
-    simulacrumTargetGUID = NULL;
+    simulacrumTargetGUID = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -1698,7 +1698,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         }
 
         // Custom MoP Script - Zen Meditation - 115176
-        if (victim->HasAura(115176) || victim->HasAura(131523))
+        if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
         {
             victim->RemoveAura(115176);
             victim->RemoveAura(131523);
@@ -4340,11 +4340,19 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 
     // interrupt channeled spell
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+    {
         if (spell->getState() == SPELL_STATE_CASTING
             && (spell->m_spellInfo->ChannelInterruptFlags & flag)
             && spell->m_spellInfo->Id != except
             && !((flag & AURA_INTERRUPT_FLAG_MOVE) && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->m_spellInfo)))
+        {
+            // Zen Meditation should be channeled, but apply a levitation aura, it handles a movement opcode
+            if (spell->m_spellInfo->Id == 115176 && spell->GetTimer() == 8000)
+                return;
+
             InterruptNonMeleeSpells(false);
+        }
+    }
 
     UpdateInterruptMask();
 }

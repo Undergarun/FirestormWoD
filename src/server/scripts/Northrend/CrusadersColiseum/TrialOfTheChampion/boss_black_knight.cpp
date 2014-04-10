@@ -230,7 +230,7 @@ public:
                     {
                         DoCastVictim(SPELL_ICY_TOUCH);
                         uiIcyTouchTimer = urand(5000, 7000);
-                    } 
+                    }
                     else
                         uiIcyTouchTimer -= diff;
 
@@ -305,7 +305,7 @@ public:
                                 DoCast(me, SPELL_GHOUL_EXPLODE);
                                 uiGhoulExplodeTimer = 5000;
                             }
-                            else 
+                            else
                                 uiGhoulExplodeTimer -= diff;
                             break;
                         }

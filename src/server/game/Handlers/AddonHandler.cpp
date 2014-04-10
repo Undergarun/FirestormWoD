@@ -90,7 +90,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
                 uint8 unk = (crc != 0x4c1c776d);           // If addon is Standard addon CRC
                 *Target << uint8(unk);
                 if (unk)
-                { 
+                {
                     unsigned char tdata[256] =
                     {
                         0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54,

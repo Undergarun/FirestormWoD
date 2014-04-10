@@ -2442,7 +2442,6 @@ bool InstanceMap::AddPlayerToMap(Player* player)
 
 void InstanceMap::Update(const uint32 t_diff)
 {
-    sLog->OutPandashan("InstanceMap::Update: Map %u", GetId());
     Map::Update(t_diff);
 
     if (i_data)

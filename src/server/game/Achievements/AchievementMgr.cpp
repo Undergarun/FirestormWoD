@@ -1704,7 +1704,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
 
                 SetCriteriaProgress(achievementCriteria, miscValue2, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
-            }                
+            }
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
@@ -1761,7 +1761,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
     // counter can never complete
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER)
         return false;
- 
+
     if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // someone on this realm has already completed that achievement
@@ -2374,7 +2374,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
     for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
     {
         counter = uint64(itr->second.counter);
-        
+
         data.WriteBit(counter[5]);
         data.WriteBit(guid[2]);
         data.WriteBit(guid[4]);
@@ -2397,7 +2397,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
     for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
     {
         counter = uint64(itr->second.counter);
-        
+
         data.WriteByteSeq(guid[1]);
         data << uint32(itr->first);     // Criteria id
         data.WriteByteSeq(guid[7]);
@@ -2416,7 +2416,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         data.WriteByteSeq(guid[4]);
         data.WriteByteSeq(counter[4]);
         data.WriteByteSeq(counter[7]);
-        data.WriteByteSeq(counter[6]);       
+        data.WriteByteSeq(counter[6]);
         data.WriteByteSeq(guid[0]);
     }
 
@@ -2427,7 +2427,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 
         ObjectGuid firstAccountGuid = (*itr).second.first_guid;
 
-        data.WriteByteSeq(firstAccountGuid[4]);        
+        data.WriteByteSeq(firstAccountGuid[4]);
         data.WriteByteSeq(firstAccountGuid[6]);
         data.WriteByteSeq(firstAccountGuid[3]);
         data.WriteByteSeq(firstAccountGuid[0]);
@@ -2765,11 +2765,11 @@ bool AchievementMgr<T>::CanUpdateCriteria(AchievementCriteriaEntry const* criter
          break;
     }
 
-    if (referencePlayer) 
+    if (referencePlayer)
         if (achievement->mapID != -1 && referencePlayer->GetMapId() != uint32(achievement->mapID))
             return false;
 
-    if (referencePlayer) 
+    if (referencePlayer)
         if ((achievement->requiredFaction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
             (achievement->requiredFaction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
             return false;
@@ -3112,7 +3112,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const *ac
         case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             if (!miscValue1)
                 return false;
-            
+
             if (!referencePlayer)
                 return false;
 
@@ -3211,7 +3211,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             {
                 case 3929: reqValue = 8403; break;
                 case 3931: reqValue = 9099; break;
-                case 4112: reqValue = 4395; break;  
+                case 4112: reqValue = 4395; break;
                 case 6237: reqValue = 6; break;
                 case 6239: reqValue = 7; break;
                 case 6240: reqValue = 11; break;
@@ -3233,36 +3233,36 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 case 6320: reqValue = 2; break;
                 case 6321: reqValue = 3; break;
                 case 2379:
-                case 7573: 
+                case 7573:
                 case 10223:
-                case 10240: 
-                case 10241: 
+                case 10240:
+                case 10241:
                     reqValue = 0;
                     break;
-                case 4227: 
+                case 4227:
                 case 12859:
                     reqValue = 68478;
                     break;
                 case 6238:
                 case 6318:
                 case 7574:
-                case 10229: 
-                case 10238: 
-                case 10239: 
-                case 14638: 
+                case 10229:
+                case 10238:
+                case 10239:
+                case 14638:
                     reqValue = 1;
                     break;
                 case 14808:
                     reqValue = 85;
                     break;
-                case 14887: 
-                case 14888: 
+                case 14887:
+                case 14888:
                     reqValue = 23505;
                     break;
                 case 13905:
-                case 14537: 
-                case 14538: 
-                case 14539: 
+                case 14537:
+                case 14538:
+                case 14539:
                 case 14540:
                 case 14541:
                 case 14542:
@@ -3334,76 +3334,76 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 case 14634:
                 case 14635:
                 case 14636:
-                case 14637: 
-                case 14639: 
-                case 14640: 
-                case 14641: 
-                case 14642: 
-                case 14643: 
-                case 14644: 
-                case 14645: 
-                case 14646: 
-                case 14647: 
-                case 14648: 
-                case 14649: 
-                case 14650: 
-                case 14651: 
-                case 14652: 
-                case 14653: 
-                case 15485: 
-                case 15486: 
-                case 15487: 
-                case 15488: 
-                case 15489: 
-                case 15490: 
-                case 15491: 
-                case 15492: 
-                case 15493: 
-                case 15494: 
-                case 15495: 
-                case 15496: 
-                case 15497: 
-                case 15498: 
-                case 15499: 
-                case 15500: 
-                case 15501: 
-                case 15502: 
-                case 15503: 
-                case 15504: 
-                case 15505: 
-                case 15506: 
-                case 15507: 
+                case 14637:
+                case 14639:
+                case 14640:
+                case 14641:
+                case 14642:
+                case 14643:
+                case 14644:
+                case 14645:
+                case 14646:
+                case 14647:
+                case 14648:
+                case 14649:
+                case 14650:
+                case 14651:
+                case 14652:
+                case 14653:
+                case 15485:
+                case 15486:
+                case 15487:
+                case 15488:
+                case 15489:
+                case 15490:
+                case 15491:
+                case 15492:
+                case 15493:
+                case 15494:
+                case 15495:
+                case 15496:
+                case 15497:
+                case 15498:
+                case 15499:
+                case 15500:
+                case 15501:
+                case 15502:
+                case 15503:
+                case 15504:
+                case 15505:
+                case 15506:
+                case 15507:
                 case 15508:
-                case 15509: 
+                case 15509:
                 case 15510:
-                case 15511: 
-                case 15512: 
-                case 15513: 
-                case 15514: 
-                case 15515: 
-                case 15516: 
-                case 15517: 
-                case 15518: 
-                case 15519: 
-                case 15520: 
-                case 15521: 
+                case 15511:
+                case 15512:
+                case 15513:
+                case 15514:
+                case 15515:
+                case 15516:
+                case 15517:
+                case 15518:
+                case 15519:
+                case 15520:
+                case 15521:
                 case 15522:
-                case 15523: 
+                case 15523:
                     reqValue = 9000;
                     break;
-                case 9124: 
-                case 9143: 
-                case 9144: 
-                case 9145: 
-                case 9146: 
-                case 9147: 
+                case 9124:
+                case 9143:
+                case 9144:
+                case 9145:
+                case 9146:
+                case 9147:
                 case 9148:
-                case 9149: 
-                case 9150: 
-                case 9151: 
-                case 17845:  
-                case 17846: 
-                    reqValue = 8128; 
+                case 9149:
+                case 9150:
+                case 9151:
+                case 17845:
+                case 17846:
+                    reqValue = 8128;
                     break;
             }
         }
@@ -3447,19 +3447,19 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_ENEMY: // 7
                 if (!referencePlayer)
-                    return false;                
+                    return false;
                 if (!unit || !unit->IsInWorld() || !referencePlayer->IsHostileTo(unit))
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA: // 8
-                
+
                 // Hack for Fa-la-la-la-Ogri'la, there are wrong auras in dbc
                 if (criteria->achievement == 1282)
                 {
                     if (referencePlayer->HasAura(62061))
                         break;
                 }
-                else if (criteria->achievement == 233) // Take a Chill Pill 
+                else if (criteria->achievement == 233) // Take a Chill Pill
                 {
                     if (!referencePlayer)
                         return false;
@@ -3471,7 +3471,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA: // 10
-                
+
                 if (criteria->achievement == 1258) // Bloodthirsty Berserker
                 {
                     if (!unit || !unit->IsInWorld())
@@ -3496,12 +3496,12 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 break;
             }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_EQUALS: // 15
-            {    
-                // miscValue1 is itemid    
-                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));    
-                if (!item || item->Quality < reqValue)    
+            {
+                // miscValue1 is itemid
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                if (!item || item->Quality < reqValue)
                     return false;
-                break;    
+                break;
             }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA_OR_ZONE: // 17
             {
