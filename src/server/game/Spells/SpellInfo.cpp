@@ -3500,6 +3500,7 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
                 procSpell->Id == 6770 ||    // Sap
                 procSpell->Id == 137573 ||  // Burst of Speed
                 procSpell->Id == 98440 ||   // Relentless Strikes
+                procSpell->Id == 102288 ||  // Clone Caster
                 procSpell->Id == 12323)     // Piercing Howl
                 return true;
         }
