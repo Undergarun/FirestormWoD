@@ -970,7 +970,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
                         if ((*itr)->GetEntry() == 54569)
                         {
                             Creature* clone = (*itr)->ToCreature();
-                            if (clone && clone->AI())
+                            if (clone && clone->AI() && clone->GetDistance(caster) <= 40.0f)
                                 clone->AI()->DoAction(0);
                         }
                     }
