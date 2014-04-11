@@ -1235,8 +1235,24 @@ bool Aura::CanBeSaved() const
 
 bool Aura::CanBeSentToClient() const
 {
-    return GetId() != 115098 && (!IsPassive() || GetSpellInfo()->HasAreaAuraEffect() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE) || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)
-        || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2) || HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT));
+    if (GetId() == 115098)
+        return false;
+
+    if (!IsPassive())
+        return true;
+
+    if (GetSpellInfo()->HasAreaAuraEffect())
+        return true;
+
+    if (HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)      ||
+        HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)            ||
+        HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)     ||
+        HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)   ||
+        HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT)         ||
+        HasEffectType(SPELL_AURA_MOD_CHARGES))
+        return true;
+
+    return false;
 }
 
 void Aura::UnregisterSingleTarget()

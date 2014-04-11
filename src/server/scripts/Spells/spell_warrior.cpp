@@ -65,7 +65,6 @@ enum WarriorSpells
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
     WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277,
     WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
-    WARRIOR_SPELL_DOUBLE_TIME                   = 103827,
     WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356,
     WARRIOR_SPELL_SWEEPING_STRIKES              = 12328,
     WARRIOR_SPELL_SLAM_AOE                      = 146361,
@@ -1255,58 +1254,71 @@ class spell_warr_deep_wounds : public SpellScriptLoader
         }
 };
 
-enum Charge
-{
-    SPELL_CHARGE                            = 100,
-    SPELL_CHARGE_STUN                       = 7922,
-    SPELL_WARBRINGER                        = 103828,
-    SPELL_CHARGE_WARBRINGER_STUN            = 105771
-};
-
 // Charge - 100
 class spell_warr_charge : public SpellScriptLoader
 {
+    class script_impl : public SpellScript
+    {
+        PrepareSpellScript(script_impl)
+
+        enum
+        {
+            CHARGE_STUN        = 7922,
+            DOUBLE_TIME        = 103827,
+            WARBRINGER         = 103828,
+            WARBRINGER_STUN    = 105771,
+            DOUBLE_TIME_MARKER = 124184
+        };
+
+        bool canGenerateCharge;
+
+        bool Load()
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return false;
+
+            canGenerateCharge = !caster->HasAura(DOUBLE_TIME) || !caster->HasAura(DOUBLE_TIME_MARKER);
+            return true;
+        }
+
+        void HandleCharge(SpellEffIndex)
+        {
+            Unit* target = GetHitUnit();
+            if (!target)
+                return;
+
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            uint32 stunSpellId = caster->HasAura(WARBRINGER) ? WARBRINGER_STUN : CHARGE_STUN;
+            caster->CastSpell(target, stunSpellId, true);
+        }
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Unit* caster = GetCaster();
+            if (canGenerateCharge && caster)
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetEffectValue(), POWER_RAGE);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(script_impl::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+            OnEffectHitTarget += SpellEffectFn(script_impl::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
     public:
         spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
 
-        class spell_warr_charge_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_charge_SpellScript);
-
-            bool Validate(SpellInfo const* /*SpellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHARGE))
-                    return false;
-                return true;
-            }
-
-            void HandleCharge(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (caster->HasAura(SPELL_WARBRINGER))
-                            caster->CastSpell(target, SPELL_CHARGE_WARBRINGER_STUN, true);
-                        else
-                            caster->CastSpell(target, SPELL_CHARGE_STUN, true);
-
-                        if (!caster->HasSpell(WARRIOR_SPELL_DOUBLE_TIME))
-                            caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 200, POWER_RAGE);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_charge_SpellScript();
-        }
+    SpellScript* GetSpellScript() const
+    {
+        return new script_impl;
+    }
 };
 
 void AddSC_warrior_spell_scripts()
