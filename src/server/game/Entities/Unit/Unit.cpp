@@ -6923,6 +6923,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggeredByAura->GetBase()->GetEffect(0)->m_fixed_periodic.SetFixedTotalDamage(explodeDamage - damage);
                     return true;
                 }
+                case 108563:// Backlash
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(108563))
+                        return false;
+
+                    triggered_spell_id = 34936;
+                    ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
+                    return true;
+                }
                 case 114790:// Soulburn : Seed of Corruption
                 {
                     if (procSpell && procSpell->Id == 87385)
@@ -10150,18 +10162,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if (!(procEx & PROC_EX_CRITICAL_HIT))
                 return false;
-
-            break;
-        }
-        case 108563:// Backlash
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(108563))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
 
             break;
         }
