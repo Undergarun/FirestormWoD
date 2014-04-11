@@ -3232,13 +3232,16 @@ void Player::Regenerate(Powers power)
             else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
                 addvalue += 1.0f;     // give 1 each 100ms while player has less than 200 demonic fury
 
-            if (GetPower(POWER_DEMONIC_FURY) <= 40)
+            if (!HasAura(114168))
             {
-                if (HasAura(103958))
-                    RemoveAura(103958);
+                if (GetPower(POWER_DEMONIC_FURY) <= 40)
+                {
+                    if (HasAura(103958))
+                        RemoveAura(103958);
 
-                if (HasAura(54879))
-                    RemoveAura(54879);
+                    if (HasAura(54879))
+                        RemoveAura(54879);
+                }
             }
 
             // Demonic Fury visuals

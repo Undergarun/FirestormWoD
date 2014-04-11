@@ -3416,6 +3416,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 29858: // Soulshatter
+                spellInfo->OverrideSpellList.push_back(97827); // Add Taunt (Metamorphosis)
+                break;
             case 119403:// Glyph of Explosive Trap
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -3457,6 +3460,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 103965:// Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
+                spellInfo->Effects[7].SpellClassMask[1] = 0x400;
                 break;
             case 145518:// Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
@@ -4498,6 +4502,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Dispel = DISPEL_MAGIC;
                 spellInfo->Mechanic = 0;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->OverrideSpellList.push_back(104045); // Add Sleep (Metamorphosis)
                 break;
             case 51460: // Runic Corruption
                 spellInfo->Effects[EFFECT_1].Effect = 0;

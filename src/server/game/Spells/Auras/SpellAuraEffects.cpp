@@ -1847,6 +1847,9 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
     // Glyph of Shadow Word: Death
     if (m_spellInfo->Id == 120583 && spell->Id == 32379)
         return true;
+    // Dark Apotheosis allow warlock to cast Metamorphosis spells
+    if (m_spellInfo->Id == 114168 && spell->Id == 97827)
+        return true;
 
     return false;
 }
@@ -2010,6 +2013,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId  = 103965;
             spellId2 = 54817;
             spellId3 = 54879;
+            if (apply)
+                target->RemoveAura(114168); // Dark Apotheosis
             break;
         case FORM_SPIRITOFREDEMPTION:
             spellId  = 27792;
