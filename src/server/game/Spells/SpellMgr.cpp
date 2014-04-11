@@ -3544,6 +3544,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123996:
                 spellInfo->StartRecoveryTime = 1500;
                 spellInfo->StartRecoveryCategory = 133;
+                spellInfo->Effects[3].Effect = 0;
                 break;
             case 127424:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;

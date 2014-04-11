@@ -4740,22 +4740,27 @@ class npc_force_of_nature : public CreatureScript
 
             void Reset()
             {
-                Player* owner = me->GetOwner() ? me->GetOwner()->ToPlayer() : NULL;
+                Unit* owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
                 Unit* target = owner ? owner->getVictim() : NULL;
 
                 if (!owner || !target)
                     return;
 
+                me->setFaction(owner->getFaction());
+                me->SetLevel(owner->getLevel());
+                me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                me->SetFullHealth();
+
                 switch (me->GetEntry())
                 {
                     case ENTRY_TREANT_GUARDIAN:
                         me->CastSpell(target, 130793, true); // Taunt
-                        me->AI()->AttackStart(target);
+                        AttackStart(target);
                         break;
                     case ENTRY_TREANT_FERAL:
                     case ENTRY_TREANT_BALANCE:
                         me->CastSpell(target, 113770, true); // Root
-                        me->AI()->AttackStart(target);
+                        AttackStart(target);
                         break;
                     case ENTRY_TREANT_RESTO:
                         if (target->IsHostileTo(me->ToUnit()))
@@ -4766,7 +4771,16 @@ class npc_force_of_nature : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) { }
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
