@@ -1253,6 +1253,9 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
+                if (!GetCaster())
+                    return;
+
                 if (DynamicObject* dynObj = GetCaster()->GetDynObject(HUNTER_SPELL_BINDING_SHOT_AREA))
                     GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), HUNTER_SPELL_BINDING_SHOT_LINK, true);
             }
