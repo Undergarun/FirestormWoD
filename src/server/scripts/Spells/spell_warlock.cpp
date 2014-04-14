@@ -2201,6 +2201,41 @@ class spell_warl_rain_of_fire : public SpellScriptLoader
         }
 };
 
+// Rain of Fire - 104232 and Rain of Fire - 5740
+class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
+{
+    public:
+        spell_warl_rain_of_fire_despawn() : SpellScriptLoader("spell_warl_rain_of_fire_despawn") { }
+
+        class spell_warl_rain_of_fire_despawn_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_rain_of_fire_despawn_SpellScript);
+
+            void HandleAreaAura(SpellEffIndex effIndex)
+            {
+                if (WorldLocation const* loc = GetExplTargetDest())
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        // Casting a second Rain of Fire will replace the old Rain of Fire
+                        if (DynamicObject* dynObj = caster->GetDynObject(GetSpellInfo()->Id))
+                            caster->RemoveDynObject(GetSpellInfo()->Id);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_warl_rain_of_fire_despawn_SpellScript::HandleAreaAura, EFFECT_0, SPELL_EFFECT_PERSISTENT_AREA_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_rain_of_fire_despawn_SpellScript();
+        }
+};
+
 // Chaos Bolt - 116858
 class spell_warl_chaos_bolt : public SpellScriptLoader
 {
@@ -3124,6 +3159,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_drain_soul();
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();
+    new spell_warl_rain_of_fire_despawn();
     new spell_warl_chaos_bolt();
     new spell_warl_ember_tap();
     new spell_warl_fire_and_brimstone();
