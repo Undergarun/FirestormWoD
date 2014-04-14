@@ -119,7 +119,85 @@ enum MonkSpells
     SPELL_MONK_POWER_GUARD                      = 118636,
     SPELL_MONK_STORM_EARTH_AND_FIRE             = 137639,
     SPELL_MONK_ZEN_MEDITATION                   = 115176,
-    SPELL_MONK_ZEN_MEDITATION_AURA              = 131523
+    SPELL_MONK_ZEN_MEDITATION_AURA              = 131523,
+    SPELL_MONK_RING_OF_PEACE_AURA               = 140023,
+    SPELL_MONK_RING_OF_PEACE_DISARM             = 137461,
+    SPELL_MONK_RING_OF_PEACE_SILENCE            = 137460
+};
+
+// Ring of Peace (dummy) - 140023
+class spell_monk_ring_of_peace_dummy : public SpellScriptLoader
+{
+    public:
+        spell_monk_ring_of_peace_dummy() : SpellScriptLoader("spell_monk_ring_of_peace_dummy") {}
+
+        class spell_monk_ring_of_peace_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_ring_of_peace_dummy_AuraScript);
+
+            void HandleDummyProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetTarget())
+                    {
+                        caster->CastSpell(target, SPELL_MONK_RING_OF_PEACE_SILENCE, true);
+                        caster->CastSpell(target, SPELL_MONK_RING_OF_PEACE_DISARM, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_ring_of_peace_dummy_AuraScript::HandleDummyProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_ring_of_peace_dummy_AuraScript();
+        }
+};
+
+// Ring of Peace - 116844
+class spell_monk_ring_of_peace : public SpellScriptLoader
+{
+    public:
+        spell_monk_ring_of_peace() : SpellScriptLoader("spell_monk_ring_of_peace") { }
+
+        class spell_monk_ring_of_peace_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_ring_of_peace_AuraScript);
+
+            void OnUpdate(uint32 diff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetUnitOwner())
+                    {
+                        std::list<Unit*> targetList;
+                        float radius = 8.0f;
+
+                        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(target, caster, radius);
+                        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(target, targetList, u_check);
+                        target->VisitNearbyObject(radius, searcher);
+
+                        for (auto itr : targetList)
+                            caster->CastSpell(itr, SPELL_MONK_RING_OF_PEACE_AURA, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_monk_ring_of_peace_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_ring_of_peace_AuraScript();
+        }
 };
 
 // Zen Meditation = 115176
@@ -3710,6 +3788,8 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_ring_of_peace_dummy();
+    new spell_monk_ring_of_peace();
     new spell_monk_zen_meditation();
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();

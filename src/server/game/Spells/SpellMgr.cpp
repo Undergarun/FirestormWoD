@@ -3452,6 +3452,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
                 break;
             case 135299:// Ice Trap (snare)
+            case 140023:// Ring of Peace (dummy)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
