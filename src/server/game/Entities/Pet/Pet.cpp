@@ -1397,7 +1397,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 // Psyfiend
                 case 59190:
                 {
-                    SetCreateHealth(CalculatePct(m_owner->GetMaxHealth(), 2.5f));
+                    SetCreateHealth(CalculatePct(m_owner->GetMaxHealth(), 1.0f));
                     break;
                 }
                 default:

@@ -4521,6 +4521,11 @@ enum PsyfiendSpells
     SPELL_PSYCHIC_HORROR    = 113792,
 };
 
+enum PsyfiendEvents
+{
+    EVENT_FEAR = 1
+};
+
 class npc_psyfiend : public CreatureScript
 {
     public:
@@ -4536,18 +4541,24 @@ class npc_psyfiend : public CreatureScript
 
             uint64 targetGUID;
             uint32 psychicHorrorTimer;
+            EventMap events;
 
             void Reset()
             {
                 if (!me->HasAura(SPELL_ROOT_FOR_EVER))
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
 
-                psychicHorrorTimer = 1500;
+                events.ScheduleEvent(EVENT_FEAR, 100);
             }
 
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
+            }
+
+            uint64 GetGUID(int32 /*data*/)
+            {
+                return targetGUID;
             }
 
             void IsSummonedBy(Unit* owner)
@@ -4569,24 +4580,19 @@ class npc_psyfiend : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (psychicHorrorTimer)
-                {
-                    if (psychicHorrorTimer <= diff)
-                    {
-                        if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
-                        {
-                            if (m_target->GetDistance2d(me) <= 20.0f)
-                                me->AddAura(SPELL_PSYCHIC_HORROR, m_target);
-                            else
-                                me->CastSpell(me, SPELL_PSYCHIC_HORROR, true);
-                        }
-                        else
-                            me->CastSpell(me, SPELL_PSYCHIC_HORROR, true);
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                        psychicHorrorTimer = 1500;
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_FEAR:
+                    {
+                        me->CastSpell(me, SPELL_PSYCHIC_HORROR, false);
+                        events.ScheduleEvent(EVENT_FEAR, 100);
+                        break;
                     }
-                    else
-                        psychicHorrorTimer -= diff;
                 }
             }
         };
