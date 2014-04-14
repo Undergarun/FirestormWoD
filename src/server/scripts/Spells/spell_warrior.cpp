@@ -69,7 +69,9 @@ enum WarriorSpells
     WARRIOR_SPELL_SWEEPING_STRIKES              = 12328,
     WARRIOR_SPELL_SLAM_AOE                      = 146361,
     WARRIOR_SPELL_BLOODSURGE                    = 46915,
-    WARRIOR_SPELL_BLOODSURGE_PROC               = 46916
+    WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
+    WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
+    WARRIOR_SPELL_SUNDER_ARMOR                  = 7386
 };
 
 // Slam - 1464
@@ -319,8 +321,15 @@ class spell_warr_colossus_smash : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         caster->CastSpell(target, WARRIOR_SPELL_PHYSICAL_VULNERABILITY, true);
+
+                        if (caster->HasAura(WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH))
+                            caster->CastSpell(target, WARRIOR_SPELL_SUNDER_ARMOR, true);
+                    }
+                }
             }
 
             void Register()
