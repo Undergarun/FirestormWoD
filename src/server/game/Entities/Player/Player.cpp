@@ -26880,15 +26880,14 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
     uint8 bitsOrder[8] = { 2, 1, 4, 6, 5, 7, 0, 3 };
     data.WriteBitInOrder(targetGuid, bitsOrder);
 
+    data.FlushBits();
+
     uint8 bytesOrder[8] = { 5, 1, 2, 4, 0, 3, 7, 6 };
     data.WriteBytesSeq(targetGuid, bytesOrder);
 
     GetSession()->SendPacket(&data);
 
-    if (Player* player = target->ToPlayer())
-        player->SetRooted(!allowMove);
-
-    if (target == this)
+    if (target == this && allowMove)
         SetMover(this);
 }
 
@@ -29920,7 +29919,7 @@ void Player::SetMover(Unit* target)
     if (m_mover)
     {
         WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
-        ObjectGuid guid = m_mover->GetGUID();
+        ObjectGuid guid = target->GetGUID();
     
         uint8 bitOrder[8] = { 7, 4, 2, 6, 0, 1, 3, 5 };
         data.WriteBitInOrder(guid, bitOrder);
