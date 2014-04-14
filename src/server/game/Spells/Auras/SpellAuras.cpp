@@ -340,6 +340,9 @@ void AuraApplication::ClientUpdate(bool remove)
     if (!aura)
         return;
 
+    if (aura->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
+        return;
+
     Mechanics mechanic = MECHANIC_NONE;
     SpellEffIndex effIndex = EFFECT_0;
 
