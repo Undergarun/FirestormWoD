@@ -19279,6 +19279,23 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
+void Unit::SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index)
+{
+    if (!ToPlayer())
+        return;
+
+    WorldPacket data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
+
+    data.WriteBits(1, 22);
+    data.WriteBits(mechanic, 8);
+    data.WriteBits(mechanic, 8);
+    data.FlushBits();
+    data << uint8(aurApp->GetSlot());
+    data << uint8(index);
+
+    ToPlayer()->GetSession()->SendPacket(&data);
+}
+
 void Unit::SendMoveRoot(uint32 value)
 {
     ObjectGuid guid = GetGUID();

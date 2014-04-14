@@ -3185,12 +3185,12 @@ bool SpellInfo::_IsCrowdControl(uint8 effMask, bool nodamage) const
                     case 15:
                     case 457:
                         return false;
-                        break;
                     default:
                         break;
                 }
             case SPELL_AURA_MOD_CONFUSE:
             case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_FEAR_2:
             case SPELL_AURA_MOD_ROOT:
             case SPELL_AURA_TRANSFORM:
                 if (!IsPositive())
