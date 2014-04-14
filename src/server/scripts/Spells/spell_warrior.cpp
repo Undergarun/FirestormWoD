@@ -71,7 +71,8 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOODSURGE                    = 46915,
     WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
-    WARRIOR_SPELL_SUNDER_ARMOR                  = 7386
+    WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
+    WARRIOR_SPELL_GLYPH_OF_BULL_RUSH            = 94372
 };
 
 // Slam - 1464
@@ -1311,7 +1312,14 @@ class spell_warr_charge : public SpellScriptLoader
 
             Unit* caster = GetCaster();
             if (canGenerateCharge && caster)
-                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetEffectValue(), POWER_RAGE);
+            {
+                int32 bp = GetEffectValue();
+
+                if (AuraEffectPtr bullRush = caster->GetAuraEffect(WARRIOR_SPELL_GLYPH_OF_BULL_RUSH, EFFECT_1))
+                    bp += bullRush->GetAmount();
+
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, bp, POWER_RAGE);
+            }
         }
 
         void Register()
