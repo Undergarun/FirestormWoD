@@ -13950,20 +13950,20 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             float Mastery = GetFloatValue(PLAYER_MASTERY) * 2.0f;
 
             if (roll_chance_f(Mastery))
-                this->CastSpell(victim, 86392, true);
+                CastSpell(victim, 86392, true);
         }
     }
 
     // Custom MoP Script
     // 76838 - Mastery : Strikes of Opportunity
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id == 76858)))
     {
         if (HasAura(76838))
         {
             float Mastery = GetFloatValue(PLAYER_MASTERY) * 2.2f;
 
             if (roll_chance_f(Mastery))
-                this->CastSpell(victim, 76858, true);
+                CastSpell(victim, 76858, true);
         }
     }
 
@@ -13973,7 +13973,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         if (isPet())
         {
-            Unit* owner = this->GetOwner();
+            Unit* owner = GetOwner();
             if (owner->HasAura(76613) && owner->GetTypeId() == TYPEID_PLAYER)
             {
                 float Mastery = owner->GetFloatValue(PLAYER_MASTERY) * 2.0f;
