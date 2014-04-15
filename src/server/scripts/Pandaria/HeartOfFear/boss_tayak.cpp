@@ -305,6 +305,7 @@ class boss_tayak : public CreatureScript
                 }
 
                 me->DisableEvadeMode();
+                me->DisableHealthRegen();
                 _EnterCombat();
             }
 
@@ -431,6 +432,7 @@ class boss_tayak : public CreatureScript
                 if (me->EvadeModeIsDisable() && pInstance && pInstance->IsWipe())
                 {
                     me->ReenableEvadeMode();
+                    me->ReenableHealthRegen();
                     EnterEvadeMode();
                     return;
                 }
