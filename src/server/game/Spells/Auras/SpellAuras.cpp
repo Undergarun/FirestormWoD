@@ -1816,6 +1816,21 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (caster->HasAura(105587))
                             caster->CastSpell((Unit*)NULL, 105588, true);
                         break;
+                    case 49206: // Summon Gargoyle debuff, need to find target
+                    {
+                        if (caster->getClass() == CLASS_DEATH_KNIGHT)
+                        {
+                            for (Unit::ControlList::iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                            {
+                                if ((*itr)->GetEntry() == 27829)
+                                {
+                                    (*itr)->GetAI()->AttackStart(aurApp->GetTarget());
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
                     case 81162: // Will of the Necropolis
                     {
                         if (caster)

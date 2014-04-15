@@ -1346,6 +1346,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 }
                 case ENTRY_GARGOYLE:
                 {
+                    if (!m_owner->ToPlayer())
+                        break;
+
                     if (!pInfo)
                     {
                         SetCreateMana(28 + 10*petlevel);
@@ -1353,12 +1356,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     }
 
                     // Convert Owner's haste into the Gargoyle spell haste
-                    float ownerHaste = 1.0f  +  ((Player*)m_owner)->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) *
-                                                ((Player*)m_owner)->GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+                    float ownerHaste = 1.0f  +  m_owner->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) *
+                                                m_owner->ToPlayer()->GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
                     ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
 
                     // also make gargoyle benefit from haste auras, like unholy presence
-                    int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+                    int meleeHaste = m_owner->ToPlayer()->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
                     ApplyCastTimePercentMod(meleeHaste, true);
 
                     SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK)));
