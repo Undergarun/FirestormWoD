@@ -41,6 +41,7 @@ EndScriptData */
 
 #define EMOTE_FOCUSES_ON            "focuses on "
 
+// 18371
 class boss_shirrak_the_dead_watcher : public CreatureScript
 {
 public:

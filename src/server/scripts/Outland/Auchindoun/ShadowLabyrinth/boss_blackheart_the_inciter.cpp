@@ -55,6 +55,7 @@ EndScriptData */
 #define SAY2_HELP           -1555026
 #define SAY2_DEATH          -1555027
 
+// 18667
 class boss_blackheart_the_inciter : public CreatureScript
 {
 public:

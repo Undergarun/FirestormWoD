@@ -45,6 +45,7 @@ enum eEnums
     SPELL_ENRAGE            = 34970
 };
 
+// 18731
 class boss_ambassador_hellmaw : public CreatureScript
 {
 public:

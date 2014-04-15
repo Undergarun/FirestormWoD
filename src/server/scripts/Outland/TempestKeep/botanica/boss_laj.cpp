@@ -50,6 +50,7 @@ enum eOthers
     MODEL_NATURE               = 14214,
 };
 
+// 17980
 class boss_laj : public CreatureScript
 {
     public:

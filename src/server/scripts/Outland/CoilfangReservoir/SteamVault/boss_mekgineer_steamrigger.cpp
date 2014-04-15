@@ -49,6 +49,7 @@ EndContentData */
 
 #define ENTRY_STREAMRIGGER_MECHANIC 17951
 
+// 17796
 class boss_mekgineer_steamrigger : public CreatureScript
 {
 public:

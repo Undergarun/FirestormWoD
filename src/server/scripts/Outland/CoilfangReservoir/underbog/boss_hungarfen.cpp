@@ -29,6 +29,7 @@ EndScriptData */
 #define SPELL_FOUL_SPORES   31673
 #define SPELL_ACID_GEYSER   38739
 
+// 17770
 class boss_hungarfen : public CreatureScript
 {
 public:

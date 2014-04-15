@@ -36,6 +36,7 @@ EndScriptData */
 
 #define ENTRY_SPORE_STRIDER        22299
 
+// 17882
 class boss_the_black_stalker : public CreatureScript
 {
 public:

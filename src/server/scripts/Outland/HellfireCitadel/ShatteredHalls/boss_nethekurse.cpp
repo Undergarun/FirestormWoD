@@ -79,6 +79,7 @@ enum eSpells
     SPELL_TEMPORARY_VISUAL     = 39312, // this is wrong, a temporary solution. spell consumption already has the purple visual, but doesn't display as it should
 };
 
+// 16807
 class boss_grand_warlock_nethekurse : public CreatureScript
 {
     public:

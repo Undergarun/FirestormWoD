@@ -42,6 +42,7 @@ EndScriptData */
 #define SPELL_DARK_SHELL                32358
 #define H_SPELL_DARK_SHELL              38759
 
+// 18341
 class boss_pandemonius : public CreatureScript
 {
 public:

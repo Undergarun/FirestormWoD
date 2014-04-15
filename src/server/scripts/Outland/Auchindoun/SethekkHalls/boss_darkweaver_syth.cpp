@@ -54,6 +54,7 @@ EndScriptData */
 #define SPELL_FROST_BUFFET          DUNGEON_MODE(33528, 38142)
 #define SPELL_SHADOW_BUFFET         DUNGEON_MODE(33529, 38143)
 
+// 18472
 class boss_darkweaver_syth : public CreatureScript
 {
 public:

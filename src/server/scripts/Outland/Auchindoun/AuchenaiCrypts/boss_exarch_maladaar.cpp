@@ -153,6 +153,7 @@ public:
 
 #define ENTRY_STOLEN_SOUL           18441
 
+// 18373
 class boss_exarch_maladaar : public CreatureScript
 {
 public:
