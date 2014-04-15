@@ -1,5 +1,5 @@
-#ifndef JadeCore_GAME_SPELL_CHARGES_TRACKER_HPP
-#define JadeCore_GAME_SPELL_CHARGES_TRACKER_HPP
+#ifndef JadeCore_GAME_SPELL_CHARGES_TRACKER_H
+#define JadeCore_GAME_SPELL_CHARGES_TRACKER_H
 
 #include <cstdint>
 #include <unordered_map>
@@ -33,4 +33,4 @@ namespace JadeCore
     }
 } // namespace JadeCore
 
-#endif // JadeCore_GAME_SPELL_CHARGES_TRACKER_HPP
+#endif // JadeCore_GAME_SPELL_CHARGES_TRACKER_H
