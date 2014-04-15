@@ -12127,6 +12127,10 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 
 
 int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical)
 {
+    // Prevent some bugs when player reveive heal when dead
+    if (!victim->isAlive())
+        return 0;
+
     uint32 absorb = 0;
     // calculate heal absorb and reduce healing
     CalcHealAbsorb(victim, spellInfo, addHealth, absorb);
