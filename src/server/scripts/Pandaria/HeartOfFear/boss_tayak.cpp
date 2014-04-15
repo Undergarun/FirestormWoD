@@ -304,6 +304,7 @@ class boss_tayak : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me); // Add
                 }
 
+                me->DisableEvadeMode();
                 _EnterCombat();
             }
 
@@ -427,6 +428,13 @@ class boss_tayak : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (me->EvadeModeIsDisable() && pInstance && pInstance->IsWipe())
+                {
+                    me->ReenableEvadeMode();
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -494,7 +502,7 @@ class boss_tayak : public CreatureScript
                         }
                         case EVENT_UNSEEN_STRIKE:
                         {
-                            unseenTank = me->getVictim()->GetGUID();
+                            unseenTank = me->getVictim() ? me->getVictim()->GetGUID() : 0;
                             // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
@@ -534,7 +542,7 @@ class boss_tayak : public CreatureScript
                         case EVENT_TAYAK_WIND_STEP:
                         {
                             // Store current victim to return to it afterwards
-                            currentTank = me->getVictim()->GetGUID();
+                            currentTank = me->getVictim() ? me->getVictim()->GetGUID() : 0;
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
                                 DoCast(target, SPELL_WIND_STEP_TP);
                             events.ScheduleEvent(EVENT_WIND_STEP_RETURN, 1000);
