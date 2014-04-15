@@ -132,6 +132,34 @@ enum WarlockSpells
     WARLOCK_DEMONIC_FURY_PASSIVE            = 109145
 };
 
+// Haunt (dispel effect) - 48181
+class spell_warl_haunt_dispel : public SpellScriptLoader
+{
+    public:
+        spell_warl_haunt_dispel() : SpellScriptLoader("spell_warl_haunt_dispel") { }
+
+        class spell_warl_haunt_dispel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_haunt_dispel_AuraScript);
+
+            void HandleDispel(DispelInfo* dispelInfo)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_SOUL_SHARDS);
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_warl_haunt_dispel_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_haunt_dispel_AuraScript();
+        }
+};
+
 // Demonic Slash - 114175
 class spell_warl_demonic_slash : public SpellScriptLoader
 {
@@ -3110,6 +3138,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_haunt_dispel();
     new spell_warl_demonic_slash();
     new spell_warl_fury_ward();
     new spell_warl_dark_apotheosis();
