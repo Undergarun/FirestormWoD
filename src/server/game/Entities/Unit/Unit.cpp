@@ -1685,7 +1685,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damageInfo->damage = 0;
 
     // only for normal weapon damage
-    if (damageInfo->attackType == DIRECT_DAMAGE)
+    if (damageInfo->attackType == BASE_ATTACK || damageInfo->attackType == OFF_ATTACK)
     {
         // Custom MoP Script - Blood Horror - 111397
         if (victim->HasAura(111397))

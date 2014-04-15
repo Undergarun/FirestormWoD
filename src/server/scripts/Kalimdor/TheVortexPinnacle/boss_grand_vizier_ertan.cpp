@@ -80,7 +80,7 @@ class boss_grand_vizier_ertan : public CreatureScript
             void Reset()
             {
                 _Reset();
-                memset(_vortexes, NULL, sizeof(_vortexes));
+                memset(_vortexes, 0, sizeof(_vortexes));
             }
     
             void EnterCombat(Unit* /*pWho*/)

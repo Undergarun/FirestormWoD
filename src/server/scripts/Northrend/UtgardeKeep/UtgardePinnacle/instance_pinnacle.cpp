@@ -119,17 +119,17 @@ public:
             {
                 case ENTRY_SKADI_THE_RUTHLESS_DOOR:
                     uiSkadiTheRuthlessDoor = pGo->GetGUID();
-                    if (m_auiEncounter[2] == DONE) HandleGameObject(NULL, true, pGo);
+                    if (m_auiEncounter[2] == DONE) HandleGameObject(0, true, pGo);
                     break;
                 case ENTRY_KING_YMIRON_DOOR:
                     uiKingYmironDoor = pGo->GetGUID();
-                    if (m_auiEncounter[3] == DONE) HandleGameObject(NULL, true, pGo);
+                    if (m_auiEncounter[3] == DONE) HandleGameObject(0, true, pGo);
                     break;
                 case ENTRY_GORK_PALEHOOF_SPHERE:
                     uiGortokPalehoofSphere = pGo->GetGUID();
                     if (m_auiEncounter[1] == DONE)
                     {
-                        HandleGameObject(NULL, true, pGo);
+                        HandleGameObject(0, true, pGo);
                         pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
