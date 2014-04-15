@@ -7801,6 +7801,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = this;
                     break;
                 }
+                case 86172: // Divine Purpose
+                {
+                    if (!procSpell)
+                        return false;
+
+                    if (procSpell->PowerType != POWER_HOLY_POWER)
+                        return false;
+
+                    break;
+                }
                 // Item - Collecting Mana, Tyrande's Favirite Doll
                 case 92272:
                 {
@@ -10193,16 +10203,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             break;
         }
         case 144593://Item - Paladin T16 Retribution 4P Bonus
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->PowerType != POWER_HOLY_POWER)
-                return false;
-
-            break;
-        }
-        case 86172: // Divine Purpose
         {
             if (!procSpell)
                 return false;
