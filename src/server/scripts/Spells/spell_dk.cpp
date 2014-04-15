@@ -78,6 +78,37 @@ enum DeathKnightSpells
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920
 };
 
+// Plague Strike - 45462
+class spell_dk_plague_strike : public SpellScriptLoader
+{
+    public:
+        spell_dk_plague_strike() : SpellScriptLoader("spell_dk_plague_strike") { }
+
+        class spell_dk_plague_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_plague_strike_SpellScript);
+
+            void HandleDamage(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(DK_SPELL_EBON_PLAGUEBRINGER) && GetHitUnit())
+                        caster->CastSpell(GetHitUnit(), DK_SPELL_FROST_FEVER, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_plague_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_plague_strike_SpellScript();
+        }
+};
+
 // Gorefiend's Grasp - 108199
 class spell_dk_gorefiends_grasp : public SpellScriptLoader
 {
@@ -1862,6 +1893,7 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
     new spell_dk_runic_empowerment();
     new spell_dk_runic_corruption();
