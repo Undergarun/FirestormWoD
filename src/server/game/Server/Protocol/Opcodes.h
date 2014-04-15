@@ -1109,7 +1109,7 @@ enum Opcodes
     SMSG_LOGOUT_COMPLETE                              = 0x0A8,  // 5.4.0 17399
     SMSG_LOGOUT_RESPONSE                              = 0x8AD,  // 5.4.0 17399
     SMSG_LOG_XP_GAIN                                  = 0x4A2,  // 5.4.0 17399
-    SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x823,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x823,  // 5.4.0 17399
     SMSG_LOOT_ALL_PASSED                              = 0x0AB,  // 5.4.0 17399 (JamList)
     SMSG_LOOT_CONTENTS                                = 0x115,  // 5.4.0 17399 (JamList)
     SMSG_LOOT_ITEM_LIST                               = 0x412,  // 5.4.0 17399 (JamList) (NYI) or SMSG_LOOT_LIST ?

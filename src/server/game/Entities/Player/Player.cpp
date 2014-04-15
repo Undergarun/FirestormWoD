@@ -1939,6 +1939,9 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
         }
     }
 
+    // Regenerate consumed spell charges
+    spellChargesTracker_.update(p_time);
+
     // Zone Skip Update
     if (sObjectMgr->IsSkipZone(GetZoneId()) || isAFK())
     {
@@ -3232,13 +3235,16 @@ void Player::Regenerate(Powers power)
             else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
                 addvalue += 1.0f;     // give 1 each 100ms while player has less than 200 demonic fury
 
-            if (GetPower(POWER_DEMONIC_FURY) <= 40)
+            if (!HasAura(114168))
             {
-                if (HasAura(103958))
-                    RemoveAura(103958);
+                if (GetPower(POWER_DEMONIC_FURY) <= 40)
+                {
+                    if (HasAura(103958))
+                        RemoveAura(103958);
 
-                if (HasAura(54879))
-                    RemoveAura(54879);
+                    if (HasAura(54879))
+                        RemoveAura(54879);
+                }
             }
 
             // Demonic Fury visuals
@@ -23502,10 +23508,10 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                 float val = 1;
                 for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                     if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                        val += (*itr)->value/100;
+                        val += float((*itr)->value)/100;
 
                 if (mod->value)
-                    val += apply ? float(mod->value)/100 : -(float((mod->value))/100);
+                    val += apply ? float(mod->value)/100 : -(float(mod->value)/100);
 
                 dataBuffer << float(val);
                 dataBuffer << uint8(eff);
@@ -23516,7 +23522,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    val += (*itr)->value;
+                    val += float((*itr)->value);
 
             val += apply ? float(mod->value) : -float(mod->value);
 
@@ -23626,6 +23632,9 @@ void Player::RemoveSpellMods(Spell* spell)
     if (spell->m_appliedMods.empty())
         return;
 
+    // Hack fix for "double proc" for pyroblast! + Presence of Mind
+    bool magePyroblast = false;
+
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
         for (SpellModList::const_iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
@@ -23644,6 +23653,11 @@ void Player::RemoveSpellMods(Spell* spell)
 
             // remove from list
             spell->m_appliedMods.erase(iterMod);
+
+            if (mod->ownerAura->GetId() == 48108)
+                magePyroblast = true;
+            else if (mod->ownerAura->GetId() == 12043 && magePyroblast)
+                continue;
 
             if (!(mod->ownerAura->GetId() == 117828 && spell->GetSpellInfo()->Id == 116858))
                 if (std::const_pointer_cast<Aura>(mod->ownerAura)->DropCharge(AURA_REMOVE_BY_EXPIRE))
@@ -24892,6 +24906,15 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
                 AddSpellCooldown(*i_scset, itemId, catrecTime);
             }
         }
+    }
+
+    // TODO: is charge regen time affected by any mods?
+    auto const categories = spellInfo->GetSpellCategories();
+    if (categories && categories->ChargesCategory != 0)
+    {
+        auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+        if (category && category->ChargeRegenTime != 0)
+            spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
     }
 }
 
@@ -26857,15 +26880,14 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
     uint8 bitsOrder[8] = { 2, 1, 4, 6, 5, 7, 0, 3 };
     data.WriteBitInOrder(targetGuid, bitsOrder);
 
+    data.FlushBits();
+
     uint8 bytesOrder[8] = { 5, 1, 2, 4, 0, 3, 7, 6 };
     data.WriteBytesSeq(targetGuid, bytesOrder);
 
     GetSession()->SendPacket(&data);
 
-    if (Player* player = target->ToPlayer())
-        player->SetRooted(!allowMove);
-
-    if (target == this)
+    if (target == this && allowMove)
         SetMover(this);
 }
 
@@ -29897,7 +29919,7 @@ void Player::SetMover(Unit* target)
     if (m_mover)
     {
         WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
-        ObjectGuid guid = m_mover->GetGUID();
+        ObjectGuid guid = target->GetGUID();
     
         uint8 bitOrder[8] = { 7, 4, 2, 6, 0, 1, 3, 5 };
         data.WriteBitInOrder(guid, bitOrder);
@@ -30247,10 +30269,6 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
             if (!HasAura(108499))
                 AddAura(108499, this);
             break;
-        case 108505:// Archimonde's Vengeance
-            if (!HasAura(116403))
-                CastSpell(this, 116403, true); // Passive
-            break;
         case 119049:// Kil'Jaeden's Cunning
             if (!HasAura(108507))
                 CastSpell(this, 108507, true); // Passive
@@ -30284,9 +30302,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
             break;
-        case 108505:// Archimonde's Vengeance
-            RemoveAura(116403);
-            break;
         case 119049:// Kil'Jaeden's Cunning
             RemoveAura(108507);
             break;
@@ -30310,7 +30325,25 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
 Guild* Player::GetGuild()
 {
     uint32 guildId = GetGuildId();
-    return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
+    return guildId ? sGuildMgr->GetGuildById(guildId) : 0;
+}
+
+bool Player::HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category)
+{
+    // Spell 127252 has charges category 133 with 0 regen time. Bad data in DBC?
+    if (category.ChargeRegenTime == 0)
+        return true;
+
+    uint32 const consumedCharges = spellChargesTracker_.consumedCount(spellId);
+    if (consumedCharges == 0)
+        return true;
+
+    // If MaxCharges is 0 and mod is 0 (e.g. Charge without Double Time), we
+    // should assume that spell has 1 charge only
+    int32 const mod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_CHARGES, category.Id);
+    uint32 const maxCharges = std::max(static_cast<int32>(category.MaxCharges) + mod, 1);
+
+    return consumedCharges < maxCharges;
 }
 
 void Player::FinishWeek()

@@ -82,9 +82,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CALL                    = 114925,
     WARLOCK_DECIMATE_AURA                   = 108869,
     WARLOCK_SOUL_LEECH_AURA                 = 108370,
-    WARLOCK_ARCHIMONDES_VENGEANCE_COOLDOWN  = 116405,
-    WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE    = 124051,
-    WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE   = 116403,
     WARLOCK_SOUL_LINK_DUMMY_AURA            = 108446,
     WARLOCK_GLYPH_OF_CONFLAGRATE            = 56235,
     WARLOCK_SHIELD_OF_SHADOW                = 115232,
@@ -127,7 +124,157 @@ enum WarlockSpells
     WARLOCK_FEAR                            = 5782,
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
-    WARLOCK_HELLFIRE_DAMAGE                 = 5857
+    WARLOCK_HELLFIRE_DAMAGE                 = 5857,
+    WARLOCK_DARK_APOTHEOSIS                 = 114168,
+    WARLOCK_METAMORPHOSIS_OVERRIDER         = 103965,
+    WARLOCK_METAMORPHOSIS_RESISTANCE        = 54817,
+    WARLOCK_METAMORPHOSIS_MODIFIERS         = 54879,
+    WARLOCK_DEMONIC_FURY_PASSIVE            = 109145
+};
+
+// Demonic Slash - 114175
+class spell_warl_demonic_slash : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonic_slash() : SpellScriptLoader("spell_warl_demonic_slash") { }
+
+        class spell_warl_demonic_slash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demonic_slash_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 60, POWER_DEMONIC_FURY);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_demonic_slash_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_demonic_slash_SpellScript();
+        }
+};
+
+// Fury Ward - 119839
+class spell_warl_fury_ward : public SpellScriptLoader
+{
+    public:
+        spell_warl_fury_ward() : SpellScriptLoader("spell_warl_fury_ward") { }
+
+        class spell_warl_fury_ward_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_fury_ward_AuraScript);
+
+            void CalculateAbsorb(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                    amount += (caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 3.0f);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_fury_ward_AuraScript::CalculateAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_fury_ward_AuraScript();
+        }
+};
+
+// Dark Apotheosis - 114168
+class spell_warl_dark_apotheosis : public SpellScriptLoader
+{
+    public:
+        spell_warl_dark_apotheosis() : SpellScriptLoader("spell_warl_dark_apotheosis") { }
+
+        class spell_warl_dark_apotheosis_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_dark_apotheosis_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->RemoveAura(WARLOCK_METAMORPHOSIS);
+
+                    if (AuraPtr overrider = caster->AddAura(WARLOCK_METAMORPHOSIS_OVERRIDER, caster))
+                    {
+                        overrider->GetEffect(EFFECT_0)->ChangeAmount(114175);
+                        overrider->GetEffect(EFFECT_1)->ChangeAmount(0);
+                        overrider->GetEffect(EFFECT_3)->ChangeAmount(0);
+                    }
+
+                    caster->CastSpell(caster, WARLOCK_METAMORPHOSIS_RESISTANCE, true);
+                    caster->CastSpell(caster, WARLOCK_METAMORPHOSIS_MODIFIERS, true);
+                    caster->CastSpell(caster, WARLOCK_DEMONIC_FURY_PASSIVE, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->RemoveAura(WARLOCK_METAMORPHOSIS_OVERRIDER);
+                    caster->RemoveAura(WARLOCK_METAMORPHOSIS_RESISTANCE);
+                    caster->RemoveAura(WARLOCK_METAMORPHOSIS_MODIFIERS);
+                    caster->RemoveAura(WARLOCK_DEMONIC_FURY_PASSIVE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_dark_apotheosis_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_dark_apotheosis_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_dark_apotheosis_AuraScript();
+        }
+};
+
+// Glyph of Demon Hunting - 63303
+class spell_warl_glyph_of_demon_hunting : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_demon_hunting() : SpellScriptLoader("spell_warl_glyph_of_demon_hunting") { }
+
+        class spell_warl_glyph_of_demon_hunting_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_demon_hunting_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(WARLOCK_DARK_APOTHEOSIS, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(WARLOCK_DARK_APOTHEOSIS))
+                        _player->removeSpell(WARLOCK_DARK_APOTHEOSIS, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_demon_hunting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_glyph_of_demon_hunting_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_demon_hunting_AuraScript();
+        }
 };
 
 // Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
@@ -892,13 +1039,13 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                 {
                     // EFFECT_0 : Instakill
                     // EFFECT_1 : 2% health every 5s
-                    // EFFECT_2 : +50% DOT damage for Malefic Grasp, Drain Life and Drain Soul
+                    // EFFECT_2 : +20% DOT damage for Malefic Grasp, Drain Life and Drain Soul
                     // EFFECT_3 : +30% damage for Shadow Bolt, Hand of Gul'Dan, Soul Fire, Wild Imps and Fel Flame
                     // EFFECT_4 : +25% damage for Incinerate, Conflagrate, Chaos Bolt, Shadowburn and Fel Flame
                     // EFFECT_5 : +50% damage for Fel Flame
                     // EFFECT_6 : +20% Health if Soul Link talent is also chosen
-                    // EFFECT_7 : +50% on EFFECT_2 of Malefic Grasp
-                    // EFFECT_8 : +50% on EFFECT_4 and EFFECT_5 of Drain Soul -> Always set to 0
+                    // EFFECT_7 : +20% on EFFECT_2 of Malefic Grasp
+                    // EFFECT_8 : +20% on EFFECT_4 and EFFECT_5 of Drain Soul -> Always set to 0
                     // EFFECT_9 : Always set to 0
                     // EFFECT_10 : Always set to 0
                     if (AuraPtr grimoireOfSacrifice = player->GetAura(WARLOCK_GRIMOIRE_OF_SACRIFICE))
@@ -1158,175 +1305,6 @@ class spell_warl_soul_link : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_soul_link_SpellScript();
-        }
-};
-
-// Archimonde's Vengeance (Cooldown marker) - 108505
-class spell_warl_archimondes_vengeance_cooldown : public SpellScriptLoader
-{
-    public:
-        spell_warl_archimondes_vengeance_cooldown() : SpellScriptLoader("spell_warl_archimondes_vengeance_cooldown") { }
-
-        class spell_warl_archimondes_vengeance_cooldown_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_archimondes_vengeance_cooldown_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetHitUnit())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (!_player->HasSpellCooldown(WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE))
-                        _player->AddSpellCooldown(WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE, 0, time(NULL) + 120);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_archimondes_vengeance_cooldown_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_archimondes_vengeance_cooldown_SpellScript();
-        }
-};
-
-// Archimonde's Vengeance - 108505
-class spell_warl_archimondes_vengance : public SpellScriptLoader
-{
-    public:
-        spell_warl_archimondes_vengance() : SpellScriptLoader("spell_warl_archimondes_vengance") { }
-
-        class spell_warl_archimondes_vengance_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_archimondes_vengance_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                if (!GetTarget())
-                    return;
-
-                std::list<Unit*> tempList;
-                std::list<Unit*> targetList;
-                Unit* target = NULL;
-
-                GetCaster()->GetAttackableUnitListInRange(tempList, 100.0f);
-
-                if (tempList.empty())
-                    return;
-
-                for (auto itr : tempList)
-                {
-                    if (itr->GetGUID() == GetCaster()->GetGUID())
-                        continue;
-
-                    if (itr->HasAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        targetList.push_back(itr);
-                }
-
-                if (targetList.empty())
-                    return;
-
-                if (targetList.size() > 1)
-                    return;
-
-                for (auto itr : targetList)
-                    target = itr;
-
-                if (!target)
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() == GetTarget()->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (target->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
-                    {
-                        int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() / 4);
-
-                        if (!bp)
-                            return;
-
-                        _player->CastCustomSpell(target, WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE, &bp, NULL, NULL, true);
-                    }
-                }
-
-                tempList.clear();
-                targetList.clear();
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_archimondes_vengance_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_archimondes_vengance_AuraScript();
-        }
-};
-
-// Archimonde's Vengeance (5% passive) - 116403
-class spell_warl_archimondes_vengance_passive : public SpellScriptLoader
-{
-    public:
-        spell_warl_archimondes_vengance_passive() : SpellScriptLoader("spell_warl_archimondes_vengance_passive") { }
-
-        class spell_warl_archimondes_vengance_passive_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_archimondes_vengance_passive_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() == GetTarget()->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasSpellCooldown(WARLOCK_ARCHIMONDES_VENGEANCE_PASSIVE))
-                        return;
-
-                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
-                    {
-                        int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() / 20);
-
-                        if (!bp)
-                            return;
-
-                        _player->CastCustomSpell(eventInfo.GetActor(), WARLOCK_ARCHIMONDES_VENGEANCE_DAMAGE, &bp, NULL, NULL, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_archimondes_vengance_passive_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_archimondes_vengance_passive_AuraScript();
         }
 };
 
@@ -1961,7 +1939,8 @@ class spell_warl_demonic_leap : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
+                    if (!caster->HasAura(WARLOCK_DARK_APOTHEOSIS))
+                        caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
                     caster->CastSpell(caster, WARLOCK_DEMONIC_LEAP_JUMP, true);
                 }
             }
@@ -2219,6 +2198,41 @@ class spell_warl_rain_of_fire : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_rain_of_fire_AuraScript();
+        }
+};
+
+// Rain of Fire - 104232 and Rain of Fire - 5740
+class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
+{
+    public:
+        spell_warl_rain_of_fire_despawn() : SpellScriptLoader("spell_warl_rain_of_fire_despawn") { }
+
+        class spell_warl_rain_of_fire_despawn_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_rain_of_fire_despawn_SpellScript);
+
+            void HandleAreaAura(SpellEffIndex effIndex)
+            {
+                if (WorldLocation const* loc = GetExplTargetDest())
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        // Casting a second Rain of Fire will replace the old Rain of Fire
+                        if (DynamicObject* dynObj = caster->GetDynObject(GetSpellInfo()->Id))
+                            caster->RemoveDynObject(GetSpellInfo()->Id);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_warl_rain_of_fire_despawn_SpellScript::HandleAreaAura, EFFECT_0, SPELL_EFFECT_PERSISTENT_AREA_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_rain_of_fire_despawn_SpellScript();
         }
 };
 
@@ -3096,6 +3110,10 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_demonic_slash();
+    new spell_warl_fury_ward();
+    new spell_warl_dark_apotheosis();
+    new spell_warl_glyph_of_demon_hunting();
     new spell_warl_siphon_life();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
@@ -3116,9 +3134,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_flames_of_xoroth();
     new spell_warl_soul_link_dummy();
     new spell_warl_soul_link();
-    new spell_warl_archimondes_vengeance_cooldown();
-    new spell_warl_archimondes_vengance();
-    new spell_warl_archimondes_vengance_passive();
     new spell_warl_molten_core_dot();
     new spell_warl_decimate();
     new spell_warl_demonic_call();
@@ -3144,6 +3159,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_drain_soul();
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();
+    new spell_warl_rain_of_fire_despawn();
     new spell_warl_chaos_bolt();
     new spell_warl_ember_tap();
     new spell_warl_fire_and_brimstone();

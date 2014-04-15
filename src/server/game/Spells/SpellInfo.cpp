@@ -3185,12 +3185,12 @@ bool SpellInfo::_IsCrowdControl(uint8 effMask, bool nodamage) const
                     case 15:
                     case 457:
                         return false;
-                        break;
                     default:
                         break;
                 }
             case SPELL_AURA_MOD_CONFUSE:
             case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_FEAR_2:
             case SPELL_AURA_MOD_ROOT:
             case SPELL_AURA_TRANSFORM:
                 if (!IsPositive())
@@ -3500,6 +3500,7 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
                 procSpell->Id == 6770 ||    // Sap
                 procSpell->Id == 137573 ||  // Burst of Speed
                 procSpell->Id == 98440 ||   // Relentless Strikes
+                procSpell->Id == 102288 ||  // Clone Caster
                 procSpell->Id == 12323)     // Piercing Howl
                 return true;
         }

@@ -813,16 +813,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Temporal Shield - 115610
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->HasAura(115610) && damage != 0)
     {
-        int32 bp = damage;
+        int32 bp = damage / 3;
 
         // Temporal Ripples : Add remaining amount to the basepoints
         if (victim->HasAura(115611))
             bp += victim->GetRemainingPeriodicAmount(victim->GetGUID(), 115611, SPELL_AURA_PERIODIC_HEAL, 0);
 
-        bp /= 3;
-
         victim->CastCustomSpell(victim, 115611, &bp, NULL, NULL, true);
-        damage *= 0.85f;
     }
     // Stance of the Wise Serpent - 115070
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(115070) && spellProto
@@ -1688,7 +1685,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damageInfo->damage = 0;
 
     // only for normal weapon damage
-    if (damageInfo->attackType == DIRECT_DAMAGE)
+    if (damageInfo->attackType == BASE_ATTACK || damageInfo->attackType == OFF_ATTACK)
     {
         // Custom MoP Script - Blood Horror - 111397
         if (victim->HasAura(111397))
@@ -6923,6 +6920,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggeredByAura->GetBase()->GetEffect(0)->m_fixed_periodic.SetFixedTotalDamage(explodeDamage - damage);
                     return true;
                 }
+                case 108563:// Backlash
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(108563))
+                        return false;
+
+                    triggered_spell_id = 34936;
+                    ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
+                    return true;
+                }
                 case 114790:// Soulburn : Seed of Corruption
                 {
                     if (procSpell && procSpell->Id == 87385)
@@ -8178,12 +8187,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // -- http://www.wowhead.com/spell=120668#comments:id=1707196
                     // -- The base damage is 20% of AP or 30% of SP, whichever is higher.
                     // -- That amount is multiplied by 0.2 for normal pets, and by 0 for guardian pets.
-                    // -- Next, if it�s an autoattack (or spell that we count as an autoattack such as Wind Lash or Shadow Blades or Tiger Strikes),
-                    // -- then it�s multiplied by 0.4, and then by WeaponSpeed / 2.6. And if it�s an offhand attack, it�s then multiplied by 0.5.
-                    // -- If it�s periodic damage, it doesn�t Stormlash, unless it�s Mind Flay, Malefic Grasp, or Drain Soul.
-                    // -- For all other spells, it�s then multiplied by BaseCastTime / 1.5 sec, with a floor on the BaseCastTime of 1.5 sec.
+                    // -- Next, if it's an autoattack (or spell that we count as an autoattack such as Wind Lash or Shadow Blades or Tiger Strikes),
+                    // -- then it's multiplied by 0.4, and then by WeaponSpeed / 2.6. And if it's an offhand attack, it's then multiplied by 0.5.
+                    // -- If it's periodic damage, it doesn't Stormlash, unless it's Mind Flay, Malefic Grasp, or Drain Soul.
+                    // -- For all other spells, it's then multiplied by BaseCastTime / 1.5 sec, with a floor on the BaseCastTime of 1.5 sec.
                     // -- And then there are multipliers for certain spells: 2x for Lightning Bolt, 2x for Lava Burst, 2x for Drain Soul, 0.5x for Sinister Strike.
-                    // -- Finally, that�s the average damage it deals. It will actually deal that +/- 15 %.
+                    // -- Finally, that's the average damage it deals. It will actually deal that +/- 15 %.
                     // -- It also has a 0.1 sec ICD on triggering, and can miss based on spell hit.
 
                     // Can't proc off from itself
@@ -10150,18 +10159,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if (!(procEx & PROC_EX_CRITICAL_HIT))
                 return false;
-
-            break;
-        }
-        case 108563:// Backlash
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(108563))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
 
             break;
         }
@@ -19280,6 +19277,23 @@ void Unit::SetControlled(bool apply, UnitState state)
                 SetFeared(true);
         }
     }
+}
+
+void Unit::SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index)
+{
+    if (!ToPlayer())
+        return;
+
+    WorldPacket data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
+
+    data.WriteBits(1, 22);
+    data.WriteBits(mechanic, 8);
+    data.WriteBits(mechanic, 8);
+    data.FlushBits();
+    data << uint8(aurApp->GetSlot());
+    data << uint8(index);
+
+    ToPlayer()->GetSession()->SendPacket(&data);
 }
 
 void Unit::SendMoveRoot(uint32 value)

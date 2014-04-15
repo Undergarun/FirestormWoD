@@ -130,7 +130,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
             std::vector<uint64> fengStatuesGUIDs;
             std::vector<uint64> spiritKingsGUIDs;
             std::vector<uint64> titanCirclesGuids;
-            std::vector<uint32> achievementGuids;
+            std::list<uint32> achievementGuids;
 
             void Initialize()
             {
@@ -178,6 +178,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 stoneGuardGUIDs.clear();
                 fengStatuesGUIDs.clear();
                 spiritKingsGUIDs.clear();
+                achievementGuids.clear();
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -683,16 +684,21 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             bool IsAchievementValid(uint32 id) const
             {
-                if (achievementGuids[id])
-                    return true;
+                if (achievementGuids.empty())
+                    return false;
+
+                for (std::list<uint32>::const_iterator iter = achievementGuids.begin(); iter != achievementGuids.end(); ++iter)
+                    if ((*iter) == id)
+                        return true;
 
                 return false;
             }
 
             void SetAchievementValid(uint32 id)
             {
-                if (achievementGuids[id])
-                    return;
+                for (std::list<uint32>::const_iterator iter = achievementGuids.begin(); iter != achievementGuids.end(); ++iter)
+                    if ((*iter) == id)
+                        return;
 
                 achievementGuids.push_back(id);
                 return;

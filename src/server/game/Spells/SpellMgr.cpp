@@ -3416,6 +3416,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 29858: // Soulshatter
+                spellInfo->OverrideSpellList.push_back(97827); // Add Taunt (Metamorphosis)
+                break;
+            case 119403:// Glyph of Explosive Trap
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 149575:// Explosive Trap (knock back)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[1].TargetA = TARGET_DEST_DEST;
+                break;
+            case 108287:// Totemic Projection
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 115176:// Zen Meditation
                 spellInfo->ProcCharges = 5;
                 spellInfo->Effects[0].BasePoints = 5;
@@ -3439,6 +3452,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
                 break;
             case 135299:// Ice Trap (snare)
+            case 140023:// Ring of Peace (dummy)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
@@ -3447,6 +3461,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 103965:// Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
+                spellInfo->Effects[7].SpellClassMask[1] = 0x400;
                 break;
             case 145518:// Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
@@ -3530,6 +3545,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123996:
                 spellInfo->StartRecoveryTime = 1500;
                 spellInfo->StartRecoveryCategory = 133;
+                spellInfo->Effects[3].Effect = 0;
                 break;
             case 127424:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
@@ -4160,9 +4176,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 83968: // Mass Resurrect
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
-            case 102141:// Transcendence (summon)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
-                break;
             case 108507:// Kil'Jaeden's Cunning (passive)
                 spellInfo->Effects[1].SpellClassMask[0] = 0x7C01487D;
                 spellInfo->Effects[1].SpellClassMask[1] = 0x48022DF0;
@@ -4275,20 +4288,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 6203:  // Soulstone
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
-            case 105622:// Clemency
-                spellInfo->Effects[4].Effect = 0;
-                spellInfo->Effects[4].BasePoints = 0;
-                spellInfo->Effects[4].ApplyAuraName = 0;
-                spellInfo->Effects[5].Effect = 0;
-                spellInfo->Effects[5].BasePoints = 0;
-                spellInfo->Effects[5].ApplyAuraName = 0;
-                spellInfo->Effects[6].Effect = 0;
-                spellInfo->Effects[6].BasePoints = 0;
-                spellInfo->Effects[6].ApplyAuraName = 0;
-                spellInfo->Effects[7].Effect = 0;
-                spellInfo->Effects[7].BasePoints = 0;
-                spellInfo->Effects[8].ApplyAuraName = 0;
-                break;
             case 106707:// Faerie Swarm (talent)
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
@@ -4399,6 +4398,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137562:// Nimble Brew
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 115611:// Temporal Ripples
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                break;
             case 115610:// Temporal Shield
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -4491,6 +4493,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Dispel = DISPEL_MAGIC;
                 spellInfo->Mechanic = 0;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->OverrideSpellList.push_back(104045); // Add Sleep (Metamorphosis)
                 break;
             case 51460: // Runic Corruption
                 spellInfo->Effects[EFFECT_1].Effect = 0;
@@ -4790,10 +4793,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 85222: // Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
-                break;
-            case 8122:  // Psychic Scream
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_FEAR;
-                spellInfo->MaxAffectedTargets = 5;
                 break;
             case 2641:  // Dismiss Pet
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;

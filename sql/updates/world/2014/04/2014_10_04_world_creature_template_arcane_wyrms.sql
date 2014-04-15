@@ -1,0 +1,1 @@
+UPDATE creature_template SET `type` = 1 WHERE entry IN (26322, 25711, 50737, 25721); -- Arcane Wyrms are now considered as Beasts

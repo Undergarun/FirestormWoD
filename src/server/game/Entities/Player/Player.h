@@ -41,12 +41,13 @@
 #include "WorldSession.h"
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
+#include "SpellChargesTracker.h"
 
 // for template
 #include "SpellMgr.h"
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 #include <ace/Stack_Trace.h>
 
 struct Mail;
@@ -3022,6 +3023,8 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
+        bool HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category);
+
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
@@ -3040,7 +3043,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
-    protected:
+    private:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
@@ -3426,6 +3429,8 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
 
+        JadeCore::SpellChargesTracker spellChargesTracker_;
+
         uint8 m_bgRoles;
 
         // Arena
@@ -3456,6 +3461,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     int32 totalflat = 0;
     bool chaosBolt = false;
     bool soulFire = false;
+    bool pyroblast = false;
     int32 value = 0;
 
     // Drop charges for triggering spells instead of triggered ones
@@ -3532,6 +3538,14 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                     m_isMoltenCored = true;
 
                 value = mod->value / mod->charges;
+            }
+            // Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
+            else if ((mod->spellId == 48108 || mod->spellId == 12043) && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 11366)
+            {
+                if (pyroblast)
+                    continue;
+                else
+                    pyroblast = true;
             }
 
             totalmul += CalculatePct(1.0f, value);
