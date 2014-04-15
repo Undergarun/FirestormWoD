@@ -295,7 +295,7 @@ void Minion::InitStats(uint32 duration)
     SetCreatorGUID(m_owner->GetGUID());
     setFaction(m_owner->getFaction());
 
-    m_owner->SetMinion(this, true, PET_SLOT_UNK_SLOT);
+    m_owner->SetMinion(this, true, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
 }
 
 void Minion::RemoveFromWorld()
@@ -303,7 +303,7 @@ void Minion::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    m_owner->SetMinion(this, false, PET_SLOT_UNK_SLOT);
+    m_owner->SetMinion(this, false, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
     TempSummon::RemoveFromWorld();
 }
 

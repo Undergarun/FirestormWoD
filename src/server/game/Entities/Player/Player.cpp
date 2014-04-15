@@ -21723,7 +21723,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
-        pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+        pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -22808,9 +22808,9 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
     pet->SavePetToDB(mode, stampeded);
 
     if (pet->getPetType() != HUNTER_PET)
-        SetMinion(pet, false, PET_SLOT_UNK_SLOT);
+        SetMinion(pet, false, PET_SLOT_UNK_SLOT, stampeded);
     else
-        SetMinion(pet, false, PET_SLOT_ACTUAL_PET_SLOT);
+        SetMinion(pet, false, PET_SLOT_ACTUAL_PET_SLOT, stampeded);
 
     pet->AddObjectToRemoveList();
     pet->m_removed = true;

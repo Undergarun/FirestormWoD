@@ -2570,8 +2570,8 @@ public:
         // visual effect for levelup
         pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
 
-        player->SetMinion(pet, true, PET_SLOT_UNK_SLOT);
-        pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+        player->SetMinion(pet, true, PET_SLOT_UNK_SLOT, pet->m_Stampeded);
+        pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
         player->PetSpellInitialize();
 
         return true;
@@ -2694,7 +2694,7 @@ public:
             {
                 if (Pet* pet = player->GetPet())
                 {
-                    pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+                    pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
                  // not let dismiss dead pet
                  if (pet && pet->isAlive())
                     player->RemovePet(pet, PET_SLOT_HUNTER_FIRST, false, pet->m_Stampeded);

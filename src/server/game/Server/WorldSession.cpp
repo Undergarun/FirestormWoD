@@ -625,7 +625,7 @@ void WorldSession::LogoutPlayer(bool Save)
         else
         {
             if (Pet* _pet = _player->GetPet())
-                _pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+                _pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, _pet->m_Stampeded);
         }
 
         ///- empty buyback items and save the player in the database

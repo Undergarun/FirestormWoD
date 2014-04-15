@@ -2824,7 +2824,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.
-    SetMinion(pet, true, PET_SLOT_OTHER_PET);
+    SetMinion(pet, true, PET_SLOT_OTHER_PET, stampeded);
 
     switch (petType)
     {
@@ -2848,7 +2848,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         case SUMMON_PET:
             pet->InitPetCreateSpells();
-            pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+            pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
             PetSpellInitialize();
             break;
         default:
