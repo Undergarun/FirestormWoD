@@ -4629,6 +4629,9 @@ void Spell::SendSpellStart()
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
 
+    if (m_spellInfo->Id == 147193)
+        castFlags |= CAST_FLAG_UNKNOWN_4;
+
     WorldPacket data(SMSG_SPELL_START);
 
     uint32 unkStringLength = 0;
@@ -4991,10 +4994,10 @@ void Spell::SendSpellStart()
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
         data << float(m_targets.GetElevation());
 
-    data << uint32(castFlags);                                      // unk 88
+    data << uint32(castFlags);
     data.WriteByteSeq(caster[4]);
     data.WriteByteSeq(caster[1]);
-    data << uint32(m_spellInfo->Id);                        // spellId
+    data << uint32(m_spellInfo->Id);
 
     if (predictedHealType)
         data << uint8(predictedHealType);
@@ -5024,77 +5027,6 @@ void Spell::SendSpellStart()
 
     data.WriteByteSeq(caster[5]);
     data.WriteByteSeq(caster[2]);
-
-
-
-    // OLD DATAS 5.0.5
-
-    /*if (m_CastItem)
-        data.append(m_CastItem->GetPackGUID());
-    else
-        data.append(m_caster->GetPackGUID());
-
-    data.append(m_caster->GetPackGUID());
-    data << uint32(castFlags);                              // cast flags
-    data << uint32(m_timer);                                // delay?
-
-    m_targets.Write(data);
-
-    if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
-    {
-        data << uint32(1);//m_caster->GetPower((Powers)m_spellInfo->PowerType));
-
-        data << int32((Powers)m_spellPowerData->powerType);
-        data << uint32(m_caster->GetPower((Powers)m_spellPowerData->powerType));
-        /*
-        for int i = 0; i< ? ;++i
-            data << uint32
-            data << uint32
-        *
-    }
-    if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
-    {
-        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
-        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
-        if (Player* player = m_caster->ToPlayer())
-        {
-            data << uint8(m_runesState);                     // runes state before
-            data << uint8(player->GetRunesState());          // runes state after
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
-                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-            }
-        }
-        else
-        {
-            data << uint8(0);
-            data << uint8(0);
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
-                data << uint8(0);
-        }
-    }
-
-    if (castFlags & CAST_FLAG_PROJECTILE)
-    {
-        data << uint32(0); // Ammo display ID
-        data << uint32(0); // Inventory Type
-    }
-
-    if (castFlags & CAST_FLAG_IMMUNITY)
-    {
-        data << uint32(0);
-        data << uint32(0);
-    }
-
-    if (castFlags & CAST_FLAG_HEAL_PREDICTION)
-    {
-        data << uint32(0);
-        data << uint8(0); // unkByte
-        // if (unkByte == 2)
-            // data.append(0);
-    }*/
 
     m_caster->SendMessageToSet(&data, true);
     
@@ -5145,6 +5077,8 @@ void Spell::SendSpellGo()
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
 
+    if (m_spellInfo->Id == 147193)
+        castFlags |= CAST_FLAG_UNKNOWN_4;
 
     WorldPacket data(SMSG_SPELL_GO);
 
@@ -5604,95 +5538,6 @@ void Spell::SendSpellGo()
     data.WriteByteSeq(caster[2]);
 
     data << uint8(m_cast_count);
-
-
-    // OLD DATAS 5.0.5
-    /*
-    if (m_CastItem)
-        data.append(m_CastItem->GetPackGUID());
-    else
-        data.append(m_caster->GetPackGUID());
-
-    data.append(m_caster->GetPackGUID());
-    data << uint8(m_cast_count);                            // pending spell cast?
-    data << uint32(castFlags);                              // cast flags
-    data << uint32(m_timer);
-
-    WriteSpellGoTargets(&data);
-
-    m_targets.Write(data);
-
-    if (castFlags & CAST_FLAG_POWER_LEFT_SELF) // done
-    {
-        data << uint32(1);//m_caster->GetPower((Powers)m_spellInfo->PowerType));
-
-
-       /* for (int i = 0; i < m_caster->GetPower((Powers)m_spellInfo->PowerType); ++i)
-        {
-            data << uint32(0);
-            data << uint32(0);
-        }*
-    }
-    if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list, done
-    {
-        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
-        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
-        if (Player* player = m_caster->ToPlayer())
-        {
-            data << uint8(m_runesState);                     // runes state before
-            data << uint8(player->GetRunesState());          // runes state after
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
-                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-            }
-        }
-        else
-        {
-            data << uint8(0);
-            data << uint8(0);
-            for (uint8 i = 0; i < MAX_RUNES; ++i)
-                data << uint8(0);
-        }
-    }
-
-    if (castFlags & CAST_FLAG_ADJUST_MISSILE) // TODO: find it in bits & bytes ... We need a sniff
-    {
-        data << m_targets.GetElevation();
-        data << uint32(m_delayMoment);
-    }
-
-    if (castFlags & CAST_FLAG_PROJECTILE)
-    {
-        data << uint32(0); // Ammo display ID
-        data << uint32(0); // Inventory Type
-    }
-
-    if (castFlags & CAST_FLAG_VISUAL_CHAIN)
-    {
-        data << uint32(0);
-        data << uint32(0);
-    }
-
-    if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
-    {
-        data << uint8(0);
-    }
-
-    if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
-    {
-        data << uint32(0); // Extra targets count
-        /*
-        for (uint8 i = 0; i < count; ++i)
-        {
-            data << float(0);   // Target Position X
-            data << float(0);   // Target Position Y
-            data << float(0);   // Target Position Z
-            data << uint64(0);  // Target Guid
-        }
-        *
-    }*/
 
     m_caster->SendMessageToSet(&data, true);
 }
