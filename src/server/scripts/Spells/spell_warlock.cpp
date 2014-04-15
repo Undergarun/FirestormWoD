@@ -82,6 +82,7 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CALL                    = 114925,
     WARLOCK_DECIMATE_AURA                   = 108869,
     WARLOCK_SOUL_LEECH_AURA                 = 108370,
+    WARLOCK_SOUL_LINK_TALENT                = 108415,
     WARLOCK_SOUL_LINK_DUMMY_AURA            = 108446,
     WARLOCK_GLYPH_OF_CONFLAGRATE            = 56235,
     WARLOCK_SHIELD_OF_SHADOW                = 115232,
@@ -1061,7 +1062,7 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                 }
             }
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Player* player = GetCaster()->ToPlayer())
                 {
@@ -1079,51 +1080,54 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                     if (AuraPtr grimoireOfSacrifice = player->GetAura(WARLOCK_GRIMOIRE_OF_SACRIFICE))
                     {
                         if (grimoireOfSacrifice->GetEffect(EFFECT_10))
-                            grimoireOfSacrifice->GetEffect(EFFECT_10)->SetAmount(0);
+                            grimoireOfSacrifice->GetEffect(EFFECT_10)->ChangeAmount(0);
                         if (grimoireOfSacrifice->GetEffect(EFFECT_9))
-                            grimoireOfSacrifice->GetEffect(EFFECT_9)->SetAmount(0);
+                            grimoireOfSacrifice->GetEffect(EFFECT_9)->ChangeAmount(0);
                         if (grimoireOfSacrifice->GetEffect(EFFECT_8))
-                            grimoireOfSacrifice->GetEffect(EFFECT_8)->SetAmount(0);
+                            grimoireOfSacrifice->GetEffect(EFFECT_8)->ChangeAmount(0);
+
+                        if (!player->HasSpell(WARLOCK_SOUL_LINK_TALENT))
+                            grimoireOfSacrifice->GetEffect(EFFECT_6)->ChangeAmount(0);
 
                         switch (player->GetSpecializationId(player->GetActiveSpec()))
                         {
                             case SPEC_WARLOCK_AFFLICTION:
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_3))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_3)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_3)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_4))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_4)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_4)->ChangeAmount(0);
                                 break;
                             case SPEC_WARLOCK_DEMONOLOGY:
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_2))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_2)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_2)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_4))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_4)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_4)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_5))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_5)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_5)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_7))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_7)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_7)->ChangeAmount(0);
                                 break;
                             case SPEC_WARLOCK_DESTRUCTION:
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_2))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_2)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_2)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_3))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_3)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_3)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_5))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_5)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_5)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_7))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_7)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_7)->ChangeAmount(0);
                                 break;
                             case SPEC_NONE:
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_2))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_2)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_2)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_3))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_3)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_3)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_4))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_4)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_4)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_5))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_5)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_5)->ChangeAmount(0);
                                 if (grimoireOfSacrifice->GetEffect(EFFECT_7))
-                                    grimoireOfSacrifice->GetEffect(EFFECT_7)->SetAmount(0);
+                                    grimoireOfSacrifice->GetEffect(EFFECT_7)->ChangeAmount(0);
                             default:
                                 break;
                         }
@@ -1134,7 +1138,7 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
             void Register()
             {
                 AfterCast += SpellCastFn(spell_warl_grimoire_of_sacrifice_SpellScript::HandleAfterCast);
-                OnHit += SpellHitFn(spell_warl_grimoire_of_sacrifice_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_warl_grimoire_of_sacrifice_SpellScript::HandleAfterHit);
             }
         };
 
