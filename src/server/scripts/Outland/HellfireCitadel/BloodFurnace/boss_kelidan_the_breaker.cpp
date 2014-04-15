@@ -71,6 +71,7 @@ const float ShadowmoonChannelers[5][4]=
     {316.0f, -109.0f, -24.6f, 1.257f}
 };
 
+// 17377
 class boss_kelidan_the_breaker : public CreatureScript
 {
     public:

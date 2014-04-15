@@ -4231,6 +4231,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
+            case 123633:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].BasePoints = 0;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Effects[0].Amplitude = 500;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;

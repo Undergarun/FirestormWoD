@@ -101,6 +101,7 @@ public:
 
 };
 
+// 17798
 class boss_warlord_kalithresh : public CreatureScript
 {
 public:

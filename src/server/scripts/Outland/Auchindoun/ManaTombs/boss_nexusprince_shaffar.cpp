@@ -56,6 +56,7 @@ enum ePrince
     NR_INITIAL_BEACONS              = 3
 };
 
+// 18344
 class boss_nexusprince_shaffar : public CreatureScript
 {
 public:
