@@ -2802,7 +2802,7 @@ class spell_warl_harvest_life : public SpellScriptLoader
         }
 };
 
-// Fear - 5782 and Bloody Fear - 111397
+// Fear - 5782
 class spell_warl_fear : public SpellScriptLoader
 {
     public:
