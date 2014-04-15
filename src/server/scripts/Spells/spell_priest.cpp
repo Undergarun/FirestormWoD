@@ -131,6 +131,67 @@ enum PriestSpells
     PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455
 };
 
+// Psychic Horror (psyfiend) - 113792
+class spell_pri_psychic_horror_psyfiend : public SpellScriptLoader
+{
+    public:
+        spell_pri_psychic_horror_psyfiend() : SpellScriptLoader("spell_pri_psychic_horror_psyfiend") { }
+
+        class spell_pri_psychic_horror_psyfiend_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_psychic_horror_psyfiend_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                {
+                    if (Creature* psyfiend = caster->ToCreature())
+                    {
+                        if (psyfiend->AI())
+                        {
+                            Unit* target = ObjectAccessor::FindUnit(psyfiend->AI()->GetGUID(0));
+                            if (!target || target->GetDistance(caster) > 20.0f)
+                                JadeCore::RandomResizeList(targets, 1);
+                            else
+                            {
+                                std::list<Unit*> targetList;
+                                for (auto itr : targets)
+                                    if (itr->ToUnit() && itr->GetGUID() == target->GetGUID())
+                                        targetList.push_back(itr->ToUnit());
+
+                                if (targetList.empty())
+                                    JadeCore::RandomResizeList(targets, 1);
+                                else
+                                {
+                                    targets.clear();
+
+                                    for (auto itr : targetList)
+                                        targets.push_back(itr);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_psychic_horror_psyfiend_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_psychic_horror_psyfiend_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_psychic_horror_psyfiend_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_psychic_horror_psyfiend_SpellScript();
+        }
+};
+
 // Holy Nova (heal) - 23455
 class spell_pri_holy_nova_heal : public SpellScriptLoader
 {
@@ -2754,6 +2815,7 @@ class spell_pri_levitate : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_psychic_horror();
     new spell_pri_holy_nova_heal();
     new spell_pri_holy_nova();
     new spell_pri_glyph_of_holy_nova();

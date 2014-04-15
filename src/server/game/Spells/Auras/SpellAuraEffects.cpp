@@ -467,7 +467,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
     &AuraEffect::HandleNULL,                                      //409 SPELL_AURA_409
     &AuraEffect::HandleNULL,                                      //410 SPELL_AURA_410
-    &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_CHARGES implemented in Spell::cast
+    &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_CHARGES implemented with SpellChargesTracker
     &AuraEffect::HandleModManaRegenByHaste,                       //412 SPELL_AURA_412
     &AuraEffect::HandleNULL,                                      //413 SPELL_AURA_413
     &AuraEffect::HandleNULL,                                      //414 SPELL_AURA_414
@@ -1847,6 +1847,9 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
     // Glyph of Shadow Word: Death
     if (m_spellInfo->Id == 120583 && spell->Id == 32379)
         return true;
+    // Dark Apotheosis allow warlock to cast Metamorphosis spells
+    if (m_spellInfo->Id == 114168 && spell->Id == 97827)
+        return true;
 
     return false;
 }
@@ -2010,6 +2013,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId  = 103965;
             spellId2 = 54817;
             spellId3 = 54879;
+            if (apply)
+                target->RemoveAura(114168); // Dark Apotheosis
             break;
         case FORM_SPIRITOFREDEMPTION:
             spellId  = 27792;
@@ -3817,6 +3822,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
+        pet->GetMotionMaster()->Clear();
         pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
     }
     else
@@ -3830,9 +3836,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
             // Reinitialize the pet bar and make the pet come back to the owner
             caster->ToPlayer()->PetSpellInitialize();
             if (!pet->getVictim())
-            {
                 pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
-            }
         }
     }
 }

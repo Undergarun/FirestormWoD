@@ -2582,6 +2582,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         case 114192:// Mocking Banner
         case 114203:// Demoralizing Banner
         case 114207:// Skull Banner
+        case 33831: // Force of Nature (Balance)
+        case 102693:// Force of Nature (Restoration)
+        case 102703:// Force of Nature (Feral)
+        case 102706:// Force of Nature (Guardian)
             mask = UNIT_MASK_GUARDIAN;
             break;
         default:

@@ -28,62 +28,98 @@
 
 enum RogueSpells
 {
-    ROGUE_SPELL_SHIV_TRIGGERED                   = 5940,
-    ROGUE_SPELL_RECUPERATE                       = 73651,
-    ROGUE_SPELL_DEADLY_POISON                    = 2823,
-    ROGUE_SPELL_WOUND_POISON                     = 8679,
-    ROGUE_SPELL_MIND_NUMBLING_POISON             = 5761,
-    ROGUE_SPELL_CRIPPLING_POISON                 = 3408,
-    ROGUE_SPELL_CRIPPLING_POISON_DEBUFF          = 3409,
-    ROGUE_SPELL_LEECHING_POISON                  = 108211,
-    ROGUE_SPELL_LEECHING_POISON_DEBUFF           = 112961,
-    ROGUE_SPELL_PARALYTIC_POISON                 = 108215,
-    ROGUE_SPELL_PARALYTIC_POISON_DEBUFF          = 113952,
-    ROGUE_SPELL_DEBILITATING_POISON              = 115196,
-    ROGUE_SPELL_MIND_PARALYSIS                   = 115194,
-    ROGUE_SPELL_LEECH_VITALITY                   = 116921,
-    ROGUE_SPELL_PARTIAL_PARALYSIS                = 115197,
-    ROGUE_SPELL_TOTAL_PARALYSIS                  = 113953,
-    ROGUE_SPELL_DEADLY_POISON_DOT                = 2818,
-    ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE     = 113780,
-    ROGUE_SPELL_SLICE_AND_DICE                   = 5171,
-    ROGUE_SPELL_SMOKE_BOMB_AREA_DUMMY            = 76577,
-    ROGUE_SPELL_SMOKE_BOMB_AURA                  = 88611,
-    ROGUE_SPELL_MASTER_POISONER_AURA             = 58410,
-    ROGUE_SPELL_MASTER_POISONER_DEBUFF           = 93068,
-    ROGUE_SPELL_CRIMSON_TEMPEST_DOT              = 122233,
-    ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA       = 115834,
-    ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE            = 51637,
-    ROGUE_SPELL_VENOMOUS_WOUND_DAMAGE            = 79136,
-    ROGUE_SPELL_GARROTE_DOT                      = 703,
-    ROGUE_SPELL_RUPTURE_DOT                      = 1943,
-    ROGUE_SPELL_CUT_TO_THE_CHASE_AURA            = 51667,
-    ROGUE_SPELL_ADRENALINE_RUSH                  = 13750,
-    ROGUE_SPELL_KILLING_SPREE                    = 51690,
-    ROGUE_SPELL_REDIRECT                         = 73981,
-    ROGUE_SPELL_SHADOW_BLADES                    = 121471,
-    ROGUE_SPELL_SPRINT                           = 2983,
-    ROGUE_SPELL_HEMORRHAGE_DOT                   = 89775,
-    ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF           = 124271,
-    ROGUE_SPELL_NIGHTSTALKER_AURA                = 14062,
-    ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE         = 130493,
-    ROGUE_SPELL_SHADOW_FOCUS_AURA                = 108209,
-    ROGUE_SPELL_SHADOW_FOCUS_COST_PCT            = 112942,
-    ROGUE_SPELL_NERVE_STRIKE_AURA                = 108210,
-    ROGUE_SPELL_NERVE_STRIKE_REDUCE_DAMAGE_DONE  = 112947,
-    ROGUE_SPELL_COMBAT_READINESS                 = 74001,
-    ROGUE_SPELL_COMBAT_INSIGHT                   = 74002,
-    ROGUE_SPELL_BLADE_FLURRY_DAMAGE              = 22482,
-    ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE        = 45182,
-    ROGUE_SPELL_ENERGETIC_RECOVERY_AURA          = 79152,
-    ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR            = 56803,
-    ROGUE_SPELL_WEAKENED_ARMOR                   = 113746,
-    ROGUE_SPELL_DEADLY_BREW                      = 51626,
-    ROGUE_SPELL_GLYPH_OF_HEMORRHAGE              = 56807,
-    ROGUE_SPELL_CLOAK_AND_DAGGER                 = 138106,
-    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY         = 128766,
-    ROGUE_SPELL_MARKED_FOR_DEATH                 = 137619,
-    ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE       = 137586
+    ROGUE_SPELL_SHIV_TRIGGERED                  = 5940,
+    ROGUE_SPELL_RECUPERATE                      = 73651,
+    ROGUE_SPELL_DEADLY_POISON                   = 2823,
+    ROGUE_SPELL_WOUND_POISON                    = 8679,
+    ROGUE_SPELL_MIND_NUMBLING_POISON            = 5761,
+    ROGUE_SPELL_CRIPPLING_POISON                = 3408,
+    ROGUE_SPELL_CRIPPLING_POISON_DEBUFF         = 3409,
+    ROGUE_SPELL_LEECHING_POISON                 = 108211,
+    ROGUE_SPELL_LEECHING_POISON_DEBUFF          = 112961,
+    ROGUE_SPELL_PARALYTIC_POISON                = 108215,
+    ROGUE_SPELL_PARALYTIC_POISON_DEBUFF         = 113952,
+    ROGUE_SPELL_DEBILITATING_POISON             = 115196,
+    ROGUE_SPELL_MIND_PARALYSIS                  = 115194,
+    ROGUE_SPELL_LEECH_VITALITY                  = 116921,
+    ROGUE_SPELL_PARTIAL_PARALYSIS               = 115197,
+    ROGUE_SPELL_TOTAL_PARALYSIS                 = 113953,
+    ROGUE_SPELL_DEADLY_POISON_DOT               = 2818,
+    ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE    = 113780,
+    ROGUE_SPELL_SLICE_AND_DICE                  = 5171,
+    ROGUE_SPELL_SMOKE_BOMB_AREA_DUMMY           = 76577,
+    ROGUE_SPELL_SMOKE_BOMB_AURA                 = 88611,
+    ROGUE_SPELL_MASTER_POISONER_AURA            = 58410,
+    ROGUE_SPELL_MASTER_POISONER_DEBUFF          = 93068,
+    ROGUE_SPELL_CRIMSON_TEMPEST_DOT             = 122233,
+    ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA      = 115834,
+    ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE           = 51637,
+    ROGUE_SPELL_VENOMOUS_WOUND_DAMAGE           = 79136,
+    ROGUE_SPELL_GARROTE_DOT                     = 703,
+    ROGUE_SPELL_RUPTURE_DOT                     = 1943,
+    ROGUE_SPELL_CUT_TO_THE_CHASE_AURA           = 51667,
+    ROGUE_SPELL_ADRENALINE_RUSH                 = 13750,
+    ROGUE_SPELL_KILLING_SPREE                   = 51690,
+    ROGUE_SPELL_REDIRECT                        = 73981,
+    ROGUE_SPELL_SHADOW_BLADES                   = 121471,
+    ROGUE_SPELL_SPRINT                          = 2983,
+    ROGUE_SPELL_HEMORRHAGE_DOT                  = 89775,
+    ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF          = 124271,
+    ROGUE_SPELL_NIGHTSTALKER_AURA               = 14062,
+    ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE        = 130493,
+    ROGUE_SPELL_SHADOW_FOCUS_AURA               = 108209,
+    ROGUE_SPELL_SHADOW_FOCUS_COST_PCT           = 112942,
+    ROGUE_SPELL_NERVE_STRIKE_AURA               = 108210,
+    ROGUE_SPELL_NERVE_STRIKE_REDUCE_DAMAGE_DONE = 112947,
+    ROGUE_SPELL_COMBAT_READINESS                = 74001,
+    ROGUE_SPELL_COMBAT_INSIGHT                  = 74002,
+    ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
+    ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
+    ROGUE_SPELL_ENERGETIC_RECOVERY_AURA         = 79152,
+    ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR           = 56803,
+    ROGUE_SPELL_WEAKENED_ARMOR                  = 113746,
+    ROGUE_SPELL_DEADLY_BREW                     = 51626,
+    ROGUE_SPELL_GLYPH_OF_HEMORRHAGE             = 56807,
+    ROGUE_SPELL_CLOAK_AND_DAGGER                = 138106,
+    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY        = 128766,
+    ROGUE_SPELL_MARKED_FOR_DEATH                = 137619,
+    ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE      = 137586,
+    ROGUE_SPELL_GLYPH_OF_DECOY                  = 56800,
+    ROGUE_SPELL_DECOY_SUMMON                    = 89765
+};
+
+// Called by Vanish - 1856
+// Glyph of Decoy - 56800
+class spell_rog_glyph_of_decoy : public SpellScriptLoader
+{
+    public:
+        spell_rog_glyph_of_decoy() : SpellScriptLoader("spell_rog_glyph_of_decoy") { }
+
+        class spell_rog_glyph_of_decoy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_glyph_of_decoy_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->HasAura(ROGUE_SPELL_GLYPH_OF_DECOY))
+                        return;
+
+                    caster->CastSpell(caster, ROGUE_SPELL_DECOY_SUMMON, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_glyph_of_decoy_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_glyph_of_decoy_SpellScript();
+        }
 };
 
 // Shuriken Toss - 114014
@@ -1555,6 +1591,7 @@ class spell_rog_shadowstep : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
     new spell_rog_marked_for_death();
     new spell_rog_cloak_and_dagger();

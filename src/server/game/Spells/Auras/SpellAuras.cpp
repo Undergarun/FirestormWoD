@@ -335,6 +335,63 @@ void AuraApplication::ClientUpdate(bool remove)
     data.WriteBytesSeq(targetGuid, orderGuid);
 
     _target->SendMessageToSet(&data, true);
+
+    AuraPtr aura = GetBase();
+    if (!aura)
+        return;
+
+    if (aura->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
+        return;
+
+    Mechanics mechanic = MECHANIC_NONE;
+    SpellEffIndex effIndex = EFFECT_0;
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (constAuraEffectPtr eff = aura->GetEffect(i))
+        {
+            switch (eff->GetAuraType())
+            {
+                case SPELL_AURA_MOD_CONFUSE:
+                    mechanic = MECHANIC_DISORIENTED;
+                    break;
+                case SPELL_AURA_MOD_FEAR:
+                case SPELL_AURA_MOD_FEAR_2:
+                    mechanic = MECHANIC_FEAR;
+                    break;
+                case SPELL_AURA_MOD_STUN:
+                    mechanic = MECHANIC_STUN;
+                    break;
+                case SPELL_AURA_MOD_ROOT:
+                    mechanic = MECHANIC_ROOT;
+                    break;
+                case SPELL_AURA_TRANSFORM:
+                    mechanic = MECHANIC_POLYMORPH;
+                    break;
+                case SPELL_AURA_MOD_SILENCE:
+                    mechanic = MECHANIC_SILENCE;
+                    break;
+                case SPELL_AURA_MOD_DISARM:
+                case SPELL_AURA_MOD_DISARM_OFFHAND:
+                case SPELL_AURA_MOD_DISARM_RANGED:
+                    mechanic = MECHANIC_DISARM;
+                    break;
+                default:
+                    break;
+            }
+
+            if (mechanic != MECHANIC_NONE)
+            {
+                effIndex = SpellEffIndex(i);
+                break;
+            }
+        }
+    }
+
+    if (mechanic == MECHANIC_NONE)
+        return;
+
+    _target->SendLossOfControl(this, mechanic, effIndex);
 }
 
 void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
@@ -1235,8 +1292,24 @@ bool Aura::CanBeSaved() const
 
 bool Aura::CanBeSentToClient() const
 {
-    return GetId() != 115098 && (!IsPassive() || GetSpellInfo()->HasAreaAuraEffect() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE) || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)
-        || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2) || HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT));
+    if (GetId() == 115098)
+        return false;
+
+    if (!IsPassive())
+        return true;
+
+    if (GetSpellInfo()->HasAreaAuraEffect())
+        return true;
+
+    if (HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)      ||
+        HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)            ||
+        HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)     ||
+        HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)   ||
+        HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT)         ||
+        HasEffectType(SPELL_AURA_MOD_CHARGES))
+        return true;
+
+    return false;
 }
 
 void Aura::UnregisterSingleTarget()

@@ -1845,6 +1845,9 @@ class achievement_show_me_you_moves : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
+            if (!source || !source->GetInstanceScript())
+                return false;
+
             if (source->GetInstanceScript()->GetData(ACHIEVE))
                 return true;
 

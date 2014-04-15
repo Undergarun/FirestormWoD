@@ -114,7 +114,7 @@ uint32 LootStore::LoadLootTable()
 
         uint32 entry               = fields[0].GetUInt32();
         uint32 item                = abs(fields[1].GetInt32());
-        uint8 type = ((fields[1].GetInt32() > 0) ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY);
+        uint8 type = ((fields[1].GetInt32() >= 0) ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY);
         float  chanceOrQuestChance = fields[2].GetFloat();
         uint16 lootmode            = fields[3].GetUInt16();
         uint8  group               = fields[4].GetUInt8();

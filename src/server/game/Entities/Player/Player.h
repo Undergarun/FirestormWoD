@@ -41,12 +41,13 @@
 #include "WorldSession.h"
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
+#include "SpellChargesTracker.h"
 
 // for template
 #include "SpellMgr.h"
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 #include <ace/Stack_Trace.h>
 
 struct Mail;
@@ -3022,6 +3023,8 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
+        bool HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category);
+
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
@@ -3040,7 +3043,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
-    protected:
+    private:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
@@ -3425,6 +3428,8 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        JadeCore::SpellChargesTracker spellChargesTracker_;
 
         uint8 m_bgRoles;
 

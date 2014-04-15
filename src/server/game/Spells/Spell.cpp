@@ -3045,7 +3045,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
                 //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
                 if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
-                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, NULL, NULL, 131369);
+                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131369);
             }
             if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
                 if (m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
@@ -3871,55 +3871,6 @@ void Spell::cast(bool skipCheck)
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
             m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-        // Clemency
-        if (m_spellInfo->Id == 1022 || m_spellInfo->Id == 1038 || m_spellInfo->Id == 1044 || m_spellInfo->Id == 6940)
-        {
-            if (AuraPtr clemency = m_caster->GetAura(105622))
-            {
-                switch (m_spellInfo->Id)
-                {
-                    case 1022:
-                        if (clemency->GetEffect(0)->GetAmount() > 0)
-                        {
-                            clemency->GetEffect(0)->SetAmount(0);
-                            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                        }
-                        else
-                            clemency->GetEffect(0)->SetAmount(1);
-                        break;
-                    case 1038:
-                        if (clemency->GetEffect(1)->GetAmount() > 0)
-                        {
-                            clemency->GetEffect(1)->SetAmount(0);
-                            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                        }
-                        else
-                            clemency->GetEffect(1)->SetAmount(1);
-                        break;
-                    case 1044:
-                        if (clemency->GetEffect(2)->GetAmount() > 0)
-                        {
-                            clemency->GetEffect(2)->SetAmount(0);
-                            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                        }
-                        else
-                            clemency->GetEffect(2)->SetAmount(1);
-                        break;
-                    case 6940:
-                        if (clemency->GetEffect(3)->GetAmount() > 0)
-                        {
-                            clemency->GetEffect(3)->SetAmount(0);
-                            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                        }
-                        else
-                            clemency->GetEffect(3)->SetAmount(1);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
     }
 
     SetExecutedCurrently(false);
@@ -5346,10 +5297,10 @@ void Spell::SendSpellGo()
         data.WriteBitInOrder(transportDst, bitsOrder);
     }
 
-    data.WriteBit(powerUnit != NULL);                       // hasPowerUnitGuid
+    data.WriteBit(powerUnit != 0);                          // hasPowerUnitGuid
     data.WriteBits(hitCount, 24);                           // hit count
 
-    if (powerUnit != NULL)
+    if (powerUnit != 0)
     {
         data.WriteBit(powerUnit[7]);
         data.WriteBit(powerUnit[4]);
@@ -5410,7 +5361,7 @@ void Spell::SendSpellGo()
 
     data.WriteByteSeq(caster[7]);
 
-    if (powerUnit != NULL)
+    if (powerUnit != 0)
     {
         data.WriteByteSeq(powerUnit[3]);
         data.WriteByteSeq(powerUnit[5]);
@@ -6633,25 +6584,35 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
 
-    // check death state
+    // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
 
-    // check cooldowns to prevent cheating
+    // Check cooldowns to prevent cheating
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE))
     {
-        //can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
-            && !(m_caster->HasAura(46924) && m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
+        Player* player = m_caster->ToPlayer();
+
+        // Can cast triggered (by aura only?) spells while have this flag
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
+            && !(player->HasAura(46924) && m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
             || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499)) // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
-        if (m_caster->ToPlayer()->HasSpellCooldown(m_spellInfo->Id) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
+        if (player->HasSpellCooldown(m_spellInfo->Id) && !player->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             else
                 return SPELL_FAILED_NOT_READY;
+        }
+
+        auto const categories = m_spellInfo->GetSpellCategories();
+        if (categories && categories->ChargesCategory != 0)
+        {
+            auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+            if (category && !player->HasSpellCharge(m_spellInfo->Id, *category))
+                return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }
 

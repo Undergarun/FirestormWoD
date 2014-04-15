@@ -4521,6 +4521,11 @@ enum PsyfiendSpells
     SPELL_PSYCHIC_HORROR    = 113792,
 };
 
+enum PsyfiendEvents
+{
+    EVENT_FEAR = 1
+};
+
 class npc_psyfiend : public CreatureScript
 {
     public:
@@ -4536,18 +4541,24 @@ class npc_psyfiend : public CreatureScript
 
             uint64 targetGUID;
             uint32 psychicHorrorTimer;
+            EventMap events;
 
             void Reset()
             {
                 if (!me->HasAura(SPELL_ROOT_FOR_EVER))
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
 
-                psychicHorrorTimer = 1500;
+                events.ScheduleEvent(EVENT_FEAR, 100);
             }
 
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
+            }
+
+            uint64 GetGUID(int32 /*data*/)
+            {
+                return targetGUID;
             }
 
             void IsSummonedBy(Unit* owner)
@@ -4569,24 +4580,19 @@ class npc_psyfiend : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (psychicHorrorTimer)
-                {
-                    if (psychicHorrorTimer <= diff)
-                    {
-                        if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
-                        {
-                            if (m_target->GetDistance2d(me) <= 20.0f)
-                                me->AddAura(SPELL_PSYCHIC_HORROR, m_target);
-                            else
-                                me->CastSpell(me, SPELL_PSYCHIC_HORROR, true);
-                        }
-                        else
-                            me->CastSpell(me, SPELL_PSYCHIC_HORROR, true);
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                        psychicHorrorTimer = 1500;
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_FEAR:
+                    {
+                        me->CastSpell(me, SPELL_PSYCHIC_HORROR, false);
+                        events.ScheduleEvent(EVENT_FEAR, 100);
+                        break;
                     }
-                    else
-                        psychicHorrorTimer -= diff;
                 }
             }
         };
@@ -4740,22 +4746,27 @@ class npc_force_of_nature : public CreatureScript
 
             void Reset()
             {
-                Player* owner = me->GetOwner() ? me->GetOwner()->ToPlayer() : NULL;
+                Unit* owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
                 Unit* target = owner ? owner->getVictim() : NULL;
 
                 if (!owner || !target)
                     return;
 
+                me->setFaction(owner->getFaction());
+                me->SetLevel(owner->getLevel());
+                me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                me->SetFullHealth();
+
                 switch (me->GetEntry())
                 {
                     case ENTRY_TREANT_GUARDIAN:
                         me->CastSpell(target, 130793, true); // Taunt
-                        me->AI()->AttackStart(target);
+                        AttackStart(target);
                         break;
                     case ENTRY_TREANT_FERAL:
                     case ENTRY_TREANT_BALANCE:
                         me->CastSpell(target, 113770, true); // Root
-                        me->AI()->AttackStart(target);
+                        AttackStart(target);
                         break;
                     case ENTRY_TREANT_RESTO:
                         if (target->IsHostileTo(me->ToUnit()))
@@ -4766,7 +4777,16 @@ class npc_force_of_nature : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) { }
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -4985,6 +5005,49 @@ class npc_monk_spirit : public CreatureScript
         }
 };
 
+/*######
+## npc_rogue_decoy - 62261
+######*/
+
+class npc_rogue_decoy : public CreatureScript
+{
+    public:
+        npc_rogue_decoy() : CreatureScript("npc_rogue_decoy") { }
+
+        struct npc_rogue_decoyAI : public Scripted_NoMovementAI
+        {
+            npc_rogue_decoyAI(Creature* c) : Scripted_NoMovementAI(c)
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_RENAME);
+            }
+
+            void IsSummonedBy(Unit* owner)
+            {
+                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                me->SetHealth(me->GetMaxHealth());
+
+                owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
+                owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                me->AddAura(SPELL_ROOT_FOR_EVER, me);
+            }
+        };
+
+        CreatureAI* GetAI(Creature *creature) const
+        {
+            return new npc_rogue_decoyAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -5046,4 +5109,5 @@ void AddSC_npcs_special()
     new npc_force_of_nature();
     new npc_luo_meng();
     new npc_monk_spirit();
+    new npc_rogue_decoy();
 }

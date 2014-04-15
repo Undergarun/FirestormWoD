@@ -2053,7 +2053,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     _player->SetEquipmentSet(index, eqSet);
 
     delete[] itemGuid;
-    itemGuid = NULL;
+    itemGuid = 0;
 }
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
@@ -2154,11 +2154,11 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     SendPacket(&data);
 
     delete[] srcbag;
-    srcbag = NULL;
+    srcbag = 0;
     delete[] srcslot;
-    srcslot = NULL;
+    srcslot = 0;
     delete[] itemGuid;
-    itemGuid = NULL;
+    itemGuid = 0;
 }
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)

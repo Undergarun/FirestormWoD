@@ -599,7 +599,7 @@ class npc_icc_ring_recover : public CreatureScript
                 if (player->HasItemCount(rings[i], 1, true)) // Check items also in bank
                 {
                     creature->MonsterWhisper(sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_ALREADY_HAVE), player->GetGUID());
-                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_DELETE), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CONFIRM), NULL, false);
+                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_DELETE), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CONFIRM), 0, false);
                     player->SEND_GOSSIP_MENU(NPC_TEXT_ID, creature->GetGUID());
                     return true;
                 }
