@@ -1166,8 +1166,14 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 {
                     if (m_caster->IsFriendlyTo(unitTarget))
                     {
-                        int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f) * 3.5f;
-                        m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
+                        // Glyph of Death Coil
+                        if (m_caster->HasAura(63333) && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                            m_caster->CastSpell(unitTarget, 115635, true); // Death Barrier
+                        else
+                        {
+                            int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f) * 3.5f;
+                            m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
+                        }
                     }
                     else
                     {

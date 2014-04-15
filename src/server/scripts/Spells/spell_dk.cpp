@@ -75,7 +75,39 @@ enum DeathKnightSpells
     DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 146599,
     DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION          = 127344,
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER            = 58680,
-    DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920
+    DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920,
+    DK_SPELL_DEATH_COIL_DAMAGE                  = 47632
+};
+
+// Death Barrier - 115635
+class spell_dk_death_barrier : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_barrier() : SpellScriptLoader("spell_dk_death_barrier") { }
+
+        class spell_dk_death_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_death_barrier_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    amount += caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
+                    amount = int32(caster->SpellDamageBonusDone(GetUnitOwner(), sSpellMgr->GetSpellInfo(DK_SPELL_DEATH_COIL_DAMAGE), amount, SPELL_DIRECT_DAMAGE));
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_death_barrier_AuraScript();
+        }
 };
 
 // Plague Strike - 45462
@@ -1893,6 +1925,7 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_death_barrier();
     new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
     new spell_dk_runic_empowerment();
