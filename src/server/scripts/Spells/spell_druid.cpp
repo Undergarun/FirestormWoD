@@ -130,6 +130,34 @@ enum DruidSpells
     SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
 };
 
+// Ravage! - 102545
+class spell_dru_ravage_and_stampede : public SpellScriptLoader
+{
+    public:
+        spell_dru_ravage_and_stampede() : SpellScriptLoader("spell_dru_ravage_and_stampede") { }
+
+        class spell_dru_ravage_and_stampede_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_ravage_and_stampede_SpellScript);
+
+            void HandleWeaponDamage(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->RemoveAura(SPELL_DRUID_STAMPEDE);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_ravage_and_stampede_SpellScript::HandleWeaponDamage, EFFECT_0, SPELL_EFFECT_WEAPON_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_ravage_and_stampede_SpellScript();
+        }
+};
+
 // Tooth and Claw - 135597
 class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
 {
@@ -3767,6 +3795,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_ravage_and_stampede();
     new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();
     new spell_dru_glyph_of_the_treant();
