@@ -314,7 +314,6 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
 
 void LoadDBCStores(const std::string& dataPath)
 {
-    Sleep(5000);
     uint32 oldMSTime = getMSTime();
 
     std::string dbcPath = dataPath+"dbc/";
