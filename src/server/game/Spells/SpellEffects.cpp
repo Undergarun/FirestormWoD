@@ -3193,97 +3193,100 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (!m_originalCaster)
         return;
 
-    // Glyph of the Sha
-    if (m_spellInfo->Id == 123040)
+    switch (m_spellInfo->Id)
     {
-        if (m_originalCaster->HasAura(147776))
-        {
-            entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
-
-            SummonPropertiesEntry const* newProperties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
-            if (newProperties)
-                properties = newProperties;
-        }
-
-        ((SummonPropertiesEntry*)properties)->Flags |= 0x200; // Controllable guardian ?
-        ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
-        ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
-    }
-
-    // Demonic Gateway : Remove old summon when cast an other gate
-    if (m_spellInfo->Id == 113890 || m_spellInfo->Id == 113886)
-    {
-        if (m_spellInfo->Id == 113890)
-        {
-            std::list<Creature*> tempList;
-            std::list<Creature*> gatewayList;
-
-            m_caster->GetCreatureListWithEntryInGrid(tempList, 59271, 500.0f);
-
-            if (!tempList.empty())
+        case 124927:// Call Dog
+            if (m_originalCaster->ToPlayer())
+                m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, time(NULL) + 60);
+            break;
+        case 123040:// Mindbender
+            // Glyph of the Sha
+            if (m_originalCaster->HasAura(147776))
             {
-                for (auto itr : tempList)
-                    gatewayList.push_back(itr);
+                entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
 
-                // Remove other players mushrooms
-                for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                {
-                    Unit* owner = (*i)->GetOwner();
-                    if (owner && owner == m_caster && (*i)->isSummon())
-                        continue;
-
-                    gatewayList.remove((*i));
-                }
-
-                // 1 gateway max
-                if ((int32)gatewayList.size() >= 1)
-                    gatewayList.back()->ToTempSummon()->UnSummon();
-            }
-        }
-        else
-        {
-            std::list<Creature*> tempList;
-            std::list<Creature*> gatewayList;
-
-            m_caster->GetCreatureListWithEntryInGrid(tempList, 59262, 500.0f);
-
-            if (!tempList.empty())
-            {
-                for (auto itr : tempList)
-                    gatewayList.push_back(itr);
-
-                // Remove other players mushrooms
-                for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                {
-                    Unit* owner = (*i)->GetOwner();
-                    if (owner && owner == m_caster && (*i)->isSummon())
-                        continue;
-
-                    gatewayList.remove((*i));
-                }
-
-                // 1 gateway max
-                if ((int32)gatewayList.size() >= 1)
-                    gatewayList.back()->ToTempSummon()->UnSummon();
+                SummonPropertiesEntry const* newProperties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
+                if (newProperties)
+                    properties = newProperties;
             }
 
-        }
-    }
-
-    // Primal Elementalist
-    if (m_spellInfo->Id == 33663 || m_spellInfo->Id == 117663)
-    {
-        if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
-        {
-            if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
+            ((SummonPropertiesEntry*)properties)->Flags |= 0x200; // Controllable guardian ?
+            ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
+            ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
+            break;
+        case 113890:// Demonic Gateway : Remove old summon when cast an other gate
+        case 113886:// Demonic Gateway : Remove old summon when cast an other gate
+            if (m_spellInfo->Id == 113890)
             {
-                if (m_originalCaster->GetOwner()->HasAura(117013))
+                std::list<Creature*> tempList;
+                std::list<Creature*> gatewayList;
+
+                m_caster->GetCreatureListWithEntryInGrid(tempList, 59271, 500.0f);
+
+                if (!tempList.empty())
                 {
-                    m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
-                    return;
+                    for (auto itr : tempList)
+                        gatewayList.push_back(itr);
+
+                    // Remove other players mushrooms
+                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                    {
+                        Unit* owner = (*i)->GetOwner();
+                        if (owner && owner == m_caster && (*i)->isSummon())
+                            continue;
+
+                        gatewayList.remove((*i));
+                    }
+
+                    // 1 gateway max
+                    if ((int32)gatewayList.size() >= 1)
+                        gatewayList.back()->ToTempSummon()->UnSummon();
                 }
             }
-        }
+            else
+            {
+                std::list<Creature*> tempList;
+                std::list<Creature*> gatewayList;
+
+                m_caster->GetCreatureListWithEntryInGrid(tempList, 59262, 500.0f);
+
+                if (!tempList.empty())
+                {
+                    for (auto itr : tempList)
+                        gatewayList.push_back(itr);
+
+                    // Remove other players mushrooms
+                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                    {
+                        Unit* owner = (*i)->GetOwner();
+                        if (owner && owner == m_caster && (*i)->isSummon())
+                            continue;
+
+                        gatewayList.remove((*i));
+                    }
+
+                    // 1 gateway max
+                    if ((int32)gatewayList.size() >= 1)
+                        gatewayList.back()->ToTempSummon()->UnSummon();
+                }
+            }
+            break;
+        case 33663:
+        case 117663:
+            if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
+            {
+                if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
+                {
+                    if (m_originalCaster->GetOwner()->HasAura(117013))
+                    {
+                        m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
+                        return;
+                    }
+                }
+            }
+            break;
+        default:
+            break;
     }
 
     int32 duration = m_spellInfo->GetDuration();
