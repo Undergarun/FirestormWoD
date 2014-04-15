@@ -314,6 +314,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
 
 void LoadDBCStores(const std::string& dataPath)
 {
+    Sleep(5000);
     uint32 oldMSTime = getMSTime();
 
     std::string dbcPath = dataPath+"dbc/";
@@ -710,7 +711,16 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTotemCategoryStore,          dbcPath, "TotemCategory.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleStore,                dbcPath, "Vehicle.dbc");                                                      // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleSeatStore,            dbcPath, "VehicleSeat.dbc");                                                  // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleSeatStore,            dbcPath, "VehicleSeat.dbc", &CustomVehicleSeatEntryfmt, &CustomVehicleSeatEntryIndex);                                                // 17399
+
+    if (VehicleEntry * vehicle = (VehicleEntry*)sVehicleStore.LookupEntry(584))
+    {
+        vehicle->m_seatID[0] = 20000;
+        vehicle->m_seatID[1] = 20001;
+        vehicle->m_seatID[2] = 20002;
+        vehicle->m_seatID[3] = 20003;
+    }
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sWMOAreaTableStore,           dbcPath, "WMOAreaTable.dbc");                                                 // 17399
     for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
         if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))

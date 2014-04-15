@@ -161,6 +161,7 @@ enum eCreatures
     NPC_TAYAK                       = 62543,
     NPC_TEMPEST_TARGET              = 62897,
     NPC_TEMPEST_STALKER             = 64373, //62908,
+    NPC_GALE_WINDS_STALKER          = 63292,
     NPC_STORM_UNLEASHED_EAST1       = 63301,
     NPC_STORM_UNLEASHED_EAST2       = 63302,
     NPC_STORM_UNLEASHED_EAST3       = 63303,
@@ -172,7 +173,7 @@ enum eCreatures
     // Garalon
     NPC_GARALON                     = 62164,
     NPC_GARALON_LEG                 = 63053,
-    NPC_PHEROMON_TRAIL              = 63021,
+    NPC_PHEROMONE_TRAIL             = 63021,
 
     // Mel'jarak
     NPC_MELJARAK                    = 62397,
