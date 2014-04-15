@@ -72,7 +72,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(*it))
         {
             ObjectGuid creatorGuid = calendarEvent->GetCreatorGUID();
-            ObjectGuid guildGuid = NULL;
+            ObjectGuid guildGuid = 0;
             if (calendarEvent->GetGuildId())
                 guildGuid = MAKE_NEW_GUID(calendarEvent->GetGuildId(), 0, HIGHGUID_GUILD);
             std::string title = calendarEvent->GetTitle();
