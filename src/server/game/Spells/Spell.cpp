@@ -4626,6 +4626,9 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellPowerData->powerType == POWER_RUNES)
         castFlags |= CAST_FLAG_UNKNOWN_19;
 
+    if (m_targets.HasTraj())
+        castFlags |= CAST_FLAG_ADJUST_MISSILE;
+
     WorldPacket data(SMSG_SPELL_START);
 
     uint32 unkStringLength = 0;
@@ -4656,7 +4659,6 @@ void Spell::SendSpellStart()
     uint8 predictedHealType = 0;
     bool unkByte5 = false;
     bool unkByte6 = false;
-    bool unkFloat = false;
 
     // Initialize predicated heal values
     if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
@@ -4753,7 +4755,7 @@ void Spell::SendSpellStart()
         data.WriteBit(powerUnit[1]);
     }
 
-    data.WriteBit(!unkFloat);                               // !has unk float
+    data.WriteBit(!(castFlags & CAST_FLAG_ADJUST_MISSILE));
     data.WriteBit(!unkInt4);                                // !has unk int 4
 
     if (m_targets.GetTargetMask())
@@ -4986,8 +4988,8 @@ void Spell::SendSpellStart()
     if (predicatedHealAmount)
         data << uint32(predicatedHealAmount);
 
-    if (unkFloat)
-        data << float(0.0f);
+    if (castFlags & CAST_FLAG_ADJUST_MISSILE)
+        data << float(m_targets.GetElevation());
 
     data << uint32(castFlags);                                      // unk 88
     data.WriteByteSeq(caster[4]);
@@ -5166,7 +5168,6 @@ void Spell::SendSpellGo()
     bool hasSrc = m_targets.HasSrc();
     bool hasDest = m_targets.HasDst();
     bool hasBit48 = false;
-    bool hasBit90 = false;
     bool hasBit91 = false;
     bool hasBit101 = false;
     bool hasBit102 = false;
@@ -5219,7 +5220,7 @@ void Spell::SendSpellGo()
     data.WriteBit(caster[4]);
     data.WriteBit(!hasBit102);                              // !hasBit102
     data.WriteBit(!hasBit368);                              // !hasBit368
-    data.WriteBit(!hasBit90);                               // !hasBit90
+    data.WriteBit(!(castFlags & CAST_FLAG_ADJUST_MISSILE));
     data.WriteBit(!itemGuid);                               // !hasGuid2
     data.WriteBit(itemCaster[7]);
 
@@ -5456,8 +5457,8 @@ void Spell::SendSpellGo()
     }
 
 
-    if (hasBit90)
-        data << float(0.0f); // may be data << m_targets.GetElevation(); ? need to try
+    if (castFlags & CAST_FLAG_ADJUST_MISSILE)
+        data << float(m_targets.GetElevation());
 
     uint8 bytesOrder1[8] = { 3, 1, 5, 0, 7, 6, 4, 2 };
     data.WriteBytesSeq(target, bytesOrder1);

@@ -857,16 +857,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellId = newSpellInfo->Id;
         }
     }
-    // Halo - 120517 and Halo - 120644 (shadow form)
-    else if (spellInfo->Id == 120517 && _player->HasAura(15473))
-    {
-        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(120644);
-        if (newSpellInfo)
-        {
-            spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
-        }
-    }
     // Consecration - 116467 and Consecration - 26573
     else if (spellInfo->Id == 116467)
     {

@@ -1850,6 +1850,9 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
     // Dark Apotheosis allow warlock to cast Metamorphosis spells
     if (m_spellInfo->Id == 114168 && spell->Id == 97827)
         return true;
+    // Shadow Form should override Halo to Halo (shadow)
+    if (m_spellInfo->Id == 15473 && spell->Id == 120517)
+        return true;
 
     return false;
 }
@@ -2022,7 +2025,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_SHADOW:
             spellId = 49868;
-            spellId2 = 71167;
+            spellId2 = 107903;
             break;
         case FORM_GHOSTWOLF:
             spellId = 67116;
@@ -7216,6 +7219,8 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                 return;
             case 10:    // Blizzard
             case 5740:  // Rain of Fire
+            case 16914: // Hurricane
+            case 106996:// Astral Storm
             {
                 if (caster && target)
                 {
