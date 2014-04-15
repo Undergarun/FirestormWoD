@@ -7214,6 +7214,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             }
             case 106768:
                 return;
+            case 10:    // Blizzard
             case 5740:  // Rain of Fire
             {
                 if (caster && target)
