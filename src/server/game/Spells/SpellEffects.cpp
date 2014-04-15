@@ -2106,6 +2106,16 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                     return;
                 break;
             }
+            case 15290: // Vampiric Embrace
+            {
+                uint32 count = 0;
+                for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    if (ihit->effectMask & (1<<effIndex))
+                        ++count;
+
+                damage /= count;                    // divide to all targets
+                break;
+            }
             case 19750: // Selfless Healer
             {
                 if (!caster)

@@ -3416,6 +3416,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 15286: // Vampiric Embrace
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             case 29858: // Soulshatter
                 spellInfo->OverrideSpellList.push_back(97827); // Add Taunt (Metamorphosis)
                 break;
