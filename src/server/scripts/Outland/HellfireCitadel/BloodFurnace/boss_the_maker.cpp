@@ -42,6 +42,7 @@ enum eEnums
     SPELL_DOMINATION            = 25772                     // ???
 };
 
+// 17381
 class boss_the_maker : public CreatureScript
 {
     public:

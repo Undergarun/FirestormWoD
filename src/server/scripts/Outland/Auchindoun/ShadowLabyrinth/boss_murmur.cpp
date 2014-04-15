@@ -37,6 +37,7 @@ EndScriptData */
 #define SPELL_SONIC_SHOCK           38797
 #define SPELL_THUNDERING_STORM      39365
 
+// 18708
 class boss_murmur : public CreatureScript
 {
 public:

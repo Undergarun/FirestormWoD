@@ -38,6 +38,7 @@ enum eEnums
     SPELL_POISON            = 30914
 };
 
+// 17380
 class boss_broggok : public CreatureScript
 {
     public:

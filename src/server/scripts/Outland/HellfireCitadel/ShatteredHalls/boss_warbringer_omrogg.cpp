@@ -150,6 +150,7 @@ class mob_omrogg_heads : public CreatureScript
         }
 };
 
+// 16809
 class boss_warbringer_omrogg : public CreatureScript
 {
     public:

@@ -47,6 +47,7 @@ EndContentData */
 #define SPELL_WATER_BOLT_VOLLEY     34449
 #define H_SPELL_WATER_BOLT_VOLLEY   37924
 
+// 17797
 class boss_hydromancer_thespia : public CreatureScript
 {
 public:

@@ -130,12 +130,15 @@ public:
                     return;
                 }
                 move = 1000;
-            } else move -= diff;
+            }
+            else
+                move -= diff;
         }
     };
 
 };
 
+// 18732
 class boss_grandmaster_vorpil : public CreatureScript
 {
 public:
@@ -272,7 +275,9 @@ public:
             {
                 DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
                 ShadowBoltVolley_Timer = urand(15000, 30000);
-            } else ShadowBoltVolley_Timer -= diff;
+            }
+            else
+                ShadowBoltVolley_Timer -= diff;
 
             if (IsHeroic() && banish_Timer <= diff)
             {
@@ -282,7 +287,9 @@ public:
                     DoCast(target, SPELL_BANISH);
                     banish_Timer = 16000;
                 }
-            } else banish_Timer -= diff;
+            }
+            else
+                banish_Timer -= diff;
 
             if (DrawShadows_Timer <= diff)
             {
@@ -300,7 +307,9 @@ public:
 
                 ShadowBoltVolley_Timer = 6000;
                 DrawShadows_Timer = 30000;
-            } else DrawShadows_Timer -= diff;
+            }
+            else
+                DrawShadows_Timer -= diff;
 
             if (summonTraveler_Timer <= diff)
             {
@@ -309,7 +318,9 @@ public:
                 //enrage at 20%
                 if (HealthBelowPct(20))
                     summonTraveler_Timer = 5000;
-            } else summonTraveler_Timer -=diff;
+            }
+            else
+                summonTraveler_Timer -=diff;
 
             DoMeleeAttackIfReady();
         }
