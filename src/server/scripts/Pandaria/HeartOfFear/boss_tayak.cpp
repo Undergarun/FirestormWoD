@@ -515,15 +515,18 @@ class boss_tayak : public CreatureScript
                         {
                             if (unseenTank)
                             {
+                                me->SetReactState(REACT_AGGRESSIVE);
                                 // me->GetMotionMaster()->MovementExpired();
                                 // me->GetMotionMaster()->Clear();
-                                Player* unseenTarget = ObjectAccessor::FindPlayer(unseenTank);
-                                me->SetReactState(REACT_AGGRESSIVE);
-                                if (unseenTarget->isAlive())
-                                    AttackStart(unseenTarget);
+                                if (Player* unseenTarget = ObjectAccessor::FindPlayer(unseenTank))
+                                {
+                                    if (unseenTarget->isAlive())
+                                        AttackStart(unseenTarget);
+                                    else
+                                        DoZoneInCombat(me, 100.0f);
+                                }
                                 else
                                     DoZoneInCombat(me, 100.0f);
-
                                 unseenTank = 0;
                             }
                             break;
@@ -541,8 +544,7 @@ class boss_tayak : public CreatureScript
                         case EVENT_WIND_STEP_RETURN:
                         {
                             // Return to old target
-                            Player* currentVictim = ObjectAccessor::FindPlayer(currentTank);
-                            if (currentVictim)
+                            if (Player* currentVictim = ObjectAccessor::FindPlayer(currentTank))
                             {
                                 if (currentVictim->isAlive())
                                     DoCast(currentVictim, SPELL_WIND_STEP_TP_BACK);
