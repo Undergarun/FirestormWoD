@@ -445,9 +445,10 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
     float comboDamage = PointsPerComboPoint;
+    SpellEffectScalingEntry const* scaling = sSpellEffectScalingStore.LookupEntry(_spellInfo->Id);
 
     // base amount modification based on spell lvl vs caster lvl
-    if (ScalingMultiplier != 0.0f)
+    if (ScalingMultiplier != 0.0f && scaling)
     {
         if (caster && !_spellInfo->IsCustomCalculated())
         {
@@ -520,23 +521,23 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         {
             switch(_spellInfo->Id)
             {
-            case 105697:
-            case 105702:
-            case 105706:
-                value = 4000.0f;
-                break;
-            case 105698:
-                value = 12000.0f;
-                break;
-            case 105694:
-                value = 1500.0f;
-                break;
-            case 105689:
-            case 105691:
-            case 105693:
-            case 105696:
-                value = 1000.0f;
-                break;
+                case 105697:
+                case 105702:
+                case 105706:
+                    value = 4000.0f;
+                    break;
+                case 105698:
+                    value = 12000.0f;
+                    break;
+                case 105694:
+                    value = 1500.0f;
+                    break;
+                case 105689:
+                case 105691:
+                case 105693:
+                case 105696:
+                    value = 1000.0f;
+                    break;
             }
         }
     }
