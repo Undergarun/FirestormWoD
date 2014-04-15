@@ -5692,8 +5692,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 54934:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 123040: // Mindbender
-                break;
             // Shadow Apparition
             case 87426:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;

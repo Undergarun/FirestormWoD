@@ -3193,13 +3193,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (!m_originalCaster)
         return;
 
-    // Fix Mindbender : Pet entry update function of weapon (sha)
-    if (m_spellInfo->Id == 123040 && m_originalCaster->ToPlayer())
+    // Glyph of the Sha
+    if (m_spellInfo->Id == 123040)
     {
-        Item* mainItem = m_originalCaster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-        if (mainItem && (mainItem->GetEntry() == 86335 || mainItem->GetEntry() == 86893 || mainItem->GetEntry() == 87170 ||
-            mainItem->GetEntry() == 86227 || mainItem->GetEntry() == 86990 || mainItem->GetEntry() == 86865))
+        if (m_originalCaster->HasAura(147776))
         {
             entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
 
@@ -3207,6 +3204,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             if (newProperties)
                 properties = newProperties;
         }
+
+        ((SummonPropertiesEntry*)properties)->Flags |= 0x200; // Controllable guardian ?
+        ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
+        ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
     }
 
     // Demonic Gateway : Remove old summon when cast an other gate

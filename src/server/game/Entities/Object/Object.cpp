@@ -2586,6 +2586,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         case 102693:// Force of Nature (Restoration)
         case 102703:// Force of Nature (Feral)
         case 102706:// Force of Nature (Guardian)
+        case 123040:// Mindbender
+        case 132604:// Mindbender (sha display)
             mask = UNIT_MASK_GUARDIAN;
             break;
         default:
