@@ -4681,66 +4681,6 @@ class npc_spectral_guise : public CreatureScript
 };
 
 /*######
-## npc_shadowy_apparition
-######*/
-
-class npc_shadowy_apparition : public CreatureScript
-{
-    public:
-        npc_shadowy_apparition() : CreatureScript("npc_shadowy_apparition") { }
-
-        CreatureAI *GetAI(Creature* pCreature) const
-        {
-            return new npc_shadowy_apparitionAI(pCreature);
-        }
-
-        struct npc_shadowy_apparitionAI : public ScriptedAI
-        {
-            npc_shadowy_apparitionAI(Creature* pCreature) : ScriptedAI(pCreature)
-            {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                me->SetSpeed(MOVE_RUN, 0.3f);
-            }
-
-            bool bCast;
-
-            void Reset()
-            {
-                bCast = false;
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (!me->getVictim() || me->getVictim()->isDead())
-                    me->DespawnOrUnsummon();
-
-                if (!bCast && me->GetDistance(me->getVictim()) < 1.0f)
-                {
-                    bCast = true;
-                    me->CastSpell(me->getVictim(), 87532, true, NULL, NULL, (me->GetOwner() ? me->GetOwner()->GetGUID() : 0));
-                    me->DespawnOrUnsummon();
-                }
-            }
-        };
-};
-
-/*######
 ## npc_force_of_nature
 ######*/
 
@@ -5114,7 +5054,6 @@ void AddSC_npcs_special()
     new npc_void_tendrils();
     new npc_psyfiend();
     new npc_spectral_guise();
-    new npc_shadowy_apparition();
     new npc_force_of_nature();
     new npc_luo_meng();
     new npc_monk_spirit();
