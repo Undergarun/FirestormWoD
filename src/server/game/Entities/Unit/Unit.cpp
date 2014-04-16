@@ -250,6 +250,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_CombatTimer = 0;
 
     simulacrumTargetGUID = 0;
+    iciclesTargetGUID    = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -12395,7 +12396,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     }
 
     // Custom MoP Script
-    // 76613 - Mastery : Frostburn
+    // 76613 - Mastery : Icicles
     if (spellProto && victim)
     {
         if (isPet())
