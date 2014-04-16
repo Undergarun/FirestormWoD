@@ -966,9 +966,14 @@ class spell_pri_from_darkness_comes_light : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA))
+                {
+                    if (_player->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA) &&
+                        _player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
+                    {
                         if (roll_chance_i(15))
                             _player->CastSpell(_player, PRIEST_SURGE_OF_LIGHT, true);
+                    }
+                }
             }
 
             void Register()
