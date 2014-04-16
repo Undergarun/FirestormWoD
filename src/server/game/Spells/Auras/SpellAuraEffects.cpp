@@ -1832,28 +1832,6 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
     if (m_spellInfo->Effects[m_effIndex].SpellClassMask & spell->SpellFamilyFlags)
         return true;
 
-    // Fix Aspect of the Fox - Allow Barrage to be cast while walking
-    if (m_spellInfo->Id == 82661 && spell->Id == 120360)
-        return true;
-    // Fix Command Demon - Allow overriding spell
-    if (m_spellInfo->Id == 119904 && spell->Id == 119898)
-        return true;
-    // Fix Spiritwalker's Grace - Allow Elemental Blast to be cast while walking
-    if (m_spellInfo->Id == 79206 && spell->Id == 117014)
-        return true;
-    // Fix Item - Druid PvP Set Balance 4P Bonus
-    if (m_spellInfo->Id == 131536 && spell->Id == 127663)
-        return true;
-    // Glyph of Shadow Word: Death
-    if (m_spellInfo->Id == 120583 && spell->Id == 32379)
-        return true;
-    // Dark Apotheosis allow warlock to cast Metamorphosis spells
-    if (m_spellInfo->Id == 114168 && spell->Id == 97827)
-        return true;
-    // Shadow Form should override Halo to Halo (shadow)
-    if (m_spellInfo->Id == 15473 && spell->Id == 120517)
-        return true;
-
     return false;
 }
 
@@ -5639,7 +5617,7 @@ void AuraEffect::HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mod
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    flag96 mask;
+    flag128 mask;
     Unit::AuraEffectList const& noReagent = target->GetAuraEffectsByType(SPELL_AURA_NO_REAGENT_USE);
         for (Unit::AuraEffectList::const_iterator i = noReagent.begin(); i != noReagent.end(); ++i)
             mask |= (*i)->m_spellInfo->Effects[(*i)->m_effIndex].SpellClassMask;
@@ -5647,6 +5625,7 @@ void AuraEffect::HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mod
     target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1  , mask[0]);
     target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+1, mask[1]);
     target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+2, mask[2]);
+    target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+3, mask[3]);
 }
 
 void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const

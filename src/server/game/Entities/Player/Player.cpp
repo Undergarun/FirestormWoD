@@ -23488,14 +23488,14 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
 
     int i = 0;
-    flag96 _mask = 0;
+    flag128 _mask = 0;
     uint32 modTypeCount = 0; // count of mods per one mod->op
 
     ByteBuffer dataBuffer;
     WorldPacket data(opcode);
     data.WriteBits(1, 22);  // count of different mod->op's in packet
 
-    for (int eff = 0; eff < 96; ++eff)
+    for (int eff = 0; eff < 128; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
             _mask[i++] = 0;
@@ -26615,11 +26615,12 @@ bool Player::CanNoReagentCast(SpellInfo const* spellInfo) const
         return true;
 
     // Check no reagent use mask
-    flag96 noReagentMask;
+    flag128 noReagentMask;
     noReagentMask[0] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1);
     noReagentMask[1] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+1);
     noReagentMask[2] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+2);
-    if (spellInfo->SpellFamilyFlags  & noReagentMask)
+    noReagentMask[3] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+3);
+    if (spellInfo->SpellFamilyFlags & noReagentMask)
         return true;
 
     return false;
@@ -30450,14 +30451,14 @@ void Player::SendRefreshSpellMods()
             Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
 
             int i = 0;
-            flag96 _mask = 0;
+            flag128 _mask = 0;
             uint32 modTypeCount = 0; // count of mods per one mod->op
 
             ByteBuffer dataBuffer;
             WorldPacket data(opcode);
             data.WriteBits(1, 22);  // count of different mod->op's in packet
 
-            for (int eff = 0; eff < 96; ++eff)
+            for (int eff = 0; eff < 128; ++eff)
             {
                 if (eff != 0 && (eff % 32) == 0)
                     _mask[i++] = 0;
