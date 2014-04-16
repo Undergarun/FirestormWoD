@@ -1534,14 +1534,11 @@ class spell_dru_natures_vigil : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!GetCaster())
+                Unit* caster = GetCaster();
+                if (!caster)
                     return;
 
-                Player* _player = GetCaster()->ToPlayer();
-                if (!_player)
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() != _player->GetGUID())
+                if (eventInfo.GetActor()->GetGUID() != caster->GetGUID())
                     return;
 
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
@@ -1575,24 +1572,28 @@ class spell_dru_natures_vigil : public SpellScriptLoader
                 {
                     bp = eventInfo.GetDamageInfo()->GetDamage() / 4;
                     spellId = SPELL_DRUID_NATURES_VIGIL_HEAL;
-                    target = _player->SelectNearbyAlly(_player, 25.0f);
+                    target = caster->SelectNearbyAlly(caster, 25.0f);
+                    if (!target)
+                        target = caster;
                 }
                 else
                 {
                     bp = eventInfo.GetHealInfo()->GetHeal() / 4;
                     spellId = SPELL_DRUID_NATURES_VIGIL_DAMAGE;
-                    target = _player->SelectNearbyTarget(_player, 25.0f);
+                    target = caster->SelectNearbyTarget(caster, 25.0f);
+                    if (!target)
+                        target = eventInfo.GetActionTarget();
                 }
 
                 if (!target || !spellId || !bp)
                     return;
 
-                _player->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
+                caster->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProc, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProc, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
