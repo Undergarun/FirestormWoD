@@ -73,6 +73,7 @@ enum RogueSpells
     ROGUE_SPELL_NERVE_STRIKE_REDUCE_DAMAGE_DONE = 112947,
     ROGUE_SPELL_COMBAT_READINESS                = 74001,
     ROGUE_SPELL_COMBAT_INSIGHT                  = 74002,
+    ROGUE_SPELL_BLADE_FLURRY_AURA               = 13877,
     ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
     ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
     ROGUE_SPELL_ENERGETIC_RECOVERY_AURA         = 79152,
@@ -85,7 +86,93 @@ enum RogueSpells
     ROGUE_SPELL_MARKED_FOR_DEATH                = 137619,
     ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE      = 137586,
     ROGUE_SPELL_GLYPH_OF_DECOY                  = 56800,
-    ROGUE_SPELL_DECOY_SUMMON                    = 89765
+    ROGUE_SPELL_DECOY_SUMMON                    = 89765,
+    ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
+    ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841
+};
+
+// Killing Spree - 51690
+class spell_rog_killing_spree : public SpellScriptLoader
+{
+    public:
+        spell_rog_killing_spree() : SpellScriptLoader("spell_rog_killing_spree") { }
+
+        class spell_rog_killing_spree_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_killing_spree_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
+                    {
+                        Unit* target = caster->getVictim();
+                        if (!target && caster->ToPlayer())
+                            target = caster->ToPlayer()->GetSelectedUnit();
+                        if (!target)
+                            return;
+
+                        caster->CastSpell(target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                        caster->CastSpell(target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                    }
+                    else
+                    {
+                        UnitList targets;
+                        {
+                            // eff_radius == 0
+                            float radius = GetSpellInfo()->GetMaxRange(false);
+
+                            CellCoord p(JadeCore::ComputeCellCoord(caster->GetPositionX(), caster->GetPositionY()));
+                            Cell cell(p);
+
+                            JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck u_check(caster, radius);
+                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> checker(caster, targets, u_check);
+
+                            TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+                            TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+
+                            cell.Visit(p, grid_object_checker,  *caster->GetMap(), *caster, radius);
+                            cell.Visit(p, world_object_checker, *caster->GetMap(), *caster, radius);
+                        }
+
+                        std::vector<uint64> validTargets;
+
+                        for (auto itr : targets)
+                        {
+                             if (itr->HasAuraType(SPELL_AURA_MOD_CONFUSE) ||
+                                 itr->HasAuraType(SPELL_AURA_MOD_CHARM) ||
+                                 itr->HasAuraType(SPELL_AURA_MOD_FEAR) ||
+                                 itr->HasAuraType(SPELL_AURA_MOD_CONFUSE) ||
+                                 itr->HasAuraType(SPELL_AURA_MOD_STUN))
+                                continue;
+
+                             validTargets.push_back(itr->GetGUID());
+                        }
+
+                        if (validTargets.empty())
+                            return;
+
+                        Unit* spellTarget = sObjectAccessor->FindUnit(JadeCore::Containers::SelectRandomContainerElement(validTargets));
+                        if (!spellTarget)
+                            return;
+
+                        caster->CastSpell(spellTarget, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                        caster->CastSpell(spellTarget, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_killing_spree_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_killing_spree_AuraScript();
+        }
 };
 
 // Called by Vanish - 1856
@@ -1591,6 +1678,7 @@ class spell_rog_shadowstep : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_killing_spree();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
     new spell_rog_marked_for_death();
