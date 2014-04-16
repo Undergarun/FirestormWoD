@@ -727,78 +727,127 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
+        {
             if (!caster)
                 break;
-            // Rupture
-            if (GetSpellInfo()->Id == 1943)
+
+            switch (GetSpellInfo()->Id)
             {
-                m_canBeRecalculated = false;
-
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
-
-                uint8 cp = caster->ToPlayer()->GetComboPoints();
-                float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-
-                switch (cp)
+                case 1943:  // Rupture
                 {
-                    case 1:
-                        amount += int32(ap * 0.1f / 4);
-                        break;
-                    case 2:
-                        amount += int32(ap * 0.24f / 6);
-                        break;
-                    case 3:
-                        amount += int32(ap * 0.40f / 8);
-                        break;
-                    case 4:
-                        amount += int32(ap * 0.56f / 10);
-                        break;
-                    case 5:
-                        amount += int32(ap * 0.744f / 12);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            // Rip
-            if (m_spellInfo->Id == 1079)
-            {
-                m_canBeRecalculated = false;
+                    m_canBeRecalculated = false;
 
-                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    if (caster->GetTypeId() != TYPEID_PLAYER)
+                        break;
+
+                    uint8 cp = caster->ToPlayer()->GetComboPoints();
+                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+
+                    switch (cp)
+                    {
+                        case 1:
+                            amount += int32(ap * 0.1f / 4);
+                            break;
+                        case 2:
+                            amount += int32(ap * 0.24f / 6);
+                            break;
+                        case 3:
+                            amount += int32(ap * 0.40f / 8);
+                            break;
+                        case 4:
+                            amount += int32(ap * 0.56f / 10);
+                            break;
+                        case 5:
+                            amount += int32(ap * 0.744f / 12);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
+                case 1079:  // Rip
+                {
+                    m_canBeRecalculated = false;
 
-                // Basepoint hotfix
-                amount *= 10;
+                    if (caster->GetTypeId() != TYPEID_PLAYER)
+                        break;
 
-                uint8 cp = caster->ToPlayer()->GetComboPoints();
-                int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    // Basepoint hotfix
+                    amount *= 10;
 
-                // In feral spec : 0.484 * $AP * cp
-                if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DROOD_CAT)
-                    amount += int32(cp * AP * 0.484f);
-                // In other spec : 0.387 * $AP * cp
-                else
-                    amount += int32(cp * AP * 0.387f);
+                    uint8 cp = caster->ToPlayer()->GetComboPoints();
+                    int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
-                // Idol of Feral Shadows. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                if (constAuraEffectPtr aurEff = caster->GetAuraEffect(34241, EFFECT_0))
-                    amount += cp * aurEff->GetAmount();
-                // Idol of Worship. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                else if (constAuraEffectPtr aurEff = caster->GetAuraEffect(60774, EFFECT_0))
-                    amount += cp * aurEff->GetAmount();
+                    // In feral spec : 0.484 * $AP * cp
+                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DROOD_CAT)
+                        amount += int32(cp * AP * 0.484f);
+                    // In other spec : 0.387 * $AP * cp
+                    else
+                        amount += int32(cp * AP * 0.387f);
 
-                amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetAmplitude());
+                    // Idol of Feral Shadows. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
+                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(34241, EFFECT_0))
+                        amount += cp * aurEff->GetAmount();
+                    // Idol of Worship. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
+                    else if (constAuraEffectPtr aurEff = caster->GetAuraEffect(60774, EFFECT_0))
+                        amount += cp * aurEff->GetAmount();
+
+                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetAmplitude());
+                    break;
+                }
+                case 50536: // Unholy Blight
+                {
+                    m_canBeRecalculated = false;
+                    // we're getting total damage on aura apply, change it to be damage per tick
+                    amount = int32((float)amount / GetTotalTicks());
+                    break;
+                }
+                case 15407: // Mind Flay
+                case 129197:// Mind Flay (Insanity)
+                {
+                    if (!caster->HasSpell(139139))
+                        break;
+
+                    if (Player* plr = caster->ToPlayer())
+                    {
+                        if (plr->GetSpecializationId(plr->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
+                            break;
+
+                        if (Unit* target = GetBase()->GetUnitOwner())
+                        {
+                            if (AuraEffectPtr devouringPlague = target->GetAuraEffect(2944, EFFECT_2, caster->GetGUID()))
+                            {
+                                float modifier = 1.0f;
+                                modifier += (devouringPlague->GetAmount() + 1) * 0.33f;
+
+                                int32 temp_damage = amount;
+                                float temp_crit = 0.0f;
+
+                                if (GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
+                                    temp_damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
+                                else
+                                    temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
+
+                                temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
+
+                                m_fixed_periodic.SetFixedDamage(temp_damage);
+                                m_fixed_periodic.SetCriticalChance(temp_crit);
+                                hasFixedPeriodic = true;
+
+                                amount = temp_damage;
+                                amount *= modifier;
+                                return amount;
+                            }
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            // Unholy Blight damage over time effect
-            else if (GetId() == 50536)
-            {
-                m_canBeRecalculated = false;
-                // we're getting total damage on aura apply, change it to be damage per tick
-                amount = int32((float)amount / GetTotalTicks());
-            }
+
             break;
+        }
         case SPELL_AURA_PERIODIC_ENERGIZE:
         {
             switch (m_spellInfo->Id)
@@ -7379,22 +7428,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         {
             if (target->GetTypeId() == TYPEID_PLAYER)
                 damage *= 0.85f;
-        }
-
-        // Mind flay with Solace and Insanity
-        if (GetSpellInfo()->Id == 15407)
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-            {
-                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW &&_player->HasAura(120585) && target->HasAura(2944))
-                {
-                    if (AuraPtr devouringPlague = target->GetAura(2944))
-                    {
-                        uint8 powerUsed = devouringPlague->GetEffect(2)->GetAmount();
-                        damage *= (powerUsed * 0.33f + 1);
-                    }
-                }
-            }
         }
 
         // Chaos Bolt with Grimoire
