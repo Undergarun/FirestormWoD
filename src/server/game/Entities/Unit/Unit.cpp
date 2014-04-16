@@ -13111,10 +13111,6 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                     {
                         switch (spellProto->Id)
                         {
-                            case 8004:  // Healing Surge
-                                if (HasAura(53390))
-                                    crit_chance += 30.0f;
-                                break;
                             case 51505: // Lava Burst
                                 return 100.0f;
                                 break;

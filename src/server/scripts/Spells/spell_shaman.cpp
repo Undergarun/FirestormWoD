@@ -956,7 +956,7 @@ class spell_sha_tidal_waves : public SpellScriptLoader
                     if (caster->HasAura(SPELL_SHA_TIDAL_WAVES))
                     {
                         int32 bp0 = -(sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[0].BasePoints);
-                        int32 bp1 = sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[1].BasePoints;
+                        int32 bp1 = sSpellMgr->GetSpellInfo(SPELL_SHA_TIDAL_WAVES)->Effects[0].BasePoints;
                         caster->CastCustomSpell(caster, SPELL_SHA_TIDAL_WAVES_PROC, &bp0, &bp1, NULL, true);
                     }
                 }
