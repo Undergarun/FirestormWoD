@@ -17548,23 +17548,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (roll_chance_i(50))
             SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
-    // Summon Shadowy Apparitions when Shadow Word : Pain is crit
+    // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
-    {
-        CastSpell(this, 87426, true);
-        std::list<Creature*> shadowylist;
-
-        GetCreatureListWithEntryInGrid(shadowylist, 46954, 1.0f);
-
-        for (auto itr : shadowylist)
-        {
-            if (UnitAI* ai =  itr->GetAI())
-            {
-                ai->SetGUID(target->GetGUID());
-                ai->AttackStart(target);
-            }
-        }
-    }
+        CastSpell(target, 147193, true);
 
     Unit* actor = isVictim ? target : this;
     Unit* actionTarget = !isVictim ? target : this;
