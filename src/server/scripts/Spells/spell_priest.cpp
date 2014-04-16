@@ -94,6 +94,7 @@ enum PriestSpells
     PRIEST_SPELL_EMPOWERED_RENEW                    = 63544,
     PRIEST_SPELL_DIVINE_INSIGHT_TALENT              = 109175,
     PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE          = 123266,
+    PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED        = 123258,
     PRIEST_SPELL_DIVINE_INSIGHT_HOLY                = 123267,
     PRIEST_PRAYER_OF_MENDING                        = 33076,
     PRIEST_PRAYER_OF_MENDING_HEAL                   = 33110,
@@ -1126,7 +1127,7 @@ class spell_pri_divine_insight_holy : public SpellScriptLoader
         }
 };
 
-// Called by Power Word : Shield (Divine Insight) - 123258
+// Called by Power Word: Shield (Divine Insight) - 123258 and Power Word: Shield - 17
 // Divine Insight (Discipline) - 123266
 class spell_pri_divine_insight_discipline : public SpellScriptLoader
 {
@@ -1141,13 +1142,24 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
-                        _player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
-
-                    if (Unit* target = GetHitUnit())
+                    if (GetSpellInfo()->Id == PRIEST_SPELL_POWER_WORD_SHIELD)
                     {
-                        if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
-                            target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
+                        if (Unit* target = GetHitUnit())
+                        {
+                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
+                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
+                        }
+                    }
+                    else
+                    {
+                        if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
+                            _player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
+
+                        if (Unit* target = GetHitUnit())
+                        {
+                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
+                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
+                        }
                     }
                 }
             }
