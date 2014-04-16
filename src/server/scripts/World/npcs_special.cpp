@@ -2111,6 +2111,20 @@ class npc_training_dummy : public CreatureScript
 # npc_fire_elemental
 ######*/
 
+enum fireEvents
+{
+    EVENT_FIRE_NOVA     = 1,
+    EVENT_FIRE_BLAST    = 2,
+    EVENT_FIRE_SHIELD   = 3
+};
+
+enum fireSpells
+{
+    SPELL_SHAMAN_FIRE_BLAST     = 57984,
+    SPELL_SHAMAN_FIRE_NOVA      = 12470,
+    SPELL_SHAMAN_FIRE_SHIELD    = 13376
+};
+
 class npc_fire_elemental : public CreatureScript
 {
     public:
@@ -2120,49 +2134,58 @@ class npc_fire_elemental : public CreatureScript
         {
             npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
-            uint32 FireNova_Timer;
-            uint32 FireShield_Timer;
-            uint32 FireBlast_Timer;
+            EventMap events;
 
             void Reset()
             {
-                FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
-                FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
-                FireShield_Timer = 0;
+                events.Reset();
+                events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
+                events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
+                events.ScheduleEvent(EVENT_FIRE_SHIELD, 0);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Unit* ownerTarget = NULL;
+                        if (Player* plr = owner->ToPlayer())
+                            ownerTarget = plr->GetSelectedUnit();
+                        else
+                            ownerTarget = owner->getVictim();
+
+                        if (ownerTarget)
+                            AttackStart(ownerTarget);
+                    }
+
                     return;
+                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (FireShield_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), 13376);
-                    FireShield_Timer = 2 * IN_MILLISECONDS;
-                }
-                else
-                    FireShield_Timer -= diff;
+                events.Update(diff);
 
-                if (FireBlast_Timer <= diff)
+                switch (events.ExecuteEvent())
                 {
-                    DoCast(me->getVictim(), 57984);
-                    FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                    case EVENT_FIRE_NOVA:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_NOVA);
+                        events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
+                        break;
+                    case EVENT_FIRE_BLAST:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_BLAST);
+                        events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
+                        break;
+                    case EVENT_FIRE_SHIELD:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_SHIELD);
+                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 4000);
+                        break;
+                    default:
+                        break;
                 }
-                else
-                    FireBlast_Timer -= diff;
-
-                if (FireNova_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), 12470);
-                    FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
-                }
-                else
-                    FireNova_Timer -= diff;
 
                 DoMeleeAttackIfReady();
             }
@@ -2199,7 +2222,21 @@ class npc_earth_elemental : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Unit* ownerTarget = NULL;
+                        if (Player* plr = owner->ToPlayer())
+                            ownerTarget = plr->GetSelectedUnit();
+                        else
+                            ownerTarget = owner->getVictim();
+
+                        if (ownerTarget)
+                            AttackStart(ownerTarget);
+                    }
+
                     return;
+                }
 
                 if (AngeredEarth_Timer <= diff)
                 {
