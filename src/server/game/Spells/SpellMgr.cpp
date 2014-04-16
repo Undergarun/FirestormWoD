@@ -4722,6 +4722,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 10326: // Turn Evil
                 spellInfo->Mechanic = MECHANIC_TURN;
+                spellInfo->OverrideSpellList.push_back(145067); // Evil is a point of view
                 break;
             case 113656:// Fists of Fury
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;

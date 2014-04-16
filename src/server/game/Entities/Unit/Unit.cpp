@@ -10166,16 +10166,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 110301:// Burden of Guilt
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 20271)
-                return false;
-
-            break;
-        }
         case 144586:// Item - Paladin T16 Retribution 2P Bonus - 144586 (proc Warrior of the Light - 144587)
         {
             if (!procSpell)

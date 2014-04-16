@@ -35,8 +35,6 @@ enum PaladinSpells
     PALADIN_SPELL_PHYSICAL_VULNERABILITY         = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW            = 87172,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED  = 87173,
-    PALADIN_SPELL_BURDEN_OF_GUILT                = 110301,
-    PALADIN_SPELL_BURDEN_OF_GUILT_DECREASE_SPEED = 110300,
     PALADIN_SPELL_HOLY_SHOCK_R1                  = 20473,
     PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE           = 25912,
     PALADIN_SPELL_HOLY_SHOCK_R1_HEALING          = 25914,
@@ -1362,9 +1360,6 @@ class spell_pal_judgment : public SpellScriptLoader
 
                         if (_player->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
                             _player->CastSpell(_player, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
-
-                        if (_player->HasAura(PALADIN_SPELL_BURDEN_OF_GUILT))
-                            _player->CastSpell(unitTarget, PALADIN_SPELL_BURDEN_OF_GUILT_DECREASE_SPEED, true);
                     }
                 }
             }
