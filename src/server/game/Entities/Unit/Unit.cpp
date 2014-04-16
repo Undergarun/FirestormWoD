@@ -7526,6 +7526,21 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     CastCustomSpell(70691, SPELLVALUE_BASE_POINT0, damage, victim, true);
                     return true;
                 }
+                case 102351:// Cenarion Ward
+                {
+                    if (!victim || !damage)
+                        return false;
+
+                    if (procSpell && procSpell->IsPositive())
+                        return false;
+
+                    if (!(procFlag & TAKEN_HIT_PROC_FLAG_MASK))
+                        return false;
+
+                    target = this;
+                    triggered_spell_id = 102352;
+                    break;
+                }
             }
             // Living Seed
             if (dummySpell->SpellIconID == 2860)
