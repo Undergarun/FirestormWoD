@@ -835,14 +835,14 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     casterGUID[5] = recvPacket.ReadBit();
     hasDestPos = recvPacket.ReadBit();
     recvPacket.ReadBit();                   // unk bit
-    hasSpeed = !recvPacket.ReadBit();
+    hasElevation = !recvPacket.ReadBit();
     hasSrcPos = recvPacket.ReadBit();
     hasSpell = !recvPacket.ReadBit();
     casterGUID[0] = recvPacket.ReadBit();
     hasGlyphIndex = !recvPacket.ReadBit();
     casterGUID[7] = recvPacket.ReadBit();
     hasTargetFlags = !recvPacket.ReadBit();
-    hasElevation = !recvPacket.ReadBit();
+    hasSpeed = !recvPacket.ReadBit();
     recvPacket.ReadBit();                   // has movement info
     hasString = !recvPacket.ReadBit();
     recvPacket.ReadBit();                   // !inverse bit, unk
@@ -955,8 +955,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     if (hasGlyphIndex)
         recvPacket.read_skip<uint32>();     // glyph index
 
-    if (hasSpeed)
-        speed = recvPacket.read<float>();
+    if (hasElevation)
+        elevation = recvPacket.read<float>();
 
     if (hasSpell)
         spellID = recvPacket.read<uint32>();
@@ -967,8 +967,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     if (hasString)
         recvPacket.ReadString(stringLenght);
 
-    if (hasElevation)
-        elevation = recvPacket.read<float>();
+    if (hasSpeed)
+        speed = recvPacket.read<float>();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, castCount: %u, spellId %u, targetFlags %u", castCount, spellID, targetFlags);
 
