@@ -3725,6 +3725,13 @@ void AuraEffect::HandleModFear(AuraApplication const* aurApp, uint8 mode, bool a
 
     Unit* target = aurApp->GetTarget();
 
+    // Glyph of Blessed Life
+    if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
+    {
+        target->CastSpell(target, 89023, true);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+    }
+
     target->SetControlled(apply, UNIT_STATE_FLEEING);
 }
 
@@ -3746,6 +3753,13 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
             break;
         default:
             break;
+    }
+
+    // Glyph of Blessed Life
+    if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
+    {
+        target->CastSpell(target, 89023, true);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
     }
 
     target->SetControlled(apply, UNIT_STATE_STUNNED);
@@ -3785,6 +3799,13 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bo
                     return;
                 break;
         }
+    }
+
+    // Glyph of Blessed Life
+    if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
+    {
+        target->CastSpell(target, 89023, true);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
     }
 
     target->SetControlled(apply, UNIT_STATE_ROOT);

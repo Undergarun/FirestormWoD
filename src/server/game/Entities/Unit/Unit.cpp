@@ -10022,29 +10022,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             break;
         }
         case 54943: // Glyph of Blessed Life
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            // Must have Seal of Insight
-            if (!HasAura(20165))
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            if (!(procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN)) ||
-                !(procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_FEAR)) ||
-                !(procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_ROOT)))
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(54943))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
-
-            break;
-        }
+            return false;
         case 109306:// Trill of the Hunt
         {
             if (GetTypeId() != TYPEID_PLAYER)
