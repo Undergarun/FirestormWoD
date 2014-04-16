@@ -1,0 +1,1 @@
+ALTER TABLE `spell_proc_event` ADD COLUMN `SpellFamilyMask3` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `SpellFamilyMask2`;
