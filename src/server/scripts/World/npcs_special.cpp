@@ -4240,9 +4240,12 @@ enum PastSelfSpells
 
 struct auraData
 {
-    auraData(uint32 id, int32 duration) : m_id(id), m_duration(duration) {}
+    auraData(uint32 id, int32 duration, uint8 charges, bool isStackAmount) :
+        m_id(id), m_duration(duration), m_charges(charges), m_isStackAmount(isStackAmount) { }
     uint32 m_id;
     int32 m_duration;
+    uint8 m_charges;
+    bool m_isStackAmount;
 };
 
 #define ACTION_ALTER_TIME   1
@@ -4297,7 +4300,9 @@ class npc_past_self : public CreatureScript
                             if (auraInfo->Id == 23333 || auraInfo->Id == 23335)
                                 continue;
 
-                            auras.insert(new auraData(auraInfo->Id, aura->GetDuration()));
+                            bool stack = aura->GetStackAmount();
+                            uint8 charges = stack ? aura->GetStackAmount() : aura->GetCharges();
+                            auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
                         }
                     }
 
@@ -4332,6 +4337,10 @@ class npc_past_self : public CreatureScript
                                     if (aura)
                                     {
                                         aura->SetDuration((*itr)->m_duration);
+                                        if ((*itr)->m_isStackAmount)
+                                            aura->SetStackAmount((*itr)->m_charges);
+                                        else
+                                            aura->SetCharges((*itr)->m_charges);
                                         aura->SetNeedClientUpdateForTargets();
                                     }
 
