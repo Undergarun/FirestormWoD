@@ -43,7 +43,6 @@ enum PriestSpells
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
     PRIEST_INNER_WILL                               = 73413,
     PRIEST_INNER_FIRE                               = 588,
-    PRIEST_NPC_SHADOWY_APPARITION                   = 46954,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -2220,54 +2219,6 @@ class spell_pri_halo_damage : public SpellScriptLoader
         }
 };
 
-// Shadowy Apparition - 87426
-class spell_pri_shadowy_apparition : public SpellScriptLoader
-{
-    public:
-        spell_pri_shadowy_apparition() : SpellScriptLoader("spell_pri_shadowy_apparition") { }
-
-        class spell_pri_shadowy_apparition_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_shadowy_apparition_SpellScript);
-
-            SpellCastResult CheckShadowy()
-            {
-                if (Player* player = GetCaster()->ToPlayer())
-                {
-                    std::list<Creature*> shadowyList;
-                    std::list<Creature*> tempList;
-
-                    player->GetCreatureListWithEntryInGrid(tempList, PRIEST_NPC_SHADOWY_APPARITION, 500.0f);
-
-                    // Remove other players shadowy apparitions
-                    for (auto itr : tempList)
-                    {
-                        Unit* owner = itr->GetOwner();
-                        if (owner && owner == player && itr->isSummon())
-                            shadowyList.push_back(itr);
-                    }
-
-                    if (shadowyList.size() == 3)
-                        return SPELL_FAILED_DONT_REPORT;
-
-                    return SPELL_CAST_OK;
-                }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pri_shadowy_apparition_SpellScript::CheckShadowy);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_shadowy_apparition_SpellScript;
-        }
-};
-
 // Inner Fire - 588 or Inner Will - 73413
 class spell_pri_inner_fire_or_will : public SpellScriptLoader
 {
@@ -2876,7 +2827,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_first();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
-    new spell_pri_shadowy_apparition();
     new spell_pri_inner_fire_or_will();
     new spell_pri_leap_of_faith();
     new spell_pri_void_shift();
