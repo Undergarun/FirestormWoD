@@ -2275,6 +2275,15 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
                 break;
             }
+            case 73921: // Healing Rain
+            {
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
+
+                // Increase the effectiveness by 30% with Unleashed Life
+                if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
+                    AddPct(addhealth, healingRain->GetAmount());
+                break;
+            }
             default:
                 if (!caster)
                     break;

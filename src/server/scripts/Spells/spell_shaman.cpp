@@ -96,7 +96,8 @@ enum ShamanSpells
     SPELL_SHA_RESTORATIVE_MISTS             = 114083,
     SPELL_SHA_FROST_SHOCK                   = 8056,
     SPELL_SHA_LAVA_SURGE_AURA               = 77756,
-    SPELL_SHA_LAVA_BURST                    = 51505
+    SPELL_SHA_LAVA_BURST                    = 51505,
+    SPELL_SHA_LIFE_UNLEASHED                = 73685
 };
 
 // Totemic Projection - 108287
@@ -1588,6 +1589,15 @@ class spell_sha_healing_rain : public SpellScriptLoader
                             caster->RemoveDynObject(SPELL_SHA_HEALING_RAIN);
 
                         caster->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
+
+                        // Increase the effectiveness of Healing Rain by 30% with Unleashed Life
+                        if (AuraEffectPtr healingRain = caster->GetAuraEffect(SPELL_SHA_HEALING_RAIN, EFFECT_1))
+                        {
+                            if (caster->HasAura(SPELL_SHA_LIFE_UNLEASHED))
+                                healingRain->SetAmount(30);
+
+                            caster->RemoveAura(SPELL_SHA_LIFE_UNLEASHED);
+                        }
 
                         // Reset amount of Conductivity
                         if (AuraPtr conductivity = caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
