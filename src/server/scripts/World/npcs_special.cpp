@@ -2105,6 +2105,89 @@ class npc_ebon_gargoyle : public CreatureScript
         }
 };
 
+// Lightwell - 64571
+class npc_new_lightwell : public CreatureScript
+{
+    public:
+        npc_new_lightwell() : CreatureScript("npc_new_lightwell") { }
+
+        struct npc_new_lightwellAI : public PassiveAI
+        {
+            npc_new_lightwellAI(Creature* creature) : PassiveAI(creature)
+            {
+                DoCast(me, 59907, false);
+                renewTimer = 1000;
+
+                if (AuraPtr charges = me->GetAura(59907))
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        // Glyph of Deep Wells
+                        if (owner->HasAura(55673))
+                        {
+                            charges->SetCharges(17);
+                            charges->GetEffect(0)->ChangeAmount(17);
+                        }
+                    }
+                }
+            }
+
+            uint32 renewTimer;
+
+            void EnterEvadeMode()
+            {
+                if (!me->isAlive())
+                    return;
+
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                me->ResetPlayerDamageReq();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (renewTimer)
+                {
+                    if (renewTimer <= diff)
+                    {
+                        if (me->GetOwner())
+                        {
+                            if (Player* plr = me->GetOwner()->ToPlayer())
+                            {
+                                std::list<Unit*> party;
+                                std::list<Unit*> tempList;
+                                plr->GetPartyMembers(party);
+
+                                for (auto itr : party)
+                                {
+                                    if (itr->GetHealthPct() >= 50.0f ||
+                                        itr->GetDistance(me) >= 40.0f ||
+                                        itr->HasAura(7001))
+                                        continue;
+
+                                    tempList.push_back(itr);
+                                }
+
+                                for (auto itr : tempList)
+                                    me->CastSpell(itr, 60123, true);
+                            }
+                        }
+
+                        renewTimer = 1000;
+                    }
+                    else
+                        renewTimer -= diff;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_new_lightwellAI(creature);
+        }
+};
+
+// Lightwell - 31897
 class npc_lightwell : public CreatureScript
 {
     public:
@@ -2115,6 +2198,19 @@ class npc_lightwell : public CreatureScript
             npc_lightwellAI(Creature* creature) : PassiveAI(creature)
             {
                 DoCast(me, 59907, false);
+
+                if (AuraPtr charges = me->GetAura(59907))
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        // Glyph of Deep Wells
+                        if (owner->HasAura(55673))
+                        {
+                            charges->SetCharges(17);
+                            charges->GetEffect(0)->ChangeAmount(17);
+                        }
+                    }
+                }
             }
 
             void EnterEvadeMode()
@@ -5168,6 +5264,7 @@ void AddSC_npcs_special()
     new npc_snake_trap();
     new npc_mirror_image();
     new npc_ebon_gargoyle();
+    new npc_new_lightwell();
     new npc_lightwell();
     new mob_mojo();
     new npc_training_dummy();

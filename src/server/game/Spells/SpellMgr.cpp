@@ -4564,7 +4564,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
             case 59907: // Lightwell Charges
+                spellInfo->Effects[0].BasePoints = 15;
                 spellInfo->ProcCharges = 15;
+                break;
+            case 126135:// Lightwell
+                spellInfo->OverrideSpellList.push_back(724); // Add old Lightwell to override list
                 break;
             case 81751: // Atonement
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
