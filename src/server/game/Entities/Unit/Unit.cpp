@@ -7649,35 +7649,29 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576)
                         return false;
 
-                    uint8 newCombo = 0;
+                    uint8 newCombo = ToPlayer()->GetComboPoints();
 
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (procSpell->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         {
-                            newCombo = procSpell->Effects[i].BasePoints;
+                            newCombo += procSpell->Effects[i].BasePoints;
                             break;
                         }
                     }
 
-                    if ((ToPlayer()->GetComboPoints() + newCombo) < 5)
+                    if (procSpell->Id == 5374)
+                        newCombo += 2;
+
+                    if (newCombo <= 5)
                         return false;
 
-                    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (procSpell->Effects[i].Effect == SPELL_EFFECT_ADD_COMBO_POINTS)
-                        {
-                            basepoints0 = procSpell->Effects[i].BasePoints;
-                            break;
-                        }
-
+                    basepoints0 = newCombo - 5;
                     triggered_spell_id = 115189;
 
                     // need to add one additional combo point if it's critical hit
-                    if (Player* caster = ToPlayer())
-                    {
-                        if (procEx & PROC_EX_CRITICAL_HIT)
-                            CastSpell(caster, 115189, true);
-                    }
+                    if (procEx & PROC_EX_CRITICAL_HIT)
+                        CastSpell(this, 115189, true);
 
                     break;
                 }
