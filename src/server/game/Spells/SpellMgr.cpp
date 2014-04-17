@@ -3856,7 +3856,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx &= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
                 break;
             case 121129:// Daybreak (heal)
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+                spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 break;
             case 73981: // Redirect
             case 110730:// Redirect
