@@ -27667,6 +27667,9 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
 
+    if (AuraEffectPtr unholy = GetAuraEffect(48265, EFFECT_0))
+        hastePct += unholy->GetAmount();
+
     cooldown *=  1.0f - (hastePct / 100.0f);
 
     return cooldown;
