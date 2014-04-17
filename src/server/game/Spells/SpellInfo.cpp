@@ -372,7 +372,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     ChainTarget = _effect ? _effect->EffectChainTarget : 0;
     ItemType = _effect ? _effect->EffectItemType : 0;
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
-    SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag96(0);
+    SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
     ImplicitTargetConditions = NULL;
     ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
     DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
@@ -912,7 +912,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     // SpellClassOptionsEntry
     SpellClassOptionsEntry const* _class = GetSpellClassOptions();
     SpellFamilyName = _class ? _class->SpellFamilyName : 0;
-    SpellFamilyFlags = _class ? _class->SpellFamilyFlags : flag96(0);
+    SpellFamilyFlags = _class ? _class->SpellFamilyFlags : flag128(0);
 
     // SpellCooldownsEntry
     SpellCooldownsEntry const* _cooldowns = GetSpellCooldowns();

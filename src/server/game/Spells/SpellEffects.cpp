@@ -5682,6 +5682,10 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
         if (m_caster->m_movedPlayer->GetComboTarget() != unitTarget->GetGUID())
             return;
 
+    // Shadow Blades allow player to earn one more combo point
+    if (m_caster->HasAura(121471))
+        ++damage;
+
     m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
 

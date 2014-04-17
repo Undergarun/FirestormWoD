@@ -250,6 +250,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_CombatTimer = 0;
 
     simulacrumTargetGUID = 0;
+    iciclesTargetGUID    = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -7529,6 +7530,21 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     CastCustomSpell(70691, SPELLVALUE_BASE_POINT0, damage, victim, true);
                     return true;
                 }
+                case 102351:// Cenarion Ward
+                {
+                    if (!victim || !damage)
+                        return false;
+
+                    if (procSpell && procSpell->IsPositive())
+                        return false;
+
+                    if (!(procFlag & TAKEN_HIT_PROC_FLAG_MASK))
+                        return false;
+
+                    target = this;
+                    triggered_spell_id = 102352;
+                    break;
+                }
             }
             // Living Seed
             if (dummySpell->SpellIconID == 2860)
@@ -10009,29 +10025,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             break;
         }
         case 54943: // Glyph of Blessed Life
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            // Must have Seal of Insight
-            if (!HasAura(20165))
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            if (!(procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN)) ||
-                !(procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_FEAR)) ||
-                !(procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_ROOT)))
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(54943))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
-
-            break;
-        }
+            return false;
         case 109306:// Trill of the Hunt
         {
             if (GetTypeId() != TYPEID_PLAYER)
@@ -10171,16 +10165,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (!(procEx & PROC_EX_CRITICAL_HIT))
-                return false;
-
-            break;
-        }
-        case 110301:// Burden of Guilt
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 20271)
                 return false;
 
             break;
@@ -12383,7 +12367,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     }
 
     // Custom MoP Script
-    // 76613 - Mastery : Frostburn
+    // 76613 - Mastery : Icicles
     if (spellProto && victim)
     {
         if (isPet())
@@ -13098,10 +13082,6 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                     {
                         switch (spellProto->Id)
                         {
-                            case 8004:  // Healing Surge
-                                if (HasAura(53390))
-                                    crit_chance += 30.0f;
-                                break;
                             case 51505: // Lava Burst
                                 return 100.0f;
                                 break;
@@ -17535,23 +17515,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (roll_chance_i(50))
             SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
-    // Summon Shadowy Apparitions when Shadow Word : Pain is crit
+    // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
-    {
-        CastSpell(this, 87426, true);
-        std::list<Creature*> shadowylist;
-
-        GetCreatureListWithEntryInGrid(shadowylist, 46954, 1.0f);
-
-        for (auto itr : shadowylist)
-        {
-            if (UnitAI* ai =  itr->GetAI())
-            {
-                ai->SetGUID(target->GetGUID());
-                ai->AttackStart(target);
-            }
-        }
-    }
+        CastSpell(target, 147193, true);
 
     Unit* actor = isVictim ? target : this;
     Unit* actionTarget = !isVictim ? target : this;

@@ -35,8 +35,6 @@ enum PaladinSpells
     PALADIN_SPELL_PHYSICAL_VULNERABILITY         = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW            = 87172,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED  = 87173,
-    PALADIN_SPELL_BURDEN_OF_GUILT                = 110301,
-    PALADIN_SPELL_BURDEN_OF_GUILT_DECREASE_SPEED = 110300,
     PALADIN_SPELL_HOLY_SHOCK_R1                  = 20473,
     PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE           = 25912,
     PALADIN_SPELL_HOLY_SHOCK_R1_HEALING          = 25914,
@@ -561,11 +559,19 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(PALADIN_SPELL_TOWER_OF_RADIANCE))
-                            if (target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, _player->GetGUID()))
-                                _player->EnergizeBySpell(_player, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, 1, POWER_HOLY_POWER);
+                    {
+                        // Item - Paladin PvP Set Holy 4P Bonus
+                        if (caster->HasAura(PALADIN_ITEM_PVP_HOLY_4P_BONUS))
+                            caster->CastSpell(caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+
+                        if (caster->HasAura(PALADIN_SPELL_TOWER_OF_RADIANCE))
+                            if (target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, caster->GetGUID()))
+                                caster->EnergizeBySpell(caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, 1, POWER_HOLY_POWER);
+                    }
+                }
             }
 
             void Register()
@@ -1301,10 +1307,6 @@ class spell_pal_word_of_glory : public SpellScriptLoader
 
                         if (!_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE))
                             _player->ModifyPower(POWER_HOLY_POWER, -holyPower);
-
-                        // Item - Paladin PvP Set Holy 4P Bonus
-                        if (_player->HasAura(PALADIN_ITEM_PVP_HOLY_4P_BONUS) && holyPower == 2)
-                            _player->ModifyPower(POWER_HOLY_POWER, 1);
                     }
                 }
             }
@@ -1358,9 +1360,6 @@ class spell_pal_judgment : public SpellScriptLoader
 
                         if (_player->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
                             _player->CastSpell(_player, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
-
-                        if (_player->HasAura(PALADIN_SPELL_BURDEN_OF_GUILT))
-                            _player->CastSpell(unitTarget, PALADIN_SPELL_BURDEN_OF_GUILT_DECREASE_SPEED, true);
                     }
                 }
             }

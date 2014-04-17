@@ -43,7 +43,6 @@ enum PriestSpells
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
     PRIEST_INNER_WILL                               = 73413,
     PRIEST_INNER_FIRE                               = 588,
-    PRIEST_NPC_SHADOWY_APPARITION                   = 46954,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -94,6 +93,7 @@ enum PriestSpells
     PRIEST_SPELL_EMPOWERED_RENEW                    = 63544,
     PRIEST_SPELL_DIVINE_INSIGHT_TALENT              = 109175,
     PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE          = 123266,
+    PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED        = 123258,
     PRIEST_SPELL_DIVINE_INSIGHT_HOLY                = 123267,
     PRIEST_PRAYER_OF_MENDING                        = 33076,
     PRIEST_PRAYER_OF_MENDING_HEAL                   = 33110,
@@ -965,9 +965,14 @@ class spell_pri_from_darkness_comes_light : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA))
+                {
+                    if (_player->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA) &&
+                        _player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
+                    {
                         if (roll_chance_i(15))
                             _player->CastSpell(_player, PRIEST_SURGE_OF_LIGHT, true);
+                    }
+                }
             }
 
             void Register()
@@ -1126,7 +1131,7 @@ class spell_pri_divine_insight_holy : public SpellScriptLoader
         }
 };
 
-// Called by Power Word : Shield (Divine Insight) - 123258
+// Called by Power Word: Shield (Divine Insight) - 123258 and Power Word: Shield - 17
 // Divine Insight (Discipline) - 123266
 class spell_pri_divine_insight_discipline : public SpellScriptLoader
 {
@@ -1141,13 +1146,24 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
-                        _player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
-
-                    if (Unit* target = GetHitUnit())
+                    if (GetSpellInfo()->Id == PRIEST_SPELL_POWER_WORD_SHIELD)
                     {
-                        if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
-                            target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
+                        if (Unit* target = GetHitUnit())
+                        {
+                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
+                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
+                        }
+                    }
+                    else
+                    {
+                        if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
+                            _player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
+
+                        if (Unit* target = GetHitUnit())
+                        {
+                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
+                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
+                        }
                     }
                 }
             }
@@ -1677,7 +1693,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                amount = powerUsed + 1;
+                amount = powerUsed;
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -2200,54 +2216,6 @@ class spell_pri_halo_damage : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_halo_damage_SpellScript;
-        }
-};
-
-// Shadowy Apparition - 87426
-class spell_pri_shadowy_apparition : public SpellScriptLoader
-{
-    public:
-        spell_pri_shadowy_apparition() : SpellScriptLoader("spell_pri_shadowy_apparition") { }
-
-        class spell_pri_shadowy_apparition_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_shadowy_apparition_SpellScript);
-
-            SpellCastResult CheckShadowy()
-            {
-                if (Player* player = GetCaster()->ToPlayer())
-                {
-                    std::list<Creature*> shadowyList;
-                    std::list<Creature*> tempList;
-
-                    player->GetCreatureListWithEntryInGrid(tempList, PRIEST_NPC_SHADOWY_APPARITION, 500.0f);
-
-                    // Remove other players shadowy apparitions
-                    for (auto itr : tempList)
-                    {
-                        Unit* owner = itr->GetOwner();
-                        if (owner && owner == player && itr->isSummon())
-                            shadowyList.push_back(itr);
-                    }
-
-                    if (shadowyList.size() == 3)
-                        return SPELL_FAILED_DONT_REPORT;
-
-                    return SPELL_CAST_OK;
-                }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pri_shadowy_apparition_SpellScript::CheckShadowy);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_shadowy_apparition_SpellScript;
         }
 };
 
@@ -2859,7 +2827,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_first();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
-    new spell_pri_shadowy_apparition();
     new spell_pri_inner_fire_or_will();
     new spell_pri_leap_of_faith();
     new spell_pri_void_shift();

@@ -1996,9 +1996,8 @@ struct SpellEffectEntry
     uint32    EffectRadiusIndex;                            // 16        m_effectRadiusIndex - spellradius.dbc
     uint32    EffectRadiusMaxIndex;                         // 17        4.0.0
     float     EffectRealPointsPerLevel;                     // 18        m_effectRealPointsPerLevel
-    flag96    EffectSpellClassMask;                         // 19 20 21  m_effectSpellClassMask1(2/3), effect 0
-    //uint32  unk_flag_1                                    // 22        5.0.5
-    uint32    EffectTriggerSpell;                           // 22        m_effectTriggerSpell
+    flag128   EffectSpellClassMask;                         // 19 - 22   m_effectSpellClassMask1(2/3), effect 0
+    uint32    EffectTriggerSpell;                           // 23        m_effectTriggerSpell
     //float   unk_1                                         // 24        5.0.5
     uint32    EffectImplicitTargetA;                        // 25        m_implicitTargetA
     uint32    EffectImplicitTargetB;                        // 26        m_implicitTargetB
@@ -2226,8 +2225,7 @@ struct SpellClassOptionsEntry
 {
     //uint32    Id;                                         // 0       m_ID
     //uint32    modalNextSpell;                             // 1       m_modalNextSpell not used
-    flag96    SpellFamilyFlags;                             // 2-4
-    //flag96   unk_flag;                                    // 5
+    flag128   SpellFamilyFlags;                             // 2-5
     uint32    SpellFamilyName;                              // 6       m_spellClassSet
 };
 

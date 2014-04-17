@@ -91,7 +91,6 @@ enum DruidSpells
     SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER  = 102793,
     SPELL_DRUID_URSOLS_VORTEX_SNARE         = 127797,
     SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST     = 118283,
-    SPELL_DRUID_CENARION_WARD               = 102352,
     SPELL_DRUID_NATURES_VIGIL_HEAL          = 124988,
     SPELL_DRUID_NATURES_VIGIL_DAMAGE        = 124991,
     SPELL_DRUID_SYMBIOSIS_FOR_CASTER        = 110309,
@@ -1534,14 +1533,11 @@ class spell_dru_natures_vigil : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!GetCaster())
+                Unit* caster = GetCaster();
+                if (!caster)
                     return;
 
-                Player* _player = GetCaster()->ToPlayer();
-                if (!_player)
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() != _player->GetGUID())
+                if (eventInfo.GetActor()->GetGUID() != caster->GetGUID())
                     return;
 
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
@@ -1575,65 +1571,34 @@ class spell_dru_natures_vigil : public SpellScriptLoader
                 {
                     bp = eventInfo.GetDamageInfo()->GetDamage() / 4;
                     spellId = SPELL_DRUID_NATURES_VIGIL_HEAL;
-                    target = _player->SelectNearbyAlly(_player, 25.0f);
+                    target = caster->SelectNearbyAlly(caster, 25.0f);
+                    if (!target)
+                        target = caster;
                 }
                 else
                 {
                     bp = eventInfo.GetHealInfo()->GetHeal() / 4;
                     spellId = SPELL_DRUID_NATURES_VIGIL_DAMAGE;
-                    target = _player->SelectNearbyTarget(_player, 25.0f);
+                    target = caster->SelectNearbyTarget(caster, 25.0f);
+                    if (!target)
+                        target = eventInfo.GetActionTarget();
                 }
 
                 if (!target || !spellId || !bp)
                     return;
 
-                _player->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
+                caster->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProc, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProc, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_natures_vigil_AuraScript();
-        }
-};
-
-// Cenarion Ward - 102351
-class spell_dru_cenarion_ward : public SpellScriptLoader
-{
-    public:
-        spell_dru_cenarion_ward() : SpellScriptLoader("spell_dru_cenarion_ward") { }
-
-        class spell_dru_cenarion_ward_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_cenarion_ward_AuraScript);
-
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                        if (removeMode == AURA_REMOVE_BY_DEFAULT)
-                            caster->CastSpell(target, SPELL_DRUID_CENARION_WARD, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cenarion_ward_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_cenarion_ward_AuraScript();
         }
 };
 
@@ -3820,7 +3785,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_symbiosis();
     new spell_dru_moonfire();
     new spell_dru_natures_vigil();
-    new spell_dru_cenarion_ward();
     new spell_dru_ursols_vortex_snare();
     new spell_dru_ursols_vortex();
     new spell_dru_solar_beam();

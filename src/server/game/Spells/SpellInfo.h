@@ -259,7 +259,7 @@ public:
     uint32    ChainTarget;
     uint32    ItemType;
     uint32    TriggerSpell;
-    flag96    SpellClassMask;
+    flag128   SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
     float     ScalingMultiplier;
@@ -381,7 +381,7 @@ public:
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
-    flag96 SpellFamilyFlags;
+    flag128 SpellFamilyFlags;
     uint32 DmgClass;
     uint32 PreventionType;
     int32  AreaGroupId;

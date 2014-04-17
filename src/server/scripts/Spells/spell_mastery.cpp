@@ -37,7 +37,8 @@ enum MasterySpells
     MASTERY_SPELL_DISCIPLINE_SHIELD     = 77484,
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
     SPELL_MAGE_MASTERY_ICICLES          = 76613,
-    SPELL_MAGE_ICICLE_DAMAGE            = 148022
+    SPELL_MAGE_ICICLE_DAMAGE            = 148022,
+    SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023
 };
 
 const int IcicleAuras[5] = { 148012, 148013, 148014, 148015, 148016 };
@@ -163,37 +164,74 @@ class spell_mastery_icicles_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mastery_icicles_trigger_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHit(SpellEffIndex effIndex)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        for (uint8 i = 0; i < 5; ++i)
-                        {
-                            if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[i]))
-                            {
-                                int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                                _player->CastSpell(target, IcicleHits[i], true);
-                                _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                                _player->RemoveAura(IcicleAuras[i]);
-                            }
-                        }
-
-                        IcicleOverstack = false;
-                    }
+                    if (GetHitUnit())
+                        caster->SetIciclesTarget(GetHitUnit()->GetGUID());
+                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_PERIODIC_TRIGGER, true);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mastery_icicles_trigger_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_mastery_icicles_trigger_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_mastery_icicles_trigger_SpellScript();
+        }
+};
+
+// Icicles (periodic) - 148023
+class spell_mastery_icicles_periodic : public SpellScriptLoader
+{
+    public:
+        spell_mastery_icicles_periodic() : SpellScriptLoader("spell_mastery_icicles_periodic") { }
+
+        class spell_mastery_icicles_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_icicles_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (AuraEffectPtr aura = caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    {
+                        if (aura->GetAmount() > 4)
+                            caster->RemoveAura(GetSpellInfo()->Id);
+
+                        // Maybe not the good target selection ...
+                        if (Unit* target = ObjectAccessor::FindUnit(caster->GetIciclesTarget()))
+                        {
+                            if (AuraPtr icicleCurrentAura = caster->GetAura(IcicleAuras[aura->GetAmount()]))
+                            {
+                                int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
+                                caster->CastSpell(target, IcicleHits[aura->GetAmount()], true);
+                                caster->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
+                                caster->RemoveAura(IcicleAuras[aura->GetAmount()]);
+                                aura->SetAmount(aura->GetAmount() + 1);
+                            }
+
+                            IcicleOverstack = false;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mastery_icicles_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_icicles_periodic_AuraScript();
         }
 };
 
@@ -536,6 +574,7 @@ void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_icicles();
     new spell_mastery_icicles_trigger();
+    new spell_mastery_icicles_periodic();
     new spell_mastery_icicles_hit();
     new spell_mastery_shield_discipline();
     new spell_mastery_blood_shield();
