@@ -7906,7 +7906,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Illuminated Healing
                 case 76669:
                 {
-                    if (!victim || !procSpell || effIndex != 0)
+                    if (!victim || !procSpell || effIndex != 0 || GetTypeId() != TYPEID_PLAYER)
                         return false;
 
                     switch (procSpell->Id)
@@ -7920,7 +7920,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 82327:
                         case 86452:
                         {
-                            basepoints0 = int32(damage * float(triggerAmount / 100.0f));
+                            float mastery = ToPlayer()->GetFloatValue(PLAYER_MASTERY) * 1.25f;
+                            basepoints0 = int32(damage * float(mastery / 100.0f));
                             triggered_spell_id = 86273;
 
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
