@@ -9878,6 +9878,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 30451 && !roll_chance_i(50))
                 return false;
             break;
+        case 54937: // Glyph of Illumination
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 25912 && procSpell->Id != 25914)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            break;
+        }
         // Savage Defence
         case 62600:
         {
