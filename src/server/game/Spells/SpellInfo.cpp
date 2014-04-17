@@ -3501,6 +3501,21 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
                 procSpell->Id == 137573 ||  // Burst of Speed
                 procSpell->Id == 98440 ||   // Relentless Strikes
                 procSpell->Id == 102288 ||  // Clone Caster
+                procSpell->Id == 57934 ||   // Tricks of the Trade
+                procSpell->Id == 73981 ||   // Redirect
+                procSpell->Id == 114018 ||  // Shroud of Concealment
+                procSpell->Id == 76577 ||   // Smoke Bomb
+                procSpell->Id == 73651 ||   // Conversion
+                procSpell->Id == 121471 ||  // Shadow Blades
+                procSpell->Id == 31224 ||   // Cloak of Shadows
+                procSpell->Id == 108215 ||  // Paralytic Poison
+                procSpell->Id == 3408 ||    // Crippling Poison
+                procSpell->Id == 5761 ||    // Mind-Numbling Poison
+                procSpell->Id == 8679 ||    // Wound Poison
+                procSpell->Id == 108211 ||  // Leeching Poison
+                procSpell->Id == 2823 ||    // Deadly Poison
+                procSpell->Id == 79134 ||   // Venomous Wounds
+                procSpell->Id == 108212 ||  // Burst of Speed
                 procSpell->Id == 12323)     // Piercing Howl
                 return true;
         }
