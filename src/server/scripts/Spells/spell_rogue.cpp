@@ -88,7 +88,8 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_DECOY                  = 56800,
     ROGUE_SPELL_DECOY_SUMMON                    = 89765,
     ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
-    ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841
+    ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841,
+    ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631
 };
 
 // Killing Spree - 51690
@@ -681,7 +682,7 @@ class spell_rog_nightstalker : public SpellScriptLoader
         }
 };
 
-// Called by Rupture - 1943, Garrote - 703 and Crimson Tempest - 121411
+// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 89775 and Crimson Tempest - 121411
 // Sanguinary Vein - 79147
 class spell_rog_sanguinary_vein : public SpellScriptLoader
 {
@@ -695,16 +696,30 @@ class spell_rog_sanguinary_vein : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetTarget())
+                    {
+                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE_DOT && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                            return;
+
                         caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+                    }
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetTarget())
+                    {
+                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE_DOT && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                            return;
+
                         if (target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, caster->GetGUID()))
                             caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+                    }
+                }
             }
 
             void Register()

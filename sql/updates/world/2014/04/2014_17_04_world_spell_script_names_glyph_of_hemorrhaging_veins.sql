@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (89775, 'spell_rog_sanguinary_vein');
