@@ -126,7 +126,64 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655,
     SPELL_DRUID_TOOTH_AND_CLAW_AURA         = 135286,
     SPELL_DRUID_TOOTH_AND_CLAW_ABSORB       = 135597,
-    SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
+    SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER     = 145109,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY       = 145110
+};
+
+// Ysera's Gift - 145108
+class spell_dru_yseras_gift : public SpellScriptLoader
+{
+    public:
+        spell_dru_yseras_gift() : SpellScriptLoader("spell_dru_yseras_gift") { }
+
+        class spell_dru_yseras_gift_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_yseras_gift_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->IsFullHealth())
+                        caster->CastSpell(caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
+                    else
+                    {
+                        std::list<Unit*> party;
+                        caster->GetPartyMembers(party);
+
+                        if (party.empty())
+                            return;
+
+                        std::list<Unit*> tempList;
+                        for (auto itr : party)
+                        {
+                            if (itr->IsFullHealth() ||
+                                itr->GetDistance(caster) >= 40.0f)
+                                continue;
+
+                            tempList.push_back(itr);
+                        }
+
+                        if (tempList.empty())
+                            return;
+
+                        tempList.sort(JadeCore::HealthPctOrderPred());
+                        caster->CastSpell(tempList.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_yseras_gift_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_yseras_gift_AuraScript();
+        }
 };
 
 // Ravage! - 102545
@@ -3760,6 +3817,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_yseras_gift();
     new spell_dru_ravage_and_stampede();
     new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();

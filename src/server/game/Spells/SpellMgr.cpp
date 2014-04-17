@@ -3416,6 +3416,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 145109:// Ysera's Gift (caster)
+            case 145110:// Ysera's Gift (ally)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
+                spellInfo->Effects[0].BasePoints = 5;
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 32546: // Binding Heal
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
