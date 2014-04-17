@@ -3355,6 +3355,33 @@ class spell_monk_disable : public SpellScriptLoader
         {
             return new spell_monk_disable_SpellScript();
         }
+
+        class spell_monk_disable_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_disable_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetTarget())
+                    {
+                        if (target->GetDistance(caster) < 10.0f)
+                            aurEff->GetBase()->RefreshDuration();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_disable_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_disable_AuraScript();
+        }
 };
 
 // Zen Pilgrimage - 126892 and Zen Pilgrimage : Return - 126895
