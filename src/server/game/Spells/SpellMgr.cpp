@@ -4397,6 +4397,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 85673: // Word of Glory
                 spellInfo->OverrideSpellList.push_back(114163); // Replace World of glory by Eternal Flame
                 break;
+            case 114163:// Eternal Flame
+                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             case 974:   // Earth Shield
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_RECEIVED;
                 break;
