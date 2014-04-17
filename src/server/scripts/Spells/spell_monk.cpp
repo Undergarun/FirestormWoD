@@ -122,7 +122,50 @@ enum MonkSpells
     SPELL_MONK_ZEN_MEDITATION_AURA              = 131523,
     SPELL_MONK_RING_OF_PEACE_AURA               = 140023,
     SPELL_MONK_RING_OF_PEACE_DISARM             = 137461,
-    SPELL_MONK_RING_OF_PEACE_SILENCE            = 137460
+    SPELL_MONK_RING_OF_PEACE_SILENCE            = 137460,
+    SPELL_MONK_COMBO_BREAKER_AURA               = 137384,
+    SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
+    SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768
+};
+
+// Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
+// 115636 - Mastery : Combo Breaker
+class spell_monk_combo_breaker : public SpellScriptLoader
+{
+    public:
+        spell_monk_combo_breaker() : SpellScriptLoader("spell_monk_combo_breaker") { }
+
+        class spell_monk_combo_breaker_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_combo_breaker_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
+                        {
+                            if (roll_chance_i(12))
+                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
+                            else
+                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_combo_breaker_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_combo_breaker_SpellScript();
+        }
 };
 
 // Ring of Peace (dummy) - 140023
@@ -3815,6 +3858,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_combo_breaker();
     new spell_monk_ring_of_peace_dummy();
     new spell_monk_ring_of_peace();
     new spell_monk_zen_meditation();
