@@ -3423,6 +3423,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 88611: // Smoke Bomb (triggered)
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
             case 145109:// Ysera's Gift (caster)
             case 145110:// Ysera's Gift (ally)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
