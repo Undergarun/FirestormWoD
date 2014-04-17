@@ -120,6 +120,37 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927
 };
 
+// Lock and Load - 56453
+class spell_hun_lock_and_load_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_lock_and_load_proc() : SpellScriptLoader("spell_hun_lock_and_load_proc") { }
+
+        class spell_hun_lock_and_load_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_lock_and_load_proc_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    if (plr->HasSpellCooldown(HUNTER_SPELL_EXPLOSIVE_SHOT))
+                        plr->RemoveSpellCooldown(HUNTER_SPELL_EXPLOSIVE_SHOT, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_lock_and_load_proc_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_lock_and_load_proc_SpellScript();
+        }
+};
+
 // Bestial Wrath - 19574 and The Beast Within - 34471
 class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
 {
@@ -2258,6 +2289,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_lock_and_load_proc();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_item_pvp_s13_2p();
