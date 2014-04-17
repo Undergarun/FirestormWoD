@@ -119,6 +119,53 @@ enum HunterSpells
     HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900
 };
 
+// Bestial Wrath - 19574 and The Beast Within - 34471
+class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
+{
+    public:
+        spell_hun_bestial_wrath_dispel() : SpellScriptLoader("spell_hun_bestial_wrath_dispel") { }
+
+        class spell_hun_bestial_wrath_dispel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_bestial_wrath_dispel_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    uint32 mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
+                                        | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
+                                        | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
+                                        | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
+                                        | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
+                                        | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+
+                    target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetSpellInfo()->Id);
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case 19574: // Bestial Wrath
+                        OnEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case 34471: // The Beast Within
+                        OnEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_bestial_wrath_dispel_AuraScript();
+        }
+};
+
 // Called by Arcane Shot - 3044
 // Item PvP - Hunter S13 2P - 131564
 class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
@@ -2258,6 +2305,8 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_bestial_wrath_dispel();
+    new spell_hun_bestial_wrath_dispel();
     new spell_hun_item_pvp_s13_2p();
     new spell_hun_spirit_bond();
     new spell_hun_glyph_of_aspect_of_the_beast();
