@@ -589,6 +589,13 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
         case DIMINISHING_RANDOM_STUN:
         case DIMINISHING_SLEEP:
         case DIMINISHING_LIMITONLY:
+        case DIMINISHING_BIND_ELEMENTAL:
+        case DIMINISHING_DOMINATE_MIND:
+        case DIMINISHING_ICE_WARD:
+        case DIMINISHING_PARALYTIC_POISON:
+        case DIMINISHING_RING_OF_FROST:
+        case DIMINISHING_DEEP_FREEZE:
+        case DIMINISHING_DRAGONS_BREATH:
             return true;
         default:
             return false;
