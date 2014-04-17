@@ -92,7 +92,6 @@ enum HunterSpells
     HUNTER_SPELL_STAMPEDE_DAMAGE_REDUCTION          = 130201,
     HUNTER_SPELL_GLYPH_OF_STAMPEDE                  = 57902,
     HUNTER_SPELL_GLYPH_OF_COLLAPSE                  = 126095,
-    HUNTER_SPELL_MARKED_FOR_DIE                     = 132106,
     HUNTER_SPELL_HUNTERS_MARK                       = 1130,
     HUNTER_SPELL_GLYPH_OF_MISDIRECTION              = 56829,
     HUNTER_SPELL_MISDIRECTION                       = 34477,
@@ -116,7 +115,9 @@ enum HunterSpells
     HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
     HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254,
     HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
-    HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900
+    HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900,
+    HUNTER_SPELL_GLYPH_OF_LIBERATION                = 132106,
+    HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927
 };
 
 // Bestial Wrath - 19574 and The Beast Within - 34471
@@ -551,57 +552,6 @@ class spell_hun_dash : public SpellScriptLoader
         {
             return new spell_hun_dash_SpellScript();
         }
-};
-
-// Called by Arcane Shot - 3044, Chimera Shot - 53209
-// Kill Command - 34026 and Explosive Shot - 53301
-// Glyph of Marked for Die - 132106
-class spell_hun_glyph_of_marked_for_die : public SpellScriptLoader
-{
-    public:
-        spell_hun_glyph_of_marked_for_die() : SpellScriptLoader("spell_hun_glyph_of_marked_for_die") { }
-
-        class spell_hun_glyph_of_marked_for_die_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_glyph_of_marked_for_die_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(HUNTER_SPELL_MARKED_FOR_DIE))
-                            _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
-            }
-
-            void Register()
-            {
-               OnHit += SpellHitFn(spell_hun_glyph_of_marked_for_die_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_glyph_of_marked_for_die_SpellScript();
-        }
-
-        class spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript);
-
-            void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (GetCaster())
-                    if (Unit* target = aurEff->GetBase()->GetUnitOwner())
-                        if (target->HasAura(HUNTER_SPELL_EXPLOSIVE_SHOT, GetCaster()->GetGUID()))
-                            amount += target->GetRemainingPeriodicAmount(GetCaster()->GetGUID(), HUNTER_SPELL_EXPLOSIVE_SHOT, SPELL_AURA_PERIODIC_DAMAGE, 1);
-            }
-
-            void Register()
-            {
-                if (m_scriptSpellId == HUNTER_SPELL_EXPLOSIVE_SHOT)
-                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
 };
 
 // Stampede - 121818
@@ -2227,6 +2177,9 @@ class spell_hun_disengage : public SpellScriptLoader
                         for (auto itr : retsList)
                             _player->CastSpell(itr, HUNTER_SPELL_NARROW_ESCAPE_RETS, true);
                     }
+
+                    if (_player->HasAura(HUNTER_SPELL_GLYPH_OF_LIBERATION))
+                        _player->CastSpell(_player, HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL, true);
                 }
             }
 
@@ -2315,7 +2268,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_glyph_of_fetch();
     new spell_hun_tracking();
     new spell_hun_dash();
-    new spell_hun_glyph_of_marked_for_die();
     new spell_hun_stampede();
     new spell_hun_dire_beast();
     new spell_hun_a_murder_of_crows();
