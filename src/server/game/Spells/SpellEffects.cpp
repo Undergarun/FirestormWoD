@@ -966,11 +966,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         m_caster->ToCreature()->DisappearAndDie();
                     return;
                 }
-                case 128997:// Spirit Beast Blessing
-                {
-                    m_caster->CastSpell(m_caster, 127830, true);
-                    break;
-                }
                 case 101992:// Put up Darkmoon Banner
                 {
                     m_caster->CastSpell(m_caster, 102006, true);
@@ -1123,6 +1118,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 63487: // Ice Trap
                     if (Unit* owner = m_caster->GetOwner())
                         owner->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 13810, true);
+                    break;
+                case 128997:// Spirit Beast Blessing
+                    m_caster->CastSpell(m_caster, 127830, true);
                     break;
                 default:
                     break;

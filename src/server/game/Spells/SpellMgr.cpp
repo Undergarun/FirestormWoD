@@ -3429,6 +3429,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 5;
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+            case 128997:// Spirit Beast Blessing
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 127830:// Spirit Beast Blessing (Mastery Rating)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AREA_AURA_RAID;
+                break;
             case 32546: // Binding Heal
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
@@ -3855,9 +3861,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 80240: // Havoc
                 spellInfo->ProcCharges = 3;
-                break;
-            case 128997:// Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 129020:// Avatar
                 spellInfo->AttributesEx &= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
@@ -4475,10 +4478,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 24907: // Moonkin Aura
             case 109773:// Dark Intent
             case 116781:// Legacy of the White Tiger
-            case 127830:// Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_CASTER_AREA_RAID;
-                break;
             case 1459:  // Arcane Illumination
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
