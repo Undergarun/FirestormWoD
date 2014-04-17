@@ -277,8 +277,8 @@ class boss_zorlok : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
                 }
-                _JustDied();
 
+                _JustDied();
             }
 
             void JustReachedHome()

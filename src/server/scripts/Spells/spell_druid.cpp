@@ -126,7 +126,142 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_GUIDED_STARS       = 146655,
     SPELL_DRUID_TOOTH_AND_CLAW_AURA         = 135286,
     SPELL_DRUID_TOOTH_AND_CLAW_ABSORB       = 135597,
-    SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
+    SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER     = 145109,
+    SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY       = 145110,
+    SPELL_DRUID_HEALING_TOUCH               = 5185,
+    SPELL_DRUID_DREAM_OF_CENARIUS_TALENT    = 108373,
+    SPELL_DRUID_DREAM_OF_CENARIUS_BALANCE   = 145151,
+    SPELL_DRUID_DREAM_OF_CENARIUS_FERAL     = 145152,
+    SPELL_DRUID_DREAM_OF_CENARIUS_GUARDIAN  = 145162,
+    SPELL_DRUID_DREAM_OF_CENARIUS_RESTO     = 145153,
+    SPELL_DRUID_GLYPH_OF_OMENS              = 54812
+};
+
+// Called by Entangling Roots - 339, Cyclone - 33786, Faerie Fire - 770
+// Faerie Swarm - 102355, Mass Entanglement - 102359, Typhoon - 132469
+// Disorienting Roar - 99, Urol's Vortex - 102793 and Mighty Bash - 5211
+// Glyph of Omens - 54812
+class spell_dru_glyph_of_omens : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_omens() : SpellScriptLoader("spell_dru_glyph_of_omens") { }
+
+        class spell_dru_glyph_of_omens_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_glyph_of_omens_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->HasAura(SPELL_DRUID_SOLAR_ECLIPSE) || _player->HasAura(SPELL_DRUID_LUNAR_ECLIPSE))
+                        return;
+
+                    int32 eclipse = 10;
+
+                    switch (_player->m_lastEclipseState)
+                    {
+                        case ECLIPSE_NONE:
+                        case ECLIPSE_SOLAR:
+                            // If last eclipse is solar, set lunar power ...
+                            // .. or if no eclipse since in game, set lunar power
+                            _player->SetEclipsePower(int32(_player->GetEclipsePower() - eclipse));
+                            break;
+                        case ECLIPSE_LUNAR:
+                            // If last eclipse is lunar, set solar power
+                            _player->SetEclipsePower(int32(_player->GetEclipsePower() + eclipse));
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (_player->GetEclipsePower() == 100 && !_player->HasAura(SPELL_DRUID_SOLAR_ECLIPSE))
+                    {
+                        _player->CastSpell(_player, SPELL_DRUID_SOLAR_ECLIPSE, true, 0); // Cast Solar Eclipse
+                        _player->m_lastEclipseState = ECLIPSE_SOLAR;
+                        _player->CastSpell(_player, SPELL_DRUID_NATURES_GRACE, true); // Cast Nature's Grace
+                        _player->CastSpell(_player, SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE, true); // Cast Eclipse - Give 35% of POWER_MANA
+                    }
+                    else if (_player->GetEclipsePower() == -100 && !_player->HasAura(SPELL_DRUID_LUNAR_ECLIPSE))
+                    {
+                        _player->CastSpell(_player, SPELL_DRUID_LUNAR_ECLIPSE, true, 0); // Cast Lunar Eclipse
+                        _player->m_lastEclipseState = ECLIPSE_LUNAR;
+                        _player->CastSpell(_player, SPELL_DRUID_NATURES_GRACE, true); // Cast Nature's Grace
+                        _player->CastSpell(_player, SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE, true); // Cast Eclipse - Give 35% of POWER_MANA
+                        _player->CastSpell(_player, SPELL_DRUID_LUNAR_ECLIPSE_OVERRIDE, true);
+
+                        if (_player->HasSpellCooldown(SPELL_DRUID_STARFALL))
+                            _player->RemoveSpellCooldown(SPELL_DRUID_STARFALL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_glyph_of_omens_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_glyph_of_omens_SpellScript();
+        }
+};
+
+// Ysera's Gift - 145108
+class spell_dru_yseras_gift : public SpellScriptLoader
+{
+    public:
+        spell_dru_yseras_gift() : SpellScriptLoader("spell_dru_yseras_gift") { }
+
+        class spell_dru_yseras_gift_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_yseras_gift_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->IsFullHealth())
+                        caster->CastSpell(caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
+                    else
+                    {
+                        std::list<Unit*> party;
+                        caster->GetPartyMembers(party);
+
+                        if (party.empty())
+                            return;
+
+                        std::list<Unit*> tempList;
+                        for (auto itr : party)
+                        {
+                            if (itr->IsFullHealth() ||
+                                itr->GetDistance(caster) >= 40.0f)
+                                continue;
+
+                            tempList.push_back(itr);
+                        }
+
+                        if (tempList.empty())
+                            return;
+
+                        tempList.sort(JadeCore::HealthPctOrderPred());
+                        caster->CastSpell(tempList.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_yseras_gift_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_yseras_gift_AuraScript();
+        }
 };
 
 // Ravage! - 102545
@@ -1781,6 +1916,12 @@ class spell_dru_rip_duration : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (GetSpellInfo()->Id == SPELL_DRUID_MANGLE_BEAR && _player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && GetSpell()->IsCritForTarget(target))
+                        {
+                            if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_BEAR && roll_chance_i(40))
+                                _player->CastSpell(_player, SPELL_DRUID_DREAM_OF_CENARIUS_GUARDIAN, true);
+                        }
+
                         // Each time you Shred, Ravage, or Mangle the target while in Cat Form ...
                         if (_player->GetShapeshiftForm() == FORM_CAT)
                         {
@@ -2111,11 +2252,32 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (!target->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
-                            if (AuraPtr lifebloom = target->GetAura(SPELL_DRUID_LIFEBLOOM, _player->GetGUID()))
+                            if (AuraPtr lifebloom = target->GetAura(SPELL_DRUID_LIFEBLOOM, player->GetGUID()))
                                 lifebloom->RefreshDuration();
+
+                        if (player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && GetSpellInfo()->Id == SPELL_DRUID_HEALING_TOUCH)
+                        {
+                            int32 damage = GetHitDamage();
+                            AddPct(damage, 20);
+                            SetHitDamage(damage);
+
+                            switch (player->GetSpecializationId(player->GetActiveSpec()))
+                            {
+                                case SPEC_DROOD_BALANCE:
+                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_BALANCE, true);
+                                    break;
+                                case SPEC_DROOD_CAT:
+                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_FERAL, true);
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -2549,6 +2711,7 @@ class spell_dru_wild_mushroom : public SpellScriptLoader
                     summon->setFaction(player->getFaction());
                     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(5);
+                    summon->SetFullHealth();
                     summon->CastSpell(summon, DRUID_SPELL_MUSHROOM_BIRTH_VISUAL, true); // Wild Mushroom : Detonate Birth Visual
                 }
             }
@@ -3364,6 +3527,14 @@ class spell_dru_eclipse : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (_player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_RESTORATION &&
+                            GetSpellInfo()->Id == SPELL_DRUID_WRATH)
+                        {
+                            int32 damage = GetHitDamage();
+                            AddPct(damage, 20);
+                            SetHitDamage(damage);
+                        }
+
                         if (!_player->HasAura(SPELL_DRUID_CELESTIAL_ALIGNMENT) && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_BALANCE)
                         {
                             float modifier = 1.0f;
@@ -3498,9 +3669,25 @@ class spell_dru_eclipse : public SpellScriptLoader
                 }
             }
 
+            void HandleAfterHit()
+            {
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    if (plr->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_DROOD_RESTORATION &&
+                        GetSpellInfo()->Id == SPELL_DRUID_WRATH)
+                    {
+                        int32 bp = GetHitDamage();
+
+                        if (Unit* target = plr->GetNextRandomRaidMember(15.0f))
+                            plr->CastCustomSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
+                    }
+                }
+            }
+
             void Register()
             {
                 OnHit += SpellHitFn(spell_dru_eclipse_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_eclipse_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_dru_eclipse_SpellScript::HandleAfterCast);
             }
         };
@@ -3760,6 +3947,8 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_glyph_of_omens();
+    new spell_dru_yseras_gift();
     new spell_dru_ravage_and_stampede();
     new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();

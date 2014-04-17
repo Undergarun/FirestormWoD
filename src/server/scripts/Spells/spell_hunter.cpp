@@ -92,7 +92,6 @@ enum HunterSpells
     HUNTER_SPELL_STAMPEDE_DAMAGE_REDUCTION          = 130201,
     HUNTER_SPELL_GLYPH_OF_STAMPEDE                  = 57902,
     HUNTER_SPELL_GLYPH_OF_COLLAPSE                  = 126095,
-    HUNTER_SPELL_MARKED_FOR_DIE                     = 132106,
     HUNTER_SPELL_HUNTERS_MARK                       = 1130,
     HUNTER_SPELL_GLYPH_OF_MISDIRECTION              = 56829,
     HUNTER_SPELL_MISDIRECTION                       = 34477,
@@ -116,7 +115,87 @@ enum HunterSpells
     HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
     HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254,
     HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
-    HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900
+    HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900,
+    HUNTER_SPELL_GLYPH_OF_LIBERATION                = 132106,
+    HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927
+};
+
+// Lock and Load - 56453
+class spell_hun_lock_and_load_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_lock_and_load_proc() : SpellScriptLoader("spell_hun_lock_and_load_proc") { }
+
+        class spell_hun_lock_and_load_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_lock_and_load_proc_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    if (plr->HasSpellCooldown(HUNTER_SPELL_EXPLOSIVE_SHOT))
+                        plr->RemoveSpellCooldown(HUNTER_SPELL_EXPLOSIVE_SHOT, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_lock_and_load_proc_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_lock_and_load_proc_SpellScript();
+        }
+};
+
+// Bestial Wrath - 19574 and The Beast Within - 34471
+class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
+{
+    public:
+        spell_hun_bestial_wrath_dispel() : SpellScriptLoader("spell_hun_bestial_wrath_dispel") { }
+
+        class spell_hun_bestial_wrath_dispel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_bestial_wrath_dispel_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    uint32 mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
+                                        | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
+                                        | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
+                                        | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
+                                        | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
+                                        | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+
+                    target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetSpellInfo()->Id);
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case 19574: // Bestial Wrath
+                        OnEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case 34471: // The Beast Within
+                        OnEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_bestial_wrath_dispel_AuraScript();
+        }
 };
 
 // Called by Arcane Shot - 3044
@@ -504,57 +583,6 @@ class spell_hun_dash : public SpellScriptLoader
         {
             return new spell_hun_dash_SpellScript();
         }
-};
-
-// Called by Arcane Shot - 3044, Chimera Shot - 53209
-// Kill Command - 34026 and Explosive Shot - 53301
-// Glyph of Marked for Die - 132106
-class spell_hun_glyph_of_marked_for_die : public SpellScriptLoader
-{
-    public:
-        spell_hun_glyph_of_marked_for_die() : SpellScriptLoader("spell_hun_glyph_of_marked_for_die") { }
-
-        class spell_hun_glyph_of_marked_for_die_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_glyph_of_marked_for_die_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(HUNTER_SPELL_MARKED_FOR_DIE))
-                            _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
-            }
-
-            void Register()
-            {
-               OnHit += SpellHitFn(spell_hun_glyph_of_marked_for_die_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_glyph_of_marked_for_die_SpellScript();
-        }
-
-        class spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript);
-
-            void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (GetCaster())
-                    if (Unit* target = aurEff->GetBase()->GetUnitOwner())
-                        if (target->HasAura(HUNTER_SPELL_EXPLOSIVE_SHOT, GetCaster()->GetGUID()))
-                            amount += target->GetRemainingPeriodicAmount(GetCaster()->GetGUID(), HUNTER_SPELL_EXPLOSIVE_SHOT, SPELL_AURA_PERIODIC_DAMAGE, 1);
-            }
-
-            void Register()
-            {
-                if (m_scriptSpellId == HUNTER_SPELL_EXPLOSIVE_SHOT)
-                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_marked_for_die_SpellScriptAuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
 };
 
 // Stampede - 121818
@@ -2180,6 +2208,9 @@ class spell_hun_disengage : public SpellScriptLoader
                         for (auto itr : retsList)
                             _player->CastSpell(itr, HUNTER_SPELL_NARROW_ESCAPE_RETS, true);
                     }
+
+                    if (_player->HasAura(HUNTER_SPELL_GLYPH_OF_LIBERATION))
+                        _player->CastSpell(_player, HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL, true);
                 }
             }
 
@@ -2258,6 +2289,9 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_lock_and_load_proc();
+    new spell_hun_bestial_wrath_dispel();
+    new spell_hun_bestial_wrath_dispel();
     new spell_hun_item_pvp_s13_2p();
     new spell_hun_spirit_bond();
     new spell_hun_glyph_of_aspect_of_the_beast();
@@ -2266,7 +2300,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_glyph_of_fetch();
     new spell_hun_tracking();
     new spell_hun_dash();
-    new spell_hun_glyph_of_marked_for_die();
     new spell_hun_stampede();
     new spell_hun_dire_beast();
     new spell_hun_a_murder_of_crows();
