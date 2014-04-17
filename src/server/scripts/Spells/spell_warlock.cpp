@@ -130,7 +130,71 @@ enum WarlockSpells
     WARLOCK_METAMORPHOSIS_OVERRIDER         = 103965,
     WARLOCK_METAMORPHOSIS_RESISTANCE        = 54817,
     WARLOCK_METAMORPHOSIS_MODIFIERS         = 54879,
-    WARLOCK_DEMONIC_FURY_PASSIVE            = 109145
+    WARLOCK_DEMONIC_FURY_PASSIVE            = 109145,
+    WARLOCK_DEMON_SINGLE_MAGIC              = 89808,
+    WARLOCK_DEMON_SUFFERING                 = 17735,
+    WARLOCK_DEMON_SEDUCE                    = 6358,
+    WARLOCK_DEMON_SPELL_LOCK                = 19647,
+    WARLOCK_DEMON_AXE_TOSS                  = 89766
+};
+
+// Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
+// Grimoire: Felhunter - 111897 and Grimoire: Felguard - 111898
+// Grimoire of Service - Demons
+class spell_warl_grimoire_of_service : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_service() : SpellScriptLoader("spell_warl_grimoire_of_service") { }
+
+        class spell_warl_grimoire_of_service_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_grimoire_of_service_SpellScript);
+
+            void HandleAfterHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                        {
+                            switch ((*itr)->GetEntry())
+                            {
+                                case ENTRY_IMP:
+                                    (*itr)->CastSpell(caster, WARLOCK_DEMON_SINGLE_MAGIC, false);
+                                    if ((*itr)->ToCreature() && (*itr)->ToCreature()->AI())
+                                        (*itr)->ToCreature()->AI()->AttackStart(target);
+                                    break;
+                                case ENTRY_VOIDWALKER:
+                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SUFFERING, false);
+                                    break;
+                                case ENTRY_SUCCUBUS:
+                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SEDUCE, false);
+                                    break;
+                                case ENTRY_FELHUNTER:
+                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SPELL_LOCK, false);
+                                    break;
+                                case ENTRY_FELGUARD:
+                                    (*itr)->CastSpell(target, WARLOCK_DEMON_AXE_TOSS, false);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warl_grimoire_of_service_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_grimoire_of_service_SpellScript();
+        }
 };
 
 // Haunt (dispel effect) - 48181
@@ -3142,6 +3206,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
     new spell_warl_demonic_slash();
     new spell_warl_fury_ward();

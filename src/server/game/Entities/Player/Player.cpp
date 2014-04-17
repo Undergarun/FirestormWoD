@@ -30274,6 +30274,15 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
             if (!HasAura(108507))
                 CastSpell(this, 108507, true); // Passive
             break;
+        case 108501:// Grimoire of Service
+            learnSpell(111859, false);  // WARLOCK_GRIMOIRE_IMP
+            learnSpell(111895, false);  // WARLOCK_GRIMOIRE_VOIDWALKER
+            learnSpell(111896, false);  // WARLOCK_GRIMOIRE_SUCCUBUS
+            learnSpell(111897, false);  // WARLOCK_GRIMOIRE_FELHUNTER
+
+            if (GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                learnSpell(111898, false);  // WARLOCK_GRIMOIRE_FELGUARD
+            break;
         default:
             break;
     }
@@ -30318,6 +30327,18 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
             }
             break;
         }
+        case 108501:// Grimoire of Service
+            if (HasSpell(111859))
+                removeSpell(111859, false, false);  // WARLOCK_GRIMOIRE_IMP
+            if (HasSpell(111895))
+                removeSpell(111895, false, false);  // WARLOCK_GRIMOIRE_VOIDWALKER
+            if (HasSpell(111896))
+                removeSpell(111896, false, false);  // WARLOCK_GRIMOIRE_SUCCUBUS
+            if (HasSpell(111897))
+                removeSpell(111897, false, false);  // WARLOCK_GRIMOIRE_FELHUNTER
+            if (HasSpell(111898))
+                removeSpell(111898, false, false);  // WARLOCK_GRIMOIRE_FELGUARD
+            break;
         default:
             break;
     }
