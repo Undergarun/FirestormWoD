@@ -7596,6 +7596,16 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             else
                 damage = int32(damage * 0.444f); // Final:   44.4%
         }
+        // Flame Shock
+        else if (GetSpellInfo()->Id == 8050)
+        {
+            // Glyph of Flame Shock
+            if (caster->HasAura(55447))
+            {
+                int32 bp = CalculatePct(damage, 30);
+                caster->HealBySpell(caster, GetSpellInfo(), bp, false);
+            }
+        }
         if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
         {
             switch (GetId())
