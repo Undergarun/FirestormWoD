@@ -89,7 +89,8 @@ enum RogueSpells
     ROGUE_SPELL_DECOY_SUMMON                    = 89765,
     ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
     ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841,
-    ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631
+    ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
+    ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806
 };
 
 // Killing Spree - 51690
@@ -1493,7 +1494,7 @@ class spell_rog_recuperate : public SpellScriptLoader
                 {
                     if (AuraPtr recuperate = caster->GetAura(ROGUE_SPELL_RECUPERATE))
                     {
-                        int32 bp = caster->CountPctFromMaxHealth(3);
+                        int32 bp = caster->CountPctFromMaxHealth(caster->HasAura(ROGUE_SPELL_GLYPH_OF_RECUPERATE) ? 4 : 3);
                         bp = caster->SpellHealingBonusDone(caster, GetSpellInfo(), bp, HEAL);
                         bp = caster->SpellHealingBonusTaken(caster, GetSpellInfo(), bp, HEAL);
                         recuperate->GetEffect(0)->ChangeAmount(bp);
