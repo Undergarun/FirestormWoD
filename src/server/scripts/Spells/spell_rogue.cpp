@@ -76,6 +76,7 @@ enum RogueSpells
     ROGUE_SPELL_BLADE_FLURRY_AURA               = 13877,
     ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
     ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
+    ROGUE_SPELL_CHEATED_DEATH_MARKER            = 45181,
     ROGUE_SPELL_ENERGETIC_RECOVERY_AURA         = 79152,
     ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR           = 56803,
     ROGUE_SPELL_WEAKENED_ARMOR                  = 113746,
@@ -387,11 +388,11 @@ class spell_rog_cheat_death : public SpellScriptLoader
                     if (dmgInfo.GetDamage() < target->GetHealth())
                         return;
 
-                    if (target->HasSpellCooldown(ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE))
+                    if (target->HasAura(ROGUE_SPELL_CHEATED_DEATH_MARKER))
                         return;
 
                     target->CastSpell(target, ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE, true);
-                    target->AddSpellCooldown(ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE, 0, time(NULL) + 90);
+                    target->CastSpell(target, ROGUE_SPELL_CHEATED_DEATH_MARKER, true);
 
                     uint32 health10 = target->CountPctFromMaxHealth(10);
 
