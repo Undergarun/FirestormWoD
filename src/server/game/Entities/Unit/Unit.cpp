@@ -13149,6 +13149,11 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
                                     crit_chance += 25.0f;
                                 break;
+                            case 33878: // Mangle (Bear)
+                                if (ToPlayer() && HasAura(108373) &&
+                                    ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DROOD_BEAR)
+                                    crit_chance += 10.0f;
+                                break;
                         }
                         break;
                     }

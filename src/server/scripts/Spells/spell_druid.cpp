@@ -128,7 +128,13 @@ enum DruidSpells
     SPELL_DRUID_TOOTH_AND_CLAW_ABSORB       = 135597,
     SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601,
     SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER     = 145109,
-    SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY       = 145110
+    SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY       = 145110,
+    SPELL_DRUID_HEALING_TOUCH               = 5185,
+    SPELL_DRUID_DREAM_OF_CENARIUS_TALENT    = 108373,
+    SPELL_DRUID_DREAM_OF_CENARIUS_BALANCE   = 145151,
+    SPELL_DRUID_DREAM_OF_CENARIUS_FERAL     = 145152,
+    SPELL_DRUID_DREAM_OF_CENARIUS_GUARDIAN  = 145162,
+    SPELL_DRUID_DREAM_OF_CENARIUS_RESTO     = 145153
 };
 
 // Ysera's Gift - 145108
@@ -1838,6 +1844,12 @@ class spell_dru_rip_duration : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (GetSpellInfo()->Id == SPELL_DRUID_MANGLE_BEAR && _player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && GetSpell()->IsCritForTarget(target))
+                        {
+                            if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_BEAR && roll_chance_i(40))
+                                _player->CastSpell(_player, SPELL_DRUID_DREAM_OF_CENARIUS_GUARDIAN, true);
+                        }
+
                         // Each time you Shred, Ravage, or Mangle the target while in Cat Form ...
                         if (_player->GetShapeshiftForm() == FORM_CAT)
                         {
@@ -2168,11 +2180,32 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (!target->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
-                            if (AuraPtr lifebloom = target->GetAura(SPELL_DRUID_LIFEBLOOM, _player->GetGUID()))
+                            if (AuraPtr lifebloom = target->GetAura(SPELL_DRUID_LIFEBLOOM, player->GetGUID()))
                                 lifebloom->RefreshDuration();
+
+                        if (player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && GetSpellInfo()->Id == SPELL_DRUID_HEALING_TOUCH)
+                        {
+                            int32 damage = GetHitDamage();
+                            AddPct(damage, 20);
+                            SetHitDamage(damage);
+
+                            switch (player->GetSpecializationId(player->GetActiveSpec()))
+                            {
+                                case SPEC_DROOD_BALANCE:
+                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_BALANCE, true);
+                                    break;
+                                case SPEC_DROOD_CAT:
+                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_FERAL, true);
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -3421,6 +3454,14 @@ class spell_dru_eclipse : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (_player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_RESTORATION &&
+                            GetSpellInfo()->Id == SPELL_DRUID_WRATH)
+                        {
+                            int32 damage = GetHitDamage();
+                            AddPct(damage, 20);
+                            SetHitDamage(damage);
+                        }
+
                         if (!_player->HasAura(SPELL_DRUID_CELESTIAL_ALIGNMENT) && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_BALANCE)
                         {
                             float modifier = 1.0f;
@@ -3555,9 +3596,25 @@ class spell_dru_eclipse : public SpellScriptLoader
                 }
             }
 
+            void HandleAfterHit()
+            {
+                if (Player* plr = GetCaster()->ToPlayer())
+                {
+                    if (plr->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_DROOD_RESTORATION &&
+                        GetSpellInfo()->Id == SPELL_DRUID_WRATH)
+                    {
+                        int32 bp = GetHitDamage();
+
+                        if (Unit* target = plr->GetNextRandomRaidMember(15.0f))
+                            plr->CastCustomSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
+                    }
+                }
+            }
+
             void Register()
             {
                 OnHit += SpellHitFn(spell_dru_eclipse_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_eclipse_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_dru_eclipse_SpellScript::HandleAfterCast);
             }
         };
