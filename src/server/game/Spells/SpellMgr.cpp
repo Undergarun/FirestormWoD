@@ -4024,9 +4024,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Dispel = DISPEL_NONE;
                 spellInfo->SpellIconID = 2819;
                 break;
-            case 124271:// Sanguinary Vein
-                spellInfo->Effects[0].BasePoints = 35;
-                break;
             case 2818:  // Deadly Poison
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
