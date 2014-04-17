@@ -3921,6 +3921,13 @@ void Unit::_RemoveNoStackAurasDueToAura(AuraPtr aura)
             && spellProto->Id == 26573)
             continue;
 
+        // Hack fix for Chakra remove
+        if (spellProto->Id == 123267 &&
+            (i->second->GetBase()->GetId() == 81206 ||
+            i->second->GetBase()->GetId() == 81208 ||
+            i->second->GetBase()->GetId() == 81209))
+            continue;
+
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
         if (i == m_appliedAuras.end())
             break;
