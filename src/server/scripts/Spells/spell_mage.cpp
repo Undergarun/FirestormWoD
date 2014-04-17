@@ -100,6 +100,34 @@ enum MageSpells
     SPELL_MAGE_FINGERS_OF_FROST_AURA             = 112965
 };
 
+// Mirror Image - 55342
+class spell_mage_mirror_image_summon : public SpellScriptLoader
+{
+    public:
+        spell_mage_mirror_image_summon() : SpellScriptLoader("spell_mage_mirror_image_summon") { }
+
+        class spell_mage_mirror_image_summon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_mirror_image_summon_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_MAGE_MIRROR_IMAGE_SUMMON, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_mirror_image_summon_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_mirror_image_summon_SpellScript();
+        }
+};
+
 // Flamestrike - 2120
 class spell_mage_flamestrike : public SpellScriptLoader
 {
@@ -1577,6 +1605,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_mirror_image_summon();
     new spell_mage_flamestrike();
     new spell_mage_greater_invisibility_removed();
     new spell_mage_greater_invisibility_triggered();

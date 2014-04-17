@@ -1827,50 +1827,165 @@ class mob_mojo : public CreatureScript
         }
 };
 
+enum imagesSpells
+{
+    SPELL_MAGE_FROSTBOLT    = 59638,
+    SPELL_MAGE_FIREBALL     = 133,
+    SPELL_MAGE_ARCANE_BLAST = 30451,
+    SPELL_MAGE_GLYPH        = 63093
+};
+
 class npc_mirror_image : public CreatureScript
 {
-public:
-    npc_mirror_image() : CreatureScript("npc_mirror_image") { }
+    public:
+        npc_mirror_image() : CreatureScript("npc_mirror_image") { }
 
-    struct npc_mirror_imageAI : CasterAI
-    {
-        npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
-
-        void InitializeAI()
+        struct npc_mirror_imageAI : CasterAI
         {
-            CasterAI::InitializeAI();
-            Unit* owner = me->GetOwner();
-            if (!owner)
-                return;
-            // Inherit Master's Threat List (not yet implemented)
-            owner->CastSpell((Unit*)NULL, 58838, true);
-            // here mirror image casts on summoner spell (not present in client dbc) 49866
-            // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
-            // Clone Me!
-            owner->CastSpell(me, 45204, true);
-        }
+            npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
 
-        // Do not reload Creature templates on evade mode enter - prevent visual lost
-        void EnterEvadeMode()
-        {
-            if (me->IsInEvadeMode() || !me->isAlive())
-                return;
-
-            Unit* owner = me->GetCharmerOrOwner();
-
-            me->CombatStop(true);
-            if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+            void InitializeAI()
             {
-                me->GetMotionMaster()->Clear(false);
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+                CasterAI::InitializeAI();
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    return;
+                // Inherit Master's Threat List (not yet implemented)
+                owner->CastSpell((Unit*)NULL, 58838, true);
+                // here mirror image casts on summoner spell (not present in client dbc) 49866
+                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
+                // Clone Me!
+                owner->CastSpell(me, 45204, true);
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_mirror_imageAI(creature);
-    }
+            void IsSummonedBy(Unit* owner)
+            {
+                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                Player* plrOwner = owner->ToPlayer();
+
+                if (!me->HasUnitState(UNIT_STATE_FOLLOW))
+                {
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+                }
+
+                me->SetMaxPower(me->getPowerType(), owner->GetMaxPower(me->getPowerType()));
+                me->SetPower(me->getPowerType(), owner->GetPower(me->getPowerType()));
+                me->SetMaxHealth(owner->GetMaxHealth());
+                me->SetHealth(owner->GetHealth());
+                me->SetReactState(REACT_DEFENSIVE);
+
+                for (int l_WeponAttackType = 0 ; l_WeponAttackType < MAX_ATTACK ; l_WeponAttackType++)
+                {
+                    me->SetBaseWeaponDamage((WeaponAttackType)l_WeponAttackType, MAXDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)l_WeponAttackType, MAXDAMAGE));
+                    me->SetBaseWeaponDamage((WeaponAttackType)l_WeponAttackType, MINDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)l_WeponAttackType, MINDAMAGE));
+                }
+
+                me->UpdateAttackPowerAndDamage();
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) ? plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)->GetEntry() : 0);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    return;
+
+                Player* plrOwner = owner->ToPlayer();
+                if (!plrOwner)
+                    return;
+
+                if (!plrOwner->HasAura(SPELL_MAGE_GLYPH))
+                {
+                    me->CastSpell(who, SPELL_MAGE_FROSTBOLT, false);
+                    uint32 cooldown = GetAISpellInfo(SPELL_MAGE_FROSTBOLT)->realCooldown;
+                    events.ScheduleEvent(SPELL_MAGE_FROSTBOLT, cooldown);
+                    me->GetMotionMaster()->Clear(false);
+                    return;
+                }
+
+                switch (plrOwner->GetSpecializationId(plrOwner->GetActiveSpec()))
+                {
+                    case SPEC_MAGE_ARCANE:
+                    {
+                        me->CastSpell(who, SPELL_MAGE_ARCANE_BLAST, false);
+                        uint32 cooldown = GetAISpellInfo(SPELL_MAGE_ARCANE_BLAST)->realCooldown;
+                        events.ScheduleEvent(SPELL_MAGE_ARCANE_BLAST, cooldown);
+                        break;
+                    }
+                    case SPEC_MAGE_FIRE:
+                    {
+                        me->CastSpell(who, SPELL_MAGE_FIREBALL, false);
+                        uint32 cooldown = GetAISpellInfo(SPELL_MAGE_FIREBALL)->realCooldown;
+                        events.ScheduleEvent(SPELL_MAGE_FIREBALL, cooldown);
+                        break;
+                    }
+                    case SPEC_MAGE_FROST:
+                    default:
+                    {
+                        me->CastSpell(who, SPELL_MAGE_FROSTBOLT, false);
+                        uint32 cooldown = GetAISpellInfo(SPELL_MAGE_FROSTBOLT)->realCooldown;
+                        events.ScheduleEvent(SPELL_MAGE_FROSTBOLT, cooldown);
+                        break;
+                    }
+                }
+
+                me->GetMotionMaster()->Clear(false);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (!me->GetOwner() || me->GetOwner()->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    Player* plrOwner = me->GetOwner()->ToPlayer();
+                    if (plrOwner->GetSelectedUnit())
+                        me->AI()->AttackStart(plrOwner->GetSelectedUnit());
+                    return;
+                }
+
+                events.Update(diff);
+
+                bool hasCC = false;
+                if (me->GetCharmerOrOwnerGUID() && me->getVictim())
+                    hasCC = me->getVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE);
+
+                if (hasCC)
+                {
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        me->CastStop();
+                    me->AI()->EnterEvadeMode();
+                    return;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 spellId = events.ExecuteEvent())
+                {
+                    if (hasCC)
+                    {
+                        events.ScheduleEvent(spellId, 500);
+                        return;
+                    }
+                    DoCast(spellId);
+                    uint32 casttime = me->GetCurrentSpellCastTime(spellId);
+                    events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
+                }
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_mirror_imageAI(creature);
+        }
 };
 
 class npc_ebon_gargoyle : public CreatureScript
