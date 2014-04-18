@@ -991,6 +991,7 @@ public:
     SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
     DamageInfo* GetDamageInfo() const { return _damageInfo; }
     HealInfo* GetHealInfo() const { return _healInfo; }
+    Spell* GetSpell() const { return _spell; }
 };
 
 // Struct for use in Unit::CalculateMeleeDamage
