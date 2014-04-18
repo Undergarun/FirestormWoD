@@ -57,24 +57,20 @@ enum Spells
     // Intro
     SPELL_VISINTRO_TAYAK    = 128788,
     // Tempest Slash - Launches a Tornado towards a player location; upon reaching it, tornado spins around at the spot.
-    SPELL_TEMP_SLASH_SUMM_V = 125692,   // Summons Heart of Fear - Trash Version Tempest Stalker (LTD).
-    SPELL_TEMP_SLASH_AURA   = 122854,   // Periodic trigger aura for SPELL_TEMP_SLASH_DAMAGE.
-    SPELL_TEMP_SLASH_DAMAGE = 122853,
+    SPELL_TEMP_SLASH_SUMM_V = 122842,   // Summons Heart of Fear - Armsmaster Ta'yak Tempest Stalker (LTD)
+    SPELL_TEMP_SLASH_AURA   = 122854,   // Visual + Periodic trigger aura for SPELL_TEMP_SLASH_DAMAGE.
+    SPELL_TEMP_SLASH_DAMAGE = 122853,   // Aura Damage + Knock back
 
     // Unseen Strike - Boss disappears, appears at a player, massive damage split between targets in 15 yards cone.
     SPELL_UNSEEN_STRIKE_TR  = 122949,   // Unattackable + Speed 200%. Triggers SPELL_UNSEEN_STRIKE_DMG after 5 secs, SPELL_UNSEEN_STRIKE_MKR on target, SPELL_UNSEEN_STRIKE_INV on self.
-    // SPELL_UNSEEN_STRIKE_DMG = 122994,   // Damage.
     SPELL_UNSEEN_STRIKE_MKR = 123017,   // Target marker visual aura.
-    // SPELL_UNSEEN_STRIKE_INV = 125242,   // Invisibility aura.
 
     // Wind Step - Teleports to a player, casts the bleed, teleports back.
     SPELL_WIND_STEP_TP      = 123175,   // Teleport. Triggers SPELL_WIND_STEP_DUMMY.
     SPELL_WIND_STEP_B_DMG   = 123180,   // Bleed damage for 8y targets.
-    // SPELL_WIND_STEP_DUMMY   = 123459,   // Dummy to apply SPELL_WIND_STEP_B_DMG to targets in 8y.
     SPELL_WIND_STEP_TP_BACK = 123460,   // Teleport back to the main target.
 
     // Intensify - Every 60 seconds Phase 1 / 10 seconds Phase 2 (But no melee).
-    SPELL_INTENSIFY_AURA    = 123470,   // Triggers SPELL_INTENSIFY_BUFF every 60 secs in P1 and every 10 secs in P2.
     SPELL_INTENSIFY_BUFF    = 123471,
 
     // Overwhelming Assault.
@@ -82,50 +78,19 @@ enum Spells
 
     // Blade tempest - Spins and pulls all players. Heroic ONLY. - Every 60 seconds.
     SPELL_BLADE_TEMPEST_AUR = 125310,   // Triggers SPELL_BLADE_TEMPEST_DMG each 0.5s, SPELL_BLADE_TEMPEST_AT.
-    // SPELL_BLADE_TEMPEST_DMG = 125312,   // Damage.
-    // SPELL_BLADE_TEMPEST_AT  = 125301,   // Create Areatrigger 381.
     SPELL_BLADE_TEMPES_J_FC = 125325,   // Force Cast SPELL_BLADE_TEMPES_JUMP in 200 yards.
-    // SPELL_BLADE_TEMPES_JUMP = 125327,   // Player Jump-To-Boss spell.
 
     // Storm Unleashed - 20 % on one end, 10% on the opposite.
     SPELL_STORM_UNLEASHED_D = 123814,   // Boss Dummy Visual.
-
-    // SPELL_SU_SUMMON_W1      = 123597,   // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed West 1 Tornado (LTD).
-
     SPELL_SU_AURA           = 123598,   // Aura for the tornadoes, triggers SPELL_SU_RV_SE each 0.1 secs.
-    // SPELL_SU_RV_SE          = 124258,   // Script effect for SPELL_SU_RV in 4 yards.
     SPELL_SU_RV             = 123599,   // Control Vehicle aura.
-
     SPELL_SU_DUMMY_VIS      = 124024,   // Some dummy visual (for tornadoes?).
-
     SPELL_SU_DMG_AURA       = 124785,   // Triggers SPELL_SU_DMG every 1 sec.
-    // SPELL_SU_DMG            = 124783,   // Damage in 300 yards.
-    // SPELL_SU_PACIFY         = 130908,   // Pacify, Silence, 321 Aura in 200 yards.
     SPELL_SU_WIND_GALE      = 123633,
+    SPELL_SU_DUMMY_CRAP     = 123616, // Applies a dummy aura on a target.
 
     SPELL_TAYAK_BERSERK     = 26662,     // Enrage, 490 seconds, or 8:10 minutes.
 
-    // - ! NO USE FOUND FOR THESE. ! -
-
-    // SPELL_TEMP_SLASH_SUMMON = 122838, // Summons Heart of Fear - Armsmaster Ta'yak Target Stalker (LTD).
-    // SPELL_TEMP_SLASH_SUM_TR = 122839, // Force cast SPELL_TEMP_SLASH_SUMMON in 50 yards.
-    // SPELL_TEMP_SLASH_T_FC   = 125689, // Force cast SPELL_TEMP_SLASH_T in 50 yards.
-    // SPELL_TEMP_SLASH_T      = 125690, // Summons Heart of Fear - Trash Version Target Stalker (LTD).
-    // SPELL_TEMP_SLASH_SUM_VT = 125692, // Summons Heart of Fear - Trash Version Tempest Stalker (LTD).
-
-    // SPELL_SU_SUMMON_W2      = 123639, // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed West 2 Tornado (LTD).
-    // SPELL_SU_SUMMON_W3      = 123640, // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed West 3 Tornado (LTD).
-    // SPELL_SU_SUMMON_E1      = 123643, // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed East 1 Tornado (LTD).
-    // SPELL_SU_SUMMON_E2      = 123644, // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed East 2 Tornado (LTD).
-    // SPELL_SU_SUMMON_E3      = 123645, // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed East 3 Tornado (LTD).
-
-    // SPELL_STORM_UNLEASHED_C = 123815, // Spin dummy.
-    // SPELL_SU_FORCECAST_J_FC = 123805, // Force cast SPELL_SU_FORCECAST_JUMP in 200 yards.
-    // SPELL_SU_FORCECAST_JUMP = 124033, // Triggers SPELL_SU_SUMM_PS.
-    // SPELL_SU_SUMMON_PS      = 124025, // Summons Heart of Fear - Armsmaster Ta'yak - Storm Unleashed Player Vehicle Stalker (LTD).
-    SPELL_SU_SUMM_DUMMY     = 123820, // Triggers SPELL_SU_DUMMY every 1.5 s.
-    SPELL_SU_DUMMY          = 123600, // Triggers 123616 on area entry in 15 y.
-    SPELL_SU_DUMMY_CRAP     = 123616, // Applies a dummy aura on a target.
 };
 
 enum Events
@@ -144,9 +109,6 @@ enum Events
     EVENT_SUMMON_TORNADOES,
 
     EVENT_TAYAK_BERSERK,            // Enrage at 8 minutes, or, more precisely, 490 seconds.
-
-    // Tempest Slash tornado
-    EVENT_MOVE_RANDOM
 };
 
 enum TayakPhases
@@ -155,10 +117,7 @@ enum TayakPhases
     PHASE_STORM_UNLEASHED   = 2
 };
 
-enum TayakCreatures
-{
-    NPC_US_TORNADO          = 63278
-};
+#define NPC_US_TORNADO 63278
 
 enum GWStalkerActions
 {
@@ -172,10 +131,6 @@ Position TayakStormPoints[2] =
     { -2119.072f, 379.372f, 422.162f, 4.703f }  // 10 -  0% TP point
 };
 
-// float TayakStormPoint1[4] = { -2119.072f, 184.985f, 422.162f, 1.585f }; // 20 - 10% tele point.
-// float TayakStormPoint2[4] = { -2119.072f, 379.372f, 422.162f, 4.703f }; // 10 -  0% tele point.
-
-//float PlayerTelePos[4]    = { -2124.063f, 281.056f, 420.901f, 0.053f }; // Tele point for players on P2 start.
 Position PlayerTelePos = { -2124.063f, 281.056f, 420.901f, 0.053f }; // Tele point for players on P2 start.
 
 // StormPoint1 Tornado summon points.
@@ -228,7 +183,6 @@ class boss_tayak : public CreatureScript
                 unseenTank  = 0;
                 currentTank = 0;
                 tpPlayers   = 0;
-                // tempestTarget = 0;
                 storm1Done   = false;
                 entranceDone = false;
                 introDone    = false;
@@ -243,6 +197,12 @@ class boss_tayak : public CreatureScript
                     stalker->AI()->DoAction(ACTION_STOP_WIND);
 
                 _Reset();
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action == ACTION_TAYAK_TALK_TRASH)
+                    Talk(SAY_KILL_TRASH);
             }
 
             bool CheckTrash()
@@ -289,9 +249,6 @@ class boss_tayak : public CreatureScript
                 }
 
                 Talk(SAY_AGGRO);
-
-                // Periodic aura buff appliance.
-                // DoCast(me, SPELL_INTENSIFY_AURA);
 
                 events.ScheduleEvent(EVENT_TEMPEST_SLASH, urand(9500, 11000));
                 events.ScheduleEvent(EVENT_UNSEEN_STRIKE, urand(29500, 31500));
@@ -424,7 +381,6 @@ class boss_tayak : public CreatureScript
                         me->SetSpeed(MOVE_FLIGHT, 20.0f, true);
                         me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->Clear();
-                        // me->GetMotionMaster()->MovePoint(3, TayakStormPoints[0]);
                         tpPlayers = 1;
                         break;
                     }
@@ -480,8 +436,6 @@ class boss_tayak : public CreatureScript
 
                     DoCast(me, SPELL_STORM_UNLEASHED_D);
                     me->AddAura(SPELL_SU_DMG_AURA, me);
-
-                    // events.ScheduleEvent(EVENT_STORM_UNLEASHED, 100);
                 }
 
                 // Storm Unleashed 10 - 0%.
@@ -510,8 +464,6 @@ class boss_tayak : public CreatureScript
                     {
                         case EVENT_TEMPEST_SLASH:
                         {
-                            // if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
-                            //     tempestTarget = target;
                             DoCast(me, SPELL_TEMP_SLASH_SUMM_V);
                             events.ScheduleEvent(EVENT_TEMPEST_SLASH, urand(14500, 16500));
                             break;
@@ -519,15 +471,11 @@ class boss_tayak : public CreatureScript
                         case EVENT_UNSEEN_STRIKE:
                         {
                             unseenTank = me->getVictim() ? me->getVictim()->GetGUID() : 0;
-                            // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
                                 Talk(ANN_UNSEEN, target->GetGUID());
-                                // DoCast(target, SPELL_UNSEEN_STRIKE_TR);
                                 me->CastSpell(target, SPELL_UNSEEN_STRIKE_TR, true);
                                 me->AddAura(SPELL_UNSEEN_STRIKE_MKR, target);
-                                me->GetMotionMaster()->MovementExpired();
-                                me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveChase(target);
                                 me->SetReactState(REACT_PASSIVE);
                                 unseenReturn = true;
@@ -541,8 +489,6 @@ class boss_tayak : public CreatureScript
                             if (unseenTank)
                             {
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                // me->GetMotionMaster()->MovementExpired();
-                                // me->GetMotionMaster()->Clear();
                                 if (Player* unseenTarget = ObjectAccessor::FindPlayer(unseenTank))
                                 {
                                     if (unseenTarget->isAlive())
@@ -705,19 +651,33 @@ public:
         EventMap events;
         InstanceScript* pInstance;
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* summoner)
         {
             events.Reset();
-            me->SetInCombatWithZone();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_PASSIVE);
 
-            me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
-            me->AddAura(SPELL_TEMP_SLASH_DAMAGE, me);   // Damage aura
+            if (summoner)
+            {
+                // Replacing at 5.0f on the right of Ta'yak (summoner)
+                float leftOri = (me->GetOrientation() + M_PI * 0.5f > M_PI * 2.0f) ? me->GetOrientation() - 1.5f * M_PI : me->GetOrientation() + M_PI * 0.5f;
 
-            float x, y, z;
-            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 25.0f);
-            me->GetMotionMaster()->MovePoint(8, x, y, z);
+                // Random orientation in front of Ta'yak
+                float ori = summoner->GetOrientation() + ((urand(0, 1) ? 1 : -1) * frand(M_PI/3, M_PI/2));
+                me->SetOrientation(ori);
+                me->SetFacingTo(ori);
+
+                // Applying auras and moving
+                me->SetInCombatWithZone();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+                me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
+                me->AddAura(SPELL_TEMP_SLASH_DAMAGE, me);   // Damage aura
+
+                float x, y, z;
+                me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
+                me->GetMotionMaster()->MovePoint(8, x, y, z);
+            }
+
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -728,26 +688,13 @@ public:
             if (id == 8)
             {
                 Movement::MoveSplineInit init(*me);
+                // Selecting the center 2.0f yds forward as center of the circle path
                 Position pos = GetTargetPoint(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 2.0f);
+                // Creating the circle path from the center
                 FillCirclePath(pos, 2.0f, pos.GetPositionZ(), init.Path(), true);
                 init.SetWalk(true);
                 init.SetCyclic();
                 init.Launch();
-            }
-        }
-
-        void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-        {
-            float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
-            float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-            for (uint8 i = 0; i < 16; angle += step, ++i)
-            {
-                G3D::Vector3 point;
-                point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
-                path.push_back(point);
             }
         }
 
@@ -814,12 +761,29 @@ public:
             return next;
         }
 
+        void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
+        {
+            float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+            float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
+
+            for (uint8 i = 0; i < 16; angle += step, ++i)
+            {
+                G3D::Vector3 point;
+                point.x = centerPos.GetPositionX() + radius * cosf(angle);
+                point.y = centerPos.GetPositionY() + radius * sinf(angle);
+                point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
+                path.push_back(point);
+            }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             // Despawn on Ta'yak's phase 2
             if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                 if (tayak->AI()->GetData(TYPE_PHASE_TAYAK) == PHASE_STORM_UNLEASHED)
                     me->DespawnOrUnsummon();
+
+            events.Update(diff);
         }
     };
 
