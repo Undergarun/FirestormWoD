@@ -1910,6 +1910,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
+                    // Remove Stealth on Subterfuge remove
+                    case 115192:
+                    {
+                        StealthType type = StealthType(sSpellMgr->GetSpellInfo(1784)->Effects[1].MiscValue);
+                        target->m_stealth.DelFlag(type);
+                        target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
+                        target->UpdateObjectVisibility();
+                        break;
+                    }
                 }
                 break;
             case SPELLFAMILY_MAGE:
@@ -1980,10 +1989,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
                 break;
             case SPELLFAMILY_ROGUE:
-                // Remove Vanish on stealth remove
-                if (GetId() == 1784 || GetId() == 115191)
-                    target->RemoveAurasDueToSpell(131369, target->GetGUID());
+            {
+                switch (GetId())
+                {
+                    // Remove Vanish on stealth remove
+                    case 1784:
+                    case 115191:
+                        target->RemoveAurasDueToSpell(131369, target->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+
                 break;
+            }
             case SPELLFAMILY_PALADIN:
                 if (!caster)
                     break;
