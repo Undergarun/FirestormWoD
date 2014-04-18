@@ -317,6 +317,7 @@ class mob_set_thik_swiftblade : public CreatureScript
         }
 };
 
+// 67177 - 66181 - 63853
 class mob_zar_thik_supplicant : public CreatureScript
 {
     public:
@@ -382,6 +383,7 @@ class mob_zar_thik_supplicant : public CreatureScript
         }
 };
 
+// 63030
 class mob_enslaved_bonesmasher : public CreatureScript
 {
     public:
@@ -440,6 +442,7 @@ class mob_enslaved_bonesmasher : public CreatureScript
         }
 };
 
+// 64358
 class mob_set_thik_tempest : public CreatureScript
 {
     public:
@@ -449,9 +452,18 @@ class mob_set_thik_tempest : public CreatureScript
         {
             mob_set_thik_tempestAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
+            InstanceScript* pInstance;
             EventMap events;
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+            }
 
             void Reset()
             {
@@ -487,6 +499,7 @@ class mob_set_thik_tempest : public CreatureScript
         }
 };
 
+// 63031
 class mob_set_thik_fanatic : public CreatureScript
 {
     public:
@@ -551,6 +564,7 @@ class mob_set_thik_fanatic : public CreatureScript
         }
 };
 
+// 63593
 class mob_set_thik_zephyrian : public CreatureScript
 {
     public:
@@ -599,6 +613,7 @@ class mob_set_thik_zephyrian : public CreatureScript
         }
 };
 
+// 64353
 class mob_set_thik_gale_slicer : public CreatureScript
 {
     public:
@@ -608,15 +623,24 @@ class mob_set_thik_gale_slicer : public CreatureScript
         {
             mob_set_thik_gale_slicerAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_SWIFT_STEP, 4000);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
             void UpdateAI(const uint32 diff)
@@ -647,6 +671,7 @@ class mob_set_thik_gale_slicer : public CreatureScript
         }
 };
 
+// 64338
 class mob_instructor_kli_thak : public CreatureScript
 {
     public:
@@ -656,9 +681,11 @@ class mob_instructor_kli_thak : public CreatureScript
         {
             mob_instructor_kli_thakAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -666,6 +693,13 @@ class mob_instructor_kli_thak : public CreatureScript
 
                 events.ScheduleEvent(EVENT_WIND_STEP, 7000);
                 events.ScheduleEvent(EVENT_WIND_STEP_2, 15000);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
             void UpdateAI(const uint32 diff)
@@ -704,6 +738,7 @@ class mob_instructor_kli_thak : public CreatureScript
         }
 };
 
+// 64339
 class mob_instructor_tak_thok : public CreatureScript
 {
     public:
@@ -713,15 +748,24 @@ class mob_instructor_tak_thok : public CreatureScript
         {
             mob_instructor_tak_thokAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 4000);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
             void UpdateAI(const uint32 diff)
@@ -752,6 +796,7 @@ class mob_instructor_tak_thok : public CreatureScript
         }
 };
 
+// 63035
 class mob_zar_thik_zealot : public CreatureScript
 {
     public:
@@ -810,6 +855,7 @@ class mob_zar_thik_zealot : public CreatureScript
         }
 };
 
+// 64357
 class mob_kor_thik_swarmer : public CreatureScript
 {
     public:
@@ -819,15 +865,24 @@ class mob_kor_thik_swarmer : public CreatureScript
         {
             mob_kor_thik_swarmerAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_UNDERWHELMING_ASSAULT, 4000);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
             void UpdateAI(const uint32 diff)
@@ -858,6 +913,7 @@ class mob_kor_thik_swarmer : public CreatureScript
         }
 };
 
+// 63592
 class mob_set_thik_gustwing : public CreatureScript
 {
     public:
@@ -915,6 +971,7 @@ class mob_set_thik_gustwing : public CreatureScript
         }
 };
 
+// 63597
 class mob_coagulated_amber : public CreatureScript
 {
     public:
@@ -972,15 +1029,26 @@ class mob_kor_thik_silentwing : public CreatureScript
 
         struct mob_kor_thik_silentwingAI : public ScriptedAI
         {
-            mob_kor_thik_silentwingAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_kor_thik_silentwingAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
                 events.Reset();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 84677);
                 events.ScheduleEvent(EVENT_ICE_TRAP, 5000);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
             }
 
             void UpdateAI(const uint32 diff)
