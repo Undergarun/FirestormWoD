@@ -805,6 +805,12 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 15407: // Mind Flay
                 case 129197:// Mind Flay (Insanity)
                 {
+                    if (!caster)
+                        break;
+
+                    if (!GetBase())
+                        break;
+
                     if (!caster->HasSpell(139139))
                         break;
 
@@ -1234,7 +1240,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     }
 
     // Eternal Flame
-    if (GetId() == 114163)
+    if (GetId() == 114163 && caster)
     {
         amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
 
@@ -2373,7 +2379,6 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
         if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH) && !target->HasAura(115192)) // if last SPELL_AURA_MOD_STEALTH
         {
             target->m_stealth.DelFlag(type);
-
             target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
         }
     }
