@@ -3924,6 +3924,13 @@ void Unit::_RemoveNoStackAurasDueToAura(AuraPtr aura)
             && spellProto->Id == 26573)
             continue;
 
+        // Hack fix for Chakra remove
+        if (spellProto->Id == 123267 &&
+            (i->second->GetBase()->GetId() == 81206 ||
+            i->second->GetBase()->GetId() == 81208 ||
+            i->second->GetBase()->GetId() == 81209))
+            continue;
+
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
         if (i == m_appliedAuras.end())
             break;
@@ -7645,35 +7652,29 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576)
                         return false;
 
-                    uint8 newCombo = 0;
+                    uint8 newCombo = ToPlayer()->GetComboPoints();
 
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (procSpell->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         {
-                            newCombo = procSpell->Effects[i].BasePoints;
+                            newCombo += procSpell->Effects[i].BasePoints;
                             break;
                         }
                     }
 
-                    if ((ToPlayer()->GetComboPoints() + newCombo) < 5)
+                    if (procSpell->Id == 5374)
+                        newCombo += 2;
+
+                    if (newCombo <= 5)
                         return false;
 
-                    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (procSpell->Effects[i].Effect == SPELL_EFFECT_ADD_COMBO_POINTS)
-                        {
-                            basepoints0 = procSpell->Effects[i].BasePoints;
-                            break;
-                        }
-
+                    basepoints0 = newCombo - 5;
                     triggered_spell_id = 115189;
 
                     // need to add one additional combo point if it's critical hit
-                    if (Player* caster = ToPlayer())
-                    {
-                        if (procEx & PROC_EX_CRITICAL_HIT)
-                            CastSpell(caster, 115189, true);
-                    }
+                    if (procEx & PROC_EX_CRITICAL_HIT)
+                        CastSpell(this, 115189, true);
 
                     break;
                 }
@@ -7902,7 +7903,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Illuminated Healing
                 case 76669:
                 {
-                    if (!victim || !procSpell || effIndex != 0)
+                    if (!victim || !procSpell || effIndex != 0 || GetTypeId() != TYPEID_PLAYER)
                         return false;
 
                     switch (procSpell->Id)
@@ -7916,7 +7917,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 82327:
                         case 86452:
                         {
-                            basepoints0 = int32(damage * float(triggerAmount / 100.0f));
+                            float mastery = ToPlayer()->GetFloatValue(PLAYER_MASTERY) * 1.25f;
+                            basepoints0 = int32(damage * float(mastery / 100.0f));
                             triggered_spell_id = 86273;
 
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
@@ -9881,6 +9883,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 30451 && !roll_chance_i(50))
                 return false;
             break;
+        case 54937: // Glyph of Illumination
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 25912 && procSpell->Id != 25914)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            break;
+        }
         // Savage Defence
         case 62600:
         {
@@ -13139,6 +13154,11 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
                                     crit_chance += 25.0f;
                                 break;
+                            case 33878: // Mangle (Bear)
+                                if (ToPlayer() && HasAura(108373) &&
+                                    ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DROOD_BEAR)
+                                    crit_chance += 10.0f;
+                                break;
                         }
                         break;
                     }
@@ -13287,11 +13307,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     AuraEffectList const& mHealingDonePct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
     for (AuraEffectList::const_iterator i = mHealingDonePct.begin(); i != mHealingDonePct.end(); ++i)
         AddPct(DoneTotalMod, (*i)->GetAmount());
-
-    // Glyph of Healing Storm
-    if (HasAura(53817) && HasAura(89646))
-        if (AuraPtr maelstromWeapon = GetAura(53817))
-            AddPct(DoneTotalMod, maelstromWeapon->GetStackAmount() * 20);
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;
@@ -14119,25 +14134,6 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
                 AddPct(TakenTotalMod, (*i)->GetAmount());
         }
     }
-
-    // .. taken pct: dummy auras
-    /*AuraEffectList const& mDummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-    for (AuraEffectList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
-    {
-        switch ((*i)->GetSpellInfo()->Id)
-        {
-            // Cheat Death
-            case 45182:
-            {
-                if (GetTypeId() != TYPEID_PLAYER)
-                    continue;
-                AddPct(TakenTotalMod, (*i)->GetAmount());
-                break;
-            }
-            default:
-                break;
-        }
-    }*/
 
     if (attType != RANGED_ATTACK)
     {

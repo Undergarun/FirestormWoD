@@ -150,7 +150,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                     return DIMINISHING_CONTROLLED_ROOT;
                 case 132168: // Shockwave
                 case 105771: // Warbringer
-                case 145585: // Storm Bolt
+                case 132169: // Storm Bolt
                     return DIMINISHING_CONTROLLED_STUN;
                 case 676:    // Disarm
                     return DIMINISHING_DISARM;
@@ -589,6 +589,13 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
         case DIMINISHING_RANDOM_STUN:
         case DIMINISHING_SLEEP:
         case DIMINISHING_LIMITONLY:
+        case DIMINISHING_BIND_ELEMENTAL:
+        case DIMINISHING_DOMINATE_MIND:
+        case DIMINISHING_ICE_WARD:
+        case DIMINISHING_PARALYTIC_POISON:
+        case DIMINISHING_RING_OF_FROST:
+        case DIMINISHING_DEEP_FREEZE:
+        case DIMINISHING_DRAGONS_BREATH:
             return true;
         default:
             return false;
@@ -3416,6 +3423,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 88611: // Smoke Bomb (triggered)
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
+            case 145109:// Ysera's Gift (caster)
+            case 145110:// Ysera's Gift (ally)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
+                spellInfo->Effects[0].BasePoints = 5;
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 128997:// Spirit Beast Blessing
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 127830:// Spirit Beast Blessing (Mastery Rating)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AREA_AURA_RAID;
+                break;
             case 32546: // Binding Heal
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
@@ -3843,14 +3865,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 80240: // Havoc
                 spellInfo->ProcCharges = 3;
                 break;
-            case 128997:// Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
             case 129020:// Avatar
                 spellInfo->AttributesEx &= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
                 break;
             case 121129:// Daybreak (heal)
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+                spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 break;
             case 73981: // Redirect
             case 110730:// Redirect
@@ -4017,9 +4036,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77613: // Grace
                 spellInfo->Dispel = DISPEL_NONE;
                 spellInfo->SpellIconID = 2819;
-                break;
-            case 124271:// Sanguinary Vein
-                spellInfo->Effects[0].BasePoints = 35;
                 break;
             case 2818:  // Deadly Poison
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
@@ -4391,6 +4407,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 85673: // Word of Glory
                 spellInfo->OverrideSpellList.push_back(114163); // Replace World of glory by Eternal Flame
                 break;
+            case 114163:// Eternal Flame
+                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             case 974:   // Earth Shield
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_RECEIVED;
                 break;
@@ -4465,10 +4485,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 24907: // Moonkin Aura
             case 109773:// Dark Intent
             case 116781:// Legacy of the White Tiger
-            case 127830:// Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_CASTER_AREA_RAID;
-                break;
             case 1459:  // Arcane Illumination
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
@@ -4558,7 +4574,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
             case 59907: // Lightwell Charges
+                spellInfo->Effects[0].BasePoints = 15;
                 spellInfo->ProcCharges = 15;
+                break;
+            case 126135:// Lightwell
+                spellInfo->OverrideSpellList.push_back(724); // Add old Lightwell to override list
                 break;
             case 81751: // Atonement
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
@@ -4755,9 +4775,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 90174: // Divine Purpose
             case 131567:// Holy Spark
             case 69369: // Predator Swiftness
-            case 108382:// Dream of Cenarius (second proc)
             case 113853:// Blazing Speed aurastate
             case 114028:// Mass Spell Reflection
+            case 145151:// Dream of Cenarius (Balance)
                 spellInfo->ProcCharges = 1;
                 break;
             case 110600:// Ice Trap (Symbiosis)
@@ -4801,9 +4821,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 131116:// Allow to use Raging Blow
                 spellInfo->StackAmount = 2;
-                break;
-            case 108381:// Dream of Cenarius (first proc)
-                spellInfo->ProcCharges = 2;
                 break;
             case 44544: // Fingers of Frost
             case 126084:// Fingers of Frost - visual

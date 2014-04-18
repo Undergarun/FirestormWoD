@@ -945,25 +945,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                     break;
                 }
-                case 114163:// Eternal Flame
-                {
-                    amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
-
-                    int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
-
-                    if (holyPower > 3)
-                        holyPower = 3;
-
-                    // Divine Purpose
-                    if (caster->HasAura(90174))
-                        holyPower = 3;
-
-                    amount *= holyPower;
-
-                    caster->ModifyPower(POWER_HOLY_POWER, (holyPower > 1) ? (-(holyPower - 1)) : 0);
-
-                    break;
-                }
                 // Recuperate
                 case 73651:
                 {
@@ -1251,6 +1232,26 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             break;
 
     }
+
+    // Eternal Flame
+    if (GetId() == 114163)
+    {
+        amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
+
+        int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
+
+        if (holyPower > 3)
+            holyPower = 3;
+
+        // Divine Purpose
+        if (caster->HasAura(90174))
+            holyPower = 3;
+
+        amount *= holyPower;
+
+        caster->ModifyPower(POWER_HOLY_POWER, (holyPower > 1) ? (-(holyPower - 1)) : 0);
+    }
+
     if (DoneActualBenefit != 0.0f)
     {
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
@@ -4400,31 +4401,6 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
             target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_BANISH, apply);
             break;
         }
-        case 34471: // The Beast Within
-        case 19574: // Bestial Wrath
-        {
-            mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
-                | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
-                | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
-                | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
-                | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
-
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-
-            break;
-        }
         case 129020:// Avatar
         {
             target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
@@ -5287,6 +5263,10 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
     target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, float(GetAmount()), apply);
+
+    // Unholy Presence
+    if (m_spellInfo->Id == 48265)
+        target->ToPlayer()->UpdateAllRunesRegen();
 }
 
 void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6850,38 +6830,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     break;
             }
             break;
-        // Custom MoP Script
-        case SPELLFAMILY_MONK:
-            if (!caster)
-                break;
-
-            switch (GetId())
-            {
-                case 116095: // Disable : duration refresh, if target remains within 10 yards of the Monk
-                {
-                    if (caster && caster->getClass() == CLASS_MONK && target)
-                    {
-                        if (target->IsInRange(caster, 0, 10))
-                        {
-                            if (AuraApplication* aura = target->GetAuraApplication(116095))
-                            {
-                                AuraPtr Disable = aura->GetBase();
-                                int32 duration = Disable->GetDuration();
-                                if (duration <= 1)
-                                {
-                                    int32 maxDuration = Disable->GetMaxDuration();
-                                    Disable->SetDuration(maxDuration);
-                                }
-                            }
-                        }
-                    }
-
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
         case SPELLFAMILY_DEATHKNIGHT:
             if (!caster)
                 break;
@@ -7620,6 +7568,16 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage = int32(damage * 0.088f); // Ninth:   8.8%
             else
                 damage = int32(damage * 0.444f); // Final:   44.4%
+        }
+        // Flame Shock
+        else if (GetSpellInfo()->Id == 8050)
+        {
+            // Glyph of Flame Shock
+            if (caster->HasAura(55447))
+            {
+                int32 bp = CalculatePct(damage, 30);
+                caster->HealBySpell(caster, GetSpellInfo(), bp, false);
+            }
         }
         if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
         {

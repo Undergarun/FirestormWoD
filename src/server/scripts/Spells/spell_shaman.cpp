@@ -94,7 +94,10 @@ enum ShamanSpells
     SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM = 55456,
     SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS = 131554,
     SPELL_SHA_RESTORATIVE_MISTS             = 114083,
-    SPELL_SHA_FROST_SHOCK                   = 8056
+    SPELL_SHA_FROST_SHOCK                   = 8056,
+    SPELL_SHA_LAVA_SURGE_AURA               = 77756,
+    SPELL_SHA_LAVA_BURST                    = 51505,
+    SPELL_SHA_LIFE_UNLEASHED                = 73685
 };
 
 // Totemic Projection - 108287
@@ -1301,7 +1304,7 @@ class spell_sha_lava_surge : public SpellScriptLoader
                 {
                     if (Player* _player = GetCaster()->ToPlayer())
                     {
-                        if (_player->HasAura(77756))
+                        if (_player->HasAura(SPELL_SHA_LAVA_SURGE_AURA))
                         {
                             if (roll_chance_i(20))
                             {
@@ -1310,7 +1313,7 @@ class spell_sha_lava_surge : public SpellScriptLoader
                                         _player->InterruptSpell(CURRENT_GENERIC_SPELL);
 
                                 _player->CastSpell(_player, SPELL_SHA_LAVA_SURGE_CAST_TIME, true);
-                                _player->RemoveSpellCooldown(51505, true);
+                                _player->RemoveSpellCooldown(SPELL_SHA_LAVA_BURST, true);
                             }
                         }
                     }
@@ -1586,6 +1589,15 @@ class spell_sha_healing_rain : public SpellScriptLoader
                             caster->RemoveDynObject(SPELL_SHA_HEALING_RAIN);
 
                         caster->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
+
+                        // Increase the effectiveness of Healing Rain by 30% with Unleashed Life
+                        if (AuraEffectPtr healingRain = caster->GetAuraEffect(SPELL_SHA_HEALING_RAIN, EFFECT_1))
+                        {
+                            if (caster->HasAura(SPELL_SHA_LIFE_UNLEASHED))
+                                healingRain->SetAmount(30);
+
+                            caster->RemoveAura(SPELL_SHA_LIFE_UNLEASHED);
+                        }
 
                         // Reset amount of Conductivity
                         if (AuraPtr conductivity = caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))

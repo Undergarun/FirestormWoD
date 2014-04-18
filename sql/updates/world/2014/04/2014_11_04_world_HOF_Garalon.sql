@@ -12,4 +12,7 @@ INSERT INTO spell_script_names VALUES
 (117709, 'spell_garalon_crush_trigger'),
 (123109, 'spell_garalon_pheromones_taunt'),
 (122786, 'spell_garalon_broken_leg'),
-(123818, 'spell_garalon_damaged');
+(123818, 'spell_garalon_damaged'),
+(128573, 'spell_garalon_pheromones_summon'),
+(123120, 'spell_garalon_pheromones_trail_dmg'),
+(123100, 'spell_garalon_pheromones_switch');

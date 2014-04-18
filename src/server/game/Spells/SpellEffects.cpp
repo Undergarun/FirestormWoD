@@ -966,11 +966,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         m_caster->ToCreature()->DisappearAndDie();
                     return;
                 }
-                case 128997:// Spirit Beast Blessing
-                {
-                    m_caster->CastSpell(m_caster, 127830, true);
-                    break;
-                }
                 case 101992:// Put up Darkmoon Banner
                 {
                     m_caster->CastSpell(m_caster, 102006, true);
@@ -1123,6 +1118,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 63487: // Ice Trap
                     if (Unit* owner = m_caster->GetOwner())
                         owner->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 13810, true);
+                    break;
+                case 128997:// Spirit Beast Blessing
+                    m_caster->CastSpell(m_caster, 127830, true);
                     break;
                 default:
                     break;
@@ -2258,6 +2256,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             }
             case 121129:// Daybreak
             {
+                if (caster && unitTarget && caster->GetGUID() == unitTarget->GetGUID())
+                    return;
+
                 uint32 count = 0;
                 for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                     if (ihit->effectMask & (1 << effIndex))
@@ -2270,6 +2271,15 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
                 addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
 
+                break;
+            }
+            case 73921: // Healing Rain
+            {
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
+
+                // Increase the effectiveness by 30% with Unleashed Life
+                if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
+                    AddPct(addhealth, healingRain->GetAmount());
                 break;
             }
             default:
@@ -5407,21 +5417,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             }
                         }
                     }
-                    return;
-                }
-                case 60123: // Lightwell
-                {
-                    if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
-                        return;
-
-                    // proc a spellcast
-                    if (AuraPtr chargesAura = m_caster->GetAura(59907))
-                    {
-                        m_caster->CastSpell(unitTarget, 7001, true, NULL, NULL, m_caster->ToTempSummon()->GetSummonerGUID());
-                        if (chargesAura->ModCharges(-1))
-                            m_caster->ToTempSummon()->UnSummon();
-                    }
-
                     return;
                 }
                 // Stoneclaw Totem

@@ -76,6 +76,7 @@ enum RogueSpells
     ROGUE_SPELL_BLADE_FLURRY_AURA               = 13877,
     ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
     ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
+    ROGUE_SPELL_CHEATED_DEATH_MARKER            = 45181,
     ROGUE_SPELL_ENERGETIC_RECOVERY_AURA         = 79152,
     ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR           = 56803,
     ROGUE_SPELL_WEAKENED_ARMOR                  = 113746,
@@ -88,7 +89,9 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_DECOY                  = 56800,
     ROGUE_SPELL_DECOY_SUMMON                    = 89765,
     ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
-    ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841
+    ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841,
+    ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
+    ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806
 };
 
 // Killing Spree - 51690
@@ -385,11 +388,11 @@ class spell_rog_cheat_death : public SpellScriptLoader
                     if (dmgInfo.GetDamage() < target->GetHealth())
                         return;
 
-                    if (target->HasSpellCooldown(ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE))
+                    if (target->HasAura(ROGUE_SPELL_CHEATED_DEATH_MARKER))
                         return;
 
                     target->CastSpell(target, ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE, true);
-                    target->AddSpellCooldown(ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE, 0, time(NULL) + 90);
+                    target->CastSpell(target, ROGUE_SPELL_CHEATED_DEATH_MARKER, true);
 
                     uint32 health10 = target->CountPctFromMaxHealth(10);
 
@@ -681,7 +684,7 @@ class spell_rog_nightstalker : public SpellScriptLoader
         }
 };
 
-// Called by Rupture - 1943, Garrote - 703 and Crimson Tempest - 121411
+// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 89775 and Crimson Tempest - 121411
 // Sanguinary Vein - 79147
 class spell_rog_sanguinary_vein : public SpellScriptLoader
 {
@@ -695,16 +698,30 @@ class spell_rog_sanguinary_vein : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetTarget())
+                    {
+                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE_DOT && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                            return;
+
                         caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+                    }
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetTarget())
+                    {
+                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE_DOT && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                            return;
+
                         if (target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, caster->GetGUID()))
                             caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+                    }
+                }
             }
 
             void Register()
@@ -1478,7 +1495,7 @@ class spell_rog_recuperate : public SpellScriptLoader
                 {
                     if (AuraPtr recuperate = caster->GetAura(ROGUE_SPELL_RECUPERATE))
                     {
-                        int32 bp = caster->CountPctFromMaxHealth(3);
+                        int32 bp = caster->CountPctFromMaxHealth(caster->HasAura(ROGUE_SPELL_GLYPH_OF_RECUPERATE) ? 4 : 3);
                         bp = caster->SpellHealingBonusDone(caster, GetSpellInfo(), bp, HEAL);
                         bp = caster->SpellHealingBonusTaken(caster, GetSpellInfo(), bp, HEAL);
                         recuperate->GetEffect(0)->ChangeAmount(bp);
