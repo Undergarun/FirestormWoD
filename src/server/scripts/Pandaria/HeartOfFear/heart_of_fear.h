@@ -101,6 +101,9 @@ enum eActions
     ACTION_SONIC_QUAD1          = 3,
     ACTION_SONIC_QUAD2          = 4,
     ACTION_INHALE_PHEROMONES    = 5,
+
+    // Ta'yak
+    ACTION_TAYAK_TALK_TRASH     = 6,
 };
 
 enum eCreatures

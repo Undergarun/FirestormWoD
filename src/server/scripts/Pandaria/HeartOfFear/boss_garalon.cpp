@@ -227,9 +227,9 @@ public:
 
             me->AddAura(SPELL_CRUSH_BODY_VIS, me); // And add the body crush marker.
 
-            // events.ScheduleEvent(EVENT_FURIOUS_SWIPE, urand(8000, 11000));
-            // events.ScheduleEvent(EVENT_PHEROMONES, urand(2000, 3000));
-            // events.ScheduleEvent(EVENT_CRUSH, 30000); // First Crush always seems to have this timer, on any difficulty.
+            events.ScheduleEvent(EVENT_FURIOUS_SWIPE, urand(8000, 11000));
+            events.ScheduleEvent(EVENT_PHEROMONES, urand(2000, 3000));
+            events.ScheduleEvent(EVENT_CRUSH, 30000); // First Crush always seems to have this timer, on any difficulty.
             events.ScheduleEvent(EVENT_GARALON_BERSERK, 7 * MINUTE * IN_MILLISECONDS); // 7 min enrage timer.
 
             if (instance)
@@ -624,7 +624,7 @@ class spell_garalon_mend_leg: public SpellScriptLoader
 
                 // Then, we just select one of the legs meeting the conditions and have him handle the dummy as GetHitUnit().
                 WorldObject* target = JadeCore::Containers::SelectRandomContainerElement(targets);
-
+                
                 targets.clear();
                 targets.push_back(target);
             }
@@ -863,6 +863,152 @@ class spell_garalon_damaged : public SpellScriptLoader
         }
 };
 
+// Pheromones summon 128573
+class spell_garalon_pheromones_summon : public SpellScriptLoader
+{
+    public:
+        spell_garalon_pheromones_summon() : SpellScriptLoader("spell_garalon_pheromones_summon") { }
+
+        class spell_garalon_pheromones_summon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_garalon_pheromones_summon_SpellScript);
+
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(spellEntry->Id))
+                    return false;
+
+                return true;
+            }
+
+            bool Load()
+            {
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return SPELL_CAST_OK;
+
+                std::list<Creature*> pheromonesList;
+                caster->GetCreatureListWithEntryInGrid(pheromonesList, NPC_PHEROMONE_TRAIL, 4.0f);
+
+                if (!pheromonesList.empty())
+                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                return SPELL_CAST_OK;
+            }
+
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_garalon_pheromones_summon_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_garalon_pheromones_summon_SpellScript();
+        }
+};
+
+// Pheromone Trail Dmg 123120
+class spell_garalon_pheromones_trail_dmg : public SpellScriptLoader
+{
+public:
+    spell_garalon_pheromones_trail_dmg() : SpellScriptLoader("spell_garalon_pheromones_trail_dmg") { }
+
+    class spell_garalon_pheromones_trail_dmg_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_garalon_pheromones_trail_dmg_SpellScript);
+
+        bool Validate(SpellEntry const * spellEntry)
+        {
+            if (!sSpellStore.LookupEntry(spellEntry->Id))
+                return false;
+
+            return true;
+        }
+
+        bool Load()
+        {
+            return true;
+        }
+
+        void HandleOnHit()
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                if (AuraPtr aur = target->GetAura(SPELL_PUNGENCY))
+                    SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));       
+            }
+        }
+
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_garalon_pheromones_trail_dmg_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_garalon_pheromones_trail_dmg_SpellScript();
+    }
+};
+
+// Pheromones Switch 123100
+class spell_garalon_pheromones_switch : public SpellScriptLoader
+{
+public:
+    spell_garalon_pheromones_switch() : SpellScriptLoader("spell_garalon_pheromones_switch") { }
+
+    class spell_garalon_pheromones_switch_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_garalon_pheromones_switch_SpellScript);
+
+        bool Validate(SpellEntry const * spellEntry)
+        {
+            if (!sSpellStore.LookupEntry(spellEntry->Id))
+                return false;
+
+            return true;
+        }
+
+        bool Load()
+        {
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetCaster() || !GetHitUnit()) 
+                return;
+
+            GetCaster()->RemoveAurasDueToSpell(SPELL_PHEROMONES_AURA);
+        }
+
+        void FillTargets(std::list<WorldObject*>& targets)
+        {
+            if (targets.size() > 1)
+                targets.resize(1);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_garalon_pheromones_switch_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_garalon_pheromones_switch_SpellScript::FillTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_garalon_pheromones_switch_SpellScript();
+    }
+};
+
 void AddSC_boss_garalon()
 {
     new boss_garalon();                         // 62164
@@ -875,4 +1021,7 @@ void AddSC_boss_garalon()
     new spell_garalon_pheromones_taunt();       // 123109
     new spell_garalon_broken_leg();             // 122786
     new spell_garalon_damaged();                // 123818
+    new spell_garalon_pheromones_summon();      // 128573 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (128573, "spell_garalon_pheromones_summon");
+    new spell_garalon_pheromones_trail_dmg();   // 123120 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123120, "spell_garalon_pheromones_trail_dmg");
+    new spell_garalon_pheromones_switch();      // 123100 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123100, "spell_garalon_pheromones_switch");
 }
