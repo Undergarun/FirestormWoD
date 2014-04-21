@@ -544,6 +544,9 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                 if (!_player)
                     return;
 
+                if (_player->HasSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE))
+                    return;
+
                 if (eventInfo.GetActor()->GetGUID() != _player->GetGUID())
                     return;
 
@@ -568,6 +571,7 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                     bp = int32(bp * 0.40f);
 
                     _player->CastCustomSpell(target, SPELL_SHA_ANCESTRAL_GUIDANCE, &bp, NULL, NULL, true);
+                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, time(NULL) + 1);
                 }
             }
 
