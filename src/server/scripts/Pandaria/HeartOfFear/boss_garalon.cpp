@@ -157,6 +157,7 @@ public:
         Vehicle* vehicle;
         SummonList summons;
         EventMap events;
+        std::list<uint32> legs;
         bool damagedHeroic, castingCrush;
 
         void SummonAndAddLegs()
@@ -207,13 +208,11 @@ public:
                 instance->SetData(DATA_GARALON, NOT_STARTED);
 
             _Reset();
-
-            SummonAndAddLegs(); // Add the legs to Garalon.
+            SummonAndAddLegs();
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            // First, make legs visible and attackable and set them in combat.
             for (uint8 i = 0; i <= 3; ++i)
                 if (Unit* Leg = vehicle->GetPassenger(i))
                 {
@@ -314,13 +313,36 @@ public:
                         castingCrush = true;
                     }
                     break;
-
-                case ACTION_LEG_IS_DEAD:
-                    events.ScheduleEvent(EVENT_MEND_LEG, 30000);
+                default: 
                     break;
-
-                default: break;
             }
+        }
+
+        void SetData(uint32 action, uint32 value)
+        {
+            if (action == ACTION_LEG_IS_DEAD)
+            {
+                legs.push_back(value);
+                me->CastSpell(me, SPELL_BROKEN_LEG, false);
+                me->DealDamage(me, me->GetMaxHealth() * 0.03);
+                events.ScheduleEvent(EVENT_MEND_LEG, 10000);
+            }
+        }
+
+        uint32 GetData(uint32 action)
+        {
+            // Get first leg dead
+            if (action == ACTION_LEG_IS_DEAD)
+            {
+                if (legs.empty())
+                    return 0;
+
+                uint32 guid = legs.front();
+                legs.pop_front();
+                return guid;
+            }
+
+            return 0;
         }
 
         void UpdateAI(const uint32 diff)
@@ -422,8 +444,8 @@ public:
                 // Players "kill" the leg.
                 if (!died)
                 {
-                    DoAction(ACTION_LEG_DIED);
                     died = true;
+                    DoAction(ACTION_LEG_DIED);
                 }
             }
         }
@@ -437,7 +459,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->AddUnitState(UNIT_STATE_ONVEHICLE);
                     if (Creature* Garalon = me->GetVehicleCreatureBase())
-                        Garalon->ToCreature()->AI()->DoAction(ACTION_LEG_IS_DEAD);
+                        Garalon->ToCreature()->AI()->SetData(ACTION_LEG_IS_DEAD, me->GetGUIDLow());
                     break;
 
                 case ACTION_MEND_LEG:
@@ -615,26 +637,21 @@ class spell_garalon_mend_leg: public SpellScriptLoader
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
-            {
+            {/*
                 if (targets.empty())
                     return;
 
-                // We just need to filter the target entry, to check the legs only, as the spell already checks targets having SPELL_BROKEN_LEG_VIS.
-                targets.remove_if(TargetCheck(GetCaster()));
-
-                // Then, we just select one of the legs meeting the conditions and have him handle the dummy as GetHitUnit().
-                WorldObject* target = JadeCore::Containers::SelectRandomContainerElement(targets);
-                
-                targets.clear();
-                targets.push_back(target);
+                targets.clear();*/
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 if (!GetCaster() || !GetHitUnit()) return;
 
                 // Now, once we made sure we are casting on a random broken leg, let's have it "respawn".
-                GetHitUnit()->ToCreature()->AI()->DoAction(ACTION_MEND_LEG);
+                if (Creature* garalon = GetCaster()->ToCreature())
+                    if (Creature* leg = garalon->GetMap()->GetCreature(MAKE_NEW_GUID(garalon->AI()->GetData(ACTION_LEG_IS_DEAD), NPC_GARALON_LEG, HIGHGUID_UNIT)))
+                        leg->AI()->DoAction(ACTION_MEND_LEG);
 
                 // And remove a stack from Garalon's Broken Leg aura.
                 if (GetCaster()->GetAura(SPELL_BROKEN_LEG)) // Just a crash check, this should always return true if a leg is broken.
@@ -648,19 +665,9 @@ class spell_garalon_mend_leg: public SpellScriptLoader
                 }
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
-            {
-                if (!GetCaster() || !GetHitUnit()) return;
-
-                // Effect 1 removes SPELL_BROKEN_LEG_VIS from the targeted leg with a trigger spell.
-                // We do that from the leg script as the action implies more than just this.
-                PreventHitDefaultEffect(effIndex);
-            }
-
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_garalon_mend_legSpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHit += SpellEffectFn(spell_garalon_mend_legSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectLaunchTarget += SpellEffectFn(spell_garalon_mend_legSpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
             }
         };
@@ -896,7 +903,7 @@ class spell_garalon_pheromones_summon : public SpellScriptLoader
                 caster->GetCreatureListWithEntryInGrid(pheromonesList, NPC_PHEROMONE_TRAIL, 4.0f);
 
                 if (!pheromonesList.empty())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                    return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
             }
@@ -988,11 +995,14 @@ public:
                 return;
 
             GetCaster()->RemoveAurasDueToSpell(SPELL_PHEROMONES_AURA);
+            if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+                if (Creature* garalon = GetCaster()->GetMap()->GetCreature(pInstance->GetData64((NPC_GARALON))))
+                    garalon->AI()->DoAction(ACTION_PHEROMONES_JUMP_OR_PLAYERS_UNDERNEATH);
         }
 
         void FillTargets(std::list<WorldObject*>& targets)
         {
-            if (targets.size() > 1)
+            if (!targets.empty())
                 targets.resize(1);
         }
 

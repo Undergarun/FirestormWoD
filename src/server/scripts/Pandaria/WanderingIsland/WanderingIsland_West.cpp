@@ -1042,6 +1042,23 @@ public:
     }
 };
 
+class gob_defaced_scroll_of_wisdom : public GameObjectScript
+{
+public:
+    gob_defaced_scroll_of_wisdom() : GameObjectScript("gob_defaced_scroll_of_wisdom")
+    {
+    }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        if (player->GetQuestStatus(29778) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(55600);
+
+        go->DestroyForPlayer(player, false);
+        return true;
+    }
+};
+
 void AddSC_WanderingIsland_West()
 {
     new mob_master_shang_xi_temple();
@@ -1060,4 +1077,5 @@ void AddSC_WanderingIsland_West()
     new mob_shang_xi_air_balloon();
     new npc_ji_firepaw();
     new npc_ji_firepaw_escort();
+    new gob_defaced_scroll_of_wisdom();
 }
