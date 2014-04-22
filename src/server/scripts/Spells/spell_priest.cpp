@@ -1546,7 +1546,20 @@ class spell_pri_spirit_shell : public SpellScriptLoader
 
                             SetHitHeal(0);
 
-                            _player->CastCustomSpell(target, PRIEST_SPIRIT_SHELL_ABSORPTION, &bp, NULL, NULL, true);
+                            if (AuraEffectPtr shellAbsorption = target->GetAuraEffect(PRIEST_SPIRIT_SHELL_ABSORPTION, 0))
+                            {
+                                int32 existedbp = shellAbsorption->GetAmount();
+                                int32 maxAuraAmount = int32(CalculatePct(target->GetMaxHealth(), 60));
+                                if (existedbp + bp > maxAuraAmount)
+                                    shellAbsorption->SetAmount(existedbp + bp);
+                                else
+                                    shellAbsorption->SetAmount(maxAuraAmount);
+
+                                if (AuraPtr aur = shellAbsorption->GetBase())
+                                    aur->RefreshDuration();
+                            }
+                            else
+                                _player->CastCustomSpell(target, PRIEST_SPIRIT_SHELL_ABSORPTION, &bp, NULL, NULL, true);
                         }
                     }
                 }
