@@ -262,9 +262,9 @@ void AreaTrigger::Update(uint32 p_time)
                 for (auto itr : targetList)
                 {
                     // Periodic absorption for Imperial Vizier Zor'lok's Force and Verve and Sonic Rings
-                    if (itr->GetDistance(this) > 2.0f)
+                    if (itr->GetDistance(this) > 2.0f && itr->HasAura(122706))
                         itr->RemoveAura(122706);
-                    else if (!itr->HasAura(122706))
+                    else if (itr->GetDistance(this) <= 2.0f && !itr->HasAura(122706))
                         caster->AddAura(122706, itr);
                 }
             }
@@ -273,7 +273,7 @@ void AreaTrigger::Update(uint32 p_time)
         case 123811:// Pheromones of Zeal
         {
             std::list<Unit*> targetList;
-            radius = 35.0f;
+            radius = 50.0f;
 
             // GetPlayerListInGrid(targetList, 200.0f);
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
@@ -287,9 +287,9 @@ void AreaTrigger::Update(uint32 p_time)
                     if (itr->GetTypeId() == TYPEID_PLAYER)
                     {
                         // Pheromones of Zeal - Periodic Damage
-                        if (itr->GetDistance(this) > radius)
+                        if (itr->GetDistance(this) > 35.0f && itr->HasAura(123812))
                             itr->RemoveAura(123812);
-                        else if (!itr->HasAura(123812))
+                        else if (itr->GetDistance(this) <= 35.0f && !itr->HasAura(123812))
                             caster->AddAura(123812, itr);
                     }
                 }
