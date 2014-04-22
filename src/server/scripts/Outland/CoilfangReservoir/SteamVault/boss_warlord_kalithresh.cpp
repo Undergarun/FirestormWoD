@@ -178,7 +178,8 @@ public:
                 {
                     DoScriptText(SAY_REGEN, me);
                     DoCast(me, SPELL_WARLORDS_RAGE);
-                    CAST_AI(mob_naga_distiller::mob_naga_distillerAI, distiller->AI())->StartRageGen(me);
+                    if (auto ai = CAST_AI(mob_naga_distiller::mob_naga_distillerAI, distiller->AI()))
+                        ai->StartRageGen(me);
                 }
                 Rage_Timer = 3000+rand()%15000;
             } else Rage_Timer -= diff;
