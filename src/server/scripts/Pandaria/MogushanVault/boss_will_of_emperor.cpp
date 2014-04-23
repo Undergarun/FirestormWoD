@@ -43,6 +43,7 @@ enum eSpells
     SPELL_TITAN_GAS             = 116779,
     SPELL_TITAN_GAS_AURA        = 116803,
     SPELL_TITAN_GAS_AURA2       = 118327,
+    SPELL_TITAN_GAS_HEROIC      = 118320,
 
     // Rage
     SPELL_FOCALISED_ASSAULT     = 116525,
@@ -91,7 +92,6 @@ enum eEvents
     EVENT_BOSS_FREEZE           = 105,
 
     // Shared
-    EVENT_CHECK_TARGET          = 10,
     EVENT_WAIT                  = 11,
     EVENT_WAIT_VISIBLE          = 12,
     EVENT_CAST_SKYBEAM          = 13,
@@ -124,7 +124,7 @@ enum eAddActions
     ACTION_REACHHOME            = 1,
 
     // Adds actions
-    ACTION_LAND                 = 2,
+    ACTION_CHOOSE_TARGET        = 2,
     ACTION_COSMECTIC            = 3,
     ACTION_MOGU_ACTIVATE        = 4,
 };
@@ -153,7 +153,6 @@ enum eTalk
     TALK_RAGE                   = 1,
     TALK_STRENGTH               = 2,
     TALK_COURAGE                = 3,
-    TALK_TITAN_GAS_START        = 4,
     TALK_TITAN_GAS_END          = 5,
     TALK_DEFEATED               = 6
 };
@@ -279,6 +278,7 @@ class boss_jin_qin_xi : public CreatureScript
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                 events.Reset();
                 summons.DespawnAll();
+                me->SetFullHealth();
 
                 if (Creature* otherBoss = getOtherBoss())
                 {
@@ -287,7 +287,12 @@ class boss_jin_qin_xi : public CreatureScript
                 }
 
                 if (pInstance)
+                {
                     pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
+                    if (me->GetEntry() == NPC_QIN_XI)
+                        if (GameObject* console = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ANCIENT_CONTROL_CONSOLE)))
+                            console->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -356,6 +361,8 @@ class boss_jin_qin_xi : public CreatureScript
                     if (Creature* anc_mogu_machine = GetClosestCreatureWithEntry(me, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
                     {
                         anc_mogu_machine->AI()->DoAction(TALK_DEFEATED);
+                        if (IsHeroic())
+                            anc_mogu_machine->RemoveAura(SPELL_TITAN_GAS_HEROIC);
                         me->Kill(anc_mogu_machine->ToUnit());
                     }
                 }
@@ -363,7 +370,10 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STOMP);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEVAST_ARC);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEVAST_ARC_2);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS);
+                if (IsHeroic())
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_HEROIC);
+                else
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARC_VISUAL);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_JAN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_QIN);
@@ -407,6 +417,7 @@ class boss_jin_qin_xi : public CreatureScript
                     case ACTION_REACHHOME:
                     {
                         events.Reset();
+                        summons.DespawnAll();
                         if (devastatingComboPhase)
                         {
                             devastatingComboPhase = 0;
@@ -467,6 +478,20 @@ class boss_jin_qin_xi : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                // Check wipe
+                if (pInstance)
+                    if (pInstance->IsWipe())
+                        DoAction(ACTION_REACHHOME);
+
+                // Check life sharing
+                if (Creature* otherBoss = getOtherBoss())
+                {
+                    if (otherBoss->GetHealth() > me->GetHealth())
+                        otherBoss->SetHealth(me->GetHealth());
+                    else if (otherBoss->GetHealth() < me->GetHealth())
+                        me->SetHealth(otherBoss->GetHealth());
+                }
 
                 events.Update(diff);
 
@@ -588,7 +613,7 @@ class boss_jin_qin_xi : public CreatureScript
                             qinHitCount = 0;
 
                             // Stop looking after victim
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_STUNNED);
                             me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                             me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -827,9 +852,11 @@ class mob_woe_add_generic : public CreatureScript
             uint64 targetGuid;
             EventMap events;
             InstanceScript* pInstance;
+            bool canAttack;
 
             void Reset()
             {
+                canAttack = false;
                 events.Reset();
 
                 if (!pInstance)
@@ -850,7 +877,7 @@ class mob_woe_add_generic : public CreatureScript
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_PULL, true);
                 }
             }
-
+            
             void MovementInform(uint32 uiType, uint32 id)
             {
                 if (uiType != POINT_MOTION_TYPE && uiType != EFFECT_MOTION_TYPE)
@@ -885,13 +912,22 @@ class mob_woe_add_generic : public CreatureScript
                         }
                         case NPC_EMPEROR_STRENGHT:
                         {
-                            DoAction(ACTION_LAND);
+                            canAttack = true;
+                            DoAction(ACTION_CHOOSE_TARGET);
                             events.ScheduleEvent(EVENT_ENERGIZING_SMASH, urand(5000, 10000));
                             me->AddAura(SPELL_FULL_PLATE, me);
                             break;
                         }
                     }
                 }
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                targetGuid = 0;
+                if (me->GetEntry() != NPC_EMPEROR_COURAGE)
+                    DoAction(ACTION_CHOOSE_TARGET);
+
             }
 
             void JustDied(Unit* attacker)
@@ -910,26 +946,31 @@ class mob_woe_add_generic : public CreatureScript
             {
                 switch (action)
                 {
-                    case ACTION_LAND:
+                    case ACTION_CHOOSE_TARGET:
                     {
+                        if (!canAttack)
+                            canAttack = true;
                         // Retreiving players around
                         std::list<Player*> playerList;
-                        GetPlayerListInGrid(playerList, me, 200.0f);
+                        GetPlayerListInGrid(playerList, me, 300.0f);
 
                         // Add players in the list
                         for (auto player: playerList)
                             me->getThreatManager().addThreat(player, 300.0f);
 
                         // Pick a player to attack
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (!targetGuid)
                         {
-                            me->getThreatManager().resetAllAggro();
-                            targetGuid = target->GetGUID();
-                            me->getThreatManager().addThreat(target, 300.0f);
-                            AttackStart(target);
-                            me->SetInCombatWith(target);
-                            if (me->GetEntry() == NPC_EMPEROR_RAGE)
-                                me->CastSpell(target, SPELL_FOCALISED_ASSAULT, true);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            {
+                                targetGuid = target->GetGUID();
+                                me->getThreatManager().resetAllAggro();
+                                me->getThreatManager().addThreat(target, 300.0f);
+                                AttackStart(target);
+                                me->SetInCombatWith(target);
+                                if (me->GetEntry() == NPC_EMPEROR_RAGE)
+                                    me->CastSpell(target, SPELL_FOCALISED_ASSAULT, true);
+                            }
                         }
                         break;
                     }
@@ -939,6 +980,39 @@ class mob_woe_add_generic : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 UpdateVictim();
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (me->GetEntry() == NPC_EMPEROR_RAGE && canAttack)
+                {
+                    bool shouldSwitchVictim = false;
+
+                    // No more target: should fixates on a new one
+                    if (Player* target = ObjectAccessor::FindPlayer(targetGuid))
+                    {
+                        if (!target->isAlive())
+                            shouldSwitchVictim = true;
+                    }
+                    else
+                        shouldSwitchVictim = true;
+
+                    if (shouldSwitchVictim)
+                    {
+                        targetGuid = 0;
+                        DoAction(ACTION_CHOOSE_TARGET);
+                    }
+
+                    if (!me->getVictim() || me->getVictim()->GetGUID() != targetGuid)
+                    {
+                        if (Player* target = ObjectAccessor::FindPlayer(targetGuid))
+                        {
+                            AttackStart(target);
+                            me->SetInCombatWith(target);
+                        }
+                    }
+                }
+
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -1026,45 +1100,7 @@ class mob_woe_add_generic : public CreatureScript
                         // Rage
                         case EVENT_RAGE_FIRST_ATTACK:
                         {
-                            DoAction(ACTION_LAND);
-                            events.ScheduleEvent(EVENT_CHECK_TARGET, 2000);
-                            break;
-                        }
-                        case EVENT_CHECK_TARGET:
-                        {
-                            bool shouldSwitchVictim = false;
-
-                            if (me->getVictim())
-                            {
-                                if (me->getVictim()->GetGUID() != targetGuid)
-                                {
-                                    if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
-                                    {
-                                        if (!target->isAlive())
-                                            shouldSwitchVictim = true;
-                                    }
-                                    else
-                                        shouldSwitchVictim = true;
-                                }
-                                else
-                                {
-                                    if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
-                                    {
-                                        if (target->isAlive())
-                                        {
-                                            targetGuid = target->GetGUID();
-                                            AttackStart(target);
-                                            me->SetInCombatWith(target);
-                                            me->CastSpell(target, SPELL_FOCALISED_ASSAULT, true);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (shouldSwitchVictim)
-                                DoAction(ACTION_LAND);
-
-                            events.ScheduleEvent(EVENT_CHECK_TARGET, 2000);
+                            DoAction(ACTION_CHOOSE_TARGET);
                             break;
                         }
                         // Courage
@@ -1091,6 +1127,8 @@ class mob_woe_add_generic : public CreatureScript
                         }
                         case EVENT_CHECK_FOCDEF:
                         {
+                            if (!canAttack)
+                                canAttack = true;
                             Unit* target;
                             if (!me->getVictim())
                             {
@@ -1142,35 +1180,30 @@ class mob_woe_add_generic : public CreatureScript
                         // Strenght
                         case EVENT_ENERGIZING_SMASH:
                         {
-                            me->CastSpell(me, SPELL_ENERGIZING_SMASH, false);
-
-                            AuraPtr energized = me->GetAura(SPELL_ENERGIZED);
-                            float dist = 10.0f + (energized ? energized->GetStackAmount() : 0.0f);
-
-                            std::list<Player*> tarList;
-                            GetPlayerListInGrid(tarList, me, dist);
-                            
-                            for (auto target : tarList)
-                                me->AddAura(SPELL_ENERGIZING_VISUAL, target);
-
                             if (Unit* victim = me->getVictim())
+                            {
+                                me->CastSpell(me, SPELL_ENERGIZING_SMASH, false);
+
+                                AuraPtr energized = me->GetAura(SPELL_ENERGIZED);
+                                float dist = 10.0f + (energized ? energized->GetStackAmount() : 0.0f);
+
+                                std::list<Player*> tarList;
+                                GetPlayerListInGrid(tarList, me, dist);
+                            
+                                for (auto target : tarList)
+                                    me->AddAura(SPELL_ENERGIZING_VISUAL, target);
+
                                 me->CastSpell(victim, SPELL_ENERGIZING_VISUAL, true);
-
+                            }
                             events.ScheduleEvent(EVENT_ENERGIZING_SMASH, urand(15000, 20000));
-
                             break;
                         }
-                        case EVENT_SELECT_TARGET:
-                        {
-                            if (!me->getVictim())
-                                DoAction(ACTION_LAND);
-                            events.ScheduleEvent(EVENT_SELECT_TARGET, 2000);
+                        default:
                             break;
-                        }
                     }
-                    if (!me->HasUnitState(UNIT_STATE_CASTING))
-                        DoMeleeAttackIfReady();
                 }
+                if (canAttack)
+                    DoMeleeAttackIfReady();
             }
         };
 
@@ -1198,12 +1231,12 @@ class mob_woe_titan_spark : public CreatureScript
 
             void Reset()
             {
-                DoZoneInCombat();
+                targetGuid = 0;
+                me->AddAura(SPELL_ENERGY_VISUAL, me);
 
+                // Retrieving the players in the room
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 300.0f);
-
-                me->AddAura(SPELL_ENERGY_VISUAL, me);
 
                 // No player found: suicide
                 if (playerList.empty())
@@ -1216,14 +1249,17 @@ class mob_woe_titan_spark : public CreatureScript
                 // Else, choosing a random target in the list
                 std::list<Player*>::iterator itr = playerList.begin();
                 bool searching = true;
-                Player* target;
+                Player* target = 0;
 
                 while (searching)
                 {
-                    if (urand(0, 1))
+                    if ((*itr)->isAlive())
                     {
-                        target = *itr;
-                        searching = false;
+                        if (urand(0, 1))
+                        {
+                            target = *itr;
+                            searching = false;
+                        }
                     }
                     ++itr;
 
@@ -1234,6 +1270,7 @@ class mob_woe_titan_spark : public CreatureScript
                 targetGuid = target->GetGUID();
                 me->AddAura(SPELL_FOCALISED_ENERGY, target);
                 events.ScheduleEvent(EVENT_CHECK_DISTANCE, 200);
+                me->GetMotionMaster()->MoveChase(target);
             }
 
             void JustDied(Unit* attacker)
@@ -1252,9 +1289,11 @@ class mob_woe_titan_spark : public CreatureScript
 
                 if (events.ExecuteEvent() == EVENT_CHECK_DISTANCE)
                 {
+                    // Check distance to targeted player
                     if (Player* target = ObjectAccessor::FindPlayer(targetGuid))
                     {
-                        if (me->GetDistance(target) < 0.5f)
+                        // If near enough, or if player is already dead, then suicide to inflict damages
+                        if (me->GetDistance(target) < 0.5f || !target->isAlive())
                         {
                             me->CastSpell(target, SPELL_ENERGY_OF_CREATION, false);
                             me->RemoveAura(SPELL_ENERGY_OF_CREATION);
@@ -1262,9 +1301,11 @@ class mob_woe_titan_spark : public CreatureScript
                             target->RemoveAura(SPELL_FOCALISED_ENERGY);
                             me->Kill(me);
                         }
+                        // Not near enough: recheck later
                         else
                             events.ScheduleEvent(EVENT_CHECK_DISTANCE, 200);
                     }
+                    // Player not found: suicide
                     else
                     {
                         me->CastSpell(me, SPELL_ENERGY_OF_CREATION, false);
@@ -1306,7 +1347,7 @@ class mob_ancient_mogu_machine : public CreatureScript
             void DoAction(const int32 action)
             {
                 if (action == ACTION_MOGU_ACTIVATE)
-                    events.ScheduleEvent(EVENT_TITAN_GAS, 225000);
+                    events.ScheduleEvent(EVENT_TITAN_GAS, IsHeroic() ? 100 : 225000);
                 else
                     Talk(action);
             }
@@ -1328,11 +1369,13 @@ class mob_ancient_mogu_machine : public CreatureScript
                                 plr->MonsterTextEmote("The Ancient Mogu Machine breaks down! |cffBA0022|Hspell:116779|h[Titan Gas]|h|r floods the room!", 0, true);
                             }
                         }
-                        me->CastSpell(CENTER_X, CENTER_Y, CENTER_Z, SPELL_TITAN_GAS, false);
+                        me->CastSpell(CENTER_X, CENTER_Y, CENTER_Z, IsHeroic() ? SPELL_TITAN_GAS_HEROIC : SPELL_TITAN_GAS, false);
                         // Talk
-                        DoAction(TALK_TITAN_GAS_START);
-                        events.ScheduleEvent(EVENT_END_TITAN_GAS, 30000);
-                        events.ScheduleEvent(EVENT_TITAN_GAS, 210000);
+                        if (!IsHeroic())
+                        {
+                            events.ScheduleEvent(EVENT_END_TITAN_GAS, 30000);
+                            events.ScheduleEvent(EVENT_TITAN_GAS, 210000);
+                        }
                         break;
                     }
                     case EVENT_END_TITAN_GAS:
@@ -1808,6 +1851,7 @@ class go_ancien_control_console : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go)
         {
             if (InstanceScript* pInstance = player->GetInstanceScript())
+            {
                 if (!activated && pInstance->CheckRequiredBosses(DATA_WILL_OF_EMPEROR))
                 {
                     // Activate central mob
@@ -1832,7 +1876,11 @@ class go_ancien_control_console : public GameObjectScript
 
                     if (Creature* cho = GetClosestCreatureWithEntry(go, NPC_LOREWALKER_CHO, 20.0f, true))
                         cho->AI()->DoAction(ACTION_TALK_WILL_OF_EMPEROR);
+
+                    return true;
                 }
+                return false;
+            }
             return false;
         }
 };
