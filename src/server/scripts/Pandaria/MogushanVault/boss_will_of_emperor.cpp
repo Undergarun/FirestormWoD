@@ -153,7 +153,6 @@ enum eTalk
     TALK_RAGE                   = 1,
     TALK_STRENGTH               = 2,
     TALK_COURAGE                = 3,
-    TALK_TITAN_GAS_START        = 4,
     TALK_TITAN_GAS_END          = 5,
     TALK_DEFEATED               = 6
 };
@@ -279,6 +278,7 @@ class boss_jin_qin_xi : public CreatureScript
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                 events.Reset();
                 summons.DespawnAll();
+                me->SetFullHealth();
 
                 if (Creature* otherBoss = getOtherBoss())
                 {
@@ -287,7 +287,12 @@ class boss_jin_qin_xi : public CreatureScript
                 }
 
                 if (pInstance)
+                {
                     pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
+                    if (me->GetEntry() == NPC_QIN_XI)
+                        if (GameObject* console = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ANCIENT_CONTROL_CONSOLE)))
+                            console->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -356,6 +361,8 @@ class boss_jin_qin_xi : public CreatureScript
                     if (Creature* anc_mogu_machine = GetClosestCreatureWithEntry(me, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
                     {
                         anc_mogu_machine->AI()->DoAction(TALK_DEFEATED);
+                        if (IsHeroic())
+                            anc_mogu_machine->RemoveAura(SPELL_TITAN_GAS_HEROIC);
                         me->Kill(anc_mogu_machine->ToUnit());
                     }
                 }
@@ -845,9 +852,11 @@ class mob_woe_add_generic : public CreatureScript
             uint64 targetGuid;
             EventMap events;
             InstanceScript* pInstance;
+            bool canAttack;
 
             void Reset()
             {
+                canAttack = false;
                 events.Reset();
 
                 if (!pInstance)
@@ -903,6 +912,7 @@ class mob_woe_add_generic : public CreatureScript
                         }
                         case NPC_EMPEROR_STRENGHT:
                         {
+                            canAttack = true;
                             DoAction(ACTION_CHOOSE_TARGET);
                             events.ScheduleEvent(EVENT_ENERGIZING_SMASH, urand(5000, 10000));
                             me->AddAura(SPELL_FULL_PLATE, me);
@@ -938,6 +948,8 @@ class mob_woe_add_generic : public CreatureScript
                 {
                     case ACTION_CHOOSE_TARGET:
                     {
+                        if (!canAttack)
+                            canAttack = true;
                         // Retreiving players around
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 300.0f);
@@ -972,7 +984,7 @@ class mob_woe_add_generic : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (me->GetEntry() == NPC_EMPEROR_RAGE)
+                if (me->GetEntry() == NPC_EMPEROR_RAGE && canAttack)
                 {
                     bool shouldSwitchVictim = false;
 
@@ -1115,6 +1127,8 @@ class mob_woe_add_generic : public CreatureScript
                         }
                         case EVENT_CHECK_FOCDEF:
                         {
+                            if (!canAttack)
+                                canAttack = true;
                             Unit* target;
                             if (!me->getVictim())
                             {
@@ -1184,9 +1198,12 @@ class mob_woe_add_generic : public CreatureScript
                             events.ScheduleEvent(EVENT_ENERGIZING_SMASH, urand(15000, 20000));
                             break;
                         }
+                        default:
+                            break;
                     }
                 }
-                DoMeleeAttackIfReady();
+                if (canAttack)
+                    DoMeleeAttackIfReady();
             }
         };
 
@@ -1354,7 +1371,6 @@ class mob_ancient_mogu_machine : public CreatureScript
                         }
                         me->CastSpell(CENTER_X, CENTER_Y, CENTER_Z, IsHeroic() ? SPELL_TITAN_GAS_HEROIC : SPELL_TITAN_GAS, false);
                         // Talk
-                        DoAction(TALK_TITAN_GAS_START);
                         if (!IsHeroic())
                         {
                             events.ScheduleEvent(EVENT_END_TITAN_GAS, 30000);
@@ -1835,6 +1851,7 @@ class go_ancien_control_console : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go)
         {
             if (InstanceScript* pInstance = player->GetInstanceScript())
+            {
                 if (!activated && pInstance->CheckRequiredBosses(DATA_WILL_OF_EMPEROR))
                 {
                     // Activate central mob
@@ -1859,7 +1876,11 @@ class go_ancien_control_console : public GameObjectScript
 
                     if (Creature* cho = GetClosestCreatureWithEntry(go, NPC_LOREWALKER_CHO, 20.0f, true))
                         cho->AI()->DoAction(ACTION_TALK_WILL_OF_EMPEROR);
+
+                    return true;
                 }
+                return false;
+            }
             return false;
         }
 };
