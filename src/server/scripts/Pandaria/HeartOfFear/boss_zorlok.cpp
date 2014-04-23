@@ -1297,6 +1297,17 @@ class spell_convert : public SpellScriptLoader
                     std::list<Player*> playerList;
                     GetPlayerListInGrid(playerList, caster, 60.0f);
 
+                    // Removing dead or already converted players
+                    std::list<Player*>::iterator itr, next;
+                    for (itr = playerList.begin(); itr != playerList.end(); itr = next)
+                    {
+                        next = itr;
+                        ++next;
+
+                        if (!(*itr)->isAlive() || (*itr)->HasAura(SPELL_CONVERT))
+                            playerList.remove(*itr);
+                    }
+
                     uint8 maxVictims = caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2;
                     // If it remains less players than the number of victims of the spell, the whole raid will be targeted
                     if (playerList.size() <= maxVictims)
