@@ -2321,9 +2321,74 @@ public:
         if (player->GetQuestStatus(31439) == QUEST_STATUS_INCOMPLETE)
             player->KilledMonsterCredit(64645);
 
+        else if (player->GetQuestStatus(31004) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(62357);
+
         go->DestroyForPlayer(player, false);
         return true;
     }
+};
+
+class mob_discover_amberglow_bunny : public CreatureScript
+{
+    public:
+        mob_discover_amberglow_bunny() : CreatureScript("mob_discover_amberglow_bunny")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_discover_amberglow_bunnyAI(creature);
+        }
+
+        struct mob_discover_amberglow_bunnyAI : public ScriptedAI
+        {
+            mob_discover_amberglow_bunnyAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 10.0f);
+
+                for (auto player: playerList)
+                    if (player->GetQuestStatus(31087) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(31679) == QUEST_STATUS_INCOMPLETE)
+                        player->KilledMonsterCredit(65328);
+            }
+        };
+};
+
+class mob_kaz_tik_the_manipulator : public CreatureScript
+{
+    public:
+        mob_kaz_tik_the_manipulator() : CreatureScript("mob_kaz_tik_the_manipulator")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_kaz_tik_the_manipulatorAI(creature);
+        }
+
+        struct mob_kaz_tik_the_manipulatorAI : public ScriptedAI
+        {
+            mob_kaz_tik_the_manipulatorAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 10.0f);
+
+                for (auto player: playerList)
+                    if (player->GetQuestStatus(31682) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(31089) == QUEST_STATUS_INCOMPLETE)
+                        player->KilledMonsterCredit(62540);
+            }
+        };
 };
 
 void AddSC_dread_wastes()
@@ -2356,6 +2421,8 @@ void AddSC_dread_wastes()
     new mob_hisek_the_swarmkeeper();
     new mob_hisek_the_swarmkeeper_two();
     new mob_klaxxi_traitor();
+    new mob_discover_amberglow_bunny();
+    new mob_kaz_tik_the_manipulator();
     //Game Objects
     new go_ancient_amber_chunk();
 }
