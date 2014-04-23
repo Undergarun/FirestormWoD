@@ -212,7 +212,6 @@ class boss_zorlok : public CreatureScript
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->SendMovementFlagUpdate();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                // me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TRACK_UNIT | UNIT_DYNFLAG_SPECIALINFO);
                 events.ScheduleEvent(EVENT_INHALE, 15000);
 
                 if (platformToUse != actualPlatform)
@@ -369,7 +368,7 @@ class boss_zorlok : public CreatureScript
                 if (isEcho)
                     return;
 
-                if ((!me->HasReactState(REACT_DEFENSIVE) && isActive) || (attacker->GetTypeId() != TYPEID_PLAYER))
+                if ((isFlying && isActive) || (attacker->GetTypeId() != TYPEID_PLAYER))
                     return;
 
                 if (!isActive)
@@ -392,8 +391,10 @@ class boss_zorlok : public CreatureScript
                     if (me->HasAura(SPELL_SONG_OF_THE_EMPRESS) || spell == SPELL_SONG_OF_THE_EMPRESS)
                     {
                         me->RemoveAurasDueToSpell(SPELL_SONG_OF_THE_EMPRESS);
+                        me->InterruptNonMeleeSpells(true, SPELL_SONG_OF_THE_EMPRESS);
                         me->CastStop(SPELL_SONG_OF_THE_EMPRESS);
-                        me->AddThreat(attacker, 0.0f);
+                        AttackStart(attacker);
+                        me->SetInCombatWith(attacker);
                     }
                 }
 
@@ -589,9 +590,8 @@ class boss_zorlok : public CreatureScript
 
                 // Song of empress
                 Unit* target = me->getVictim();
-                uint32 spell = me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) ? me->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_spellInfo->Id : 0;
 
-                if (!isFlying && (!target || me->GetDistance(target) > 5.0f) && spell != SPELL_SONG_OF_THE_EMPRESS)
+                if (!isFlying && (!target || me->GetDistance(target) > 5.0f) && !me->HasUnitState(UNIT_STATE_CASTING))
                     me->CastSpell(me, SPELL_SONG_OF_THE_EMPRESS, true);
                 
                 switch (events.ExecuteEvent())
@@ -653,7 +653,6 @@ class boss_zorlok : public CreatureScript
 
                             Talk(TALK_EXHALE);
                             DoCast(me, SPELL_EXHALE);
-                            //me->CastSpell(target, SPELL_EXHALE, true);
                         }
                         break;
                     }
@@ -704,29 +703,8 @@ class boss_zorlok : public CreatureScript
                         me->MonsterTextEmote("Imperial Vizier Zor'lok is using is voice to |cFFFF0000|Hspell:122740|h[Convert]|h|r members of the raid and to call them by his side !", 0, true);
 
                         // Creating target list
-                        uint8 victimCount = Is25ManRaid() ? 5 : 2;
-                        std::list<Player*> playerList;
-                        // std::list<Player*> targetList;
-
-                        GetPlayerListInGrid(playerList, me, 60.0f);
-
-                        std::list<Player*>::iterator itr, next;
-                        itr = playerList.begin();
-
-                        while (playerList.size() > victimCount)
-                        {
-                            next = itr;
-                            if (urand (0, 1))
-                                playerList.remove(*itr);
-
-                            itr = ++next;
-                            if (itr == playerList.end())
-                                itr = playerList.begin();
-                        }
-
                         Talk(TALK_CONVERT);
-                        for (auto target : playerList)
-                            me->CastSpell(target, SPELL_CONVERT, true);
+                        DoCast(SPELL_CONVERT);
 
                         uint32 action = (phase == PHASE_ZORLOK1 ? EVENT_CONVERT : ChooseAction());
                         events.ScheduleEvent(action, 40000);
@@ -804,6 +782,7 @@ class mob_sonic_ring : public CreatureScript
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
                 me->CastSpell(me, SPELL_SONIC_RING_VISUAL, false);
                 me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                 events.ScheduleEvent(EVENT_SONIC_CHECK_POSITION, 10000);
 
@@ -1028,36 +1007,6 @@ class spell_attenuation : public SpellScriptLoader
         }
 };
 
-// Noise cancelling - 122706
-class spell_noise_cancelling : public SpellScriptLoader
-{
-    public:
-        spell_noise_cancelling() : SpellScriptLoader("spell_noise_cancelling") { }
-
-        class spell_noise_cancelling_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_noise_cancelling_AuraScript);
-
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* target = GetTarget())
-                    if (AuraPtr aura = target->AddAura(SPELL_NOISE_CANCELLING, target))
-                        aura->SetDuration(6000);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_noise_cancelling_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_noise_cancelling_AuraScript::Apply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_noise_cancelling_AuraScript();
-        }
-};
-
 // Force and Verve (Aura) - 122718
 class spell_force_verve : public SpellScriptLoader
 {
@@ -1262,7 +1211,6 @@ class ExhaleDamageTargetFilter : public std::unary_function<Unit*, bool>
 
         bool operator()(WorldObject* object) const
         {
-            // Unit* exhaleTarget = CAST_AI(boss_zorlok::boss_zorlokAI, caster->AI())->ExhaleTarget;
             uint32 exhaleLowId = CAST_AI(boss_zorlok::boss_zorlokAI, _caster->GetAI())->GetData(TYPE_EXHALE_TARGET);
             Player* exhaleTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(exhaleLowId, 0, HIGHGUID_PLAYER));
 
@@ -1315,7 +1263,6 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
 
                     // Set Zor'lok's current Exhale target to that nearest player.
                     CAST_AI(boss_zorlok::boss_zorlokAI, caster->GetAI())->SetData(TYPE_EXHALE_TARGET, targetLowGuid);
-                    // CAST_AI(boss_zorlok::boss_zorlokAI, caster->AI())->ExhaleTarget = target;
                 }
             }
 
@@ -1331,16 +1278,84 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
         }
 };
 
+// 122740 - Convert
+class spell_convert : public SpellScriptLoader
+{
+    public :
+        spell_convert() : SpellScriptLoader("spell_convert") { }
+
+        class spell_convertSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_convertSpellScript);
+
+            void SelectTargets(std::list<WorldObject*>& targets)
+            {
+                targets.clear();
+
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 60.0f);
+
+                    // Removing dead or already converted players
+                    std::list<Player*>::iterator itr, next;
+                    for (itr = playerList.begin(); itr != playerList.end(); itr = next)
+                    {
+                        next = itr;
+                        ++next;
+
+                        if (!(*itr)->isAlive() || (*itr)->HasAura(SPELL_CONVERT))
+                            playerList.remove(*itr);
+                    }
+
+                    uint8 maxVictims = caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2;
+                    // If it remains less players than the number of victims of the spell, the whole raid will be targeted
+                    if (playerList.size() <= maxVictims)
+                        for (auto player : playerList)
+                            targets.push_back(player);
+                    // Else, we randomly choose victims until we have enough targets
+                    else
+                    {
+                        std::list<Player*>::iterator itr, next;
+                        itr = playerList.begin();
+                        while (targets.size() < maxVictims)
+                        {
+                            next = itr;
+                            if (urand(0, 1))
+                            {
+                                targets.push_back(*itr);
+                                playerList.remove(*itr);
+                            }
+                            itr = ++next;
+                            if (itr == playerList.end())
+                                itr = playerList.begin();
+                        }   
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_convertSpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_convertSpellScript();
+        }
+};
+
 void AddSC_boss_zorlok()
 {
     new boss_zorlok();
     new mob_sonic_ring();
     new spell_inhale();
     new spell_attenuation();
-    new spell_noise_cancelling();
     new spell_force_verve();
     new spell_sonic_ring();
     new spell_pheromones_of_zeal();
     new spell_zorlok_exhale();
     new spell_zorlok_exhale_damage();
+    new spell_convert();
 }

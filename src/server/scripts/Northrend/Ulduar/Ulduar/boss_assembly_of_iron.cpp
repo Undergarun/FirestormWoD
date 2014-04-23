@@ -291,15 +291,24 @@ void StartEncounter(InstanceScript* instance, Creature* caller)
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_STEELBREAKER)))
         if (boss->isAlive() && caller->GetGUID() != boss->GetGUID()) // Avoid redundant calls
+        {
             boss->SetInCombatWithZone();
+            //boss->AI()->EnterCombat(caller->getVictim());
+        }
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_BRUNDIR)))
         if (boss->isAlive() && caller->GetGUID() != boss->GetGUID()) // Avoid redundant calls
+        {
             boss->SetInCombatWithZone();
+            //boss->AI()->EnterCombat(caller->getVictim());
+        }
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_MOLGEIM)))
         if (boss->isAlive() && caller->GetGUID() != boss->GetGUID()) // Avoid redundant calls
+        {
             boss->SetInCombatWithZone();
+            //boss->AI()->EnterCombat(caller->getVictim());
+        }
 }
 
 /************************************************************************/
@@ -325,10 +334,14 @@ class boss_steelbreaker : public CreatureScript
                 me->RemoveLootMode(LOOT_MODE_DEFAULT);
                 ResetEncounter(instance, me);
                 sayEnterCombat = false;
+                isInEnterCombat = false;
             }
 
             void EnterCombat(Unit* who)
             {
+                if (isInEnterCombat)
+                    return;
+                isInEnterCombat = true;
                 me->setActive(true);
                 StartEncounter(instance, me);
                 if (!sayEnterCombat)
@@ -340,6 +353,7 @@ class boss_steelbreaker : public CreatureScript
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
+                isInEnterCombat = false;
             }
 
             uint32 GetData(uint32 type)
@@ -520,6 +534,7 @@ class boss_steelbreaker : public CreatureScript
                 uint32 phase;
                 uint8 superChargedCnt;
                 bool sayEnterCombat;
+                bool isInEnterCombat;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -622,10 +637,15 @@ class boss_runemaster_molgeim : public CreatureScript
                 me->RemoveLootMode(LOOT_MODE_DEFAULT);
                 ResetEncounter(instance, me);
                 sayEnterCombat = false;
+                isInEnterCombat = false;
             }
 
             void EnterCombat(Unit* who)
             {
+                if (isInEnterCombat)
+                    return;
+
+                isInEnterCombat = true;
                 me->setActive(true);
                 StartEncounter(instance, me);
                 if (!sayEnterCombat)
@@ -637,6 +657,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
                 events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
+                isInEnterCombat = false;
             }
 
             uint32 GetData(uint32 type)
@@ -758,6 +779,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 uint32 phase;
                 uint8 superChargedCnt;
                 bool sayEnterCombat;
+                bool isInEnterCombat;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -919,10 +941,14 @@ class boss_stormcaller_brundir : public CreatureScript
                 me->SetOrientation(5.736749f);
                 ResetEncounter(instance, me);
                 sayEnterCombat = false;
+                isInEnterCombat = false;
             }
 
             void EnterCombat(Unit* who)
             {
+                if (isInEnterCombat)
+                    return;
+
                 if (!who)
                     return;
 
@@ -931,6 +957,8 @@ class boss_stormcaller_brundir : public CreatureScript
                     EnterEvadeMode();
                     return;
                 }
+
+                isInEnterCombat = true;
 
                 me->setActive(true);
                 me->InterruptNonMeleeSpells(true);
@@ -946,6 +974,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
                 events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
+                isInEnterCombat = false;
             }
 
             uint32 GetData(uint32 type)
@@ -1181,6 +1210,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 bool forceLand;
                 bool couldNotDoThat;
                 bool sayEnterCombat;
+                bool isInEnterCombat;
         };
 
         CreatureAI* GetAI(Creature* creature) const

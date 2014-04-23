@@ -393,8 +393,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (plrMover && plrMover->GetLastPlayedEmote())
         plrMover->HandleEmoteCommand(0);
 
-    if (plrMover)
-        sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
+   //if (plrMover)
+    //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
     /*----------------------*/
 
     /* process position-change */

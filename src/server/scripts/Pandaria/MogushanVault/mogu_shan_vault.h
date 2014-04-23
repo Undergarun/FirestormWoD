@@ -224,6 +224,9 @@ enum eGameObjects
 
     GOB_MOGU_RUNE_FIRST             = 213937,
     GOB_MOGU_RUNE_END               = 213955,
+
+    // Will of Emperor
+    GOB_ANCIENT_CONTROL_CONSOLE     = 211584,
 };
 
 enum ePhases

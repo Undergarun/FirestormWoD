@@ -120,6 +120,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint64 ancientMoguDoorGuid;
             uint64 emperorsDoorGuid;
             uint64 celestialCommandGuid;
+            uint64 ancientConsoleGuid;
 
             uint64 energyPlatformGuid;
             uint64 titanDiskGuid;
@@ -151,6 +152,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 celestialCommandGuid            = 0;
                 energyPlatformGuid              = 0;
                 titanDiskGuid                   = 0;
+                ancientConsoleGuid              = 0;
                 woeIsGasPhaseActive             = false;
 
                 randomDespawnStoneGuardian      = urand(1,4);
@@ -323,6 +325,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         break;
                     case GOB_CELESTIAL_COMMAND:
                         celestialCommandGuid = go->GetGUID();
+                        break;
+                    case GOB_ANCIENT_CONTROL_CONSOLE:
+                        ancientConsoleGuid = go->GetGUID();
                         break;
                 }
             }
@@ -541,6 +546,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         return emperorsDoorGuid;
                     case GOB_CELESTIAL_COMMAND:
                         return celestialCommandGuid;
+                    case GOB_ANCIENT_CONTROL_CONSOLE:
+                        return ancientConsoleGuid;
                     default:
                         break;
                 }
