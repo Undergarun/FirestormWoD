@@ -4447,8 +4447,7 @@ void Player::SendKnownSpells()
 
 void Player::SendInitialSpells()
 {
-    time_t curTime = time(NULL);
-    time_t infTime = curTime + infinityCooldownDelayCheck;
+    uint32 curTime = getMSTime();
 
     uint16 spellCount = 0;
 
@@ -4484,19 +4483,10 @@ void Player::SendInitialSpells()
             continue;
 
         data << uint32(itr->first);
-
         data << uint32(itr->second.itemid);                 // cast item id
         data << uint16(sEntry->Category);                   // spell category
 
-        // send infinity cooldown in special format
-        if (itr->second.end >= infTime)
-        {
-            data << uint32(1);                              // cooldown
-            data << uint32(0x80000000);                     // category cooldown
-            continue;
-        }
-
-        time_t cooldown = itr->second.end > curTime ? (itr->second.end-curTime)*IN_MILLISECONDS : 0;
+        time_t cooldown = itr->second.end > curTime ? (itr->second.end - curTime) : 0;
 
         if (sEntry->Category)                                // may be wrong, but anyway better than nothing...
         {
@@ -5340,13 +5330,17 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
 {
-    int32 newCooldown = GetSpellCooldownDelay(spell_id) * 1000;
-    if (newCooldown < 0)
-        newCooldown = 0;
-    else
-        newCooldown -= modifyTime;
+    SpellCooldowns::iterator itr = m_spellCooldowns.find(spell_id);
+    if (itr == m_spellCooldowns.end())
+        return;
 
-    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + newCooldown / 1000));
+    uint32 now = getMSTime();
+    if (itr->second.end + modifyTime > now)
+        itr->second.end += modifyTime;
+    else
+        m_spellCooldowns.erase(itr);
+
+    AddSpellCooldown(spell_id, 0, itr->second.end);
 
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
     ObjectGuid guid = GetGUID();
@@ -5469,7 +5463,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
             if (db_time <= curTime)
                 continue;
 
-            AddSpellCooldown(spell_id, item_id, db_time);
+            AddSpellCooldown(spell_id, item_id, (db_time - curTime) * IN_MILLISECONDS);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, item %u cooldown loaded (%u secs).", GetGUIDLow(), spell_id, item_id, uint32(db_time-curTime));
         }
@@ -5483,8 +5477,8 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
-    time_t curTime = time(NULL);
-    time_t infTime = curTime + infinityCooldownDelayCheck;
+    uint64 curTime = time(NULL) * IN_MILLISECONDS + getMSTime();
+    uint64 infTime = curTime + infinityCooldownDelayCheck;
 
     bool first_round = true;
     std::ostringstream ss;
@@ -5504,7 +5498,7 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
             // next new/changed record prefix
             else
                 ss << ',';
-            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end) << ')';
+            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end / IN_MILLISECONDS) << ')';
             ++itr;
         }
         else
@@ -15774,137 +15768,122 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
     if (!itemUpgrade || itemUpgrade->itemLevelUpgrade == 0)
         return;
 
-    ItemUpgradeEntry const* prevItemUpgrade = sItemUpgradeStore.LookupEntry(itemUpgrade->precItemUpgradeId);
     ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
         return;
 
-    uint16 itemLevel = (prevItemUpgrade && prevItemUpgrade->itemLevelUpgrade) ? (proto->ItemLevel + prevItemUpgrade->itemLevelUpgrade) : proto->ItemLevel;
-    uint16 nextItemLevel = proto->ItemLevel + itemUpgrade->itemLevelUpgrade;
+    float itemLevel = proto->ItemLevel;
+    float nextItemLevel = proto->ItemLevel + itemUpgrade->itemLevelUpgrade;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         uint32 statType = proto->ItemStat[i].ItemStatType;
-        int32 baseVal = proto->ItemStat[i].ItemStatValue;
-        int32 val = 0;
+        float baseVal = proto->ItemStat[i].ItemStatValue;
 
-        if (prevItemUpgrade && prevItemUpgrade->itemLevelUpgrade != 0)
-            val = baseVal * float(float(sSpellMgr->GetDatasForILevel(itemLevel)) / float(sSpellMgr->GetDatasForILevel(proto->ItemLevel)));
-
-        if (!sSpellMgr->GetDatasForILevel(itemLevel))
-            continue;
-
-        int32 newVal = 0;
-        if (val == 0)
-            newVal = baseVal * float(float(sSpellMgr->GetDatasForILevel(nextItemLevel)) / float(sSpellMgr->GetDatasForILevel(itemLevel)));
-        else
-            newVal = val * float(float(sSpellMgr->GetDatasForILevel(nextItemLevel)) / float(sSpellMgr->GetDatasForILevel(itemLevel)));
-
-        if (baseVal == 0 || newVal == 0)
-            continue;
-
-        val = baseVal;
+        // NewStat(iLvl) = Stat(oldiLvl) * 1.15 ^ ((iLvl - oldiLvl) / 15)
+        float newVal = float(baseVal * pow(1.15f, float((nextItemLevel - itemLevel) / 15.0f)));
+        float val = floor((newVal - baseVal) + 0.5f);
 
         switch (statType)
         {
             case ITEM_MOD_MANA:
-                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, val, apply);
                 break;
             case ITEM_MOD_HEALTH:
-                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, val, apply);
                 break;
             case ITEM_MOD_AGILITY:
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_AGILITY, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, val, apply);
+                ApplyStatBuffMod(STAT_AGILITY, val, apply);
                 break;
             case ITEM_MOD_STRENGTH:
-                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_STRENGTH, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, val, apply);
+                ApplyStatBuffMod(STAT_STRENGTH, val, apply);
                 break;
             case ITEM_MOD_INTELLECT:
-                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_INTELLECT, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, val, apply);
+                ApplyStatBuffMod(STAT_INTELLECT, val, apply);
                 break;
             case ITEM_MOD_SPIRIT:
-                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_SPIRIT, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, val, apply);
+                ApplyStatBuffMod(STAT_SPIRIT, val, apply);
                 break;
             case ITEM_MOD_STAMINA:
-                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_STAMINA, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, val, apply);
+                ApplyStatBuffMod(STAT_STAMINA, val, apply);
                 break;
             case ITEM_MOD_DODGE_RATING:
-                ApplyRatingMod(CR_DODGE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_DODGE, int32(val), apply);
                 break;
             case ITEM_MOD_PARRY_RATING:
-                ApplyRatingMod(CR_PARRY, int32(newVal - val), apply);
+                ApplyRatingMod(CR_PARRY, int32(val), apply);
                 break;
             case ITEM_MOD_BLOCK_RATING:
-                ApplyRatingMod(CR_BLOCK, int32(newVal - val), apply);
+                ApplyRatingMod(CR_BLOCK, int32(val), apply);
                 break;
             case ITEM_MOD_HIT_MELEE_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
                 break;
             case ITEM_MOD_HIT_RANGED_RATING:
-                ApplyRatingMod(CR_HIT_RANGED, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
                 break;
             case ITEM_MOD_HIT_SPELL_RATING:
-                ApplyRatingMod(CR_HIT_SPELL, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_CRIT_MELEE_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
                 break;
             case ITEM_MOD_CRIT_RANGED_RATING:
-                ApplyRatingMod(CR_CRIT_RANGED, int32(newVal - val), apply);
+                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
                 break;
             case ITEM_MOD_CRIT_SPELL_RATING:
-                ApplyRatingMod(CR_CRIT_SPELL, int32(newVal - val), apply);
+                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_HASTE_MELEE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
                 break;
             case ITEM_MOD_HASTE_RANGED_RATING:
-                ApplyRatingMod(CR_HASTE_RANGED, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
                 break;
             case ITEM_MOD_HASTE_SPELL_RATING:
-                ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_HIT_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HIT_RANGED, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HIT_SPELL, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
+                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
+                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_CRIT_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_CRIT_RANGED, int32(newVal - val), apply);
-                ApplyRatingMod(CR_CRIT_SPELL, int32(newVal - val), apply);
+                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(newVal - val), apply);
+                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
                 break;
             case ITEM_MOD_PVP_POWER:
-                ApplyRatingMod(CR_PVP_POWER, int32(newVal - val), apply);
+                ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
                 break;
             case ITEM_MOD_HASTE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HASTE_RANGED, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
+                ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
+                ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
+                ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_EXPERTISE_RATING:
-                ApplyRatingMod(CR_EXPERTISE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_EXPERTISE, int32(val), apply);
                 break;
             case ITEM_MOD_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(newVal - val), apply);
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, val, apply);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, val, apply);
                 break;
             case ITEM_MOD_RANGED_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(newVal - val), apply);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, val, apply);
                 break;
             case ITEM_MOD_SPELL_POWER:
-                ApplySpellPowerBonus(int32(newVal - val), apply);
+                ApplySpellPowerBonus(int32(val), apply);
                 break;
             case ITEM_MOD_MASTERY_RATING:
-                ApplyRatingMod(CR_MASTERY, int32(newVal - val), apply);
+                ApplyRatingMod(CR_MASTERY, int32(val), apply);
                 break;
             default:
                 break;
@@ -20112,7 +20091,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
                 }
             }
 
-            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, spellInfo->spellPower, &baseDamage[0], NULL, caster_guid);
+            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
             if (aura != NULLAURA)
             {
                 if (!aura->CanBeSaved())
@@ -24133,7 +24112,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
                     ++counter;
                     dataBuffer << uint32(unSpellId);
                     dataBuffer << uint32(unTimeMs);                       // in m.secs
-                    AddSpellCooldown(unSpellId, 0, curTime + unTimeMs/IN_MILLISECONDS);
+                    AddSpellCooldown(unSpellId, 0, unTimeMs);
                 }
             }
         }
@@ -24779,8 +24758,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 {
     // init cooldown values
     uint32 cat   = 0;
-    int32 rec    = -1;
-    int32 catrec = -1;
+    int64 rec    = -1;
+    int64 catrec = -1;
 
     // some special item spells without correct cooldown in SpellInfo
     // cooldown information stored in item prototype
@@ -24813,16 +24792,16 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
     time_t curTime = time(NULL);
 
-    time_t catrecTime;
-    time_t recTime;
+    uint64 catrecTime;
+    uint64 recTime;
 
     // overwrite time for selected category
     if (infinityCooldown)
     {
         // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
         // but not allow ignore until reset or re-login
-        catrecTime = catrec > 0 ? curTime+infinityCooldownDelay : 0;
-        recTime    = rec    > 0 ? curTime+infinityCooldownDelay : catrecTime;
+        catrecTime = catrec > 0 ? curTime + infinityCooldownDelay : 0;
+        recTime    = rec    > 0 ? curTime + infinityCooldownDelay : catrecTime;
     }
     else
     {
@@ -24871,8 +24850,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
         if (rec == 0 && catrec == 0)
             return;
 
-        catrecTime = catrec ? curTime+catrec/IN_MILLISECONDS : 0;
-        recTime    = rec ? curTime+rec/IN_MILLISECONDS : catrecTime;
+        catrecTime = catrec ? catrec : 0;
+        recTime    = rec ? rec : catrecTime;
     }
 
     // New MoP skill cooldown
@@ -24918,10 +24897,11 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 }
 
-void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
+void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time)
 {
     SpellCooldown sc;
-    sc.end = end_time;
+    uint64 timeMS = time(NULL) * IN_MILLISECONDS + getMSTime();
+    sc.end = timeMS + end_time;
     sc.itemid = itemid;
     m_spellCooldowns[spellid] = sc;
 }
@@ -25919,10 +25899,10 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         //! Don't replace longer cooldowns by equi cooldown if we have any.
         SpellCooldowns::iterator itr = m_spellCooldowns.find(spellData.SpellId);
-        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > time(NULL) + 30)
+        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > uint64((time(NULL) + 30) * IN_MILLISECONDS))
             break;
 
-        AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), time(NULL) + 30);
+        AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), 30 * IN_MILLISECONDS);
 
         WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
         data << pItem->GetGUID();

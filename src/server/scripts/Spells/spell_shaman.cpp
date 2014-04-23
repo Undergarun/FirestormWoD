@@ -285,7 +285,7 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                         if (bp > 0)
                             _player->CastCustomSpell((*alliesList.begin()), SPELL_SHA_RESTORATIVE_MISTS, &bp, NULL, NULL, true);   // Restorative Mists
 
-                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, time(NULL) + 1);               // This prevent from multiple procs
+                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 500);               // This prevent from multiple procs
                     }
                 }
             }
@@ -571,7 +571,7 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                     bp = int32(bp * 0.40f);
 
                     _player->CastCustomSpell(target, SPELL_SHA_ANCESTRAL_GUIDANCE, &bp, NULL, NULL, true);
-                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, time(NULL) + 1);
+                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, 500);
                 }
             }
 
@@ -644,7 +644,7 @@ class spell_sha_echo_of_the_elements : public SpellScriptLoader
                 if (!roll_chance_i(chance))
                     return;
 
-                _player->AddSpellCooldown(SPELL_SHA_ECHO_OF_THE_ELEMENTS, 0, time(NULL) + 2); // This prevent from multiple procs
+                _player->AddSpellCooldown(SPELL_SHA_ECHO_OF_THE_ELEMENTS, 0, 500); // This prevent from multiple procs
                 _player->CastSpell(target, procSpell->Id, true);
             }
 
@@ -1946,7 +1946,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                                             _player->RemoveSpellCooldown(SPELL_SHA_FLAME_SHOCK, true);
 
                                         _player->CastSpell(itr, SPELL_SHA_FLAME_SHOCK, true);
-                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, time(NULL) + cooldownDelay);
+                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, cooldownDelay);
                                         hitTargets++;
                                     }
                                 }

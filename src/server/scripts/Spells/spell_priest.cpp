@@ -1388,14 +1388,11 @@ class spell_pri_train_of_thought : public SpellScriptLoader
 
                                     if (newCooldownDelay > 0)
                                     {
-                                        _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + (newCooldownDelay / IN_MILLISECONDS)));
+                                        _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, newCooldownDelay);
                                         _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -500);
                                     }
                                     else
-                                    {
-                                        _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + 0));
                                         _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -newCooldownDelay);
-                                    }
                                 }
                             }
                             else if (GetSpellInfo()->Id == 2060)
@@ -1407,7 +1404,7 @@ class spell_pri_train_of_thought : public SpellScriptLoader
                                     if (newCooldownDelay > 5)
                                         newCooldownDelay -= 5;
 
-                                    _player->AddSpellCooldown(PRIEST_INNER_FOCUS, 0, uint32(time(NULL) + newCooldownDelay));
+                                    _player->AddSpellCooldown(PRIEST_INNER_FOCUS, 0, newCooldownDelay);
                                     _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -5000);
                                 }
                             }
@@ -1451,7 +1448,7 @@ class spell_pri_rapture : public SpellScriptLoader
                         if (caster->ToPlayer() && !caster->ToPlayer()->HasSpellCooldown(PRIEST_RAPTURE_ENERGIZE))
                         {
                             caster->EnergizeBySpell(caster, PRIEST_RAPTURE_ENERGIZE, bp, POWER_MANA);
-                            caster->ToPlayer()->AddSpellCooldown(PRIEST_RAPTURE_ENERGIZE, 0, time(NULL) + 12);
+                            caster->ToPlayer()->AddSpellCooldown(PRIEST_RAPTURE_ENERGIZE, 0, 12 * IN_MILLISECONDS);
                         }
                     }
                 }

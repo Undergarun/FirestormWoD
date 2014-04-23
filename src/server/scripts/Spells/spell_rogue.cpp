@@ -817,7 +817,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_ADRENALINE_RUSH);
                                 newCooldownDelay -= comboPoints * 2;
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, 0, uint32(time(NULL) + newCooldownDelay));
+                                _player->AddSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, 0, newCooldownDelay);
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
@@ -825,7 +825,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_KILLING_SPREE);
                                 newCooldownDelay -= comboPoints * 2;
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_KILLING_SPREE, 0, uint32(time(NULL) + newCooldownDelay));
+                                _player->AddSpellCooldown(ROGUE_SPELL_KILLING_SPREE, 0, newCooldownDelay);
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_REDIRECT))
@@ -833,7 +833,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_REDIRECT);
                                 newCooldownDelay -= comboPoints * 2;
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_REDIRECT, 0, uint32(time(NULL) + newCooldownDelay));
+                                _player->AddSpellCooldown(ROGUE_SPELL_REDIRECT, 0, newCooldownDelay);
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
@@ -841,7 +841,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_SHADOW_BLADES);
                                 newCooldownDelay -= comboPoints * 2;
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, 0, uint32(time(NULL) + newCooldownDelay));
+                                _player->AddSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, 0, newCooldownDelay);
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, (-1 * comboPoints * 2000));
                             }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
@@ -849,7 +849,7 @@ class spell_rog_restless_blades : public SpellScriptLoader
                                 uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_SPRINT);
                                 newCooldownDelay -= comboPoints * 2;
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_SPRINT, 0, uint32(time(NULL) + newCooldownDelay));
+                                _player->AddSpellCooldown(ROGUE_SPELL_SPRINT, 0, newCooldownDelay);
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, (-1 * comboPoints * 2000));
                             }
 

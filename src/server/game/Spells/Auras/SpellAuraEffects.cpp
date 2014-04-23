@@ -531,11 +531,11 @@ void AuraEffect::GetApplicationList(std::list<AuraApplication*> & applicationLis
     }
 }
 
-int32 AuraEffect::CalculateAmount(Unit* caster)
+int32 AuraEffect::CalculateAmount(Unit* caster, constAuraEffectPtr triggeredByAura)
 {
     int32 amount;
     // default amount calculation
-    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
+    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), triggeredByAura ? triggeredByAura->GetSpellInfo()->Id : 0);
 
     // check item enchant aura cast
     if (!amount && caster)
@@ -3735,7 +3735,7 @@ void AuraEffect::HandleModFear(AuraApplication const* aurApp, uint8 mode, bool a
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_FLEEING);
@@ -3765,7 +3765,7 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_STUNNED);
@@ -3811,7 +3811,7 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bo
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_ROOT);
@@ -7909,13 +7909,17 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
 
     // Special case: draining x% of mana (up to a maximum of 2*x% of the caster's maximum mana)
     // It's mana percent cost spells, m_amount is percent drain from target
-    if (m_base->GetSpellPowerData()->ManaCostPercentage)
+    for (auto itr : GetSpellInfo()->SpellPowers)
     {
-        // max value
-        int32 maxmana = CalculatePct(caster->GetMaxPower(powerType), drainAmount * 2.0f);
-        ApplyPct(drainAmount, target->GetMaxPower(powerType));
-        if (drainAmount > maxmana)
-            drainAmount = maxmana;
+        if (itr->PowerType == POWER_MANA && itr->CostBasePercentage)
+        {
+            // max value
+            int32 maxmana = CalculatePct(caster->GetMaxPower(powerType), drainAmount * 2.0f);
+            ApplyPct(drainAmount, target->GetMaxPower(powerType));
+            if (drainAmount > maxmana)
+                drainAmount = maxmana;
+            break;
+        }
     }
 
     int32 drainedAmount = -target->ModifyPower(powerType, -drainAmount);

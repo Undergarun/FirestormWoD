@@ -2455,6 +2455,10 @@ void ObjectMgr::LoadItemTemplates()
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             itemTemplate.Spells[i].SpellId = sparse->SpellId[i];
+
+            for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+                sSpellMgr->TryLinkItemToSpell(Difficulty(difficulty), sparse->SpellId[i], itemId);
+
             itemTemplate.Spells[i].SpellTrigger = sparse->SpellTrigger[i];
             itemTemplate.Spells[i].SpellCharges = sparse->SpellCharges[i];
             itemTemplate.Spells[i].SpellCooldown = sparse->SpellCooldown[i];
