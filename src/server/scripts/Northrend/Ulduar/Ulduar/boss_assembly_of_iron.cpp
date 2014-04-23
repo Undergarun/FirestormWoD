@@ -291,24 +291,15 @@ void StartEncounter(InstanceScript* instance, Creature* caller)
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_STEELBREAKER)))
         if (boss->isAlive() && caller->GetGUID() != boss->GetGUID()) // Avoid redundant calls
-        {
             boss->SetInCombatWithZone();
-            boss->AI()->EnterCombat(caller->getVictim());
-        }
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_BRUNDIR)))
         if (boss->isAlive() && caller->GetGUID() != boss->GetGUID()) // Avoid redundant calls
-        {
             boss->SetInCombatWithZone();
-            boss->AI()->EnterCombat(caller->getVictim());
-        }
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_MOLGEIM)))
         if (boss->isAlive() && caller->GetGUID() != boss->GetGUID()) // Avoid redundant calls
-        {
             boss->SetInCombatWithZone();
-            boss->AI()->EnterCombat(caller->getVictim());
-        }
 }
 
 /************************************************************************/
