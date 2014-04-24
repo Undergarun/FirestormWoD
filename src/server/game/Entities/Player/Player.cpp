@@ -28570,13 +28570,18 @@ void Player::SendEquipmentSetList()
             }
         }
 
-        data.append(itr->second.Name.c_str(), itr->second.Name.size());
+        if (itr->second.Name.size())
+            data.append(itr->second.Name.c_str(), itr->second.Name.size());
+
         data.WriteByteSeq(setGuid[5]);
         data.WriteByteSeq(setGuid[0]);
         data.WriteByteSeq(setGuid[3]);
         data.WriteByteSeq(setGuid[6]);
         data.WriteByteSeq(setGuid[1]);
-        data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
+        if (itr->second.IconName.size())
+            data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
         data.WriteByteSeq(setGuid[7]);
         data.WriteByteSeq(setGuid[4]);
         data.WriteByteSeq(setGuid[2]);
