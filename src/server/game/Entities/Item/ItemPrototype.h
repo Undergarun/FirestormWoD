@@ -404,7 +404,7 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_LEATHER                 = 2,
     ITEM_SUBCLASS_ARMOR_MAIL                    = 3,
     ITEM_SUBCLASS_ARMOR_PLATE                   = 4,
-    ITEM_SUBCLASS_ARMOR_BUCKLER                 = 5, // OBSOLETE
+    ITEM_SUBCLASS_ARMOR_COSMETIC                = 5, // New 5.4 (old : BUCKLER)
     ITEM_SUBCLASS_ARMOR_SHIELD                  = 6,
     ITEM_SUBCLASS_ARMOR_LIBRAM                  = 7,
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
@@ -776,10 +776,10 @@ struct ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return Class == ITEM_CLASS_WEAPON ||
+        return Class == ITEM_CLASS_WEAPON && (
                SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
                SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-               SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+               SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW);
     }
 
     uint32 GetSkill() const

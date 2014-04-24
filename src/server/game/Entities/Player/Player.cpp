@@ -13571,7 +13571,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (proto->Class == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->SubClass]) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
+    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_COSMETIC && proto->InventoryType != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
