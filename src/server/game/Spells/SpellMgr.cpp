@@ -5747,11 +5747,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_NONE;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
                 break;
-            // Circle of Healing
-            case 34861:
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
-                spellInfo->Effects[0].TargetB = TARGET_UNK_119;
-                break;
             case 1543: // Flare
                 spellInfo->Effects[0].TriggerSpell = 94528;
                 break;
