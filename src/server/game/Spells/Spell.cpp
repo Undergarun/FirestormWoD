@@ -1592,7 +1592,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                     m_caster->CastSpell(m_caster, 129881, true);
                     m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
-                    if (m_caster->HasAura(139598))
+                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && m_caster->getLevel() >= 20)
                         m_caster->AddAura(139597, m_caster);
                     break;
                 default:
