@@ -110,7 +110,7 @@ public:
             uiMindFlayTimer = 15*IN_MILLISECONDS;
             uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
-            if (instance)
+            if (instance && instance->GetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT) != NOT_STARTED)
                 instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
         }
 
