@@ -518,8 +518,8 @@ class mob_spirit_totem : public CreatureScript
         }
 };
 
-// 60184 - Shadowy Minion
-// 60940 - Shadowy Minion
+// 60184 - Shadowy Minion - Only visible in spirit world
+// 60940 - Shadowy Minion - Visible for all players
 class mob_shadowy_minion : public CreatureScript
 {
     public:
@@ -546,12 +546,15 @@ class mob_shadowy_minion : public CreatureScript
                 {
                     me->SetDisplayId(11686);
 
-                    if (Creature* spirit = me->SummonCreature(NPC_SHADOWY_MINION_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN))
+                    // Summoning 2 spirit minions
+                    for (uint8 i = 0; i < 2; ++i)
                     {
-                        spiritGuid = spirit->GetGUID();
-                        spirit->SetPhaseMask(2, true);
+                        if (Creature* spirit = me->SummonCreature(NPC_SHADOWY_MINION_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN))
+                        {
+                            spiritGuid = spirit->GetGUID();
+                            spirit->SetPhaseMask(2, true);
+                        }
                     }
-
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                     events.ScheduleEvent(EVENT_SPIRITUAL_GRASP, urand(2000, 5000));
                 }

@@ -128,6 +128,8 @@ enum eAddActions
     ACTION_COSMECTIC            = 3,
     ACTION_MOGU_ACTIVATE        = 4,
     ACTION_MOGU_STOP            = 5,
+    ACTION_BUNNY_RESET          = 6,
+    ACTION_CONSOLE_RESET        = 7,
 };
 
 enum eDisplayID
@@ -219,13 +221,16 @@ class boss_jin_qin_xi : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
             SummonList summons;
+
             int sumCourage;
-            uint8 maxCombo;
             int comboArc;
+
+            uint8 maxCombo;
             uint8 janHitCount;
             uint8 qinHitCount;
+
             bool achievement;
-            Position homePos;
+            bool isActive;
 
             uint8 devastatingComboPhase;
             uint64 victimWithMagneticArmor;
@@ -234,7 +239,6 @@ class boss_jin_qin_xi : public CreatureScript
             float moveWalk;
             float moveRun;
 
-            bool isActive;
 
             std::list<uint64> playerList;
 
@@ -253,9 +257,7 @@ class boss_jin_qin_xi : public CreatureScript
                 moveTurn = me->GetSpeed(MOVE_TURN_RATE);
                 moveWalk = me->GetSpeed(MOVE_WALK);
                 moveRun  = me->GetSpeed(MOVE_RUN);
-                homePos  = me->GetHomePosition();
                 
-                victimWithMagneticArmor = 0;
 
                 if (pInstance)
                 {
@@ -268,31 +270,38 @@ class boss_jin_qin_xi : public CreatureScript
                 achievement = false;
                 janHitCount = 0;
                 qinHitCount = 0;
+                victimWithMagneticArmor = 0;
 
             }
 
             void JustReachedHome()
             {
-                _JustReachedHome();
-
-                me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-                events.Reset();
-                summons.DespawnAll();
-                me->SetFullHealth();
-
-                if (Creature* otherBoss = getOtherBoss())
-                {
-                    otherBoss->AI()->DoAction(ACTION_REACHHOME);
-                    otherBoss->AI()->Reset();
-                }
-
                 if (pInstance)
                 {
-                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
-                    if (me->GetEntry() == NPC_QIN_XI)
-                        if (GameObject* console = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ANCIENT_CONTROL_CONSOLE)))
-                            console->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (pInstance->IsWipe())
+                    {
+                        _JustReachedHome();
+
+                        me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
+                        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                        events.Reset();
+                        summons.DespawnAll();
+                        me->SetFullHealth();
+
+                        if (Creature* otherBoss = getOtherBoss())
+                        {
+                            otherBoss->AI()->DoAction(ACTION_REACHHOME);
+                            otherBoss->AI()->Reset();
+                        }
+
+                        if (pInstance)
+                        {
+                            pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
+                            if (me->GetEntry() == NPC_QIN_XI)
+                                if (GameObject* console = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ANCIENT_CONTROL_CONSOLE)))
+                                    console->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        }
+                    }
                 }
             }
 
@@ -368,6 +377,8 @@ class boss_jin_qin_xi : public CreatureScript
                     }
                 }
 
+                isActive = false;
+
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STOMP);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEVAST_ARC);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEVAST_ARC_2);
@@ -419,18 +430,43 @@ class boss_jin_qin_xi : public CreatureScript
                     {
                         events.Reset();
                         summons.DespawnAll();
+                        isActive = false;
+
+                        me->RemoveAllAuras();
+
+                        if (pInstance)
+                        {
+                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_QIN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_JAN);
+                        }
+
+                        playerList.clear();
+                        janHitCount = 0;
+                        qinHitCount = 0;
+                        victimWithMagneticArmor = 0;
+
                         if (devastatingComboPhase)
                         {
                             devastatingComboPhase = 0;
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
                         }
 
-                        me->GetMotionMaster()->MovePoint(9, homePos);
+                        me->GetMotionMaster()->MoveTargetedHome();
                         me->SetReactState(REACT_PASSIVE);
 
                         if (pInstance && me->GetEntry() == NPC_QIN_XI)
                             if (GameObject* console = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ANCIENT_CONTROL_CONSOLE)))
                                 console->SetGoState(GO_STATE_READY);
+
+                        if (Creature* console = GetClosestCreatureWithEntry(me, NPC_ANCIENT_MOGU_MACHINE, 300.0f))
+                            console->AI()->DoAction(ACTION_MOGU_STOP);
+
+                        std::list<Creature*> bunnyList;
+                        GetCreatureListWithEntryInGrid(bunnyList, me, NPC_GENERAL_PURPOSE_BUNNY_JMF, 300.0f);
+                        for (auto bunny : bunnyList)
+                            bunny->AI()->DoAction(ACTION_BUNNY_RESET);
+
                         break;
                     }
                 }
@@ -471,7 +507,7 @@ class boss_jin_qin_xi : public CreatureScript
             {
                 UpdateVictim();
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING) || !me->isAlive())
                     return;
 
                 // Check wipe
@@ -480,12 +516,15 @@ class boss_jin_qin_xi : public CreatureScript
                         DoAction(ACTION_REACHHOME);
 
                 // Check life sharing
-                if (Creature* otherBoss = getOtherBoss())
+                if (isActive)
                 {
-                    if (otherBoss->GetHealth() > me->GetHealth())
-                        otherBoss->SetHealth(me->GetHealth());
-                    else if (otherBoss->GetHealth() < me->GetHealth())
-                        me->SetHealth(otherBoss->GetHealth());
+                    if (Creature* otherBoss = getOtherBoss())
+                    {
+                        if (otherBoss->GetHealth() > me->GetHealth())
+                            otherBoss->SetHealth(me->GetHealth());
+                        else if (otherBoss->GetHealth() < me->GetHealth())
+                            me->SetHealth(otherBoss->GetHealth());
+                    }
                 }
 
                 events.Update(diff);
@@ -1439,6 +1478,9 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
                         hasCast = true;
                     }
                 }
+                else if (action == ACTION_BUNNY_RESET)
+                    if (hasCast)
+                        hasCast = false;
             }
 
         };
