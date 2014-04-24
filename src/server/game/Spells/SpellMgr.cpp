@@ -136,10 +136,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                     return DIMINISHING_LIMITONLY;
             }
 
-            // Frost Nova / Freeze (Water Elemental)
-            if (spellproto->SpellIconID == 193)
-                return DIMINISHING_CONTROLLED_ROOT;
-
             break;
         }
         case SPELLFAMILY_WARRIOR:
@@ -279,6 +275,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             {
                 case 4167:   // Web
                 case 50245:  // Pin
+                case 53148:  // Charge
                 case 54706:  // Venom Web Spray
                 case 90327:  // Lock Jaw
                 case 136634: // Narrow Escape

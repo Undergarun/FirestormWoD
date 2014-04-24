@@ -32,8 +32,8 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE                            = 47540,
     PRIEST_SPELL_PENANCE_DAMAGE                     = 47758,
     PRIEST_SPELL_PENANCE_HEAL                       = 47757,
-    PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
-    PRIEST_SPELL_REFLECTIVE_SHIELD_R1               = 33201,
+    PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE           = 33619,
+    PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
     PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH          = 107903,
     PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH             = 107904,
@@ -1177,6 +1177,34 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_divine_insight_discipline_SpellScript();
+        }
+
+        class spell_pri_divine_insight_discipline_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_divine_insight_discipline_AuraScript);
+
+            void Trigger(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                Unit* target = GetTarget();
+                if (dmgInfo.GetAttacker() == target)
+                    return;
+
+                if (AuraEffectPtr reflectiveShield = target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
+                {
+                    int32 bp = CalculatePct(absorbAmount, reflectiveShield->GetAmount());
+                    target->CastCustomSpell(dmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &bp, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_divine_insight_discipline_AuraScript::Trigger, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_divine_insight_discipline_AuraScript();
         }
 };
 
@@ -2556,49 +2584,6 @@ class spell_pri_penance : public SpellScriptLoader
         }
 };
 
-// Reflective Shield
-class spell_pri_reflective_shield_trigger : public SpellScriptLoader
-{
-    public:
-        spell_pri_reflective_shield_trigger() : SpellScriptLoader("spell_pri_reflective_shield_trigger") { }
-
-        class spell_pri_reflective_shield_trigger_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(PRIEST_SPELL_REFLECTIVE_SHIELD_R1))
-                    return false;
-                return true;
-            }
-
-            void Trigger(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                Unit* target = GetTarget();
-                if (dmgInfo.GetAttacker() == target)
-                    return;
-
-                if (GetCaster())
-                    if (AuraEffectPtr talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))
-                    {
-                        int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                        target->CastCustomSpell(dmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-                    }
-            }
-
-            void Register()
-            {
-                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_reflective_shield_trigger_AuraScript::Trigger, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_reflective_shield_trigger_AuraScript();
-        }
-};
-
 enum PrayerOfMending
 {
     SPELL_T9_HEALING_2_PIECE = 67201,
@@ -2846,7 +2831,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_psychic_horror();
     new spell_pri_guardian_spirit();
     new spell_pri_penance();
-    new spell_pri_reflective_shield_trigger();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_vampiric_touch();
     new spell_pri_renew();
