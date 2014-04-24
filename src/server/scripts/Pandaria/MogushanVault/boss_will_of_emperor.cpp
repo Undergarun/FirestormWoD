@@ -127,6 +127,7 @@ enum eAddActions
     ACTION_CHOOSE_TARGET        = 2,
     ACTION_COSMECTIC            = 3,
     ACTION_MOGU_ACTIVATE        = 4,
+    ACTION_MOGU_STOP            = 5,
 };
 
 enum eDisplayID
@@ -426,6 +427,10 @@ class boss_jin_qin_xi : public CreatureScript
 
                         me->GetMotionMaster()->MovePoint(9, homePos);
                         me->SetReactState(REACT_PASSIVE);
+
+                        if (pInstance && me->GetEntry() == NPC_QIN_XI)
+                            if (GameObject* console = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ANCIENT_CONTROL_CONSOLE)))
+                                console->SetGoState(GO_STATE_READY);
                         break;
                     }
                 }
@@ -460,16 +465,6 @@ class boss_jin_qin_xi : public CreatureScript
                     return pInstance->instance->GetCreature(pInstance->GetData64(me->GetEntry() == NPC_QIN_XI ? NPC_JAN_XI: NPC_QIN_XI));
                 else
                     return NULL;
-            }
-
-            void DamageTaken(Unit* attacker, uint32& damage)
-            {
-                Creature* otherBoss = getOtherBoss();
-
-                if (!otherBoss || !otherBoss->isAlive())
-                    attacker->Kill(me);
-                else
-                    otherBoss->ModifyHealth(-int32(damage));
             }
 
             void UpdateAI(const uint32 diff)
@@ -1027,7 +1022,7 @@ class mob_woe_add_generic : public CreatureScript
                             else
                                 me->CastSpell(me, SPELL_TERRACOTTA_SKYBEAM_M, false);
                             // Wait invisible
-                            events.ScheduleEvent(EVENT_CAST_SPAWNIN, 7000);
+                            events.ScheduleEvent(EVENT_CAST_SPAWNIN, 6000);
                             break;
                         }
                         case EVENT_CAST_SPAWNIN:
@@ -1052,7 +1047,7 @@ class mob_woe_add_generic : public CreatureScript
                                 }
                             }
                             // Wait invisible
-                            events.ScheduleEvent(EVENT_WAIT, 5000);
+                            events.ScheduleEvent(EVENT_WAIT, 500);
                             break;
                         }
                         case EVENT_WAIT:
@@ -1228,6 +1223,7 @@ class mob_woe_titan_spark : public CreatureScript
 
             InstanceScript* pInstance;
             uint64 targetGuid;
+            EventMap events;
 
             void Reset()
             {
@@ -1342,12 +1338,15 @@ class mob_ancient_mogu_machine : public CreatureScript
                 events.Reset();
             }
 
+            EventMap events;
 
             // Talk
             void DoAction(const int32 action)
             {
                 if (action == ACTION_MOGU_ACTIVATE)
                     events.ScheduleEvent(EVENT_TITAN_GAS, IsHeroic() ? 100 : 225000);
+                else if (action == ACTION_MOGU_STOP)
+                    events.Reset();
                 else
                     Talk(action);
             }

@@ -142,15 +142,9 @@ class boss_garajal : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CUT_SUICIDE);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BANISHMENT);
 
-                events.ScheduleEvent(EVENT_SECONDARY_ATTACK,        urand(5000, 10000));
-                events.ScheduleEvent(EVENT_SUMMON_TOTEM,            urand(27500, 32500));
-                events.ScheduleEvent(EVENT_SUMMON_SHADOWY_MINION,   urand(10000, 15000));
-                events.ScheduleEvent(EVENT_BANISHMENT,              90000);
-                events.ScheduleEvent(EVENT_VOODOO_DOLL,             2500);
-                events.ScheduleEvent(EVENT_FINAL_DESTINATION,       361000); // 6 min & 10s
-
                 me->AddAura(SPELL_STRONG_MOJO, me);
                 me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
+                me->SetReactState(REACT_PASSIVE);
             }
 
             void JustDied(Unit* attacker)
@@ -188,13 +182,24 @@ class boss_garajal : public CreatureScript
                 // Can't be pulled if previous bosses hasn't been done, or if attacker isn't in the battle area
                 if (!pInstance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
                 {
+                    me->AddAura(SPELL_STRONG_MOJO, me);
+                    me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
+
                     EnterEvadeMode();
                     return;
                 }
 
+                me->SetReactState(REACT_AGGRESSIVE);
                 pInstance->SetBossState(DATA_GARAJAL, IN_PROGRESS);
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 Talk(TALK_AGGRO);
+
+                events.ScheduleEvent(EVENT_SECONDARY_ATTACK,        urand(5000, 10000));
+                events.ScheduleEvent(EVENT_SUMMON_TOTEM,            urand(27500, 32500));
+                events.ScheduleEvent(EVENT_SUMMON_SHADOWY_MINION,   urand(10000, 15000));
+                events.ScheduleEvent(EVENT_BANISHMENT,              90000);
+                events.ScheduleEvent(EVENT_VOODOO_DOLL,             2500);
+                events.ScheduleEvent(EVENT_FINAL_DESTINATION,       361000); // 6 min & 10s
 
                 me->RemoveAura(SPELL_STRONG_MOJO);
                 me->RemoveAura(SPELL_TAP_THE_SPIRIT_WORLD);
@@ -222,6 +227,17 @@ class boss_garajal : public CreatureScript
             {
                 if (!pInstance)
                     return;
+
+                // Can't be pulled if previous bosses hasn't been done, or if attacker isn't in the battle area
+                if (!pInstance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
+                {
+                    me->AddAura(SPELL_STRONG_MOJO, me);
+                    me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
+                    me->SetFullHealth();
+
+                    EnterEvadeMode();
+                    return;
+                }
 
                 if (!me->HasAura(SPELL_FRENESIE))
                 {
@@ -338,8 +354,8 @@ class boss_garajal : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
+                if (me->GetReactState() == REACT_AGGRESSIVE)
+                    DoMeleeAttackIfReady();
             }
         };
 

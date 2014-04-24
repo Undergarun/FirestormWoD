@@ -294,6 +294,7 @@ class boss_spirit_kings_controler : public CreatureScript
             bool _introZianDone;
             bool _introSubetaiDone;
             bool _introMengDone;
+            EventMap events;
 
             uint8 vanquishedCount;
             uint8 nextSpirit;
@@ -301,6 +302,7 @@ class boss_spirit_kings_controler : public CreatureScript
             void Reset()
             {
                 _Reset();
+                events.Reset();
 
                 fightInProgress   = false;
                 _introZianDone    = false;
@@ -573,6 +575,7 @@ class boss_spirit_kings_controler : public CreatureScript
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
 
                                 summons.DespawnAll();
+                                events.Reset();
                             }
                             else
                                 events.ScheduleEvent(EVENT_CHECK_WIPE, 2500);
@@ -633,6 +636,7 @@ class boss_spirit_kings : public CreatureScript
                 preEventDone      = false;
 
                 summons.DespawnAll();
+                events.Reset();
 
                 me->CastSpell(me, SPELL_INACTIVE, true);
                 me->CastSpell(me, SPELL_INACTIVE_STUN, true);
@@ -680,6 +684,7 @@ class boss_spirit_kings : public CreatureScript
                 preEventDone      = false;
 
                 summons.DespawnAll();
+                events.Reset();
 
                 me->SetFullHealth();
                 if (!me->isAlive())
@@ -1083,11 +1088,45 @@ class boss_spirit_kings : public CreatureScript
                             // While in Cowardice personality, Zian is Feared.
                             if (shadowCount < maxShadowCount) // Max 3 undying shadow during the fight
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                std::list<Player*> playerList;
+                                GetPlayerListInGrid(playerList, me, 300.0f);
+                                std::list<Player*>::iterator itr, next;
+
+                                // Not applying on dead players or on players who already have an undying shadow
+                                for (itr = playerList.begin(); itr != playerList.end(); itr = next)
                                 {
-                                    me->CastSpell(target, SPELL_UNDYING_SHADOWS, false);
-                                    Talk(ZIAN_SPELL);
+                                    next = itr;
+                                    ++next;
+
+                                    if (!(*itr)->isAlive() || (*itr)->HasAura(SPELL_FIXATE))
+                                        playerList.remove(*itr);
                                 }
+
+                                // No player to cast on: reschedule event
+                                if (playerList.empty())
+                                {
+                                    events.ScheduleEvent(EVENT_UNDYING_SHADOWS, 10000);
+                                    break;
+                                }
+
+                                // Picking a random target
+                                bool searching = true;
+                                itr = playerList.begin();
+                                Unit* target = 0;
+                                while (searching)
+                                {
+                                    if (urand(0, 1))
+                                    {
+                                        target = *itr;
+                                        searching = false;
+                                    }
+                                    ++itr;
+                                    if (itr == playerList.end())
+                                        itr = playerList.begin();
+                                }
+
+                                me->CastSpell(target, SPELL_UNDYING_SHADOWS, false);
+                                Talk(ZIAN_SPELL);
                             }
 
                             events.ScheduleEvent(EVENT_UNDYING_SHADOWS, 45000);

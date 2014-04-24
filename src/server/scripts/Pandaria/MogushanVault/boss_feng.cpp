@@ -252,6 +252,7 @@ class boss_feng : public CreatureScript
                     pInstance->SetBossState(DATA_FENG, NOT_STARTED);
 
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                me->SetReactState(REACT_PASSIVE);
 
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLAMING_SPEAR);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NULLIFICATION_BARRIER_PLAYERS);
@@ -313,6 +314,10 @@ class boss_feng : public CreatureScript
 
             void JustReachedHome()
             {
+                summons.DespawnAll();
+                events.Reset();
+                SetEquipmentSlots(false, 0, 0, EQUIP_NO_CHANGE);
+                me->SetFullHealth();
                 _JustReachedHome();
             }
 
@@ -328,6 +333,7 @@ class boss_feng : public CreatureScript
                 pInstance->SetBossState(DATA_FENG, IN_PROGRESS);
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_SPIRIT_BOLTS, urand(25000, 35000));
+                me->SetReactState(REACT_AGGRESSIVE);
             }
 
             void MovementInform (uint32 type, uint32 id)
@@ -495,6 +501,13 @@ class boss_feng : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+                if (!pInstance->CheckRequiredBosses(DATA_FENG) || attacker->GetPositionX() < 4009.0f || attacker->GetPositionX() > 4076.0f)
+                {
+                    me->SetFullHealth();
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!pInstance)
                     return;
 
@@ -559,6 +572,16 @@ class boss_feng : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        me->SetFullHealth();
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        pInstance->SetBossState(DATA_FENG, FAIL);
+                    }
+                }
+
                 CheckPlatform();
 
                 if (isWaitingForPhase)
@@ -670,8 +693,8 @@ class boss_feng : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
+                if (me->GetReactState() == REACT_AGGRESSIVE)
+                    DoMeleeAttackIfReady();
             }
 
             private:
@@ -840,20 +863,18 @@ class mob_siphon_shield : public CreatureScript
                             uint8 maxTargets = Is25ManRaid() ? 10 : 5;
 
                             std::list<Player*>::iterator itr, next;
+                            itr = potenTargets.begin();
                             // Selecting targets
                             while (potenTargets.size() > maxTargets)
                             {
-                                for (itr = potenTargets.begin(); itr != potenTargets.end(); itr = next)
-                                {
-                                    next = itr;
-                                    ++next;
+                                next = itr;
 
-                                    if (potenTargets.size() > maxTargets && urand(0, 1)) // We can have enough targets during the for loop
-                                    {
-                                        potenTargets.remove(*itr);
-                                        break;
-                                    }
-                                }
+                                if (urand(0, 1))
+                                    potenTargets.remove(*itr);
+
+                                itr = ++next;
+                                if (itr == potenTargets.end())
+                                    itr = potenTargets.begin();
                             }
 
                             soulsCount = potenTargets.size();
