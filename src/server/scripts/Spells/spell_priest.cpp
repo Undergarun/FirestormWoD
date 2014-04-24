@@ -35,9 +35,6 @@ enum PriestSpells
     PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE           = 33619,
     PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
-    PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH          = 107903,
-    PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH             = 107904,
-    PRIEST_GLYPH_OF_SHADOW                          = 107906,
     PRIEST_VOID_SHIFT                               = 108968,
     PRIEST_LEAP_OF_FAITH                            = 73325,
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
@@ -2606,48 +2603,6 @@ class spell_pri_renew : public SpellScriptLoader
         }
 };
 
-// Called by Shadow Form - 15473
-// Glyph of Shadow - 107906
-class spell_pri_shadowform : public SpellScriptLoader
-{
-    public:
-        spell_pri_shadowform() : SpellScriptLoader("spell_pri_shadowform") { }
-
-        class spell_pri_shadowform_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_shadowform_AuraScript);
-
-            bool Validate(SpellInfo const* /*entry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH) ||
-                    !sSpellMgr->GetSpellInfo(PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), GetTarget()->HasAura(PRIEST_GLYPH_OF_SHADOW) ? PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
-            }
-
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->RemoveAurasDueToSpell(GetTarget()->HasAura(PRIEST_GLYPH_OF_SHADOW) ? PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH);
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_pri_shadowform_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_shadowform_AuraScript();
-        }
-};
-
 // Levitate - 1706
 class spell_pri_levitate : public SpellScriptLoader
 {
@@ -2730,7 +2685,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_vampiric_touch();
     new spell_pri_renew();
-    new spell_pri_shadowform();
     new spell_pri_evangelism();
     new spell_pri_archangel();
     new spell_pri_levitate();
