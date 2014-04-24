@@ -72,8 +72,6 @@ enum PriestSpells
     PRIEST_ATONEMENT_AURA                           = 81749,
     PRIEST_ATONEMENT_HEAL                           = 81751,
     PRIEST_RAPTURE_ENERGIZE                         = 47755,
-    PRIEST_TRAIN_OF_THOUGHT                         = 92297,
-    PRIEST_INNER_FOCUS                              = 89485,
     PRIEST_GRACE_AURA                               = 47517,
     PRIEST_GRACE_PROC                               = 77613,
     PRIEST_STRENGTH_OF_SOUL_AURA                    = 89488,
@@ -1381,78 +1379,6 @@ class spell_pri_grace : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_grace_SpellScript();
-        }
-};
-
-// Called by Smite - 585 and Greater Heal - 2060
-// Train of Thought - 92297
-class spell_pri_train_of_thought : public SpellScriptLoader
-{
-    public:
-        spell_pri_train_of_thought() : SpellScriptLoader("spell_pri_train_of_thought") { }
-
-        class spell_pri_train_of_thought_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_train_of_thought_SpellScript);
-
-            void HandleAfterHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        ObjectGuid playerGuid = _player->GetGUID();
-
-                        if (_player->HasAura(PRIEST_TRAIN_OF_THOUGHT))
-                        {
-                            if (GetSpellInfo()->Id == 585)
-                            {
-                                if (_player->HasSpellCooldown(PRIEST_SPELL_PENANCE))
-                                {
-                                    float newCooldownDelay = _player->GetSpellCooldownDelay(PRIEST_SPELL_PENANCE) * IN_MILLISECONDS;
-
-                                    if (newCooldownDelay > 500.0f)
-                                        newCooldownDelay -= 500.0f;
-
-                                    if (newCooldownDelay > 0)
-                                    {
-                                        _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + (newCooldownDelay / IN_MILLISECONDS)));
-                                        _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -500);
-                                    }
-                                    else
-                                    {
-                                        _player->AddSpellCooldown(PRIEST_SPELL_PENANCE, 0, uint32(time(NULL) + 0));
-                                        _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -newCooldownDelay);
-                                    }
-                                }
-                            }
-                            else if (GetSpellInfo()->Id == 2060)
-                            {
-                                if (_player->HasSpellCooldown(PRIEST_INNER_FOCUS))
-                                {
-                                    uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PRIEST_INNER_FOCUS);
-
-                                    if (newCooldownDelay > 5)
-                                        newCooldownDelay -= 5;
-
-                                    _player->AddSpellCooldown(PRIEST_INNER_FOCUS, 0, uint32(time(NULL) + newCooldownDelay));
-                                    _player->ReduceSpellCooldown(PRIEST_SPELL_PENANCE, -5000);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_pri_train_of_thought_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_train_of_thought_SpellScript();
         }
 };
 
@@ -2812,7 +2738,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_lightwell_renew();
     new spell_pri_strength_of_soul();
     new spell_pri_grace();
-    new spell_pri_train_of_thought();
     new spell_pri_rapture();
     new spell_pri_atonement();
     new spell_pri_spirit_shell();
