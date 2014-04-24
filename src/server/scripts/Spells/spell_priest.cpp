@@ -527,34 +527,6 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         }
 };
 
-// Phantasm (proc) - 114239
-class spell_pri_phantasm_proc : public SpellScriptLoader
-{
-    public:
-        spell_pri_phantasm_proc() : SpellScriptLoader("spell_pri_phantasm_proc") { }
-
-        class spell_pri_phantasm_proc_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_phantasm_proc_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_phantasm_proc_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_phantasm_proc_SpellScript();
-        }
-};
-
 // Spirit of Redemption (Shapeshift) - 27827
 class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
 {
@@ -1704,8 +1676,13 @@ class spell_pri_phantasm : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (_player->HasAura(PRIEST_PHANTASM_AURA))
+                    {
                         _player->CastSpell(_player, PRIEST_PHANTASM_PROC, true);
+                        _player->RemoveMovementImpairingAuras();
+                    }
+                }
             }
 
             void Register()
@@ -2716,7 +2693,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_spectral_guise_charges();
     new spell_pri_psyfiend_hit_me_driver();
     new spell_pri_void_tendrils();
-    new spell_pri_phantasm_proc();
     new spell_pri_spirit_of_redemption_form();
     new spell_pri_spirit_of_redemption();
     new spell_pri_item_s12_4p_heal();
