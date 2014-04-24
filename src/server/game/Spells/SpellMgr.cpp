@@ -5728,26 +5728,26 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             // ENDOF ULDUAR SPELLS
             //
-            // Glyph of Exorcism
-            case 54934:
+            case 54934: // Glyph of Exorcism
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            // Shadow Apparition
-            case 87426:
+            case 87426: // Shadow Apparition
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 73685: // Unleash Life 
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
-            // Death Grip
-            case 49560:
+            case 49560: // Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 spellInfo->Mechanic = MECHANIC_NONE;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
                 break;
-            case 1543: // Flare
+            case 114255:// Surge of Light (proc)
+                spellInfo->StackAmount = 2;
+                break;
+            case 1543:  // Flare
                 spellInfo->Effects[0].TriggerSpell = 94528;
                 break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience

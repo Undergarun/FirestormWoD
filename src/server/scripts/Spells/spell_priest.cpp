@@ -899,14 +899,9 @@ class spell_pri_surge_of_light : public SpellScriptLoader
 
             void HandleOnCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (AuraPtr surgeOfLight = _player->GetAura(PRIEST_SURGE_OF_LIGHT))
-                    {
-                        surgeOfLight->SetUsingCharges(true);
-                        surgeOfLight->DropCharge();
-                    }
-                }
+                if (Unit* caster = GetCaster())
+                    if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                        surgeOfLight->ModStackAmount(-1);
             }
 
             void Register()
