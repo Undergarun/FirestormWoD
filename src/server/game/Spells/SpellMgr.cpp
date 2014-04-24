@@ -3942,6 +3942,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 127538:// Savage Roar (Glyphed)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(636); // 12s / 0s / 42s
                 break;
+            case 146512:// Fortitude - hotfix 5.4.2
+                spellInfo->Effects[0].BasePoints = 2600;
+                break;
             case 15473: // Shadowform - hotfix 5.4.2
                 spellInfo->Effects[6].BasePoints = 100;
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
