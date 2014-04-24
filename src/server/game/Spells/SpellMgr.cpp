@@ -4545,6 +4545,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 11371: // Arthas's Gift
+                spellInfo->Effects[0].TriggerSpell = 0;
+                break;
             case 41055: // Copy Weapon Spells
             case 45206:
             case 63416:
