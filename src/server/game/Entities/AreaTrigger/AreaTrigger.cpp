@@ -141,6 +141,20 @@ void AreaTrigger::Update(uint32 p_time)
 
             break;
         }
+        case 62618: // Power Word: Barrier
+        {
+            std::list<Unit*> targetList;
+            radius = 6.0f;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+            VisitNearbyObject(radius, searcher);
+
+            for (auto itr : targetList)
+                itr->CastSpell(itr, 81782, true);
+
+            break;
+        }
         case 102793:// Ursol's Vortex
         {
             std::list<Unit*> targetList;

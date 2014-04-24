@@ -3706,50 +3706,6 @@ class npc_guardian_of_ancient_kings : public CreatureScript
         }
 };
 
-/*######
-# npc_power_word_barrier
-######*/
-
-class npc_power_word_barrier : public CreatureScript
-{
-    public:
-        npc_power_word_barrier() : CreatureScript("npc_power_word_barrier") { }
-
-        struct npc_power_word_barrierAI : public ScriptedAI
-        {
-            uint32 frozenOrbTimer;
-
-            npc_power_word_barrierAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Unit* owner = creature->GetOwner();
-
-                if (owner)
-                {
-                    creature->CastSpell(creature, 115725, true); // Barrier visual
-                    creature->CastSpell(creature, 81781, true);  // Periodic Trigger Spell
-                }
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                Unit* owner = me->GetOwner();
-
-                if (!owner)
-                    return;
-
-                if (!me->HasAura(115725))
-                    me->CastSpell(me, 115725, true);
-                if (!me->HasAura(81781))
-                    me->CastSpell(me, 81781, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_power_word_barrierAI(creature);
-        }
-};
-
 const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
 const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
@@ -5284,7 +5240,6 @@ void AddSC_npcs_special()
     new npc_demoralizing_banner();
     new npc_frozen_orb();
     new npc_guardian_of_ancient_kings();
-    new npc_power_word_barrier();
     new npc_demonic_gateway_purple();
     new npc_demonic_gateway_green();
     new npc_dire_beast();

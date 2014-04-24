@@ -3479,6 +3479,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 135299:// Ice Trap (snare)
             case 140023:// Ring of Peace (dummy)
+            case 81782: // Power Word: Barrier (buff)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
