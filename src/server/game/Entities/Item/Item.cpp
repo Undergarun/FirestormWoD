@@ -1654,12 +1654,10 @@ bool Item::IsStuffItem() const
         case INVTYPE_BODY:
         case INVTYPE_BAG:
         case INVTYPE_TABARD:
-        case INVTYPE_HOLDABLE:
         case INVTYPE_AMMO:
         case INVTYPE_THROWN:
         case INVTYPE_QUIVER:
         case INVTYPE_RELIC:
-        case INVTYPE_RANGEDRIGHT:
             return false;
         default:
             return true;
@@ -1686,7 +1684,7 @@ bool Item::CanUpgrade() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (!HasStats())
+    if (!HasStats() && proto->InventoryType != INVTYPE_TRINKET)
         return false;
 
     // PvP item can't be upgraded after Season 12
