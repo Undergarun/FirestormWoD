@@ -2059,7 +2059,20 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_SHADOW:
             spellId = 49868;
-            spellId2 = 107903;
+
+            if (apply)
+            {
+                if (target->HasAura(107906)) // Glyph of Shadow
+                    spellId2 = 107904;
+                else
+                    spellId2 = 107903;
+            }
+            else
+            {
+                target->RemoveAura(107904);
+                target->RemoveAura(107903);
+            }
+
             break;
         case FORM_GHOSTWOLF:
             spellId = 67116;

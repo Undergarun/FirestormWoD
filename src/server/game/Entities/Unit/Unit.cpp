@@ -963,29 +963,20 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE
         && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
     {
-        uint32 weaponSpeedHitFactor;
-        uint32 rage_damage = damage + cleanDamage->absorbed_damage;
+        uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000 * 8.125f);
 
         switch (cleanDamage->attackType)
         {
-            case BASE_ATTACK:
-            {
-                weaponSpeedHitFactor = uint32(GetAttackTime(cleanDamage->attackType) / 1000.0f * 6.5f);
-                RewardRage(weaponSpeedHitFactor, true);
-                break;
-            }
             case OFF_ATTACK:
-            {
-                weaponSpeedHitFactor = uint32(GetAttackTime(cleanDamage->attackType) / 1000.0f * 3.25f);
-                RewardRage(weaponSpeedHitFactor, true);
-                break;
-            }
-            case RANGED_ATTACK:
+                rage /= 2;
+            case BASE_ATTACK:
+                RewardRage(rage, true);
                 break;
             default:
                 break;
         }
     }
+
     if (damagetype != NODAMAGE && (damage || (cleanDamage && cleanDamage->absorbed_damage) ))
     {
         if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
@@ -4258,7 +4249,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
-        if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+        if (aura->GetSpellInfo()->Id == 115191 && HasAura(115192))
             continue;
 
         if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
@@ -4336,7 +4327,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         ++iter;
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
-            if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+            if (aura->GetSpellInfo()->Id == 115191 && HasAura(115192))
                 continue;
 
             uint32 removedAuras = m_removedAurasCount;
@@ -7173,7 +7164,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     break;
                 }
                 // Train of Thought
-                case 92295:
                 case 92297:
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
@@ -7181,7 +7171,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (procSpell->Id == 585)
                         ToPlayer()->ReduceSpellCooldown(47540, 500);
-                    else
+                    else if (procSpell->Id == 2060)
                         ToPlayer()->ReduceSpellCooldown(89485, 5000);
                     break;
                 }
@@ -17854,7 +17844,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             takeCharges = false;
 
         // Remove charge (aura can be removed by triggers)
-        if (prepare && useCharges && takeCharges && !i->aura->GetSpellInfo()->IsCustomCharged(procSpell))
+        if (prepare && useCharges && takeCharges && !i->aura->GetSpellInfo()->IsCustomCharged(procSpell, this))
         {
             // Hack Fix for Tiger Strikes
             if (i->aura->GetId() == 120273)

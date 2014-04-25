@@ -1913,10 +1913,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Remove Stealth on Subterfuge remove
                     case 115192:
                     {
-                        StealthType type = StealthType(sSpellMgr->GetSpellInfo(1784)->Effects[1].MiscValue);
-                        target->m_stealth.DelFlag(type);
-                        target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
-                        target->UpdateObjectVisibility();
+                        target->RemoveAura(115191);
                         break;
                     }
                 }

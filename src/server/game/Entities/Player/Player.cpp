@@ -13571,7 +13571,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (proto->Class == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->SubClass]) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
+    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_COSMETIC && proto->InventoryType != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
@@ -28570,13 +28570,18 @@ void Player::SendEquipmentSetList()
             }
         }
 
-        data.append(itr->second.Name.c_str(), itr->second.Name.size());
+        if (itr->second.Name.size())
+            data.append(itr->second.Name.c_str(), itr->second.Name.size());
+
         data.WriteByteSeq(setGuid[5]);
         data.WriteByteSeq(setGuid[0]);
         data.WriteByteSeq(setGuid[3]);
         data.WriteByteSeq(setGuid[6]);
         data.WriteByteSeq(setGuid[1]);
-        data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
+        if (itr->second.IconName.size())
+            data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
         data.WriteByteSeq(setGuid[7]);
         data.WriteByteSeq(setGuid[4]);
         data.WriteByteSeq(setGuid[2]);

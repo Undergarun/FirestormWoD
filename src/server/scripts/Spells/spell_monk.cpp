@@ -639,7 +639,7 @@ class spell_monk_muscle_memory : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && _player->getLevel() >= 20)
                             _player->AddAura(SPELL_MONK_MUSCLE_MEMORY_EFFECT,_player);
                     }
                 }

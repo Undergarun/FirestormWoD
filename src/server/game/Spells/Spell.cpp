@@ -1363,7 +1363,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 }
                 break;
             case SPELLFAMILY_PRIEST:
-                if (m_spellInfo->SpellFamilyFlags[0] == 0x10000000) // Circle of Healing
+                if (m_spellInfo->Id == 34861) // Circle of Healing
                 {
                     maxSize = m_caster->HasAura(55675) ? 6 : 5; // Glyph of Circle of Healing
                     power = POWER_HEALTH;
@@ -1592,7 +1592,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                     m_caster->CastSpell(m_caster, 129881, true);
                     m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
-                    if (m_caster->HasAura(139598))
+                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && m_caster->getLevel() >= 20)
                         m_caster->AddAura(139597, m_caster);
                     break;
                 default:
@@ -7463,12 +7463,6 @@ SpellCastResult Spell::CheckCasterAuras() const
 
     bool usableInStun = m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED;
 
-    // Glyph of Pain Suppression
-    // Allow Pain Suppression and Guardian Spirit to be cast while stunned
-    // there is no other way to handle it
-    if ((m_spellInfo->Id == 33206 || m_spellInfo->Id == 47788) && !m_caster->HasAura(63248))
-        usableInStun = false;
-
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
@@ -7486,10 +7480,6 @@ SpellCastResult Spell::CheckCasterAuras() const
                 {
                     // Sap & Hand of Freedom hack
                     if ((*i)->GetSpellInfo()->Id == 6770 && m_spellInfo->Id == 1044)
-                        continue;
-                    
-                    // Freezing trap hack
-                    if ((*i)->GetSpellInfo()->Id == 3355 && (m_spellInfo->Id == 33206 || m_spellInfo->Id == 47788))
                         continue;
 
                     foundNotStun = true;

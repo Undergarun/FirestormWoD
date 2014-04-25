@@ -1261,7 +1261,7 @@ bool Item::CanBeTransmogrified() const
     if (!proto)
         return false;
 
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY || proto->Quality < ITEM_QUALITY_RARE)
         return false;
 
     if (proto->Class != ITEM_CLASS_ARMOR &&
@@ -1274,7 +1274,7 @@ bool Item::CanBeTransmogrified() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats() && !HasSpells() && (proto->Quality < ITEM_QUALITY_RARE))
+    if (!HasStats() && proto->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC)
         return false;
 
     return true;
@@ -1303,7 +1303,7 @@ bool Item::CanTransmogrify() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
         return true;
 
-    if (!HasStats() && !HasSpells())
+    if (!HasStats())
         return false;
 
     return true;
@@ -1350,11 +1350,9 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     if (proto1->Class != proto2->Class)
         return false;
 
-    if (proto1->SubClass != proto2->SubClass && !proto1->IsRangedWeapon() && !proto2->IsRangedWeapon())
+    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && proto1->SubClass != proto2->SubClass &&
+        (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
         return false;
-
-    if (proto1->IsRangedWeapon() && proto2->IsRangedWeapon())
-        return true;
 
     if (proto1->InventoryType != proto2->InventoryType)
     {
@@ -1373,7 +1371,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     }
 
     // Check armor types
-    if (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR)
+    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR))
     {
         uint32 skill1 = proto1->GetSkill();
         uint32 skill2 = proto2->GetSkill();
@@ -1656,12 +1654,10 @@ bool Item::IsStuffItem() const
         case INVTYPE_BODY:
         case INVTYPE_BAG:
         case INVTYPE_TABARD:
-        case INVTYPE_HOLDABLE:
         case INVTYPE_AMMO:
         case INVTYPE_THROWN:
         case INVTYPE_QUIVER:
         case INVTYPE_RELIC:
-        case INVTYPE_RANGEDRIGHT:
             return false;
         default:
             return true;
@@ -1688,7 +1684,7 @@ bool Item::CanUpgrade() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (!HasStats())
+    if (!HasStats() && proto->InventoryType != INVTYPE_TRINKET)
         return false;
 
     // PvP item can't be upgraded after Season 12
