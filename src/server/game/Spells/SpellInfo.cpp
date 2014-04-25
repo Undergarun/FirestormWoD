@@ -3689,13 +3689,17 @@ bool SpellInfo::IsRequireAdditionalTargetCheck() const
 
 bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 {
-    if (m_caster && m_caster->HasAura(115192))
+    if (!m_caster)
         return false;
 
-    if (m_caster && m_caster->HasAura(108208) && HasAttribute(SPELL_ATTR0_ONLY_STEALTHED) && !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
-    {
-        m_caster->CastSpell(m_caster, 115192, true);
+    if (m_caster->HasAura(115192))
         return false;
+
+    // Hearthstone shoudn't call subterfuge effect
+    if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
+    {
+        m_caster->RemoveAura(115191);
+        return true;
     }
 
     switch (GetSpellSpecific())
@@ -3706,14 +3710,29 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
             return true;
     }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    bool callSubterfuge = true;
+    if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
+        !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
-            return true;
+        // Mounts shouldn't call subterfuge effect
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+            {
+                callSubterfuge = false;
+                break;
+            }
+        }
+
+        if (callSubterfuge)
+        {
+            m_caster->CastSpell(m_caster, 115192, true);
+            return false;
+        }
     }
 
-    //if ((!m_caster || !m_caster->HasAuraType(SPELL_AURA_335)) && IsPositive())
-    //    return false;
+    if (m_caster->HasAura(115191))
+        return false;
 
     switch(Id)
     {

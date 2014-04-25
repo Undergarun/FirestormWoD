@@ -28,6 +28,15 @@ enum SummonerType
     SUMMONER_TYPE_MAP           = 2
 };
 
+enum StatsIncreaseType
+{
+    INCREASE_HEALTH_PERCENT         = 1,
+    INCREASE_MELEE_DAMAGE_PERCENT   = 2,
+    INCREASE_RANGED_DAMAGE_PERCENT  = 3,
+    INCREASE_ARMOR_PERCENT          = 13,
+    INCREASE_MAGIC_DAMAGE_PERCENT   = 24
+};
+
 /// Stores data for temp summons
 struct TempSummonData
 {

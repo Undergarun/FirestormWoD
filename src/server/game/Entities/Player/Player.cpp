@@ -2039,7 +2039,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
+                if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
@@ -2067,27 +2067,27 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
-                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
+                    // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
+                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
                     }
-                    // Custom MoP Script - Wind Lash
-                    else if (HasAura(114051))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
-                        CastSpell(victim, 114089, true);
-                        resetAttackTimer(BASE_ATTACK);
+                        // Should have only one aura of this type at the same time
+                        AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
+                        for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
+                        {
+                            CastSpell(victim, (*i)->GetTriggerSpell(), true);
+                            resetAttackTimer(BASE_ATTACK);
+                            break;
+                        }
                     }
                     // Shadow Blade - Main Hand
                     else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121473, true);
-                        resetAttackTimer(BASE_ATTACK);
-                    }
-                    else if (HasAura(137586) && !HasAura(121471))
-                    {
-                        CastSpell(victim, 137584, true); // Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
                     else if (HasAura(137586) && HasAura(121471))
@@ -2100,7 +2100,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
+                if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -2110,27 +2110,27 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
-                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
+                    // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
+                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
                     }
-                    // Custom MoP Script - Wind Lash Off-Hand
-                    else if (HasAura(114051))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
-                        CastSpell(victim, 114093, true);
-                        resetAttackTimer(OFF_ATTACK);
+                        // Should have only one aura of this type at the same time
+                        AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
+                        for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
+                        {
+                            CastSpell(victim, (*i)->GetMiscValue(), true);
+                            resetAttackTimer(OFF_ATTACK);
+                            break;
+                        }
                     }
                     // Shadow Blades - Off Hand
                     else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121474, true);
-                        resetAttackTimer(OFF_ATTACK);
-                    }
-                    else if (HasAura(137586) && !HasAura(121471))
-                    {
-                        CastSpell(victim, 137585, true); // Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
                     else if (HasAura(137586) && HasAura(121471))
@@ -8491,6 +8491,13 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
+
+    float honorMod = 1.0f;
+    Unit::AuraEffectList const& mModHonorGainPercent = GetAuraEffectsByType(SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT);
+    for (Unit::AuraEffectList::const_iterator i = mModHonorGainPercent.begin(); i != mModHonorGainPercent.end(); ++i)
+        honorMod += float(float((*i)->GetAmount()) / 100.0f);
+
+    honor_f *= honorMod;
 
     // Back to int now
     honor = std::max(int32(honor_f), 1);
@@ -23791,6 +23798,17 @@ void Player::SetRestBonus (float rest_bonus_new)
         m_rest_bonus = rest_bonus_max;
     else
         m_rest_bonus = rest_bonus_new;
+
+    // Inner Peace
+    if (HasAura(107074))
+        m_rest_bonus *= 2;
+
+    float modifier = 1.0f;
+    AuraEffectList const& mIncreaseRest = GetAuraEffectsByType(SPELL_AURA_INCREASE_REST_BONUS_PERCENT);
+    for (AuraEffectList::const_iterator i = mIncreaseRest.begin(); i != mIncreaseRest.end(); ++i)
+        modifier += float((*i)->GetAmount() / 100);
+
+    m_rest_bonus *= modifier;
 
     // update data for client
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
