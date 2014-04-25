@@ -7061,26 +7061,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 victim->CastSpell(victim, 57669, true, castItem, triggeredByAura);
                 return true;                                // no hidden cooldown
             }
-            // Divine Aegis
-            if (dummySpell->Id == 47515)
-            {
-                if (!target)
-                    return false;
 
-                if (!procSpell)
-                    return false;
-
-                if (!(procEx & PROC_EX_CRITICAL_HIT))
-                    return false;
-
-                basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                triggered_spell_id = 47753;
-                basepoints0 += target->GetAuraEffect(triggered_spell_id, 0) ? target->GetAuraEffect(triggered_spell_id, 0)->GetAmount() : 0;
-
-                basepoints0 = std::min(basepoints0, target->CountPctFromMaxHealth(60));
-
-                break;
-            }
             switch (dummySpell->Id)
             {
                 // Shadowflame, Item - Priest T12 Shadow 2P Bonus
@@ -7095,6 +7076,26 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = victim;
                     basepoints0 = int32(CalculatePct(damage, 20));
                     triggered_spell_id = 99156;
+                    break;
+                }
+                // Divine Aegis
+                case 47515:
+                {
+                    if (!target)
+                        return false;
+
+                    if (!procSpell)
+                        return false;
+
+                    if (!(procEx & PROC_EX_CRITICAL_HIT))
+                        return false;
+
+                    uint32 amount = CalculatePct(int32(damage), triggerAmount);
+                    triggered_spell_id = 47753;
+                    amount += target->GetAuraEffect(triggered_spell_id, 0) ? target->GetAuraEffect(triggered_spell_id, 0)->GetAmount() : 0;
+
+                    basepoints0 = std::min(amount, target->CountPctFromMaxHealth(60));
+
                     break;
                 }
                 // Vampiric Embrace
@@ -10349,6 +10350,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if (ToPlayer()->HasSpellCooldown(6572))
                 ToPlayer()->RemoveSpellCooldown(6572, true);
+
+            break;
+        }
+        case 145676:// Riposte
+        {
+            if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
+                return false;
+
+            Player* plr = ToPlayer();
+            if (!plr)
+                return false;
+
+            basepoints0 = CalculatePct((plr->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_PARRY) + plr->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_DODGE)), triggerAmount);
 
             break;
         }
