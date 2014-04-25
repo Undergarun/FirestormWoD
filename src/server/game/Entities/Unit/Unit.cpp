@@ -733,17 +733,16 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     // Custom MoP Script - Cloak of Shadows
-    if (this && this->HasAura(31224) && victim && damagetype == SPELL_DIRECT_DAMAGE)
-    {
+    if (HasAura(31224) && victim && damagetype == SPELL_DIRECT_DAMAGE)
         damage = 0;
-    }
 
     // Custom MoP Script - Shadow Blades
-    if (this && this->HasAura(121471) && this->HasAuraType(SPELL_AURA_MOD_STEALTH) && victim)
-    {
-        this->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-    }
-    
+    if (HasAura(121471) && HasAuraType(SPELL_AURA_MOD_STEALTH) && victim)
+        RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+
+    // Custom MoP Script - Subterfuge , should be called from normal hit
+    if (HasAura(108208) && HasAura(115191) && !HasAura(115192) && victim && (damagetype == DIRECT_DAMAGE || HasAura(121471)))
+        CastSpell(this, 115192, true);
 
     // Custom MoP Script - Desperate Measures
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(126060))
@@ -773,7 +772,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         if (damage > 0)
         {
-            if (AuraPtr blackOxStatue = this->GetAura(115315))
+            if (AuraPtr blackOxStatue = GetAura(115315))
                 blackOxStatue->SetScriptData(0, damage);
         }
     }
@@ -4249,7 +4248,9 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
-        if (aura->GetSpellInfo()->Id == 115191 && HasAura(115192))
+
+        // Subterfuge can't be removed except manually
+        if (aura->GetSpellInfo()->Id == 115191)
             continue;
 
         if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
@@ -4327,9 +4328,6 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         ++iter;
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
-            if (aura->GetSpellInfo()->Id == 115191 && HasAura(115192))
-                continue;
-
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aura);
             if (m_removedAurasCount > removedAuras + 1)
@@ -14311,6 +14309,9 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         if (player->HasAura(56232) && (creatureEntry == 304 || creatureEntry == 73965 || creatureEntry == 73966))
             player->CastSpell(player, 143314, true);
 
+        // Remove subterfuge just after cast
+        player->RemoveAura(115192);
+
         // don't unsummon pet but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
         if (Pet* pet = player->GetPet())
             pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -17625,6 +17626,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Stealth is not removed on absorb damage
         if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && procExtra & PROC_EX_ABSORB && isVictim)
             useCharges = false;
+
+        // Hack Fix : Subterfuge aura can't be removed by any action
+        if (spellInfo->Id == 115191)
+        {
+            useCharges = false;
+
+            if (procExtra & PROC_EX_INTERNAL_DOT && !HasAura(115192) && !HasAura(131369))
+                CastSpell(this, 115192, true);
+        }
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
         if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && HasAura(131369) && isVictim)
