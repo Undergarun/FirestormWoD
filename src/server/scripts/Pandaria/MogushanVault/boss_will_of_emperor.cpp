@@ -244,6 +244,9 @@ class boss_jin_qin_xi : public CreatureScript
 
             void Reset()
             {
+                if (!pInstance || pInstance->GetBossState(DATA_WILL_OF_EMPEROR) == IN_PROGRESS)
+                    return;
+
                 _Reset();
                 isActive = false;
 
@@ -257,13 +260,13 @@ class boss_jin_qin_xi : public CreatureScript
                 moveTurn = me->GetSpeed(MOVE_TURN_RATE);
                 moveWalk = me->GetSpeed(MOVE_WALK);
                 moveRun  = me->GetSpeed(MOVE_RUN);
+
+                if (pInstance->GetBossState(DATA_WILL_OF_EMPEROR) != DONE)
+                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, NOT_STARTED);
                 
 
-                if (pInstance)
-                {
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_QIN);
-                }
+                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_QIN);
 
                 playerList.clear();
 
@@ -287,12 +290,6 @@ class boss_jin_qin_xi : public CreatureScript
                         events.Reset();
                         summons.DespawnAll();
                         me->SetFullHealth();
-
-                        if (Creature* otherBoss = getOtherBoss())
-                        {
-                            otherBoss->AI()->DoAction(ACTION_REACHHOME);
-                            otherBoss->AI()->Reset();
-                        }
 
                         if (pInstance)
                         {
@@ -410,6 +407,10 @@ class boss_jin_qin_xi : public CreatureScript
                         if (isActive)
                             return;
 
+                        if (pInstance)
+                            if (pInstance->GetBossState(DATA_WILL_OF_EMPEROR) != DONE)
+                                pInstance->SetBossState(DATA_WILL_OF_EMPEROR, IN_PROGRESS);
+
                         // Appearing effect
                         isActive = true;
                         events.ScheduleEvent(EVENT_BOSS_CAST_SKYBEAM, 90000);
@@ -433,6 +434,7 @@ class boss_jin_qin_xi : public CreatureScript
                         isActive = false;
 
                         me->RemoveAllAuras();
+                        me->SetFullHealth();
 
                         if (pInstance)
                         {
@@ -512,11 +514,11 @@ class boss_jin_qin_xi : public CreatureScript
 
                 // Check wipe
                 if (pInstance)
-                    if (pInstance->IsWipe())
+                    if (isActive && pInstance->IsWipe())
                         DoAction(ACTION_REACHHOME);
 
                 // Check life sharing
-                if (isActive)
+                if (isActive && me->GetHealth() > 0)
                 {
                     if (Creature* otherBoss = getOtherBoss())
                     {
@@ -563,10 +565,9 @@ class boss_jin_qin_xi : public CreatureScript
                         me->SetDisplayId(me->GetEntry() - DISPLAY_VISIBLE);
                         // Only Qin-Xi makes the machine talk, to avoid "double voices"
                         if (me->GetEntry() == NPC_QIN_XI)
-                        {
                             if (Creature* anc_mogu_machine = GetClosestCreatureWithEntry(me, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
                                 anc_mogu_machine->AI()->DoAction(TALK_JAN_QIN_XI);
-                        }
+
                         events.ScheduleEvent(EVENT_BOSS_WAIT_VISIBLE, 2000);
                         break;
                     }
@@ -740,14 +741,6 @@ class boss_jin_qin_xi : public CreatureScript
                             }
                             else
                             {
-                                if (aliveList.empty())
-                                {
-                                    devastatingComboPhase = 0;
-                                    pInstance->SetBossState(DATA_WILL_OF_EMPEROR, FAIL);
-                                    DoAction(ACTION_REACHHOME);
-                                    if (Creature* otherBoss = getOtherBoss())
-                                        otherBoss->AI()->DoAction(ACTION_REACHHOME);
-                                }
                                 // All combo have been done, and each player who has been hit is away from playerList
                                 // If players remains in playerList, they gain Opportunistic Strike
                                 for (auto guid: playerList)
@@ -1382,12 +1375,24 @@ class mob_ancient_mogu_machine : public CreatureScript
             // Talk
             void DoAction(const int32 action)
             {
-                if (action == ACTION_MOGU_ACTIVATE)
-                    events.ScheduleEvent(EVENT_TITAN_GAS, IsHeroic() ? 100 : 225000);
-                else if (action == ACTION_MOGU_STOP)
-                    events.Reset();
-                else
-                    Talk(action);
+                switch (action)
+                {
+                    case ACTION_MOGU_ACTIVATE:
+                    {
+                        events.ScheduleEvent(EVENT_TITAN_GAS, IsHeroic() ? 100 : 225000);
+                        break;
+                    }
+                    case ACTION_MOGU_STOP:
+                    {
+                        events.Reset();
+                        break;
+                    }
+                    default:
+                    {
+                        Talk(action);
+                        break;
+                    }
+                }
             }
 
             void UpdateAI(const uint32 diff)
