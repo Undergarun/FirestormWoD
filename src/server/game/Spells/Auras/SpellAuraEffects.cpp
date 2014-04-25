@@ -437,7 +437,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //378 SPELL_AURA_378
     &AuraEffect::HandleNULL,                                      //379 SPELL_AURA_379
     &AuraEffect::HandleNULL,                                      //380 SPELL_AURA_380
-    &AuraEffect::HandleNULL,                                      //381 SPELL_AURA_381
+    &AuraEffect::HandleNoImmediateEffect,                         //381 SPELL_AURA_INCREASE_HEALTH_FROM_OWNER
     &AuraEffect::HandleAuraModPetStats,                           //382 SPELL_AURA_MOD_PET_STATS
     &AuraEffect::HandleNoImmediateEffect,                         //383 SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN
     &AuraEffect::HandleNULL,                                      //384 SPELL_AURA_384

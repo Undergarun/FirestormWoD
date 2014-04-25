@@ -438,7 +438,7 @@ enum AuraType
     SPELL_AURA_378                                          = 378,  // 5.0.5 unk aura
     SPELL_AURA_379                                          = 379,  // 5.0.5 unk aura
     SPELL_AURA_380                                          = 380,  // 5.0.5 unk aura
-    SPELL_AURA_381                                          = 381,  // 5.0.5 unk aura
+    SPELL_AURA_INCREASE_HEALTH_FROM_OWNER                   = 381,  // SPELL_AURA_INCREASE_HEALTH_FROM_OWNER
     SPELL_AURA_MOD_PET_STATS                                = 382,  // SPELL_AURA_MOD_PET_STATS
     SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN                 = 383,  // SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN implemented in Spell::CheckCast
     SPELL_AURA_384                                          = 384,  // 5.0.5 unk aura

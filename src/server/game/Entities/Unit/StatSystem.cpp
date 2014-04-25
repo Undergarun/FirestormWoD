@@ -1228,6 +1228,13 @@ bool Guardian::UpdateStats(Stats stat)
 
             ownersBonus = float(owner->GetStat(stat)) * mod;
             ownersBonus *= GetModifierValue(UNIT_MOD_STAT_STAMINA, TOTAL_PCT);
+
+            float modifier = 1.0f;
+            AuraEffectList const& mModHealthFromOwner = owner->GetAuraEffectsByType(SPELL_AURA_INCREASE_HEALTH_FROM_OWNER);
+            for (AuraEffectList::const_iterator i = mModHealthFromOwner.begin(); i != mModHealthFromOwner.end(); ++i)
+                modifier += float((*i)->GetAmount() / 100.0f);
+
+            ownersBonus *= modifier;
             value += ownersBonus;
             break;
         }
