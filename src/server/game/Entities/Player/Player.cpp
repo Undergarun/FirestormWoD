@@ -23795,6 +23795,14 @@ void Player::SetRestBonus (float rest_bonus_new)
     // Inner Peace
     if (HasAura(107074))
         m_rest_bonus *= 2;
+
+    float modifier = 1.0f;
+    AuraEffectList const& mIncreaseRest = GetAuraEffectsByType(SPELL_AURA_INCREASE_REST_BONUS_PERCENT);
+    for (AuraEffectList::const_iterator i = mIncreaseRest.begin(); i != mIncreaseRest.end(); ++i)
+        modifier += float((*i)->GetAmount() / 100);
+
+    m_rest_bonus *= modifier;
+
     // update data for client
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);

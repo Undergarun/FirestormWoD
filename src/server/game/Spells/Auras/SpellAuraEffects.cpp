@@ -442,7 +442,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //383 SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN
     &AuraEffect::HandleNULL,                                      //384 SPELL_AURA_384
     &AuraEffect::HandleNoImmediateEffect,                         //385 SPELL_AURA_STRIKE_SELF in Unit::AttackerStateUpdate
-    &AuraEffect::HandleNULL,                                      //386 SPELL_AURA_386
+    &AuraEffect::HandleNoImmediateEffect,                         //386 SPELL_AURA_INCREASE_REST_BONUS_PERCENT implemented in Rest gain calculation
     &AuraEffect::HandleNoImmediateEffect,                         //387 SPELL_AURA_REDUCE_ITEM_MODIFY_COST implemented in Transmogrification and Void Chamber handlers
     &AuraEffect::HandleNoImmediateEffect,                         //388 SPELL_AURA_MOD_TAXI_FLIGHT_SPEED
     &AuraEffect::HandleNoImmediateEffect,                         //389 SPELL_AURA_KIL_JAEDENS_CUNNING in SpellInfo::AttackerStateUpdate
