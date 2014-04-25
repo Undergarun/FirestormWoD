@@ -43,8 +43,7 @@ enum WarlockSpells
     WARLOCK_DRAIN_LIFE_ORIGINAL             = 689,
     WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_SOULBURN_AURA                   = 74434,
-    WARLOCK_CORRUPTION                      = 172,
-    WARLOCK_CORRUPTION_OTHER                = 146739,
+    WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
     WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
@@ -1498,7 +1497,7 @@ class spell_warl_void_ray : public SpellScriptLoader
                             corruption->SetDuration(corruption->GetDuration() + 4000);
                             corruption->SetNeedClientUpdateForTargets();
                         }
-                        else if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION_OTHER, caster->GetGUID()))
+                        else if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, caster->GetGUID()))
                         {
                             corruption->SetDuration(corruption->GetDuration() + 4000);
                             corruption->SetNeedClientUpdateForTargets();
