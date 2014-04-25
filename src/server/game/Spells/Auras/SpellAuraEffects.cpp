@@ -433,7 +433,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT implemente in Player::EnvironmentalDamage
     &AuraEffect::HandleNULL,                                      //375 SPELL_AURA_375
     &AuraEffect::HandleNULL,                                      //376 SPELL_AURA_376
-    &AuraEffect::HandleNULL,                                      //377 SPELL_AURA_377
+    &AuraEffect::HandleNoImmediateEffect,                         //377 SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING
     &AuraEffect::HandleNULL,                                      //378 SPELL_AURA_378
     &AuraEffect::HandleNULL,                                      //379 SPELL_AURA_379
     &AuraEffect::HandleNULL,                                      //380 SPELL_AURA_380

@@ -434,7 +434,7 @@ enum AuraType
     SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT                   = 374,  // SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
     SPELL_AURA_375                                          = 375,  // 5.0.5 unk aura
     SPELL_AURA_376                                          = 376,  // 5.0.5 unk aura
-    SPELL_AURA_377                                          = 377,  // 5.0.5 unk aura
+    SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING                = 377,  // SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING
     SPELL_AURA_378                                          = 378,  // 5.0.5 unk aura
     SPELL_AURA_379                                          = 379,  // 5.0.5 unk aura
     SPELL_AURA_380                                          = 380,  // 5.0.5 unk aura

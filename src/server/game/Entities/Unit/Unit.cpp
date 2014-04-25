@@ -3283,9 +3283,9 @@ void Unit::_UpdateSpells(uint32 time)
 void Unit::_UpdateAutoRepeatSpell()
 {
     // check "real time" interrupts
-    // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
+    // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
     if (((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75)) && 
-        !HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo))
+        !HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo) && !HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // cancel wand shoot
         if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
@@ -4341,7 +4341,8 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         if (spell->getState() == SPELL_STATE_CASTING
             && (spell->m_spellInfo->ChannelInterruptFlags & flag)
             && spell->m_spellInfo->Id != except
-            && !((flag & AURA_INTERRUPT_FLAG_MOVE) && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->m_spellInfo)))
+            && !((flag & AURA_INTERRUPT_FLAG_MOVE) && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->m_spellInfo) &&
+            HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING)))
         {
             // Zen Meditation should be channeled, but apply a levitation aura, it handles a movement opcode
             if (spell->m_spellInfo->Id == 115176 && spell->GetTimer() == 8000)
