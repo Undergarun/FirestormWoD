@@ -52,6 +52,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
 
         int32 GetMiscValueB() const { return m_spellInfo->Effects[m_effIndex].MiscValueB; }
         int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
+        uint32 GetTriggerSpell() const { return m_spellInfo->Effects[m_effIndex].TriggerSpell; }
         AuraType GetAuraType() const { return (AuraType)m_spellInfo->Effects[m_effIndex].ApplyAuraName; }
         int32 GetAmount() const { return m_amount; }
         void SetAmount(int32 amount)
