@@ -344,6 +344,11 @@ void Player::UpdateMaxPower(Powers power)
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    AuraEffectList const& mModPetStats = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
+    for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+        if (power == (*i)->GetMiscValue())
+            value += float((*i)->GetAmount());
+
     value = floor(value + 0.5f);
     SetMaxPower(power, uint32(value));
 }

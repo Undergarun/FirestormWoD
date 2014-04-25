@@ -496,7 +496,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                     {
                         acctCharCount = std::stoi(ch);
                     }
-                    catch(std::invalid_argument& e)
+                    catch(std::invalid_argument& /*e*/)
                     {
                         acctCharCount = 0;
                         sLog->OutPandashan("Exception (invalid argument) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);

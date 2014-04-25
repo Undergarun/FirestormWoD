@@ -474,7 +474,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //415 SPELL_AURA_415
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
-    &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
+    &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModIncreaseEnergyPercent,              //419 SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
     &AuraEffect::HandleNoImmediateEffect,                         //421 SPELL_AURA_MOD_ABSORPTION_PCT implemented in Unit
@@ -484,7 +484,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //425 SPELL_AURA_425
     &AuraEffect::HandleNULL,                                      //426 SPELL_AURA_426
     &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_427
-    &AuraEffect::HandleNULL,                                      //428 SPELL_AURA_428
+    &AuraEffect::HandleAuraLinked,                                //428 SPELL_AURA_LINKED_2
     &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_429
     &AuraEffect::HandleNULL,                                      //430 SPELL_AURA_430
     &AuraEffect::HandleNULL,                                      //431 SPELL_AURA_431
@@ -8493,6 +8493,24 @@ void AuraEffect::HandleAuraModPetStats(AuraApplication const* aurApp, uint8 mode
         return;
 
     pet->UpdateAllStats();
+}
+
+void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    Powers power = Powers(GetMiscValue());
+    uint32 newVal = target->GetMaxPower(power);
+
+    if (apply)
+        target->SetMaxPower(power, (newVal + GetAmount()));
+    else
+        target->SetMaxPower(power, (newVal - GetAmount()));
 }
 
 void AuraEffect::HandleChangeSpellVisualEffect(AuraApplication const* aurApp, uint8 mode, bool apply) const

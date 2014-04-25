@@ -475,7 +475,7 @@ enum AuraType
     SPELL_AURA_415                                          = 415,  // 5.0.5 unk aura
     SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,  // SPELL_AURA_SANCTITY_OF_BATTLE
     SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
-    SPELL_AURA_418                                          = 418,  // 5.0.5 unk aura
+    SPELL_AURA_MOD_MAX_POWER                                = 418,  // SPELL_AURA_MOD_MAX_POWER
     SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2                = 419,  // SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
     SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)
     SPELL_AURA_MOD_ABSORPTION_PCT                           = 421,  // 5.4.0 unk aura (NYI)
@@ -484,17 +484,17 @@ enum AuraType
     SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura (NYI) Heart of the Wild talent related
     SPELL_AURA_425                                          = 425,  // 5.4.0 unused
     SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura (NYI) Brawl queue
-    SPELL_AURA_427                                          = 427,  // 5.4.0 unk aura (NYI) Spell 91318
-    SPELL_AURA_428                                          = 428,  // 5.4.0 unk aura (NYI) used for cart in silvershard mines ?
+    SPELL_AURA_427                                          = 427,  // 5.4.0 Entering Battleground (91318)
+    SPELL_AURA_LINKED_2                                     = 428,  // SPELL_AURA_LINKED_2
     SPELL_AURA_MOD_PET_DAMAGE_DONE                          = 429,  // 5.4.0 unk aura (NYI) see 144364
-    SPELL_AURA_430                                          = 430,  // 5.4.0 unk aura (NYI)
+    SPELL_AURA_430                                          = 430,  // 5.4.0 SPELL_AURA_PLAY_SCENE_SCRIPT ?
     SPELL_AURA_431                                          = 431,  // 5.4.0 unk aura (NYI) Contested Territory 142869
-    SPELL_AURA_432                                          = 432,  // 5.4.0 unk aura (NYI)
-    SPELL_AURA_433                                          = 433,  // 5.4.0 unused
+    SPELL_AURA_432                                          = 432,  // 5.4.0 Entering Battleground (91318)
+    SPELL_AURA_433                                          = 433,  // 5.4.0 Unused
     SPELL_AURA_434                                          = 434,  // 5.4.0 unk aura (NYI) used by wowhead.com/spell=145175 value is wowhead.com/npc=72327
     SPELL_AURA_435                                          = 435,  // 5.4.0 Unused
-    SPELL_AURA_436                                          = 436,  // 5.4.0 Internal spell
-    SPELL_AURA_437                                          = 437,  // 5.4.0 Internal spell
+    SPELL_AURA_436                                          = 436,  // 5.4.0 Kyle's Test Spell (Internal Only)
+    SPELL_AURA_437                                          = 437,  // 5.4.0 Two spells (Siege of Orgrimmar)
     TOTAL_AURAS                                             = 438   // 5.4.0
 };
 
