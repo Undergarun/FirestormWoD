@@ -7074,8 +7074,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     return false;
 
                 basepoints0 = CalculatePct(int32(damage), triggerAmount);
-
                 triggered_spell_id = 47753;
+                basepoints0 += target->GetAuraEffect(triggered_spell_id, 0) ? target->GetAuraEffect(triggered_spell_id, 0)->GetAmount() : 0;
+
+                basepoints0 = std::min(basepoints0, target->CountPctFromMaxHealth(60));
+
                 break;
             }
             switch (dummySpell->Id)
