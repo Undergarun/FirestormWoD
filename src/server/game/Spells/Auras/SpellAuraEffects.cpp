@@ -456,7 +456,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //397 SPELL_AURA_397
     &AuraEffect::HandleNULL,                                      //398 SPELL_AURA_398
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_399
-    &AuraEffect::HandleNULL,                                      //400 SPELL_AURA_400
+    &AuraEffect::HandleAuraModSkillValue,                         //400 SPELL_AURA_MOD_SKILL_VALUE
     &AuraEffect::HandleNULL,                                      //401 SPELL_AURA_401
     &AuraEffect::HandleNULL,                                      //402 SPELL_AURA_402
     &AuraEffect::HandleChangeSpellVisualEffect,                   //403 SPELL_AURA_CHANGE_VISUAL_EFFECT
@@ -3428,11 +3428,25 @@ void AuraEffect::HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, b
     uint32 prot = GetMiscValue();
     int32 points = GetAmount();
 
-
     if (prot == SKILL_DEFENSE)
         return;
 
     target->ModifySkillBonus(prot, (apply ? points : -points), GetAuraType() == SPELL_AURA_MOD_SKILL_TALENT);
+}
+
+void AuraEffect::HandleAuraModSkillValue(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_SKILL)))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    uint32 skill = GetMiscValue();
+    int32 points = GetAmount();
+
+    target->ModifySkillBonus(skill, (apply ? points : -points), GetAuraType() == SPELL_AURA_MOD_SKILL_VALUE);
 }
 
 /****************************/

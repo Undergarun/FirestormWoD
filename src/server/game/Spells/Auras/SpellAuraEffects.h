@@ -203,6 +203,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         //  skills & talents
         void HandleAuraModPetTalentsPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModSkillValue(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  movement
         void HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode, bool apply) const;
