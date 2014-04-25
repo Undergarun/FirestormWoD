@@ -1369,7 +1369,7 @@ class spell_pri_atonement : public SpellScriptLoader
                     {
                         if (_player->HasAura(PRIEST_ATONEMENT_AURA))
                         {
-                            int32 bp = GetHitDamage();
+                            int32 bp = CalculatePct(GetHitDamage(), 90);
                             std::list<Unit*> groupList;
 
                             _player->GetPartyMembers(groupList);
