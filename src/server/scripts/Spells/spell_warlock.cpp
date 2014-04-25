@@ -40,7 +40,6 @@ enum WarlockSpells
     WARLOCK_FEAR_EFFECT                     = 118699,
     WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
-    WARLOCK_HARVEST_LIFE_HEAL               = 125314,
     WARLOCK_DRAIN_LIFE_ORIGINAL             = 689,
     WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_SOULBURN_AURA                   = 74434,
@@ -88,7 +87,6 @@ enum WarlockSpells
     WARLOCK_SHIELD_OF_SHADOW                = 115232,
     WARLOCK_THREATENING_PRESENCE            = 112042,
     WARLOCK_SUPPLANT_DEMONIC_COMMAND        = 119904,
-    WARLOCK_KIL_JAEDENS_CUNNING_PASSIVE     = 108507,
     WARLOCK_AFTERMATH_STUN                  = 85387,
     WARLOCK_IMP_SWARM                       = 104316,
     WARLOCK_DISRUPTED_NETHER                = 114736,
@@ -968,41 +966,6 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_rain_of_fire_damage_SpellScript();
-        }
-};
-
-// Kil'Jaeden's Cunning (passive with cooldown) - 119048
-class spell_warl_kil_jaedens_cunning : public SpellScriptLoader
-{
-    public:
-        spell_warl_kil_jaedens_cunning() : SpellScriptLoader("spell_warl_kil_jaedens_cunning") { }
-
-        class spell_warl_kil_jaedens_cunning_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_kil_jaedens_cunning_AuraScript);
-
-            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->RemoveAura(WARLOCK_KIL_JAEDENS_CUNNING_PASSIVE);
-            }
-
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, WARLOCK_KIL_JAEDENS_CUNNING_PASSIVE, true);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_kil_jaedens_cunning_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warl_kil_jaedens_cunning_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_kil_jaedens_cunning_AuraScript();
         }
 };
 
@@ -2768,104 +2731,6 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
-// Soulburn : Harvest Life - 115707
-class spell_warl_soulburn_harvest_life : public SpellScriptLoader
-{
-    public:
-        spell_warl_soulburn_harvest_life() : SpellScriptLoader("spell_warl_soulburn_harvest_life") { }
-
-        class spell_warl_soulburn_harvest_life_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_soulburn_harvest_life_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* player = GetCaster())
-                    if (player->HasAura(WARLOCK_SOULBURN_AURA))
-                        player->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
-            }
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // Restoring 3-4.5% of the caster's total health every 1s - With 33% bonus
-                    int32 basepoints = int32(frand(0.03f, 0.045f) * _player->GetMaxHealth());
-
-                    AddPct(basepoints, 33);
-
-                    if (!_player->HasSpellCooldown(WARLOCK_HARVEST_LIFE_HEAL))
-                    {
-                        _player->CastCustomSpell(_player, WARLOCK_HARVEST_LIFE_HEAL, &basepoints, NULL, NULL, true);
-                        // prevent the heal to proc off for each targets
-                        _player->AddSpellCooldown(WARLOCK_HARVEST_LIFE_HEAL, 0, time(NULL) + 1);
-                    }
-
-                    _player->EnergizeBySpell(_player, aurEff->GetSpellInfo()->Id, 4, POWER_DEMONIC_FURY);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_soulburn_harvest_life_AuraScript::OnApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soulburn_harvest_life_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_soulburn_harvest_life_AuraScript();
-        }
-};
-
-// Harvest Life - 108371
-class spell_warl_harvest_life : public SpellScriptLoader
-{
-    public:
-        spell_warl_harvest_life() : SpellScriptLoader("spell_warl_harvest_life") { }
-
-        class spell_warl_harvest_life_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_harvest_life_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // Restoring 3-4.5% of the caster's total health every 1s - With 33% bonus
-                    int32 basepoints = int32(frand(0.03f, 0.045f) * _player->GetMaxHealth());
-
-                    AddPct(basepoints, 33);
-
-                    if (!_player->HasSpellCooldown(WARLOCK_HARVEST_LIFE_HEAL))
-                    {
-                        _player->CastCustomSpell(_player, WARLOCK_HARVEST_LIFE_HEAL, &basepoints, NULL, NULL, true);
-                        // prevent the heal to proc off for each targets
-                        _player->AddSpellCooldown(WARLOCK_HARVEST_LIFE_HEAL, 0, time(NULL) + 1);
-                    }
-
-                    _player->EnergizeBySpell(_player, aurEff->GetSpellInfo()->Id, 4, POWER_DEMONIC_FURY);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_harvest_life_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_harvest_life_AuraScript();
-        }
-};
-
 // Fear - 5782
 class spell_warl_fear : public SpellScriptLoader
 {
@@ -3225,7 +3090,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_glyph_of_imp_swarm();
     new spell_warl_unbound_will();
     new spell_warl_rain_of_fire_damage();
-    new spell_warl_kil_jaedens_cunning();
     new spell_warl_shield_of_shadow();
     new spell_warl_agony();
     new spell_warl_grimoire_of_sacrifice();
@@ -3268,8 +3132,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_drain_life();
     new spell_warl_soul_harverst();
     new spell_warl_life_tap();
-    new spell_warl_soulburn_harvest_life();
-    new spell_warl_harvest_life();
     new spell_warl_fear();
     new spell_warl_banish();
     new spell_warl_create_healthstone();
