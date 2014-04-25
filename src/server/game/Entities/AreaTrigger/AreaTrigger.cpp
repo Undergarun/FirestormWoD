@@ -242,7 +242,7 @@ void AreaTrigger::Update(uint32 p_time)
         case 116235:// Amethyst Pool
         {
             std::list<Unit*> targetList;
-            radius = 10.0f;
+            radius = 5.0f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
@@ -253,13 +253,12 @@ void AreaTrigger::Update(uint32 p_time)
                 for (auto itr : targetList)
                 {
                     // Amethyst Pool - Periodic Damage
-                    if (itr->GetDistance(this) > 3.5f)
+                    if (itr->GetDistance(this) > 3.5f && itr->HasAura(130774))
                         itr->RemoveAura(130774);
-                    else if (!itr->HasAura(130774))
+                    else if (itr->GetDistance(this) <= 3.5f && !itr->HasAura(130774))
                         caster->CastSpell(itr, 130774, true);
                 }
             }
-
             break;
         }
         case 122731:// Create Cancelling Noise Area trigger
