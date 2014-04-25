@@ -3272,6 +3272,7 @@ bool SpellEffectInfo::CanScale() const
                 case SPELL_AURA_MOD_DAMAGE_DONE:
                 case SPELL_AURA_MOD_HEALING_DONE:
                 case SPELL_AURA_MOD_RATING:
+                case SPELL_AURA_MOD_BASE_HEALTH_PCT:
                     return false;
                 default:
                     break;
