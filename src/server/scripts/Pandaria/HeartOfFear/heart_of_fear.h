@@ -101,9 +101,10 @@ enum eActions
     ACTION_SONIC_QUAD1          = 3,
     ACTION_SONIC_QUAD2          = 4,
     ACTION_INHALE_PHEROMONES    = 5,
+    ACTION_WIPE                 = 6,
 
     // Ta'yak
-    ACTION_TAYAK_TALK_TRASH     = 6,
+    ACTION_TAYAK_TALK_TRASH     = 7,
 };
 
 enum eCreatures
@@ -209,6 +210,10 @@ enum eGameObjects
     GOB_ATRIUM_DOOR_EXIT            = 214491,
     GOB_SANCTUM_DOOR_ENTRANCE       = 214492,
     GOB_HEARTOFFEAR_DOOR_ENTRANCE   = 214493,
+
+    // Zor'lok Barriers
+    GOB_ARENA_WALLS                 = 212916,
+    GOB_FINAL_PHASE_WALLS           = 212943,
 };
 
 enum ePhases
