@@ -444,14 +444,14 @@ enum AuraType
     SPELL_AURA_384                                          = 384,  // 5.0.5 unk aura
     SPELL_AURA_STRIKE_SELF                                  = 385,  // Give a chance to misfire attacks and hit self instead
     SPELL_AURA_386                                          = 386,  // 5.0.5 unk aura
-    SPELL_AURA_387                                          = 387,  // 5.0.5 unk aura
+    SPELL_AURA_REDUCE_ITEM_MODIFY_COST                      = 387,  // SPELL_AURA_REDUCE_ITEM_MODIFY_COST
     SPELL_AURA_MOD_TAXI_FLIGHT_SPEED                        = 388,  // SPELL_AURA_MOD_TAXI_FLIGHT_SPEED
     SPELL_AURA_KIL_JAEDENS_CUNNING                          = 389,  // SPELL_AURA_KIL_JAEDENS_CUNNING in SpellInfo::AttackerStateUpdate
     SPELL_AURA_390                                          = 390,  // 5.0.5 unk aura
     SPELL_AURA_391                                          = 391,  // 5.0.5 unk aura
     SPELL_AURA_392                                          = 392,  // 5.0.5 unk aura
     SPELL_AURA_DEFLECT_FRONT_SPELLS                         = 393,  // SPELL_AURA_DEFLECT_FRONT_SPELLS
-    SPELL_AURA_394                                          = 394,  // 5.0.5 unk aura
+    SPELL_AURA_TRIGGER_BONUS_LOOT                           = 394,  // SPELL_AURA_TRIGGER_BONUS_LOOT
     SPELL_AURA_395                                          = 395,  // 5.0.5 unk aura
     SPELL_AURA_396                                          = 396,  // 5.0.5 unk aura
     SPELL_AURA_397                                          = 397,  // 5.0.5 unk aura

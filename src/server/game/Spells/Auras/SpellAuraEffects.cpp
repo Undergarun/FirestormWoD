@@ -443,14 +443,14 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //384 SPELL_AURA_384
     &AuraEffect::HandleNoImmediateEffect,                         //385 SPELL_AURA_STRIKE_SELF in Unit::AttackerStateUpdate
     &AuraEffect::HandleNULL,                                      //386 SPELL_AURA_386
-    &AuraEffect::HandleNULL,                                      //387 SPELL_AURA_387
+    &AuraEffect::HandleNoImmediateEffect,                         //387 SPELL_AURA_REDUCE_ITEM_MODIFY_COST implemented in Transmogrification and Void Chamber handlers
     &AuraEffect::HandleNoImmediateEffect,                         //388 SPELL_AURA_MOD_TAXI_FLIGHT_SPEED
     &AuraEffect::HandleNoImmediateEffect,                         //389 SPELL_AURA_KIL_JAEDENS_CUNNING in SpellInfo::AttackerStateUpdate
     &AuraEffect::HandleNULL,                                      //390 SPELL_AURA_390
     &AuraEffect::HandleNULL,                                      //391 SPELL_AURA_391
     &AuraEffect::HandleNULL,                                      //392 SPELL_AURA_392
     &AuraEffect::HandleNoImmediateEffect,                         //393 SPELL_AURA_DEFLECT_FRONT_SPELLS
-    &AuraEffect::HandleNULL,                                      //394 SPELL_AURA_394
+    &AuraEffect::HandleNoImmediateEffect,                         //394 SPELL_AURA_TRIGGER_BONUS_LOOT (NYI)
     &AuraEffect::HandleNULL,                                      //395 SPELL_AURA_395
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_396
     &AuraEffect::HandleNULL,                                      //397 SPELL_AURA_397
