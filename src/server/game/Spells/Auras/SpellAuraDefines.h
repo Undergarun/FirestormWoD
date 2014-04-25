@@ -439,7 +439,7 @@ enum AuraType
     SPELL_AURA_379                                          = 379,  // 5.0.5 unk aura
     SPELL_AURA_380                                          = 380,  // 5.0.5 unk aura
     SPELL_AURA_381                                          = 381,  // 5.0.5 unk aura
-    SPELL_AURA_382                                          = 382,  // 5.0.5 unk aura
+    SPELL_AURA_MOD_PET_STATS                                = 382,  // SPELL_AURA_MOD_PET_STATS
     SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN                 = 383,  // SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN implemented in Spell::CheckCast
     SPELL_AURA_384                                          = 384,  // 5.0.5 unk aura
     SPELL_AURA_STRIKE_SELF                                  = 385,  // Give a chance to misfire attacks and hit self instead

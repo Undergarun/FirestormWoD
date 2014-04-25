@@ -12243,6 +12243,17 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
+    if (Unit* owner = GetOwner())
+    {
+        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        float amount = 0;
+        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+            if ((*i)->GetMiscValue() == INCREASE_MAGIC_DAMAGE_PERCENT)
+                amount += float((*i)->GetAmount());
+
+        AddPct(DoneTotalMod, amount);
+    }
+
     // Apply Power PvP damage bonus
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -12959,7 +12970,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
 
     float crit_chance = GetSpellCrit(victim, spellProto, schoolMask, attackType);
 
-    if (crit_chance == 0.0f)
+    if (crit_chance <= 0.0f)
         return false;
     else if (crit_chance >= 100.0f)
         return true;
@@ -13817,6 +13828,17 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
+
+    if (Unit* owner = GetOwner())
+    {
+        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        float amount = 0;
+        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+            if ((*i)->GetMiscValue() == INCREASE_MELEE_DAMAGE_PERCENT)
+                amount += float((*i)->GetAmount());
+
+        AddPct(DoneTotalMod, amount);
+    }
 
     // Bladestorm - 46924
     // Increase damage by 60% in Arms spec

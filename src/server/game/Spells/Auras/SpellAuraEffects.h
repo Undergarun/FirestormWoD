@@ -265,6 +265,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleIncreaseHasteFromItemsByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModPetStats(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;

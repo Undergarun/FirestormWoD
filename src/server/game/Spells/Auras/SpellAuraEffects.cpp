@@ -438,7 +438,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //379 SPELL_AURA_379
     &AuraEffect::HandleNULL,                                      //380 SPELL_AURA_380
     &AuraEffect::HandleNULL,                                      //381 SPELL_AURA_381
-    &AuraEffect::HandleNULL,                                      //382 SPELL_AURA_382
+    &AuraEffect::HandleAuraModPetStats,                           //382 SPELL_AURA_MOD_PET_STATS
     &AuraEffect::HandleNoImmediateEffect,                         //383 SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN
     &AuraEffect::HandleNULL,                                      //384 SPELL_AURA_384
     &AuraEffect::HandleNoImmediateEffect,                         //385 SPELL_AURA_STRIKE_SELF in Unit::AttackerStateUpdate
@@ -8454,6 +8454,26 @@ void AuraEffect::HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 
 
     if (target->GetTypeId() == TYPEID_PLAYER)
         target->ToPlayer()->UpdateManaRegen();
+}
+
+void AuraEffect::HandleAuraModPetStats(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    Player* plrTarget = target->ToPlayer();
+    if (!plrTarget)
+        return;
+
+    Guardian* pet = plrTarget->GetGuardianPet();
+    if (!pet)
+        return;
+
+    pet->UpdateAllStats();
 }
 
 void AuraEffect::HandleChangeSpellVisualEffect(AuraApplication const* aurApp, uint8 mode, bool apply) const

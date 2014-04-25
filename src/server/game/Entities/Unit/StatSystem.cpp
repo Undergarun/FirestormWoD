@@ -1325,6 +1325,17 @@ void Guardian::UpdateArmor()
     value *= GetModifierValue(unitMod, BASE_PCT);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    if (Unit* owner = GetOwner())
+    {
+        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        float amount = 0;
+        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+            if ((*i)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*i)->GetMiscValueB() && GetEntry() == (*i)->GetMiscValueB())
+                amount += float((*i)->GetAmount());
+
+        AddPct(value, amount);
+    }
+
     SetArmor(int32(value));
 }
 
@@ -1369,6 +1380,17 @@ void Guardian::UpdateMaxHealth()
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
+
+    if (Unit* owner = GetOwner())
+    {
+        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        float amount = 0;
+        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+            if ((*i)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*i)->GetMiscValueB() && GetEntry() == (*i)->GetMiscValueB())
+                amount += float((*i)->GetAmount());
+
+        AddPct(value, amount);
+    }
 
     SetMaxHealth((uint32)value);
 }
