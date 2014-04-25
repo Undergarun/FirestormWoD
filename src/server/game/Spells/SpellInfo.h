@@ -573,7 +573,7 @@ public:
     bool IsPeriodicHeal() const;
     bool IsReducingCastTime() const;
     bool CanTriggerBladeFlurry() const;
-    bool IsCustomCharged(SpellInfo const* procSpell) const;
+    bool IsCustomCharged(SpellInfo const* procSpell, Unit* caster = NULL) const;
     bool IsCustomCastCanceled(Unit* caster) const;
     bool IsWrongPrecastSpell(SpellInfo const* m_preCastSpell) const;
     bool IsPoisonOrBleedSpell() const;

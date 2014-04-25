@@ -4629,6 +4629,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 115191:// Subterfuge
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
+                spellInfo->ProcFlags = 0x00A22A8;   // 1784 ProcsFlags
                 break;
             case 115192:// Subterfuge
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;

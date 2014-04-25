@@ -4249,7 +4249,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
-        if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+        if (aura->GetSpellInfo()->Id == 115191 && HasAura(115192))
             continue;
 
         if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
@@ -4327,7 +4327,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         ++iter;
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
-            if (aura->GetSpellInfo()->Id == 1784 && HasAura(115192))
+            if (aura->GetSpellInfo()->Id == 115191 && HasAura(115192))
                 continue;
 
             uint32 removedAuras = m_removedAurasCount;
@@ -17844,7 +17844,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             takeCharges = false;
 
         // Remove charge (aura can be removed by triggers)
-        if (prepare && useCharges && takeCharges && !i->aura->GetSpellInfo()->IsCustomCharged(procSpell))
+        if (prepare && useCharges && takeCharges && !i->aura->GetSpellInfo()->IsCustomCharged(procSpell, this))
         {
             // Hack Fix for Tiger Strikes
             if (i->aura->GetId() == 120273)
