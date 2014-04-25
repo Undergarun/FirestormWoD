@@ -3763,6 +3763,25 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
 
     switch (m_spellInfo->Id)
     {
+        case 6358:  // Seduce
+        case 115268:// Mesmerize
+        {
+            if (!GetCaster())
+                break;
+
+            if (Unit* owner = GetCaster()->GetOwner())
+            {
+                // Glyph of Demon Training
+                if (owner->HasAura(56249))
+                {
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                }
+            }
+
+            break;
+        }
         case 117436:// Lightning Prison
             target->RemoveAura(111850);
             break;
