@@ -201,6 +201,9 @@ class boss_zorlok : public CreatureScript
                 std::list<GameObject*> arenaList;
                 std::list<GameObject*> wallsList;
 
+                GetGameObjectListWithEntryInGrid(arenaList, me, GOB_ARENA_WALLS, 200.0f);
+                GetGameObjectListWithEntryInGrid(wallsList, me, GOB_FINAL_PHASE_WALLS, 200.0f);
+
                 for (auto wall : arenaList)
                     me->RemoveGameObject(wall, true);
 
