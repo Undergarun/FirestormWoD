@@ -20,6 +20,7 @@
 // Gormok - Snobolled (creature at back)
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 #include "Vehicle.h"

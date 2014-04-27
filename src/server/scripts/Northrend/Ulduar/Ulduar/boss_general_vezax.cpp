@@ -21,6 +21,7 @@
 #include "SpellAuraEffects.h"
 #include "ulduar.h"
 #include "Player.h"
+#include "GridNotifiers.h"
 
 enum VezaxYells
 {
