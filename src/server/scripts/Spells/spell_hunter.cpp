@@ -2005,15 +2005,25 @@ class spell_hun_masters_call : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Player* caster = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (Pet* pet = caster->GetPet())
+                        {
                             pet->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, true);
+                            target->RemoveMovementImpairingAuras();
+                        }
+                    }
+                }
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
+                {
                     target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL, true);
+                    target->RemoveMovementImpairingAuras();
+                }
             }
 
             void Register()
