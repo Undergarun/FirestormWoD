@@ -43,6 +43,7 @@ enum eSpells
     SPELL_CONVERT               = 122740,
     SPELL_INHALE                = 122852,
     SPELL_EXHALE                = 122761,
+    SPELL_EXHALE_DMG            = 122760,
     SPELL_PHEROMONES_OF_ZEAL    = 123812,
     SPELL_PHEROMONES_CLOUD      = 123811,
     SPELL_FORCE_AND_VERVE       = 122713,

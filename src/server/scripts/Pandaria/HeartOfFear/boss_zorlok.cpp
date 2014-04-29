@@ -1162,7 +1162,7 @@ class spell_sonic_ring : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     std::list<Player*> playerList;
-                    GetPlayerListInGrid(playerList, caster, 3.0f);
+                    GetPlayerListInGrid(playerList, caster, 1.5f);
 
                     for (auto player : playerList)
                         player->AddAura(SPELL_SONIC_RING_AURA, player);
@@ -1308,6 +1308,35 @@ class spell_zorlok_exhale : public SpellScriptLoader
         }
 };
 
+// 122761 - Exhale
+class spell_exhale_main : public SpellScriptLoader
+{
+    public:
+        spell_exhale_main() : SpellScriptLoader("spell_exhale_main") { }
+
+        class spell_exhale_main_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_exhale_main_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* target = GetHitPlayer())
+                        caster->CastSpell(target, SPELL_EXHALE_DMG, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget = SpellEffectFn(spell_exhale_main_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_exhale_main_SpellScript();
+        }
+};
+
 class ExhaleDamageTargetFilter : public std::unary_function<Unit*, bool>
 {
     public:
@@ -1325,7 +1354,7 @@ class ExhaleDamageTargetFilter : public std::unary_function<Unit*, bool>
             if (object == exhaleTarget)
                 return false;
 
-            if (!object->IsInBetween(_caster, exhaleTarget, 1.0f))
+            if (!object->IsInBetween(_caster, exhaleTarget/*, 1.0f*/))
                 return true; // Remove players not between Zor'lok and his Exhale target.
 
             return false; // Players between Zor'lok and the Exhale target are added to the list and sorted afterwards by distance.
@@ -1460,6 +1489,7 @@ void AddSC_boss_zorlok()
     new spell_sonic_ring();
     new spell_pheromones_of_zeal();
     new spell_zorlok_exhale();
+    new spell_exhale_main();
     new spell_zorlok_exhale_damage();
     new spell_convert();
 }

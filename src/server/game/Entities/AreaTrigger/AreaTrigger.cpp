@@ -300,9 +300,9 @@ void AreaTrigger::Update(uint32 p_time)
                     if (itr->GetTypeId() == TYPEID_PLAYER)
                     {
                         // Pheromones of Zeal - Periodic Damage
-                        if (itr->GetDistance(this) > 35.0f && itr->HasAura(123812))
+                        if (itr->GetDistance(this) > 30.0f && itr->HasAura(123812))
                             itr->RemoveAura(123812);
-                        else if (itr->GetDistance(this) <= 35.0f && !itr->HasAura(123812))
+                        else if (itr->GetDistance(this) <= 30.0f && !itr->HasAura(123812))
                             caster->AddAura(123812, itr);
                     }
                 }
