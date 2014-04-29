@@ -5578,7 +5578,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                case 125048:// Fetch
+                case 125050:// Fetch
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
