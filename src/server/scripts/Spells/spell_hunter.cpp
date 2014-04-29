@@ -117,7 +117,61 @@ enum HunterSpells
     HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
     HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     HUNTER_SPELL_GLYPH_OF_LIBERATION                = 132106,
-    HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927
+    HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927,
+    HUNTER_SPELL_GLYPH_OF_ASPECTS                   = 122492,
+    HUNTER_SPELL_ASPECT_OF_THE_CHEETAH              = 5118,
+    HUNTER_SPELL_ASPECT_OF_THE_CHEETAH_SUMMON       = 122489,
+    HUNTER_SPELL_ASPECT_OF_THE_HAWK                 = 13165,
+    HUNTER_SPELL_ASPECT_OF_THE_HAWK_SUMMON          = 122487,
+    HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
+    HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490
+};
+
+// Called by Aspect of the Pack - 13159, Aspect of the Hawk - 13165 and Aspect of the Cheetah - 5118
+// Glyph of Aspects - 122492
+class spell_hun_glyph_of_aspects : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_aspects() : SpellScriptLoader("spell_hun_glyph_of_aspects") { }
+
+        class spell_hun_glyph_of_aspects_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_glyph_of_aspects_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->HasAura(HUNTER_SPELL_GLYPH_OF_ASPECTS))
+                        return;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case HUNTER_SPELL_ASPECT_OF_THE_CHEETAH:
+                            caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_CHEETAH_SUMMON, true);
+                            break;
+                        case HUNTER_SPELL_ASPECT_OF_THE_HAWK:
+                            caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_HAWK_SUMMON, true);
+                            break;
+                        case HUNTER_SPELL_ASPECT_OF_THE_PACK:
+                            caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_glyph_of_aspects_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_glyph_of_aspects_SpellScript();
+        }
 };
 
 // Lock and Load - 56453
@@ -2289,6 +2343,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_glyph_of_aspects();
     new spell_hun_lock_and_load_proc();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_bestial_wrath_dispel();
