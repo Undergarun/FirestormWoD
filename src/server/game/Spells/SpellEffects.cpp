@@ -930,6 +930,41 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     break;
                 }
+                case 126734:// Synapse Springs
+                {
+                    Stats usedStat = STAT_INTELLECT;
+                    int32 stat = m_caster->GetStat(STAT_INTELLECT);
+                    int32 agility = m_caster->GetStat(STAT_AGILITY);
+                    int32 strength = m_caster->GetStat(STAT_STRENGTH);
+
+                    if (stat < agility)
+                    {
+                        stat = agility;
+                        usedStat = STAT_AGILITY;
+                    }
+                    if (stat < strength)
+                    {
+                        stat = strength;
+                        usedStat = STAT_STRENGTH;
+                    }
+
+                    switch (usedStat)
+                    {
+                        case STAT_INTELLECT:
+                            m_caster->CastCustomSpell(m_caster, 96230, &damage, NULL, NULL, true);
+                            break;
+                        case STAT_AGILITY:
+                            m_caster->CastCustomSpell(m_caster, 96228, &damage, NULL, NULL, true);
+                            break;
+                        case STAT_STRENGTH:
+                            m_caster->CastCustomSpell(m_caster, 96229, &damage, NULL, NULL, true);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                }
                 case 96934: // Blessing of Khaz'goroth
                 case 97127: // Blessing of Khaz'goroth (H)
                 {
