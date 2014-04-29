@@ -1087,7 +1087,7 @@ class spell_unseen_strike_dmg : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_unseen_strike_dmgSpellScript, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_unseen_strike_dmgSpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
                 OnEffectHitTarget += SpellEffectFn(spell_unseen_strike_dmgSpellScript::DealDamages, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };

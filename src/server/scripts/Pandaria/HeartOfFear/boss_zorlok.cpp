@@ -293,7 +293,7 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            void JustDied()
+            void JustDied(Unit* /*who*/)
             {
                 events.Reset();
                 summons.DespawnAll();
@@ -1330,7 +1330,7 @@ class spell_exhale_main : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget = SpellEffectFn(spell_exhale_main_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_exhale_main_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
