@@ -13892,8 +13892,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
 
     // Custom MoP Script
-    // 76659 - Mastery : Wild Quiver
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(76659) && attType == RANGED_ATTACK && (spellProto->Id != 76663))
+    // 76659 - Mastery : Wild Quiver, can't proc from Scatter Shot
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(76659) && attType == RANGED_ATTACK && spellProto->Id != 76663 && spellProto->Id != 19503)
     {
         float Mastery = GetFloatValue(PLAYER_MASTERY) * 2.0f;
 
