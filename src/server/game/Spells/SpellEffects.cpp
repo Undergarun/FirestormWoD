@@ -585,6 +585,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         }
                     }
                 }
+
                 break;
             }
             case SPELLFAMILY_DRUID:

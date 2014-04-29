@@ -126,6 +126,50 @@ enum PriestSpells
     PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455
 };
 
+// Shadow Word: Death (overrided by Glyph) - 129176
+class spell_pri_shadow_word_death : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadow_word_death() : SpellScriptLoader("spell_pri_shadow_word_death") { }
+
+        class spell_pri_shadow_word_death_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_shadow_word_death_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->GetHealthPct() <= 20.0f)
+                            SetHitDamage(GetHitDamage() * 4);
+                    }
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 damage = GetHitDamage();
+                    caster->CastCustomSpell(caster, PRIEST_SHADOW_WORD_DEATH, &damage, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_shadow_word_death_SpellScript();
+        }
+};
+
 // Psychic Horror (psyfiend) - 113792
 class spell_pri_psychic_horror_psyfiend : public SpellScriptLoader
 {
@@ -2597,6 +2641,7 @@ class spell_pri_levitate : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_shadow_word_death();
     new spell_pri_psychic_horror();
     new spell_pri_holy_nova_heal();
     new spell_pri_holy_nova();
