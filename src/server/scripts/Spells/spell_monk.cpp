@@ -148,9 +148,12 @@ class spell_monk_combo_breaker : public SpellScriptLoader
                         if (caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
                         {
                             if (roll_chance_i(12))
-                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-                            else
-                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                            {
+                                if (urand(0, 1))
+                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
+                                else
+                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                            }
                         }
                     }
                 }
