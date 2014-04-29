@@ -955,6 +955,9 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             if (((AreaTrigger*)this)->GetCasterGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
             break;
+        case TYPEID_SCENEOBJECT:
+            flags = SceneObjectUpdateFieldFlags;
+            break;
         case TYPEID_OBJECT:
             break;
     }

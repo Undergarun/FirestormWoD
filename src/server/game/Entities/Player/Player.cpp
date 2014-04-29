@@ -81,6 +81,7 @@
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
+#include "SceneObject.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -992,6 +993,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
+
+    m_LastPlayedScene = NULL;
 }
 
 Player::~Player()
@@ -30565,4 +30568,19 @@ void Player::SendRefreshSpellMods()
             SendDirectMessage(&data);
         }
     }
+}
+
+void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
+{
+    if (m_LastPlayedScene)
+    {
+        m_LastPlayedScene->DestroyForPlayer(this);
+        delete m_LastPlayedScene;
+        m_LastPlayedScene = NULL;
+    }
+
+    m_LastPlayedScene = SceneObject::CreateSceneObject(sceneId, spectator);
+
+    if (m_LastPlayedScene)
+        m_LastPlayedScene->SendUpdateToPlayer(this);
 }

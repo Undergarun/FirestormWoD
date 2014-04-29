@@ -1777,29 +1777,19 @@ class spell_dk_blood_boil : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        GetCaster()->CastSpell(GetCaster(), DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+                        _player->CastSpell(_player, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
 
                         if (_player->HasAura(DK_SPELL_SCARLET_FEVER))
                         {
                             _player->CastSpell(target, DK_SPELL_WEAKENED_BLOWS, true);
 
-                            if (target->HasAura(DK_SPELL_BLOOD_PLAGUE))
-                                if (AuraPtr aura = target->GetAura(DK_SPELL_BLOOD_PLAGUE))
-                                    aura->SetDuration(aura->GetMaxDuration());
-                            if (target->HasAura(DK_SPELL_FROST_FEVER))
-                                if (AuraPtr aura = target->GetAura(DK_SPELL_FROST_FEVER))
-                                    aura->SetDuration(aura->GetMaxDuration());
+                            if (AuraPtr aura = target->GetAura(DK_SPELL_BLOOD_PLAGUE))
+                                aura->RefreshDuration();
+                            if (AuraPtr aura = target->GetAura(DK_SPELL_FROST_FEVER))
+                                aura->RefreshDuration();
                         }
                         // Deals 50% additional damage to targets infected with Blood Plague or Frost Fever
-                        if (AuraApplication* aura = target->GetAuraApplication(DK_SPELL_FROST_FEVER))
-                        {
-                            SetHitDamage(int32(GetHitDamage() * 1.5f));
-
-                            // Roiling Blood
-                            if (_player->HasAura(DK_SPELL_ROILING_BLOOD))
-                                _player->CastSpell(target, DK_SPELL_PESTILENCE, true);
-                        }
-                        else if (AuraApplication* aura = target->GetAuraApplication(DK_SPELL_BLOOD_PLAGUE))
+                        if (target->HasAura(DK_SPELL_FROST_FEVER) || target->HasAura(DK_SPELL_BLOOD_PLAGUE))
                         {
                             SetHitDamage(int32(GetHitDamage() * 1.5f));
 
