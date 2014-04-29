@@ -6684,16 +6684,13 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10;
-    float speedz = float(damage/10);
+    float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10.0f;
+    float speedz = float(damage/10.0f);
     bool back = true;
 
     // Fix Glyph of Disengage
-    if (m_caster->HasAura(56844))
-    {
-        speedxy *= 1.5f;
-        speedz = float(75 / 10);
-    }
+    if (m_caster->HasAura(56844) && m_spellInfo->Id == 56446)
+        speedz = (75.0f * 1.5f) / 10.0f;
 
     // Wild Charge (Moonkin) and Disengage
     if (m_spellInfo->Id == 102383 || m_spellInfo->SpellIconID == 1891)
