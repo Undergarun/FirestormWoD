@@ -3084,7 +3084,7 @@ class spell_gen_tp_storm_orgri : public SpellScriptLoader
         }
 };
 
-// Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093
+// Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093 or 28880
 class spell_gen_gift_of_the_naaru : public SpellScriptLoader
 {
     public:
