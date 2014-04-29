@@ -1082,6 +1082,23 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_transcendence_transfer_SpellScript);
 
+            SpellCastResult CheckSpiritRange()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->GetEntry() == 54569)
+                        {
+                            if ((*itr)->GetDistance(caster) > 40.0f)
+                                return SPELL_FAILED_DONT_REPORT;
+                        }
+                    }
+                }
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1091,7 +1108,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
                         if ((*itr)->GetEntry() == 54569)
                         {
                             Creature* clone = (*itr)->ToCreature();
-                            if (clone && clone->AI() && clone->GetDistance(caster) <= 40.0f)
+                            if (clone && clone->AI())
                                 clone->AI()->DoAction(0);
                         }
                     }
@@ -1100,6 +1117,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckSpiritRange);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
