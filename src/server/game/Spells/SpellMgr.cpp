@@ -5115,8 +5115,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 45297:
                 spellInfo->MaxLevel = spellInfo->SpellLevel;
                 break;
-            // Silencing Shot
-            case 34490:
+            case 34490: // Silencing Shot
+            case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
             case 132626: // Alliance Portal - Mage
