@@ -22273,6 +22273,52 @@ void Unit::SendMovementCanFlyChange()
     SendMessageToSet(&data, false);
 }
 
+void Unit::SendCanTurnWhileFalling(bool apply)
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    ObjectGuid targetGuid = GetGUID();
+    WorldPacket data;
+
+    if (apply)
+    {
+        data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+
+        uint8 bits[8] = { 3, 0, 5, 1, 7, 6, 4, 2 };
+        data.WriteBitInOrder(targetGuid, bits);
+
+        data.WriteByteSeq(targetGuid[3]);
+        data.WriteByteSeq(targetGuid[0]);
+        data.WriteByteSeq(targetGuid[6]);
+        data.WriteByteSeq(targetGuid[5]);
+        data.WriteByteSeq(targetGuid[1]);
+        data.WriteByteSeq(targetGuid[7]);
+        data << uint32(0);  // Movement counter
+        data.WriteByteSeq(targetGuid[4]);
+        data.WriteByteSeq(targetGuid[2]);
+    }
+    else
+    {
+        data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+
+        uint8 bits[8] = { 6, 2, 0, 3, 5, 4, 1, 7 };
+        data.WriteBitInOrder(targetGuid, bits);
+
+        data.WriteByteSeq(targetGuid[5]);
+        data.WriteByteSeq(targetGuid[6]);
+        data << uint32(0);  // Movement counter
+        data.WriteByteSeq(targetGuid[2]);
+        data.WriteByteSeq(targetGuid[4]);
+        data.WriteByteSeq(targetGuid[0]);
+        data.WriteByteSeq(targetGuid[7]);
+        data.WriteByteSeq(targetGuid[3]);
+        data.WriteByteSeq(targetGuid[1]);
+    }
+
+    ToPlayer()->GetSession()->SendPacket(&data);
+}
+
 bool Unit::IsSplineEnabled() const
 {
     return movespline->Initialized();
