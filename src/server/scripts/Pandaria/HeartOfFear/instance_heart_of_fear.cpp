@@ -231,7 +231,18 @@ class instance_heart_of_fear : public InstanceMapScript
                 if (PlayerList.isEmpty())
                     return true;
 
-                return false;
+                for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+                {
+                    Player* player = Itr->getSource();
+
+                    if (!player)
+                        continue;
+
+                    if (player->isAlive() && !player->isGameMaster())
+                        return false;
+                }
+
+                return true;
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const

@@ -20,6 +20,7 @@
 #include "ArchaeologyMgr.h"
 #include "Common.h"
 #include "Containers.h"
+#include "ObjectMgr.h"
 
 const static uint8 _races[12] = { 1, 2, 3, 4, 5, 6, 7, 8, 27, 29, 229, 231 };
 
