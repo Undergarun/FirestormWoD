@@ -17,10 +17,15 @@
  */
 
 #include "icecrown_citadel.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "MapManager.h"
 #include "Transport.h"
 #include "Vehicle.h"
 #include "Group.h"
+#include "GridNotifiers.h"
 
 enum Achievements
 {

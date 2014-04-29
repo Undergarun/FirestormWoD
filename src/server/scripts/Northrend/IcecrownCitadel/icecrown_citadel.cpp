@@ -26,6 +26,7 @@
 #include "Group.h"
 #include "SpellAuraEffects.h"
 #include "SmartAI.h"
+#include "PassiveAI.h"
 #include "icecrown_citadel.h"
 
 // Weekly quest support

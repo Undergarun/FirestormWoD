@@ -357,7 +357,8 @@ void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPri
 
 void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans)
 {
-    Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER));
+    uint64 bidderGUID = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
+    Player* bidder = sObjectAccessor->FindPlayer(bidderGUID);
     if (bidder)
     {
         WorldPacket data(SMSG_BLACK_MARKET_WON, 12);
@@ -372,6 +373,8 @@ void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& tra
         return;
 
     Item* pItem = Item::CreateItem(auction->bm_template->itemEntry, auction->bm_template->itemCount, bidder);
+    pItem->SetUInt64Value(ITEM_FIELD_OWNER, bidderGUID);
+    pItem->SaveToDB(trans);
 
     MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_WON), auction->BuildAuctionMailBody(auction->bidder))
     .AddItem(pItem)
