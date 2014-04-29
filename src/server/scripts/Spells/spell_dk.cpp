@@ -1955,4 +1955,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_scourge_strike();
     new spell_dk_blood_boil();
     new spell_dk_death_grip();
+    new spell_dk_glyph_of_horn_of_winter();
 }
