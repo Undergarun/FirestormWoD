@@ -124,7 +124,74 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_HAWK                 = 13165,
     HUNTER_SPELL_ASPECT_OF_THE_HAWK_SUMMON          = 122487,
     HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
-    HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490
+    HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
+    HUNTER_SPELL_FIREWORKS                          = 127933
+};
+
+const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
+
+// Fireworks - 127933
+class spell_hun_fireworks : public SpellScriptLoader
+{
+    public:
+        spell_hun_fireworks() : SpellScriptLoader("spell_hun_fireworks") { }
+
+        class spell_hun_fireworks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_fireworks_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, fireworksSpells[urand(0, 3)], true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_hun_fireworks_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_fireworks_SpellScript();
+        }
+};
+
+// Glyph of Fireworks - 57903
+class spell_hun_glyph_of_fireworks : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_fireworks() : SpellScriptLoader("spell_hun_glyph_of_fireworks") { }
+
+        class spell_hun_glyph_of_fireworks_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_fireworks_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(HUNTER_SPELL_FIREWORKS, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(HUNTER_SPELL_FIREWORKS))
+                        _player->removeSpell(HUNTER_SPELL_FIREWORKS, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_glyph_of_fireworks_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_glyph_of_fireworks_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_fireworks_AuraScript();
+        }
 };
 
 // Called by Aspect of the Pack - 13159, Aspect of the Hawk - 13165 and Aspect of the Cheetah - 5118
@@ -2343,6 +2410,8 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_fireworks();
+    new spell_hun_glyph_of_fireworks();
     new spell_hun_glyph_of_aspects();
     new spell_hun_lock_and_load_proc();
     new spell_hun_bestial_wrath_dispel();
