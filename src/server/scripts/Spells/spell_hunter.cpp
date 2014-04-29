@@ -128,6 +128,38 @@ enum HunterSpells
     HUNTER_SPELL_FIREWORKS                          = 127933
 };
 
+// Called by Explosive Shot - 53301
+// Hunter's Mark - 1130
+class spell_hun_hunters_mark : public SpellScriptLoader
+{
+    public:
+        spell_hun_hunters_mark() : SpellScriptLoader("spell_hun_hunters_mark") { }
+
+        class spell_hun_hunters_mark_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_hunters_mark_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_hunters_mark_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_hunters_mark_SpellScript();
+        }
+};
+
 const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
 
 // Fireworks - 127933
@@ -1278,6 +1310,8 @@ class spell_hun_cobra_strikes : public SpellScriptLoader
                                 _player->CastSpell(_player, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
                             }
                         }
+
+                        _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
                     }
                 }
             }
@@ -1768,6 +1802,7 @@ class spell_hun_kill_command : public SpellScriptLoader
                         return;
 
                     pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_TRIGGER, true);
+                    GetCaster()->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_HUNTERS_MARK, true);
 
                     if (pet->getVictim())
                     {
@@ -1885,6 +1920,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             serpentSting->GetBase()->RefreshDuration();
 
                         _player->CastSpell(_player, HUNTER_SPELL_CHIMERA_SHOT_HEAL, true);
+                        _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
                     }
                 }
             }
@@ -2410,6 +2446,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_hunters_mark();
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();
     new spell_hun_glyph_of_aspects();
