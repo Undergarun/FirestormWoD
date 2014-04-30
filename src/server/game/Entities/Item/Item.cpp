@@ -1353,7 +1353,7 @@ bool Item::SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* 
         proto2->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
         return true;
 
-    return true;
+    return false;
 }
 
 bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier)

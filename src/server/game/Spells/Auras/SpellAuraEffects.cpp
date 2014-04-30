@@ -824,24 +824,21 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                             if (AuraEffectPtr devouringPlague = target->GetAuraEffect(2944, EFFECT_2, caster->GetGUID()))
                             {
                                 float modifier = 1.0f;
-                                modifier += (devouringPlague->GetAmount() + 1) * 0.33f;
+                                modifier += (devouringPlague->GetAmount() * 0.33f);
 
                                 int32 temp_damage = amount;
                                 float temp_crit = 0.0f;
 
-                                if (GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-                                    temp_damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
-                                else
-                                    temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
-
+                                temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
                                 temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
-
-                                m_fixed_periodic.SetFixedDamage(temp_damage);
-                                m_fixed_periodic.SetCriticalChance(temp_crit);
-                                hasFixedPeriodic = true;
 
                                 amount = temp_damage;
                                 amount *= modifier;
+
+                                m_fixed_periodic.SetFixedDamage(amount);
+                                m_fixed_periodic.SetCriticalChance(temp_crit);
+                                hasFixedPeriodic = true;
+
                                 return amount;
                             }
                         }
