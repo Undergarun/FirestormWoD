@@ -6751,50 +6751,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 case 91308: // Egg Shell, Corrupted Egg Shell (H)
                     GetCaster()->CastSpell(GetCaster(), 91311, true);
                     break;
-                case 76691: // Vengeance tank mastery
-                {
-                    if (!GetCaster() || GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                        break;
-
-                    int32 basepoints0 = 0;
-
-                    // taken damage
-                    int32 takendamage = GetCaster()->ToPlayer()->GetDamageTakenInPastSecs(3);
-
-                    // player will loase 5% if has taken damage
-                    int32 curr_amount = GetBase()->GetEffect(EFFECT_0)->GetAmount();
-
-                    // player will lose 10% if has no taken damage
-                    int32 max_amount = GetAmount();
-
-                    // if has no max amount we set it to max vengeance cap
-                    if (!max_amount)
-                        max_amount = (GetCaster()->GetCreateHealth() + (GetCaster()->GetStat(STAT_STAMINA) * 14) / 10);
-
-                    int32 lost = 0;
-
-                    if (takendamage > 0)
-                        lost = int32(CalculatePct(curr_amount, 5));
-                    else
-                        lost = CalculatePct(max_amount, 10);
-
-                    if (lost >= curr_amount || !curr_amount)
-                        caster->RemoveAura(GetBase());
-                    else
-                    {
-                        // save at least 33% of taken damage
-                        if (takendamage)
-                            basepoints0 = std::max((curr_amount - lost), int32(CalculatePct(takendamage, 33)));
-                        else
-                            basepoints0 = curr_amount - lost;
-                    }
-
-                    if (AuraEffectPtr eff1 = GetBase()->GetEffect(EFFECT_0))
-                        eff1->ChangeAmount(basepoints0);
-                    if (AuraEffectPtr eff2 = GetBase()->GetEffect(EFFECT_1))
-                        eff2->ChangeAmount(basepoints0);
-                    break;
-                }
                 case 66149: // Bullet Controller Periodic - 10 Man
                 case 68396: // Bullet Controller Periodic - 25 Man
                 {

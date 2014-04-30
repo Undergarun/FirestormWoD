@@ -9118,29 +9118,22 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 return false;
 
             int32 aviableBasepoints = 0;
-            int32 maxAmount = 0;
 
-            triggered_spell_id = 76691;
+            triggered_spell_id = 132365;
 
             if (AuraPtr vengeance = GetAura(triggered_spell_id, GetGUID()))
-            {
                 aviableBasepoints += vengeance->GetEffect(EFFECT_0)->GetAmount();
-                maxAmount += vengeance->GetEffect(EFFECT_2)->GetAmount();
-            }
 
             // First attack taken give 33% of the damage in attack power
-           if (!aviableBasepoints && (procFlag & (PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK)))
-                triggerAmount = 33;
+           if (!aviableBasepoints && (procFlag & PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK))
+                triggerAmount = 3333;
 
-            int32 cap = (GetCreateHealth() + GetStat(STAT_STAMINA) * 14) / 10;
-            basepoints0 = int32(damage * triggerAmount / 100);
+            int32 cap = (GetCreateHealth() / 10) + GetStat(STAT_STAMINA);
+            basepoints0 = CalculatePct(damage, triggerAmount / 100);
             basepoints0 += aviableBasepoints;
             basepoints0 = std::min(cap, basepoints0);
 
-            // calculate max amount player's had during the fight
-            int32 basepoints1 = std::max(basepoints0, maxAmount);
-
-            CastCustomSpell(this, triggered_spell_id, &basepoints0, &basepoints0, &basepoints1, true, castItem, triggeredByAura, originalCaster);
+            CastCustomSpell(this, triggered_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura, originalCaster);
             return true;
         }
         default:
