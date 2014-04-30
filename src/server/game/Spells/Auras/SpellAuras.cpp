@@ -1757,6 +1757,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, 0, 11327);
                         break;
                     }
+                    case 108212:// Burst of Speed
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                        break;
+                    }
                 }
                 break;
             }
