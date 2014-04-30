@@ -587,7 +587,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
         }
 };
 
-// Sacred shield - 20925
+// Sacred shield - 20925 and Sacred Shield (Holy) - 148039
 class spell_pal_sacred_shield : public SpellScriptLoader
 {
     public:
