@@ -2256,7 +2256,7 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (!target->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
+                        if (!player->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
                             if (AuraPtr lifebloom = target->GetAura(SPELL_DRUID_LIFEBLOOM, player->GetGUID()))
                                 lifebloom->RefreshDuration();
 
