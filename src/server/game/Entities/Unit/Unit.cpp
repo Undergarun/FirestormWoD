@@ -8744,6 +8744,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
+                case 59327: // Glyph of Unholy Command
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    ToPlayer()->RemoveSpellCooldown(49560, true);
+                    ToPlayer()->RemoveSpellCooldown(49576, true);
+                    break;
+                }
                 case 61257: // Runic Power Back on Snare/Root
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
