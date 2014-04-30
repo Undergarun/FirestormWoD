@@ -8246,10 +8246,6 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
 
     int32 jumps = GetBase()->GetCharges();
 
-    // current aura expire on proc finish
-    GetBase()->SetCharges(0);
-    GetBase()->SetUsingCharges(true);
-
     // next target selection
     if (jumps > 0)
     {
@@ -8268,6 +8264,10 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
     }
 
     target->CastCustomSpell(target, triggerSpellId, &value, NULL, NULL, true, NULL, CONST_CAST(AuraEffect, shared_from_this()), GetCasterGUID());
+
+    // current aura expire on proc finish
+    GetBase()->SetCharges(0);
+    GetBase()->SetUsingCharges(true);
 }
 
 void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const

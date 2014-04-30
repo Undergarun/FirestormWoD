@@ -18784,6 +18784,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffectPtr triggeredByAura)
     SpellInfo const* spellProto = triggeredByAura->GetSpellInfo();
     int32 heal = triggeredByAura->GetAmount();
     uint64 caster_guid = triggeredByAura->GetCasterGUID();
+    Unit* caster = triggeredByAura->GetCaster();
 
     // Currently only Prayer of Mending
     if (!(spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellFamilyFlags[1] & 0x20))
@@ -18795,21 +18796,21 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffectPtr triggeredByAura)
     // current aura expire
     triggeredByAura->GetBase()->SetCharges(1);             // will removed at next charges decrease
 
-    // next target selection
-    if (jumps > 0)
-    {
-        if (Unit* caster = triggeredByAura->GetCaster())
-        {
-            float radius = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcRadius(caster);
+    if (caster && caster->HasAura(55685))
+        AddPct(heal, 60);
 
-            if (Unit* target = GetNextRandomRaidMemberOrPet(radius))
-            {
-                CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
-                CastCustomSpell(target, 41637, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
-                AuraPtr aura = target->GetAura(spellProto->Id, caster->GetGUID());
-                if (aura != NULLAURA)
-                    aura->SetCharges(jumps);
-            }
+    // next target selection
+    if (jumps > 0 && caster)
+    {
+        float radius = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcRadius(caster);
+
+        if (Unit* target = GetNextRandomRaidMemberOrPet(radius))
+        {
+            CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
+            CastCustomSpell(target, 41637, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
+            AuraPtr aura = target->GetAura(spellProto->Id, caster->GetGUID());
+            if (aura != NULLAURA)
+                aura->SetCharges(jumps);
         }
     }
 
