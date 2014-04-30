@@ -1261,7 +1261,7 @@ bool Item::CanBeTransmogrified() const
     if (!proto)
         return false;
 
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY || proto->Quality < ITEM_QUALITY_RARE)
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
         return false;
 
     if (proto->Class != ITEM_CLASS_ARMOR &&
@@ -1309,6 +1309,53 @@ bool Item::CanTransmogrify() const
     return true;
 }
 
+bool Item::SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const
+{
+    //   Source     Destination
+    if (!proto1 || !proto2)
+        return false;
+
+    // Patch 5.2 - Throne of Thunder
+    // One-Handed
+    // One-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD))
+        return true;
+
+    // Two-Handed
+    // Two-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
+        return true;
+
+    // Ranged
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
+        return true;
+
+    // Polearm and Staff
+    // Staves and polearms can be transmogrified to each other.
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
+        return true;
+
+    return true;
+}
+
 bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier)
 {
     if (!transmogrifier || !transmogrified)
@@ -1331,8 +1378,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
         proto1->InventoryType == INVTYPE_AMMO ||
         proto1->InventoryType == INVTYPE_QUIVER || 
         proto1->InventoryType == INVTYPE_NON_EQUIP ||
-        proto1->InventoryType == INVTYPE_TABARD ||
-        proto1->InventoryType == INVTYPE_HOLDABLE)
+        proto1->InventoryType == INVTYPE_TABARD)
         return false;
 
     if (proto2->InventoryType == INVTYPE_BAG ||
@@ -1343,15 +1389,14 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
         proto2->InventoryType == INVTYPE_AMMO ||
         proto2->InventoryType == INVTYPE_QUIVER || 
         proto2->InventoryType == INVTYPE_NON_EQUIP ||
-        proto2->InventoryType == INVTYPE_TABARD ||
-        proto2->InventoryType == INVTYPE_HOLDABLE)
+        proto2->InventoryType == INVTYPE_TABARD)
         return false;
 
     if (proto1->Class != proto2->Class)
         return false;
 
-    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && proto1->SubClass != proto2->SubClass &&
-        (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()) &&
+        (proto1->SubClass != proto2->SubClass && !transmogrifier->SubclassesCompatible(proto1, proto2)))
         return false;
 
     if (proto1->InventoryType != proto2->InventoryType)
