@@ -867,7 +867,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (!plr)
                         break;
 
-                    if (!plr->HasAura(76808))
+                    if (!plr->HasAura(76808) && !plr->HasAura(79152))
                         break;
 
                     float MasteryPCT = 1.0f + plr->GetFloatValue(PLAYER_MASTERY) * 3.0f;
