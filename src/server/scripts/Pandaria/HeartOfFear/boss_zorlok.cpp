@@ -1240,7 +1240,7 @@ class spell_pheromones_of_zeal : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pheromones_of_zeal_SpellScript::Effect);
+                AfterCast += SpellCastFn(spell_pheromones_of_zeal_SpellScript::Effect);
             }
         };
 
@@ -1298,29 +1298,6 @@ class spell_zorlok_exhale : public SpellScriptLoader
                     caster->RemoveAurasDueToSpell(SPELL_INHALE);
             }
 
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zorlok_exhale_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
-                AfterCast                += SpellCastFn(spell_zorlok_exhale_SpellScript::RemoveStack);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_zorlok_exhale_SpellScript();
-        }
-};
-
-// 122761 - Exhale
-class spell_exhale_main : public SpellScriptLoader
-{
-    public:
-        spell_exhale_main() : SpellScriptLoader("spell_exhale_main") { }
-
-        class spell_exhale_main_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_exhale_main_SpellScript);
-
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1330,13 +1307,15 @@ class spell_exhale_main : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_exhale_main_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zorlok_exhale_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                AfterCast                += SpellCastFn(spell_zorlok_exhale_SpellScript::RemoveStack);
+                OnEffectHitTarget        += SpellEffectFn(spell_zorlok_exhale_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_exhale_main_SpellScript();
+            return new spell_zorlok_exhale_SpellScript();
         }
 };
 
@@ -1484,15 +1463,14 @@ class spell_convert : public SpellScriptLoader
 
 void AddSC_boss_zorlok()
 {
-    new boss_zorlok();
-    new mob_sonic_ring();
-    new spell_inhale();
-    new spell_attenuation();
-    new spell_force_verve();
-    new spell_sonic_ring();
-    new spell_pheromones_of_zeal();
-    new spell_zorlok_exhale();
-    new spell_exhale_main();
-    new spell_zorlok_exhale_damage();
-    new spell_convert();
+    new boss_zorlok();                  // 62980 - Imperial Vizier Zor'lok
+    new mob_sonic_ring();               // 62687, 62746, 62744, 62743, 62698, 62699, 62700, 62702, 62703, 62704, 62714, 62715, 62727, 62726, 62719, 62718, 62720, 62721, 62722, 62723, 62724, 62725, 62717, 62716, 62728, 62729, 62696, 62694, 62689, 63340, 63341, 67163, 67164 - Sonic Ring
+    new spell_inhale();                 // 122852 - Inhale
+    new spell_attenuation();            // 122440 - Attenuation
+    new spell_force_verve();            // 122718 - Force and verve
+    new spell_sonic_ring();             // 122336 - Sonic Ring
+    new spell_pheromones_of_zeal();     // 124018 - Pheromones of Zeal
+    new spell_zorlok_exhale();          // 122761 - Exhale
+    new spell_zorlok_exhale_damage();   // 122760 - Exhale (damage aura)
+    new spell_convert();                // 122740 - Convert
 }
