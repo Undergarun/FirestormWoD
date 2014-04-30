@@ -2871,8 +2871,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    CallScriptOnHitHandlers();
-
     if (caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CanTriggerPoisonAdditional())
         caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, PROC_FLAG_TAKEN_DAMAGE, procEx);
 
@@ -2890,6 +2888,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         else
             procEx |= PROC_EX_NORMAL_HIT;
 
+        CallScriptOnHitHandlers();
+
         int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
         unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
         m_healing = gain;
@@ -2906,6 +2906,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
+
+        CallScriptOnHitHandlers();
+
+        damageInfo.damage = m_damage;
+
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
         // Send log damage message to client
@@ -2936,6 +2941,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
     {
+        CallScriptOnHitHandlers();
+
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);

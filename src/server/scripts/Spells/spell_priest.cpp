@@ -1572,9 +1572,10 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     {
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            if (AuraPtr devouringPlague = target->GetAura(PRIEST_DEVOURING_PLAGUE))
+                            uint32 powerUsed = 0;
+                            if (AuraEffectPtr devouringPlague = target->GetAuraEffect(PRIEST_DEVOURING_PLAGUE, EFFECT_2))
                             {
-                                uint32 powerUsed = devouringPlague->GetEffect(2) ? devouringPlague->GetEffect(2)->GetAmount() : 1;
+                                powerUsed = devouringPlague->GetAmount();
 
                                 // Shadow Orb visual
                                 if (_player->HasAura(77487))
@@ -1585,6 +1586,12 @@ class spell_pri_devouring_plague : public SpellScriptLoader
 
                                 // Instant damage equal to amount of shadow orb
                                 SetHitDamage(int32(GetHitDamage() * powerUsed / 3));
+                            }
+                            if (AuraEffectPtr devouringPlague = target->GetAuraEffect(PRIEST_DEVOURING_PLAGUE, EFFECT_1))
+                            {
+                                int32 newAmount = devouringPlague->GetAmount() * powerUsed;
+                                devouringPlague->SetAmount(newAmount);
+                                devouringPlague->m_fixed_periodic.SetFixedDamage(newAmount);
                             }
                         }
                     }
@@ -1622,8 +1629,6 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 // Don't forget power cost
                 powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
-
-                amount *= powerUsed;
             }
 
             void CalculateSecondAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
