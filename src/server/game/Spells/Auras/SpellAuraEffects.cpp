@@ -1143,12 +1143,15 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                             amount = 0;
                     break;
                 }
-                case 15407: // Mind flay
+                case 15407: // Mind Flay
+                case 129197:// Mind Flay (Insanity)
                 {
+                    if (!caster)
+                        break;
+
                     // Glyph of Mind Flay, remove the speed malus
-                    if (Unit* target = GetBase()->GetUnitOwner())
-                        if (target->HasAura(120585))
-                            amount = 0;
+                    if (caster->HasAura(120585))
+                        amount = 0;
                     break;
                 }
             }
@@ -7403,6 +7406,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 }
             }
         }
+
+        // Glyph of Mind Flay
+        if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
+            caster->CastSpell(caster, 120587, true);
 
         // Deep Wounds
         if (GetSpellInfo()->Id == 115767)
