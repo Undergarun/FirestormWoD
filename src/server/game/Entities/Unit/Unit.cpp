@@ -6799,19 +6799,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Bloodbath
                 case 12292:
                 {
-                    if (!procSpell)
-                        return false;
-
-                    if (!damage)
-                        return false;
-
-                    if (!roll_chance_i(30))
+                    if (!procSpell || !victim || !damage)
                         return false;
 
                     int32 bp = int32(CalculatePct(damage, triggerAmount) / 6); // damage / tick_number
+
+                    if (AuraEffectPtr bloodbath = victim->GetAuraEffect(113344, EFFECT_0))
+                        bp += bloodbath->GetAmount();
+
                     CastCustomSpell(victim, 113344, &bp, NULL, NULL, true);
 
-                    break;
+                    // Should not be removed
+                    return false;
                 }
                 // Sweeping Strikes
                 case 12328:

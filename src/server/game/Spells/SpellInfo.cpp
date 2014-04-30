@@ -2274,7 +2274,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             switch (Id)
             {
-                case 12292: // Death Wish
                 case 12880: // Enrage (Enrage)
                 case 57518: // Enrage (Wrecking Crew)
                     return SPELL_SPECIFIC_WARRIOR_ENRAGE;
