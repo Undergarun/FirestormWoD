@@ -10234,10 +10234,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (GetTypeId() != TYPEID_PLAYER)
                 return false;
 
-            if (procSpell->Id != 35395 && procSpell->Id != 53595)
+            if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
                 return false;
 
-            if (!roll_chance_i(20))
+            if (!roll_chance_i(30))
                 return false;
 
             break;
