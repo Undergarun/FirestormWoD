@@ -1234,6 +1234,27 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+        {
+            switch (GetId())
+            {
+                case 49016: // Unholy Frenzy
+                {
+                    if (!caster)
+                        break;
+
+                    // Glyph of Unholy Frenzy
+                    if (caster->HasAura(58616))
+                        return 0;
+
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            break;
+        }
         default:
             break;
 
