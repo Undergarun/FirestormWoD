@@ -73,7 +73,38 @@ enum DeathKnightSpells
     DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION          = 127344,
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER            = 58680,
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920,
-    DK_SPELL_DEATH_COIL_DAMAGE                  = 47632
+    DK_SPELL_DEATH_COIL_DAMAGE                  = 47632,
+    DK_SPELL_GLYPH_OF_DEATH_AND_DECAY           = 58629,
+    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375
+};
+
+// Death and Decay - 43265
+class spell_dk_death_and_decay : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
+
+        class spell_dk_death_and_decay_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_and_decay_SpellScript);
+
+            void HandleAfterCast()
+            {
+                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
+                if (dest && GetCaster()->HasAura(DK_SPELL_GLYPH_OF_DEATH_AND_DECAY))
+                    GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_dk_death_and_decay_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_and_decay_SpellScript();
+        }
 };
 
 // Death Barrier - 115635
@@ -1917,6 +1948,7 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_death_and_decay();
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
