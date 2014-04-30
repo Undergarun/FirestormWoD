@@ -28,7 +28,6 @@
 
 enum PaladinSpells
 {
-    PALADIN_SPELL_DIVINE_PLEA                   = 54428,
     PALADIN_SPELL_JUDGMENT                      = 20271,
     PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD         = 111529,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,

@@ -878,6 +878,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 57669: // Replenishment (0.2% from max)
                     amount = CalculatePct(GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA), amount);
                     break;
+                case 54428: // Divine Plea
+                    if (!caster)
+                        break;
+                    amount = caster->GetStat(STAT_SPIRIT) * 1.35f;
+                    break;
                 case 61782: // Infinite Replenishment
                     amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
                     break;
