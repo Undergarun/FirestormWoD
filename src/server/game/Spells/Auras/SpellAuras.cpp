@@ -2326,8 +2326,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (this == existingAura.get())
         return true;
 
-    // Dynobj auras always stack
-    if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    // Dynobj auras always stack - Same for Swiftmend
+    if (existingAura->GetType() == DYNOBJ_AURA_TYPE || existingAura->GetId() == 81262)
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();
