@@ -13119,12 +13119,9 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                         switch (spellProto->Id)
                         {
                             case 51505: // Lava Burst
-                                return 100.0f;
-                                break;
                             case 77451: // Lava Burst (Elemental Overload)
-                                // Are critical hit if target has Flame shock
-                                if (victim->HasAura(8050, GetGUID()))
-                                    return 100.0f;
+                                return 100.0f;
+                            default:
                                 break;
                         }
                         break;
