@@ -2907,8 +2907,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
 
+        m_damage = damageInfo.damage;
         CallScriptOnHitHandlers();
-
         damageInfo.damage = m_damage;
 
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
