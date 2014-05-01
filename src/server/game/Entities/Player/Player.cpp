@@ -9903,6 +9903,10 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         if (!spellproto)
             continue;
 
+        // Item doesn't need to be equipped
+        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && spellproto->HasAura(SPELL_AURA_MOD_SKILL_VALUE))
+            continue;
+
         ApplyEquipSpell(spellproto, item, apply, form_change);
     }
 }
