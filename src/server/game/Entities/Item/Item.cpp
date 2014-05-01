@@ -1274,9 +1274,6 @@ bool Item::CanBeTransmogrified() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats() && proto->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC)
-        return false;
-
     return true;
 }
 
@@ -1302,9 +1299,6 @@ bool Item::CanTransmogrify() const
 
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
         return true;
-
-    if (!HasStats())
-        return false;
 
     return true;
 }
