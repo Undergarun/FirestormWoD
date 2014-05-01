@@ -1448,7 +1448,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage = SpellCriticalDamageBonus(spellInfo, damage, victim);
             }
 
-            if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE) && !spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_RESISTANCES))
+            if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE))
                 ApplyResilience(victim, &damage);
             break;
         }
