@@ -2274,7 +2274,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             switch (Id)
             {
-                case 12292: // Death Wish
                 case 12880: // Enrage (Enrage)
                 case 57518: // Enrage (Wrecking Crew)
                     return SPELL_SPECIFIC_WARRIOR_ENRAGE;
@@ -3479,48 +3478,8 @@ bool SpellInfo::CanTriggerBladeFlurry() const
     return false;
 }
 
-bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
+bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell, Unit* caster) const
 {
-    // Stealth aura and some custom rules ...
-    if (HasAura(SPELL_AURA_MOD_STEALTH))
-    {
-        if (procSpell)
-        {
-            if (procSpell->Id == 93435 ||   // Roar of Courage
-                procSpell->Id == 32182 ||   // Heroism
-                procSpell->Id == 2825 ||    // Bloodlust
-                procSpell->Id == 1725 ||    // Distract
-                procSpell->Id == 114198 ||  // Mocking Banner taunt
-                procSpell->Id == 130733 ||  // and Shadow Word: Insanity allowing Cast
-                procSpell->Id == 115191 ||  // Stealth
-                procSpell->Id == 115192 ||  // Subterfuge
-                procSpell->Id == 114842 ||  // Shadow Walk
-                procSpell->Id == 5171 ||    // Slice and Dice
-                procSpell->Id == 2983 ||    // Sprint
-                procSpell->Id == 6770 ||    // Sap
-                procSpell->Id == 137573 ||  // Burst of Speed
-                procSpell->Id == 98440 ||   // Relentless Strikes
-                procSpell->Id == 102288 ||  // Clone Caster
-                procSpell->Id == 57934 ||   // Tricks of the Trade
-                procSpell->Id == 73981 ||   // Redirect
-                procSpell->Id == 114018 ||  // Shroud of Concealment
-                procSpell->Id == 76577 ||   // Smoke Bomb
-                procSpell->Id == 73651 ||   // Conversion
-                procSpell->Id == 121471 ||  // Shadow Blades
-                procSpell->Id == 31224 ||   // Cloak of Shadows
-                procSpell->Id == 108215 ||  // Paralytic Poison
-                procSpell->Id == 3408 ||    // Crippling Poison
-                procSpell->Id == 5761 ||    // Mind-Numbling Poison
-                procSpell->Id == 8679 ||    // Wound Poison
-                procSpell->Id == 108211 ||  // Leeching Poison
-                procSpell->Id == 2823 ||    // Deadly Poison
-                procSpell->Id == 79134 ||   // Venomous Wounds
-                procSpell->Id == 108212 ||  // Burst of Speed
-                procSpell->Id == 12323)     // Piercing Howl
-                return true;
-        }
-    }
-
     switch (Id)
     {
         case 16246: // Clearcasting (Shaman)
@@ -3541,6 +3500,10 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
         case 131116:// Raging Blow !
         case 134563:// Healing Elixirs
             return true;
+        case 115191:// Stealth (Subterfuge)
+            if (caster->HasAura(115192)) // Subterfuge buff - 3s
+                return true;
+            break;
     }
 
     return false;
@@ -3570,8 +3533,6 @@ bool SpellInfo::IsCustomCastCanceled(Unit* caster) const
             if (caster->HasAura(Id))
                 return true;
             break;
-        case 132365:// Vengeance (old)
-            return true;
     }
 
     return false;
@@ -3725,13 +3686,17 @@ bool SpellInfo::IsRequireAdditionalTargetCheck() const
 
 bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 {
-    if (m_caster && m_caster->HasAura(115192))
+    if (!m_caster)
         return false;
 
-    if (m_caster && m_caster->HasAura(108208) && HasAttribute(SPELL_ATTR0_ONLY_STEALTHED) && !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
-    {
-        m_caster->CastSpell(m_caster, 115192, true);
+    if (m_caster->HasAura(115192))
         return false;
+
+    // Hearthstone shoudn't call subterfuge effect
+    if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
+    {
+        m_caster->RemoveAura(115191);
+        return true;
     }
 
     switch (GetSpellSpecific())
@@ -3742,14 +3707,29 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
             return true;
     }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    bool callSubterfuge = true;
+    if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
+        !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
-            return true;
+        // Mounts shouldn't call subterfuge effect
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+            {
+                callSubterfuge = false;
+                break;
+            }
+        }
+
+        if (callSubterfuge)
+        {
+            m_caster->CastSpell(m_caster, 115192, true);
+            return false;
+        }
     }
 
-    //if ((!m_caster || !m_caster->HasAuraType(SPELL_AURA_335)) && IsPositive())
-    //    return false;
+    if (m_caster->HasAura(115191))
+        return false;
 
     switch(Id)
     {

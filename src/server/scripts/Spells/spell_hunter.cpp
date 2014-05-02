@@ -117,7 +117,160 @@ enum HunterSpells
     HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
     HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     HUNTER_SPELL_GLYPH_OF_LIBERATION                = 132106,
-    HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927
+    HUNTER_SPELL_GLYPH_OF_LIBERATION_HEAL           = 115927,
+    HUNTER_SPELL_GLYPH_OF_ASPECTS                   = 122492,
+    HUNTER_SPELL_ASPECT_OF_THE_CHEETAH              = 5118,
+    HUNTER_SPELL_ASPECT_OF_THE_CHEETAH_SUMMON       = 122489,
+    HUNTER_SPELL_ASPECT_OF_THE_HAWK                 = 13165,
+    HUNTER_SPELL_ASPECT_OF_THE_HAWK_SUMMON          = 122487,
+    HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
+    HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
+    HUNTER_SPELL_FIREWORKS                          = 127933
+};
+
+// Called by Explosive Shot - 53301
+// Hunter's Mark - 1130
+class spell_hun_hunters_mark : public SpellScriptLoader
+{
+    public:
+        spell_hun_hunters_mark() : SpellScriptLoader("spell_hun_hunters_mark") { }
+
+        class spell_hun_hunters_mark_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_hunters_mark_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_hunters_mark_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_hunters_mark_SpellScript();
+        }
+};
+
+const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
+
+// Fireworks - 127933
+class spell_hun_fireworks : public SpellScriptLoader
+{
+    public:
+        spell_hun_fireworks() : SpellScriptLoader("spell_hun_fireworks") { }
+
+        class spell_hun_fireworks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_fireworks_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, fireworksSpells[urand(0, 3)], true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_hun_fireworks_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_fireworks_SpellScript();
+        }
+};
+
+// Glyph of Fireworks - 57903
+class spell_hun_glyph_of_fireworks : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_fireworks() : SpellScriptLoader("spell_hun_glyph_of_fireworks") { }
+
+        class spell_hun_glyph_of_fireworks_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_fireworks_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(HUNTER_SPELL_FIREWORKS, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(HUNTER_SPELL_FIREWORKS))
+                        _player->removeSpell(HUNTER_SPELL_FIREWORKS, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_glyph_of_fireworks_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_glyph_of_fireworks_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_fireworks_AuraScript();
+        }
+};
+
+// Called by Aspect of the Pack - 13159, Aspect of the Hawk - 13165 and Aspect of the Cheetah - 5118
+// Glyph of Aspects - 122492
+class spell_hun_glyph_of_aspects : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_aspects() : SpellScriptLoader("spell_hun_glyph_of_aspects") { }
+
+        class spell_hun_glyph_of_aspects_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_glyph_of_aspects_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->HasAura(HUNTER_SPELL_GLYPH_OF_ASPECTS))
+                        return;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case HUNTER_SPELL_ASPECT_OF_THE_CHEETAH:
+                            caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_CHEETAH_SUMMON, true);
+                            break;
+                        case HUNTER_SPELL_ASPECT_OF_THE_HAWK:
+                            caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_HAWK_SUMMON, true);
+                            break;
+                        case HUNTER_SPELL_ASPECT_OF_THE_PACK:
+                            caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_glyph_of_aspects_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_glyph_of_aspects_SpellScript();
+        }
 };
 
 // Lock and Load - 56453
@@ -1157,6 +1310,8 @@ class spell_hun_cobra_strikes : public SpellScriptLoader
                                 _player->CastSpell(_player, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
                             }
                         }
+
+                        _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
                     }
                 }
             }
@@ -1647,6 +1802,7 @@ class spell_hun_kill_command : public SpellScriptLoader
                         return;
 
                     pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_TRIGGER, true);
+                    GetCaster()->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_HUNTERS_MARK, true);
 
                     if (pet->getVictim())
                     {
@@ -1764,6 +1920,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             serpentSting->GetBase()->RefreshDuration();
 
                         _player->CastSpell(_player, HUNTER_SPELL_CHIMERA_SHOT_HEAL, true);
+                        _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
                     }
                 }
             }
@@ -1848,15 +2005,25 @@ class spell_hun_masters_call : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Player* caster = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (Pet* pet = caster->GetPet())
+                        {
                             pet->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, true);
+                            target->RemoveMovementImpairingAuras();
+                        }
+                    }
+                }
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
+                {
                     target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL, true);
+                    target->RemoveMovementImpairingAuras();
+                }
             }
 
             void Register()
@@ -2289,6 +2456,10 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_hunters_mark();
+    new spell_hun_fireworks();
+    new spell_hun_glyph_of_fireworks();
+    new spell_hun_glyph_of_aspects();
     new spell_hun_lock_and_load_proc();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_bestial_wrath_dispel();

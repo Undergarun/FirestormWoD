@@ -1363,7 +1363,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 }
                 break;
             case SPELLFAMILY_PRIEST:
-                if (m_spellInfo->SpellFamilyFlags[0] == 0x10000000) // Circle of Healing
+                if (m_spellInfo->Id == 34861) // Circle of Healing
                 {
                     maxSize = m_caster->HasAura(55675) ? 6 : 5; // Glyph of Circle of Healing
                     power = POWER_HEALTH;
@@ -1592,7 +1592,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                     m_caster->CastSpell(m_caster, 129881, true);
                     m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
-                    if (m_caster->HasAura(139598))
+                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && m_caster->getLevel() >= 20)
                         m_caster->AddAura(139597, m_caster);
                     break;
                 default:
@@ -2870,7 +2870,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             break;
         }
     }
-    CallScriptOnHitHandlers();
 
     if (caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CanTriggerPoisonAdditional())
         caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, PROC_FLAG_TAKEN_DAMAGE, procEx);
@@ -2889,6 +2888,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         else
             procEx |= PROC_EX_NORMAL_HIT;
 
+        m_healing = addhealth;
+        CallScriptOnHitHandlers();
+        addhealth = m_healing;
+
         int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
         unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
         m_healing = gain;
@@ -2905,6 +2908,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
+
+        m_damage = damageInfo.damage;
+        CallScriptOnHitHandlers();
+        damageInfo.damage = m_damage;
+
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
         // Send log damage message to client
@@ -2935,6 +2943,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
     {
+        CallScriptOnHitHandlers();
+
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);
@@ -3546,9 +3556,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
-    // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
+    // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKINGeffect
     if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() && 
-        m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+        m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
+        !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         SendCastResult(SPELL_FAILED_MOVING);
         finish(false);
@@ -4126,11 +4137,11 @@ void Spell::update(uint32 difftime)
     }
 
     // check if the player caster has moved before the spell finished
-    // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
+    // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
     if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
         m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
         (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
-        !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+        !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // don't cancel for melee, autorepeat, triggered and instant spells
         if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered())
@@ -4312,6 +4323,7 @@ void Spell::finish(bool ok)
     switch (m_spellInfo->Id)
     {
         case 32379: // Shadow Word: Death
+        case 129176:// Shadow Word: Death (overrided by Glyph)
         {
             if (m_caster->GetTypeId() != TYPEID_PLAYER)
                 break;
@@ -6560,8 +6572,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
-    // Do not cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+    // Do not cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
+        !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
         if ((!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) || m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK) &&
@@ -7463,12 +7476,6 @@ SpellCastResult Spell::CheckCasterAuras() const
 
     bool usableInStun = m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED;
 
-    // Glyph of Pain Suppression
-    // Allow Pain Suppression and Guardian Spirit to be cast while stunned
-    // there is no other way to handle it
-    if ((m_spellInfo->Id == 33206 || m_spellInfo->Id == 47788) && !m_caster->HasAura(63248))
-        usableInStun = false;
-
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
@@ -7486,10 +7493,6 @@ SpellCastResult Spell::CheckCasterAuras() const
                 {
                     // Sap & Hand of Freedom hack
                     if ((*i)->GetSpellInfo()->Id == 6770 && m_spellInfo->Id == 1044)
-                        continue;
-                    
-                    // Freezing trap hack
-                    if ((*i)->GetSpellInfo()->Id == 3355 && (m_spellInfo->Id == 33206 || m_spellInfo->Id == 47788))
                         continue;
 
                     foundNotStun = true;

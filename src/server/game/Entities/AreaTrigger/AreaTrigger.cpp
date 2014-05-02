@@ -141,6 +141,20 @@ void AreaTrigger::Update(uint32 p_time)
 
             break;
         }
+        case 62618: // Power Word: Barrier
+        {
+            std::list<Unit*> targetList;
+            radius = 6.0f;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
+            VisitNearbyObject(radius, searcher);
+
+            for (auto itr : targetList)
+                itr->CastSpell(itr, 81782, true);
+
+            break;
+        }
         case 102793:// Ursol's Vortex
         {
             std::list<Unit*> targetList;
@@ -228,7 +242,7 @@ void AreaTrigger::Update(uint32 p_time)
         case 116235:// Amethyst Pool
         {
             std::list<Unit*> targetList;
-            radius = 10.0f;
+            radius = 5.0f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
@@ -239,13 +253,12 @@ void AreaTrigger::Update(uint32 p_time)
                 for (auto itr : targetList)
                 {
                     // Amethyst Pool - Periodic Damage
-                    if (itr->GetDistance(this) > 3.5f)
+                    if (itr->GetDistance(this) > 3.5f && itr->HasAura(130774))
                         itr->RemoveAura(130774);
-                    else if (!itr->HasAura(130774))
+                    else if (itr->GetDistance(this) <= 3.5f && !itr->HasAura(130774))
                         caster->CastSpell(itr, 130774, true);
                 }
             }
-
             break;
         }
         case 122731:// Create Cancelling Noise Area trigger
@@ -287,9 +300,9 @@ void AreaTrigger::Update(uint32 p_time)
                     if (itr->GetTypeId() == TYPEID_PLAYER)
                     {
                         // Pheromones of Zeal - Periodic Damage
-                        if (itr->GetDistance(this) > 35.0f && itr->HasAura(123812))
+                        if (itr->GetDistance(this) > 30.0f && itr->HasAura(123812))
                             itr->RemoveAura(123812);
-                        else if (itr->GetDistance(this) <= 35.0f && !itr->HasAura(123812))
+                        else if (itr->GetDistance(this) <= 30.0f && !itr->HasAura(123812))
                             caster->AddAura(123812, itr);
                     }
                 }

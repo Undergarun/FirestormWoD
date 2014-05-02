@@ -1303,6 +1303,7 @@ bool Aura::CanBeSentToClient() const
 
     if (HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)      ||
         HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)            ||
+        HasEffectType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING) ||
         HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)     ||
         HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)   ||
         HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT)         ||
@@ -1744,7 +1745,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Blind
                         if (caster && caster->HasAura(91299))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -1755,6 +1755,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     {
                         // Remove stealth from target
                         target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, 0, 11327);
+                        break;
+                    }
+                    case 108212:// Burst of Speed
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
                         break;
                     }
                 }
@@ -1913,10 +1918,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Remove Stealth on Subterfuge remove
                     case 115192:
                     {
-                        StealthType type = StealthType(sSpellMgr->GetSpellInfo(1784)->Effects[1].MiscValue);
-                        target->m_stealth.DelFlag(type);
-                        target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
-                        target->UpdateObjectVisibility();
+                        target->RemoveAura(115191);
                         break;
                     }
                 }
@@ -2324,8 +2326,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (this == existingAura.get())
         return true;
 
-    // Dynobj auras always stack
-    if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    // Dynobj auras always stack - Same for Swiftmend
+    if (existingAura->GetType() == DYNOBJ_AURA_TYPE || existingAura->GetId() == 81262)
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();

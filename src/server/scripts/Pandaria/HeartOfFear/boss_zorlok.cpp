@@ -78,6 +78,22 @@ Position oratiumCenter[2] =
     {-2274.80f,     259.19f,    406.5f,    0.318021f}
 };
 
+// 212943 - Final Phase Door
+Position finalPhaseWalls1[3] =
+{
+    {-2299.195f, 282.5938f, 408.5445f, 2.383867f},
+    {-2250.401f, 234.0122f, 408.5445f, 2.333440f},
+    {-2299.63f,  233.3889f, 408.5445f, 0.7598741f}
+};
+
+// 212916 - Arena Walls
+Position finalPhaseWalls2[3] =
+{
+    {-2255.168f, 308.7326f, 406.0f,   0.7853968f},
+    {-2240.0f,   294.0f,    406.0f,   0.7853968f},
+    {-2225.753f, 280.1424f, 406.381f, 0.7853968f},
+};
+
 float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
 
 float rangeAttenuation1[2][2] =
@@ -126,6 +142,7 @@ class boss_zorlok : public CreatureScript
             bool isEcho;
             bool isAttEcho;
             bool isFaVEcho;
+            bool inhaleDone;
             
             void Reset()
             {
@@ -160,9 +177,11 @@ class boss_zorlok : public CreatureScript
                 actualPlatform = 0;
                 sonicSpirals = 0;
                 clocksideRings = true;
+                inhaleDone = false;
                 exhaleTarget = 0;
 
                 platforms.clear();
+                RemoveWalls();
                 // In heroic mode, the platforms are ordered, so we just need to increase numPlat and having it matching to ePlatforms values, which
                 // are heroic ordered, to get the right platform.
                 //
@@ -176,7 +195,22 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            // Specific Functions
+            // --- Specific Functions ---
+            void RemoveWalls()
+            {
+                std::list<GameObject*> arenaList;
+                std::list<GameObject*> wallsList;
+
+                GetGameObjectListWithEntryInGrid(arenaList, me, GOB_ARENA_WALLS, 200.0f);
+                GetGameObjectListWithEntryInGrid(wallsList, me, GOB_FINAL_PHASE_WALLS, 200.0f);
+
+                for (auto wall : arenaList)
+                    me->RemoveGameObject(wall, true);
+
+                for (auto wall : wallsList)
+                    me->RemoveGameObject(wall, true);
+            }
+
             void SetFlying()
             {
                 isFlying = true;
@@ -194,14 +228,19 @@ class boss_zorlok : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 events.Reset();
 
-                if (phase == PHASE_ZORLOK1 && hasTalk < numPlat)
+                if (isActive)
                 {
-                    me->GetMotionMaster()->MovePoint(platformToUse, zorlokReachPoints[platformToUse - 1]);
-                    me->MonsterTextEmote("Imperial Vizier Zor'lok is flying to one of hist platforms!", 0, true);
-                    hasTalk = numPlat;
+                    if (phase == PHASE_ZORLOK1 && hasTalk < numPlat)
+                    {
+                        me->GetMotionMaster()->MovePoint(platformToUse, zorlokReachPoints[platformToUse - 1]);
+                        me->MonsterTextEmote("Imperial Vizier Zor'lok is flying to one of hist platforms!", 0, true);
+                        hasTalk = numPlat;
+                    }
+                    else
+                        me->GetMotionMaster()->MovePoint(phase, oratiumCenter[0]);
                 }
                 else
-                    me->GetMotionMaster()->MovePoint(phase, oratiumCenter[0]);
+                    me->GetMotionMaster()->MoveTargetedHome();
             }
 
             void SetLanding(uint8 dest)
@@ -254,7 +293,7 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            void JustDied()
+            void JustDied(Unit* /*who*/)
             {
                 events.Reset();
                 summons.DespawnAll();
@@ -265,6 +304,7 @@ class boss_zorlok : public CreatureScript
 
                 me->SetCanFly(false);
                 me->SetDisableGravity(true);
+                RemoveWalls();
 
                 Talk(TALK_DEATH);
 
@@ -496,9 +536,65 @@ class boss_zorlok : public CreatureScript
                     }
                     case ACTION_INHALE_PHEROMONES:
                     {
+                        if (inhaleDone)
+                            return;
+
                         me->RemoveAreaTrigger(SPELL_PHEROMONES_CLOUD);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
                         me->GetMotionMaster()->MoveLand(PHASE_ZORLOK2 + 10,  oratiumCenter[1]);
+                        // Creating Walls
+                        for (uint8 i = 0; i < 3; ++i)
+                        {
+                            // Arena walls
+                            me->SummonGameObject(GOB_ARENA_WALLS, finalPhaseWalls2[i].GetPositionX(), finalPhaseWalls2[i].GetPositionY(), finalPhaseWalls2[i].GetPositionZ(), finalPhaseWalls2[i].GetOrientation(), 0, 0, 0, 0, 7200);
+
+                            // Final phase Doors
+                            me->SummonGameObject(GOB_FINAL_PHASE_WALLS, finalPhaseWalls1[i].GetPositionX(), finalPhaseWalls1[i].GetPositionY(), finalPhaseWalls1[i].GetPositionZ(), finalPhaseWalls1[i].GetOrientation(), 0, 0, 0, 0, 7200);
+                        }
+                        inhaleDone = true;
+
+                        break;
+                    }
+                    case ACTION_WIPE:
+                    {
+                        events.Reset();
+                        summons.DespawnAll();
+
+                        me->RemoveAllAreasTrigger();
+                        me->RemoveAllAuras();
+                        me->SetFullHealth();
+                        me->SetReactState(REACT_PASSIVE);
+
+                        isActive = false;
+                        platforms.clear();
+                        if (!IsHeroic() && !isEcho)
+                        {
+                            platforms.push_back(PLATFORM_ZORLOK_SW);
+                            platforms.push_back(PLATFORM_ZORLOK_NE);
+                            platforms.push_back(PLATFORM_ZORLOK_SE);
+                        }
+                        numPlat = 0;
+                        phase = 0;
+                        hasTalk = 0;
+                        platformToUse = 0;
+                        actualPlatform = 0;
+                        sonicSpirals = 0;
+                        exhaleTarget = 0;
+                        clocksideRings = true;
+                        inhaleDone = false;
+                        RemoveWalls();
+
+                        if (pInstance)
+                        {
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_CLOUD);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NOISE_CANCELLING);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
+
+                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                        }
+
+                        SetFlying();
                         break;
                     }
                     default:
@@ -567,6 +663,17 @@ class boss_zorlok : public CreatureScript
             {
                 if (!isActive)
                     return;
+
+                // On Wipe
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        DoAction(ACTION_WIPE);
+                        // We stop here to avoid Zor'lok to cast Song of the empress
+                        return;
+                    }
+                }
 
                 // Remove Convert aura from players at / below 50% HP.
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
@@ -1058,7 +1165,7 @@ class spell_sonic_ring : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     std::list<Player*> playerList;
-                    GetPlayerListInGrid(playerList, caster, 3.0f);
+                    GetPlayerListInGrid(playerList, caster, 1.5f);
 
                     for (auto player : playerList)
                         player->AddAura(SPELL_SONIC_RING_AURA, player);
@@ -1133,7 +1240,7 @@ class spell_pheromones_of_zeal : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pheromones_of_zeal_SpellScript::Effect);
+                AfterCast += SpellCastFn(spell_pheromones_of_zeal_SpellScript::Effect);
             }
         };
 
@@ -1191,10 +1298,18 @@ class spell_zorlok_exhale : public SpellScriptLoader
                     caster->RemoveAurasDueToSpell(SPELL_INHALE);
             }
 
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* target = GetHitPlayer())
+                        caster->CastSpell(target, SPELL_EXHALE_DMG, true);
+            }
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zorlok_exhale_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterCast                += SpellCastFn(spell_zorlok_exhale_SpellScript::RemoveStack);
+                OnEffectHitTarget        += SpellEffectFn(spell_zorlok_exhale_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1221,7 +1336,7 @@ class ExhaleDamageTargetFilter : public std::unary_function<Unit*, bool>
             if (object == exhaleTarget)
                 return false;
 
-            if (!object->IsInBetween(_caster, exhaleTarget, 1.0f))
+            if (!object->IsInBetween(_caster, exhaleTarget/*, 1.0f*/))
                 return true; // Remove players not between Zor'lok and his Exhale target.
 
             return false; // Players between Zor'lok and the Exhale target are added to the list and sorted afterwards by distance.
@@ -1348,14 +1463,14 @@ class spell_convert : public SpellScriptLoader
 
 void AddSC_boss_zorlok()
 {
-    new boss_zorlok();
-    new mob_sonic_ring();
-    new spell_inhale();
-    new spell_attenuation();
-    new spell_force_verve();
-    new spell_sonic_ring();
-    new spell_pheromones_of_zeal();
-    new spell_zorlok_exhale();
-    new spell_zorlok_exhale_damage();
-    new spell_convert();
+    new boss_zorlok();                  // 62980 - Imperial Vizier Zor'lok
+    new mob_sonic_ring();               // 62687, 62746, 62744, 62743, 62698, 62699, 62700, 62702, 62703, 62704, 62714, 62715, 62727, 62726, 62719, 62718, 62720, 62721, 62722, 62723, 62724, 62725, 62717, 62716, 62728, 62729, 62696, 62694, 62689, 63340, 63341, 67163, 67164 - Sonic Ring
+    new spell_inhale();                 // 122852 - Inhale
+    new spell_attenuation();            // 122440 - Attenuation
+    new spell_force_verve();            // 122718 - Force and verve
+    new spell_sonic_ring();             // 122336 - Sonic Ring
+    new spell_pheromones_of_zeal();     // 124018 - Pheromones of Zeal
+    new spell_zorlok_exhale();          // 122761 - Exhale
+    new spell_zorlok_exhale_damage();   // 122760 - Exhale (damage aura)
+    new spell_convert();                // 122740 - Convert
 }

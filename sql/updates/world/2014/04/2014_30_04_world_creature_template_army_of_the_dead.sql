@@ -1,0 +1,1 @@
+UPDATE creature_template SET ScriptName = 'npc_army_of_the_dead' WHERE entry = 24207;

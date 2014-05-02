@@ -178,6 +178,21 @@ struct BattlePetSpeciesEntry
     uint32 CreatureEntry;
 };
 
+struct SceneScriptEntry
+{
+    uint32 Entry;
+    const char* Name;
+    const char* Script;
+    uint32 PrevScript;
+    uint32 NextScript;
+};
+
+struct SceneScriptPackageEntry
+{
+    uint32 Entry;
+    const char* Name;
+};
+
 #define MAX_SPELL_REAGENTS 8
 
 // SpellReagents.db2

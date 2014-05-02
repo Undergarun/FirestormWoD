@@ -28,77 +28,78 @@
 
 enum PaladinSpells
 {
-    PALADIN_SPELL_DIVINE_PLEA                    = 54428,
-    PALADIN_SPELL_JUDGMENT                       = 20271,
-    PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD          = 111529,
-    PALADIN_SPELL_JUDGMENTS_OF_THE_WISE          = 105424,
-    PALADIN_SPELL_PHYSICAL_VULNERABILITY         = 81326,
-    PALADIN_SPELL_LONG_ARM_OF_THE_LAW            = 87172,
-    PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED  = 87173,
-    PALADIN_SPELL_HOLY_SHOCK_R1                  = 20473,
-    PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE           = 25912,
-    PALADIN_SPELL_HOLY_SHOCK_R1_HEALING          = 25914,
-    PALADIN_SPELL_HOLY_SHOCK_ENERGIZE            = 148976,
-    SPELL_BLESSING_OF_LOWER_CITY_DRUID           = 37878,
-    SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
-    SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
-    SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
-    SPELL_DIVINE_STORM                           = 53385,
-    SPELL_DIVINE_STORM_DUMMY                     = 54171,
-    SPELL_DIVINE_STORM_HEAL                      = 54172,
-    SPELL_FORBEARANCE                            = 25771,
-    PALADIN_SPELL_WORD_OF_GLORY                  = 85673,
-    PALADIN_SPELL_WORD_OF_GLORY_HEAL             = 130551,
-    PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY         = 54936,
-    PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE  = 115522,
-    PALADIN_SPELL_CONSECRATION_AREA_DUMMY        = 81298,
-    PALADIN_SPELL_CONSECRATION_DAMAGE            = 81297,
-    PALADIN_SPELL_HOLY_PRISM_ALLIES              = 114871,
-    PALADIN_SPELL_HOLY_PRISM_ENNEMIES            = 114852,
-    PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL       = 114862,
-    PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2     = 114870,
-    PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL         = 121551,
-    PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2       = 121552,
-    PALADIN_SPELL_ARCING_LIGHT_HEAL              = 119952,
-    PALADIN_SPELL_ARCING_LIGHT_DAMAGE            = 114919,
-    PALADIN_SPELL_EXECUTION_SENTENCE             = 114916,
-    PALADIN_SPELL_STAY_OF_EXECUTION              = 114917,
-    PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE        = 146585,
-    PALADIN_SPELL_EXECUTION_DISPEL_HEAL          = 146586,
-    PALADIN_SPELL_INQUISITION                    = 84963,
-    PALADIN_SPELL_GLYPH_OF_BLINDING_LIGHT        = 54934,
-    PALADIN_SPELL_BLINDING_LIGHT_CONFUSE         = 105421,
-    PALADIN_SPELL_BLINDING_LIGHT_STUN            = 115752,
-    PALADIN_SPELL_EXORCISM                       = 879,
-    PALADIN_SPELL_MASS_EXORCISM                  = 122032,
-    PALADIN_SPELL_SACRED_SHIELD                  = 65148,
-    PALADIN_SPELL_ARDENT_DEFENDER_HEAL           = 66235,
-    PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE     = 88852,
-    PALADIN_SPELL_BEACON_OF_LIGHT                = 53563,
-    PALADIN_SPELL_SELFLESS_HEALER_STACK          = 114250,
-    PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC   = 132403,
-    PALADIN_SPELL_BASTION_OF_GLORY               = 114637,
-    PALADIN_SPELL_DIVINE_PURPOSE                 = 90174,
-    PALADIN_SPELL_DIVINE_SHIELD                  = 642,
-    PALADIN_SPELL_LAY_ON_HANDS                   = 633,
-    PALADIN_SPELL_DIVINE_PROTECTION              = 498,
-    PALADIN_SPELL_GLYPH_OF_AVENGING_WRATH        = 54927,
-    PALADIN_SPELL_AVENGING_WRATH_REGEN_BY_GLYPH  = 115547,
-    PALADIN_SPELL_SACRED_CLEANSING               = 53551,
-    PALADIN_SPELL_DAYBREAK_AURA                  = 88821,
-    PALADIN_SPELL_DAYBREAK_PROC                  = 88819,
-    PALADIN_SPELL_DAYBREAK_HEAL                  = 121129,
-    PALADIN_SPELL_TOWER_OF_RADIANCE              = 85512,
-    PALADIN_SPELL_HOLY_AVENGER                   = 105809,
-    PALADIN_ITEM_PVP_HOLY_4P_BONUS               = 131665,
-    PALADIN_SPELL_GLYPH_OF_DIVINE_STORM          = 63220,
-    PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL     = 115515,
-    PALADIN_SPELL_GLYPH_OF_DENOUNCE              = 56420,
-    PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC         = 115654,
-    PALADIN_SPELL_SANCTIFIED_WRATH_TALENT        = 53376,
-    PALADIN_SPELL_SANCTIFIED_WRATH_BONUS         = 114232,
-    PALADIN_SPELL_AVENGING_WRATH                 = 31884,
-    PALADIN_SPELL_EXORCISM_ENERGIZE              = 147715
+    PALADIN_SPELL_JUDGMENT                      = 20271,
+    PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD         = 111529,
+    PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
+    PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
+    PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
+    PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED = 87173,
+    PALADIN_SPELL_HOLY_SHOCK_R1                 = 20473,
+    PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE          = 25912,
+    PALADIN_SPELL_HOLY_SHOCK_R1_HEALING         = 25914,
+    PALADIN_SPELL_HOLY_SHOCK_ENERGIZE           = 148976,
+    SPELL_BLESSING_OF_LOWER_CITY_DRUID          = 37878,
+    SPELL_BLESSING_OF_LOWER_CITY_PALADIN        = 37879,
+    SPELL_BLESSING_OF_LOWER_CITY_PRIEST         = 37880,
+    SPELL_BLESSING_OF_LOWER_CITY_SHAMAN         = 37881,
+    SPELL_DIVINE_STORM                          = 53385,
+    SPELL_DIVINE_STORM_DUMMY                    = 54171,
+    SPELL_DIVINE_STORM_HEAL                     = 54172,
+    SPELL_FORBEARANCE                           = 25771,
+    PALADIN_SPELL_WORD_OF_GLORY                 = 85673,
+    PALADIN_SPELL_WORD_OF_GLORY_HEAL            = 130551,
+    PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY        = 54936,
+    PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE = 115522,
+    PALADIN_SPELL_CONSECRATION_AREA_DUMMY       = 81298,
+    PALADIN_SPELL_CONSECRATION_DAMAGE           = 81297,
+    PALADIN_SPELL_HOLY_PRISM_ALLIES             = 114871,
+    PALADIN_SPELL_HOLY_PRISM_ENNEMIES           = 114852,
+    PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL      = 114862,
+    PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2    = 114870,
+    PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL        = 121551,
+    PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2      = 121552,
+    PALADIN_SPELL_ARCING_LIGHT_HEAL             = 119952,
+    PALADIN_SPELL_ARCING_LIGHT_DAMAGE           = 114919,
+    PALADIN_SPELL_EXECUTION_SENTENCE            = 114916,
+    PALADIN_SPELL_STAY_OF_EXECUTION             = 114917,
+    PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE       = 146585,
+    PALADIN_SPELL_EXECUTION_DISPEL_HEAL         = 146586,
+    PALADIN_SPELL_INQUISITION                   = 84963,
+    PALADIN_SPELL_GLYPH_OF_BLINDING_LIGHT       = 54934,
+    PALADIN_SPELL_BLINDING_LIGHT_CONFUSE        = 105421,
+    PALADIN_SPELL_BLINDING_LIGHT_STUN           = 115752,
+    PALADIN_SPELL_EXORCISM                      = 879,
+    PALADIN_SPELL_MASS_EXORCISM                 = 122032,
+    PALADIN_SPELL_SACRED_SHIELD                 = 65148,
+    PALADIN_SPELL_ARDENT_DEFENDER_HEAL          = 66235,
+    PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE    = 88852,
+    PALADIN_SPELL_BEACON_OF_LIGHT               = 53563,
+    PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
+    PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
+    PALADIN_SPELL_BASTION_OF_GLORY              = 114637,
+    PALADIN_SPELL_DIVINE_PURPOSE                = 90174,
+    PALADIN_SPELL_DIVINE_SHIELD                 = 642,
+    PALADIN_SPELL_LAY_ON_HANDS                  = 633,
+    PALADIN_SPELL_DIVINE_PROTECTION             = 498,
+    PALADIN_SPELL_GLYPH_OF_AVENGING_WRATH       = 54927,
+    PALADIN_SPELL_AVENGING_WRATH_REGEN_BY_GLYPH = 115547,
+    PALADIN_SPELL_SACRED_CLEANSING              = 53551,
+    PALADIN_SPELL_DAYBREAK_AURA                 = 88821,
+    PALADIN_SPELL_DAYBREAK_PROC                 = 88819,
+    PALADIN_SPELL_DAYBREAK_HEAL                 = 121129,
+    PALADIN_SPELL_TOWER_OF_RADIANCE             = 85512,
+    PALADIN_SPELL_HOLY_AVENGER                  = 105809,
+    PALADIN_ITEM_PVP_HOLY_4P_BONUS              = 131665,
+    PALADIN_SPELL_GLYPH_OF_DIVINE_STORM         = 63220,
+    PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL    = 115515,
+    PALADIN_SPELL_GLYPH_OF_DENOUNCE             = 56420,
+    PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC        = 115654,
+    PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
+    PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
+    PALADIN_SPELL_AVENGING_WRATH                = 31884,
+    PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
+    PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT      = 54931,
+    PALADIN_SPELL_BURDEN_OF_GUILD               = 110300
 };
 
 class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
@@ -585,7 +586,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
         }
 };
 
-// Sacred shield - 20925
+// Sacred shield - 20925 and Sacred Shield (Holy) - 148039
 class spell_pal_sacred_shield : public SpellScriptLoader
 {
     public:
@@ -1341,24 +1342,27 @@ class spell_pal_judgment : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* target = GetHitUnit())
                     {
-                        if (_player->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD) || _player->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
+                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD) || caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
                         {
                             int32 power = 1;
-                            if (_player->HasAura(PALADIN_SPELL_HOLY_AVENGER))
+                            if (caster->HasAura(PALADIN_SPELL_HOLY_AVENGER))
                                 power = 3;
 
-                            _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) + power);
+                            caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + power);
                         }
 
-                        if (_player->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD))
-                            _player->CastSpell(unitTarget, PALADIN_SPELL_PHYSICAL_VULNERABILITY, true);
+                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD))
+                            caster->CastSpell(target, PALADIN_SPELL_PHYSICAL_VULNERABILITY, true);
 
-                        if (_player->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
-                            _player->CastSpell(_player, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
+                        if (caster->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
+                            caster->CastSpell(caster, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
+
+                        if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT))
+                            caster->CastSpell(target, PALADIN_SPELL_BURDEN_OF_GUILD, true);
                     }
                 }
             }

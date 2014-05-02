@@ -64,6 +64,7 @@ class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
 class PhaseMgr;
+class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -3043,6 +3044,11 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
+        /*********************************************************/
+        /***                  SCENES SYSTEM                    ***/
+        /*********************************************************/
+        void PlayScene(uint32 sceneId, WorldObject* spectator);
+
     private:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -3445,6 +3451,11 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonGames[MAX_PVP_SLOT];
         
         CUFProfiles m_cufProfiles;
+
+        /*********************************************************/
+        /***                  SCENES SYSTEM                    ***/
+        /*********************************************************/
+        SceneObject* m_LastPlayedScene;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

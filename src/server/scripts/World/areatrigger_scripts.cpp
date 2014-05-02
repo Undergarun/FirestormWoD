@@ -516,6 +516,22 @@ class AreaTrigger_at_bael_modan : public AreaTriggerScript
         }
 };
 
+#define KLAXXI_COUNCIL_QUEST 31006
+
+class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_klaxxi_vess() : AreaTriggerScript("AreaTrigger_at_klaxxi_vess") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(KLAXXI_COUNCIL_QUEST) == QUEST_STATUS_INCOMPLETE)
+                player->KilledMonsterCredit(62538);
+
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -529,4 +545,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_bael_modan();
+    new AreaTrigger_at_klaxxi_vess();
 }

@@ -81,6 +81,7 @@
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
+#include "SceneObject.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -992,6 +993,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
+
+    m_LastPlayedScene = NULL;
 }
 
 Player::~Player()
@@ -2039,7 +2042,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
+                if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
@@ -2067,27 +2070,27 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
-                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
+                    // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
+                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
                     }
-                    // Custom MoP Script - Wind Lash
-                    else if (HasAura(114051))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
-                        CastSpell(victim, 114089, true);
-                        resetAttackTimer(BASE_ATTACK);
+                        // Should have only one aura of this type at the same time
+                        AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
+                        for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
+                        {
+                            CastSpell(victim, (*i)->GetTriggerSpell(), true);
+                            resetAttackTimer(BASE_ATTACK);
+                            break;
+                        }
                     }
                     // Shadow Blade - Main Hand
                     else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121473, true);
-                        resetAttackTimer(BASE_ATTACK);
-                    }
-                    else if (HasAura(137586) && !HasAura(121471))
-                    {
-                        CastSpell(victim, 137584, true); // Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
                     else if (HasAura(137586) && HasAura(121471))
@@ -2100,7 +2103,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
+                if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -2110,27 +2113,27 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
-                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
+                    // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
+                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
                     }
-                    // Custom MoP Script - Wind Lash Off-Hand
-                    else if (HasAura(114051))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
-                        CastSpell(victim, 114093, true);
-                        resetAttackTimer(OFF_ATTACK);
+                        // Should have only one aura of this type at the same time
+                        AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
+                        for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
+                        {
+                            CastSpell(victim, (*i)->GetMiscValue(), true);
+                            resetAttackTimer(OFF_ATTACK);
+                            break;
+                        }
                     }
                     // Shadow Blades - Off Hand
                     else if (HasAura(121471) && !HasAura(137586))
                     {
                         CastSpell(victim, 121474, true);
-                        resetAttackTimer(OFF_ATTACK);
-                    }
-                    else if (HasAura(137586) && !HasAura(121471))
-                    {
-                        CastSpell(victim, 137585, true); // Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
                     else if (HasAura(137586) && HasAura(121471))
@@ -8492,6 +8495,13 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
 
+    float honorMod = 1.0f;
+    Unit::AuraEffectList const& mModHonorGainPercent = GetAuraEffectsByType(SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT);
+    for (Unit::AuraEffectList::const_iterator i = mModHonorGainPercent.begin(); i != mModHonorGainPercent.end(); ++i)
+        honorMod += float(float((*i)->GetAmount()) / 100.0f);
+
+    honor_f *= honorMod;
+
     // Back to int now
     honor = std::max(int32(honor_f), 1);
     // honor - for show honor points in log
@@ -9891,6 +9901,10 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         // check if it is valid spell
         SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(spellData.SpellId);
         if (!spellproto)
+            continue;
+
+        // Item doesn't need to be equipped
+        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && spellproto->HasAura(SPELL_AURA_MOD_SKILL_VALUE))
             continue;
 
         ApplyEquipSpell(spellproto, item, apply, form_change);
@@ -13571,7 +13585,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (proto->Class == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->SubClass]) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
+    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_COSMETIC && proto->InventoryType != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
@@ -23792,6 +23806,17 @@ void Player::SetRestBonus (float rest_bonus_new)
     else
         m_rest_bonus = rest_bonus_new;
 
+    // Inner Peace
+    if (HasAura(107074))
+        m_rest_bonus *= 2;
+
+    float modifier = 1.0f;
+    AuraEffectList const& mIncreaseRest = GetAuraEffectsByType(SPELL_AURA_INCREASE_REST_BONUS_PERCENT);
+    for (AuraEffectList::const_iterator i = mIncreaseRest.begin(); i != mIncreaseRest.end(); ++i)
+        modifier += float((*i)->GetAmount() / 100);
+
+    m_rest_bonus *= modifier;
+
     // update data for client
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RAF_LINKED);
@@ -28570,13 +28595,18 @@ void Player::SendEquipmentSetList()
             }
         }
 
-        data.append(itr->second.Name.c_str(), itr->second.Name.size());
+        if (itr->second.Name.size())
+            data.append(itr->second.Name.c_str(), itr->second.Name.size());
+
         data.WriteByteSeq(setGuid[5]);
         data.WriteByteSeq(setGuid[0]);
         data.WriteByteSeq(setGuid[3]);
         data.WriteByteSeq(setGuid[6]);
         data.WriteByteSeq(setGuid[1]);
-        data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
+        if (itr->second.IconName.size())
+            data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
         data.WriteByteSeq(setGuid[7]);
         data.WriteByteSeq(setGuid[4]);
         data.WriteByteSeq(setGuid[2]);
@@ -30542,4 +30572,19 @@ void Player::SendRefreshSpellMods()
             SendDirectMessage(&data);
         }
     }
+}
+
+void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
+{
+    if (m_LastPlayedScene)
+    {
+        m_LastPlayedScene->DestroyForPlayer(this);
+        delete m_LastPlayedScene;
+        m_LastPlayedScene = NULL;
+    }
+
+    m_LastPlayedScene = SceneObject::CreateSceneObject(sceneId, spectator);
+
+    if (m_LastPlayedScene)
+        m_LastPlayedScene->SendUpdateToPlayer(this);
 }

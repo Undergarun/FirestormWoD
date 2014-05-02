@@ -344,6 +344,11 @@ void Player::UpdateMaxPower(Powers power)
     value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    AuraEffectList const& mModMaxPower = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
+    for (AuraEffectList::const_iterator i = mModMaxPower.begin(); i != mModMaxPower.end(); ++i)
+        if (power == (*i)->GetMiscValue())
+            value += float((*i)->GetAmount());
+
     value = floor(value + 0.5f);
     SetMaxPower(power, uint32(value));
 }
@@ -1223,6 +1228,13 @@ bool Guardian::UpdateStats(Stats stat)
 
             ownersBonus = float(owner->GetStat(stat)) * mod;
             ownersBonus *= GetModifierValue(UNIT_MOD_STAT_STAMINA, TOTAL_PCT);
+
+            float modifier = 1.0f;
+            AuraEffectList const& mModHealthFromOwner = owner->GetAuraEffectsByType(SPELL_AURA_INCREASE_HEALTH_FROM_OWNER);
+            for (AuraEffectList::const_iterator i = mModHealthFromOwner.begin(); i != mModHealthFromOwner.end(); ++i)
+                modifier += float((*i)->GetAmount() / 100.0f);
+
+            ownersBonus *= modifier;
             value += ownersBonus;
             break;
         }
@@ -1325,6 +1337,17 @@ void Guardian::UpdateArmor()
     value *= GetModifierValue(unitMod, BASE_PCT);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    if (Unit* owner = GetOwner())
+    {
+        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        float amount = 0;
+        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+            if ((*i)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*i)->GetMiscValueB() && GetEntry() == (*i)->GetMiscValueB())
+                amount += float((*i)->GetAmount());
+
+        AddPct(value, amount);
+    }
+
     SetArmor(int32(value));
 }
 
@@ -1369,6 +1392,17 @@ void Guardian::UpdateMaxHealth()
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
+
+    if (Unit* owner = GetOwner())
+    {
+        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        float amount = 0;
+        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
+            if ((*i)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*i)->GetMiscValueB() && GetEntry() == (*i)->GetMiscValueB())
+                amount += float((*i)->GetAmount());
+
+        AddPct(value, amount);
+    }
 
     SetMaxHealth((uint32)value);
 }

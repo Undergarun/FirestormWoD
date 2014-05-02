@@ -262,6 +262,8 @@ class boss_stone_guard_controler : public CreatureScript
                         if (pInstance)
                         {
                             pInstance->SetBossState(DATA_STONE_GUARD, FAIL);
+                            events.Reset();
+                            summons.DespawnAll();
 
                             for (uint32 entry: guardiansEntry)
                             {
@@ -274,6 +276,8 @@ class boss_stone_guard_controler : public CreatureScript
                                         guardian->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
                                         guardian->RemoveAurasDueToSpell(SPELL_COBALT_PETRIFICATION);
                                         guardian->RemoveAurasDueToSpell(SPELL_JASPER_PETRIFICATION);
+                                        guardian->GetMotionMaster()->MoveTargetedHome();
+                                        guardian->SetFullHealth();
                                     }
                                 }
                             }
@@ -285,7 +289,6 @@ class boss_stone_guard_controler : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
                         }
-                        // Reset();
                         break;
                     }
                     default:
@@ -300,6 +303,9 @@ class boss_stone_guard_controler : public CreatureScript
 
                 if (!pInstance)
                     return;
+
+                if (pInstance->IsWipe())
+                    DoAction(ACTION_REACH_HOME);
 
                 events.Update(diff);
 
@@ -532,7 +538,7 @@ class boss_generic_guardian : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_ENERGY,            1000);
                 events.ScheduleEvent(EVENT_REND_FLESH,              5000);
                 events.ScheduleEvent(EVENT_MAIN_ATTACK,             10000);
-                events.ScheduleEvent(EVENT_ENRAGE,                  420000);
+                events.ScheduleEvent(EVENT_ENRAGE,                  420000); // 7 minutes enrage timer
             }
 
             void EnterCombat(Unit* attacker)
@@ -542,6 +548,14 @@ class boss_generic_guardian : public CreatureScript
                 
                 me->RemoveAurasDueToSpell(SPELL_SOLID_STONE);
                 me->RemoveAurasDueToSpell(SPELL_ANIM_SIT);
+            }
+
+            void JustReachedHome()
+            {
+                events.Reset();
+                summons.DespawnAll();
+                me->AddAura(SPELL_ANIM_SIT, me);
+                me->AddAura(SPELL_SOLID_STONE, me);
             }
 
             void KilledUnit(Unit* victim)
@@ -733,6 +747,9 @@ class boss_generic_guardian : public CreatureScript
                             me->MonsterTextEmote(buf, 0, true);
                             warnedForOverload = true;
                         }
+                        // If in solid stone form, energy slowly decreases
+                        if (me->HasAura(SPELL_SOLID_STONE) && !IsHeroic())
+                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - 5);
 
                         events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
                         break;

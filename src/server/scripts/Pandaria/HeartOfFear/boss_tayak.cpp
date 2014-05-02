@@ -1024,13 +1024,77 @@ class spell_tayak_wind_step: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_tayak_wind_stepSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_tayak_wind_stepSpellScript::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_tayak_wind_stepSpellScript();
+        }
+};
+
+// 122982 - Unseen Strike
+class spell_unseen_strike_aura : public SpellScriptLoader
+{
+    public:
+        spell_unseen_strike_aura() : SpellScriptLoader("spell_unseen_strike") { }
+
+        class spell_unseen_strike_auraAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_unseen_strike_auraAuraScript);
+
+            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetTarget())
+                        caster->AddAura(SPELL_UNSEEN_STRIKE_TR, target);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_unseen_strike_auraAuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_unseen_strike_auraAuraScript();
+        }
+};
+
+// 122994 - Unseen Strike
+class spell_unseen_strike_dmg : public SpellScriptLoader
+{
+    public :
+        spell_unseen_strike_dmg() : SpellScriptLoader("spell_unseen_strike_dmg") { }
+
+        class spell_unseen_strike_dmgSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_unseen_strike_dmgSpellScript);
+
+            int32 numTargets;
+
+            void CountTargets(std::list<WorldObject*>& targets)
+            {
+                numTargets = targets.size();
+            }
+
+            void DealDamages(SpellEffIndex effIndex)
+            {
+                SetHitDamage(GetSpellInfo()->Effects[effIndex].BasePoints / numTargets);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_unseen_strike_dmgSpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                OnEffectHitTarget += SpellEffectFn(spell_unseen_strike_dmgSpellScript::DealDamages, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_unseen_strike_dmgSpellScript();
         }
 };
 
@@ -1306,6 +1370,8 @@ void AddSC_boss_tayak()
     new spell_tayak_storms_vehicle();       // 124258
     new spell_tayak_storm_unleashed_dmg();  // 124783
     new spell_tempest_slash();              // 122853
+    new spell_unseen_strike_aura();         // 122982
+    new spell_unseen_strike_dmg();          // 122994
     new spell_tayak_su_visual();            // 123814
     new spell_su_dummy_visual();            // 124024
     new spell_gale_winds();                 // 123633

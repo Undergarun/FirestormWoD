@@ -136,10 +136,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                     return DIMINISHING_LIMITONLY;
             }
 
-            // Frost Nova / Freeze (Water Elemental)
-            if (spellproto->SpellIconID == 193)
-                return DIMINISHING_CONTROLLED_ROOT;
-
             break;
         }
         case SPELLFAMILY_WARRIOR:
@@ -279,6 +275,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             {
                 case 4167:   // Web
                 case 50245:  // Pin
+                case 53148:  // Charge
                 case 54706:  // Venom Web Spray
                 case 90327:  // Lock Jaw
                 case 136634: // Narrow Escape
@@ -3423,6 +3420,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 32409: // Shadow Word: Death (triggered)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                break;
             case 88611: // Smoke Bomb (triggered)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 break;
@@ -3482,6 +3483,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 135299:// Ice Trap (snare)
             case 140023:// Ring of Peace (dummy)
+            case 81782: // Power Word: Barrier (buff)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
             case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
@@ -3942,6 +3944,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 127538:// Savage Roar (Glyphed)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(636); // 12s / 0s / 42s
                 break;
+            case 146512:// Fortitude - hotfix 5.4.2
+                spellInfo->Effects[0].BasePoints = 2600;
+                break;
             case 15473: // Shadowform - hotfix 5.4.2
                 spellInfo->Effects[6].BasePoints = 100;
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
@@ -4217,6 +4222,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
+            case 116782:// Titan Gas
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->Effects[0].BasePoints = 17000;
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(113); // radius 1000
+                break;
             case 123811:// Pheromones of Zeal
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
@@ -4425,10 +4437,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 61999: // Raise Ally
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 break;
-            case 49016: // Unholy Frenzy
-                spellInfo->Effects[0].BasePoints = 30;
-                spellInfo->AttributesEx4 |= SPELL_ATTR4_STACK_DOT_MODIFIER;
-                break;
             case 31935: // Avenger's Shield
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
@@ -4542,6 +4550,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 11371: // Arthas's Gift
+                spellInfo->Effects[0].TriggerSpell = 0;
+                break;
             case 41055: // Copy Weapon Spells
             case 45206:
             case 63416:
@@ -4588,9 +4599,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 47515: // Divine Aegis
-                spellInfo->Effects[0].BasePoints = 50;
-                break;
             case 108201:// Desecrated Ground
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
@@ -4625,6 +4633,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 115191:// Subterfuge
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
+                spellInfo->ProcFlags = 0x00A22A8;   // 1784 ProcsFlags
                 break;
             case 115192:// Subterfuge
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
@@ -5101,8 +5111,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 45297:
                 spellInfo->MaxLevel = spellInfo->SpellLevel;
                 break;
-            // Silencing Shot
-            case 34490:
+            case 34490: // Silencing Shot
+            case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
             case 132626: // Alliance Portal - Mage
@@ -5724,31 +5734,26 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             // ENDOF ULDUAR SPELLS
             //
-            // Glyph of Exorcism
-            case 54934:
+            case 54934: // Glyph of Exorcism
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            // Shadow Apparition
-            case 87426:
+            case 87426: // Shadow Apparition
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 73685: // Unleash Life 
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
-            // Death Grip
-            case 49560:
+            case 49560: // Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 spellInfo->Mechanic = MECHANIC_NONE;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
                 break;
-            // Circle of Healing
-            case 34861:
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
-                spellInfo->Effects[0].TargetB = TARGET_UNK_119;
+            case 114255:// Surge of Light (proc)
+                spellInfo->StackAmount = 2;
                 break;
-            case 1543: // Flare
+            case 1543:  // Flare
                 spellInfo->Effects[0].TriggerSpell = 94528;
                 break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience

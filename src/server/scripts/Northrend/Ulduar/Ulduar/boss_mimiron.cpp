@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "Unit.h"
 #include "Vehicle.h"
+#include "GridNotifiers.h"
 
 #include <limits>
 #include <map>

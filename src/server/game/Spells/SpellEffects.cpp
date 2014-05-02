@@ -255,8 +255,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
     &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183
     &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION_REWARD
-    &Spell::EffectNULL,                                     //185 SPELL_EFFECT_185
-    &Spell::EffectNULL,                                     //186 SPELL_EFFECT_186
+    &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
+    &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
     &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187
     &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
     &Spell::EffectNULL,                                     //189 SPELL_EFFECT_189
@@ -268,7 +268,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
     &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
-    &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
+    &Spell::EffectNULL,                                     //198 SPELL_EFFECT_PLAY_CINEMATIC
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
     &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
     &Spell::EffectNULL,                                     //201 SPELL_EFFECT_201
@@ -585,6 +585,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         }
                     }
                 }
+
                 break;
             }
             case SPELLFAMILY_DRUID:
@@ -927,6 +928,41 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         m_caster->CastSpell(m_caster, 79639, true);
                     else if (stat_int > stat_agi && stat_int > stat_str)
                         m_caster->CastSpell(m_caster, 79640, true);
+
+                    break;
+                }
+                case 126734:// Synapse Springs
+                {
+                    Stats usedStat = STAT_INTELLECT;
+                    int32 stat = m_caster->GetStat(STAT_INTELLECT);
+                    int32 agility = m_caster->GetStat(STAT_AGILITY);
+                    int32 strength = m_caster->GetStat(STAT_STRENGTH);
+
+                    if (stat < agility)
+                    {
+                        stat = agility;
+                        usedStat = STAT_AGILITY;
+                    }
+                    if (stat < strength)
+                    {
+                        stat = strength;
+                        usedStat = STAT_STRENGTH;
+                    }
+
+                    switch (usedStat)
+                    {
+                        case STAT_INTELLECT:
+                            m_caster->CastCustomSpell(m_caster, 96230, &damage, NULL, NULL, true);
+                            break;
+                        case STAT_AGILITY:
+                            m_caster->CastCustomSpell(m_caster, 96228, &damage, NULL, NULL, true);
+                            break;
+                        case STAT_STRENGTH:
+                            m_caster->CastCustomSpell(m_caster, 96229, &damage, NULL, NULL, true);
+                            break;
+                        default:
+                            break;
+                    }
 
                     break;
                 }
@@ -3555,10 +3591,6 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
             break;
         }
-        case 475: // Remove Curse
-            if (m_caster->HasAura(115700))
-                m_caster->AddAura(115701, m_caster);
-            break;
         default:
             break;
     }
@@ -3704,6 +3736,10 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         case 77130: // Purify Spirit
             if (m_caster->HasAura(86959)) // Glyph of Cleansing Waters
                 m_caster->CastSpell(unitTarget, 86961, true);
+            break;
+        case 475:   // Remove Curse
+            if (m_caster->HasAura(115700))
+                m_caster->AddAura(115701, m_caster);
             break;
         default:
             break;
@@ -5543,7 +5579,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                case 125048:// Fetch
+                case 125050:// Fetch
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -5568,6 +5604,9 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            if (!unitTarget)
+                break;
+
             // Pestilence
             if (m_spellInfo->SpellFamilyFlags[1]&0x10000)
             {
@@ -6645,16 +6684,13 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10;
-    float speedz = float(damage/10);
+    float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10.0f;
+    float speedz = float(damage/10.0f);
     bool back = true;
 
     // Fix Glyph of Disengage
-    if (m_caster->HasAura(56844))
-    {
-        speedxy *= 1.5f;
-        speedz = float(75 / 10);
-    }
+    if (m_caster->HasAura(56844) && m_spellInfo->Id == 56446)
+        speedz = (75.0f * 1.5f) / 10.0f;
 
     // Wild Charge (Moonkin) and Disengage
     if (m_spellInfo->Id == 102383 || m_spellInfo->SpellIconID == 1891)
@@ -8163,4 +8199,20 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
     m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
+}
+
+void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* target = unitTarget->ToPlayer();
+    if (!target)
+        return;
+
+    uint32 sceneId = m_spellInfo->Effects[effIndex].MiscValue;
+    target->PlayScene(sceneId, target);
 }
