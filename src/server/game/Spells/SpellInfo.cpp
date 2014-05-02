@@ -2319,7 +2319,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 return SPELL_SPECIFIC_PRIEST_SANCTUM;
 
             // Priest chakras
-            if (HasAttribute(SPELL_ATTR9_AFFECTED_BY_SPELLSWAP) || Id == 81209)
+            if (Id == 81206 || Id == 81208 || Id == 81209)
                 return SPELL_SPECIFIC_CHAKRA;
 
             break;
