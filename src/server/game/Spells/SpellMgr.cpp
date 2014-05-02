@@ -143,9 +143,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             switch (spellproto->Id)
             {
                 case 107566: // Staggering Shout
+                case 105771: // Warbringer
                     return DIMINISHING_CONTROLLED_ROOT;
                 case 132168: // Shockwave
-                case 105771: // Warbringer
                 case 132169: // Storm Bolt
                     return DIMINISHING_CONTROLLED_STUN;
                 case 676:    // Disarm
