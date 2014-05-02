@@ -22455,8 +22455,6 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
 
 void Unit::RemoveSoulSwapDOT(Unit* target)
 {
-   bool keepDOT = HasAura(56226); // Glyph of Soul Swap
-
     _SoulSwapDOTList.clear();
 
     AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -22470,8 +22468,6 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             continue;
 
         _SoulSwapDOTList.push_back((*iter)->GetId());
-        if (!keepDOT)
-            target->RemoveAura((*iter)->GetId(), (*iter)->GetCasterGUID());
     }
 }
 
