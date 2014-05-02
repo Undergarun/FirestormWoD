@@ -35,10 +35,6 @@ class SceneObject : public WorldObject
         virtual ~SceneObject();
 
         static SceneObject* CreateSceneObject(uint32 sceneId, WorldObject* spectator);
-
-        /*const CGSceneObjectData* GetSceneObjectData() const { return (CGSceneObjectData*)(((CGObjectData*)m_uint32Values) + 1); }
-		
-        CGSceneObjectData* GetSceneObjectData() { return (CGSceneObjectData*)(((CGObjectData*)m_uint32Values) + 1); }*/
 };
 
 #endif

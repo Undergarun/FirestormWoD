@@ -5200,6 +5200,37 @@ class npc_rogue_decoy : public CreatureScript
         }
 };
 
+/*######
+## npc_army_of_the_dead - 24207
+######*/
+
+const uint32 displayIds[6] = { 26079, 25286, 10971, 201, 28292, 27870 };
+
+class npc_army_of_the_dead : public CreatureScript
+{
+    public:
+        npc_army_of_the_dead() : CreatureScript("npc_army_of_the_dead") { }
+
+        struct npc_army_of_the_deadAI : public ScriptedAI
+        {
+            npc_army_of_the_deadAI(Creature* c) : ScriptedAI(c) { }
+
+            void IsSummonedBy(Unit* owner)
+            {
+                if (!owner)
+                    return;
+
+                if (owner->HasAura(58642))
+                    me->SetDisplayId(displayIds[urand(0, 5)]);
+            }
+        };
+
+        CreatureAI* GetAI(Creature *creature) const
+        {
+            return new npc_army_of_the_deadAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -5261,4 +5292,5 @@ void AddSC_npcs_special()
     new npc_luo_meng();
     new npc_monk_spirit();
     new npc_rogue_decoy();
+    new npc_army_of_the_dead();
 }

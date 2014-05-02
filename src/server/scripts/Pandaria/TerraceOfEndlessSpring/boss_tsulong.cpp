@@ -616,10 +616,12 @@ class npc_sunbeam : public CreatureScript
         struct npc_sunbeamAI : public CreatureAI
         {
             InstanceScript* pInstance;
+            bool despawn;
 
             npc_sunbeamAI(Creature* creature) : CreatureAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
+                despawn = false;
                 creature->SetObjectScale(5.0f);
                 creature->SetReactState(REACT_PASSIVE);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
@@ -628,6 +630,8 @@ class npc_sunbeam : public CreatureScript
 
             void Despawn()
             {
+                despawn = true;
+
                 if (pInstance)
                 {
                     if (Creature* tsulong = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TSULONG)))
@@ -644,6 +648,9 @@ class npc_sunbeam : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if (despawn)
+                    return;
+
                 float scale = me->GetFloatValue(OBJECT_FIELD_SCALE_X);
                 if (scale <= 1.0f)
                     Despawn();

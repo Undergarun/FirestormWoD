@@ -1757,6 +1757,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, 0, 11327);
                         break;
                     }
+                    case 108212:// Burst of Speed
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                        break;
+                    }
                 }
                 break;
             }
@@ -2321,8 +2326,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (this == existingAura.get())
         return true;
 
-    // Dynobj auras always stack
-    if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    // Dynobj auras always stack - Same for Swiftmend
+    if (existingAura->GetType() == DYNOBJ_AURA_TYPE || existingAura->GetId() == 81262)
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();

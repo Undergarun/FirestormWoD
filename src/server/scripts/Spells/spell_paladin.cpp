@@ -28,7 +28,6 @@
 
 enum PaladinSpells
 {
-    PALADIN_SPELL_DIVINE_PLEA                   = 54428,
     PALADIN_SPELL_JUDGMENT                      = 20271,
     PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD         = 111529,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
@@ -587,7 +586,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
         }
 };
 
-// Sacred shield - 20925
+// Sacred shield - 20925 and Sacred Shield (Holy) - 148039
 class spell_pal_sacred_shield : public SpellScriptLoader
 {
     public:

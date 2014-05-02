@@ -824,24 +824,21 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                             if (AuraEffectPtr devouringPlague = target->GetAuraEffect(2944, EFFECT_2, caster->GetGUID()))
                             {
                                 float modifier = 1.0f;
-                                modifier += (devouringPlague->GetAmount() + 1) * 0.33f;
+                                modifier += (devouringPlague->GetAmount() * 0.33f);
 
                                 int32 temp_damage = amount;
                                 float temp_crit = 0.0f;
 
-                                if (GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-                                    temp_damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
-                                else
-                                    temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
-
+                                temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
                                 temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
-
-                                m_fixed_periodic.SetFixedDamage(temp_damage);
-                                m_fixed_periodic.SetCriticalChance(temp_crit);
-                                hasFixedPeriodic = true;
 
                                 amount = temp_damage;
                                 amount *= modifier;
+
+                                m_fixed_periodic.SetFixedDamage(amount);
+                                m_fixed_periodic.SetCriticalChance(temp_crit);
+                                hasFixedPeriodic = true;
+
                                 return amount;
                             }
                         }
@@ -867,7 +864,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (!plr)
                         break;
 
-                    if (!plr->HasAura(76808))
+                    if (!plr->HasAura(76808) && !plr->HasAura(79152))
                         break;
 
                     float MasteryPCT = 1.0f + plr->GetFloatValue(PLAYER_MASTERY) * 3.0f;
@@ -877,6 +874,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 }
                 case 57669: // Replenishment (0.2% from max)
                     amount = CalculatePct(GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA), amount);
+                    break;
+                case 54428: // Divine Plea
+                    if (!caster)
+                        break;
+                    amount = caster->GetStat(STAT_SPIRIT) * 1.35f;
                     break;
                 case 61782: // Infinite Replenishment
                     amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
@@ -1138,12 +1140,15 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                             amount = 0;
                     break;
                 }
-                case 15407: // Mind flay
+                case 15407: // Mind Flay
+                case 129197:// Mind Flay (Insanity)
                 {
+                    if (!caster)
+                        break;
+
                     // Glyph of Mind Flay, remove the speed malus
-                    if (Unit* target = GetBase()->GetUnitOwner())
-                        if (target->HasAura(120585))
-                            amount = 0;
+                    if (caster->HasAura(120585))
+                        amount = 0;
                     break;
                 }
             }
@@ -1225,6 +1230,27 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         else
                             break;
                     }
+
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            break;
+        }
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+        {
+            switch (GetId())
+            {
+                case 49016: // Unholy Frenzy
+                {
+                    if (!caster)
+                        break;
+
+                    // Glyph of Unholy Frenzy
+                    if (caster->HasAura(58616))
+                        return 0;
 
                     break;
                 }
@@ -3228,13 +3254,29 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
 
+        bool interrupted = false;
         // call functions which may have additional effects after chainging state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+        {
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
+            {
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
+                {
                     // Stop spells on prepare or casting state
                     target->InterruptSpell(CurrentSpellTypes(i), false);
+                    interrupted = true;
+                }
+            }
+        }
+
+        // Glyph of Strangulate - 58618
+        // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
+        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618))
+        {
+            aurApp->GetBase()->SetMaxDuration(aurApp->GetBase()->GetMaxDuration() + 2000);
+            aurApp->GetBase()->RefreshDuration();
+        }
     }
     else
     {
@@ -6714,50 +6756,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 case 91308: // Egg Shell, Corrupted Egg Shell (H)
                     GetCaster()->CastSpell(GetCaster(), 91311, true);
                     break;
-                case 76691: // Vengeance tank mastery
-                {
-                    if (!GetCaster() || GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                        break;
-
-                    int32 basepoints0 = 0;
-
-                    // taken damage
-                    int32 takendamage = GetCaster()->ToPlayer()->GetDamageTakenInPastSecs(3);
-
-                    // player will loase 5% if has taken damage
-                    int32 curr_amount = GetBase()->GetEffect(EFFECT_0)->GetAmount();
-
-                    // player will lose 10% if has no taken damage
-                    int32 max_amount = GetAmount();
-
-                    // if has no max amount we set it to max vengeance cap
-                    if (!max_amount)
-                        max_amount = (GetCaster()->GetCreateHealth() + (GetCaster()->GetStat(STAT_STAMINA) * 14) / 10);
-
-                    int32 lost = 0;
-
-                    if (takendamage > 0)
-                        lost = int32(CalculatePct(curr_amount, 5));
-                    else
-                        lost = CalculatePct(max_amount, 10);
-
-                    if (lost >= curr_amount || !curr_amount)
-                        caster->RemoveAura(GetBase());
-                    else
-                    {
-                        // save at least 33% of taken damage
-                        if (takendamage)
-                            basepoints0 = std::max((curr_amount - lost), int32(CalculatePct(takendamage, 33)));
-                        else
-                            basepoints0 = curr_amount - lost;
-                    }
-
-                    if (AuraEffectPtr eff1 = GetBase()->GetEffect(EFFECT_0))
-                        eff1->ChangeAmount(basepoints0);
-                    if (AuraEffectPtr eff2 = GetBase()->GetEffect(EFFECT_1))
-                        eff2->ChangeAmount(basepoints0);
-                    break;
-                }
                 case 66149: // Bullet Controller Periodic - 10 Man
                 case 68396: // Bullet Controller Periodic - 25 Man
                 {
@@ -7405,6 +7403,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 }
             }
         }
+
+        // Glyph of Mind Flay
+        if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
+            caster->CastSpell(caster, 120587, true);
 
         // Deep Wounds
         if (GetSpellInfo()->Id == 115767)
@@ -8244,10 +8246,6 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
 
     int32 jumps = GetBase()->GetCharges();
 
-    // current aura expire on proc finish
-    GetBase()->SetCharges(0);
-    GetBase()->SetUsingCharges(true);
-
     // next target selection
     if (jumps > 0)
     {
@@ -8266,6 +8264,10 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
     }
 
     target->CastCustomSpell(target, triggerSpellId, &value, NULL, NULL, true, NULL, CONST_CAST(AuraEffect, shared_from_this()), GetCasterGUID());
+
+    // current aura expire on proc finish
+    GetBase()->SetCharges(0);
+    GetBase()->SetUsingCharges(true);
 }
 
 void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const

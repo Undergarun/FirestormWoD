@@ -2274,7 +2274,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             switch (Id)
             {
-                case 12292: // Death Wish
                 case 12880: // Enrage (Enrage)
                 case 57518: // Enrage (Wrecking Crew)
                     return SPELL_SPECIFIC_WARRIOR_ENRAGE;
@@ -3534,8 +3533,6 @@ bool SpellInfo::IsCustomCastCanceled(Unit* caster) const
             if (caster->HasAura(Id))
                 return true;
             break;
-        case 132365:// Vengeance (old)
-            return true;
     }
 
     return false;

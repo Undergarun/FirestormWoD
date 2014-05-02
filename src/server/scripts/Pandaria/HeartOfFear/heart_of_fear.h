@@ -183,9 +183,9 @@ enum eCreatures
 
     // Mel'jarak
     NPC_MELJARAK                    = 62397,
-    NPC_SRATHIK_AMBER_TRAPPER       = 65499,
-    NPC_ZARTHIK_BATTLE_MENDER       = 65498,
-    NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
+    //NPC_SRATHIK_AMBER_TRAPPER       = 65499,
+    //NPC_ZARTHIK_BATTLE_MENDER       = 65498,
+    //NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
 
     // Amber-Shaper Un'Sok
     NPC_UNSOK                       = 62511,
