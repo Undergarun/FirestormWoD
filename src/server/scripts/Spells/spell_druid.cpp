@@ -250,7 +250,7 @@ class spell_dru_yseras_gift : public SpellScriptLoader
                             return;
 
                         tempList.sort(JadeCore::HealthPctOrderPred());
-                        caster->CastSpell(tempList.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
+                        caster->CastSpell(tempList.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, true);
                     }
                 }
             }
