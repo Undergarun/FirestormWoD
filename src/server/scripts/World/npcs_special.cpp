@@ -3728,6 +3728,7 @@ class npc_demonic_gateway_purple : public CreatureScript
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->CastSpell(me, 113931, true); // 0 Purple Charge
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
@@ -3818,6 +3819,7 @@ class npc_demonic_gateway_green : public CreatureScript
                 me->CastSpell(me, 113901, true); // Periodic add charges
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
