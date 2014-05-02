@@ -1082,7 +1082,8 @@ class spell_unseen_strike_dmg : public SpellScriptLoader
 
             void DealDamages(SpellEffIndex effIndex)
             {
-                SetHitDamage(GetSpellInfo()->Effects[effIndex].BasePoints / numTargets);
+                if (numTargets)
+                    SetHitDamage(GetSpellInfo()->Effects[effIndex].BasePoints / numTargets);
             }
 
             void Register()

@@ -4229,6 +4229,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(113); // radius 1000
                 break;
+            case 122336:
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16); // radius 1.0 instead of 6.0
+                spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
             case 123811:// Pheromones of Zeal
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
@@ -4250,7 +4253,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 122853:// Tempest Slash
+/*            case 122853:// Tempest Slash
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
                 spellInfo->Effects[0].BasePoints = urand(190000, 210000);
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
@@ -4263,7 +4266,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[2].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                break;
+                break;*/
             case 122842:// Tempest Slash (summoning tornado)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
