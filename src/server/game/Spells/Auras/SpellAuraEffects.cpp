@@ -2041,6 +2041,9 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_TRAVEL:
             spellId = 5419;
+
+            if (target->HasAura(114338) && !target->HasAura(131113))
+                spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
@@ -2655,6 +2658,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 // and polymorphic affects
                 if (target->IsPolymorphed())
                     target->RemoveAurasDueToSpell(target->getTransForm());
+
                 break;
             }
             default:
@@ -6722,6 +6726,18 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
     {
         data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         target->ToPlayer()->GetSession()->SendPacket(&data);
+    }
+
+    // Form of Stag
+    if (m_spellInfo->Id == 115034)
+    {
+        if (apply)
+        {
+            target->GetVehicleKit()->Reset();
+            target->GetVehicleKit()->InstallAllAccessories(false);
+        }
+        else
+            target->RemoveVehicleKit(true);
     }
 }
 
