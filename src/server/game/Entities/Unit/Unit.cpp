@@ -13987,7 +13987,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 76838 - Mastery : Strikes of Opportunity
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id == 76858)))
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id != 76858)))
     {
         if (HasAura(76838))
         {
