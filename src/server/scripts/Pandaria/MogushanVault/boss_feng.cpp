@@ -967,18 +967,19 @@ class mob_soul_fragment : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            Player* bound;
             float scale;
 
             void Reset()
             {
                 // Set dark aspect
                 me->AddAura(SPELL_SOUL_DISPLAY, me);
-                bound = me->SelectNearestPlayer(0.0f);
+                if (Player* bound = me->SelectNearestPlayer(10.0f))
+                {
+                    // Display with display of player
+                    me->SetDisplayId(bound->GetDisplayId());
+                }
                 scale = 0.1f;
                 me->SetObjectScale(scale);
-                // Display with display of player
-                me->SetDisplayId(bound->GetDisplayId());
                 if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
                     shield->CastSpell(me, SPELL_SOUL_FRAGMENT, false);
                 me->AddAura(SPELL_FIST_BARRIER, me);
