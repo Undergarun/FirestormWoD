@@ -374,7 +374,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //315 SPELL_AURA_UNDERWATER_WALKING todo
     &AuraEffect::HandleNoImmediateEffect,                         //316 unused (4.3.4) old SPELL_AURA_PERIODIC_HASTE
     &AuraEffect::HandleAuraModSpellPowerPercent,                  //317 SPELL_AURA_MOD_SPELL_POWER_PCT
-    &AuraEffect::HandleNULL,                                      //318 SPELL_AURA_MASTERY
+    &AuraEffect::HandleAuraMastery,                               //318 SPELL_AURA_MASTERY
     &AuraEffect::HandleModMeleeSpeedPct,                          //319 SPELL_AURA_MOD_MELEE_HASTE_3
     &AuraEffect::HandleAuraModRangedHaste,                        //320 SPELL_AURA_MOD_RANGED_HASTE_2
     &AuraEffect::HandleNULL,                                      //321 SPELL_AURA_321
@@ -4836,7 +4836,6 @@ void AuraEffect::HandleModSpellDamagePercentFromStat(AuraApplication const* aurA
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4852,7 +4851,6 @@ void AuraEffect::HandleModSpellHealingPercentFromStat(AuraApplication const* aur
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4866,12 +4864,23 @@ void AuraEffect::HandleAuraModSpellPowerPercent(AuraApplication const * aurApp, 
         return;
 
     Unit *target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // Recalculate bonus
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
+}
+
+void AuraEffect::HandleAuraMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit *target = aurApp->GetTarget();
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    target->ToPlayer()->UpdateMasteryPercentage();
 }
 
 void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -4880,7 +4889,6 @@ void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication cons
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4896,7 +4904,6 @@ void AuraEffect::HandleModSpellHealingPercentFromAttackPower(AuraApplication con
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4910,9 +4917,9 @@ void AuraEffect::HandleModHealingDone(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
+
     // implemented in Unit::SpellHealingBonus
     // this information is for client side only
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
