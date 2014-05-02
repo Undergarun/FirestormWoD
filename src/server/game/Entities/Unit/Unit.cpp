@@ -8954,12 +8954,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK && mainItem)
                         {
                             if (mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON) // 2H
-                                roll_chance = 0.06f * mainItem->GetTemplate()->Delay / 10;
+                                roll_chance = 0.06f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                             else // 1H
-                                roll_chance = 0.03f * mainItem->GetTemplate()->Delay / 10;
+                                roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                         }
                         else if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK && offItem)
-                            roll_chance = 0.03f * offItem->GetTemplate()->Delay / 10;
+                            roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                     }
 
                     if (!roll_chance_f(roll_chance))
