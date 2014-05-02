@@ -1495,7 +1495,7 @@ class spell_warl_decimate : public SpellScriptLoader
         }
 };
 
-// Called by Shadow Bolt - 686, Soul Fire - 6353 and Touch of Chaos - 103964
+// Called by Shadow Bolt - 686, Soul Fire - 6353, Touch of Chaos - 103964 and Demonic Slash - 114175
 // Demonic Call - 114925
 class spell_warl_demonic_call : public SpellScriptLoader
 {
