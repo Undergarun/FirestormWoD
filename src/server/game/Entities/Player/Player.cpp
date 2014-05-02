@@ -4146,16 +4146,30 @@ void Player::InitSpellForLevel()
             learnSpell(spellId, false);
     }
 
-    // Aberration and Two Forms
+    // Aberration, Two Forms, Darkflight, Flayer, Viciousness
     if (getRace() == RACE_WORGEN)
     {
         learnSpell(68976, false);
         learnSpell(68996, false);
+        learnSpell(97709, false);
+        learnSpell(68992, false);
+        learnSpell(68978, false);
+        learnSpell(68975, false);
     }
     else
     {
-        removeSpell(68996, false, false);
-        removeSpell(68976, false, false);
+        if (HasSpell(68996))
+            removeSpell(68996, false, false);
+        if (HasSpell(68976))
+            removeSpell(68976, false, false);
+        if (HasSpell(97709))
+            removeSpell(97709, false, false);
+        if (HasSpell(68992))
+            removeSpell(68992, false, false);
+        if (HasSpell(68978))
+            removeSpell(68978, false, false);
+        if (HasSpell(68975))
+            removeSpell(68975, false, false);
     }
 
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
@@ -4176,16 +4190,6 @@ void Player::InitSpellForLevel()
             removeSpell(115913, false, false);
         if (HasSpell(90267) && getLevel() < 60)
             removeSpell(90267, false, false);
-    }
-
-    // Only for Worgens - Darkflight
-    if (getRace() != RACE_WORGEN)
-    {
-        if (HasSpell(68992))
-            removeSpell(68992, false, false);
-
-        if (HasSpell(97709))
-            removeSpell(97709, false, false); 
     }
 
     // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
