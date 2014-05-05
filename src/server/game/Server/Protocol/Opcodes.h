@@ -807,7 +807,7 @@ enum Opcodes
     SMSG_CHAR_DELETE                                  = 0x806,  // 5.4.0 17399
     SMSG_CHAR_ENUM                                    = 0x193,  // 5.4.0 17399
     SMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x1788, // 5.4.0 17399
-    SMSG_CHAR_RENAME                                  = 0x000,  // 5.0.5 16048
+    SMSG_CHAR_RENAME                                  = 0x8A8,  // 5.4.0 17399
     SMSG_CHAT_DOWN                                    = 0x49C,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CHAT_IS_DOWN                                 = 0x48D,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_CHAT_IGNORED_ACCOUNT_MUTED                   = 0x590,  // 5.4.0 17399 (JamList)
