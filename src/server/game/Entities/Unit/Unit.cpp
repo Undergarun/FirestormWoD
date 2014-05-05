@@ -8364,24 +8364,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    if (AuraPtr lightningShield = GetAura(324))
-                    {
-                        // Improved Lightning Shield
-                        if (!HasAura(100956))
-                        {
-                            if (lightningShield->GetCharges() > 1)
-                                lightningShield->DropCharge();
-                        }
-                        else
-                        {
-                            if (lightningShield->GetCharges() < 7)
-                                lightningShield->ModCharges(1);
-
-                            if (lightningShield->GetCharges() >= 7)
-                                CastSpell(this, 95774, true); // Fulmination Info
-                        }
-                    }
-
                     // Glyph of Lightning Shield
                     if (HasAura(101052))
                         CastSpell(this, 142912, true);
