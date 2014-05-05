@@ -199,7 +199,7 @@ class boss_lei_shi : public CreatureScript
             {
                 _JustReachedHome();
  
-                if (pInstance)
+                if (pInstance && pInstance->GetBossState(DATA_LEI_SHI) != DONE)
                     pInstance->SetBossState(DATA_LEI_SHI, FAIL);
             }
 
@@ -303,8 +303,6 @@ class boss_lei_shi : public CreatureScript
                         pInstance->SetBossState(DATA_LEI_SHI, DONE);
                     }
 
-                    pInstance->SetBossState(DATA_LEI_SHI, DONE);
-
                     switch (me->GetMap()->GetSpawnMode())
                     {
                         case MAN10_DIFFICULTY:
@@ -365,6 +363,9 @@ class boss_lei_shi : public CreatureScript
                 {
                     case ACTION_ANIMATED_PROTECTOR_DIED:
                     {
+                        if (!shielded)
+                            break;
+
                         me->RemoveAura(SPELL_PROTECT);
                         shielded = false;
                         protectScheduled = false;
@@ -576,6 +577,7 @@ class boss_lei_shi : public CreatureScript
                         hidden = true;
                         me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
                         me->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+                        me->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                         break;
                     }
                     case EVENT_BERSERK:
