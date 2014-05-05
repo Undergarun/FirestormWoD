@@ -1695,18 +1695,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             victim->RemoveAura(131523);
         }
     }
-
-    // Soul Link
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_WARLOCK && damageInfo->damage > 0 && victim->HasAura(108446))
-    {
-        if (victim->ToPlayer()->GetPet() && victim->ToPlayer()->GetPet()->HasAura(108446))
-        {
-            damageInfo->damage /= 2;
-            int32 bp = damageInfo->damage;
-
-            victim->ToPlayer()->GetPet()->CastCustomSpell(victim->ToPlayer()->GetPet(), 108451, &bp, NULL, NULL, true); // Soul Link damage
-        }
-    }
 }
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
@@ -12849,18 +12837,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     if (!tmpDamage)
         tmpDamage = (float(pdamage) + TakenTotal) * TakenTotalMod;
 
-    // Soul Link
-    if (GetTypeId() == TYPEID_PLAYER && (!spellProto || (spellProto && spellProto->Id != 108451)) && getClass() == CLASS_WARLOCK && tmpDamage > 0 && HasAura(108446))
-    {
-        if (ToPlayer()->GetPet() && ToPlayer()->GetPet()->HasAura(108446))
-        {
-            tmpDamage /= 2;
-            int32 bp = tmpDamage;
-
-            ToPlayer()->GetPet()->CastCustomSpell(ToPlayer()->GetPet(), 108451, &bp, NULL, NULL, true); // Soul Link damage
-        }
-    }
-
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
@@ -13549,19 +13525,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     }
 
     float heal = float(int32(healamount) + TakenTotal) * TakenTotalMod;
-
-    // Custom MoP Script
-    // Soul Link
-    if (GetTypeId() == TYPEID_PLAYER && spellProto->Id != 108447 && getClass() == CLASS_WARLOCK && heal > 0 && HasAura(108446))
-    {
-        if (ToPlayer()->GetPet() && ToPlayer()->GetPet()->HasAura(108446))
-        {
-            heal /= 2;
-            int32 bp = heal;
-
-            ToPlayer()->GetPet()->CastCustomSpell(ToPlayer()->GetPet(), 108447, &bp, NULL, NULL, true); // Soul Link heal
-        }
-    }
 
     return uint32(std::max(heal, 0.0f));
 }
@@ -17245,6 +17208,7 @@ bool InitTriggerAuraData()
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
+    isTriggerAura[SPELL_AURA_PERIODIC_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
     isTriggerAura[SPELL_AURA_MOD_STUN] = true; // Aura does not have charges but needs to be removed on trigger

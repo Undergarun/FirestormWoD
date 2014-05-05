@@ -4403,13 +4403,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81282: // Fungal Growth
                 spellInfo->Effects[0].BasePoints = 100;
                 break;
-            case 108446:// Soul Link
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_PET;
-                break;
             case 6785:  // Ravage
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 spellInfo->OverrideSpellList.push_back(102545); // Replace Ravage by Ravage (Incarnation)
