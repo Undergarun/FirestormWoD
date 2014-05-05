@@ -1401,7 +1401,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         const uint8 *types = m_caster->HasAura(54923) ? types_glyph: types_noglyph;
 
                         // Normal case
-                        if (effIndex == 1 && !m_caster->HasAura(115738))
+                        if (effIndex == 0 && !m_caster->HasAura(115738))
                         {
                             for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
                             {
@@ -1435,7 +1435,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                             if (Unit* target = player->GetSelectedUnit())
                             {
-                                if (effIndex == 1)
+                                if (effIndex == 0)
                                 {
                                     bool found = false;
                                     uint8 types_i = 0;
@@ -1466,7 +1466,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                                 if (victim)
                                 {
-                                    if (effIndex == 1)
+                                    if (effIndex == 0)
                                     {
                                         bool found = false;
                                         uint8 types_i = 0;
@@ -2870,7 +2870,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             break;
         }
     }
-    CallScriptOnHitHandlers();
 
     if (caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CanTriggerPoisonAdditional())
         caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, PROC_FLAG_TAKEN_DAMAGE, procEx);
@@ -2889,6 +2888,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         else
             procEx |= PROC_EX_NORMAL_HIT;
 
+        m_healing = addhealth;
+        CallScriptOnHitHandlers();
+        addhealth = m_healing;
+
         int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
         unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
         m_healing = gain;
@@ -2905,6 +2908,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
+
+        m_damage = damageInfo.damage;
+        CallScriptOnHitHandlers();
+        damageInfo.damage = m_damage;
+
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
         // Send log damage message to client
@@ -2935,6 +2943,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
     {
+        CallScriptOnHitHandlers();
+
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);
@@ -4313,6 +4323,7 @@ void Spell::finish(bool ok)
     switch (m_spellInfo->Id)
     {
         case 32379: // Shadow Word: Death
+        case 129176:// Shadow Word: Death (overrided by Glyph)
         {
             if (m_caster->GetTypeId() != TYPEID_PLAYER)
                 break;

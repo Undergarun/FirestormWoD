@@ -33,6 +33,8 @@ extern DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore;
 extern DB2Storage <SpellReagentsEntry> sSpellReagentsStore;
 extern DB2Storage <ItemUpgradeEntry> sItemUpgradeStore;
 extern DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore;
+extern DB2Storage<SceneScriptEntry> sSceneScriptStore;
+extern DB2Storage<SceneScriptPackageEntry> sSceneScriptPackageStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 

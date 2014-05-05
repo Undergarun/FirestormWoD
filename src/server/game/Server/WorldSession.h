@@ -450,6 +450,8 @@ class WorldSession
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
+        void BuildCharacterRename(WorldPacket* pkt, ObjectGuid guid, uint8 result, std::string name);
+
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);

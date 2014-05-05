@@ -143,9 +143,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             switch (spellproto->Id)
             {
                 case 107566: // Staggering Shout
+                case 105771: // Warbringer
                     return DIMINISHING_CONTROLLED_ROOT;
                 case 132168: // Shockwave
-                case 105771: // Warbringer
                 case 132169: // Storm Bolt
                     return DIMINISHING_CONTROLLED_STUN;
                 case 676:    // Disarm
@@ -3420,6 +3420,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 32409: // Shadow Word: Death (triggered)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                break;
             case 88611: // Smoke Bomb (triggered)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 break;
@@ -4225,6 +4229,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(113); // radius 1000
                 break;
+            case 122336:
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16); // radius 1.0 instead of 6.0
+                spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
             case 123811:// Pheromones of Zeal
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
@@ -4246,7 +4253,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 122853:// Tempest Slash
+/*            case 122853:// Tempest Slash
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
                 spellInfo->Effects[0].BasePoints = urand(190000, 210000);
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
@@ -4259,7 +4266,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[2].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                break;
+                break;*/
             case 122842:// Tempest Slash (summoning tornado)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
@@ -4396,13 +4403,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81282: // Fungal Growth
                 spellInfo->Effects[0].BasePoints = 100;
                 break;
-            case 108446:// Soul Link
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_PET;
-                break;
             case 6785:  // Ravage
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 spellInfo->OverrideSpellList.push_back(102545); // Replace Ravage by Ravage (Incarnation)
@@ -4432,10 +4432,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 61999: // Raise Ally
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
-                break;
-            case 49016: // Unholy Frenzy
-                spellInfo->Effects[0].BasePoints = 30;
-                spellInfo->AttributesEx4 |= SPELL_ATTR4_STACK_DOT_MODIFIER;
                 break;
             case 31935: // Avenger's Shield
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
@@ -4640,12 +4636,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
-                break;
-            case 130493:// Nightstalker
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[1].ApplyAuraName = 0;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_DONE;
-                spellInfo->Effects[0].MiscValue = SPELL_SCHOOL_MASK_ALL;
                 break;
             case 84745: // Shallow Insight
             case 84746: // Moderate Insight
@@ -5111,8 +5101,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 45297:
                 spellInfo->MaxLevel = spellInfo->SpellLevel;
                 break;
-            // Silencing Shot
-            case 34490:
+            case 34490: // Silencing Shot
+            case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
             case 132626: // Alliance Portal - Mage

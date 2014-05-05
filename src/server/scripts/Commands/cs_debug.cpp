@@ -49,6 +49,7 @@ class debug_commandscript : public CommandScript
                 { "cinematic",      SEC_MODERATOR,      false, &HandleDebugPlayCinematicCommand,   "", NULL },
                 { "movie",          SEC_MODERATOR,      false, &HandleDebugPlayMovieCommand,       "", NULL },
                 { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
+                { "scene",          SEC_ADMINISTRATOR,  false, &HandleDebugPlaySceneCommand,       "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -114,6 +115,29 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugPlaySceneCommand(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 id = atoi((char*)args);
+
+            if (!sSceneScriptPackageStore.LookupEntry(id))
+            {
+                handler->PSendSysMessage("Scene %u doesnt exist !", id);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            handler->PSendSysMessage("Start playing scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
+            handler->GetSession()->GetPlayer()->PlayScene(id, handler->GetSession()->GetPlayer());
+            return true;
         }
 
         static bool HandleJoinRatedBg(ChatHandler* handler, char const* args)

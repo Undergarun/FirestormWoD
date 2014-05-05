@@ -546,15 +546,8 @@ class boss_spirit_kings_controler : public CreatureScript
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
                                 // Reset each spirit
                                 for (uint8 i = 0; i < 4; ++i)
-                                {
                                     if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritsOrder[i])))
-                                    {
-                                        spirit->RemoveAura(SPELL_INACTIVE_STUN);
-                                        spirit->ClearUnitState(UNIT_STATE_NOT_MOVE);
-                                        spirit->GetMotionMaster()->MoveTargetedHome();
-                                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, spirit);
-                                    }
-                                }
+                                        spirit->AI()->DoAction(ACTION_REACH_HOME);
 
                                 fightInProgress   = false;
                                 _introZianDone    = false;
@@ -799,6 +792,31 @@ class boss_spirit_kings : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         me->setFaction(14);
+                        break;
+                    }
+                    case ACTION_REACH_HOME:
+                    {
+                        events.Reset();
+                        summons.DespawnAll();
+                        me->SetFullHealth();
+                        me->SetReactState(REACT_PASSIVE);
+                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                        vanquished      = false;
+                        _introQiangDone = false;
+                        lowLife         = false;
+                        preEventDone    = false;
+
+                        shadowCount     = 0;
+                        maxShadowCount  = 3;
+
+                        if (me->HasAura(SPELL_INACTIVE_STUN))
+                            me->RemoveAura(SPELL_INACTIVE_STUN);
+                        if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
+                            me->ClearUnitState(UNIT_STATE_NOT_MOVE);
+
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        
                         break;
                     }
                     case ACTION_CHECK_SPIRITKINGS:

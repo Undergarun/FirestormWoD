@@ -1745,7 +1745,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Blind
                         if (caster && caster->HasAura(91299))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -1756,6 +1755,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     {
                         // Remove stealth from target
                         target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, 0, 11327);
+                        break;
+                    }
+                    case 108212:// Burst of Speed
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
                         break;
                     }
                 }
@@ -2322,8 +2326,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (this == existingAura.get())
         return true;
 
-    // Dynobj auras always stack
-    if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    // Dynobj auras always stack - Same for Swiftmend
+    if (existingAura->GetType() == DYNOBJ_AURA_TYPE || existingAura->GetId() == 81262)
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();

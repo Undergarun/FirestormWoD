@@ -43,6 +43,7 @@ enum eSpells
     SPELL_CONVERT               = 122740,
     SPELL_INHALE                = 122852,
     SPELL_EXHALE                = 122761,
+    SPELL_EXHALE_DMG            = 122760,
     SPELL_PHEROMONES_OF_ZEAL    = 123812,
     SPELL_PHEROMONES_CLOUD      = 123811,
     SPELL_FORCE_AND_VERVE       = 122713,
@@ -54,6 +55,7 @@ enum eSpells
     SPELL_INHALE_PHEROMONES     = 124018,
     SPELL_REINFORCE             = 123833,
     SPELL_BERSERK               = 120207,
+    SPELL_SPRING_RABBIT_JUMP    = 61724,
 
     // --- Blade Lord Ta'yak ---
     SPELL_TEMPEST_SLASH         = 122842,
@@ -181,9 +183,9 @@ enum eCreatures
 
     // Mel'jarak
     NPC_MELJARAK                    = 62397,
-    NPC_SRATHIK_AMBER_TRAPPER       = 65499,
-    NPC_ZARTHIK_BATTLE_MENDER       = 65498,
-    NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
+    //NPC_SRATHIK_AMBER_TRAPPER       = 65499,
+    //NPC_ZARTHIK_BATTLE_MENDER       = 65498,
+    //NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
 
     // Amber-Shaper Un'Sok
     NPC_UNSOK                       = 62511,
@@ -246,6 +248,7 @@ enum eEvents
     EVENT_FORCE_AND_VERVE           = 9,
     EVENT_CAST_FANDV                = 10,
     EVENT_CONVERT                   = 11,
+    EVENT_PULL_RAID                 = 12,
 
     // Ta'yak
     // EVENT_TEMPEST_SLASH             = 15,
@@ -293,11 +296,12 @@ enum eEvents
 
 enum eTypes
 {
+    // Zor'lok
+    TYPE_EXHALE_TARGET  = 1,
     // Tayak
-    TYPE_STORM_POINT    = 1,
-    TYPE_PHASE_TAYAK    = 2,
-    TYPE_STORM_PHASE    = 3,
-
+    TYPE_STORM_POINT    = 2,
+    TYPE_PHASE_TAYAK    = 3,
+    TYPE_STORM_PHASE    = 4,
 };
 
 #define DISPLAYID_INVISIBLE 11686

@@ -1479,8 +1479,8 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // prevent character rename to invalid name
     if (!normalizePlayerName(newName))
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << uint8(CHAR_NAME_NO_NAME);
+        WorldPacket data(SMSG_CHAR_RENAME);
+        BuildCharacterRename(&data, 0, CHAR_NAME_NO_NAME, "");
         SendPacket(&data);
         return;
     }
@@ -1488,10 +1488,8 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(newName, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
-        data << uint8(res);
-        data << uint64(guid);
-        data << newName;
+        WorldPacket data(SMSG_CHAR_RENAME);
+        BuildCharacterRename(&data, guid, res, newName);
         SendPacket(&data);
         return;
     }
@@ -1499,8 +1497,8 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // check name limitations
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << uint8(CHAR_NAME_RESERVED);
+        WorldPacket data(SMSG_CHAR_RENAME);
+        BuildCharacterRename(&data, 0, CHAR_NAME_RESERVED, "");
         SendPacket(&data);
         return;
     }
@@ -1518,6 +1516,35 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     stmt->setString(4, newName);
 
     _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+}
+
+void WorldSession::BuildCharacterRename(WorldPacket* pkt, ObjectGuid guid, uint8 result, std::string name)
+{
+    pkt->WriteBit(guid != 0);
+
+    if (guid)
+    {
+        uint8 bitsOrder[8] = {3, 4, 7, 2, 6, 5, 1, 0};
+        pkt->WriteBitInOrder(guid, bitsOrder);
+    }
+
+    pkt->WriteBit(name.empty());
+
+    if (!name.empty())
+        pkt->WriteBits(name.size(), 6);
+
+    pkt->FlushBits();
+
+    if (!name.empty())
+        pkt->WriteString(name);
+
+    if (guid)
+    {
+        uint8 bytesOrder[8] = {0, 1, 7, 3, 5, 6, 4, 2};
+        pkt->WriteBytesSeq(guid, bytesOrder);
+    }
+
+    *pkt << uint8(result);
 }
 
 void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName)
@@ -1564,10 +1591,8 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guidLow, newName.c_str());
 
-    WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
-    data << uint8(RESPONSE_SUCCESS);
-    data << uint64(guid);
-    data << newName;
+    WorldPacket data(SMSG_CHAR_RENAME);
+    BuildCharacterRename(&data, guid, RESPONSE_SUCCESS, newName);
     SendPacket(&data);
 
     sWorld->UpdateCharacterNameData(guidLow, newName);

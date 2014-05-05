@@ -148,9 +148,12 @@ class spell_monk_combo_breaker : public SpellScriptLoader
                         if (caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
                         {
                             if (roll_chance_i(12))
-                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-                            else
-                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                            {
+                                if (urand(0, 1))
+                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
+                                else
+                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                            }
                         }
                     }
                 }
@@ -1082,6 +1085,23 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_transcendence_transfer_SpellScript);
 
+            SpellCastResult CheckSpiritRange()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->GetEntry() == 54569)
+                        {
+                            if ((*itr)->GetDistance(caster) > 40.0f)
+                                return SPELL_FAILED_DONT_REPORT;
+                        }
+                    }
+                }
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1091,7 +1111,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
                         if ((*itr)->GetEntry() == 54569)
                         {
                             Creature* clone = (*itr)->ToCreature();
-                            if (clone && clone->AI() && clone->GetDistance(caster) <= 40.0f)
+                            if (clone && clone->AI())
                                 clone->AI()->DoAction(0);
                         }
                     }
@@ -1100,6 +1120,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckSpiritRange);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -3649,28 +3670,33 @@ class spell_monk_touch_of_death : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (GetCaster() && GetExplTargetUnit())
+                if (Unit* caster = GetCaster())
                 {
-                    if (GetCaster()->HasAura(124490))
+                    if (Unit* target = GetExplTargetUnit())
                     {
-                        if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && GetExplTargetUnit()->ToCreature()->IsDungeonBoss())
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && (GetExplTargetUnit()->GetHealth() > GetCaster()->GetHealth()))
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && (GetExplTargetUnit()->GetHealthPct() > 10.0f))
-                            return SPELL_FAILED_BAD_TARGETS;
+                        if (caster->HasAura(124490))
+                        {
+                            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsDungeonBoss())
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && (target->GetHealth() > caster->GetHealth()))
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->GetTypeId() == TYPEID_PLAYER) &&
+                                (target->GetHealthPct() > 10.0f))
+                                return SPELL_FAILED_BAD_TARGETS;
+                        }
+                        else
+                        {
+                            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsDungeonBoss())
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer()))
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (target->GetTypeId() == TYPEID_UNIT && (target->GetHealth() > caster->GetHealth()))
+                                return SPELL_FAILED_BAD_TARGETS;
+                        }
+                        return SPELL_CAST_OK;
                     }
-                    else
-                    {
-                        if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && GetExplTargetUnit()->ToCreature()->IsDungeonBoss())
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER)
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && (GetExplTargetUnit()->GetHealth() > GetCaster()->GetHealth()))
-                            return SPELL_FAILED_BAD_TARGETS;
-                    }
-                    return SPELL_CAST_OK;
                 }
+
                 return SPELL_FAILED_NO_VALID_TARGETS;
             }
 

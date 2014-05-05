@@ -41,5 +41,6 @@ extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
 extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
 extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
 extern uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END];
+extern uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END];
 
 #endif // _UPDATEFIELDFLAGS_H
