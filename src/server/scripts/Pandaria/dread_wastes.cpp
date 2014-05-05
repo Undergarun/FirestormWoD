@@ -2063,7 +2063,7 @@ class mob_hisek_the_swarmkeeper : public CreatureScript
             if (quest->GetQuestId() == 31441) // Corruption Runs Deep
             {
                 creature->SummonCreature(64705, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
-                creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                creature->AI()->SetGUID(player ? player->GetGUID() : 1);
             }
 
             return true;
@@ -2289,7 +2289,7 @@ class mob_klaxxi_traitor : public CreatureScript
                     player->KilledMonsterCredit(64583);
             }
 
-            void SetGUID(uint64 guid, int32 bab /*= 0*/)
+            void SetGUID(uint64 guid, int32 data = 1)
             {
                 playerGuid = guid;
             }
@@ -2323,6 +2323,12 @@ public:
 
         else if (player->GetQuestStatus(31004) == QUEST_STATUS_INCOMPLETE)
             player->KilledMonsterCredit(62357);
+
+        else if (player->GetQuestStatus(31175) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(63359);
+
+        else if (player->GetQuestStatus(31010) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(62752);
 
         go->DestroyForPlayer(player, false);
         return true;
@@ -2360,11 +2366,26 @@ class mob_discover_amberglow_bunny : public CreatureScript
         };
 };
 
+#define EVENT_CHECK_PLAYERS 1
+
 class mob_kaz_tik_the_manipulator : public CreatureScript
 {
     public:
         mob_kaz_tik_the_manipulator() : CreatureScript("mob_kaz_tik_the_manipulator")
         {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 31091) // Reunited
+            {
+                creature->SummonCreature(64013, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
+
+                if (Creature* kazTik2 = GetClosestCreatureWithEntry(creature, 64013, 2.0f, true))
+                    kazTik2->AI()->SetGUID(player ? player->GetGUID() : 2);
+            }
+
+            return true;
         }
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2378,28 +2399,666 @@ class mob_kaz_tik_the_manipulator : public CreatureScript
             {
             }
 
+            EventMap events;
+
+            void reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_CHECK_PLAYERS, 2000);
+            }
+
             void UpdateAI(const uint32 diff)
             {
+                events.Update(diff);
 
-                std::list<Player*> playerList;
-                GetPlayerListInGrid(playerList, me, 10.0f);
+                if (uint32 eventId = events.ExecuteEvent())
+                    if (eventId == EVENT_CHECK_PLAYERS)
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 5.0f);
 
-                for (auto player: playerList)
-                    if (player->GetQuestStatus(31682) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(31089) == QUEST_STATUS_INCOMPLETE)
-                        player->KilledMonsterCredit(62540);
+                        for (auto player: playerList)
+                            if (player->GetQuestStatus(31682) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(31089) == QUEST_STATUS_INCOMPLETE)
+                                player->KilledMonsterCredit(62540);
+
+                        events.ScheduleEvent(EVENT_CHECK_PLAYERS, 2000);
+                    }
+            }
+        };
+};
+
+class go_kunchong_cage : public GameObjectScript
+{
+public:
+    go_kunchong_cage() : GameObjectScript("go_kunchong_cage")
+    {
+    }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        if (player->GetQuestStatus(31494) == QUEST_STATUS_INCOMPLETE)
+            player->KilledMonsterCredit(64849);
+
+        go->DestroyForPlayer(player, false);
+        return true;
+    }
+};
+
+
+
+enum eKazTikEvents
+{
+    EVENT_START_WALKING = 1
+};
+
+class mob_second_kaz_tik_the_manipulator : public CreatureScript
+{
+    public:
+        mob_second_kaz_tik_the_manipulator() : CreatureScript("mob_second_kaz_tik_the_manipulator")
+        {
+        }
+
+        bool OnQuestReward(Player* player, Creature* creature, const Quest *quest, uint32 /*slot*/)
+        {
+            if (quest->GetQuestId() == 31091)
+            {
+                creature->DespawnOrUnsummon();
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_second_kaz_tik_the_manipulatorAI(creature);
+        }
+
+        struct mob_second_kaz_tik_the_manipulatorAI : public npc_escortAI
+        {
+            mob_second_kaz_tik_the_manipulatorAI(Creature* creature) : npc_escortAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+                SetDespawnAtFar(false);
+                SetDespawnAtEnd(false);
+            }
+
+            void SetGUID(uint64 guid, int32 data = 2)
+            {
+                playerGuid = guid;
+            }
+
+            void WaypointReached(uint32 waypointId)
+            {
+                Player* player = GetPlayerForEscort();
+
+                if (!player)
+                    return;
+
+                switch (waypointId)
+                {
+                    case 8:
+                    {
+                        SetEscortPaused(true);
+                        me->SummonCreature(64197, -950.895f, 3883.264f, -0.088f);
+                        me->SummonCreature(64197, -975.193f, 3890.734f, -0.340f);
+
+                        std::list<Creature*> muckscaleList;
+                        GetCreatureListWithEntryInGrid(muckscaleList, me, 64197, 40.0f);
+
+                        if (Player* player = Player::GetPlayer(*me, playerGuid))
+                            for (auto muckscale: muckscaleList)
+                                muckscale->AI()->SetGUID(player ? player->GetGUID() : 2);
+                    }
+                        break;
+                    case 11:
+                    {
+                        SetEscortPaused(true);
+                        me->SummonCreature(64197, -1062.049f, 3918.263f, -0.076f);
+                        me->SummonCreature(64197, -1071.315f, 3948.803f, -0.048f);
+                    }
+                        break;
+                    case 12:
+                    {
+                        SetEscortPaused(true);
+                        me->SummonCreature(64197, -1117.472f, 3952.810f, 0.356f);
+                        me->SummonCreature(64197, -1115.047f, 3919.017f, 0.489f);
+                    }
+                        break;
+                    case 14:
+                    {
+                        player->KilledMonsterCredit(64013);
+                        player->KilledMonsterCredit(62542);
+
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    }
+                        break;
+                }
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (Creature* creature = summoner->ToCreature())
+                    if (creature->GetEntry() == 63876)
+                        events.ScheduleEvent(EVENT_START_WALKING, 2000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Player* player = Player::GetPlayer(*me, playerGuid))
+                    if (player->GetQuestStatus(31091) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        npc_escortAI::UpdateAI(diff);
+
+                        events.Update(diff);
+
+                        if (me->GetPositionX() == -961.59f && me->GetPositionY() == 3876.36f)
+                        {
+                            Creature* muckscale = GetClosestCreatureWithEntry(me, 64197, 40.0f, true);
+
+                            if (!muckscale)
+                                SetEscortPaused(false);
+                        }
+
+                        if (me->GetPositionX() == -1044.31f && me->GetPositionY() == 3928.69f)
+                        {
+                            Creature* muckscale = GetClosestCreatureWithEntry(me, 64197, 40.0f, true);
+
+                            if (!muckscale)
+                                SetEscortPaused(false);
+                        }
+
+                        if (me->GetPositionX() == -1103.34f && me->GetPositionY() == 3943.14f)
+                        {
+                            Creature* muckscale = GetClosestCreatureWithEntry(me, 64197, 40.0f, true);
+
+                            if (!muckscale)
+                                SetEscortPaused(false);
+                        }
+
+                        while (uint32 eventId = events.ExecuteEvent())
+                        {
+                            switch (eventId)
+                            {
+                                case EVENT_START_WALKING:
+                                    Start(false, false, playerGuid);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+
+            }
+        };
+};
+
+enum eMuckscaleEvents
+{
+    EVENT_RUPTURE           = 1,
+    EVENT_SPRINT            = 2,
+    EVENT_UNSTABLE_SERUM_22 = 3
+};
+
+enum eMuckscaleSpells
+{
+    SPELL_RUPTURE = 15583,
+    SPELL_SPRINT  = 66060
+};
+
+class mob_muckscale_ripper : public CreatureScript
+{
+    public:
+        mob_muckscale_ripper() : CreatureScript("mob_muckscale_ripper")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_muckscale_ripperAI(creature);
+        }
+
+        struct mob_muckscale_ripperAI : public ScriptedAI
+        {
+            mob_muckscale_ripperAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_RUPTURE, 5000);
+                events.ScheduleEvent(EVENT_SPRINT, 12000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM_22, 18000);
+            }
+
+            void SetGUID(uint64 guid, int32 data = 2)
+            {
+                playerGuid = guid;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                me->DespawnOrUnsummon();
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (Player* player = Player::GetPlayer(*me, playerGuid))
+                    AttackStart(player);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_RUPTURE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_RUPTURE, false);
+                            events.ScheduleEvent(EVENT_RUPTURE, 20000);
+                            break;
+                        case EVENT_SPRINT:
+                            me->CastSpell(me, SPELL_SPRINT, false);
+                            events.ScheduleEvent(EVENT_SPRINT, 20000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM_22:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM_22, 20000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+
+            }
+        };
+};
+
+#define ACTION_SPAWNS 1
+
+class mob_skeer_the_bloodseeker : public CreatureScript
+{
+    public:
+        mob_skeer_the_bloodseeker() : CreatureScript("mob_skeer_the_bloodseeker")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 31179) // The Scent of Blood
+            {
+                creature->AI()->SetGUID(player ? player->GetGUID() : 3);
+                creature->AI()->DoAction(ACTION_SPAWNS);
+
+            }
+
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_skeer_the_bloodseekerAI(creature);
+        }
+
+        struct mob_skeer_the_bloodseekerAI : public ScriptedAI
+        {
+            mob_skeer_the_bloodseekerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+                firstPhaseDone = false;
+                secondPhaseDone = false;
+                thirdPhaseDone = false;
+                fourthPhaseDone = false;
+                firstPhaseTimer = 0;
+                secondPhaseTimer = 0;
+                thirdPhaseTimer = 0;
+            }
+
+            uint64 playerGuid;
+            bool firstPhaseDone;
+            bool secondPhaseDone;
+            bool thirdPhaseDone;
+            bool fourthPhaseDone;
+            uint32 firstPhaseTimer;
+            uint32 secondPhaseTimer;
+            uint32 thirdPhaseTimer;
+
+            void Reset()
+            {
+            }
+
+            void SetGUID(uint64 guid, int32 data = 3)
+            {
+                playerGuid = guid;
+            }
+
+            void DoAction(const int32 action)
+            {
+                switch (action)
+                {
+                    case ACTION_SPAWNS:
+                        if (Player* player = Player::GetPlayer(*me, playerGuid))
+                        {
+                            if (player->GetQuestStatus(31179) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                me->SummonCreature(63465, -406.158f, 4779.366f, -29.553f);
+                                me->SummonCreature(63465, -395.112f, 4779.408f, -29.574f);
+                                me->SummonCreature(63465, -408.258f, 4755.872f, -29.853f);
+                                me->SummonCreature(63465, -395.859f, 4759.430f, -29.952f);
+
+                                firstPhaseDone = true;
+                                firstPhaseTimer = 10000;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Player* player = Player::GetPlayer(*me, playerGuid))
+                {
+                    if (player->GetQuestStatus(31179) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (firstPhaseTimer)
+                        {
+                            if (firstPhaseTimer <= diff)
+                            {
+                                if (firstPhaseDone && !secondPhaseDone)
+                                {
+                                    Creature* muckscale = GetClosestCreatureWithEntry(me, 63465, 40.0f, true);
+
+                                    if (!muckscale)
+                                    {
+                                        std::list<Creature*> muckscaleList;
+                                        GetCreatureListWithEntryInGrid(muckscaleList, me, 63465, 30.0);
+
+                                        for (auto muckscale: muckscaleList)
+                                            muckscale->AI()->SetGUID(player ? player->GetGUID() : 3);
+
+                                        me->SummonCreature(63465, -406.158f, 4779.366f, -29.553f);
+                                        me->SummonCreature(63465, -395.112f, 4779.408f, -29.574f);
+                                        me->SummonCreature(63465, -408.258f, 4755.872f, -29.853f);
+                                        me->SummonCreature(63465, -395.859f, 4759.430f, -29.952f);
+
+                                        secondPhaseDone = true;
+                                        secondPhaseTimer = 3000;
+                                    }
+                                }
+                                firstPhaseTimer = 3000;
+                            }
+                            else
+                                firstPhaseTimer -= diff;
+                        }
+
+                        if (secondPhaseTimer)
+                        {
+                            if (secondPhaseTimer <= diff)
+                            {
+                                if (secondPhaseDone && !thirdPhaseDone)
+                                {
+                                    Creature* muckscale = GetClosestCreatureWithEntry(me, 63465, 40.0f, true);
+
+                                    if (!muckscale)
+                                    {
+                                        me->SummonCreature(63465, -406.158f, 4779.366f, -29.553f);
+                                        me->SummonCreature(63465, -395.112f, 4779.408f, -29.574f);
+                                        me->SummonCreature(63465, -408.258f, 4755.872f, -29.853f);
+                                        me->SummonCreature(63465, -395.859f, 4759.430f, -29.952f);
+
+                                        thirdPhaseDone = true;
+                                        thirdPhaseTimer = 3000;
+                                    }
+                                }
+                                secondPhaseTimer = 3000;
+                            }
+                            else
+                                secondPhaseTimer -= diff;
+                        }
+
+                        if (thirdPhaseTimer)
+                        {
+                            if (thirdPhaseTimer <= diff)
+                            {
+                                if (thirdPhaseDone && !fourthPhaseDone)
+                                {
+                                    Creature* creature = GetClosestCreatureWithEntry(me, 63465, 40.0f, true);
+
+                                    if (!creature)
+                                    {
+                                        me->SummonCreature(63466, -406.158f, 4779.366f, -29.553f);
+
+                                        if (creature)
+                                            creature->AI()->SetGUID(player ? player->GetGUID() : 3);
+
+                                        fourthPhaseDone = true;
+                                    }
+                                }
+
+                                thirdPhaseTimer = 3000;
+                            }
+                            else
+                                thirdPhaseTimer -= diff;
+                        }
+                    }
+                }
+            }
+        };
+};
+
+enum eFlesheaterEvents
+{
+    EVENT_CONSUME_FLESH = 1,
+    EVENT_UNSTABLE_SERUM_23 = 2
+};
+
+#define SPELL_CONSUME_FLESH 127872
+
+class mob_muckscale_flesheater : public CreatureScript
+{
+    public:
+        mob_muckscale_flesheater() : CreatureScript("mob_muckscale_flesheater")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_muckscale_flesheaterAI(creature);
+        }
+
+        struct mob_muckscale_flesheaterAI : public ScriptedAI
+        {
+            mob_muckscale_flesheaterAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM_23, 12000);
+            }
+
+            void SetGUID(uint64 guid, int32 data = 3)
+            {
+                playerGuid = guid;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                me->DespawnOrUnsummon();
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (Player* player = Player::GetPlayer(*me, playerGuid))
+                    AttackStart(player);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CONSUME_FLESH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_RUPTURE, false);
+                            events.ScheduleEvent(EVENT_CONSUME_FLESH, 20000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM_23:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_CONSUME_FLESH, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM_23, 20000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+
+            }
+        };
+};
+
+enum eSerpentusEvents
+{
+    EVENT_FLAME_SHOCK = 1,
+    EVENT_LIGHTNING_BOLT = 2,
+    EVENT_UNSTABLE_SERUM_24 = 3
+};
+
+enum eSerpentusSpells
+{
+    SPELL_FLAME_SHOCK = 125062,
+    SPELL_LIGHTNING_BOLT = 79085
+};
+
+class mob_muckscale_serpentus : public CreatureScript
+{
+    public:
+        mob_muckscale_serpentus() : CreatureScript("mob_muckscale_serpentus")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_muckscale_serpentusAI(creature);
+        }
+
+        struct mob_muckscale_serpentusAI : public ScriptedAI
+        {
+            mob_muckscale_serpentusAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_FLAME_SHOCK, 5000);
+                events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 12000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM_24, 18000);
+            }
+
+            void SetGUID(uint64 guid, int32 data = 3)
+            {
+                playerGuid = guid;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                me->DespawnOrUnsummon();
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (Player* player = Player::GetPlayer(*me, playerGuid))
+                    AttackStart(player);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FLAME_SHOCK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_FLAME_SHOCK, false);
+                            events.ScheduleEvent(EVENT_FLAME_SHOCK, 20000);
+                            break;
+                        case EVENT_LIGHTNING_BOLT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_LIGHTNING_BOLT, false);
+                            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 20000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM_24:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM_24, 20000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+
             }
         };
 };
 
 void AddSC_dread_wastes()
 {
-    //Rare Mobs
+    // Rare Mobs
     new mob_ik_ik_the_nimble();
     new mob_ai_li_skymirror();
     new mob_gar_lok();
     new mob_dak_the_breaker();
     new mob_nalash_verdantis();
-    //Elite Mobs
+    // Elite Mobs
     new mob_adjunct_kree_zot();
     new mob_dread_fearbringer();
     new mob_dread_kunchong();
@@ -2416,13 +3075,19 @@ void AddSC_dread_wastes()
     new mob_wake_of_horror();
     new mob_warlord_gurthan();
     new mob_vengeful_spirit();
-    //Standard Mobs
+    // Standard Mobs
     new mob_overgrown_seacarp();
     new mob_hisek_the_swarmkeeper();
     new mob_hisek_the_swarmkeeper_two();
     new mob_klaxxi_traitor();
     new mob_discover_amberglow_bunny();
     new mob_kaz_tik_the_manipulator();
-    //Game Objects
+    new mob_second_kaz_tik_the_manipulator();
+    new mob_muckscale_ripper();
+    new mob_skeer_the_bloodseeker();
+    new mob_muckscale_flesheater();
+    new mob_muckscale_serpentus();
+    // Game Objects
     new go_ancient_amber_chunk();
+    new go_kunchong_cage();
 }

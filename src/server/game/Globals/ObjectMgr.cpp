@@ -9335,7 +9335,7 @@ void ObjectMgr::RestructCreatureGUID(uint32 nbLigneToRestruct)
     increment_ss << "ALTER TABLE creature AUTO_INCREMENT = "                << newGUID << ";";
     worldTrans->Append(increment_ss.str().c_str());
 
-    WorldDatabase.CommitTransaction(worldTrans);
+    WorldDatabase.DirectCommitTransaction(worldTrans);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "%u lignes ont ete restructuree.", nbLigneToRestruct);
 }
@@ -9405,7 +9405,7 @@ void ObjectMgr::RestructGameObjectGUID(uint32 nbLigneToRestruct)
     increment_ss << "ALTER TABLE creature AUTO_INCREMENT = "        << newGUID << ";";
     worldTrans->Append(increment_ss.str().c_str());
 
-    WorldDatabase.CommitTransaction(worldTrans);
+    WorldDatabase.DirectCommitTransaction(worldTrans);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "%u lignes ont ete restructuree.", nbLigneToRestruct);
 }
