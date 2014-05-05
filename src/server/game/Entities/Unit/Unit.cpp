@@ -6916,9 +6916,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (ToPlayer()->HasSpellCooldown(108563))
                         return false;
 
+                    target = this;
                     triggered_spell_id = 34936;
                     ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
-                    return true;
+                    break;
                 }
                 case 114790:// Soulburn : Seed of Corruption
                 {
