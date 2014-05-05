@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (123467, 'spell_get_away_damage');

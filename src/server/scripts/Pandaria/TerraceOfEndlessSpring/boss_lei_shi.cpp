@@ -709,7 +709,7 @@ class mob_lei_shi_hidden : public CreatureScript
         }
 };
 
-// Get Away ! - 123461
+// Get Away! - 123461
 class spell_get_away : public SpellScriptLoader
 {
     public:
@@ -736,6 +736,40 @@ class spell_get_away : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_get_away_AuraScript();
+        }
+};
+
+// Get Away! - 123467
+class spell_get_away_damage : public SpellScriptLoader
+{
+    public:
+        spell_get_away_damage() : SpellScriptLoader("spell_get_away_damage") { }
+
+        class spell_get_away_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_get_away_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->isMoving() && target->isInFront(caster))
+                            SetHitDamage(GetHitDamage() / 2);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_get_away_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_get_away_damage_SpellScript();
         }
 };
 
@@ -935,6 +969,7 @@ void AddSC_boss_lei_shi()
     new mob_animated_protector();
     new mob_lei_shi_hidden();
     new spell_get_away();
+    new spell_get_away_damage();
     new spell_hide();
     new spell_hide_stacks();
     new spell_scary_fog_dot();
