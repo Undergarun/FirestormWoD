@@ -2095,6 +2095,134 @@ class spell_q24747_custom_kill_credit: public SpellScriptLoader
         }
 };
 
+#define KYPARI_ZAR_KILL_CREDIT 63286
+#define KYPARI_ZAR_KILL_CREDIT_2 63287
+#define KYPARI_ZAR_QUEST 31022
+
+class spell_q31022_attune_to_kypari_vos: public SpellScriptLoader
+{
+    public:
+        spell_q31022_attune_to_kypari_vos() : SpellScriptLoader("spell_q31022_attune_to_kypari_vos") { }
+
+        class spell_q31022_attune_to_kypari_vos_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31022_attune_to_kypari_vos_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player: playerList)
+                        if (player->GetQuestStatus(KYPARI_ZAR_QUEST) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(KYPARI_ZAR_KILL_CREDIT);
+                            player->KilledMonsterCredit(KYPARI_ZAR_KILL_CREDIT_2); // Speed code, needs a script for mobs attack waves
+                        }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31022_attune_to_kypari_vos_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31022_attune_to_kypari_vos_SpellScript();
+        }
+};
+
+#define FIRES_AND_FEARS_QUEST 31085
+#define FIRES_FIRST_KILL_CREDIT 63107
+#define FIRES_SECOND_KILL_CREDIT 63108
+
+class spell_q31085_ruining_fork: public SpellScriptLoader
+{
+    public:
+        spell_q31085_ruining_fork() : SpellScriptLoader("spell_q31085_ruining_fork") { }
+
+        class spell_q31085_ruining_fork_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31085_ruining_fork_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player: playerList)
+                        if (player->GetQuestStatus(FIRES_AND_FEARS_QUEST) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(FIRES_FIRST_KILL_CREDIT);
+                            player->KilledMonsterCredit(FIRES_SECOND_KILL_CREDIT); // Speed code, needs a script for mobs attack waves
+                        }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31085_ruining_fork_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31085_ruining_fork_SpellScript();
+        }
+};
+
+#define DEAD_ZONE_QUEST 31009
+#define IN_HER_CLUTCH_QUEST 31010
+#define CRYSTAL_KILL_CREDIT 62665
+
+class spell_q31009_klaxxi_resoning_crystal: public SpellScriptLoader
+{
+    public:
+        spell_q31009_klaxxi_resoning_crystal() : SpellScriptLoader("spell_q31009_klaxxi_resoning_crystal") { }
+
+        class spell_q31009_klaxxi_resoning_crystal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31009_klaxxi_resoning_crystal_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player: playerList)
+                        if (player->GetQuestStatus(DEAD_ZONE_QUEST) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(CRYSTAL_KILL_CREDIT);
+
+                            if (Quest const* quest = sObjectMgr->GetQuestTemplate(DEAD_ZONE_QUEST))
+                                player->RewardQuest(quest, 0, NULL, true);
+
+                            if (Quest const* quest = sObjectMgr->GetQuestTemplate(IN_HER_CLUTCH_QUEST))
+                                player->AddQuest(quest, NULL);
+                        }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31009_klaxxi_resoning_crystal_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31009_klaxxi_resoning_crystal_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2148,4 +2276,7 @@ void AddSC_quest_spell_scripts()
     new spell_q13523_elune_s_presence_dummy();
     new spell_q13890_throw_oil();
     new spell_q24747_custom_kill_credit();
+    new spell_q31022_attune_to_kypari_vos();
+    new spell_q31085_ruining_fork();
+    new spell_q31009_klaxxi_resoning_crystal();
 }
