@@ -1211,7 +1211,11 @@ enum TrinityStrings
     LANG_ICC_BUFF_REMOVE_H                  = 13074,
     LANG_ICC_BUFF_REMOVE_A                  = 13075,
 
-    // NOT RESERVED IDS                   11014-1999999999
+    LANG_CONFESSION_START                   = 14000,
+    LANG_CONFESSION_END                     = 14055,
+    LANG_CONFESSION_EMOTE                   = 14056,
+
+    // NOT RESERVED IDS                   14057-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

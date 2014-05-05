@@ -8954,12 +8954,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK && mainItem)
                         {
                             if (mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON) // 2H
-                                roll_chance = 0.06f * mainItem->GetTemplate()->Delay / 10;
+                                roll_chance = 0.06f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                             else // 1H
-                                roll_chance = 0.03f * mainItem->GetTemplate()->Delay / 10;
+                                roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                         }
                         else if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK && offItem)
-                            roll_chance = 0.03f * offItem->GetTemplate()->Delay / 10;
+                            roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                     }
 
                     if (!roll_chance_f(roll_chance))
@@ -13987,7 +13987,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 76838 - Mastery : Strikes of Opportunity
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id == 76858)))
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id != 76858)))
     {
         if (HasAura(76838))
         {
@@ -22455,8 +22455,6 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
 
 void Unit::RemoveSoulSwapDOT(Unit* target)
 {
-   bool keepDOT = HasAura(56226); // Glyph of Soul Swap
-
     _SoulSwapDOTList.clear();
 
     AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -22470,8 +22468,6 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             continue;
 
         _SoulSwapDOTList.push_back((*iter)->GetId());
-        if (!keepDOT)
-            target->RemoveAura((*iter)->GetId(), (*iter)->GetCasterGUID());
     }
 }
 

@@ -25,6 +25,8 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "Chat.h"
+#include "World.h"
 
 enum PriestSpells
 {
@@ -123,7 +125,85 @@ enum PriestSpells
     PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562,
     PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
     PRIEST_SPELL_HOLY_NOVA                          = 132157,
-    PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455
+    PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455,
+    PRIEST_SPELL_CONFESSION                         = 126123
+};
+
+// Confession (Glyph) - 126123
+class spell_pri_confession : public SpellScriptLoader
+{
+    public:
+        spell_pri_confession() : SpellScriptLoader("spell_pri_confession") { }
+
+        class spell_pri_confession_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_confession_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    if (!GetHitUnit())
+                        return;
+
+                    if (Player* target = GetHitUnit()->ToPlayer())
+                    {
+                        std::string name = target->GetName();
+                        std::string text = "[" + name + "]" + caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
+                        text += caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
+                        WorldPacket data;
+                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text, LANG_UNIVERSAL);
+                        target->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_confession_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_confession_SpellScript();
+        }
+};
+
+// Glyph of Confession - 126152
+class spell_pri_glyph_of_confession : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_confession() : SpellScriptLoader("spell_pri_glyph_of_confession") { }
+
+        class spell_pri_glyph_of_confession_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_glyph_of_confession_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    _player->learnSpell(PRIEST_SPELL_CONFESSION, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetTarget()->ToPlayer())
+                    if (_player->HasSpell(PRIEST_SPELL_CONFESSION))
+                        _player->removeSpell(PRIEST_SPELL_CONFESSION, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_confession_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_confession_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_glyph_of_confession_AuraScript();
+        }
 };
 
 // Shadow Word: Death (overrided by Glyph) - 129176
@@ -2646,6 +2726,8 @@ class spell_pri_levitate : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_confession();
+    new spell_pri_glyph_of_confession();
     new spell_pri_shadow_word_death();
     new spell_pri_psychic_horror();
     new spell_pri_holy_nova_heal();

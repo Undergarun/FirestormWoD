@@ -109,8 +109,6 @@ float rangeAttenuation2[2][2] =
       237.0f,   280.0f
 };
 
-#define TYPE_EXHALE_TARGET 1
-
 // Zorlok - 62980
 // Echo of Attenuation - 65173
 // Echo of Force and Verve - 65174
@@ -214,7 +212,6 @@ class boss_zorlok : public CreatureScript
             void SetFlying()
             {
                 isFlying = true;
-                events.Reset();
                 me->AttackStop();
                 me->DeleteThreatList();
                 me->getThreatManager().clearReferences();
@@ -226,7 +223,6 @@ class boss_zorlok : public CreatureScript
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                events.Reset();
 
                 if (isActive)
                 {
@@ -261,30 +257,29 @@ class boss_zorlok : public CreatureScript
                     switch (dest)
                     {
                         // Force & Verve platform
-                        case (PLATFORM_ZORLOK_SW):
+                        case PLATFORM_ZORLOK_SW:
                         {
                             events.ScheduleEvent(EVENT_FORCE_AND_VERVE, urand(10000, 20000));
                             break;
                         }
                         // Attenuation Platform
-                        case (PLATFORM_ZORLOK_NE):
+                        case PLATFORM_ZORLOK_NE:
                         {
                             events.ScheduleEvent(EVENT_ATTENUATION, urand(10000, 20000));
                             break;
                         }
                         // Convert Platform
-                        case (PLATFORM_ZORLOK_SE):
+                        case PLATFORM_ZORLOK_SE:
                         {
                             events.ScheduleEvent(EVENT_CONVERT, urand (10000, 20000));
                             break;
                         }
                         // Phase 2 - Center of the room
-                        case (PHASE_ZORLOK2):
+                        case PHASE_ZORLOK2:
                         {
                             Talk(TALK_EVENT_PHASE_2);
-                            // Let's choose a random technic to use, as Zor'lok can use any of the ones he had on platforms
-                            uint8 eventChoice = ChooseAction();
-                            events.ScheduleEvent(eventChoice, urand(25000, 35000));
+                            events.ScheduleEvent(ChooseAction(), urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_PULL_RAID, 2000);
                             break;
                         }
                         default:
@@ -442,11 +437,9 @@ class boss_zorlok : public CreatureScript
                     return;
 
                 // Phase 1
-                if (me->HealthBelowPctDamaged(100 - 20 * numPlat, damage))
+                if (me->HealthBelowPctDamaged(100 - 20 * numPlat, damage) && phase == PHASE_ZORLOK1)
                 {
-                    // No event while flying, and events of a platforms should be cancelled when using another platform
                     events.Reset();
-
                     // Switching platforms at 100%, 80% and 60% remaining life
                     if (numPlat < 3)
                     {
@@ -542,17 +535,8 @@ class boss_zorlok : public CreatureScript
                         me->RemoveAreaTrigger(SPELL_PHEROMONES_CLOUD);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
                         me->GetMotionMaster()->MoveLand(PHASE_ZORLOK2 + 10,  oratiumCenter[1]);
-                        // Creating Walls
-                        for (uint8 i = 0; i < 3; ++i)
-                        {
-                            // Arena walls
-                            me->SummonGameObject(GOB_ARENA_WALLS, finalPhaseWalls2[i].GetPositionX(), finalPhaseWalls2[i].GetPositionY(), finalPhaseWalls2[i].GetPositionZ(), finalPhaseWalls2[i].GetOrientation(), 0, 0, 0, 0, 7200);
-
-                            // Final phase Doors
-                            me->SummonGameObject(GOB_FINAL_PHASE_WALLS, finalPhaseWalls1[i].GetPositionX(), finalPhaseWalls1[i].GetPositionY(), finalPhaseWalls1[i].GetPositionZ(), finalPhaseWalls1[i].GetOrientation(), 0, 0, 0, 0, 7200);
-                        }
                         inhaleDone = true;
-
+                        SetLanding(PHASE_ZORLOK2);
                         break;
                     }
                     case ACTION_WIPE:
@@ -634,6 +618,7 @@ class boss_zorlok : public CreatureScript
                     if (numPlat == 1)
                         Talk(TALK_EVENT_PHASE_1);
                     me->GetMotionMaster()->MoveLand(id + 10, zorlokPlatforms[id - 1]);
+                    SetLanding(id);
                 }
 
                 // Switching from phase 1 to phase 2
@@ -643,7 +628,6 @@ class boss_zorlok : public CreatureScript
                     me->MonsterTextEmote("Imperial Vizier Zor'lok inhales Pheromones of Zeal!", 0, true);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_CLOUD);
                 }
-                SetLanding(id);
             }
 
             uint32 GetData(uint32 type)
@@ -675,13 +659,30 @@ class boss_zorlok : public CreatureScript
                     }
                 }
 
-                // Remove Convert aura from players at / below 50% HP.
+                // Remove/Set auras on players
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                 if (!PlayerList.isEmpty())
+                {
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    {
                         if (Player* playr = i->getSource())
+                        {
+                            // Remove convert aura for players who have less than 50% remaining health
                             if (playr->HasAura(SPELL_CONVERT) && playr->HealthBelowPct(51))
                                 playr->RemoveAurasDueToSpell(SPELL_CONVERT);
+                            // Pheromones of zeal - on phase 1 only
+                            if (phase == PHASE_ZORLOK1)
+                            {
+                                // Remove pheromones of zeal aura from players who aren't on the bottom floor
+                                if (playr->HasAura(SPELL_PHEROMONES_OF_ZEAL) && playr->GetPositionZ() >= 408.5f)
+                                    playr->RemoveAura(SPELL_PHEROMONES_OF_ZEAL);
+                                // Set pheromones of zeal aura on players who are on the bottom floor
+                                else if (!playr->HasAura(SPELL_PHEROMONES_OF_ZEAL) && playr->GetPositionZ() < 408.5f)
+                                    playr->AddAura(SPELL_PHEROMONES_OF_ZEAL, playr);
+                            }
+                        }
+                    }
+                }
 
                 UpdateVictim();
                 events.Update(diff);
@@ -708,58 +709,28 @@ class boss_zorlok : public CreatureScript
                     {
                         // Can't inhale if already casting
                         if (me->HasUnitState(UNIT_STATE_CASTING))
-                            events.RescheduleEvent(EVENT_INHALE, 25000);
+                            events.RescheduleEvent(EVENT_INHALE, 5000);
                         else
                         {
-                            // Exhale is triggered when Zor'lok has 3-4 stacks of inhale
+                            // Inhale (Exhale is triggered when Zor'lok has 3-4 stacks of inhale)
                             AuraPtr inhale = me->GetAura(SPELL_INHALE);
-                            if (!inhale || inhale->GetStackAmount() < 3)
+                            if (!inhale || inhale->GetStackAmount() < 3 || !urand((inhale->GetStackAmount() < 4 ? 0 : 1), 1))
                             {
                                 Talk(TALK_INHALE);
                                 me->MonsterTextEmote("Imperial Vizier Zor'lok |cFFFF0000|Hspell:122852|h[Inhale]|h|r a big air breath!", 0, true);
                                 me->CastSpell(me, SPELL_INHALE, false);
                             }
+                            // Exhale
                             else
                             {
-                                if ((inhale->GetStackAmount() == 3 && urand(0, 1)) || inhale->GetStackAmount() >= 4)
-                                    events.ScheduleEvent(EVENT_EXHALE, 1000);
-                            }
-                            events.ScheduleEvent(EVENT_INHALE, urand(25000, 50000));
-                        }
-                        break;
-                    }
-                    case EVENT_EXHALE:
-                    {
-                        if (me->HasUnitState(UNIT_STATE_CASTING))
-                            events.RescheduleEvent(EVENT_EXHALE, 5000);
-                        else
-                        {
-                            // Retrieving all players in range
-                            std::list<Player*> playerList;
-                            GetPlayerListInGrid(playerList, me, 60.0f);
-
-                            // No player ? Nothing to do...
-                            if (playerList.empty())
-                                return;
-
-                            // Picking a random victim
-                            bool pickingTarget = true;
-
-                            while (pickingTarget)
-                            {
-                                for (auto player : playerList)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                                 {
-                                    if (urand(0, 1))
-                                    {
-                                        exhaleTarget = player->GetGUIDLow();
-                                        pickingTarget = false;
-                                        break;
-                                    }
+                                    exhaleTarget = target->GetGUIDLow();
+                                    Talk(TALK_EXHALE);
+                                    DoCast(target, SPELL_EXHALE, true);
                                 }
                             }
-
-                            Talk(TALK_EXHALE);
-                            DoCast(me, SPELL_EXHALE);
+                            events.ScheduleEvent(EVENT_INHALE, urand(25000, 50000));
                         }
                         break;
                     }
@@ -850,6 +821,27 @@ class boss_zorlok : public CreatureScript
                     case EVENT_BERSERK:
                     {
                         me->CastSpell(me, SPELL_BERSERK, false);
+                        break;
+                    }
+                    case EVENT_PULL_RAID:
+                    {
+                        // Pulling far players
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 300.0f);
+                        for (std::list<Player*>::iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                            // The point is that if they're on a platform, they'll be blocked by walls, so they have to be pulled
+                            if ((*itr)->GetPositionZ() > 408.5f)
+                                (*itr)->CastSpell(me, SPELL_SPRING_RABBIT_JUMP, false);
+
+                        // Creating Walls
+                        for (uint8 i = 0; i < 3; ++i)
+                        {
+                            // Arena walls
+                            me->SummonGameObject(GOB_ARENA_WALLS, finalPhaseWalls2[i].GetPositionX(), finalPhaseWalls2[i].GetPositionY(), finalPhaseWalls2[i].GetPositionZ(), finalPhaseWalls2[i].GetOrientation(), 0, 0, 0, 0, 7200);
+
+                            // Final phase Doors
+                            me->SummonGameObject(GOB_FINAL_PHASE_WALLS, finalPhaseWalls1[i].GetPositionX(), finalPhaseWalls1[i].GetPositionY(), finalPhaseWalls1[i].GetPositionZ(), finalPhaseWalls1[i].GetOrientation(), 0, 0, 0, 0, 7200);
+                        }
                         break;
                     }
                     default:
@@ -1007,7 +999,7 @@ class mob_sonic_ring : public CreatureScript
                 float pointX = posX;
                 float pointY = posY;
 
-                if (phase == 1)
+                if (phase == PHASE_ZORLOK1)
                 {
                     while (((pointX + percentX) >= rangeAttenuation1[0][0]) 
                         && ((pointX + percentX) <= rangeAttenuation1[0][1])
@@ -1163,18 +1155,13 @@ class spell_sonic_ring : public SpellScriptLoader
             void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                {
-                    std::list<Player*> playerList;
-                    GetPlayerListInGrid(playerList, caster, 1.5f);
-
-                    for (auto player : playerList)
-                        player->AddAura(SPELL_SONIC_RING_AURA, player);
-                }
+                    caster->AddAura(SPELL_SONIC_RING_AURA, caster);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sonic_ring_AuraScript::ApplyAura,   EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_sonic_ring_AuraScript::ApplyAura, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_sonic_ring_AuraScript::ApplyAura, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1240,7 +1227,7 @@ class spell_pheromones_of_zeal : public SpellScriptLoader
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_pheromones_of_zeal_SpellScript::Effect);
+                AfterHit += SpellHitFn(spell_pheromones_of_zeal_SpellScript::Effect);
             }
         };
 
@@ -1289,7 +1276,43 @@ class spell_zorlok_exhale : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExhaleTargetFilter(GetCaster()));
+                targets.clear();
+
+                Unit* caster = GetCaster();
+
+                if (!caster)
+                    return;
+
+                Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+
+                // No target? Then we pick a random one
+                if (!target || !target->isAlive())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 60.0f);
+
+                    if (playerList.empty())
+                        return;
+
+                    bool searching = true;
+                    std::list<Player*>::iterator itr = playerList.begin();
+
+                    while (searching)
+                    {
+                        if (urand(0, 1))
+                        {
+                            target = *itr;
+                            searching = false;
+                        }
+                        ++itr;
+
+                        if (itr == playerList.end())
+                            itr = playerList.begin();
+                    }
+                }
+
+                if (target)
+                    targets.push_back(target);
             }
 
             void RemoveStack()
@@ -1307,6 +1330,7 @@ class spell_zorlok_exhale : public SpellScriptLoader
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zorlok_exhale_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zorlok_exhale_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterCast                += SpellCastFn(spell_zorlok_exhale_SpellScript::RemoveStack);
                 OnEffectHitTarget        += SpellEffectFn(spell_zorlok_exhale_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
@@ -1317,33 +1341,6 @@ class spell_zorlok_exhale : public SpellScriptLoader
         {
             return new spell_zorlok_exhale_SpellScript();
         }
-};
-
-class ExhaleDamageTargetFilter : public std::unary_function<Unit*, bool>
-{
-    public:
-        explicit ExhaleDamageTargetFilter(Unit* caster) : _caster(caster) { }
-
-        bool operator()(WorldObject* object) const
-        {
-            uint32 exhaleLowId = CAST_AI(boss_zorlok::boss_zorlokAI, _caster->GetAI())->GetData(TYPE_EXHALE_TARGET);
-            Player* exhaleTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(exhaleLowId, 0, HIGHGUID_PLAYER));
-
-            if (!exhaleTarget)
-                return false;
-
-            // Don't remove his target.
-            if (object == exhaleTarget)
-                return false;
-
-            if (!object->IsInBetween(_caster, exhaleTarget/*, 1.0f*/))
-                return true; // Remove players not between Zor'lok and his Exhale target.
-
-            return false; // Players between Zor'lok and the Exhale target are added to the list and sorted afterwards by distance.
-        }
-
-    private:
-        Unit* _caster;
 };
 
 // Exhale (damage): 122760
@@ -1363,21 +1360,47 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
                 if (targets.empty() || !caster)
                     return;
 
-                // Remove players not between Zorlok and his target.
-                targets.remove_if(ExhaleDamageTargetFilter(GetCaster()));
+                Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                if (!currentTarget)
+                    return;
 
-                if (targets.size() > 1) // Two or more targets, means there's someone between Zor'lok and his target.
+                // Remove players not between Zorlok and his target.
+                std::list<WorldObject*>::iterator itr, next;
+                for (itr = targets.begin(); itr != targets.end(); itr = next)
+                {
+                    next = itr;
+                    ++next;
+
+                    // Keeping current target
+                    if ((*itr) == currentTarget)
+                        continue;
+
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER || !(*itr)->IsInBetween(caster, currentTarget))
+                        targets.remove(*itr);
+                }
+
+                // Two or more targets, means there's someone between Zor'lok and his target.
+                if (targets.size() > 1)
                 {
                     // Select first target between Zor'lok and the Exhale target.
-                    targets.sort(JadeCore::ObjectDistanceOrderPred(GetCaster()));
-                    WorldObject* target = targets.front();
-                    targets.clear();
-                    targets.push_back(target);
+                    WorldObject* nearestTarget = 0;
+                    float distance = 1000.0f;
 
-                    uint32 targetLowGuid = target->GetGUIDLow();
+                    for (itr = targets.begin(); itr != targets.end(); ++itr)
+                    {
+                        if (caster->GetDistance2d(*itr) < distance)
+                        {
+                            nearestTarget = *itr;
+                            distance = caster->GetDistance2d(*itr);
+                        }
+                    }
 
-                    // Set Zor'lok's current Exhale target to that nearest player.
-                    CAST_AI(boss_zorlok::boss_zorlokAI, caster->GetAI())->SetData(TYPE_EXHALE_TARGET, targetLowGuid);
+                    if (nearestTarget != currentTarget)
+                    {
+                        // Set Zor'lok's current Exhale target to that nearest player.
+                        uint32 targetLowGuid = nearestTarget->GetGUIDLow();
+                        caster->GetAI()->SetData(TYPE_EXHALE_TARGET, targetLowGuid);
+                    }
                 }
             }
 
