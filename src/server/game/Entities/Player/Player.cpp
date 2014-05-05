@@ -4235,6 +4235,10 @@ void Player::RemoveSpecializationSpells()
             spellToRemove.push_back(itr.first);
     }
 
+    spellToRemove.push_back(48517); // Lunar eclipse
+    spellToRemove.push_back(48518); // Solar eclipse
+    spellToRemove.push_back(107095); // Lunar eclipse (overrider)
+
     for (auto itr : spellToRemove)
         removeSpell(itr);
 }
