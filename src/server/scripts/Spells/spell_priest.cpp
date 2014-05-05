@@ -25,8 +25,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "Chat.h"
-#include "World.h"
+#include "Player.h"
 
 enum PriestSpells
 {
@@ -151,7 +150,7 @@ class spell_pri_confession : public SpellScriptLoader
                         std::string text = "[" + name + "]" + caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
                         text += caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
                         WorldPacket data;
-                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text, LANG_UNIVERSAL);
+                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text.c_str(), LANG_UNIVERSAL);
                         target->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
                     }
                 }
