@@ -7568,8 +7568,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if (GetSpellInfo()->Id == 1120)
         {
             // Energize one soul shard every 2 ticks
-            if ((m_tickNumber == 2 || m_tickNumber == 4 || m_tickNumber == 6) && target->GetTypeId() == TYPEID_PLAYER)
-                caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
+            if (!(m_tickNumber%2))
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_SOUL_SHARDS);
 
             // if target is below 20% of life ...
             if (target->GetHealthPct() <= 20)
