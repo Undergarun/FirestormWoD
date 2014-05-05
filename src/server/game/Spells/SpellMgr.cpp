@@ -4608,7 +4608,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 102359:// Mass Entanglement
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
-            case 33763: // Lifebloom
             case 102355:// Faerie Swarm
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
