@@ -83,6 +83,7 @@ enum WarlockSpells
     WARLOCK_SOUL_LEECH_AURA                 = 108370,
     WARLOCK_SOUL_LINK_TALENT                = 108415,
     WARLOCK_SOUL_LINK_DUMMY_AURA            = 108446,
+    WARLOCK_SOUL_LINK_HEAL                  = 108447,
     WARLOCK_GLYPH_OF_CONFLAGRATE            = 56235,
     WARLOCK_SHIELD_OF_SHADOW                = 115232,
     WARLOCK_THREATENING_PRESENCE            = 112042,
@@ -1341,6 +1342,20 @@ class spell_warl_soul_link_dummy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_soul_link_dummy_AuraScript);
 
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster() || !GetCaster()->GetOwner())
+                    return;
+
+                if (Player* plr = GetCaster()->GetOwner()->ToPlayer())
+                {
+                    int32 bp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                    plr->CastCustomSpell(plr, WARLOCK_SOUL_LINK_HEAL, &bp, &bp, NULL, true);
+                }
+            }
+
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
             {
                 if (!GetCaster() || !GetTarget())
@@ -1364,7 +1379,8 @@ class spell_warl_soul_link_dummy : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectApplyFn(spell_warl_soul_link_dummy_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectProc += AuraEffectProcFn(spell_warl_soul_link_dummy_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_soul_link_dummy_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_SPLIT_DAMAGE_PCT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

@@ -4235,6 +4235,10 @@ void Player::RemoveSpecializationSpells()
             spellToRemove.push_back(itr.first);
     }
 
+    spellToRemove.push_back(48517); // Lunar eclipse
+    spellToRemove.push_back(48518); // Solar eclipse
+    spellToRemove.push_back(107095); // Lunar eclipse (overrider)
+
     for (auto itr : spellToRemove)
         removeSpell(itr);
 }
@@ -22900,7 +22904,7 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
+void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
     uint32 messageLength = text.length();
     uint32 speakerNameLength = strlen(GetName());

@@ -25,8 +25,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "Chat.h"
-#include "World.h"
+#include "Player.h"
 
 enum PriestSpells
 {
@@ -37,7 +36,6 @@ enum PriestSpells
     PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE           = 33619,
     PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
-    PRIEST_VOID_SHIFT                               = 108968,
     PRIEST_LEAP_OF_FAITH                            = 73325,
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
     PRIEST_INNER_WILL                               = 73413,
@@ -152,7 +150,7 @@ class spell_pri_confession : public SpellScriptLoader
                         std::string text = "[" + name + "]" + caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
                         text += caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
                         WorldPacket data;
-                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text, LANG_UNIVERSAL);
+                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text.c_str(), LANG_UNIVERSAL);
                         target->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
                     }
                 }
@@ -2322,7 +2320,7 @@ class spell_pri_leap_of_faith : public SpellScriptLoader
         }
 };
 
-// Void Shift - 108968
+// Void Shift - 108968 and Void Shift - 142723
 class spell_pri_void_shift : public SpellScriptLoader
 {
     public:
@@ -2331,13 +2329,6 @@ class spell_pri_void_shift : public SpellScriptLoader
         class spell_pri_void_shift_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_void_shift_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_VOID_SHIFT))
-                    return false;
-                return true;
-            }
 
             SpellCastResult CheckTarget()
             {

@@ -1401,7 +1401,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         const uint8 *types = m_caster->HasAura(54923) ? types_glyph: types_noglyph;
 
                         // Normal case
-                        if (effIndex == 1 && !m_caster->HasAura(115738))
+                        if (effIndex == 0 && !m_caster->HasAura(115738))
                         {
                             for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
                             {
@@ -1435,7 +1435,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                             if (Unit* target = player->GetSelectedUnit())
                             {
-                                if (effIndex == 1)
+                                if (effIndex == 0)
                                 {
                                     bool found = false;
                                     uint8 types_i = 0;
@@ -1466,7 +1466,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                                 if (victim)
                                 {
-                                    if (effIndex == 1)
+                                    if (effIndex == 0)
                                     {
                                         bool found = false;
                                         uint8 types_i = 0;
