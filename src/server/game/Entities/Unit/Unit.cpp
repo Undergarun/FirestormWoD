@@ -1695,18 +1695,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             victim->RemoveAura(131523);
         }
     }
-
-    // Soul Link
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_WARLOCK && damageInfo->damage > 0 && victim->HasAura(108446))
-    {
-        if (victim->ToPlayer()->GetPet() && victim->ToPlayer()->GetPet()->HasAura(108446))
-        {
-            damageInfo->damage /= 2;
-            int32 bp = damageInfo->damage;
-
-            victim->ToPlayer()->GetPet()->CastCustomSpell(victim->ToPlayer()->GetPet(), 108451, &bp, NULL, NULL, true); // Soul Link damage
-        }
-    }
 }
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
@@ -6928,9 +6916,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (ToPlayer()->HasSpellCooldown(108563))
                         return false;
 
+                    target = this;
                     triggered_spell_id = 34936;
                     ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
-                    return true;
+                    break;
                 }
                 case 114790:// Soulburn : Seed of Corruption
                 {
@@ -8364,24 +8353,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    if (AuraPtr lightningShield = GetAura(324))
-                    {
-                        // Improved Lightning Shield
-                        if (!HasAura(100956))
-                        {
-                            if (lightningShield->GetCharges() > 1)
-                                lightningShield->DropCharge();
-                        }
-                        else
-                        {
-                            if (lightningShield->GetCharges() < 7)
-                                lightningShield->ModCharges(1);
-
-                            if (lightningShield->GetCharges() >= 7)
-                                CastSpell(this, 95774, true); // Fulmination Info
-                        }
-                    }
-
                     // Glyph of Lightning Shield
                     if (HasAura(101052))
                         CastSpell(this, 142912, true);
@@ -8954,12 +8925,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK && mainItem)
                         {
                             if (mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON) // 2H
-                                roll_chance = 0.06f * mainItem->GetTemplate()->Delay / 10;
+                                roll_chance = 0.06f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                             else // 1H
-                                roll_chance = 0.03f * mainItem->GetTemplate()->Delay / 10;
+                                roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                         }
                         else if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK && offItem)
-                            roll_chance = 0.03f * offItem->GetTemplate()->Delay / 10;
+                            roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                     }
 
                     if (!roll_chance_f(roll_chance))
@@ -12415,20 +12386,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 AddPct(DoneTotalMod, Mastery);
             }
         }
-        else
-        {
-            if (GetTypeId() == TYPEID_PLAYER && HasAura(76613))
-            {
-                // Frostfire bolt acts like if target is frozen with Brain Freeze
-                // Ice Lance acts like if target is frozen with Fingers of Frost
-                if (victim->HasAuraState(AURA_STATE_FROZEN) || (HasAura(57761) && spellProto && spellProto->Id == 44614)
-                    || (HasAura(44544) && spellProto && spellProto->Id == 30455))
-                {
-                    float Mastery = GetFloatValue(PLAYER_MASTERY) * 2.0f;
-                    AddPct(DoneTotalMod, Mastery);
-                }
-            }
-        }
     }
 
     // Custom MoP Script
@@ -12866,18 +12823,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     }
     if (!tmpDamage)
         tmpDamage = (float(pdamage) + TakenTotal) * TakenTotalMod;
-
-    // Soul Link
-    if (GetTypeId() == TYPEID_PLAYER && (!spellProto || (spellProto && spellProto->Id != 108451)) && getClass() == CLASS_WARLOCK && tmpDamage > 0 && HasAura(108446))
-    {
-        if (ToPlayer()->GetPet() && ToPlayer()->GetPet()->HasAura(108446))
-        {
-            tmpDamage /= 2;
-            int32 bp = tmpDamage;
-
-            ToPlayer()->GetPet()->CastCustomSpell(ToPlayer()->GetPet(), 108451, &bp, NULL, NULL, true); // Soul Link damage
-        }
-    }
 
     return uint32(std::max(tmpDamage, 0.0f));
 }
@@ -13568,19 +13513,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     float heal = float(int32(healamount) + TakenTotal) * TakenTotalMod;
 
-    // Custom MoP Script
-    // Soul Link
-    if (GetTypeId() == TYPEID_PLAYER && spellProto->Id != 108447 && getClass() == CLASS_WARLOCK && heal > 0 && HasAura(108446))
-    {
-        if (ToPlayer()->GetPet() && ToPlayer()->GetPet()->HasAura(108446))
-        {
-            heal /= 2;
-            int32 bp = heal;
-
-            ToPlayer()->GetPet()->CastCustomSpell(ToPlayer()->GetPet(), 108447, &bp, NULL, NULL, true); // Soul Link heal
-        }
-    }
-
     return uint32(std::max(heal, 0.0f));
 }
 
@@ -13987,7 +13919,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 76838 - Mastery : Strikes of Opportunity
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id == 76858)))
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id != 76858)))
     {
         if (HasAura(76838))
         {
@@ -17263,6 +17195,7 @@ bool InitTriggerAuraData()
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
+    isTriggerAura[SPELL_AURA_PERIODIC_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
     isTriggerAura[SPELL_AURA_MOD_STUN] = true; // Aura does not have charges but needs to be removed on trigger
@@ -22455,8 +22388,6 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
 
 void Unit::RemoveSoulSwapDOT(Unit* target)
 {
-   bool keepDOT = HasAura(56226); // Glyph of Soul Swap
-
     _SoulSwapDOTList.clear();
 
     AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -22470,8 +22401,6 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             continue;
 
         _SoulSwapDOTList.push_back((*iter)->GetId());
-        if (!keepDOT)
-            target->RemoveAura((*iter)->GetId(), (*iter)->GetCasterGUID());
     }
 }
 

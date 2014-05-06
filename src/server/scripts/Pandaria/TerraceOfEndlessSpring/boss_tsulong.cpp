@@ -217,7 +217,7 @@ class boss_tsulong : public CreatureScript
             {
                 _JustReachedHome();
 
-                if (pInstance)
+                if (pInstance && pInstance->GetBossState(DATA_TSULONG) != DONE)
                     pInstance->SetBossState(DATA_TSULONG, FAIL);
             }
 

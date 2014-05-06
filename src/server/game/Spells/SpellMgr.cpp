@@ -143,9 +143,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             switch (spellproto->Id)
             {
                 case 107566: // Staggering Shout
+                case 105771: // Warbringer
                     return DIMINISHING_CONTROLLED_ROOT;
                 case 132168: // Shockwave
-                case 105771: // Warbringer
                 case 132169: // Storm Bolt
                     return DIMINISHING_CONTROLLED_STUN;
                 case 676:    // Disarm
@@ -4403,13 +4403,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81282: // Fungal Growth
                 spellInfo->Effects[0].BasePoints = 100;
                 break;
-            case 108446:// Soul Link
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_PET;
-                break;
             case 6785:  // Ravage
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 spellInfo->OverrideSpellList.push_back(102545); // Replace Ravage by Ravage (Incarnation)
@@ -4615,7 +4608,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 102359:// Mass Entanglement
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
-            case 33763: // Lifebloom
             case 102355:// Faerie Swarm
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
@@ -4643,12 +4635,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
-                break;
-            case 130493:// Nightstalker
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[1].ApplyAuraName = 0;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_DONE;
-                spellInfo->Effects[0].MiscValue = SPELL_SCHOOL_MASK_ALL;
                 break;
             case 84745: // Shallow Insight
             case 84746: // Moderate Insight

@@ -72,8 +72,7 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
     WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
-    WARRIOR_SPELL_GLYPH_OF_BULL_RUSH            = 94372,
-    WARRIOR_SPELL_SUDDEN_EXECUTE                = 139958
+    WARRIOR_SPELL_GLYPH_OF_BULL_RUSH            = 94372
 };
 
 // Slam - 1464
@@ -653,12 +652,8 @@ class spell_warr_sudden_death : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                {
                     if (_player->HasSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH))
                         _player->RemoveSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH, true);
-
-                    _player->CastSpell(_player, WARRIOR_SPELL_SUDDEN_EXECUTE, true);
-                }
             }
 
             void Register()

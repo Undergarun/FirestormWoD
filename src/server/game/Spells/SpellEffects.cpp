@@ -452,6 +452,12 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
                 switch (m_spellInfo->Id)
                 {
+                    case 5308:  // Execute
+                    {
+                        if (m_caster->HasAura(29725))
+                            m_caster->CastSpell(m_caster, 139958, true);
+                        break;
+                    }
                     case 34428: // Victory Rush
                     {
                         if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)

@@ -374,7 +374,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //315 SPELL_AURA_UNDERWATER_WALKING todo
     &AuraEffect::HandleNoImmediateEffect,                         //316 unused (4.3.4) old SPELL_AURA_PERIODIC_HASTE
     &AuraEffect::HandleAuraModSpellPowerPercent,                  //317 SPELL_AURA_MOD_SPELL_POWER_PCT
-    &AuraEffect::HandleNULL,                                      //318 SPELL_AURA_MASTERY
+    &AuraEffect::HandleAuraMastery,                               //318 SPELL_AURA_MASTERY
     &AuraEffect::HandleModMeleeSpeedPct,                          //319 SPELL_AURA_MOD_MELEE_HASTE_3
     &AuraEffect::HandleAuraModRangedHaste,                        //320 SPELL_AURA_MOD_RANGED_HASTE_2
     &AuraEffect::HandleNULL,                                      //321 SPELL_AURA_321
@@ -2041,6 +2041,9 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_TRAVEL:
             spellId = 5419;
+
+            if (target->HasAura(114338) && !target->HasAura(131113))
+                spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
@@ -2646,15 +2649,13 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     target->RemoveAurasDueToSpell(76691);
 
                 // remove movement affects
-                uint32 mechanicMask = (1 << MECHANIC_SNARE);
-                if (target->HasAura(96429) || form == FORM_MOONKIN)
-                    mechanicMask |= (1 << MECHANIC_ROOT);
-
+                uint32 mechanicMask = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
                 target->RemoveAurasWithMechanic(mechanicMask);
 
                 // and polymorphic affects
                 if (target->IsPolymorphed())
                     target->RemoveAurasDueToSpell(target->getTransForm());
+
                 break;
             }
             default:
@@ -4835,7 +4836,6 @@ void AuraEffect::HandleModSpellDamagePercentFromStat(AuraApplication const* aurA
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4851,7 +4851,6 @@ void AuraEffect::HandleModSpellHealingPercentFromStat(AuraApplication const* aur
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4865,12 +4864,23 @@ void AuraEffect::HandleAuraModSpellPowerPercent(AuraApplication const * aurApp, 
         return;
 
     Unit *target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // Recalculate bonus
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
+}
+
+void AuraEffect::HandleAuraMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit *target = aurApp->GetTarget();
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    target->ToPlayer()->UpdateMasteryPercentage();
 }
 
 void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -4879,7 +4889,6 @@ void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication cons
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4895,7 +4904,6 @@ void AuraEffect::HandleModSpellHealingPercentFromAttackPower(AuraApplication con
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -4909,9 +4917,9 @@ void AuraEffect::HandleModHealingDone(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
+
     // implemented in Unit::SpellHealingBonus
     // this information is for client side only
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
@@ -5398,7 +5406,7 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
     target->ApplyAttackTimePercentMod(BASE_ATTACK,   (float)value, apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK,    (float)value, apply);
 
-    if (this->GetId() == 120275 && target->GetTypeId() == TYPEID_PLAYER)
+    if (GetId() == 120275 && target->GetTypeId() == TYPEID_PLAYER)
         target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
 }
 
@@ -6723,6 +6731,18 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
         data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         target->ToPlayer()->GetSession()->SendPacket(&data);
     }
+
+    // Form of Stag
+    if (m_spellInfo->Id == 115034)
+    {
+        if (apply)
+        {
+            target->GetVehicleKit()->Reset();
+            target->GetVehicleKit()->InstallAllAccessories(false);
+        }
+        else
+            target->RemoveVehicleKit(true);
+    }
 }
 
 void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -7548,8 +7568,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if (GetSpellInfo()->Id == 1120)
         {
             // Energize one soul shard every 2 ticks
-            if ((m_tickNumber == 2 || m_tickNumber == 4 || m_tickNumber == 6) && target->GetTypeId() == TYPEID_PLAYER)
-                caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
+            if (!(m_tickNumber%2))
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_SOUL_SHARDS);
 
             // if target is below 20% of life ...
             if (target->GetHealthPct() <= 20)

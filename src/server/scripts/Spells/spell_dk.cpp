@@ -1860,8 +1860,13 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                         if (c->GetCreatureTemplate() && (c->GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL ||
                                                          c->GetCreatureTemplate()->type == CREATURE_TYPE_ELEMENTAL))
                             return SPELL_FAILED_BAD_TARGETS;
+                        else if (c->IsDungeonBoss())
+                            return SPELL_FAILED_BAD_TARGETS;
                     }
                     else if (target->GetGUID() == caster->GetGUID())
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (target->isAlive())
                         return SPELL_FAILED_BAD_TARGETS;
                 }
 
