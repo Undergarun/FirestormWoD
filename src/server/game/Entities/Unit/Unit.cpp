@@ -6068,12 +6068,31 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!HealthBelowPctDamaged(50, damage))
                         return false;
 
-                     if (constAuraPtr aur = triggeredByAura->GetBase())
-                         if (constAuraEffectPtr aurEff = aur->GetEffect(EFFECT_1))
-                             basepoints0 = int32(CalculatePct(damage, aurEff->GetAmount()));
+                    if (constAuraPtr aur = triggeredByAura->GetBase())
+                        if (constAuraEffectPtr aurEff = aur->GetEffect(EFFECT_1))
+                            basepoints0 = int32(CalculatePct(damage, aurEff->GetAmount()));
 
-                     triggered_spell_id = 108008;
+                    triggered_spell_id = 108008;
                     break;
+                case 120033:// Jade Spirit
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(104993))
+                        return false;
+
+                    basepoints0 = 1650;
+                    int32 basepoints1 = 0;
+
+                    if (GetPowerPct(POWER_MANA) >= 25.0f)
+                        CastCustomSpell(this, 104993, &basepoints0, &basepoints1, NULL, true);
+                    else
+                        CastSpell(this, 104993, true);
+
+                    ToPlayer()->AddSpellCooldown(104993, 0, time(NULL) + 60);
+                    return false;
+                }
                 // Weight of Feather, Scales of Life
                 case 96879:
                 case 97117:
