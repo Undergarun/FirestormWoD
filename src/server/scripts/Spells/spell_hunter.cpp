@@ -1784,8 +1784,8 @@ class spell_hun_kill_command : public SpellScriptLoader
                 if (!pet || pet->isDead())
                     return SPELL_FAILED_NO_PET;
 
-                // pet has a target and target is within 5 yards
-                if (!petTarget || !pet->IsWithinDist(petTarget, 25.0f, true))
+                // pet has a target and target is within 5 yards and target is in line of sight
+                if (!petTarget || !pet->IsWithinDist(petTarget, 25.0f, true) || !petTarget->IsWithinLOSInMap(pet))
                     return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
