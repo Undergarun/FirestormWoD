@@ -12390,7 +12390,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     // Custom MoP Script
     // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask == SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask == SPELL_SCHOOL_MASK_NATURE))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
     {
         if (HasAura(77223))
         {
@@ -13802,7 +13802,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask == SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask == SPELL_SCHOOL_MASK_NATURE))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
     {
         if (HasAura(77223))
         {
