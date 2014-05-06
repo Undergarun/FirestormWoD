@@ -49,6 +49,7 @@ class mob_kor_thik_slicer : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 10000);
                 events.ScheduleEvent(EVENT_VITAL_STRIKES, 5000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
             }
 
             void DamageTaken(Unit* killer, uint32& damage)
@@ -130,6 +131,7 @@ class mob_kor_thik_extremist : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_UNDYING_DEVOTION, 5000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
             }
 
             void UpdateAI(const uint32 diff)
@@ -193,7 +195,7 @@ class mob_sra_thik_shield_master : public CreatureScript
                 events.ScheduleEvent(EVENT_MASS_SPELL_REFLEXION, 19000);
                 events.ScheduleEvent(EVENT_SHIELD_SLAM, 26000);
                 events.ScheduleEvent(EVENT_STUNNING_STRIKE, 35000);
-
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
             }
 
             void UpdateAI(const uint32 diff)
@@ -274,6 +276,8 @@ class mob_set_thik_swiftblade : public CreatureScript
                 events.ScheduleEvent(EVENT_BLURRING_SLASH, 7000);
                 events.ScheduleEvent(EVENT_RIPOSTE, 12000);
 
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
+
             }
 
             void UpdateAI(const uint32 diff)
@@ -317,7 +321,7 @@ class mob_set_thik_swiftblade : public CreatureScript
         }
 };
 
-// 67177 - 66181 - 63853
+// 67177 - 66181 - 63853 - Zar'thik Supplicant
 class mob_zar_thik_supplicant : public CreatureScript
 {
     public:
@@ -404,6 +408,8 @@ class mob_enslaved_bonesmasher : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_JAWBONE_SLAM, 7000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_8);
             }
 
             void UpdateAI(const uint32 diff)
@@ -458,18 +464,18 @@ class mob_set_thik_tempest : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_WIND_SLASH, 7000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
-            }
-
-            void Reset()
-            {
-                events.Reset();
-
-                events.ScheduleEvent(EVENT_WIND_SLASH, 7000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -574,15 +580,24 @@ class mob_set_thik_zephyrian : public CreatureScript
         {
             mob_set_thik_zephyrianAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_SUMMON_ZEPHYR, 4000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_2);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
+                        garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -632,8 +647,8 @@ class mob_set_thik_gale_slicer : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_SWIFT_STEP, 4000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -690,8 +705,8 @@ class mob_instructor_kli_thak : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_WIND_STEP, 15000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -753,8 +768,9 @@ class mob_instructor_tak_thok : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 4000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -812,6 +828,7 @@ class mob_instructor_maltik : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_TRASH_UNSEEN_STRIKE, 15000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_1);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -875,6 +892,7 @@ class mob_instructor_zarik : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_TRASH_TEMPEST_SLASH, 15000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -933,6 +951,8 @@ class mob_zar_thik_zealot : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ZEALOUS_RUSH, 7000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
             }
 
             void UpdateAI(const uint32 diff)
@@ -990,8 +1010,9 @@ class mob_kor_thik_swarmer : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_UNDERWHELMING_ASSAULT, 4000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1039,9 +1060,11 @@ class mob_set_thik_gustwing : public CreatureScript
         {
             mob_set_thik_gustwingAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -1049,6 +1072,14 @@ class mob_set_thik_gustwing : public CreatureScript
 
                 events.ScheduleEvent(EVENT_GUST, 3000);
                 events.ScheduleEvent(EVENT_ICE_TRAP, 7000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_3);
+            }
+
+            void JustDied()
+            {
+                if (pInstance)
+                    if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
+                        garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1156,8 +1187,8 @@ class mob_kor_thik_silentwing : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 84677);
-                events.ScheduleEvent(EVENT_ICE_TRAP, 5000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_1);
+                events.ScheduleEvent(EVENT_ALMOST_UNSEEN_STRIKE, 15000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1178,11 +1209,11 @@ class mob_kor_thik_silentwing : public CreatureScript
                 {
                     switch (id)
                     {
-                        case EVENT_ICE_TRAP:
+                        case EVENT_ALMOST_UNSEEN_STRIKE:
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_ICE_TRAP, true);
-                            events.ScheduleEvent(EVENT_ICE_TRAP, 22000);
+                                me->CastSpell(target, SPELL_ALMOST_UNSEEN_STRIKE, true);
+                            events.ScheduleEvent(EVENT_ALMOST_UNSEEN_STRIKE, 22000);
                             break;
                         }
                         default:

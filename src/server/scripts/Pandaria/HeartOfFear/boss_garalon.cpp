@@ -164,7 +164,6 @@ public:
         {
             static uint32 LegSpells[4] =
             {
-                //SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_LEFT, SPELL_RIDE_BACK_RIGHT,
                 SPELL_RIDE_BACK_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_FRONT_RIGHT
             };
 
@@ -174,7 +173,6 @@ public:
                 {
                     Leg->CastSpell(me, LegSpells[i], true);
                     Leg->ClearUnitState(UNIT_STATE_ONVEHICLE);
-                    //Leg->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     Leg->SetReactState(REACT_PASSIVE);
                 }
             }
@@ -204,6 +202,12 @@ public:
             damagedHeroic = false;
             castingCrush  = false;
 
+            me->SetVisible(CheckTrash());
+            // Cannot enter in combat while trashs remain
+            if (CheckTrash())
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_PASSIVE);
+
             if (instance)
                 instance->SetData(DATA_GARALON, NOT_STARTED);
 
@@ -211,8 +215,27 @@ public:
             SummonAndAddLegs();
         }
 
+        bool CheckTrash()
+        {
+            Creature* Gustwing  = GetClosestCreatureWithEntry(me, NPC_SETTHIK_GUSTWING,  100.0f, true);
+            Creature* Zephyrian = GetClosestCreatureWithEntry(me, NPC_SETTHIK_ZEPHYRIAN, 100.0f, true);
+
+            if (Gustwing || Zephyrian)
+                return false;
+
+            return true;
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
+            if (!CheckTrash() || !instance->CheckRequiredBosses(DATA_GARALON))
+            {
+                me->SetFullHealth();
+                me->SetReactState(REACT_PASSIVE);
+                EnterEvadeMode();
+                return;
+            }
+
             for (uint8 i = 0; i <= 3; ++i)
                 if (Unit* Leg = vehicle->GetPassenger(i))
                 {
@@ -307,12 +330,25 @@ public:
 
                 // Pheromones jumped to another player / there are players underneath his body, in Normal Difficulty Garalon casts Crush.
                 case ACTION_PHEROMONES_JUMP_OR_PLAYERS_UNDERNEATH:
+                {
                     if (!IsHeroic() && !castingCrush)
                     {
                         events.ScheduleEvent(EVENT_CRUSH, 3000);
                         castingCrush = true;
                     }
                     break;
+                }
+                // When trashs are done, Garalon becomes visible and can start fighting
+                case ACTION_GARALON_VISIBLE:
+                {
+                    if (me->IsVisible() || !CheckTrash())
+                        return;
+
+                    me->SetVisible(true);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
                 default: 
                     break;
             }
