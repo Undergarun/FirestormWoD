@@ -6093,6 +6093,19 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     ToPlayer()->AddSpellCooldown(104993, 0, time(NULL) + 60);
                     return false;
                 }
+                case 142536:// Spirit of Conquest
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(142535))
+                        return false;
+
+                    triggered_spell_id = 142535;
+                    CastSpell(this, triggered_spell_id, true);
+                    ToPlayer()->AddSpellCooldown(142535, 0, time(NULL) + 60);
+                    return false;
+                }
                 // Weight of Feather, Scales of Life
                 case 96879:
                 case 97117:
