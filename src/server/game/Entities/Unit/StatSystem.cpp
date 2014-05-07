@@ -490,8 +490,16 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / attackPowerModifier);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / attackPowerModifier);
 
-    min_damage = weapon_with_ap_min * att_speed * dualWieldModifier * vengeanceModifier;
-    max_damage = weapon_with_ap_max * att_speed * dualWieldModifier * vengeanceModifier;
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier * vengeanceModifier;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier * vengeanceModifier;
+
+    float base_value = GetModifierValue(unitMod, BASE_VALUE);
+    float base_pct = GetModifierValue(unitMod, BASE_PCT);
+    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
+    float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
+
+    min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
+    max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType)
