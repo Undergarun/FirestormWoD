@@ -58,13 +58,29 @@ enum eSpells
     SPELL_SPRING_RABBIT_JUMP    = 61724,
 
     // --- Blade Lord Ta'yak ---
+    SPELL_VISINTRO_TAYAK        = 128788,
     SPELL_TEMPEST_SLASH         = 122842,
-    SPELL_TEMPEST_TARGET        = 122838,
-    SPELL_TEMPEST_GESTURE       = 122850,
-    SPELL_WIND_STEP_2           = 123175,
-    SPELL_OVERWHELMING_ASSAULT  = 123474,
-    SPELL_BLADE_TEMPEST         = 125310,
-    SPELL_STORM_UNLEASHED       = 123815,
+    SPELL_TEMP_SLASH_AURA       = 122854,   // Visual + Periodic trigger aura for SPELL_TEMP_SLASH_DAMAGE.
+    SPELL_TEMP_SLASH_DAMAGE     = 122853,   // Aura Damage + Knock back
+    SPELL_UNSEEN_STRIKE_TR      = 122949,   // Unattackable + Speed 200%. Triggers SPELL_UNSEEN_STRIKE_DMG after 5 secs, SPELL_UNSEEN_STRIKE_MKR on target, SPELL_UNSEEN_STRIKE_INV on self.
+    SPELL_UNSEEN_STRIKE_MKR     = 123017,   // Target marker visual aura.
+    SPELL_WIND_STEP_TP          = 123175,   // Teleport. Triggers SPELL_WIND_STEP_DUMMY.
+    SPELL_WIND_STEP_B_DMG       = 123180,   // Bleed damage for 8y targets.
+    SPELL_WIND_STEP_DUMMY       = 123459,   // Aura Dummy.
+    SPELL_WIND_STEP_TP_BACK     = 123460,   // Teleport back to the main target.
+    SPELL_INTENSIFY_NORMAL      = 123470,   // Add spell 123471 every 1 minute, phase 1
+    SPELL_INTENSIFY_TORNADO     = 132254,   // Add spell 123471 every 10 secs, phase 2
+    SPELL_OVERWHELMING_ASS      = 123474,
+    SPELL_BLADE_TEMPEST_AUR     = 125310,   // Triggers SPELL_BLADE_TEMPEST_DMG each 0.5s, SPELL_BLADE_TEMPEST_AT.
+    SPELL_BLADE_TEMPES_J_FC     = 125325,   // Force Cast SPELL_BLADE_TEMPES_JUMP in 200 yards.
+    SPELL_STORM_UNLEASHED_D     = 123814,   // Boss Dummy Visual.
+    SPELL_SU_AURA               = 123598,   // Aura for the tornadoes, triggers SPELL_SU_RV_SE each 0.1 secs.
+    SPELL_SU_RV                 = 123599,   // Control Vehicle aura.
+    SPELL_SU_DUMMY_VIS          = 124024,   // Some dummy visual (for tornadoes?).
+    SPELL_SU_DMG_AURA           = 124785,   // Triggers SPELL_SU_DMG every 1 sec.
+    SPELL_SU_WIND_GALE          = 123633,
+    SPELL_SU_DUMMY_CRAP         = 123616, // Applies a dummy aura on a target.
+    SPELL_TAYAK_BERSERK         = 26662,     // Enrage, 490 seconds, or 8:10 minutes.
 
     // Trashes
     SPELL_ARTERIAL_SPIRIT       = 123422,
@@ -87,7 +103,6 @@ enum eSpells
     SPELL_WINDBURST             = 123499,
     SPELL_SUMMON_ZEPHYR         = 124085,
     SPELL_SWIFT_STEP            = 125742,
-    SPELL_WIND_STEP             = 123180,
     SPELL_ZEALOUS_RUSH          = 123622,
     SPELL_UNDERWHELMING_ASSAULT = 125728,
     SPELL_GUST                  = 124072,
@@ -133,10 +148,10 @@ enum eCreatures
     NPC_ENSLAVED_BONESMASHER        = 63030,
     NPC_ZARTHIK_SUPPLICANT_3        = 66181,
     NPC_SETTHIK_FANATIC             = 63031,
-    NPC_INSTRUCTOR_MALTIK           = 64340,
     NPC_INSTRUCTOR_KLITHAK          = 64338,
-    NPC_INSTRUCTOR_ZARIK            = 64341,
     NPC_INSTRUCTOR_TAKTHOK          = 64339,
+    NPC_INSTRUCTOR_MALTIK           = 64340,
+    NPC_INSTRUCTOR_ZARIK            = 64341,
     NPC_ZARTHIK_ZEALOT              = 63035,
     NPC_KORTHIK_SWARMER             = 64357,
     NPC_SETTHIK_GUSTWING            = 63592,
@@ -183,9 +198,6 @@ enum eCreatures
 
     // Mel'jarak
     NPC_MELJARAK                    = 62397,
-    //NPC_SRATHIK_AMBER_TRAPPER       = 65499,
-    //NPC_ZARTHIK_BATTLE_MENDER       = 65498,
-    //NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
 
     // Amber-Shaper Un'Sok
     NPC_UNSOK                       = 62511,
@@ -286,8 +298,9 @@ enum eEvents
     EVENT_SUMMON_ZEPHYR,
     EVENT_SWIFT_STEP,
     EVENT_WIND_STEP,
-    EVENT_WIND_STEP_2,
     EVENT_OVERWHELMING_ASSAULT,
+    EVENT_TRASH_TEMPEST_SLASH,
+    EVENT_TRASH_UNSEEN_STRIKE,
     EVENT_ZEALOUS_RUSH,
     EVENT_UNDERWHELMING_ASSAULT,
     EVENT_GUST,
