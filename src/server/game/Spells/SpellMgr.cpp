@@ -5633,6 +5633,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 95647: // Ripsnarl Achievement Aura
                 spellInfo->AttributesEx3 = SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
+            case 127722:// Serpent's Zeal
+                spellInfo->ProcChance = 100;
+                break;
             // Captain Cookie
             case 89250: // Summon Cauldron
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
