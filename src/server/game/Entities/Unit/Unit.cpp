@@ -6074,6 +6074,31 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     triggered_spell_id = 108008;
                     break;
+                case 104561:// Windsong
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(104561))
+                        return false;
+
+                    switch (urand(0, 2))
+                    {
+                        case 0: // Critical Strike
+                            CastSpell(this, 104509, true);
+                            break;
+                        case 1: // Haste
+                            CastSpell(this, 104510, true);
+                            break;
+                        case 2: // Mastery
+                        default:
+                            CastSpell(this, 104423, true);
+                            break;
+                    }
+
+                    ToPlayer()->AddSpellCooldown(104561, 0, time(NULL) + 60);
+                    return false;
+                }
                 case 120033:// Jade Spirit
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
