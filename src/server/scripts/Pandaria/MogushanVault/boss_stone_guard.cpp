@@ -723,8 +723,11 @@ class boss_generic_guardian : public CreatureScript
                             me->RemoveAurasDueToSpell(spellTrueFormId);
                             isInTrueForm = false;
                         }
+                        // There's a guardian near : power increases
+                        if (hasNearGardian && me->GetPower(POWER_ENERGY) < 100)
+                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 2 > 100 ? 100 : me->GetPower(POWER_ENERGY) + 2);
 
-                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS, 2000);
+                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS, 1000);
                         break;
                     }
                     case EVENT_CHECK_ENERGY:
@@ -749,7 +752,7 @@ class boss_generic_guardian : public CreatureScript
                         }
                         // If in solid stone form, energy slowly decreases
                         if (me->HasAura(SPELL_SOLID_STONE) && !IsHeroic())
-                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - 5);
+                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - 1);
 
                         events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
                         break;
