@@ -2131,6 +2131,55 @@ class spell_dru_lifebloom : public SpellScriptLoader
     public:
         spell_dru_lifebloom() : SpellScriptLoader("spell_dru_lifebloom") { }
 
+        class spell_dru_lifebloom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_lifebloom_SpellScript);
+
+            void HandleAfterHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        AuraPtr lifeBloom = target->GetAura(GetSpellInfo()->Id, caster->GetGUID());
+                        AuraPtr aura = NULLAURA;
+                        if (lifeBloom == NULLAURA)
+                            return;
+
+                        Unit::AuraList& scAuras = caster->GetSingleCastAuras();
+                        for (Unit::AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
+                        {
+                            aura = *iter;
+                            if (aura->GetUnitOwner() && aura->GetUnitOwner() != target)
+                            {
+                                lifeBloom->SetStackAmount(aura->GetStackAmount());
+                                aura->Remove();
+                                iter = scAuras.begin();
+                                break;
+                            }
+                            else
+                                ++iter;
+                        }
+
+                        if (aura != NULLAURA)
+                            caster->GetSingleCastAuras().remove(aura);
+
+                        caster->GetSingleCastAuras().push_back(lifeBloom);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_lifebloom_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_lifebloom_SpellScript();
+        }
+
         class spell_dru_lifebloom_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_lifebloom_AuraScript);
@@ -2475,14 +2524,8 @@ class spell_dru_cat_form : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (!_player->HasAura(SPELL_DRUID_FORM_CAT_INCREASE_SPEED))
-                    {
-                        _player->CastSpell(_player, SPELL_DRUID_FORM_CAT_INCREASE_SPEED, true);
-                        _player->RemoveMovementImpairingAuras();
-                    }
-                }
+                if (Unit* caster = GetCaster())
+                    caster->RemoveMovementImpairingAuras();
             }
 
             void Register()

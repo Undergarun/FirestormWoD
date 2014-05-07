@@ -210,32 +210,18 @@ void AreaTrigger::Update(uint32 p_time)
         case 116011:// Rune of Power
         {
             std::list<Unit*> targetList;
-            bool affected = false;
-            radius = 2.25f;
+            radius = 5.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
-
-            if (!targetList.empty())
+            if (caster->IsWithinDistInMap(this, 5.0f))
             {
-                for (auto itr : targetList)
-                {
-                    if (itr->GetGUID() == caster->GetGUID())
-                    {
-                        caster->CastSpell(itr, 116014, true); // Rune of Power
-                        affected = true;
+                if (!caster->HasAura(116014))
+                    caster->CastSpell(caster, 116014, true);
+                else if (AuraPtr runeOfPower = caster->GetAura(116014))
+                    runeOfPower->RefreshDuration();
 
-                        if (caster->ToPlayer())
-                            caster->ToPlayer()->UpdateManaRegen();
-
-                        return;
-                    }
-                }
+                if (caster->ToPlayer())
+                    caster->ToPlayer()->UpdateManaRegen();
             }
-
-            if (!affected)
-                caster->RemoveAura(116014);
 
             break;
         }

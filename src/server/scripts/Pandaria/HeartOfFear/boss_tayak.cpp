@@ -46,51 +46,8 @@ enum Yells
     SAY_INTRO               = 3,    // They approach? Good. Now, if only my students were here to see and learn from the coming display of martial prowess...
     SAY_SLAY                = 4,    // 0 - A perfect cut. ; 1 - This is the technique of a Blade Lord.
     SAY_STORM_UNLEASHED     = 5,    // Can you follow my blade?
-    ANN_UNSEEN              = 6,     // Blade Lord Ta'yak marks $N for [Unseen Strike]!
+    ANN_UNSEEN              = 6,    // Blade Lord Ta'yak marks $N for [Unseen Strike]!
     SAY_ENTER_ROOM          = 7,    // Now go, impart my techniques to the initiates.
-};
-
-enum Spells
-{
-    /*** Blade Lord Ta'yak ***/
-
-    // Intro
-    SPELL_VISINTRO_TAYAK    = 128788,
-    // Tempest Slash - Launches a Tornado towards a player location; upon reaching it, tornado spins around at the spot.
-    SPELL_TEMP_SLASH_SUMM_V = 122842,   // Summons Heart of Fear - Armsmaster Ta'yak Tempest Stalker (LTD)
-    SPELL_TEMP_SLASH_AURA   = 122854,   // Visual + Periodic trigger aura for SPELL_TEMP_SLASH_DAMAGE.
-    SPELL_TEMP_SLASH_DAMAGE = 122853,   // Aura Damage + Knock back
-
-    // Unseen Strike - Boss disappears, appears at a player, massive damage split between targets in 15 yards cone.
-    SPELL_UNSEEN_STRIKE_TR  = 122949,   // Unattackable + Speed 200%. Triggers SPELL_UNSEEN_STRIKE_DMG after 5 secs, SPELL_UNSEEN_STRIKE_MKR on target, SPELL_UNSEEN_STRIKE_INV on self.
-    SPELL_UNSEEN_STRIKE_MKR = 123017,   // Target marker visual aura.
-
-    // Wind Step - Teleports to a player, casts the bleed, teleports back.
-    SPELL_WIND_STEP_TP      = 123175,   // Teleport. Triggers SPELL_WIND_STEP_DUMMY.
-    SPELL_WIND_STEP_B_DMG   = 123180,   // Bleed damage for 8y targets.
-    SPELL_WIND_STEP_TP_BACK = 123460,   // Teleport back to the main target.
-
-    // Intensify - Every 60 seconds Phase 1 / 10 seconds Phase 2 (But no melee).
-    SPELL_INTENSIFY_BUFF    = 123471,
-
-    // Overwhelming Assault.
-    SPELL_OVERWHELMING_ASS  = 123474,
-
-    // Blade tempest - Spins and pulls all players. Heroic ONLY. - Every 60 seconds.
-    SPELL_BLADE_TEMPEST_AUR = 125310,   // Triggers SPELL_BLADE_TEMPEST_DMG each 0.5s, SPELL_BLADE_TEMPEST_AT.
-    SPELL_BLADE_TEMPES_J_FC = 125325,   // Force Cast SPELL_BLADE_TEMPES_JUMP in 200 yards.
-
-    // Storm Unleashed - 20 % on one end, 10% on the opposite.
-    SPELL_STORM_UNLEASHED_D = 123814,   // Boss Dummy Visual.
-    SPELL_SU_AURA           = 123598,   // Aura for the tornadoes, triggers SPELL_SU_RV_SE each 0.1 secs.
-    SPELL_SU_RV             = 123599,   // Control Vehicle aura.
-    SPELL_SU_DUMMY_VIS      = 124024,   // Some dummy visual (for tornadoes?).
-    SPELL_SU_DMG_AURA       = 124785,   // Triggers SPELL_SU_DMG every 1 sec.
-    SPELL_SU_WIND_GALE      = 123633,
-    SPELL_SU_DUMMY_CRAP     = 123616, // Applies a dummy aura on a target.
-
-    SPELL_TAYAK_BERSERK     = 26662,     // Enrage, 490 seconds, or 8:10 minutes.
-
 };
 
 enum Events
@@ -196,6 +153,8 @@ class boss_tayak : public CreatureScript
                 for (auto stalker : stalkerList)
                     stalker->AI()->DoAction(ACTION_STOP_WIND);
 
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK);
+
                 _Reset();
             }
 
@@ -207,12 +166,19 @@ class boss_tayak : public CreatureScript
 
             bool CheckTrash()
             {
+                // -- Trashs --
                 Creature* GaleSlicer = GetClosestCreatureWithEntry(me, NPC_SETTHIK_GALESLICER, 100.0f, true);
                 Creature* Silentwing = GetClosestCreatureWithEntry(me, NPC_KORTHIK_SILENTWING, 100.0f, true);
                 Creature* Swarmer    = GetClosestCreatureWithEntry(me, NPC_KORTHIK_SWARMER,    100.0f, true);
                 Creature* Tempest    = GetClosestCreatureWithEntry(me, NPC_SETTHIK_TEMPEST,    100.0f, true);
 
-                if (GaleSlicer || Silentwing || Swarmer || Tempest)
+                // -- Instructors --
+                Creature* Klithak    = GetClosestCreatureWithEntry(me, NPC_INSTRUCTOR_KLITHAK, 100.0f, true);
+                Creature* Takthok    = GetClosestCreatureWithEntry(me, NPC_INSTRUCTOR_TAKTHOK, 100.0f, true);
+                Creature* Maltik     = GetClosestCreatureWithEntry(me, NPC_INSTRUCTOR_MALTIK,  100.0f, true);
+                Creature* Zarik      = GetClosestCreatureWithEntry(me, NPC_INSTRUCTOR_ZARIK,   100.0f, true);
+
+                if (GaleSlicer || Silentwing || Swarmer || Tempest || Klithak || Takthok || Maltik || Zarik)
                     return false;
 
                 return true;
@@ -238,6 +204,9 @@ class boss_tayak : public CreatureScript
             {
                 if (pInstance)
                 {
+                    if (pInstance->GetBossState(DATA_TAYAK) == IN_PROGRESS)
+                        return;
+
                     if (!pInstance->CheckRequiredBosses(DATA_TAYAK) || !CheckTrash())
                     {
                         EnterEvadeMode();
@@ -254,9 +223,11 @@ class boss_tayak : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSEEN_STRIKE, urand(29500, 31500));
                 events.ScheduleEvent(EVENT_TAYAK_WIND_STEP, urand(19500, 21500));
                 events.ScheduleEvent(EVENT_OVERWHELMING_ASS, urand(14500, 16500));
-                events.ScheduleEvent(EVENT_INTENSIFY, 60000);
+                //events.ScheduleEvent(EVENT_INTENSIFY, 60000);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BLADE_TEMPEST, 60000);
+
+                me->AddAura(SPELL_INTENSIFY_NORMAL, me);
 
                 // 8:15 minutes Enrage timer
                 events.ScheduleEvent(EVENT_TAYAK_BERSERK, 495000);
@@ -416,6 +387,10 @@ class boss_tayak : public CreatureScript
                     // Set phase
                     Phase = PHASE_STORM_UNLEASHED;
 
+                    // Intensify
+                    me->RemoveAura(SPELL_INTENSIFY_NORMAL);
+                    me->AddAura(SPELL_INTENSIFY_TORNADO, me);
+
                     Talk(SAY_STORM_UNLEASHED);
 
                     // Cancel the P1 events except intensify
@@ -444,7 +419,6 @@ class boss_tayak : public CreatureScript
                     storm1Done = true;
                     ActivateGaleWinds();
 
-
                     Talk(SAY_STORM_UNLEASHED);
 
                     events.CancelEvent(EVENT_SUMMON_TORNADOES);
@@ -464,7 +438,7 @@ class boss_tayak : public CreatureScript
                     {
                         case EVENT_TEMPEST_SLASH:
                         {
-                            DoCast(me, SPELL_TEMP_SLASH_SUMM_V);
+                            DoCast(me, SPELL_TEMPEST_SLASH);
                             events.ScheduleEvent(EVENT_TEMPEST_SLASH, urand(14500, 16500));
                             break;
                         }
@@ -534,12 +508,6 @@ class boss_tayak : public CreatureScript
                             // On tank
                             DoCastVictim(SPELL_OVERWHELMING_ASS);
                             events.ScheduleEvent(EVENT_OVERWHELMING_ASS, urand(20500, 35500));
-                            break;
-                        }
-                        case EVENT_INTENSIFY:
-                        {
-                            me->AddAura(SPELL_INTENSIFY_BUFF, me);
-                            events.ScheduleEvent(EVENT_INTENSIFY, Phase == PHASE_NORMAL ? 60000 : 10000);
                             break;
                         }
                         // Heroic
@@ -635,7 +603,7 @@ class boss_tayak : public CreatureScript
         }
 };
 
-// Heart of Fear - Trash Version Tempest Stalker (LTD): 64373.
+// Heart of Fear - Trash Version Tempest Stalker (LTD): 62908.
 class npc_tempest_slash_tornado : public CreatureScript
 {
 public:
@@ -671,7 +639,6 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
                 me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
-                me->AddAura(SPELL_TEMP_SLASH_DAMAGE, me);   // Damage aura
 
                 float x, y, z;
                 me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
@@ -927,7 +894,7 @@ class mob_gale_winds_stalker : public CreatureScript
                                 if ((firstPos && firstWind) || (!firstPos && !firstWind))
                                 {
                                     DoCast(SPELL_SU_WIND_GALE);
-                                    tayak->CastSpell(me, 123616, false);
+                                    tayak->CastSpell(me, SPELL_SU_DUMMY_CRAP, false);
                                 }
                                 else
                                     if (me->HasAura(SPELL_SU_WIND_GALE))
@@ -1004,33 +971,67 @@ class mob_gale_winds_stalker : public CreatureScript
         }
 };
 
+// 123175 - Wind Step
+class spell_wind_step : public SpellScriptLoader
+{
+    public:
+        spell_wind_step() : SpellScriptLoader("spell_wind_step") { }
+
+        class spell_wind_stepSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_wind_stepSpellScript);
+
+            void Apply()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player : playerList)
+                        caster->AddAura(SPELL_WIND_STEP_B_DMG, player);
+
+                    caster->CastSpell(caster, SPELL_WIND_STEP_DUMMY, false);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_wind_stepSpellScript::Apply);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_wind_stepSpellScript();
+        }
+};
+
 // Wind Step: 123459
 class spell_tayak_wind_step: public SpellScriptLoader
 {
     public:
         spell_tayak_wind_step() : SpellScriptLoader("spell_tayak_wind_step") { }
 
-        class spell_tayak_wind_stepSpellScript: public SpellScript
+        class spell_tayak_wind_stepAuraScript: public AuraScript
         {
-            PrepareSpellScript(spell_tayak_wind_stepSpellScript);
+            PrepareAuraScript(spell_tayak_wind_stepAuraScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster() || !GetHitUnit())
-                    return;
-
-                GetCaster()->AddAura(SPELL_WIND_STEP_B_DMG, GetHitUnit());
+                if (Unit* caster = GetCaster())
+                    caster->AddAura(SPELL_WIND_STEP_DUMMY, caster);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_tayak_wind_stepSpellScript::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectApply += AuraEffectApplyFn(spell_tayak_wind_stepAuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_tayak_wind_stepSpellScript();
+            return new spell_tayak_wind_stepAuraScript();
         }
 };
 
@@ -1364,9 +1365,10 @@ class spell_su_dumaura : public SpellScriptLoader
 void AddSC_boss_tayak()
 {
     new boss_tayak();                       // 62543
-    new npc_tempest_slash_tornado();        // 64573
+    new npc_tempest_slash_tornado();        // 62908
     new npc_storm_unleashed_tornado();      // 63278
     new mob_gale_winds_stalker();           // 63292
+    new spell_wind_step();                  // 123175
     new spell_tayak_wind_step();            // 123459
     new spell_tayak_storms_vehicle();       // 124258
     new spell_tayak_storm_unleashed_dmg();  // 124783

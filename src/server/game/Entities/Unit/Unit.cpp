@@ -6068,12 +6068,86 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!HealthBelowPctDamaged(50, damage))
                         return false;
 
-                     if (constAuraPtr aur = triggeredByAura->GetBase())
-                         if (constAuraEffectPtr aurEff = aur->GetEffect(EFFECT_1))
-                             basepoints0 = int32(CalculatePct(damage, aurEff->GetAmount()));
+                    if (constAuraPtr aur = triggeredByAura->GetBase())
+                        if (constAuraEffectPtr aurEff = aur->GetEffect(EFFECT_1))
+                            basepoints0 = int32(CalculatePct(damage, aurEff->GetAmount()));
 
-                     triggered_spell_id = 108008;
+                    triggered_spell_id = 108008;
                     break;
+                case 104561:// Windsong
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(104561))
+                        return false;
+
+                    switch (urand(0, 2))
+                    {
+                        case 0: // Critical Strike
+                            CastSpell(this, 104509, true);
+                            break;
+                        case 1: // Haste
+                            CastSpell(this, 104510, true);
+                            break;
+                        case 2: // Mastery
+                        default:
+                            CastSpell(this, 104423, true);
+                            break;
+                    }
+
+                    ToPlayer()->AddSpellCooldown(104561, 0, time(NULL) + 60);
+                    return false;
+                }
+                case 120033:// Jade Spirit
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(104993))
+                        return false;
+
+                    basepoints0 = 1650;
+                    int32 basepoints1 = 0;
+
+                    if (GetPowerPct(POWER_MANA) >= 25.0f)
+                        CastCustomSpell(this, 104993, &basepoints0, &basepoints1, NULL, true);
+                    else
+                        CastSpell(this, 104993, true);
+
+                    ToPlayer()->AddSpellCooldown(104993, 0, time(NULL) + 60);
+                    return false;
+                }
+                case 118333:// Dancing Steel
+                case 142531:// Bloody Dancing Steel
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(dummySpell->Id))
+                        return false;
+
+                    if (GetStat(STAT_AGILITY) > GetStat(STAT_STRENGTH))
+                        CastSpell(this, 118334, true);
+                    else
+                        CastSpell(this, 118335, true);
+
+                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + 60);
+                    return false;
+                }
+                case 142536:// Spirit of Conquest
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(142535))
+                        return false;
+
+                    triggered_spell_id = 142535;
+                    CastSpell(this, triggered_spell_id, true);
+                    ToPlayer()->AddSpellCooldown(142535, 0, time(NULL) + 60);
+                    return false;
+                }
                 // Weight of Feather, Scales of Life
                 case 96879:
                 case 97117:
@@ -8693,16 +8767,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (pPet && (pPet->getVictim() || getVictim()) && damage && procSpell)
                     {
-                        uint32 procDmg = damage / 2;
-                        pPet->SendSpellNonMeleeDamageLog(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
-                        pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
+                        int32 procDmg = damage / 2;
+                        pPet->CastCustomSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, &procDmg, NULL, NULL, true);
                         break;
                     }
                     else
                         return false;
-                    return true; // Return true because triggered_spell_id is not exist in DBC, nothing to trigger
 
-                    break;
+                    return true; // Return true because triggered_spell_id is not exist in DBC, nothing to trigger
                 }
                 case 49194: // Unholy Blight
                 {
@@ -12386,25 +12458,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 AddPct(DoneTotalMod, Mastery);
             }
         }
-        else
-        {
-            if (GetTypeId() == TYPEID_PLAYER && HasAura(76613))
-            {
-                // Frostfire bolt acts like if target is frozen with Brain Freeze
-                // Ice Lance acts like if target is frozen with Fingers of Frost
-                if (victim->HasAuraState(AURA_STATE_FROZEN) || (HasAura(57761) && spellProto && spellProto->Id == 44614)
-                    || (HasAura(44544) && spellProto && spellProto->Id == 30455))
-                {
-                    float Mastery = GetFloatValue(PLAYER_MASTERY) * 2.0f;
-                    AddPct(DoneTotalMod, Mastery);
-                }
-            }
-        }
     }
 
     // Custom MoP Script
     // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask == SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask == SPELL_SCHOOL_MASK_NATURE))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
     {
         if (HasAura(77223))
         {
@@ -13816,7 +13874,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask == SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask == SPELL_SCHOOL_MASK_NATURE))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
     {
         if (HasAura(77223))
         {
