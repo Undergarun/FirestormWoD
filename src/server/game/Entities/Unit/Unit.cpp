@@ -8767,16 +8767,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (pPet && (pPet->getVictim() || getVictim()) && damage && procSpell)
                     {
-                        uint32 procDmg = damage / 2;
-                        pPet->SendSpellNonMeleeDamageLog(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
-                        pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
+                        int32 procDmg = damage / 2;
+                        pPet->CastCustomSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, &procDmg, NULL, NULL, true);
                         break;
                     }
                     else
                         return false;
-                    return true; // Return true because triggered_spell_id is not exist in DBC, nothing to trigger
 
-                    break;
+                    return true; // Return true because triggered_spell_id is not exist in DBC, nothing to trigger
                 }
                 case 49194: // Unholy Blight
                 {
