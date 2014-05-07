@@ -1,9 +1,9 @@
-
 #include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "vale_of_eternal_blossoms.h"
 
 enum eZhaoSpells
 {

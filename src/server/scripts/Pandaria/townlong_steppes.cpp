@@ -2,6 +2,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "townlong_steppes.h"
 
 enum eKahTirSpells
 {

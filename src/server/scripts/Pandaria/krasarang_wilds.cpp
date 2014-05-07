@@ -2,6 +2,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "krasarang_wilds.h"
 
 enum eArnessSpells
 {
