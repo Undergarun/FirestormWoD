@@ -2,6 +2,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "jade_forest.h"
 
 enum eShadowOfDoubtSpells
 {
@@ -1632,6 +1633,23 @@ class mob_hutia : public CreatureScript
         };
 };
 
+class npc_elder_anli : public CreatureScript
+{
+    public:
+        npc_elder_anli() : CreatureScript("npc_elder_anli")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(31811) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(31810) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30188) == QUEST_STATUS_INCOMPLETE)
+                if (player->GetReputationRank(1271) == REP_EXALTED)
+                    player->KilledMonsterCredit(58594);
+
+            return true;
+        }
+};
+
 void AddSC_jade_forest()
 {
     //Rare mobs
@@ -1653,4 +1671,5 @@ void AddSC_jade_forest()
     new mob_pandriarch_bramblestaff();
     new mob_pandriarch_goldendraft();
     new mob_big_bao();
+    new npc_elder_anli();
 }
