@@ -6093,6 +6093,23 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     ToPlayer()->AddSpellCooldown(104993, 0, time(NULL) + 60);
                     return false;
                 }
+                case 118333:// Dancing Steel
+                case 142531:// Bloody Dancing Steel
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (ToPlayer()->HasSpellCooldown(dummySpell->Id))
+                        return false;
+
+                    if (GetStat(STAT_AGILITY) > GetStat(STAT_STRENGTH))
+                        CastSpell(this, 118334, true);
+                    else
+                        CastSpell(this, 118335, true);
+
+                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + 60);
+                    return false;
+                }
                 case 142536:// Spirit of Conquest
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
