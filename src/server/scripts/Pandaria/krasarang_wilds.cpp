@@ -4,20 +4,6 @@
 #include "ScriptedEscortAI.h"
 #include "krasarang_wilds.h"
 
-enum eArnessSpells
-{
-    SPELL_GRAPPLING_HOOK    = 125623,
-    SPELL_VANISH            = 125632,
-    SPELL_VICIOUS_REND      = 125624,
-};
-
-enum eArnessEvents
-{
-    EVENT_GRAPPLING_HOOK        = 1,
-    EVENT_VANISH                = 2,
-    EVENT_VICIOUS_REND          = 3,
-};
-
 class mob_arness_the_scale : public CreatureScript
 {
     public:
@@ -43,12 +29,8 @@ class mob_arness_the_scale : public CreatureScript
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_GRAPPLING_HOOK,  40000);
-                events.ScheduleEvent(EVENT_VANISH,          20000);
-                events.ScheduleEvent(EVENT_VICIOUS_REND,    15000);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
+                events.ScheduleEvent(EVENT_VANISH, 20000);
+                events.ScheduleEvent(EVENT_VICIOUS_REND, 15000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -68,16 +50,16 @@ class mob_arness_the_scale : public CreatureScript
                         case EVENT_GRAPPLING_HOOK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_GRAPPLING_HOOK, false);
-                            events.ScheduleEvent(EVENT_GRAPPLING_HOOK,      10000);
+                            events.ScheduleEvent(EVENT_GRAPPLING_HOOK, 40000);
                             break;
                         case EVENT_VANISH:
                             me->CastSpell(me, SPELL_VANISH, false);
-                            events.ScheduleEvent(EVENT_VANISH, 20000);
+                            events.ScheduleEvent(EVENT_VANISH, 40000);
                             break;
                         case EVENT_VICIOUS_REND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_VICIOUS_REND, false);
-                            events.ScheduleEvent(EVENT_VICIOUS_REND, 15000);
+                            events.ScheduleEvent(EVENT_VICIOUS_REND, 40000);
                             break;
                         default:
                             break;
@@ -87,18 +69,6 @@ class mob_arness_the_scale : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-};
-
-enum eGaarnSpells
-{
-    SPELL_SHADOWBOLT    = 125212,
-    SPELL_VOIDCLOUD     = 125241
-};
-
-enum eGaarnEvents
-{
-    EVENT_SHADOWBOLT        = 1,
-    EVENT_VOIDCLOUD         = 2
 };
 
 class mob_gaarn_the_toxic : public CreatureScript
@@ -125,12 +95,8 @@ class mob_gaarn_the_toxic : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_SHADOWBOLT,  15000);
-                events.ScheduleEvent(EVENT_VOIDCLOUD,   70000);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
+                events.ScheduleEvent(EVENT_SHADOWBOLT, 15000);
+                events.ScheduleEvent(EVENT_VOIDCLOUD, 70000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -167,20 +133,6 @@ class mob_gaarn_the_toxic : public CreatureScript
         };
 };
 
-enum eQuNasSpells
-{
-    SPELL_DEVASTATING_ARC    = 124946,
-    SPELL_SUMMON_QUILEN      = 124980,
-    SPELL_TITANIC_STRENGTH   = 124976
-};
-
-enum eQuNasEvents
-{
-    EVENT_DEVASTATING_ARC       = 1,
-    EVENT_SUMMON_QUILEN         = 2,
-    EVENT_TITANIC_STRENGTH      = 3
-};
-
 class mob_qu_nas : public CreatureScript
 {
     public:
@@ -205,13 +157,9 @@ class mob_qu_nas : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_DEVASTATING_ARC,  25000);
-                events.ScheduleEvent(EVENT_SUMMON_QUILEN,    15000);
+                events.ScheduleEvent(EVENT_DEVASTATING_ARC, 25000);
+                events.ScheduleEvent(EVENT_SUMMON_QUILEN, 15000);
                 events.ScheduleEvent(EVENT_TITANIC_STRENGTH, 70000);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
             }
 
             void UpdateAI(const uint32 diff)
@@ -253,21 +201,6 @@ class mob_qu_nas : public CreatureScript
         };
 };
 
-enum eTorikEthisSpells
-{
-    SPELL_BLADE_FURY    = 125370,
-    SPELL_TORNADO       = 125398,
-    SPELL_TORNADO_DMG   = 131693,
-    SPELL_WINDSONG      = 125373,
-};
-
-enum eTorikEthisEvents
-{
-    EVENT_BLADE_FURY    = 1,
-    EVENT_TORNADO       = 2,
-    EVENT_WINDSONG      = 3,
-};
-
 class mob_torik_ethis : public CreatureScript
 {
     public:
@@ -297,13 +230,9 @@ class mob_torik_ethis : public CreatureScript
                 events.ScheduleEvent(EVENT_WINDSONG,        32000);
             }
 
-            void JustDied(Unit* /*killer*/)
-            {
-            }
-
             void JustSummoned(Creature* summon)
             {
-                if (summon->GetEntry() == 64267)
+                if (summon->GetEntry() == MOB_TORNADO)
                 {
                     summon->AddAura(SPELL_TORNADO_DMG, summon);
                     summon->SetReactState(REACT_PASSIVE);
@@ -328,7 +257,7 @@ class mob_torik_ethis : public CreatureScript
                         case EVENT_BLADE_FURY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_BLADE_FURY, false);
-                            events.ScheduleEvent(EVENT_BLADE_FURY,      8000);
+                            events.ScheduleEvent(EVENT_BLADE_FURY, 8000);
                             break;
                         case EVENT_TORNADO:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
@@ -349,20 +278,6 @@ class mob_torik_ethis : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-};
-
-enum eGoKanSpells
-{
-    SPELL_BELLOWING_RAGE     = 124297,
-    SPELL_RUSHING_CHARGE     = 124302,
-    SPELL_YAUNGOL_STOMP      = 124289
-};
-
-enum eGoKanEvents
-{
-    EVENT_BELLOWING_RAGE     = 1,
-    EVENT_RUSHING_CHARGE     = 2,
-    EVENT_YAUNGOL_STOMP      = 3,
 };
 
 #define GO_KAN_SAY_1        "Feel the strength of the Yaungol!"
@@ -396,10 +311,6 @@ class mob_go_kan : public CreatureScript
                 events.ScheduleEvent(EVENT_YAUNGOL_STOMP,       25000);
             }
 
-            void JustDied(Unit* /*killer*/)
-            {
-            }
-
             void EnterCombat(Unit* who)
             {
                 me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT);
@@ -422,17 +333,17 @@ class mob_go_kan : public CreatureScript
                         case EVENT_BELLOWING_RAGE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_BELLOWING_RAGE, false);
-                            events.ScheduleEvent(EVENT_BELLOWING_RAGE,      50000);
+                            events.ScheduleEvent(EVENT_BELLOWING_RAGE, 35000);
                             break;
                         case EVENT_RUSHING_CHARGE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_RUSHING_CHARGE, false);
-                            events.ScheduleEvent(EVENT_RUSHING_CHARGE, 40000);
+                            events.ScheduleEvent(EVENT_RUSHING_CHARGE, 35000);
                             break;
                         case EVENT_YAUNGOL_STOMP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_YAUNGOL_STOMP, false);
-                            events.ScheduleEvent(EVENT_YAUNGOL_STOMP, 65000);
+                            events.ScheduleEvent(EVENT_YAUNGOL_STOMP, 35000);
                             break;
 
                         default:

@@ -156,7 +156,7 @@ enum eQuests
     QUEST_BY_THE_SEA_NEVERMORE_2     = 31089,
     QUEST_FREE_FROM_HER_CLUTCHES     = 31494,
     QUEST_REUNITED                   = 31091,
-    QUEST_THE_SCENT_OF_BLOOD         = 31179,
+    QUEST_THE_SCENT_OF_BLOOD         = 31179
 };
 
 enum eActions
@@ -184,7 +184,7 @@ enum eCreatures
     MOB_THIRD_KAZ_TIK_THE_MANIPULATOR     = 63876,
     MOB_KOVOK                             = 62542,
     MOB_MUCKSCALE_FLESHEATER              = 63465,
-    MOB_MUCKSCALE_SERPENTUS               = 63466,
+    MOB_MUCKSCALE_SERPENTUS               = 63466
 };
 
 #endif

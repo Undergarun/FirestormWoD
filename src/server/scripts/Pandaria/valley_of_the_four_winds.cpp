@@ -4,20 +4,6 @@
 #include "ScriptedEscortAI.h"
 #include "valley_of_the_four_winds.h"
 
-enum eBonobosSpells
-{
-    SPELL_GOING_BANANAS     = 125363,
-    SPELL_BANANARANG        = 125311,
-    SPELL_TOSS_FILTH        = 125365,
-};
-
-enum eBonobosEvents
-{
-    EVENT_GOING_BANANAS         = 1,
-    EVENT_BANANARANG            = 2,
-    EVENT_TOSS_FILTH            = 3,
-};
-
 class mob_bonobos : public CreatureScript
 {
     public:
@@ -42,13 +28,9 @@ class mob_bonobos : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_GOING_BANANAS,       12000);
-                events.ScheduleEvent(EVENT_BANANARANG,           8000);
-                events.ScheduleEvent(EVENT_TOSS_FILTH,          15000);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
+                events.ScheduleEvent(EVENT_GOING_BANANAS, 12000);
+                events.ScheduleEvent(EVENT_BANANARANG, 8000);
+                events.ScheduleEvent(EVENT_TOSS_FILTH, 15000);
             }
 
             void JustSummoned(Creature* summon)
@@ -73,7 +55,7 @@ class mob_bonobos : public CreatureScript
                         case EVENT_GOING_BANANAS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_GOING_BANANAS, false);
-                            events.ScheduleEvent(EVENT_GOING_BANANAS,      10000);
+                            events.ScheduleEvent(EVENT_GOING_BANANAS, 10000);
                             break;
                         case EVENT_BANANARANG:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
@@ -93,20 +75,6 @@ class mob_bonobos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-};
-
-enum eSeleNaSpells
-{
-    SPELL_RAIN_DANCE    = 124860,
-    SPELL_TORRENT       = 124935,
-    SPELL_WATER_BOLT    = 124854,
-};
-
-enum eSeleNaEvents
-{
-    EVENT_RAIN_DANCE        = 1,
-    EVENT_TORRENT           = 2,
-    EVENT_WATER_BOLT        = 3,
 };
 
 class mob_sele_na : public CreatureScript
@@ -133,13 +101,9 @@ class mob_sele_na : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_RAIN_DANCE,       5000);
-                events.ScheduleEvent(EVENT_TORRENT,         15000);
-                events.ScheduleEvent(EVENT_WATER_BOLT,      25000);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
+                events.ScheduleEvent(EVENT_RAIN_DANCE, 5000);
+                events.ScheduleEvent(EVENT_TORRENT, 15000);
+                events.ScheduleEvent(EVENT_WATER_BOLT, 25000);
             }
 
             void JustSummoned(Creature* summon)
@@ -164,7 +128,7 @@ class mob_sele_na : public CreatureScript
                         case EVENT_RAIN_DANCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_RAIN_DANCE, false);
-                            events.ScheduleEvent(EVENT_RAIN_DANCE,       5000);
+                            events.ScheduleEvent(EVENT_RAIN_DANCE, 5000);
                             break;
                         case EVENT_TORRENT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
@@ -184,20 +148,6 @@ class mob_sele_na : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-};
-
-enum eBlackhoofSpells
-{
-    SPELL_BELLOWING_RAGE    = 124297,
-    SPELL_RUSHING_RAGE      = 124302,
-    SPELL_YAUNGOL_STOMP     = 124289,
-};
-
-enum eBlackhoofEvents
-{
-    EVENT_BELLOWING_RAGE        = 1,
-    EVENT_RUSHING_RAGE          = 2,
-    EVENT_YAUNGOL_STOMP         = 3,
 };
 
 class mob_blackhoof : public CreatureScript
@@ -224,13 +174,9 @@ class mob_blackhoof : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_RUSHING_RAGE,         5000);
-                events.ScheduleEvent(EVENT_YAUNGOL_STOMP,       15000);
-                events.ScheduleEvent(EVENT_BELLOWING_RAGE,      25000);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
+                events.ScheduleEvent(EVENT_RUSHING_RAGE, 5000);
+                events.ScheduleEvent(EVENT_YAUNGOL_STOMP, 15000);
+                events.ScheduleEvent(EVENT_BELLOWING_RAGE, 25000);
             }
 
             void JustSummoned(Creature* summon)
@@ -277,22 +223,12 @@ class mob_blackhoof : public CreatureScript
         };
 };
 
-enum eIkThikWarriorSpells
-{
-    SPELL_PIERCE_ARMOR      = 6016,
-    SPELL_SHOCK_AND_AWE		= 118538,
-};
-
-enum eIkThikWarriorEvents
-{
-    EVENT_PIERCE_ARMOR          = 1,
-    EVENT_SHOCK_AND_AWE			= 2,
-};
-
 class mob_ik_thik_warrior : public CreatureScript
 {
     public:
-        mob_ik_thik_warrior() : CreatureScript("mob_ik_thik_warrior") { }
+        mob_ik_thik_warrior() : CreatureScript("mob_ik_thik_warrior")
+        {
+        }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -301,7 +237,9 @@ class mob_ik_thik_warrior : public CreatureScript
 
         struct mob_ik_thik_warriorAI : public ScriptedAI
         {
-            mob_ik_thik_warriorAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_ik_thik_warriorAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
 
             EventMap events;
 
@@ -312,8 +250,6 @@ class mob_ik_thik_warrior : public CreatureScript
                 events.ScheduleEvent(EVENT_PIERCE_ARMOR,		 5000);
                 events.ScheduleEvent(EVENT_SHOCK_AND_AWE,		15000);
             }
-
-            void JustDied(Unit* /*killer*/) { }
 
             void JustSummoned(Creature* summon)
             {
@@ -360,7 +296,6 @@ void AddSC_valley_of_the_four_winds()
     new mob_bonobos();
     new mob_sele_na();
     new mob_blackhoof();
-
     // Standard Mobs
     new mob_ik_thik_warrior();
 }
