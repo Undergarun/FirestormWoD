@@ -1604,6 +1604,7 @@ class mob_dak_the_breaker : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };
@@ -2071,6 +2072,7 @@ class mob_kaz_tik_the_manipulator : public CreatureScript
                 events.Update(diff);
 
                 if (uint32 eventId = events.ExecuteEvent())
+                {
                     if (eventId == EVENT_CHECK_PLAYERS)
                     {
                         std::list<Player*> playerList;
@@ -2082,6 +2084,7 @@ class mob_kaz_tik_the_manipulator : public CreatureScript
 
                         events.ScheduleEvent(EVENT_CHECK_PLAYERS, 2000);
                     }
+                }
             }
         };
 };
@@ -2203,6 +2206,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 if (Player* player = Player::GetPlayer(*me, playerGuid))
+                {
                     if (player->GetQuestStatus(QUEST_REUNITED) == QUEST_STATUS_INCOMPLETE)
                     {
                         npc_escortAI::UpdateAI(diff);
@@ -2245,7 +2249,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
                             }
                         }
                     }
-
+                }
             }
         };
 };
@@ -2303,6 +2307,8 @@ class mob_muckscale_ripper : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                events.Update(diff);
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -2327,7 +2333,6 @@ class mob_muckscale_ripper : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
-
             }
         };
 };
@@ -2552,6 +2557,8 @@ class mob_muckscale_flesheater : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                events.Update(diff);
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -2572,7 +2579,6 @@ class mob_muckscale_flesheater : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
-
             }
         };
 };
@@ -2630,6 +2636,8 @@ class mob_muckscale_serpentus : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                events.Update(diff);
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -2655,7 +2663,276 @@ class mob_muckscale_serpentus : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+        };
+};
 
+class mob_oracle_hiss_ir : public CreatureScript
+{
+    public:
+        mob_oracle_hiss_ir() : CreatureScript("mob_oracle_hiss_ir")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_oracle_hiss_irAI(creature);
+        }
+
+        struct mob_oracle_hiss_irAI : public ScriptedAI
+        {
+            mob_oracle_hiss_irAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
+                events.ScheduleEvent(EVENT_CRY_OF_THE_SKY, 12000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CHAIN_LIGHTNING:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_CHAIN_LIGHTNING, false);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20000);
+                            break;
+                        case EVENT_CRY_OF_THE_SKY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_CRY_OF_THE_SKY, false);
+                            events.ScheduleEvent(EVENT_CRY_OF_THE_SKY, 20000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 20000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+class mob_muckscale_flesh_hunter : public CreatureScript
+{
+    public:
+        mob_muckscale_flesh_hunter() : CreatureScript("mob_muckscale_flesh_hunter")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_muckscale_flesh_hunterAI(creature);
+        }
+
+        struct mob_muckscale_flesh_hunterAI : public ScriptedAI
+        {
+            mob_muckscale_flesh_hunterAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_LIGHTNING_BOLT_2, 5000);
+                events.ScheduleEvent(EVENT_WATER_SHIELD, 12000);
+                events.ScheduleEvent(EVENT_WATER_SHIELD_2, 18000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_LIGHTNING_BOLT_2:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_LIGHTNING_BOLT_2, false);
+                            events.ScheduleEvent(EVENT_LIGHTNING_BOLT_2, 32000);
+                            break;
+                        case EVENT_WATER_SHIELD:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_WATER_SHIELD, false);
+                            events.ScheduleEvent(EVENT_WATER_SHIELD, 32000);
+                            break;
+                        case EVENT_WATER_SHIELD_2:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_WATER_SHIELD_2, false);
+                            events.ScheduleEvent(EVENT_WATER_SHIELD_2, 32000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 32000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+class mob_muckscale_slayer : public CreatureScript
+{
+    public:
+        mob_muckscale_slayer() : CreatureScript("mob_muckscale_slayer")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_muckscale_slayerAI(creature);
+        }
+
+        struct mob_muckscale_slayerAI : public ScriptedAI
+        {
+            mob_muckscale_slayerAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_BLOODY_RAGE, 5000);
+                events.ScheduleEvent(EVENT_SKIN_FLAY, 12000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_BLOODY_RAGE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_BLOODY_RAGE, false);
+                            events.ScheduleEvent(EVENT_BLOODY_RAGE, 32000);
+                            break;
+                        case EVENT_SKIN_FLAY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_SKIN_FLAY, false);
+                            events.ScheduleEvent(EVENT_SKIN_FLAY, 32000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 32000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+class mob_muckscale_shaman : public CreatureScript
+{
+    public:
+        mob_muckscale_shaman() : CreatureScript("mob_muckscale_shaman")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_muckscale_shamanAI(creature);
+        }
+
+        struct mob_muckscale_shamanAI : public ScriptedAI
+        {
+            mob_muckscale_shamanAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_BLOODY_RAGE, 5000);
+                events.ScheduleEvent(EVENT_SKIN_FLAY, 12000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_BLOODY_RAGE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_BLOODY_RAGE, false);
+                            events.ScheduleEvent(EVENT_BLOODY_RAGE, 32000);
+                            break;
+                        case EVENT_SKIN_FLAY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_SKIN_FLAY, false);
+                            events.ScheduleEvent(EVENT_SKIN_FLAY, 32000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 32000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
             }
         };
 };
@@ -2697,6 +2974,10 @@ void AddSC_dread_wastes()
     new mob_skeer_the_bloodseeker();
     new mob_muckscale_flesheater();
     new mob_muckscale_serpentus();
+    new mob_oracle_hiss_ir();
+    new mob_muckscale_flesh_hunter();
+    new mob_muckscale_slayer();
+    new mob_muckscale_shaman();
     // Game Objects
     new go_ancient_amber_chunk();
     new go_kunchong_cage();
