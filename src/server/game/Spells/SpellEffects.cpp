@@ -1287,6 +1287,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             }
                     break;
                 }
+                case 132409:// Spell Lock (Command Demon - Warlock)
+                    m_caster->CastSpell(unitTarget, 24259, true);
+                    break;
                 case 119911:// Optical Blast (Command Demon)
                 {
                     if (!m_caster->IsFriendlyTo(unitTarget))

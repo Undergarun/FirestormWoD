@@ -1148,16 +1148,10 @@ class spell_monk_serpents_zeal : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
-                    return;
-
                 if (eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
                 if (!(eventInfo.GetDamageInfo()->GetDamage()))
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetAttackType() != BASE_ATTACK && eventInfo.GetDamageInfo()->GetAttackType() != OFF_ATTACK)
                     return;
 
                 int32 bp = eventInfo.GetDamageInfo()->GetDamage();

@@ -2524,14 +2524,8 @@ class spell_dru_cat_form : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (!_player->HasAura(SPELL_DRUID_FORM_CAT_INCREASE_SPEED))
-                    {
-                        _player->CastSpell(_player, SPELL_DRUID_FORM_CAT_INCREASE_SPEED, true);
-                        _player->RemoveMovementImpairingAuras();
-                    }
-                }
+                if (Unit* caster = GetCaster())
+                    caster->RemoveMovementImpairingAuras();
             }
 
             void Register()

@@ -3988,6 +3988,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 982:   // Revive Pet - hotfix 5.4.2
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); // 2s
                 break;
+            case 116014:// Rune of Power
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
             case 125676:// Glyph of Afterlife
                 spellInfo->Effects[0].BasePoints = 50;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
@@ -5629,6 +5632,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 95647: // Ripsnarl Achievement Aura
                 spellInfo->AttributesEx3 = SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
+            case 127722:// Serpent's Zeal
+                spellInfo->ProcChance = 100;
                 break;
             // Captain Cookie
             case 89250: // Summon Cauldron
