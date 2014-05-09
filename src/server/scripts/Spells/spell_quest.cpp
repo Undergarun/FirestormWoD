@@ -2223,6 +2223,65 @@ class spell_q31009_klaxxi_resoning_crystal: public SpellScriptLoader
         }
 };
 
+#define QUEST_A_WORTHY_BREW 31538
+#define A_WORTHY_BREW_KILL_CREDIT 64945
+
+class spell_q31538_ella_s_brew: public SpellScriptLoader
+{
+    public:
+        spell_q31538_ella_s_brew() : SpellScriptLoader("spell_q31538_ella_s_brew")
+        {
+        }
+
+        class spell_q31538_ella_s_brew_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31538_ella_s_brew_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        if (player->GetQuestStatus(QUEST_A_WORTHY_BREW) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(A_WORTHY_BREW_KILL_CREDIT);
+
+                        if (player->GetQuestStatus(31537) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            if (Unit* target = GetExplTargetUnit())
+                            {
+                                if (Creature* creature = target->ToCreature())
+                                {
+                                    if (creature->GetEntry() == 58710)
+                                        player->KilledMonsterCredit(64941);
+
+                                    else if (creature->GetEntry() == 58717)
+                                        player->KilledMonsterCredit(64943);
+
+                                    else if (creature->GetEntry() == 58646 || creature->GetEntry() == 58721)
+                                        player->KilledMonsterCredit(64942);
+
+                                    else if (creature->GetEntry() == 64597)
+                                        player->KilledMonsterCredit(64944);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31538_ella_s_brew_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31538_ella_s_brew_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2279,4 +2338,5 @@ void AddSC_quest_spell_scripts()
     new spell_q31022_attune_to_kypari_vos();
     new spell_q31085_ruining_fork();
     new spell_q31009_klaxxi_resoning_crystal();
+    new spell_q31538_ella_s_brew();
 }
