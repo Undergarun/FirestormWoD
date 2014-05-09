@@ -751,21 +751,45 @@ class mob_kon_kon : public CreatureScript
 
 class mob_second_sheepie : public CreatureScript
 {
-public:
-    mob_second_sheepie() : CreatureScript("mob_second_sheepie")
-    {
-    }
+    public:
+        mob_second_sheepie() : CreatureScript("mob_second_sheepie")
+        {
+        }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_LOST_SHEEPIE) == QUEST_STATUS_INCOMPLETE)
-            player->AddItem(ITEM_SHEEPIE, 1);
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(QUEST_LOST_SHEEPIE) == QUEST_STATUS_INCOMPLETE)
+                player->AddItem(ITEM_SHEEPIE, 1);
 
-        if (player->GetQuestStatus(QUEST_LOST_SHEEPIE_AGAIN) == QUEST_STATUS_INCOMPLETE)
-            player->AddItem(ITEM_SHEEPIE, 1);
+            if (player->GetQuestStatus(QUEST_LOST_SHEEPIE_AGAIN) == QUEST_STATUS_INCOMPLETE)
+                player->AddItem(ITEM_SHEEPIE, 1);
 
-        return true;
-    }
+            return true;
+        }
+};
+
+class mob_hillpaw_s_chicken : public CreatureScript
+{
+    public:
+        mob_hillpaw_s_chicken() : CreatureScript("mob_hillpaw_s_chicken")
+        {
+            randomizer = 0;
+        }
+
+        uint8 randomizer;
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            randomizer = urand(0, 5);
+
+            if (randomizer == 3)
+                if (player->GetQuestStatus(30318) == QUEST_STATUS_INCOMPLETE)
+                    player->AddItem(80223, 1);
+
+            creature->DespawnOrUnsummon();
+
+            return true;
+        }
 };
 
 void AddSC_valley_of_the_four_winds()
@@ -785,4 +809,5 @@ void AddSC_valley_of_the_four_winds()
     new mob_teeku();
     new mob_kon_kon();
     new mob_second_sheepie();
+    new mob_hillpaw_s_chicken();
 }
