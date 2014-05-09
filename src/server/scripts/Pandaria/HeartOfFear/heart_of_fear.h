@@ -103,6 +103,7 @@ enum eSpells
     SPELL_WINDBURST             = 123499,
     SPELL_SUMMON_ZEPHYR         = 124085,
     SPELL_SWIFT_STEP            = 125742,
+    SPELL_ALMOST_UNSEEN_STRIKE  = 125810,
     SPELL_ZEALOUS_RUSH          = 123622,
     SPELL_UNDERWHELMING_ASSAULT = 125728,
     SPELL_GUST                  = 124072,
@@ -122,6 +123,9 @@ enum eActions
 
     // Ta'yak
     ACTION_TAYAK_TALK_TRASH     = 7,
+
+    // Garalon
+    ACTION_GARALON_VISIBLE      = 8,
 };
 
 enum eCreatures
@@ -241,8 +245,20 @@ enum ePhases
 
 enum eWeapons
 {
+    // --- Bosses ---
     EQUIP_ZORLOK                    = 85947,
     EQUIP_TAYAK                     = 85401,
+
+    // --- Trashes ---
+    EQUIP_TRASH_1                   = 84677,
+    EQUIP_TRASH_2                   = 45926,
+    EQUIP_TRASH_3                   = 88684,
+    EQUIP_TRASH_4                   = 85401,
+    EQUIP_TRASH_5                   = 85576,
+    EQUIP_TRASH_6                   = 85399,
+    EQUIP_TRASH_7                   = 82849,
+    EQUIP_TRASH_8                   = 84676,
+    EQUIP_TRASH_9                   = 84769,
 };
 
 enum eEvents
@@ -303,6 +319,7 @@ enum eEvents
     EVENT_TRASH_UNSEEN_STRIKE,
     EVENT_ZEALOUS_RUSH,
     EVENT_UNDERWHELMING_ASSAULT,
+    EVENT_ALMOST_UNSEEN_STRIKE,
     EVENT_GUST,
     EVENT_BURST,
 };

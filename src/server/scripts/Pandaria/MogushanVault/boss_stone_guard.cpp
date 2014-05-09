@@ -265,22 +265,15 @@ class boss_stone_guard_controler : public CreatureScript
                             events.Reset();
                             summons.DespawnAll();
 
+                            me->RemoveAllAreasTrigger();
+                            me->SetReactState(REACT_PASSIVE);
+                            fightInProgress = false;
+                            lastPetrifierEntry = 0;
+
                             for (uint32 entry: guardiansEntry)
-                            {
                                 if (pInstance)
-                                {
                                     if (Creature* guardian = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
-                                    {
-                                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, guardian);
-                                        guardian->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
-                                        guardian->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
-                                        guardian->RemoveAurasDueToSpell(SPELL_COBALT_PETRIFICATION);
-                                        guardian->RemoveAurasDueToSpell(SPELL_JASPER_PETRIFICATION);
-                                        guardian->GetMotionMaster()->MoveTargetedHome();
-                                        guardian->SetFullHealth();
-                                    }
-                                }
-                            }
+                                        guardian->AI()->DoAction(ACTION_REACH_HOME);
 
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_CHAINS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
@@ -460,7 +453,6 @@ class boss_generic_guardian : public CreatureScript
 
             bool warnedForOverload;
             bool isInTrueForm;
-            bool isHome;
 
             Creature* GetController()
             {
@@ -472,7 +464,6 @@ class boss_generic_guardian : public CreatureScript
                 _Reset();
                 isInTrueForm = false;
                 warnedForOverload = false;
-                isHome = true;
                 powDownCount = 0;
                 me->SetFullHealth();
                 me->SetReactState(REACT_DEFENSIVE);
@@ -589,9 +580,6 @@ class boss_generic_guardian : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (isHome)
-                    isHome = false;
-
                 if (Creature* controller = GetController())
                 {
                     if (damage >= me->GetHealth() && me->isAlive())
@@ -678,6 +666,34 @@ class boss_generic_guardian : public CreatureScript
                     case ACTION_FAIL:
                         EnterEvadeMode();
                         break;
+                    case ACTION_REACH_HOME:
+                    {
+                        // Reset events and despawn summoned creatures
+                        events.Reset();
+                        summons.DespawnAll();
+                        isInTrueForm = false;
+                        warnedForOverload = false;
+                        powDownCount = 0;
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetPower(POWER_ENERGY, 0);
+                        me->RemoveAllAreasTrigger();
+
+                        if (pInstance)
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(spellPetrificationBarId);
+
+                        // Remove auras
+                        if (pInstance)
+                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                        me->RemoveAurasDueToSpell(SPELL_AMETHYST_PETRIFICATION);
+                        me->RemoveAurasDueToSpell(SPELL_JADE_PETRIFICATION);
+                        me->RemoveAurasDueToSpell(SPELL_COBALT_PETRIFICATION);
+                        me->RemoveAurasDueToSpell(SPELL_JASPER_PETRIFICATION);
+
+                        // Go home & refill life
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        me->SetFullHealth();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -723,8 +739,11 @@ class boss_generic_guardian : public CreatureScript
                             me->RemoveAurasDueToSpell(spellTrueFormId);
                             isInTrueForm = false;
                         }
+                        // There's a guardian near : power increases
+                        if (hasNearGardian && me->GetPower(POWER_ENERGY) < 100)
+                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 2 > 100 ? 100 : me->GetPower(POWER_ENERGY) + 2);
 
-                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS, 2000);
+                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS, 1000);
                         break;
                     }
                     case EVENT_CHECK_ENERGY:
@@ -749,7 +768,7 @@ class boss_generic_guardian : public CreatureScript
                         }
                         // If in solid stone form, energy slowly decreases
                         if (me->HasAura(SPELL_SOLID_STONE) && !IsHeroic())
-                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - 5);
+                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - 1);
 
                         events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
                         break;

@@ -127,6 +127,7 @@ enum Actions
     ACTION_LEG_IS_DEAD,
 
     // Garalon's Legs
+    ACTION_LEG_ACTIVATE,
     ACTION_LEG_DIED,
     ACTION_MEND_LEG          // Heal leg.
 };
@@ -164,8 +165,7 @@ public:
         {
             static uint32 LegSpells[4] =
             {
-                //SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_LEFT, SPELL_RIDE_BACK_RIGHT,
-                SPELL_RIDE_BACK_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_FRONT_RIGHT
+                SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_BACK_LEFT
             };
 
             for (uint8 i = 0; i <= 3; ++i)
@@ -173,8 +173,6 @@ public:
                 if (Creature* Leg = me->SummonCreature(NPC_GARALON_LEG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
                 {
                     Leg->CastSpell(me, LegSpells[i], true);
-                    Leg->ClearUnitState(UNIT_STATE_ONVEHICLE);
-                    //Leg->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     Leg->SetReactState(REACT_PASSIVE);
                 }
             }
@@ -198,11 +196,20 @@ public:
 
         void Reset()
         {
+            if (instance->GetBossState(DATA_GARALON) == IN_PROGRESS)
+                return;
+
             events.Reset();
             summons.DespawnAll();
 
             damagedHeroic = false;
             castingCrush  = false;
+
+            me->SetVisible(CheckTrash());
+            // Cannot enter in combat while trashs remain
+            if (CheckTrash())
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_PASSIVE);
 
             if (instance)
                 instance->SetData(DATA_GARALON, NOT_STARTED);
@@ -211,18 +218,43 @@ public:
             SummonAndAddLegs();
         }
 
+        bool CheckTrash()
+        {
+            Creature* Gustwing  = GetClosestCreatureWithEntry(me, NPC_SETTHIK_GUSTWING,  100.0f, true);
+            Creature* Zephyrian = GetClosestCreatureWithEntry(me, NPC_SETTHIK_ZEPHYRIAN, 100.0f, true);
+
+            if (Gustwing || Zephyrian)
+                return false;
+
+            return true;
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
+            if (!CheckTrash() || !instance->CheckRequiredBosses(DATA_GARALON))
+            {
+                me->SetFullHealth();
+                me->SetReactState(REACT_PASSIVE);
+                EnterEvadeMode();
+                return;
+            }
+
+            // No legs? Then we add them
+            if (!summons.size())
+                SummonAndAddLegs();
+
             for (uint8 i = 0; i <= 3; ++i)
+            {
                 if (Unit* Leg = vehicle->GetPassenger(i))
                 {
-                    Leg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    Leg->ClearUnitState(UNIT_STATE_ONVEHICLE);
+                    Leg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    Leg->AddUnitState(UNIT_STATE_ONVEHICLE);
                     Leg->ToCreature()->SetInCombatWithZone();
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, Leg); // Add
                 }
+            }
 
             me->AddAura(SPELL_CRUSH_BODY_VIS, me); // And add the body crush marker.
 
@@ -307,12 +339,30 @@ public:
 
                 // Pheromones jumped to another player / there are players underneath his body, in Normal Difficulty Garalon casts Crush.
                 case ACTION_PHEROMONES_JUMP_OR_PLAYERS_UNDERNEATH:
+                {
                     if (!IsHeroic() && !castingCrush)
                     {
                         events.ScheduleEvent(EVENT_CRUSH, 3000);
                         castingCrush = true;
                     }
                     break;
+                }
+                // When trashs are done, Garalon becomes visible and can start fighting
+                case ACTION_GARALON_VISIBLE:
+                {
+                    if (me->IsVisible() || !CheckTrash())
+                        return;
+
+                    me->SetVisible(true);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                    // Activate legs
+                    for (uint8 i = 0; i < 4; ++i)
+                        if (Unit* leg = vehicle->GetPassenger(i))
+                            leg->GetAI()->DoAction(ACTION_LEG_ACTIVATE);
+                }
                 default: 
                     break;
             }
@@ -386,7 +436,6 @@ public:
                     case EVENT_MEND_LEG:
                     {
                         DoCast(me, SPELL_MEND_LEG);
-                        events.ScheduleEvent(EVENT_MEND_LEG, 30000);
                         break;
                     }
                     case EVENT_GARALON_BERSERK:
@@ -429,7 +478,7 @@ public:
 
         void Reset()
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetDisplayId(42852);
             died = false;
         }
@@ -454,19 +503,24 @@ public:
         {
             switch (action)
             {
+                case ACTION_LEG_ACTIVATE:
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitState(UNIT_STATE_ONVEHICLE);
+                    died = false;
+                    break;
                 case ACTION_LEG_DIED:
                     me->AddAura(SPELL_BROKEN_LEG_VIS, me);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    me->AddUnitState(UNIT_STATE_ONVEHICLE);
+                    me->ClearUnitState(UNIT_STATE_ONVEHICLE);
                     if (Creature* Garalon = me->GetVehicleCreatureBase())
                         Garalon->ToCreature()->AI()->SetData(ACTION_LEG_IS_DEAD, me->GetGUIDLow());
                     break;
 
                 case ACTION_MEND_LEG:
                     me->RemoveAurasDueToSpell(SPELL_BROKEN_LEG_VIS);
-                    me->SetHealth(me->GetMaxHealth());
+                    me->SetFullHealth();
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    me->ClearUnitState(UNIT_STATE_ONVEHICLE);
+                    me->AddUnitState(UNIT_STATE_ONVEHICLE);
                     died = false;
                     break;
 
