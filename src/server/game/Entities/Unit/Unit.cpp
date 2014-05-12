@@ -9906,6 +9906,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
+        case 58228: // Glyph of Dark Archangel
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 2944)
+                return false;
+
+            break;
+        }
         // Savage Defence
         case 62600:
         {
