@@ -153,9 +153,6 @@ class boss_stone_guard_controler : public CreatureScript
 
                 if (pInstance->GetBossState(DATA_STONE_GUARD) != DONE)
                     pInstance->SetBossState(DATA_STONE_GUARD, NOT_STARTED);
-                
-                events.ScheduleEvent(EVENT_PETRIFICATION, 15000);
-                events.ScheduleEvent(EVENT_CHECK_PETRIFICATION, 16000);
 
                 if (IsHeroic())
                     powDownCount = 2;
@@ -173,6 +170,8 @@ class boss_stone_guard_controler : public CreatureScript
                                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, guardian);
 
                         events.ScheduleEvent(EVENT_PETRIFICATION, 15000);
+                        events.ScheduleEvent(EVENT_CHECK_PETRIFICATION, 16000);
+
                         if (IsHeroic())
                             events.ScheduleEvent(EVENT_CRYSTALS, 7000);
 
@@ -525,21 +524,11 @@ class boss_generic_guardian : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(spellPetrificationBarId);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS,    2500);
-                events.ScheduleEvent(EVENT_CHECK_ENERGY,            1000);
-                events.ScheduleEvent(EVENT_REND_FLESH,              5000);
-                events.ScheduleEvent(EVENT_MAIN_ATTACK,             10000);
-                events.ScheduleEvent(EVENT_ENRAGE,                  420000); // 7 minutes enrage timer
             }
 
-            void EnterCombat(Unit* attacker)
+            /*void EnterCombat(Unit* attacker)
             {
-                if (pInstance)
-                    pInstance->SetBossState(DATA_STONE_GUARD, IN_PROGRESS);
-                
-                me->RemoveAurasDueToSpell(SPELL_SOLID_STONE);
-                me->RemoveAurasDueToSpell(SPELL_ANIM_SIT);
-            }
+            }*/
 
             void JustReachedHome()
             {
@@ -547,6 +536,8 @@ class boss_generic_guardian : public CreatureScript
                 summons.DespawnAll();
                 me->AddAura(SPELL_ANIM_SIT, me);
                 me->AddAura(SPELL_SOLID_STONE, me);
+                if (pInstance)
+                    pInstance->SetBossState(DATA_STONE_GUARD, NOT_STARTED);
             }
 
             void KilledUnit(Unit* victim)
@@ -580,6 +571,10 @@ class boss_generic_guardian : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS)
+                        pInstance->SetBossState(DATA_STONE_GUARD, IN_PROGRESS);
+
                 if (Creature* controller = GetController())
                 {
                     if (damage >= me->GetHealth() && me->isAlive())
@@ -649,10 +644,22 @@ class boss_generic_guardian : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ENTER_COMBAT:
-                        if (!me->isInCombat())
+                    {
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        if (!me->getVictim())
                             if (Player* victim = me->SelectNearestPlayerNotGM(100.0f))
                                 AttackStart(victim);
+
+                        me->RemoveAurasDueToSpell(SPELL_SOLID_STONE);
+                        me->RemoveAurasDueToSpell(SPELL_ANIM_SIT);
+
+                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS,    2500);
+                        events.ScheduleEvent(EVENT_CHECK_ENERGY,            1000);
+                        events.ScheduleEvent(EVENT_REND_FLESH,              5000);
+                        events.ScheduleEvent(EVENT_MAIN_ATTACK,             10000);
+                        events.ScheduleEvent(EVENT_ENRAGE,                  420000); // 7 minutes enrage timer
                         break;
+                    }
                     case ACTION_PETRIFICATION:
                     {
                         char buf[128];
@@ -711,12 +718,14 @@ class boss_generic_guardian : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                if (pInstance)
                 {
-                    if (!me->isMoving() && !me->HasAura(SPELL_ANIM_SIT))
-                        me->CastSpell(me, SPELL_ANIM_SIT, true);
-
-                    return;
+                    if (!UpdateVictim() && pInstance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS)
+                    {
+                        if (!me->isMoving() && !me->HasAura(SPELL_ANIM_SIT))
+                            me->CastSpell(me, SPELL_ANIM_SIT, true);
+                        return;
+                    }
                 }
 
                 events.Update(diff);
@@ -741,9 +750,9 @@ class boss_generic_guardian : public CreatureScript
                         }
                         // There's a guardian near : power increases
                         if (hasNearGardian && me->GetPower(POWER_ENERGY) < 100)
-                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 2 > 100 ? 100 : me->GetPower(POWER_ENERGY) + 2);
+                            me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 3 > 100 ? 100 : me->GetPower(POWER_ENERGY) + 3);
 
-                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS, 1000);
+                        events.ScheduleEvent(EVENT_CHECK_NEAR_GUARDIANS, 2000);
                         break;
                     }
                     case EVENT_CHECK_ENERGY:
@@ -767,7 +776,7 @@ class boss_generic_guardian : public CreatureScript
                             warnedForOverload = true;
                         }
                         // If in solid stone form, energy slowly decreases
-                        if (me->HasAura(SPELL_SOLID_STONE) && !IsHeroic())
+                        if (me->HasAura(SPELL_SOLID_STONE) && !IsHeroic() && me->GetPower(POWER_ENERGY))
                             me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - 1);
 
                         events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);

@@ -334,6 +334,8 @@ class boss_feng : public CreatureScript
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_SPIRIT_BOLTS, urand(25000, 35000));
                 me->SetReactState(REACT_AGGRESSIVE);
+                me->SetInCombatWith(attacker);
+                AttackStart(attacker);
             }
 
             void MovementInform (uint32 type, uint32 id)

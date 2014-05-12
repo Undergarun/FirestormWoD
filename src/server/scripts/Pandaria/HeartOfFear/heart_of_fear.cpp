@@ -1075,7 +1075,7 @@ class mob_set_thik_gustwing : public CreatureScript
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_3);
             }
 
-            void JustDied()
+            void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
                     if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
