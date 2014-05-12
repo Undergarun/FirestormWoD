@@ -99,7 +99,37 @@ enum PaladinSpells
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
     PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
     PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT      = 54931,
-    PALADIN_SPELL_BURDEN_OF_GUILD               = 110300
+    PALADIN_SPELL_BURDEN_OF_GUILD               = 110300,
+    PALADIN_SPELL_WEAKENED_BLOWS                = 115798
+};
+
+// Crusader Strike - 35395
+class spell_pal_crusader_strike : public SpellScriptLoader
+{
+    public:
+        spell_pal_crusader_strike() : SpellScriptLoader("spell_pal_crusader_strike") { }
+
+        class spell_pal_crusader_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_crusader_strike_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, PALADIN_SPELL_WEAKENED_BLOWS, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pal_crusader_strike_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_crusader_strike_SpellScript();
+        }
 };
 
 class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
@@ -1689,6 +1719,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_crusader_strike();
     new spell_pal_glyph_of_devotian_aura();
     new spell_pal_glyph_of_devotian_trigger_aura();
     new spell_pal_exorcism_energize();
