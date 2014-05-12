@@ -29,7 +29,7 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class AuraEffect : public std::enable_shared_from_this<AuraEffect>
 {
-    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
+    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount, constAuraEffectPtr triggeredByAura);
     friend AuraPtr Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
     friend Aura::~Aura();
     private:
@@ -68,7 +68,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         int32 GetPeriodicTimer() const { return m_periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
 
-        int32 CalculateAmount(Unit* caster);
+        int32 CalculateAmount(Unit* caster, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);

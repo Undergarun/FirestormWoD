@@ -1661,7 +1661,7 @@ void ObjectMgr::LoadCreatures()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-            WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            //WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         ++count;
@@ -1928,7 +1928,7 @@ void ObjectMgr::LoadGameobjects()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-            WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            //WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
@@ -2455,6 +2455,10 @@ void ObjectMgr::LoadItemTemplates()
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             itemTemplate.Spells[i].SpellId = sparse->SpellId[i];
+
+            for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+                sSpellMgr->TryLinkItemToSpell(Difficulty(difficulty), sparse->SpellId[i], itemId);
+
             itemTemplate.Spells[i].SpellTrigger = sparse->SpellTrigger[i];
             itemTemplate.Spells[i].SpellCharges = sparse->SpellCharges[i];
             itemTemplate.Spells[i].SpellCooldown = sparse->SpellCooldown[i];

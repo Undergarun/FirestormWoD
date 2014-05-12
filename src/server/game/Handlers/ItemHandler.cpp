@@ -2379,6 +2379,10 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
         return;
     }
 
+    // Must remove stats before applying the new one
+    if (item->IsEquipped())
+        player->ApplyItemUpgrade(item, false);
+
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
     item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
     item->SetState(ITEM_CHANGED, player);

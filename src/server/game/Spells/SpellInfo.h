@@ -184,6 +184,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
     SPELL_ATTR0_CU_NONE2                         = 0x00000020,   // UNUSED
     SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
+    SPELL_ATTR0_CU_UNK80                         = 0x00000080,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
@@ -240,6 +241,7 @@ class SpellEffectInfo
     SpellInfo const* _spellInfo;
     uint8 _effIndex;
 public:
+    uint32    Id;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    Amplitude;
@@ -249,7 +251,7 @@ public:
     float     PointsPerComboPoint;
     float     ValueMultiplier;
     float     DamageMultiplier;
-    float     BonusMultiplier;
+    float     EffectSpellPowerBonus;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
@@ -281,13 +283,16 @@ public:
     bool IsUnitOwnedAuraEffect() const;
     bool IsPeriodicEffect() const;
 
-    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL) const;
+    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL, uint32 auraId = 0) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
 
     bool HasRadius() const;
     float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
+
+    SpellEffectScalingEntry const* GetEffectScaling() const;
+    bool CanScale() const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -358,14 +363,13 @@ public:
     uint32 BaseLevel;
     uint32 SpellLevel;
     SpellDurationEntry const* DurationEntry;
-    uint32 PowerType;
-    uint32 ManaCost;
-    uint32 ManaPerSecond;
-    float ManaCostPercentage;
+    std::list<SpellPowerEntry const*> SpellPowers;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
     float  Speed;
     uint32 StackAmount;
+    uint32 InternalCooldown;
+    uint32 ProcsPerMinute;
     uint32 Totem[2];
     int32  Reagent[MAX_SPELL_REAGENTS];
     uint32 ReagentCount[MAX_SPELL_REAGENTS];
@@ -397,7 +401,6 @@ public:
     uint32 SpellEquippedItemsId;
     uint32 SpellInterruptsId;
     uint32 SpellLevelsId;
-    uint32 SpellPowerId;
     uint32 SpellReagentsId;
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
@@ -410,11 +413,14 @@ public:
     int32  ScalingClass;
     float  CoefBase;
     int32  CoefLevelBase;
+    uint32 LevelBase;
+    uint32 ItemLevelBase;
+    std::list<uint32> SpellFromItems;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
-    SpellPowerEntry* spellPower;
     uint32 ResearchProject;
+    float AttackPowerBonus;
 
     // SpecializationSpellEntry
     std::list<uint32> SpecializationIdList;
@@ -545,7 +551,14 @@ public:
     uint32 CalcCastTime(Unit* caster = NULL, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
 
-    uint32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, SpellPowerEntry const* spellPower) const;
+    void CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, int32* m_powerCost) const;
+    Powers GetMainPower() const
+    {
+        for (auto itr : SpellPowers)
+            return Powers(itr->PowerType);
+
+        return POWER_MANA;
+    }
 
     bool IsRanked() const;
     uint8 GetRank() const;
