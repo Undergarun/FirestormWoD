@@ -826,6 +826,9 @@ class spell_rog_restless_blades : public SpellScriptLoader
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
 
+                            if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
+
                             comboPoints = 0;
                         }
                     }
