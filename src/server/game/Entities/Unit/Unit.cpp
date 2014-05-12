@@ -7206,9 +7206,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    if (procSpell->Id == 585)
+                    if (procSpell->Id != 585 && procSpell->Id != 2060)
+                        return false;
+
+                    if (procSpell->Id == 585 && ToPlayer()->HasSpellCooldown(47540))
                         ToPlayer()->ReduceSpellCooldown(47540, 500);
-                    else if (procSpell->Id == 2060)
+                    else if (procSpell->Id == 2060 && ToPlayer()->HasSpellCooldown(89485))
                         ToPlayer()->ReduceSpellCooldown(89485, 5000);
                     break;
                 }
