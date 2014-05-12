@@ -124,7 +124,9 @@ enum PriestSpells
     PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
     PRIEST_SPELL_HOLY_NOVA                          = 132157,
     PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455,
-    PRIEST_SPELL_CONFESSION                         = 126123
+    PRIEST_SPELL_CONFESSION                         = 126123,
+    PRIEST_TRAIN_OF_THOUGHT                         = 92297,
+    PRIEST_INNER_FOCUS                              = 89485
 };
 
 // Confession (Glyph) - 126123
@@ -1454,7 +1456,7 @@ class spell_pri_rapture : public SpellScriptLoader
                         if (caster->ToPlayer() && !caster->ToPlayer()->HasSpellCooldown(PRIEST_RAPTURE_ENERGIZE))
                         {
                             caster->EnergizeBySpell(caster, PRIEST_RAPTURE_ENERGIZE, bp, POWER_MANA);
-                            caster->ToPlayer()->AddSpellCooldown(PRIEST_RAPTURE_ENERGIZE, 0, time(NULL) + 12);
+                            caster->ToPlayer()->AddSpellCooldown(PRIEST_RAPTURE_ENERGIZE, 0, 12 * IN_MILLISECONDS);
                         }
                     }
                 }

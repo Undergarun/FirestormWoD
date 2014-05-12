@@ -129,7 +129,7 @@ enum MonkSpells
 };
 
 // Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
-// 115636 - Mastery : Combo Breaker
+// 137384 - Combo Breaker
 class spell_monk_combo_breaker : public SpellScriptLoader
 {
     public:
@@ -1752,12 +1752,8 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (roll_chance_i(30))
                         caster->CastSpell(caster, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
-                    if (caster->HasAura(103985) || caster->HasAura(115069))
-                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -20, POWER_ENERGY);
-                }
             }
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
@@ -1777,7 +1773,7 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
                         if (!_player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP))
                         {
                             _player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
-                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, time(NULL) + 8);
+                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -2784,7 +2780,7 @@ class spell_monk_spear_hand_strike : public SpellScriptLoader
                         if (target->isInFront(_player))
                         {
                             _player->CastSpell(target, SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE, true);
-                            _player->AddSpellCooldown(116705, 0, time(NULL) + 15);
+                            _player->AddSpellCooldown(116705, 0, 15 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -3111,7 +3107,7 @@ class spell_monk_keg_smash : public SpellScriptLoader
                             _player->CastSpell(target, SPELL_MONK_WEAKENED_BLOWS, true);
                             _player->CastSpell(_player, SPELL_MONK_KEG_SMASH_ENERGIZE, true);
                             // Prevent to receive 2 CHI more than once time per cast
-                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, time(NULL) + 1);
+                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, 500);
                             _player->CastSpell(target, SPELL_MONK_DIZZYING_HAZE, true);
                         }
                     }

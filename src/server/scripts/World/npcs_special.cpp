@@ -1463,42 +1463,34 @@ class npc_sayge : public CreatureScript
                     break;
                 case GOSSIP_SENDER_MAIN + 1:
                     creature->CastSpell(player, SPELL_DMG, false);
-                    player->AddSpellCooldown(SPELL_DMG, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 2:
                     creature->CastSpell(player, SPELL_RES, false);
-                    player->AddSpellCooldown(SPELL_RES, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 3:
                     creature->CastSpell(player, SPELL_ARM, false);
-                    player->AddSpellCooldown(SPELL_ARM, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 4:
                     creature->CastSpell(player, SPELL_SPI, false);
-                    player->AddSpellCooldown(SPELL_SPI, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 5:
                     creature->CastSpell(player, SPELL_INT, false);
-                    player->AddSpellCooldown(SPELL_INT, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 6:
                     creature->CastSpell(player, SPELL_STM, false);
-                    player->AddSpellCooldown(SPELL_STM, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 7:
                     creature->CastSpell(player, SPELL_STR, false);
-                    player->AddSpellCooldown(SPELL_STR, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 8:
                     creature->CastSpell(player, SPELL_AGI, false);
-                    player->AddSpellCooldown(SPELL_AGI, 0, time(NULL) + 7200);
                     SendAction(player, creature, action);
                     break;
             }
@@ -4858,7 +4850,7 @@ class npc_spectral_guise : public CreatureScript
                     owner->AddAura(SPELL_SPECTRAL_GUISE_CLONE, me);
 
                     me->CastSpell(me, SPELL_SPECTRAL_GUISE_CHARGES, true);
-                    Aura::TryRefreshStackOrCreate(sSpellMgr->GetSpellInfo(SPELL_SPECTRAL_GUISE_STEALTH), MAX_EFFECT_MASK, owner, owner, sSpellMgr->GetSpellInfo(SPELL_SPECTRAL_GUISE_STEALTH)->spellPower);
+                    Aura::TryRefreshStackOrCreate(sSpellMgr->GetSpellInfo(SPELL_SPECTRAL_GUISE_STEALTH), MAX_EFFECT_MASK, owner, owner);
 
                     std::list<HostileReference*> threatList = owner->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)

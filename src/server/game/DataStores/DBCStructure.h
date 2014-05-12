@@ -1984,7 +1984,7 @@ struct SpellEffectEntry
     uint32    EffectApplyAuraName;                          // 4         m_effectAura
     uint32    EffectAmplitude;                              // 5         m_effectAuraPeriod
     int32     EffectBasePoints;                             // 6         m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    float     EffectBonusMultiplier;                        // 7         m_effectBonus
+    float     EffectSpellPowerBonus;                        // 7         m_effectSpellPowerBonus
     float     EffectDamageMultiplier;                       // 8         m_effectChainAmplitude
     uint32    EffectChainTarget;                            // 9         m_effectChainTargets
     int32     EffectDieSides;                               // 10        m_effectDieSides
@@ -2006,33 +2006,40 @@ struct SpellEffectEntry
     //uint32  unk_flag_2                                    // 29        4.2.0 Flag
 };
 
-// @author Selenium: 5.4 valid
+// SpellEffectScalingEntry.dbc
 struct SpellEffectScalingEntry
 {
-    //uint32    Unk_540;                                    // New 5.4.X
+    //uint32    Id;                                         // 0
     float     Multiplier;                                   // 1
     float     RandomMultiplier;                             // 2
     float     OtherMultiplier;                              // 3
     //float   Unk_505                                       // 4
-    uint32    Id;                                           // Effect ID
+    uint32    EffectSpellId;                                // EffectSpell ID
 };
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 4294967295
 
 // SpellAuraOptions.dbc
-// @author Selenium: 5.4 valid
 struct SpellAuraOptionsEntry
 {
     uint32    Id;                                           // 0       m_ID
-    uint32    StackAmount;                                  // 1       m_cumulativeAura
-    uint32    procChance;                                   // 2       m_procChance
-    uint32    procCharges;                                  // 3       m_procCharges
-    uint32    procFlags;                                    // 4       m_procTypeMask
-    //uint32    Unk_1;                                      // 5
-    //uint32    Unk_2;                                      // 6       Flag
-    //uint32    Unk_3;                                      // 7
-    //uint32    Unk_4;                                      // 8
+    uint32    SpellId;                                      // 1       m_spellId
+    //uint32    Unk_1;                                        // 2
+    uint32    StackAmount;                                  // 3       m_cumulativeAura
+    uint32    procChance;                                   // 4       m_procChance
+    uint32    procCharges;                                  // 5       m_procCharges
+    uint32    procFlags;                                    // 6       m_procTypeMask
+    uint32    InternalCooldown;                             // 7       m_internalCooldown
+    uint32    ProcsPerMinuteEntry;                          // 8       m_procsPerMinuteEntry
+};
+
+// SpellProcsPerMinute.dbc
+struct SpellProcsPerMinuteEntry
+{
+    uint32 Id;                                              // 0 m_Id
+    float  ProcsPerMinute;                                  // 1 m_procsPerMinute
+    //bool   unk;                                           // 2
 };
 
 // SpellAuraRestrictions.dbc/
@@ -2094,15 +2101,15 @@ typedef std::map<uint32, SpellTotem> SpellTotemMap;
 // @author Selenium: 5.4 valid
 struct SpellEntry
 {
-    uint32    Id;                                           // 0       m_ID
-    char* SpellName;                                        // 1       m_name_lang
-    char* Rank;                                             // 2       m_nameSubtext_lang
-    //char* Description;                                    // 3       m_description_lang not used
-    //char* ToolTip;                                        // 4       m_auraDescription_lang not used
-    uint32    runeCostID;                                   // 5       m_runeCostID
-    //uint32  spellMissileID;                               // 6       m_spellMissileID not used
-    //uint32  spellDescriptionVariableID;                   // 7       m_spellDescriptionVariableID, 3.2.0
-    //float unk_f1;                                         // 8
+    uint32    Id;                                           // 0        m_ID
+    char* SpellName;                                        // 1        m_name_lang
+    char* Rank;                                             // 2        m_nameSubtext_lang
+    //char* Description;                                    // 3        m_description_lang not used
+    //char* ToolTip;                                        // 4        m_auraDescription_lang not used
+    uint32    runeCostID;                                   // 5        m_runeCostID
+    //uint32  spellMissileID;                               // 6        m_spellMissileID not used
+    //uint32  spellDescriptionVariableID;                   // 7        m_spellDescriptionVariableID, 3.2.0
+    float  AttackPowerBonus;                                // 8        m_attackPowerBonus
     uint32 SpellScalingId;                                  // 9        SpellScaling.dbc
     uint32 SpellAuraOptionsId;                              // 10       SpellAuraOptions.dbc
     uint32 SpellAuraRestrictionsId;                         // 11       SpellAuraRestrictions.dbc
@@ -2212,11 +2219,11 @@ struct SpellEquippedItemsEntry
 struct SpellCooldownsEntry
 {
     //uint32    Id;                                         // 0    m_ID
-    uint32    CategoryRecoveryTime;                         // 1    m_categoryRecoveryTime
-    uint32    RecoveryTime;                                 // 2    m_recoveryTime
-    uint32    StartRecoveryTime;                            // 3    m_startRecoveryTime
-    //uint32    unk_1                                       // 4    unk timer
-    //uin32     unk_2                                       // 5    unk timer_2
+    uint32    SpellId;                                      // 1    m_spellId
+    //uint32    unk_1                                         // 2
+    uint32    CategoryRecoveryTime;                         // 3    m_categoryRecoveryTime
+    uint32    RecoveryTime;                                 // 4    m_recoveryTime
+    uint32    StartRecoveryTime;                            // 5    m_startRecoveryTime
 };
 
 // SpellClassOptions.dbc
@@ -2234,13 +2241,11 @@ struct SpellClassOptionsEntry
 struct SpellInterruptsEntry
 {
     //uint32    Id;                                         // 0       m_ID
-    uint32    AuraInterruptFlags;                           // 1       m_auraInterruptFlags
-    //uint32    unk_1                                       // 2       4.0.0
-    uint32    ChannelInterruptFlags;                        // 3       m_channelInterruptFlags
-    //uint32    unk_2                                       // 4       4.0.0
-    uint32    InterruptFlags;                               // 5       m_interruptFlags
-    //uint32    unk_2                                       // 6       New 5.4.0
-    //uint32    unk_3                                       // 7       New 5.4.0
+    uint32    SpellId;                                      // 1       m_spellId
+    //uint32    unk_1                                         // 2
+    uint64    AuraInterruptFlags;                           // 3-4     m_auraInterruptFlags
+    uint64    ChannelInterruptFlags;                        // 5-6     m_channelInterruptFlags
+    uint32    InterruptFlags;                               // 7       m_interruptFlags
 };
 
 // SpellLevels.dbc
@@ -2292,16 +2297,16 @@ struct SpellPowerEntry
     uint32    Id;                                           // 0        m_ID
     uint32    SpellId;                                      // 1
     //uint32    unk_1;                                      // 2
-    uint32    powerType;                                    // 3
-    uint32    manaCost;                                     // 4
-    //uint32    unk_2;                                      // 5
-    //uint32    unk_3;                                      // 6
-    //uint32    unk_4;                                      // 7
-    //uint32    unk_5;                                      // 8
-    float ManaCostPercentage;                               // 9
-    float manaPerSecond;                                    // 10
-    //uint32    requireShapeshift;                          // 11 Shapeshift required (spellID)
-    //float     unk_7;                                      // 12
+    uint32    PowerType;                                    // 3
+    uint32    Cost;                                         // 4
+    uint32    CostPerlevel;                                 // 5
+    uint32    CostPerSecond;                                // 6
+    //uint32    unk_2;                                      // 7
+    //uint32    unk_3;                                      // 8
+    float     CostBasePercentage;                           // 9
+    float     CostPerSecondPercentage;                      // 10
+    uint32    RequiredAuraSpellId;                          // 11 Shapeshift required (spellID)
+    float     CostMaxPercentage;                            // 12
 };
 
 // @author Selenium: 5.4 valid
@@ -2341,12 +2346,10 @@ struct SpellShapeshiftFormEntry
 // @author Selenium: 5.4 valid
 struct SpellShapeshiftEntry
 {
-    uint32    Id;                                           // 0 - m_ID
-    uint32    StancesNot;                                   // 3 - m_shapeshiftExclude
-    // uint32 unk_1;                                        // 2 - always 0
-    uint32    Stances;                                      // 1 - m_shapeshiftMask
-    // uint32 unk_3;                                        // 4 - always 0
-    // int32    StanceBarOrder;                             // 5 - m_stanceBarOrder not used
+    uint32    Id;                                           // 0   m_ID
+    uint64    StancesNot;                                   // 1-2 m_shapeshiftExclude
+    uint64    Stances;                                      // 3-4 m_shapeshiftMask
+    // int32    StanceBarOrder;                             // 5   m_stanceBarOrder not used
 };
 
 // SpellTargetRestrictions.dbc
@@ -2365,7 +2368,6 @@ struct SpellTargetRestrictionsEntry
 };
 
 // SpellScaling.dbc
-// @author Selenium: 5.4 valid
 struct SpellScalingEntry
 {
     //uint32    Id;                                         // 0        m_ID
@@ -2375,8 +2377,8 @@ struct SpellScalingEntry
     int32     ScalingClass;                                 // 4        (index * 100) + charLevel - 1 => gtSpellScaling.dbc
     float     CoefBase;                                     // 5
     uint32    CoefLevelBase;                                // 6
-    //uin32   unk505                                        // 7
-    //uint32  unk505                                        // 8
+    uint32    LevelBase;                                    // 7
+    uint32    ItemLevelBase;                                // 8
 };
 
 // @author Selenium: 5.4 valid
