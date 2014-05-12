@@ -113,7 +113,7 @@ class spell_pal_crusader_strike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_crusader_strike_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
@@ -122,7 +122,7 @@ class spell_pal_crusader_strike : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_crusader_strike_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_crusader_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
