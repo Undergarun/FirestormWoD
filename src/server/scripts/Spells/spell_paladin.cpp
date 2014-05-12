@@ -174,7 +174,7 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
         }
 };
 
-// Exorcism - 879
+// Exorcism - 879 or Hammer of Wrath - 24275
 class spell_pal_exorcism_energize : public SpellScriptLoader
 {
     public:
