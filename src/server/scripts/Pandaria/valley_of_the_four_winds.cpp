@@ -799,8 +799,6 @@ class mob_escaped_shagskin : public CreatureScript
         {
         }
 
-        uint8 randomizer;
-
         bool OnGossipHello(Player* player, Creature* creature)
         {
             if (player->GetQuestStatus(30518) == QUEST_STATUS_INCOMPLETE)
