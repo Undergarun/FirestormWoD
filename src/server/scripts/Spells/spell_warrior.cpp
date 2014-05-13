@@ -1207,7 +1207,7 @@ class spell_warr_thunder_clap : public SpellScriptLoader
                         if (_player->HasAura(WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER))
                         {
                             SetHitDamage(int32(GetHitDamage() * 1.5f));
-                            _player->AddSpellCooldown(WARRIOR_SPELL_THUNDER_CLAP, 0, 12 * IN_MILLISECONDS);
+                            _player->AddSpellCooldown(WARRIOR_SPELL_THUNDER_CLAP, 0, time(NULL) + 12);
                         }
                     }
                 }
