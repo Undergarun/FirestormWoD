@@ -96,6 +96,7 @@ enum eActions
     ACTION_REACH_HOME                       = 40,
 
     ACTION_CHECK_SPIRITKINGS                = 41,
+    ACTION_STOP_PETRIFY                     = 42,
 };
 
 enum eCreatures
