@@ -1343,6 +1343,7 @@ class mob_hutia : public CreatureScript
 };
 
 #define REPUTATION_ORDER_OF_THE_CLOUD_SERPENT 1271
+#define GOSSIP_TEXT_I 12585
 
 class npc_elder_anli : public CreatureScript
 {
@@ -1353,12 +1354,24 @@ class npc_elder_anli : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
+            if (creature->isQuestGiver())
+                player->PrepareQuestMenu(creature->GetGUID());
+
             if (player->GetQuestStatus(QUEST_RIDING_THE_SKIES_FIRST) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_RIDING_THE_SKIES_SECOND) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_RIDING_THE_SKIES_THIRD) == QUEST_STATUS_INCOMPLETE)
                 if (player->GetReputationRank(REPUTATION_ORDER_OF_THE_CLOUD_SERPENT) == REP_EXALTED)
                     player->KilledMonsterCredit(NPC_INSTRUCTOR_WINDBLADE);
 
+            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, creature->GetGUID());
+
             return true;
         }
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        {
+            player->PlayerTalkClass->GetQuestMenu();
+
+            return true;
+        }
+
 };
 
 void AddSC_jade_forest()
