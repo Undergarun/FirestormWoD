@@ -24843,8 +24843,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
         catrec = spellInfo->CategoryRecoveryTime;
     }
 
-    uint64 curTime = 0;
-    ACE_OS::gettimeofday().msec(curTime);
+    time_t curTime = time(NULL);
 
     time_t catrecTime;
     time_t recTime;
