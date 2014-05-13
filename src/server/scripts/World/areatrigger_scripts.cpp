@@ -532,6 +532,28 @@ class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
         }
 };
 
+class AreaTrigger_at_farmer_fung : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_farmer_fung() : AreaTriggerScript("AreaTrigger_at_farmer_fung") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(30518) == QUEST_STATUS_INCOMPLETE)
+                if (player->IsOnVehicle())
+                {
+                    if (Creature* creature = player->GetVehicleCreatureBase())
+                    {
+                        player->KilledMonsterCredit(59491);
+                        player->ExitVehicle();
+                        creature->DespawnOrUnsummon();
+                    }
+                }
+
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -546,4 +568,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_bael_modan();
     new AreaTrigger_at_klaxxi_vess();
+    new AreaTrigger_at_farmer_fung();
 }

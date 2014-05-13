@@ -2252,17 +2252,24 @@ class spell_q31538_ella_s_brew: public SpellScriptLoader
                             {
                                 if (Creature* creature = target->ToCreature())
                                 {
-                                    if (creature->GetEntry() == 58710)
-                                        player->KilledMonsterCredit(64941);
-
-                                    else if (creature->GetEntry() == 58717)
+                                    switch (creature->GetEntry())
+                                    {
+                                        case 58710:
+                                            player->KilledMonsterCredit(64941);
+                                            break;
+                                        case 58717:
                                         player->KilledMonsterCredit(64943);
-
-                                    else if (creature->GetEntry() == 58646 || creature->GetEntry() == 58721)
+                                            break;
+                                        case 58646:
+                                        case 58721:
                                         player->KilledMonsterCredit(64942);
-
-                                    else if (creature->GetEntry() == 64597)
+                                            break;
+                                        case 64597:
                                         player->KilledMonsterCredit(64944);
+                                            break;
+                                        default:
+                                            break;
+                                    }
                                 }
                             }
                         }

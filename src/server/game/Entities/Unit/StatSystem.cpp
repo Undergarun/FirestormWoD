@@ -493,6 +493,24 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier * vengeanceModifier;
     float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier * vengeanceModifier;
 
+    if (IsInFeralForm())
+    {
+        float weaponSpeed = BASE_ATTACK_TIME / 1000.0f;
+        if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            weaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+
+        if (GetShapeshiftForm() == FORM_CAT)
+        {
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.0f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.0f;
+        }
+        else if (GetShapeshiftForm() == FORM_BEAR)
+        {
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.5f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.5f;
+        }
+    }
+
     float base_value = GetModifierValue(unitMod, BASE_VALUE);
     float base_pct = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);

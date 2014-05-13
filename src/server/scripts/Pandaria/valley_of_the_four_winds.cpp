@@ -792,6 +792,24 @@ class mob_hillpaw_s_chicken : public CreatureScript
         }
 };
 
+class mob_escaped_shagskin : public CreatureScript
+{
+    public:
+        mob_escaped_shagskin() : CreatureScript("mob_escaped_shagskin")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30518) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->EnterVehicle(creature, 0, false);
+            }
+
+            return true;
+        }
+};
+
 void AddSC_valley_of_the_four_winds()
 {
     // Rare Mobs
@@ -810,4 +828,5 @@ void AddSC_valley_of_the_four_winds()
     new mob_kon_kon();
     new mob_second_sheepie();
     new mob_hillpaw_s_chicken();
+    new mob_escaped_shagskin();
 }

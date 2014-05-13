@@ -544,7 +544,7 @@ class spell_marrowgar_coldflame_damage : public SpellScriptLoader
                     if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED) || (GetTarget()->GetTypeId() == TYPEID_PLAYER && GetTarget()->ToPlayer()->HasSpellCooldown(69146)))
                         PreventDefaultAction();
                     else if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
-                        GetTarget()->ToPlayer()->AddSpellCooldown(69146, 0, time(NULL) + 1.1);
+                        GetTarget()->ToPlayer()->AddSpellCooldown(69146, 0, 1100);
             }
 
             void Register()

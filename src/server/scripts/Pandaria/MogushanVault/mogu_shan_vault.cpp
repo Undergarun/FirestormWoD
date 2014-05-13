@@ -67,6 +67,7 @@ enum eEvents
 {
     EVENT_CURSED_MOGU_SPIRIT_BOLT,
     EVENT_CURSED_MOGU_GROUND_SLAM,
+    EVENT_CURSED_MOGU_ATTACK,
     EVENT_ENORMOUS_QUILEN_BITE,
     EVENT_QUILEN_SUNDERING_BITE,
     EVENT_QUILEN_SHATTERING_STONE,
@@ -165,8 +166,8 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_CURSED_MOGU_SPIRIT_BOLT, 15000);
                 events.ScheduleEvent(EVENT_CURSED_MOGU_GROUND_SLAM, 25000);
-
-                me->AI()->AttackStart(attacker);
+                if (me->GetEntry() == NPC_CURSED_MOGU_SCULPTURE_1)
+                    events.ScheduleEvent(EVENT_CURSED_MOGU_ATTACK,  2000);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -179,6 +180,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
+                    playerActivate = who->GetGUID();
                     switch (me->GetEntry())
                     {
                         case NPC_CURSED_MOGU_SCULPTURE_2:
@@ -199,14 +201,12 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_POSE_2);
                             me->RemoveAurasDueToSpell(SPELL_POSE_1);
                             me->RemoveAurasDueToSpell(SPELL_STONE);
-                            DoAction(ACTION_CURSED_MOGU_ATTACK_PLAYER);
                             break;
                         }
                     default:
                         break;
                     }
 
-                    playerActivate = who->GetGUID();
                     activationDone = true;
                 }
             }
@@ -262,6 +262,9 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 {
                     switch (id)
                     {
+                        case EVENT_CURSED_MOGU_ATTACK:
+                            DoAction(ACTION_CURSED_MOGU_ATTACK_PLAYER);
+                            break;
                         case EVENT_CURSED_MOGU_SPIRIT_BOLT:
                             if (Unit* target = me->SelectNearestTarget(5.0f))
                                 if (!target->IsFriendlyTo(me))
@@ -1549,17 +1552,17 @@ class mob_mounted_mogu : public CreatureScript
                         me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 41441);
                         SetEquipmentSlots(false, EQUIP_MOUNTED_MOGU_WEAPON, 0, EQUIP_NO_CHANGE);
                         break;
-                   case ACTION_BEFORE_COMBAT:
+                    case ACTION_BEFORE_COMBAT:
                         me->AddAura(SPELL_ACTIVATION_VISUAL, me);
                         break;
-                   case ACTION_START_SECOND_COMBAT:
+                    case ACTION_START_SECOND_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->setFaction(14);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
-                   case ACTION_END_SECOND_COMBAT:
-                       me->DespawnOrUnsummon();
-                       break;
+                    case ACTION_END_SECOND_COMBAT:
+                        me->DespawnOrUnsummon();
+                        break;
                     default:
                         break;
                 }
@@ -1854,7 +1857,7 @@ class mob_meng : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(kingsGuardList, NPC_KINGSGUARD, 200.0f);
                 
                 std::list<Creature*> moguArcherList;
-                me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 100.0f);
+                me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 200.0f);
 
                 for (auto moguArcher : moguArcherList)
                 {
