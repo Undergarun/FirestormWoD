@@ -2126,8 +2126,8 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            LoginDatabase.PExecute("UPDATE realmlist set online=%u where id=%u", GetActiveSessionCount(), realmID);
-            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
+            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), realmID);
+            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u. Queue : %u", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount(), GetQueuedSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2618,7 +2618,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
 
             
                 //Permanent ban
-                stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED);
+                stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT);
                 stmtt->setUInt32(0, account);
                 PreparedQueryResult resultCheckBan = LoginDatabase.Query(stmtt);
 
