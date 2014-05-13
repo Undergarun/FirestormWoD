@@ -3489,6 +3489,41 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
         }
 };
 
+// Orb of Power - 121164 / 121175 / 121176 / 121177
+class spell_gen_orb_of_power : public SpellScriptLoader
+{
+    public:
+        spell_gen_orb_of_power() : SpellScriptLoader("spell_gen_orb_of_power") { }
+
+        class spell_gen_orb_of_power_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_orb_of_power_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (AuraEffectPtr healing = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                        healing->ChangeAmount(healing->GetAmount() - 5);
+                    if (AuraEffectPtr damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
+                        damageTaken->ChangeAmount(damageTaken->GetAmount() + 30);
+                    if (AuraEffectPtr damageDone = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                        damageDone->ChangeAmount(damageDone->GetAmount() + 10);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_orb_of_power_AuraScript::OnTick, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_orb_of_power_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3567,4 +3602,5 @@ void AddSC_generic_spell_scripts()
     new spell_mage_polymorph_cast_visual();
     new spell_gen_hardened_shell();
     new spell_gen_ds_flush_knockback();
+    new spell_gen_orb_of_power();
 }

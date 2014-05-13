@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (35395, 'spell_pal_crusader_strike');
