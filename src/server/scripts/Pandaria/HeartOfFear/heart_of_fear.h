@@ -108,6 +108,7 @@ enum eSpells
     SPELL_UNDERWHELMING_ASSAULT = 125728,
     SPELL_GUST                  = 124072,
     SPELL_BURST                 = 125054,
+    SPELL_ZEPHYR                = 124087,
 };
 
 enum eActions
@@ -141,6 +142,7 @@ enum eCreatures
     NPC_SRATHIK_SHIELD_MASTER       = 63032,
     NPC_ZARTHIK_SUPPLICANT          = 63853,
     NPC_SETTHIK_ZEPHYRIAN           = 63593,
+    NPC_ZEPHYR                      = 63599,
     NPC_BURNING_BRAZIER             = 65597,
     NPC_WIND_LORD_MELJARAK          = 65501,
     NPC_ZARTHIK_BATTLEMENDER        = 65498,
