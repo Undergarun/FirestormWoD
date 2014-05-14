@@ -810,6 +810,90 @@ class mob_escaped_shagskin : public CreatureScript
         }
 };
 
+class mob_jin_jao : public CreatureScript
+{
+    public:
+        mob_jin_jao() : CreatureScript("mob_jin_jao")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (player->HasItemCount(80213, 1))
+                    return true;
+
+                player->CastSpell(player, 114623);
+            }
+
+            return true;
+        }
+};
+
+class mob_jambeezi : public CreatureScript
+{
+    public:
+        mob_jambeezi() : CreatureScript("mob_jambeezi")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (player->HasItemCount(80214, 1))
+                    return true;
+
+                player->CastSpell(player, 114625);
+            }
+
+            return true;
+        }
+};
+
+class mob_lei_lan : public CreatureScript
+{
+    public:
+        mob_lei_lan() : CreatureScript("mob_lei_lan")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (player->HasItemCount(80215, 1))
+                    return true;
+
+                player->CastSpell(player, 114627);
+            }
+
+            return true;
+        }
+};
+
+class mob_lolo_lio : public CreatureScript
+{
+    public:
+        mob_lolo_lio() : CreatureScript("mob_lolo_lio")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (player->HasItemCount(80216, 1))
+                    return true;
+
+                player->CastSpell(player, 114628);
+            }
+
+            return true;
+        }
+};
+
 void AddSC_valley_of_the_four_winds()
 {
     // Rare Mobs
@@ -829,4 +913,8 @@ void AddSC_valley_of_the_four_winds()
     new mob_second_sheepie();
     new mob_hillpaw_s_chicken();
     new mob_escaped_shagskin();
+    new mob_jin_jao();
+    new mob_jambeezi();
+    new mob_lei_lan();
+    new mob_lolo_lio();
 }
