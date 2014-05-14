@@ -214,24 +214,15 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         if (mechanic && tempSpell->Mechanic != mechanic)
             continue;
 
-        bool ok = false;
-        for (auto itr : tempSpell->SpellPowers)
-        {
-            // Make sure that the spell uses the requested amount of power
-            if (powerCostMin && itr->Cost < powerCostMin)
-                continue;
+        //Make sure that the spell uses the requested amount of power
+        if (powerCostMin && tempSpell->ManaCost < powerCostMin)
+            continue;
 
-            if (powerCostMax && itr->Cost > powerCostMax)
-                continue;
+        if (powerCostMax && tempSpell->ManaCost > powerCostMax)
+            continue;
 
-            // Continue if we don't have the mana to actually cast this spell
-            if (itr->Cost > (uint32)me->GetPower(Powers(itr->PowerType)))
-                continue;
-
-            ok = true;
-        }
-
-        if (!ok)
+        //Continue if we don't have the mana to actually cast this spell
+        if (tempSpell->ManaCost > (uint32)me->GetPower(Powers(tempSpell->PowerType)))
             continue;
 
         //Check if the spell meets our range requirements

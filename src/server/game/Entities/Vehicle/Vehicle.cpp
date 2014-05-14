@@ -83,14 +83,11 @@ void Vehicle::Install()
                     if (!spellInfo)
                         continue;
 
-                    for (auto itr : spellInfo->SpellPowers)
+                    if (spellInfo->PowerType == POWER_ENERGY)
                     {
-                        if (itr->PowerType == POWER_ENERGY)
-                        {
-                            _me->setPowerType(POWER_ENERGY);
-                            _me->SetMaxPower(POWER_ENERGY, 100);
-                            break;
-                        }
+                        _me->setPowerType(POWER_ENERGY);
+                        _me->SetMaxPower(POWER_ENERGY, 100);
+                        break;
                     }
                 }
                 break;

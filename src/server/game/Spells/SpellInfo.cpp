@@ -347,10 +347,10 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty)
 {
     SpellEffectEntry const* _effect = spellEntry->GetSpellEffect(effIndex, difficulty);
+    SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->Id : 0);
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
-    Id = _effect ? _effect->Id : 0;
     Effect = _effect ? _effect->Effect : 0;
     ApplyAuraName = _effect ? _effect->EffectApplyAuraName : 0;
     Amplitude = _effect ? _effect->EffectAmplitude : 0;
@@ -360,7 +360,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     PointsPerComboPoint = _effect ? _effect->EffectPointsPerComboPoint : 0.0f;
     ValueMultiplier = _effect ? _effect->EffectValueMultiplier : 0.0f;
     DamageMultiplier = _effect ? _effect->EffectDamageMultiplier : 0.0f;
-    EffectSpellPowerBonus = _effect ? _effect->EffectSpellPowerBonus : 0.0f;
+    BonusMultiplier = _effect ? _effect->EffectBonusMultiplier : 0.0f;
     MiscValue = _effect ? _effect->EffectMiscValue : 0;
     MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
     Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
@@ -374,11 +374,9 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
     ImplicitTargetConditions = NULL;
-
-    SpellEffectScalingEntry const* effectScaling = _effect ? sSpellEffectScalingStore.LookupEntry(_effect->Id) : NULL;
-    ScalingMultiplier = effectScaling ? effectScaling->Multiplier : 0.0f;
-    DeltaScalingMultiplier = effectScaling ? effectScaling->RandomMultiplier : 0.0f;
-    ComboScalingMultiplier = effectScaling ? effectScaling->OtherMultiplier : 0.0f;
+    ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
+    DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
+    ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -442,15 +440,14 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target, uint32 auraId) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
     float comboDamage = PointsPerComboPoint;
-    SpellEffectScalingEntry const* scaling = GetEffectScaling();
 
     // base amount modification based on spell lvl vs caster lvl
-    if (scaling && scaling->Multiplier != 0.0f)
+    if (ScalingMultiplier != 0.0f)
     {
         if (caster && !_spellInfo->IsCustomCalculated())
         {
@@ -458,123 +455,25 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA) && _spellInfo->Id != 774) // Hack Fix Rejuvenation, doesn't use the target level for basepoints
                 level = target->getLevel();
 
-            uint32 gtScalingFormula = (_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100;
-
-            if (!CanScale())
-                gtScalingFormula += _spellInfo->LevelBase ? _spellInfo->LevelBase - 1 : 0;
-            else
-                gtScalingFormula += level - 1;
-
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry(gtScalingFormula))
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
             {
                 float multiplier = gtScaling->value;
+                if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
+                    multiplier *= float(_spellInfo->CastTimeMin + (level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
+                if (_spellInfo->CoefLevelBase > level)
+                    multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
 
-                float preciseBasePoints = scaling->Multiplier * multiplier;
-                if (scaling->RandomMultiplier)
+                float preciseBasePoints = ScalingMultiplier * multiplier;
+                if (DeltaScalingMultiplier)
                 {
-                    float delta = scaling->RandomMultiplier * preciseBasePoints * 0.5f;
+                    float delta = DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f;
                     preciseBasePoints += frand(-delta, delta);
                 }
 
                 basePoints = int32(preciseBasePoints);
 
-                // Adjust floating value
-                if (basePoints < preciseBasePoints)
-                    basePoints++;
-
-                if (scaling->OtherMultiplier)
-                    comboDamage = scaling->OtherMultiplier * multiplier;
-            }
-
-            // Adjust some unknown calcuation of basepoints - needed for MoP trinkets !
-            if (bp && basePoints < *bp)
-            {
-                if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
-                {
-                    float multiplier = gtScaling->value;
-
-                    float preciseBasePoints = scaling->Multiplier * multiplier;
-                    if (scaling->RandomMultiplier)
-                    {
-                        float delta = scaling->RandomMultiplier * preciseBasePoints * 0.5f;
-                        preciseBasePoints += frand(-delta, delta);
-                    }
-
-                    basePoints = int32(preciseBasePoints);
-
-                    // Adjust floating value
-                    if (basePoints < preciseBasePoints)
-                        basePoints++;
-
-                    if (scaling->OtherMultiplier)
-                        comboDamage = scaling->OtherMultiplier * multiplier;
-                }
-
-                if (SpellInfo const* auraInfo = sSpellMgr->GetSpellInfo(auraId))
-                {
-                    for (auto itemEntry : auraInfo->SpellFromItems)
-                    {
-                        if (caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        Item* item = caster->ToPlayer()->GetItemByEntry(itemEntry);
-                        if (!item)
-                            continue;
-
-                        if (!item->IsEquipped())
-                            continue;
-
-                        if (ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemEntry))
-                        {
-                            if (itemProto->ItemLevel > 463)
-                            {
-                                if (_spellInfo->Effects[1].IsEffect() && _spellInfo->Effects[1].ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
-                                    basePoints *= _spellInfo->DurationEntry->Duration[2] / _spellInfo->Effects[1].Amplitude;
-
-                                // NewStat(iLvl) = Stat(oldiLvl) * 1.15 ^ ((iLvl - oldiLvl) / 15)
-                                // NewStat(itemProto->ItemLevel) = basePoints(463) * 1.15 ^ ((itemProto->ItemLevel - 463) / 15)
-                                float baseVal = basePoints;
-                                float itemLevel = itemProto->ItemLevel;
-                                float baseLevel = 463;
-                                float newVal = baseVal * pow(1.15f, float((itemLevel - baseLevel) / 15.0f));
-                                float val = floor(newVal + 0.5f);
-
-                                basePoints = val;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (auto itemEntry : _spellInfo->SpellFromItems)
-                    {
-                        if (caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        Item* item = caster->ToPlayer()->GetItemByEntry(itemEntry);
-                        if (!item)
-                            continue;
-
-                        if (!item->IsEquipped())
-                            continue;
-
-                        if (ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemEntry))
-                        {
-                            if (itemProto->ItemLevel > 463)
-                            {
-                                // NewStat(iLvl) = Stat(oldiLvl) * 1.15 ^ ((iLvl - oldiLvl) / 15)
-                                // NewStat(itemProto->ItemLevel) = basePoints(463) * 1.15 ^ ((itemProto->ItemLevel - 463) / 15)
-                                float baseVal = basePoints;
-                                float itemLevel = itemProto->ItemLevel;
-                                float baseLevel = 463;
-                                float newVal = baseVal * pow(1.15f, float((itemLevel - baseLevel) / 15.0f));
-                                float val = floor(newVal + 0.5f);
-
-                                basePoints = val;
-                            }
-                        }
-                    }
-                }
+                if (ComboScalingMultiplier)
+                    comboDamage = ComboScalingMultiplier * multiplier;
             }
         }
     }
@@ -615,6 +514,33 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
     float value = float(basePoints);
 
+    if (ApplyAuraName == SPELL_AURA_MOD_STAT)
+    {
+        if (BasePoints == 0 && !DeltaScalingMultiplier)
+        {
+            switch(_spellInfo->Id)
+            {
+            case 105697:
+            case 105702:
+            case 105706:
+                value = 4000.0f;
+                break;
+            case 105698:
+                value = 12000.0f;
+                break;
+            case 105694:
+                value = 1500.0f;
+                break;
+            case 105689:
+            case 105691:
+            case 105693:
+            case 105696:
+                value = 1000.0f;
+                break;
+            }
+        }
+    }
+
     // random damage
     if (caster)
     {
@@ -642,18 +568,6 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         // Hack Fix Arcane Barrage triggered
         if (_spellInfo->Id == 50273)
             value = float(basePoints);
-    }
-
-    if (caster && CanScale() && (_spellInfo->AttackPowerBonus > 0.0f || EffectSpellPowerBonus > 0.0f))
-    {
-        WeaponAttackType attType = (_spellInfo->IsRangedWeaponSpell() && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-        float ap = caster->GetTotalAttackPowerValue(attType);
-        float sp = float(((Unit*)caster)->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask()));
-
-        float apdamage = ap * _spellInfo->AttackPowerBonus;
-        float spdamage = sp * EffectSpellPowerBonus;
-
-        value += apdamage + spdamage;
     }
 
     return int32(value);
@@ -937,12 +851,12 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     SpellEquippedItemsId = spellEntry->SpellEquippedItemsId;
     SpellInterruptsId = spellEntry->SpellInterruptsId;
     SpellLevelsId = spellEntry->SpellLevelsId;
+   // SpellPowerId = spellEntry->SpellPowerId;
     SpellReagentsId = spellEntry->SpellReagentsId;
     SpellShapeshiftId = spellEntry->SpellShapeshiftId;
     SpellTargetRestrictionsId = spellEntry->SpellTargetRestrictionsId;
     SpellTotemsId = spellEntry->SpellTotemsId;
     SpellMiscId = spellEntry->SpellMiscId;
-    AttackPowerBonus = spellEntry->AttackPowerBonus;
 
     // SpellDifficultyEntry
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -956,10 +870,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     ScalingClass = _scaling ? _scaling->ScalingClass : 0;
     CoefBase = _scaling ? _scaling->CoefBase : 0;
     CoefLevelBase = _scaling ? _scaling->CoefLevelBase : 0;
-    LevelBase = _scaling ? _scaling->LevelBase : 0;
-    ItemLevelBase = _scaling ? _scaling->ItemLevelBase : 0;
-
-    SpellFromItems.clear();
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
@@ -967,11 +877,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     ProcChance = _options ? _options->procChance : 0;
     ProcCharges = _options ? _options->procCharges : 0;
     StackAmount = _options ? _options->StackAmount : 0;
-    InternalCooldown = _options ? _options->InternalCooldown : 0;
-    if (SpellProcsPerMinuteEntry const* procs = sSpellProcsPerMinuteStore.LookupEntry(_options ? _options->ProcsPerMinuteEntry : 0))
-        ProcsPerMinute = procs->ProcsPerMinute;
-    else
-        ProcsPerMinute = 0;
 
     // SpellAuraRestrictionsEntry
     SpellAuraRestrictionsEntry const* _aura = GetSpellAuraRestrictions();
@@ -1033,7 +938,18 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     BaseLevel = _levels ? _levels->baseLevel : 0;
     SpellLevel = _levels ? _levels->spellLevel : 0;
 
-    SpellPowers.clear();
+    // SpellPowerEntry
+    ManaCost =  0;
+    ManaCostPercentage = 0;
+    ManaPerSecond = 0;
+    PowerType = POWER_MANA;
+
+    spellPower = new SpellPowerEntry();
+    spellPower->manaCost = 0;
+    spellPower->ManaCostPercentage = 0;
+    spellPower->manaPerSecond = 0;
+    spellPower->SpellId = Id;
+    spellPower->powerType = POWER_MANA;
 
     // SpellMiscEntry
     SpellMiscEntry const* _misc = GetSpellMisc();
@@ -1066,6 +982,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     ActiveIconID = _misc ? _misc->activeIconID : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
 
+
     // SpellReagentsEntry
     SpellReagentsEntry const* _reagents = GetSpellReagents();
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
@@ -1082,7 +999,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     SpellTargetRestrictionsEntry const* _target = GetSpellTargetRestrictions();
     Targets = _target ? _target->Targets : 0;
     TargetCreatureType = _target ? _target->TargetCreatureType : 0;
-    MaxTargetLevel = _target ? _target->MaxTargetLevel : 0;
     MaxAffectedTargets = _target ? _target->MaxAffectedTargets : 0;
 
     // SpellTotemsEntry
@@ -1312,19 +1228,8 @@ bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
         return false;
-
-    bool goodPower = false;
-    for (auto itr : SpellPowers)
-    {
-        if (itr->PowerType != POWER_MANA && itr->PowerType != POWER_HEALTH)
-            continue;
-
-        goodPower = true;
-    }
-
-    if (!goodPower)
+    if (PowerType != POWER_MANA && PowerType != POWER_HEALTH)
         return false;
-
     if (IsProfessionOrRiding())
         return false;
 
@@ -2617,124 +2522,65 @@ uint32 SpellInfo::GetRecoveryTime() const
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 }
 
-void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, int32* m_powerCost) const
+uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, SpellPowerEntry const* spellPower) const
 {
-    if (SpellPowers.empty())
-        return;
-
     // Spell drain all exist power on cast (Only paladin lay of Hands)
     if (AttributesEx & SPELL_ATTR1_DRAIN_ALL_POWER)
     {
-        for (auto itr : SpellPowers)
-        {
-            Powers PowerType = Powers(itr->PowerType);
-
-            if (PowerType == POWER_HEALTH) // If power type - health drain all
-                m_powerCost[POWER_TO_INDEX(PowerType)] = caster->GetHealth();
-            else if (PowerType < MAX_POWERS) // Else drain all power
-                m_powerCost[POWER_TO_INDEX(PowerType)] = caster->GetPower(Powers(PowerType));
-            else
-                sLog->OutPandashan("SpellInfo::CalcPowerCost: Unknown power type [%u] with spell [%u]", PowerType, Id);
-        }
+        // If power type - health drain all
+        if (spellPower->powerType == POWER_HEALTH)
+            return caster->GetHealth();
+        // Else drain all power
+        if (spellPower->powerType < MAX_POWERS)
+            return caster->GetPower(Powers(spellPower->powerType));
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", spellPower->powerType, Id);
+        return 0;
     }
 
-    int32 powerCost = 0;
-    for (auto itr : SpellPowers)
+    // Base powerCost
+    int32 powerCost = spellPower->manaCost;
+    // PCT cost from total amount
+    if (spellPower->ManaCostPercentage)
     {
-        if (itr->RequiredAuraSpellId && !caster->HasAura(itr->RequiredAuraSpellId))
-            continue;
-
-        Powers PowerType = Powers(itr->PowerType);
-
-        // Base powerCost
-        powerCost = itr->Cost;
-
-        // PCT cost from total amount
-        if (itr->CostBasePercentage)
+        switch (spellPower->powerType)
         {
-            switch (PowerType)
-            {
-                // health as power used
-                case POWER_HEALTH:
-                    powerCost += int32(CalculatePct(caster->GetMaxHealth(), itr->CostBasePercentage));
-                    break;
-                case POWER_MANA:
-                    powerCost += int32(CalculatePct(caster->GetCreateMana(), itr->CostBasePercentage));
-                    break;
-                case POWER_RAGE:
-                case POWER_FOCUS:
-                case POWER_ENERGY:
-                case POWER_CHI:
-                    powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(PowerType)), itr->CostBasePercentage));
-                    break;
-                case POWER_RUNES:
-                case POWER_RUNIC_POWER:
-                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
-                    break;
-                default:
-                    sLog->OutPandashan("SpellInfo::CalcPowerCost: Unknown power type [%u] with spell [%u]", PowerType, Id);
-                    break;
-            }
+            // health as power used
+            case POWER_HEALTH:
+                powerCost += int32(CalculatePct(caster->GetCreateHealth(), spellPower->ManaCostPercentage));
+                break;
+            case POWER_MANA:
+                powerCost += int32(CalculatePct(caster->GetCreateMana(), spellPower->ManaCostPercentage));
+                break;
+            case POWER_RAGE:
+            case POWER_FOCUS:
+            case POWER_ENERGY:
+                powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(spellPower->powerType)), spellPower->ManaCostPercentage));
+                break;
+            case POWER_RUNES:
+            case POWER_RUNIC_POWER:
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
+                break;
+            default:
+                sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", spellPower->powerType, Id);
+                return 0;
         }
-
-        // PCT cost from max amount
-        if (itr->CostMaxPercentage)
-        {
-            switch (PowerType)
-            {
-                // health as power used
-                case POWER_HEALTH:
-                    powerCost += int32(CalculatePct(caster->GetMaxHealth(), itr->CostMaxPercentage));
-                    break;
-                case POWER_MANA:
-                case POWER_RAGE:
-                case POWER_FOCUS:
-                case POWER_ENERGY:
-                case POWER_CHI:
-                    powerCost += int32(CalculatePct(caster->GetMaxPower(PowerType), itr->CostMaxPercentage));
-                    break;
-                case POWER_RUNES:
-                case POWER_RUNIC_POWER:
-                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
-                    break;
-                default:
-                    sLog->OutPandashan("SpellInfo::CalcPowerCost: Unknown power type [%u] with spell [%u]", PowerType, Id);
-                    break;
-            }
-        }
-
-        // Flat mod from caster auras by spell school and power type
-        Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
-        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-        {
-            if (!((*i)->GetMiscValue() & schoolMask))
-                continue;
-
-            if (!((*i)->GetMiscValueB() & (1 << PowerType)))
-                continue;
-
-            powerCost += (*i)->GetAmount();
-        }
-
-        // Apply cost mod by spell
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
-
-        // PCT mod from user auras by spell school and power type
-        Unit::AuraEffectList const& aurasPct = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
-        for (Unit::AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
-        {
-            if (!((*i)->GetMiscValue() & schoolMask))
-                continue;
-
-            if (!((*i)->GetMiscValueB() & (1 << PowerType)))
-                continue;
-
-            powerCost += CalculatePct(powerCost, (*i)->GetAmount());
-        }
-
-        m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
+    SpellSchools school = GetFirstSchoolInMask(schoolMask);
+    // Flat mod from caster auras by spell school
+    powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
+    // Apply cost mod by spell
+    if (Player* modOwner = caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
+
+    if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
+        powerCost = int32(powerCost / (1.117f * SpellLevel / caster->getLevel() -0.1327f));
+
+    // PCT mod from user auras by school
+    powerCost = int32(powerCost * (1.0f + caster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + school)));
+    if (powerCost < 0)
+        powerCost = 0;
+
+    return powerCost;
 }
 
 bool SpellInfo::IsRanked() const
@@ -3222,71 +3068,6 @@ SpellReagentsEntry const* SpellInfo::GetSpellReagents() const
 SpellScalingEntry const* SpellInfo::GetSpellScaling() const
 {
     return SpellScalingId ? sSpellScalingStore.LookupEntry(SpellScalingId) : NULL;
-}
-
-SpellEffectScalingEntry const* SpellEffectInfo::GetEffectScaling() const
-{
-    return sSpellEffectScalingStore.LookupEntry(this->Id);
-}
-
-bool SpellEffectInfo::CanScale() const
-{
-    switch (Effect)
-    {
-        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
-        case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
-        case SPELL_EFFECT_APPLY_AREA_AURA_PET:
-        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
-        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
-        case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
-        case SPELL_EFFECT_APPLY_AURA:
-        {
-            switch (ApplyAuraName)
-            {
-                case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
-                case SPELL_AURA_MOD_INCREASE_SWIM_SPEED:
-                case SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED:
-                case SPELL_AURA_MOD_MINIMUM_SPEED:
-                case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
-                case SPELL_AURA_MOD_INCREASE_SPEED:
-                case SPELL_AURA_MOD_SPEED_ALWAYS:
-                case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
-                case SPELL_AURA_MOD_MELEE_RANGED_HASTE:
-                case SPELL_AURA_MOD_MELEE_RANGED_HASTE_2:
-                case SPELL_AURA_MELEE_SLOW:
-                case SPELL_AURA_MOD_DETECTED_RANGE:
-                case SPELL_AURA_MOD_DETECT_RANGE:
-                case SPELL_AURA_MOD_HEALING_DONE_PERCENT:
-                case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                case SPELL_AURA_MOD_HEALING_PCT:
-                case SPELL_AURA_MOD_ATTACK_POWER:
-                case SPELL_AURA_MOD_ATTACK_POWER_PCT:
-                case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
-                case SPELL_AURA_MECHANIC_IMMUNITY:
-                case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
-                case SPELL_AURA_ADD_FLAT_MODIFIER:
-                case SPELL_AURA_ADD_PCT_MODIFIER:
-                case SPELL_AURA_MOD_CRIT_PCT:
-                case SPELL_AURA_MOD_STAT:
-                case SPELL_AURA_MOD_DAMAGE_DONE:
-                case SPELL_AURA_MOD_HEALING_DONE:
-                case SPELL_AURA_MOD_RATING:
-                case SPELL_AURA_MOD_BASE_HEALTH_PCT:
-                    return false;
-                default:
-                    break;
-            }
-            break;
-        }
-        case SPELL_EFFECT_ADD_COMBO_POINTS:
-        case SPELL_EFFECT_HEAL_MAX_HEALTH:
-        case SPELL_EFFECT_ENERGIZE:
-        case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            return false;
-    }
-
-    return true;
 }
 
 SpellShapeshiftEntry const* SpellInfo::GetSpellShapeshift() const
@@ -3817,21 +3598,11 @@ bool SpellInfo::IsCanBeStolen() const
 {
     // some of the rules for those spells that can be stolen by Dark Simulacrum
     // spells should use mana
-    bool mana = false;
-    for (auto itr : SpellPowers)
-    {
-        if (itr->PowerType != POWER_MANA)
-            return false;
+    if (PowerType != POWER_MANA)
+        return false;
 
-        // and should have mana cost
-        if (!itr->Cost && !itr->CostBasePercentage)
-            return false;
-
-        mana = true;
-        break;
-    }
-
-    if (!mana)
+    // and should have mana cost
+    if (!ManaCost && !ManaCostPercentage)
         return false;
 
     // special rules

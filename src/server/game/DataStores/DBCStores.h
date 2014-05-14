@@ -195,7 +195,6 @@ extern DBCStorage <SpellShapeshiftEntry>         sSpellShapeshiftStore;
 extern DBCStorage <SpellShapeshiftFormEntry>     sSpellShapeshiftFormStore;
 extern DBCStorage <SpellEntry>                   sSpellStore;
 extern DBCStorage <SpellAuraOptionsEntry>        sSpellAuraOptionsStore;
-extern DBCStorage <SpellProcsPerMinuteEntry>     sSpellProcsPerMinuteStore;
 extern DBCStorage <SpellAuraRestrictionsEntry>   sSpellAuraRestrictionsStore;
 extern DBCStorage <SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
 extern DBCStorage <SpellCategoriesEntry>         sSpellCategoriesStore;

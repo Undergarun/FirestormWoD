@@ -1897,22 +1897,14 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
                 break;
             }
         }
-
         if (bcontinue)
             continue;
 
-        bool ok = false;
-        for (auto itr : spellInfo->SpellPowers)
-        {
-            if (itr->Cost > (uint32)GetPower(Powers(itr->PowerType)))
-                continue;
+        if (bcontinue)
+             continue;
 
-            ok = true;
-        }
-
-        if (!ok)
+        if (spellInfo->ManaCost > (uint32)GetPower(POWER_MANA))
             continue;
-
         float range = spellInfo->GetMaxRange(false);
         float minrange = spellInfo->GetMinRange(false);
         float dist = GetDistance(victim);
@@ -1952,20 +1944,10 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
                 break;
             }
         }
-
         if (bcontinue)
             continue;
 
-        bool ok = false;
-        for (auto itr : spellInfo->SpellPowers)
-        {
-            if (itr->Cost > (uint32)GetPower(Powers(itr->PowerType)))
-                continue;
-
-            ok = true;
-        }
-
-        if (!ok)
+        if (spellInfo->ManaCost > (uint32)GetPower(POWER_MANA))
             continue;
 
         float range = spellInfo->GetMaxRange(true);

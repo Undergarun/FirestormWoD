@@ -67,7 +67,7 @@ class ulduar_teleporter : public GameObjectScript
 
             if (player->isInCombat())
             {
-                Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
+                Spell::SendCastResult(player, spell, NULL, 0, SPELL_FAILED_AFFECTING_COMBAT);
                 return true;
             }
 

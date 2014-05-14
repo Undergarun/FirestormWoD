@@ -224,6 +224,34 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         }
 };
 
+// Demonic Slash - 114175
+class spell_warl_demonic_slash : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonic_slash() : SpellScriptLoader("spell_warl_demonic_slash") { }
+
+        class spell_warl_demonic_slash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demonic_slash_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 60, POWER_DEMONIC_FURY);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_demonic_slash_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_demonic_slash_SpellScript();
+        }
+};
+
 // Fury Ward - 119839
 class spell_warl_fury_ward : public SpellScriptLoader
 {
@@ -872,6 +900,7 @@ class spell_warl_unbound_will : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
+                    caster->ModifyHealth(-int32(caster->CountPctFromMaxHealth(20)));
                     caster->RemoveMovementImpairingAuras();
                     caster->RemoveAurasByType(SPELL_AURA_MOD_CONFUSE);
                     caster->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
@@ -1464,6 +1493,9 @@ class spell_warl_decimate : public SpellScriptLoader
                         if (_player->HasAura(WARLOCK_DECIMATE_AURA) && _player->getLevel() >= 73)
                             if (target->GetHealthPct() < 25.0f)
                                 _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
+
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, GetSpellInfo()->Id == WARLOCK_SHADOW_BOLT ? 25 : 30, POWER_DEMONIC_FURY);
                 }
             }
 
@@ -1629,7 +1661,10 @@ class spell_warl_immolation_aura : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
+                {
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -25, POWER_DEMONIC_FURY);
                     caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+                }
             }
 
             void Register()
@@ -1928,7 +1963,7 @@ class spell_warl_hellfire : public SpellScriptLoader
                     return;
 
                 if (Unit* caster = GetCaster())
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 3, POWER_DEMONIC_FURY);
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 4, POWER_DEMONIC_FURY);
             }
 
             void Register()
@@ -1956,10 +1991,7 @@ class spell_warl_hellfire_periodic : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
-                {
                     caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 10, POWER_DEMONIC_FURY);
-                }
             }
 
             void Register()
@@ -2154,7 +2186,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
                             caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
                             if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(86121, 0, 30 * IN_MILLISECONDS);
+                                caster->ToPlayer()->AddSpellCooldown(86121, 0, time(NULL) + 30);
                         }
                     }
                 }
@@ -2566,6 +2598,8 @@ class spell_warl_fel_flame : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 15, POWER_DEMONIC_FURY);
+
                         // Increases the duration of Corruption and Unstable Affliction by 6s
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
                         {
@@ -2788,7 +2822,7 @@ class spell_warl_fear : public SpellScriptLoader
                         if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
                         {
                             _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5 * IN_MILLISECONDS);
+                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, time(NULL) + 5);
                         }
                         else
                             _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);
@@ -3111,6 +3145,7 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
+    new spell_warl_demonic_slash();
     new spell_warl_fury_ward();
     new spell_warl_dark_apotheosis();
     new spell_warl_glyph_of_demon_hunting();

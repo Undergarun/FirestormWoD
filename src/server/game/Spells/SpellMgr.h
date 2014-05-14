@@ -561,6 +561,7 @@ typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
 typedef std::map<uint32, float>  AreaTriggerVisuals;
+typedef std::map<uint16, uint16> ItemUpgradeDatas;
 
 struct PetDefaultSpellsEntry
 {
@@ -698,7 +699,6 @@ class SpellMgr
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = NONE_DIFFICULTY) const;
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[NONE_DIFFICULTY].size(); }
-        void TryLinkItemToSpell(Difficulty difficulty, uint32 spellId, uint32 itemId);
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
         std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
@@ -706,6 +706,9 @@ class SpellMgr
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
         float GetAreaTriggerVisual(uint32 spellId) { return mAreaTriggerVisuals.find(spellId) != mAreaTriggerVisuals.end() ? mAreaTriggerVisuals[spellId] : 0; }
+
+        // Item Upgrade datas
+        uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; }
 
     // Modifiers
     public:
@@ -739,6 +742,7 @@ class SpellMgr
         void LoadTalentSpellInfo();
         void LoadSpellPowerInfo();
         void LoadForbiddenSpells();
+        void InitializeItemUpgradeDatas();
 
         std::vector<uint32>        mSpellCreateItemList;
 
@@ -776,6 +780,7 @@ class SpellMgr
         TalentSpellSet             mTalentSpellInfo;
         SpellPowerVector           mSpellPowerInfo;
         std::list<uint32>          mForbiddenSpells;
+        ItemUpgradeDatas           mItemUpgradeDatas;
         AreaTriggerVisuals         mAreaTriggerVisuals;
 };
 
