@@ -4258,29 +4258,20 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-/*            case 122853:// Tempest Slash
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
-                spellInfo->Effects[0].BasePoints = urand(190000, 210000);
-                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_KNOCK_BACK;
-                spellInfo->Effects[1].BasePoints = 75;
-                spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->Effects[1].MiscValue = 150;
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[2].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                break;*/
             case 122842:// Tempest Slash (summoning tornado)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
-            case 123633:
+            case 123633:// Gale Winds
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].BasePoints = 0;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[0].Amplitude = 500;
+                break;
+            case 122786:// Broken leg
+                spellInfo->Effects[0].MiscValue = -15;
+                spellInfo->Effects[1].BasePoints = 0; // Cancel damages, done by Garalon' script
+                spellInfo->Effects[2].Effect = 3;
                 break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;

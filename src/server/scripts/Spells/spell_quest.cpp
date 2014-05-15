@@ -2288,6 +2288,44 @@ class spell_q31538_ella_s_brew: public SpellScriptLoader
             return new spell_q31538_ella_s_brew_SpellScript();
         }
 };
+class spell_q29939_throw_goblin_fisher: public SpellScriptLoader
+{
+    public:
+        spell_q29939_throw_goblin_fisher() : SpellScriptLoader("spell_q29939_throw_goblin_fisher")
+        {
+        }
+
+        class spell_q29939_throw_goblin_fisher_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q29939_throw_goblin_fisher_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                    if (player->GetQuestStatus(29939) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->SummonGameObject(209877, 1060.907f, -411.995f, 253.360f, 0.0f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1065.42f, -393.578f, 253.336f, 1.6f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1071.28f, -394.54f, 254.467f, 0.5f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1082.9f, -398.03f, 252.8f, 5.9f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1085.48f, -384.223f, 252.29f, 6.0f, 0, 0, 0, 0, 604800);
+                    }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q29939_throw_goblin_fisher_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q29939_throw_goblin_fisher_SpellScript();
+        }
+};
+
 
 void AddSC_quest_spell_scripts()
 {
@@ -2346,4 +2384,5 @@ void AddSC_quest_spell_scripts()
     new spell_q31085_ruining_fork();
     new spell_q31009_klaxxi_resoning_crystal();
     new spell_q31538_ella_s_brew();
+    new spell_q29939_throw_goblin_fisher();
 }

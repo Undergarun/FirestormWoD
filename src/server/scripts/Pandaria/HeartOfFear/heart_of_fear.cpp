@@ -1231,6 +1231,100 @@ class mob_kor_thik_silentwing : public CreatureScript
         }
 };
 
+// 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+class mob_zephyr : public CreatureScript
+{
+    public:
+        mob_zephyr() : CreatureScript("mob_zephyr") { }
+
+        struct mob_zephyrAI : public ScriptedAI
+        {
+            mob_zephyrAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->SetDisplayId(38493);
+                me->SetSpeed(MOVE_RUN, 5.0f);
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Reset()
+            {
+                me->CastSpell(me, SPELL_ZEPHYR, false);
+                me->DespawnOrUnsummon(30000);
+
+                Position targetPoint = GetTargetPoint(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 100.0f);
+                me->GetMotionMaster()->MovePoint(0, targetPoint);
+            }
+
+            Position GetTargetPoint(float posX, float posY, float posZ, float orientation, float dist)
+            {
+                /*
+                    * The main idea is : a circle has 4 quarters; the principle is to define a point at the limit of the area the sonic ring can move,
+                    * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y:
+                    * if orientation is 0, we make 100% on x-axis, if orientation is pi/2, we make 100% on y-axis, and if orientation is pi/4, we make
+                    * 50% on x-axis and 50% on y-axis.
+                    *
+                    * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
+                    * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
+                    * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
+                    * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
+                    * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
+                    */
+
+                // Retrieving absolute orientation
+                float absOri = orientation;
+                uint8 turn = 0;
+                while (absOri > (M_PI / 2))
+                {
+                    absOri -= (M_PI / 2);
+                    turn = 1 - turn;
+                }
+
+                // Looking for ratio between X and Y
+                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
+                float percentY = 1.0f - percentX;
+
+                // Applying negatives directions according to orientation
+                if (orientation > (M_PI / 2))
+                {
+                    if (orientation > M_PI)
+                        percentY = -percentY;
+
+                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
+                        percentX = -percentX;
+                }
+
+                // if turned, we need to switch X & Y
+                if (turn)
+                {
+                    float tmpVal = percentX;
+                    percentX = percentY;
+                    percentY = tmpVal;
+                }
+
+                // Calculating reaching point
+                float pointX = posX;
+                float pointY = posY;
+
+                Position origin = {posX, posY, posZ, orientation};
+                Position next   = {pointX, pointY, posZ, orientation};
+
+                while (origin.GetExactDist2d(&next) < dist)
+                {
+                    pointX += percentX;
+                    pointY += percentY;
+                    next.Relocate(pointX, pointY);
+                }
+
+                return next;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zephyrAI(creature);
+        }
+};
+
 // 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
@@ -1289,5 +1383,6 @@ void AddSC_heart_of_fear()
     new mob_set_thik_gustwing();
     new mob_coagulated_amber();
     new mob_kor_thik_silentwing();
+    new mob_zephyr();
     new spell_vital_strikes();
 }

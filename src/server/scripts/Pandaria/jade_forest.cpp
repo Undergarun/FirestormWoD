@@ -1374,6 +1374,35 @@ class npc_elder_anli : public CreatureScript
 
 };
 
+class mob_kher_shan : public CreatureScript
+{
+    public:
+        mob_kher_shan() : CreatureScript("mob_kher_shan")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_kher_shanAI(creature);
+        }
+
+        struct mob_kher_shanAI : public ScriptedAI
+        {
+            mob_kher_shanAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (Player* player = killer->ToPlayer())
+                    if (player->GetQuestStatus(29924) == QUEST_STATUS_COMPLETE)
+                        if (Quest const* quest = sObjectMgr->GetQuestTemplate(29924))
+                            player->RewardQuest(quest, 0, NULL, true);
+            }
+
+        };
+};
+
 void AddSC_jade_forest()
 {
     //Rare mobs
@@ -1395,4 +1424,5 @@ void AddSC_jade_forest()
     new mob_pandriarch_goldendraft();
     new mob_big_bao();
     new npc_elder_anli();
+    new mob_kher_shan();
 }
