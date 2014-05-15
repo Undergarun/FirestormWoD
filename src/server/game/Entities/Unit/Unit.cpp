@@ -6096,7 +6096,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             break;
                     }
 
-                    ToPlayer()->AddSpellCooldown(104561, 0, 60 * IN_MILLISECONDS);
+                    ToPlayer()->AddSpellCooldown(104561, 0, time(NULL) + 60);
                     return false;
                 }
                 case 120033:// Jade Spirit
@@ -6115,7 +6115,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     else
                         CastSpell(this, 104993, true);
 
-                    ToPlayer()->AddSpellCooldown(104993, 0, 60 * IN_MILLISECONDS);
+                    ToPlayer()->AddSpellCooldown(104993, 0, time(NULL) + 60);
                     return false;
                 }
                 case 118333:// Dancing Steel
@@ -6132,7 +6132,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     else
                         CastSpell(this, 118335, true);
 
-                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, 60 * IN_MILLISECONDS);
+                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + 60);
                     return false;
                 }
                 case 142536:// Spirit of Conquest
@@ -6145,7 +6145,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     triggered_spell_id = 142535;
                     CastSpell(this, triggered_spell_id, true);
-                    ToPlayer()->AddSpellCooldown(142535, 0, 60 * IN_MILLISECONDS);
+                    ToPlayer()->AddSpellCooldown(142535, 0, time(NULL) + 60);
                     return false;
                 }
                 // Weight of Feather, Scales of Life
