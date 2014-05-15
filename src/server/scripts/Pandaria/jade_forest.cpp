@@ -1365,6 +1365,7 @@ class npc_elder_anli : public CreatureScript
 
             return true;
         }
+
         bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
         {
             player->PlayerTalkClass->GetQuestMenu();
@@ -1403,13 +1404,128 @@ class mob_kher_shan : public CreatureScript
         };
 };
 
+class mob_pearlfin_aqualyte : public CreatureScript
+{
+    public:
+        mob_pearlfin_aqualyte() : CreatureScript("mob_pearlfin_aqualyte")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(29903) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->KilledMonsterCredit(56601);
+                creature->DespawnOrUnsummon();
+            }
+
+            return true;
+        }
+};
+
+class mob_pearlfin_villager : public CreatureScript
+{
+    public:
+        mob_pearlfin_villager() : CreatureScript("mob_pearlfin_villager")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(29762) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->AddItem(79811, 1);
+                creature->DespawnOrUnsummon();
+            }
+
+            return true;
+        }
+};
+
+class mob_pearlfin_situation : public CreatureScript
+{
+    public:
+        mob_pearlfin_situation() : CreatureScript("mob_pearlfin_situation")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+                switch (creature->GetEntry())
+                {
+                    case 59058:
+                        if (creature->isQuestGiver())
+                            player->PrepareQuestMenu(creature->GetGUID());
+
+                        if (player->GetQuestStatus(29883) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(59058);
+
+                        player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, creature->GetGUID());
+                        break;
+                    case 56693:
+                        if (player->GetQuestStatus(29883) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(56693);
+                        break;
+                    case 56690:
+                        if (player->GetQuestStatus(29883) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(56690);
+                        break;
+                    case 54960:
+                        if (creature->isQuestGiver())
+                            player->PrepareQuestMenu(creature->GetGUID());
+
+                        if (player->GetQuestStatus(29883) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(54960);
+
+                        player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, creature->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        {
+            if (creature->GetEntry() == 59058 || creature->GetEntry() == 54960)
+                player->PlayerTalkClass->GetQuestMenu();
+
+            return true;
+        }
+};
+
+// Initial LockId : 1979
+class gob_hozen_cage : public GameObjectScript
+{
+    public:
+        gob_hozen_cage() : GameObjectScript("gob_hozen_cage")
+        {
+        }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (player->GetQuestStatus(29559) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (player->HasItemCount(74260, 1))
+                {
+                    player->KilledMonsterCredit(55201);
+                    player->DestroyItemCount(74260, 1, false);
+                    go->DestroyForPlayer(player, false);
+                }
+            }
+
+            return true;
+        }
+};
+
 void AddSC_jade_forest()
 {
-    //Rare mobs
+    // Rare mobs
     new mob_kor_nas_nightsavage();
     new mob_krax_ik();
     new mob_mister_ferocious();
-    //Elite mobs
+    // Elite mobs
     new mob_shadow_of_doubt();
     new mob_akkalar();
     new mob_grookin_outrunner();
@@ -1418,11 +1534,16 @@ void AddSC_jade_forest()
     new mob_ro_shen();
     new mob_sha_reminant();
     new mob_hutia();
-    //Standard Mobs
+    // Standard Mobs
     new mob_pandriarch_windfur();
     new mob_pandriarch_bramblestaff();
     new mob_pandriarch_goldendraft();
     new mob_big_bao();
     new npc_elder_anli();
     new mob_kher_shan();
+    new mob_pearlfin_aqualyte();
+    new mob_pearlfin_villager();
+    new mob_pearlfin_situation();
+    // Game Objects
+    new gob_hozen_cage();
 }
