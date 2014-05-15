@@ -131,6 +131,9 @@ class boss_lei_shi : public CreatureScript
                     return;
                 }
 
+                if (leiShiFreed)
+                    return;
+
                 _Reset();
  
                 summons.DespawnAll();
@@ -190,13 +193,13 @@ class boss_lei_shi : public CreatureScript
                         itr->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
                     }
                 }
-
-                if (leiShiFreed)
-                    me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
             }
 
             void JustReachedHome()
             {
+                if (leiShiFreed)
+                    return;
+
                 _JustReachedHome();
  
                 if (pInstance && pInstance->GetBossState(DATA_LEI_SHI) != DONE)
@@ -205,9 +208,12 @@ class boss_lei_shi : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
+                if (leiShiFreed)
+                    return;
+
                 if (pInstance)
                 {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) != DONE)
+                    if (pInstance->GetBossState(DATA_TSULONG) != DONE)
                     {
                         EnterEvadeMode();
                         return;
@@ -279,16 +285,11 @@ class boss_lei_shi : public CreatureScript
                 {
                     damage = 0;
                     me->setFaction(35);
+                    me->RemoveAllAreasTrigger();
+                    me->RemoveAllAuras();
+                    me->RestoreDisplayId();
                     me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->RestoreDisplayId();
-                    me->RemoveAura(SPELL_AFRAID);
-                    me->RemoveAura(SPELL_HIDE);
-                    me->RemoveAura(SPELL_HIDE_STACKS);
-                    me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
-                    me->RemoveAura(SPELL_SCARY_FOG_DOT);
-                    me->RemoveAura(SPELL_SCARY_FOG_STACKS);
-                    me->RemoveAllAreasTrigger();
 
                     leiShiFreed = true;
                     Talk(TALK_DEFEATED);
