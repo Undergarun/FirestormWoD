@@ -99,6 +99,14 @@ uint32 guardiansEntry[4] =
     NPC_COBALT
 };
 
+uint32 crystalsEntry[4] =
+{
+    NPC_LIVING_AMETHYST_CRYSTAL,
+    NPC_LIVING_COBALT_CRYSTAL,
+    NPC_LIVING_JADE_CRYSTAL,
+    NPC_LIVING_JASPER_CRYSTAL
+};
+
 // For living crystals - Stone guard
 Position stoneGuardsPos[4] =
 {
@@ -281,10 +289,14 @@ class boss_stone_guard_controler : public CreatureScript
                             fightInProgress = false;
                             lastPetrifierEntry = 0;
 
-                            for (uint32 entry: guardiansEntry)
+                            for (uint32 entry : guardiansEntry)
                                 if (pInstance)
                                     if (Creature* guardian = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
                                         guardian->AI()->DoAction(ACTION_REACH_HOME);
+
+                            for (uint32 entry : crystalsEntry)
+                                if (Creature* crystal = GetClosestCreatureWithEntry(me, entry, 100.0f))
+                                    crystal->DespawnOrUnsummon();
 
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_CHAINS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOTALY_PETRIFIED);
@@ -470,7 +482,10 @@ class boss_generic_guardian : public CreatureScript
 
             Creature* GetController()
             {
-                if (pInstance) return me->GetMap()->GetCreature(pInstance->GetData64(NPC_STONE_GUARD_CONTROLER)); else return NULL;
+                if (pInstance)
+                    return pInstance->instance->GetCreature(pInstance->GetData64(NPC_STONE_GUARD_CONTROLER));
+                else
+                    return 0;
             }
 
             void Reset()
@@ -695,6 +710,7 @@ class boss_generic_guardian : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         me->SetPower(POWER_ENERGY, 0);
                         me->RemoveAllAreasTrigger();
+                        me->RemoveAllAuras();
 
                         if (pInstance)
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(spellPetrificationBarId);

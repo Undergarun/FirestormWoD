@@ -238,6 +238,13 @@ public:
                 return;
             }
 
+            // Activation of the walls
+            std::list<GameObject*> doorList;
+            GetGameObjectListWithEntryInGrid(doorList, me, GOB_GARALON_WALLS, 100.0f);
+
+            for (GameObject* door : doorList)
+                door->SetGoState(GO_STATE_READY);
+
             DoAction(ACTION_GARALON_VISIBLE);
 
             for (uint8 i = 0; i <= 3; ++i)
@@ -284,6 +291,13 @@ public:
                 }
             }
 
+            // Open walls
+            std::list<GameObject*> doorList;
+            GetGameObjectListWithEntryInGrid(doorList, me, GOB_GARALON_WALLS, 100.0f);
+
+            for (GameObject* door : doorList)
+                door->SetGoState(GO_STATE_ACTIVE);
+
             if (instance)
             {
                 instance->SetBossState(DATA_GARALON, FAIL);
@@ -306,6 +320,20 @@ public:
         {
             summons.DespawnAll();
             DespawnCreatures(NPC_PHEROMONE_TRAIL);
+
+            // Removing walls
+            std::list<GameObject*> doorList;
+            GetGameObjectListWithEntryInGrid(doorList, me, GOB_GARALON_WALLS, 100.0f);
+
+            for (GameObject* door : doorList)
+                door->SetGoState(GO_STATE_ACTIVE);
+
+            // Opening paths to Mel'jarak
+            doorList.clear();
+            GetGameObjectListWithEntryInGrid(doorList, me, GOB_DOOR_TO_MELJARAK, 100.0f);
+
+            for (GameObject* door : doorList)
+                door->SetGoState(GO_STATE_ACTIVE);
 
             if (instance)
             {
