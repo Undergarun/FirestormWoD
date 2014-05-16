@@ -284,7 +284,7 @@ class boss_tayak : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
-                summons.DespawnAll();
+                events.Reset();
                 me->RemoveAllAuras();
 
                 if (pInstance)
@@ -301,6 +301,8 @@ class boss_tayak : public CreatureScript
                 GetCreatureListWithEntryInGrid(windList, me, NPC_GALE_WINDS_STALKER, 300.0f);
                 for (auto stalker : windList)
                     stalker->AI()->DoAction(ACTION_STOP_WIND);
+
+                summons.DespawnAll();
 
                 _JustDied();
             }
@@ -603,7 +605,7 @@ class boss_tayak : public CreatureScript
         }
 };
 
-// Heart of Fear - Trash Version Tempest Stalker (LTD): 62908.
+// Heart of Fear - Armsmaster Ta'yak Tempest Stalker (LTD): 62908.
 class npc_tempest_slash_tornado : public CreatureScript
 {
 public:
