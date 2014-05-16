@@ -27,15 +27,16 @@ DoorData const doorData[] =
     {GOB_ANTECHAMBER_DOOR_ENTRANCE, 0,              DOOR_TYPE_ROOM,     BOUNDARY_S},
     {GOB_ANTECHAMBER_DOOR_EXIT,     0,              DOOR_TYPE_ROOM,     BOUNDARY_E},
     {GOB_ORATIUM_DOOR_ENTRANCE,     DATA_ZORLOK,    DOOR_TYPE_ROOM,     BOUNDARY_W},
-    {GOB_QUARTERS_DOOR_ENTRANCE,    DATA_ZORLOK,     DOOR_TYPE_PASSAGE,  BOUNDARY_S},
+    {GOB_QUARTERS_DOOR_ENTRANCE,    DATA_ZORLOK,    DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {GOB_QUARTERS_DOOR_EXIT,        DATA_TAYAK,     DOOR_TYPE_PASSAGE,  BOUNDARY_W},
     {GOB_STAIRWAYS_DOOR_EXIT,       0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
+    {GOB_DOOR_TO_MELJARAK,          DATA_GARALON,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GOB_BALCONY_DOOR_EXIT,         DATA_MELJARAK,  DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {GOB_ATRIUM_DOOR_ENTRANCE,      0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
     {GOB_ATRIUM_DOOR_EXIT,          0,              DOOR_TYPE_ROOM,     BOUNDARY_W},
     {GOB_SANCTUM_DOOR_ENTRANCE,     0,              DOOR_TYPE_ROOM,     BOUNDARY_E},
     {GOB_HEARTOFFEAR_DOOR_ENTRANCE, DATA_UNSOK,     DOOR_TYPE_PASSAGE,  BOUNDARY_E},
-    {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
+    {0,                             0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
 class instance_heart_of_fear : public InstanceMapScript
@@ -133,10 +134,13 @@ class instance_heart_of_fear : public InstanceMapScript
                     case GOB_ATRIUM_DOOR_ENTRANCE:
                     case GOB_ATRIUM_DOOR_EXIT:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
                         break;
                     // Specific doors
                     case GOB_ORATIUM_DOOR_ENTRANCE:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         zorlokEntranceDoorGuid = go->GetGUID();
                         break;
                     case GOB_QUARTERS_DOOR_ENTRANCE:
@@ -149,18 +153,22 @@ class instance_heart_of_fear : public InstanceMapScript
                         break;
                     case GOB_STAIRWAYS_DOOR_EXIT:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         garalonEntranceDoorGuid = go->GetGUID();
                         break;
                     case GOB_BALCONY_DOOR_EXIT:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         meljarakExitDoorGuid = go->GetGUID();
                         break;
                     case GOB_SANCTUM_DOOR_ENTRANCE:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         unsokEntranceDoorGuid = go->GetGUID();
                         break;
                     case GOB_HEARTOFFEAR_DOOR_ENTRANCE:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         shekzeerEntranceDoorGuid = go->GetGUID();
                         break;
                     default:

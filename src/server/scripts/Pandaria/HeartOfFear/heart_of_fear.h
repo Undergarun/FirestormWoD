@@ -44,18 +44,20 @@ enum eSpells
     SPELL_INHALE                = 122852,
     SPELL_EXHALE                = 122761,
     SPELL_EXHALE_DMG            = 122760,
-    SPELL_PHEROMONES_OF_ZEAL    = 123812,
-    SPELL_PHEROMONES_CLOUD      = 123811,
+    SPELL_PHEROMONES_OF_ZEAL    = 123812,   // Aura inflicting damages to players
+    SPELL_PHEROMONES_CLOUD      = 123811,   // Creating Cloud of pheromones
     SPELL_FORCE_AND_VERVE       = 122713,
     SPELL_NOISE_CANCELLING      = 122706,
     SPELL_MISSILE_NOISE_CANC    = 122707,
     SPELL_SONG_OF_THE_EMPRESS   = 123791,
     SPELL_SONIC_RING_VISUAL     = 122334,
     SPELL_SONIC_RING_AURA       = 122336,
+    SPELL_SONIC_PULSE_VISUAL    = 124668,
+    SPELL_SONIC_PULSE_AURA      = 124673,
     SPELL_INHALE_PHEROMONES     = 124018,
     SPELL_REINFORCE             = 123833,
     SPELL_BERSERK               = 120207,
-    SPELL_SPRING_RABBIT_JUMP    = 61724,
+    SPELL_SPRING_RABBIT_JUMP    = 61724,    // Pull the players on the boss
 
     // --- Blade Lord Ta'yak ---
     SPELL_VISINTRO_TAYAK        = 128788,
@@ -121,12 +123,13 @@ enum eActions
     ACTION_SONIC_QUAD2          = 4,
     ACTION_INHALE_PHEROMONES    = 5,
     ACTION_WIPE                 = 6,
+    ACTION_SONIC_PULSE          = 7,
 
     // Ta'yak
-    ACTION_TAYAK_TALK_TRASH     = 7,
+    ACTION_TAYAK_TALK_TRASH     = 8,
 
     // Garalon
-    ACTION_GARALON_VISIBLE      = 8,
+    ACTION_GARALON_VISIBLE      = 9,
 };
 
 enum eCreatures
@@ -179,6 +182,8 @@ enum eCreatures
     NPC_SONIC_RING_150LEFT          = 62743,
     NPC_SONIC_RING_150RIGHT         = 62744,
     NPC_SONIC_RING_BACK             = 62746,
+    // Sonic Pulse
+    NPC_SONIC_PULSE                 = 63837,
 
     // Heroic Adds
     NPC_ECHO_OF_ATTENUATION         = 65173,
@@ -234,6 +239,10 @@ enum eGameObjects
     // Zor'lok Barriers
     GOB_ARENA_WALLS                 = 212916,
     GOB_FINAL_PHASE_WALLS           = 212943,
+
+    // Garalon Doors
+    GOB_DOOR_TO_MELJARAK            = 214634,
+    GOB_GARALON_WALLS               = 212695,
 };
 
 enum ePhases
@@ -279,6 +288,7 @@ enum eEvents
     EVENT_CAST_FANDV                = 10,
     EVENT_CONVERT                   = 11,
     EVENT_PULL_RAID                 = 12,
+    EVENT_SONIC_PULSE               = 13,
 
     // Ta'yak
     // EVENT_TEMPEST_SLASH             = 15,
@@ -330,10 +340,11 @@ enum eTypes
 {
     // Zor'lok
     TYPE_EXHALE_TARGET  = 1,
+    TYPE_PHASE_ZORLOK   = 2,
     // Tayak
-    TYPE_STORM_POINT    = 2,
-    TYPE_PHASE_TAYAK    = 3,
-    TYPE_STORM_PHASE    = 4,
+    TYPE_STORM_POINT    = 3,
+    TYPE_PHASE_TAYAK    = 4,
+    TYPE_STORM_PHASE    = 5,
 };
 
 #define DISPLAYID_INVISIBLE 11686
