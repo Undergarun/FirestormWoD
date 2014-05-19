@@ -640,8 +640,8 @@ void Pet::Update(uint32 diff, uint32 entry)
                     if (owner->HasAura(56315))
                         RemoveAura(56315);
 
-                    if (owner->HasSpell(130392))
-                        RemoveAura(130392);
+                    /*if (owner->HasSpell(130392))
+                        RemoveAura(130392);*/
                 }
             }
 
@@ -671,8 +671,8 @@ void Pet::Update(uint32 diff, uint32 entry)
                 CastSpell(this, 56315, true);
 
             // Blink Strikes
-            if (owner->HasSpell(130392))
-                CastSpell(this, 130392, true);
+            /*if (owner->HasSpell(130392))
+                CastSpell(this, 130392, true);*/
 
             if (isControlled())
             {
@@ -737,8 +737,8 @@ void Pet::Update(uint32 diff, uint32 entry)
                         RemoveAura(56315);
 
                     // Blink Strikes
-                    if (owner->HasSpell(130392))
-                        RemoveAura(130392);
+                    /*if (owner->HasSpell(130392))
+                        RemoveAura(130392);*/
                 }
             }
             break;
