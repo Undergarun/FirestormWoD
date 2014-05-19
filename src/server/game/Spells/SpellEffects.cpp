@@ -4650,6 +4650,8 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     }
 
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
+    int32 autoAttacksBonus = std::max(1 + (m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE) / 100), 1);
+    weaponDamage /= autoAttacksBonus;
 
     // Sequence is important
     for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)

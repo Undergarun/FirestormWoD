@@ -4446,9 +4446,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 break;
-            case 81333: // Might of the Frozen Wastes
-                spellInfo->Effects[1].BasePoints = 30;
-                break;
             case 44203: // Tranquility (triggered)
                 spellInfo->MaxAffectedTargets = 5;
                 break;
