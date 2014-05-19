@@ -3517,7 +3517,7 @@ class spell_gen_orb_of_power : public SpellScriptLoader
                         if (healing->GetAmount() -5 <= -90)
                             healing->ChangeAmount(-90);
                         else
-                            healing->ChangeAmount(damageDone->GetAmount() - 5);
+                            healing->ChangeAmount(healing->GetAmount() - 5);
                     }
                     if (AuraEffectPtr damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
                     {
@@ -3525,7 +3525,7 @@ class spell_gen_orb_of_power : public SpellScriptLoader
                         if (damageTaken->GetAmount() + 30 >= 500)
                             damageTaken->ChangeAmount(500);
                         else
-                            damageTaken->ChangeAmount(damageDone->GetAmount() + 30);
+                            damageTaken->ChangeAmount(damageTaken->GetAmount() + 30);
                     }
                 }
             }
