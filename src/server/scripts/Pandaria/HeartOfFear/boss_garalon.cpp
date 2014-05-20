@@ -662,7 +662,9 @@ class spell_garalon_furious_swipe: public SpellScriptLoader
             {
                 // The target list size indicates how many players Garalon hits. We let him know what to do afterwards.
                 if (targets.empty() || targets.size() < 2) // If he hits less than two players, it's time to go for Fury.
-                    CAST_AI(boss_garalon::boss_garalonAI, GetCaster()->ToCreature()->AI())->DoAction(ACTION_FUR_SWIPE_FAILED);
+                    //CAST_AI(boss_garalon::boss_garalonAI, GetCaster()->ToCreature()->AI())->DoAction(ACTION_FUR_SWIPE_FAILED);
+                    if (Unit* caster = GetCaster())
+                        caster->GetAI()->DoAction(ACTION_FUR_SWIPE_FAILED);
             }
 
             void Register()

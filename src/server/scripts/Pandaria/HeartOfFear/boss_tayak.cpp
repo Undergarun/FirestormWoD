@@ -608,158 +608,188 @@ class boss_tayak : public CreatureScript
 // Heart of Fear - Armsmaster Ta'yak Tempest Stalker (LTD): 62908.
 class npc_tempest_slash_tornado : public CreatureScript
 {
-public:
-    npc_tempest_slash_tornado() : CreatureScript("npc_tempest_slash_tornado") { }
+    public:
+        npc_tempest_slash_tornado() : CreatureScript("npc_tempest_slash_tornado") { }
 
-    struct npc_tempest_slash_tornadoAI : public ScriptedAI
-    {
-        npc_tempest_slash_tornadoAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_tempest_slash_tornadoAI : public ScriptedAI
         {
-            pInstance = creature->GetInstanceScript();
-        }
+            npc_tempest_slash_tornadoAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-        EventMap events;
-        InstanceScript* pInstance;
+            EventMap events;
+            InstanceScript* pInstance;
 
-        void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.Reset();
+                me->SetReactState(REACT_PASSIVE);
+
+                if (summoner)
+                {
+                    // Replacing at 5.0f on the right of Ta'yak (summoner)
+                    float leftOri = (me->GetOrientation() + M_PI * 0.5f > M_PI * 2.0f) ? me->GetOrientation() - 1.5f * M_PI : me->GetOrientation() + M_PI * 0.5f;
+
+                    // Random orientation in front of Ta'yak
+                    float ori = summoner->GetOrientation() + ((urand(0, 1) ? 1 : -1) * frand(M_PI/3, M_PI/2));
+                    me->SetOrientation(ori);
+                    me->SetFacingTo(ori);
+
+                    // Applying auras and moving
+                    me->SetInCombatWithZone();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+                    me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
+
+                    float x, y, z;
+                    me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
+                    me->GetMotionMaster()->MovePoint(8, x, y, z);
+                }
+
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (!id || type != POINT_MOTION_TYPE)
+                    return;
+
+                if (id == 8)
+                {
+                    Movement::MoveSplineInit init(*me);
+                    // Selecting the center 2.0f yds forward as center of the circle path
+                    Position pos = GetTargetPoint(me, 2.0f);
+                    // Creating the circle path from the center
+                    FillCirclePath(pos, 2.0f, pos.GetPositionZ(), init.Path(), true);
+                    init.SetWalk(true);
+                    init.SetCyclic();
+                    init.Launch();
+                }
+            }
+
+            Position GetTargetPoint(Creature* mob, float dist)
+            {
+                /*
+                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
+                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
+                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
+                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
+                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
+                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
+                 * small.
+                 *
+                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
+                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
+                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
+                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
+                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
+                 */
+
+                float posX = mob->GetPositionX();
+                float posY = mob->GetPositionY();
+                float posZ = mob->GetPositionZ();
+                float orientation = mob->GetOrientation();
+
+                // Retrieving absolute orientation
+                float absOri = orientation;
+                uint8 turn = 0;
+                while (absOri > (M_PI / 2))
+                {
+                    absOri -= (M_PI / 2);
+                    turn = ++turn % 4;
+                }
+
+                // Looking for ratio between X and Y
+                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
+                float percentY = 1.0f - percentX;
+
+                // Applying negatives directions according to orientation
+                if (orientation > (M_PI / 2))
+                {
+                    if (orientation > M_PI)
+                        percentY = -percentY;
+
+                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
+                        percentX = -percentX;
+                }
+
+                // if turned, we need to switch X & Y
+                switch (turn)
+                {
+                    // -x / +y / switch
+                    case 1:
+                    {
+                        float tmpVal = percentX;
+                        percentX = -percentY;
+                        percentY = tmpVal;
+                        break;
+                    }
+                    // -x / -y / no switch
+                    case 2:
+                    {
+                        percentX = -percentX;
+                        percentY = -percentY;
+                        break;
+                    }
+                    // +x / -y / switch
+                    case 3:
+                    {
+                        float tmpVal = percentX;
+                        percentX = percentY;
+                        percentY = -tmpVal;
+                        break;
+                    }
+                    // +x / +y / no switch : no change
+                    default:
+                        break;
+                }
+
+                // Calculating reaching point
+                float pointX = posX;
+                float pointY = posY;
+
+                Position reachPoint = {pointX, pointY, posZ, orientation};
+
+                do
+                {
+                    pointX += percentX;
+                    pointY += percentY;
+                    reachPoint.Relocate(pointX, pointY);
+                } while (mob->GetDistance(reachPoint) < dist);
+
+                return reachPoint;
+            }
+
+            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
+            {
+                float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
+
+                for (uint8 i = 0; i < 16; angle += step, ++i)
+                {
+                    G3D::Vector3 point;
+                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
+                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
+                    point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
+                    path.push_back(point);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                // Despawn on Ta'yak's phase 2
+                if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                    if (tayak->AI()->GetData(TYPE_PHASE_TAYAK) == PHASE_STORM_UNLEASHED)
+                        me->DespawnOrUnsummon();
+
+                events.Update(diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            events.Reset();
-            me->SetReactState(REACT_PASSIVE);
-
-            if (summoner)
-            {
-                // Replacing at 5.0f on the right of Ta'yak (summoner)
-                float leftOri = (me->GetOrientation() + M_PI * 0.5f > M_PI * 2.0f) ? me->GetOrientation() - 1.5f * M_PI : me->GetOrientation() + M_PI * 0.5f;
-
-                // Random orientation in front of Ta'yak
-                float ori = summoner->GetOrientation() + ((urand(0, 1) ? 1 : -1) * frand(M_PI/3, M_PI/2));
-                me->SetOrientation(ori);
-                me->SetFacingTo(ori);
-
-                // Applying auras and moving
-                me->SetInCombatWithZone();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-                me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
-
-                float x, y, z;
-                me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
-                me->GetMotionMaster()->MovePoint(8, x, y, z);
-            }
-
+            return new npc_tempest_slash_tornadoAI(creature);
         }
-
-        void MovementInform(uint32 type, uint32 id)
-        {
-            if (!id || type != POINT_MOTION_TYPE)
-                return;
-
-            if (id == 8)
-            {
-                Movement::MoveSplineInit init(*me);
-                // Selecting the center 2.0f yds forward as center of the circle path
-                Position pos = GetTargetPoint(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 2.0f);
-                // Creating the circle path from the center
-                FillCirclePath(pos, 2.0f, pos.GetPositionZ(), init.Path(), true);
-                init.SetWalk(true);
-                init.SetCyclic();
-                init.Launch();
-            }
-        }
-
-        Position GetTargetPoint(float posX, float posY, float posZ, float orientation, float dist)
-        {
-            /*
-                * The main idea is : a circle has 4 quarters; the principle is to define a point at the limit of the area the sonic ring can move,
-                * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y:
-                * if orientation is 0, we make 100% on x-axis, if orientation is pi/2, we make 100% on y-axis, and if orientation is pi/4, we make
-                * 50% on x-axis and 50% on y-axis.
-                *
-                * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
-                * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
-                * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
-                * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
-                * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
-                */
-
-            // Retrieving absolute orientation
-            float absOri = orientation;
-            uint8 turn = 0;
-            while (absOri > (M_PI / 2))
-            {
-                absOri -= (M_PI / 2);
-                turn = 1 - turn;
-            }
-
-            // Looking for ratio between X and Y
-            float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
-            float percentY = 1.0f - percentX;
-
-            // Applying negatives directions according to orientation
-            if (orientation > (M_PI / 2))
-            {
-                if (orientation > M_PI)
-                    percentY = -percentY;
-
-                if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
-                    percentX = -percentX;
-            }
-
-            // if turned, we need to switch X & Y
-            if (turn)
-            {
-                float tmpVal = percentX;
-                percentX = percentY;
-                percentY = tmpVal;
-            }
-
-            // Calculating reaching point
-            float pointX = posX;
-            float pointY = posY;
-
-            Position origin = {posX, posY, posZ, orientation};
-            Position next   = {pointX, pointY, posZ, orientation};
-
-            while (origin.GetExactDist2d(&next) < dist)
-            {
-                pointX += percentX;
-                pointY += percentY;
-                next.Relocate(pointX, pointY);
-            }
-
-            return next;
-        }
-
-        void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-        {
-            float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
-            float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-            for (uint8 i = 0; i < 16; angle += step, ++i)
-            {
-                G3D::Vector3 point;
-                point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
-                path.push_back(point);
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            // Despawn on Ta'yak's phase 2
-            if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
-                if (tayak->AI()->GetData(TYPE_PHASE_TAYAK) == PHASE_STORM_UNLEASHED)
-                    me->DespawnOrUnsummon();
-
-            events.Update(diff);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_tempest_slash_tornadoAI(creature);
-    }
 };
 
 // Heart of Fear - Armsmaster Ta'yak - Storm Unleashed West 1 Tornado (LTD): 63278.
@@ -920,12 +950,14 @@ class mob_gale_winds_stalker : public CreatureScript
                                 Position pos = {tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f};
 
                                 std::list<Player*> playerList;
-                                GetPlayerListInGrid(playerList, me, 300.0f);
+                                GetPlayerListInGrid(playerList, me, 500.0f);
 
                                 for (auto player : playerList)
                                     if (player->hasForcedMovement)
                                         player->SendApplyMovementForce(false, pos);
                             }
+
+                            isActive = false;
                         }
                         break;
                     }
