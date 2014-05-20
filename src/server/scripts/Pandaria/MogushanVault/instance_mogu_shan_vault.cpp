@@ -208,13 +208,19 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && turnOver)
                         {
                             uint8 choice;
-                            // Jasper will always remain for loot purpose
+                            Creature* guardian = 0;
+                            bool loop = true;
                             do
                             {
                                 choice = urand(0, 3);
-                            } while (instance->GetCreature(stoneGuardGUIDs[choice])->GetEntry() == NPC_JASPER);
-                            uint8 i = 0;
+                                guardian = instance->GetCreature(stoneGuardGUIDs[choice]);
+                                // Jasper will always remain for loot purpose
+                                if (guardian && guardian->GetEntry() != NPC_JASPER)
+                                    loop = false;
 
+                            } while (loop);
+
+                            uint8 i = 0;
                             for (auto itr : stoneGuardGUIDs)
                             {
                                 if (i == choice)
