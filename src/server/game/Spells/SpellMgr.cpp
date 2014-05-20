@@ -3480,9 +3480,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 104232:// Rain of Fire (Aftermath)
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 130393:// Blink Strike
+            /*case 130393:// Blink Strike
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
-                break;
+                break;*/
             case 135299:// Ice Trap (snare)
             case 140023:// Ring of Peace (dummy)
             case 81782: // Power Word: Barrier (buff)
@@ -4446,9 +4446,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115610:// Temporal Shield
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
-                break;
-            case 81333: // Might of the Frozen Wastes
-                spellInfo->Effects[1].BasePoints = 30;
                 break;
             case 44203: // Tranquility (triggered)
                 spellInfo->MaxAffectedTargets = 5;

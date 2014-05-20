@@ -13999,9 +13999,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
             uint32 trigger = 0;
             if (IsTwoHandUsed())
-            {
                 trigger = 120275;
-            }
             else
             {
                 Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
@@ -14896,9 +14894,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
                 uint32 trigger = 0;
                 if (IsTwoHandUsed())
-                {
                     trigger = 120275;
-                }
                 else
                 {
                     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);

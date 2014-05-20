@@ -501,8 +501,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.0f;
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.0f;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier));
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier));
         }
         else if (GetShapeshiftForm() == FORM_BEAR)
         {
@@ -518,6 +518,10 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+
+    uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+    AddPct(min_damage, autoAttacksPctBonus);
+    AddPct(max_damage, autoAttacksPctBonus);
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType)

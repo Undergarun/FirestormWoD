@@ -13864,11 +13864,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(46924) && attType == BASE_ATTACK)
         AddPct(DoneTotalMod, 60);
 
-    // Might of the Frozen Wastes - 81333
-    // Increase damage dealt by two handed weapons by 30%
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && !spellProto && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DK_FROST && HasAura(81333) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
-        AddPct(DoneTotalMod, 30);
-
     // Sword of Light - 53503
     // Increase damage dealt by two handed weapons by 30%
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
@@ -14076,14 +14071,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
-
-    // Add SPELL_AURA_MOD_AUTOATTACK_DAMAGE percent bonus
-    if (!spellProto)
-    {
-        AuraEffectList const& mAutoAttacksDamageBonus = GetAuraEffectsByType(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
-        for (AuraEffectList::const_iterator i = mAutoAttacksDamageBonus.begin(); i != mAutoAttacksDamageBonus.end(); ++i)
-            AddPct(DoneTotalMod, (*i)->GetAmount());
-    }
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;

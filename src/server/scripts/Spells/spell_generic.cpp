@@ -3506,15 +3506,27 @@ class spell_gen_orb_of_power : public SpellScriptLoader
                     if (AuraEffectPtr damageDone = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
                     {
                         // Max +200% damage done
-                        if (damageDone->GetAmount() >= 200)
-                            return;
-
-                        damageDone->ChangeAmount(damageDone->GetAmount() + 10);
+                        if (damageDone->GetAmount() + 10 >= 100)
+                            damageDone->ChangeAmount(100);
+                        else
+                            damageDone->ChangeAmount(damageDone->GetAmount() + 10);
                     }
                     if (AuraEffectPtr healing = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
-                        healing->ChangeAmount(healing->GetAmount() - 5);
+                    {
+                        // Max -90% heal taken
+                        if (healing->GetAmount() -5 <= -90)
+                            healing->ChangeAmount(-90);
+                        else
+                            healing->ChangeAmount(healing->GetAmount() - 5);
+                    }
                     if (AuraEffectPtr damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
-                        damageTaken->ChangeAmount(damageTaken->GetAmount() + 30);
+                    {
+                        // Max +500% damage taken
+                        if (damageTaken->GetAmount() + 30 >= 500)
+                            damageTaken->ChangeAmount(500);
+                        else
+                            damageTaken->ChangeAmount(damageTaken->GetAmount() + 30);
+                    }
                 }
             }
 
