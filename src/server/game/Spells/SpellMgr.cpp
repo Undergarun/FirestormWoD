@@ -4234,7 +4234,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(113); // radius 1000
                 break;
-            case 122336:
+            case 122336:// Sonic Ring
+            case 124673:// Sonic Pulse
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16); // radius 1.0 instead of 6.0
                 spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
             case 123811:// Pheromones of Zeal
