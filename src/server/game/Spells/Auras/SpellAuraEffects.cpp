@@ -400,7 +400,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModCategoryCooldown,                       //341 SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN
     &AuraEffect::HandleModMeleeRangedSpeedPct,                    //342 SPELL_AURA_MOD_MELEE_RANGED_HASTE_2
     &AuraEffect::HandleNoImmediateEffect,                         //343 SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET implemented in Unit::MeleeDamageBonusTaken
-    &AuraEffect::HandleNoImmediateEffect,                         //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE implemented in Unit::MeleeDamageBonusTaken
+    &AuraEffect::HandleModAutoAttackDamage,                       //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE implemented in Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     &AuraEffect::HandleProgressBar,                               //346 SPELL_AURA_ENABLE_ALT_POWER
     &AuraEffect::HandleNULL,                                      //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE
@@ -5722,6 +5722,18 @@ void AuraEffect::HandleShieldBlockValue(AuraApplication const* aurApp, uint8 mod
 
     if (target->GetTypeId() == TYPEID_PLAYER)
         target->ToPlayer()->HandleBaseModValue(SHIELD_BLOCK_VALUE, modType, float(GetAmount()), apply);
+}
+
+void AuraEffect::HandleModAutoAttackDamage(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    target->ToPlayer()->UpdateAttackPowerAndDamage(false);
 }
 
 /********************************/

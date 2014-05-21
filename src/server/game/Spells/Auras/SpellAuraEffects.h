@@ -315,6 +315,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleModDamagePercentDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModOffhandDamagePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleShieldBlockValue(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModAutoAttackDamage(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  power cost
         void HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
