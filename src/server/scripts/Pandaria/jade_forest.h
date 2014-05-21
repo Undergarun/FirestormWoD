@@ -105,7 +105,9 @@ enum eEvents
     EVENT_WAR_STOMP                 = 44,
     EVENT_FRENZY_2                  = 45,
     EVENT_SPIRIT_BEAST_BLESSING     = 46,
-    EVENT_SPIRIT_HEAL               = 47
+    EVENT_SPIRIT_HEAL               = 47,
+    EVENT_CHECK_PLAYER              = 48,
+    EVENT_CHECK_TARGET              = 49
 };
 
 enum eQuests
@@ -119,6 +121,7 @@ enum eQuests
 
 enum eActions
 {
+    ACTION_SET_FLAG = 1
 };
 
 enum eCreatures

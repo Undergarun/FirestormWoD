@@ -554,6 +554,63 @@ class AreaTrigger_at_farmer_fung : public AreaTriggerScript
         }
 };
 
+class areatrigger_at_serpent_nests : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_serpent_nests() : AreaTriggerScript("areatrigger_at_serpent_nests") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
+            {
+                std::list<Creature*> serpentsList;
+                GetCreatureListWithEntryInGrid(serpentsList, player, 58220, 30.0f);
+
+                std::list<Creature*> secondSerpentsList;
+                GetCreatureListWithEntryInGrid(secondSerpentsList, player, 58243, 30.0f);
+
+                std::list<Creature*> thirdSerpentsList;
+                GetCreatureListWithEntryInGrid(thirdSerpentsList, player, 58244, 30.0f);
+
+                for (auto serpent: serpentsList)
+                {
+                    if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                    {
+                        serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        serpent->RemoveAllAuras();
+                        serpent->DespawnOrUnsummon();
+                        player->KilledMonsterCredit(58246);
+                    }
+                }
+
+                for (auto serpent: secondSerpentsList)
+                {
+                    if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                    {
+                        serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        serpent->RemoveAllAuras();
+                        serpent->DespawnOrUnsummon();
+                        player->KilledMonsterCredit(58246);
+                    }
+                }
+
+                for (auto serpent: thirdSerpentsList)
+                {
+                    if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                    {
+                        serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        serpent->RemoveAllAuras();
+                        serpent->DespawnOrUnsummon();
+                        player->KilledMonsterCredit(58246);
+                    }
+                }
+            }
+
+
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -569,4 +626,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_bael_modan();
     new AreaTrigger_at_klaxxi_vess();
     new AreaTrigger_at_farmer_fung();
+    new areatrigger_at_serpent_nests();
 }
