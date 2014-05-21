@@ -8772,7 +8772,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     {
                         int32 procDmg = damage / 2;
 
-                        if (procSpell->Effects[0] == SPELL_EFFECT_WEAPON_PERCENT_DAMAGE)
+                        if (procSpell->Effects[0].Effect == SPELL_EFFECT_WEAPON_PERCENT_DAMAGE)
                         {
                             pPet->SendSpellNonMeleeDamageLog(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
                             pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
