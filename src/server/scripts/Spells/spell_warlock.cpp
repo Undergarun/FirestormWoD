@@ -2315,6 +2315,10 @@ class spell_warl_rain_of_fire : public SpellScriptLoader
                 if (!GetTarget() || GetTarget()->GetTypeId() == TYPEID_UNIT)
                     return;
 
+                // Prevent multiple ticks bug
+                if (GetTarget() != GetCaster())
+                    return;
+
                 if (Unit* caster = GetCaster())
                     if (DynamicObject* dynObj = caster->GetDynObject(WARLOCK_RAIN_OF_FIRE))
                         caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), WARLOCK_RAIN_OF_FIRE_TRIGGERED, true);

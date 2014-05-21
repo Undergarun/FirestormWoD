@@ -134,13 +134,10 @@ class instance_heart_of_fear : public InstanceMapScript
                     case GOB_ATRIUM_DOOR_ENTRANCE:
                     case GOB_ATRIUM_DOOR_EXIT:
                         AddDoor(go, true);
-                        go->SetGoState(GO_STATE_READY);
-                        go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
                         break;
                     // Specific doors
                     case GOB_ORATIUM_DOOR_ENTRANCE:
                         AddDoor(go, true);
-                        go->SetGoState(GO_STATE_READY);
                         zorlokEntranceDoorGuid = go->GetGUID();
                         break;
                     case GOB_QUARTERS_DOOR_ENTRANCE:

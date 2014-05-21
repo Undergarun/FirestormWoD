@@ -39,6 +39,7 @@ enum eData
 enum eSpells
 {
     // Imperial Vizier Zor'lok
+    SPELL_MANTID_WINGS          = 126316,
     SPELL_ATTENUATION           = 122440,
     SPELL_CONVERT               = 122740,
     SPELL_INHALE                = 122852,
@@ -57,7 +58,8 @@ enum eSpells
     SPELL_INHALE_PHEROMONES     = 124018,
     SPELL_REINFORCE             = 123833,
     SPELL_BERSERK               = 120207,
-    SPELL_SPRING_RABBIT_JUMP    = 61724,    // Pull the players on the boss
+    SPELL_MAGNETIC_PULSE        = 147379,    // Pull the players on the boss
+    SPELL_ECHO_OF_ZORLOK        = 127496,
 
     // --- Blade Lord Ta'yak ---
     SPELL_VISINTRO_TAYAK        = 128788,
@@ -118,9 +120,7 @@ enum eActions
     // --- Zorlok ---
     // Zor'lok
     ACTION_SUMMON_SONIC_RINGS   = 1,
-    ACTION_SONIC_CARD           = 2,
-    ACTION_SONIC_QUAD1          = 3,
-    ACTION_SONIC_QUAD2          = 4,
+    ACTION_SONIC_RING           = 2,
     ACTION_INHALE_PHEROMONES    = 5,
     ACTION_WIPE                 = 6,
     ACTION_SONIC_PULSE          = 7,
@@ -170,18 +170,19 @@ enum eCreatures
     NPC_ZORLOK                      = 62980,
     NPC_STORM_SPIRIT                = 69680,
     // Sonic Rings
-    NPC_SONIC_RING_FORWARD          = 62689,
-    NPC_SONIC_RING_30LEFT           = 62694,
-    NPC_SONIC_RING_30RIGHT          = 62696,
-    NPC_SONIC_RING_60LEFT           = 62716,
-    NPC_SONIC_RING_60RIGHT          = 62717,
-    NPC_SONIC_RING_120LEFT          = 62718,
-    NPC_SONIC_RING_120RIGHT         = 62719,
-    NPC_SONIC_RING_90LEFT           = 62726,
-    NPC_SONIC_RING_90RIGHT          = 62727,
-    NPC_SONIC_RING_150LEFT          = 62743,
-    NPC_SONIC_RING_150RIGHT         = 62744,
-    NPC_SONIC_RING_BACK             = 62746,
+    NPC_SONIC_RING                  = 62689,
+    // NPC_SONIC_RING_FORWARD          = 62689,
+    // NPC_SONIC_RING_30LEFT           = 62694,
+    // NPC_SONIC_RING_30RIGHT          = 62696,
+    // NPC_SONIC_RING_60LEFT           = 62716,
+    // NPC_SONIC_RING_60RIGHT          = 62717,
+    // NPC_SONIC_RING_120LEFT          = 62718,
+    // NPC_SONIC_RING_120RIGHT         = 62719,
+    // NPC_SONIC_RING_90LEFT           = 62726,
+    // NPC_SONIC_RING_90RIGHT          = 62727,
+    // NPC_SONIC_RING_150LEFT          = 62743,
+    // NPC_SONIC_RING_150RIGHT         = 62744,
+    // NPC_SONIC_RING_BACK             = 62746,
     // Sonic Pulse
     NPC_SONIC_PULSE                 = 63837,
 
@@ -289,6 +290,7 @@ enum eEvents
     EVENT_CONVERT                   = 11,
     EVENT_PULL_RAID                 = 12,
     EVENT_SONIC_PULSE               = 13,
+    EVENT_SUMMON_LAST_ECHO          = 14,
 
     // Ta'yak
     // EVENT_TEMPEST_SLASH             = 15,
