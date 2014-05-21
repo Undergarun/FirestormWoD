@@ -121,12 +121,13 @@ enum eActions
     // Zor'lok
     ACTION_SUMMON_SONIC_RINGS   = 1,
     ACTION_SONIC_RING           = 2,
-    ACTION_INHALE_PHEROMONES    = 5,
-    ACTION_WIPE                 = 6,
-    ACTION_SONIC_PULSE          = 7,
+    ACTION_INHALE_PHEROMONES    = 3,
+    ACTION_WIPE                 = 4,
+    ACTION_SONIC_PULSE          = 5,
 
     // Ta'yak
-    ACTION_TAYAK_TALK_TRASH     = 8,
+    ACTION_TAYAK_TALK_TRASH     = 6,
+    ACTION_TAYAK_BT_PULL        = 7,
 
     // Garalon
     ACTION_GARALON_VISIBLE      = 9,

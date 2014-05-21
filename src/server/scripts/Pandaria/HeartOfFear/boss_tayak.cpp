@@ -61,6 +61,7 @@ enum Events
     EVENT_OVERWHELMING_ASS,         // 15.5 seconds from pull. Every 20.5 seconds, delayable by up to 15 seconds.
 
     EVENT_BLADE_TEMPEST,            // Every 60 seconds. Heroic only.
+    EVENT_TAYAK_BT_END,
 
     EVENT_STORM_UNLEASHED,          // 20%
     EVENT_SUMMON_TORNADOES,
@@ -160,8 +161,32 @@ class boss_tayak : public CreatureScript
 
             void DoAction(const int32 action)
             {
-                if (action == ACTION_TAYAK_TALK_TRASH)
-                    Talk(SAY_KILL_TRASH);
+                switch (action)
+                {
+                    case ACTION_TAYAK_TALK_TRASH:
+                    {
+                        Talk(SAY_KILL_TRASH);
+                        break;
+                    }
+                    case ACTION_TAYAK_BT_PULL:
+                    {
+                        // Slowly pulling players back to Ta'yak
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 200.0f);
+
+                        Position pos = {me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f};
+
+                        for (Player* player : playerList)
+                            if (player->isAlive() && !player->hasForcedMovement)
+                                player->SendApplyMovementForce(true, pos, 3.0f);
+
+                        // Won't reach the event until 6-7 secs as Ta'yak has UNIT_STATE_CASTING
+                        events.ScheduleEvent(EVENT_TAYAK_BT_END, 100);
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             bool CheckTrash()
@@ -515,13 +540,33 @@ class boss_tayak : public CreatureScript
                         // Heroic
                         case EVENT_BLADE_TEMPEST:
                         {
-                            // Pull all players
-                            DoCast(me, SPELL_BLADE_TEMPES_J_FC);
                             DoCast(me, SPELL_BLADE_TEMPEST_AUR);
+
+                            // Pull all players
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 200.0f);
+
+                            for (Player* player : playerList)
+                                player->CastSpell(me, SPELL_BLADE_TEMPES_J_FC, false);
+
                             events.ScheduleEvent(EVENT_BLADE_TEMPEST, 60000);
                             break;
                         }
-                        // P2
+                        case EVENT_TAYAK_BT_END:
+                        {
+                            // Remove ForceMovement on players
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 200.0f);
+
+                            Position pos = {me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f};
+
+                            for (Player* player : playerList)
+                                if (player->hasForcedMovement)
+                                    player->SendApplyMovementForce(false, pos);
+
+                            break;
+                        }
+                        // Phase 2
                         case EVENT_STORM_UNLEASHED:
                         {
                             // Players have just been TP : now creating list of the players.
@@ -638,7 +683,7 @@ class npc_tempest_slash_tornado : public CreatureScript
 
                     // Applying auras and moving
                     me->SetInCombatWithZone();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
 
                     me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
 
@@ -1396,6 +1441,34 @@ class spell_su_dumaura : public SpellScriptLoader
         }
 };
 
+// 125310
+class spell_blade_tempest : public SpellScriptLoader
+{
+    public:
+        spell_blade_tempest() : SpellScriptLoader("spell_blade_tempest") { }
+
+        class spell_blade_tempest_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_blade_tempest_SpellScript);
+
+            void PullRaid()
+            {
+                if (Unit* Tayak = GetCaster())
+                    Tayak->GetAI()->DoAction(ACTION_TAYAK_BT_PULL);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_blade_tempest_SpellScript::PullRaid);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_blade_tempest_SpellScript();
+        }
+};
+
 void AddSC_boss_tayak()
 {
     new boss_tayak();                       // 62543
@@ -1414,4 +1487,5 @@ void AddSC_boss_tayak()
     new spell_gale_winds();                 // 123633
     new spell_su_dummy();                   // 123600
     new spell_su_dumaura();                 // 123616
+    new spell_blade_tempest();              // 125310
 }

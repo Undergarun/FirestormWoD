@@ -4262,6 +4262,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 122842:// Tempest Slash (summoning tornado)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
+            case 125327:// Blade Tempest (jump on Ta'yak)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 123633:// Gale Winds
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].BasePoints = 0;

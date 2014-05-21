@@ -1394,25 +1394,25 @@ class spell_vital_strikes : public SpellScriptLoader
 void AddSC_heart_of_fear()
 {
     // Trashes
-    new mob_kor_thik_slicer();
-    new mob_kor_thik_extremist();
-    new mob_sra_thik_shield_master();
-    new mob_set_thik_swiftblade();
-    new mob_zar_thik_supplicant();
-    new mob_enslaved_bonesmasher();
-    new mob_set_thik_tempest();
-    new mob_set_thik_fanatic();
-    new mob_set_thik_zephyrian();
-    new mob_set_thik_gale_slicer();
-    new mob_instructor_kli_thak();
-    new mob_instructor_tak_thok();
-    new mob_instructor_maltik();
-    new mob_instructor_zarik();
-    new mob_zar_thik_zealot();
-    new mob_kor_thik_swarmer();
-    new mob_set_thik_gustwing();
-    new mob_coagulated_amber();
-    new mob_kor_thik_silentwing();
-    new mob_zephyr();
-    new spell_vital_strikes();
+    new mob_kor_thik_slicer();          // 63048 - Kor'thik Slicer
+    new mob_kor_thik_extremist();       // 63036 - Kor'thik extremist
+    new mob_sra_thik_shield_master();   // 63032 - Sra'thik Shield Master
+    new mob_set_thik_swiftblade();      // 63049 - Set'thik Swiftblade
+    new mob_zar_thik_supplicant();      // 67177 - 66181 - 63853 - Zar'thik Supplicant
+    new mob_enslaved_bonesmasher();     // 63030 - Enslaved Bonesmasher
+    new mob_set_thik_tempest();         // 64358 - Set'thik Tempest
+    new mob_set_thik_fanatic();         // 63031 - Set'thik Fanatic
+    new mob_set_thik_zephyrian();       // 63593 - Set'thik Zephyrian
+    new mob_set_thik_gale_slicer();     // 64353 - Set'thik Gale-Slicer
+    new mob_instructor_kli_thak();      // 64338 - Instructor Kli'thak <Keeper of Wind Step>
+    new mob_instructor_tak_thok();      // 64339 - Instructor Tak'thok <Keeper of Overwhelming Assault>
+    new mob_instructor_maltik();        // 64340 - Instructor Maltik <Keeper of Unseen Strike>
+    new mob_instructor_zarik();         // 64341 - Instructor Zarik <Keeper of Tempest Slash>
+    new mob_zar_thik_zealot();          // 63035 - Zar'thik Zealot
+    new mob_kor_thik_swarmer();         // 64357 - Kor'thik Swarmer
+    new mob_set_thik_gustwing();        // 63592 - Set'thik Gustwing
+    new mob_coagulated_amber();         // 63597 - Coagulated Amber
+    new mob_kor_thik_silentwing();      // 64355 - Kor'thik Silentwing
+    new mob_zephyr();                   // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+    new spell_vital_strikes();          // 123421 - Vital Strikes
 }
