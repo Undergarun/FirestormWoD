@@ -1127,11 +1127,12 @@ class npc_lorewalker_cho : public CreatureScript
                             break;
                     case ACTION_ELEGON_GOB_ACTIVATION:
                     {
+                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
                         if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
                         {
                             sLog->OutPandashan("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
                             sLog->OutPandashan("CheckRequiredBosses fail, player in raid : ");
-                            for (auto itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); itr++)
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 sLog->OutPandashan("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
                             sLog->OutPandashan("=============================================");
                             break;
@@ -1150,7 +1151,7 @@ class npc_lorewalker_cho : public CreatureScript
                             {
                                 sLog->OutPandashan("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
                                 sLog->OutPandashan("Invalid button GO_STATE, player in raid : ");
-                                for (auto itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); itr++)
+                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                     sLog->OutPandashan("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
                                 sLog->OutPandashan("=============================================");
                             }
@@ -1159,7 +1160,7 @@ class npc_lorewalker_cho : public CreatureScript
                         {
                             sLog->OutPandashan("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
                             sLog->OutPandashan("Can't get button GO, player in raid : ");
-                            for (auto itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); itr++)
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 sLog->OutPandashan("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
                             sLog->OutPandashan("=============================================");
                         }
