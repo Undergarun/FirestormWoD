@@ -2288,6 +2288,7 @@ class spell_q31538_ella_s_brew: public SpellScriptLoader
             return new spell_q31538_ella_s_brew_SpellScript();
         }
 };
+
 class spell_q29939_throw_goblin_fisher: public SpellScriptLoader
 {
     public:
@@ -2326,6 +2327,84 @@ class spell_q29939_throw_goblin_fisher: public SpellScriptLoader
         }
 };
 
+class spell_q30151_throw_ball: public SpellScriptLoader
+{
+    public:
+        spell_q30151_throw_ball() : SpellScriptLoader("spell_q30151_throw_ball")
+        {
+        }
+
+        class spell_q30151_throw_ball_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q30151_throw_ball_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                    if (player->GetQuestStatus(30151) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(58395);
+                    }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q30151_throw_ball_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q30151_throw_ball_SpellScript();
+        }
+};
+
+class spell_q30136_silken_rope: public SpellScriptLoader
+{
+    public:
+        spell_q30136_silken_rope() : SpellScriptLoader("spell_q30136_silken_rope")
+        {
+        }
+
+        class spell_q30136_silken_rope_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q30136_silken_rope_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 58220 || creature->GetEntry() == 58243 || creature->GetEntry() == 58244)
+                            {
+                                creature->GetMotionMaster()->MoveFollow(player, 2.5f, 2.5f, MOTION_SLOT_ACTIVE);
+                                creature->AI()->DoAction(1);
+                                player->CastSpell(creature, 107221);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q30136_silken_rope_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q30136_silken_rope_SpellScript();
+        }
+};
 
 void AddSC_quest_spell_scripts()
 {
@@ -2385,4 +2464,6 @@ void AddSC_quest_spell_scripts()
     new spell_q31009_klaxxi_resoning_crystal();
     new spell_q31538_ella_s_brew();
     new spell_q29939_throw_goblin_fisher();
+    new spell_q30151_throw_ball();
+    new spell_q30136_silken_rope();
 }

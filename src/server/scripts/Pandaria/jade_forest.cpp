@@ -1373,6 +1373,25 @@ class npc_elder_anli : public CreatureScript
             return true;
         }
 
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 31717)
+                player->SummonCreature(66025, 1559.40f, -2558.67f, 151.244f, 4.83016f);
+
+            else if (quest->GetQuestId() == 31718)
+                player->SummonCreature(66026, 1559.40f, -2558.67f, 151.244f, 4.83016f);
+
+            else if (quest->GetQuestId() == 31719)
+                player->SummonCreature(66027, 1559.40f, -2558.67f, 151.244f, 4.83016f);
+
+            else if (quest->GetQuestId() == 31720)
+                player->SummonCreature(66029, 1559.40f, -2558.67f, 151.244f, 4.83016f);
+
+            else if (quest->GetQuestId() == 31721)
+                player->SummonCreature(66028, 1559.40f, -2558.67f, 151.244f, 4.83016f);
+
+            return true;
+        }
 };
 
 class mob_kher_shan : public CreatureScript
@@ -1519,6 +1538,397 @@ class gob_hozen_cage : public GameObjectScript
         }
 };
 
+class mob_widow_s_web : public CreatureScript
+{
+    public:
+        mob_widow_s_web() : CreatureScript("mob_widow_s_web")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_widow_s_webAI(creature);
+        }
+
+        struct mob_widow_s_webAI : public ScriptedAI
+        {
+            mob_widow_s_webAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (Player* player = killer->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31707) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->SummonCreature(65647, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        player->KilledMonsterCredit(65647);
+                    }
+                }
+            }
+
+        };
+};
+
+class mob_freed_sri_la_villager : public CreatureScript
+{
+    public:
+        mob_freed_sri_la_villager() : CreatureScript("mob_freed_sri_la_villager")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_freed_sri_la_villagerAI(creature);
+        }
+
+        struct mob_freed_sri_la_villagerAI : public ScriptedAI
+        {
+            mob_freed_sri_la_villagerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                timer = 0;
+            }
+
+            uint32 timer;
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                timer = 3000;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (timer)
+                {
+                    if (timer <= diff)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+                    else
+                        timer -= diff;
+                }
+            }
+
+        };
+};
+
+class mob_windward_hatchling : public CreatureScript
+{
+    public:
+        mob_windward_hatchling() : CreatureScript("mob_windward_hatchling")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_windward_hatchlingAI(creature);
+        }
+
+        struct mob_windward_hatchlingAI : public ScriptedAI
+        {
+            mob_windward_hatchlingAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action == ACTION_SET_FLAG)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+            }
+
+            void Reset()
+            {
+                me->SetDefaultMovementType(RANDOM_MOTION_TYPE);
+            }
+        };
+};
+
+class npc_custom_npc : public CreatureScript
+{
+    public:
+        npc_custom_npc() : CreatureScript("npc_custom_npc")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_custom_npcAI(creature);
+        }
+
+        struct npc_custom_npcAI : public ScriptedAI
+        {
+            npc_custom_npcAI(Creature* creature) : ScriptedAI(creature)
+            {
+                hasSummoned = false;
+            }
+
+            EventMap events;
+            bool hasSummoned;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_CHECK_PLAYER, 2000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_CHECK_PLAYER)
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 30.0f);
+
+                        for (auto player: playerList)
+                        {
+                            if (!hasSummoned)
+                            {
+                                if (player->GetQuestStatus(30156) == QUEST_STATUS_INCOMPLETE)
+                                {
+                                    player->SummonCreature(58527, player->GetPositionX() + 1, player->GetPositionY() + 1.5f, player->GetPositionZ() + 1);
+                                    player->SummonCreature(58527, player->GetPositionX() + 2, player->GetPositionY() + 2.5f, player->GetPositionZ() - 1);
+                                    player->SummonCreature(58527, player->GetPositionX() + 1.5f, player->GetPositionY() + 1, player->GetPositionZ() + 1.5f);
+
+                                    std::list<Creature*> creatureList;
+                                    GetCreatureListWithEntryInGrid(creatureList, player, 58527, 4.0f);
+
+                                    for (auto creature: creatureList)
+                                    {
+                                        creature->GetMotionMaster()->MoveFollow(player, 4.0f, 4.0f, MOTION_SLOT_ACTIVE);
+                                    }
+                                }
+
+                                hasSummoned = true;
+                            }
+                        }
+
+                        if (playerList.empty())
+                            hasSummoned = false;
+                    }
+
+                    events.ScheduleEvent(EVENT_CHECK_PLAYER, 2000);
+                }
+            }
+        };
+};
+
+class mob_jade_cloud_serpent : public CreatureScript
+{
+    public:
+        mob_jade_cloud_serpent() : CreatureScript("mob_jade_cloud_serpent")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_jade_cloud_serpentAI(creature);
+        }
+
+        struct mob_jade_cloud_serpentAI : public ScriptedAI
+        {
+            mob_jade_cloud_serpentAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_CHECK_TARGET, 2000);
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (Player* player = summoner->ToPlayer())
+                    playerGuid = player->GetGUID();
+            }
+
+            void SpellHit(Unit* caster, SpellInfo const* spell)
+            {
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (spell->Id == 110455)
+                    {
+                        me->DespawnOrUnsummon();
+                        player->KilledMonsterCredit(58351);
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_CHECK_TARGET)
+                    {
+                        if (Player* player = Player::GetPlayer(*me, playerGuid))
+                        {
+                            if (Unit* victim = player->getVictim())
+                            {
+                                me->SetInCombatWith(victim);
+                                AttackStart(victim);
+                                DoMeleeAttackIfReady();
+                            }
+                        }
+
+                        events.ScheduleEvent(EVENT_CHECK_TARGET, 2000);
+                    }
+                }
+            }
+        };
+};
+
+class mob_instructor_windblade : public CreatureScript
+{
+    public:
+        mob_instructor_windblade() : CreatureScript("mob_instructor_windblade")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (creature->isQuestGiver())
+                player->PrepareQuestMenu(creature->GetGUID());
+
+            if (player->GetQuestStatus(30143) == QUEST_STATUS_INCOMPLETE)
+                    player->KilledMonsterCredit(58572);
+
+            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        {
+            player->PlayerTalkClass->GetQuestMenu();
+
+            return true;
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 30144) // This quests needs the player to complete it on a mount, but vehicleId is unfindable, so he can complete the quest with any flying mount he already gets.
+            {
+                player->SummonCreature(58426, 1614.22f, -2733.17f, 172.235f, 4.50949f);
+                player->SummonCreature(58426, 1643.95f, -2798.85f, 129.329f, 5.16687f);
+                player->SummonCreature(58426, 1647.11f, -2772.71f, 161.497f, 5.72295f);
+                player->SummonCreature(58426, 1705.37f, -2815.74f, 141.012f, 5.60907f);
+                player->SummonCreature(58426, 1739.69f, -2935.46f, 103.094f, 5.06008f);
+                player->SummonCreature(58426, 1853.05f, -2963.5f, 96.546f, 5.59807f);
+                player->SummonCreature(58426, 1716.28f, -3080.08f, 39.4494f, 3.61493f);
+                player->SummonCreature(58426, 1788.15f, -2927.51f, 112.879f, 1.18805f);
+                player->SummonCreature(58426, 1736.29f, -2780.32f, 162.346f, 4.06654f);
+                player->SummonCreature(58426, 1752.44f, -2701.74f, 137.955f, 3.12799f);
+                player->SummonCreature(58426, 1786.51f, -2722.46f, 142.96f, 0.141875f);
+            }
+
+            return true;
+        }
+};
+
+class npc_cloud_ring : public CreatureScript
+{
+    public:
+        npc_cloud_ring() : CreatureScript("npc_cloud_ring")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_cloud_ringcAI(creature);
+        }
+
+        struct npc_cloud_ringcAI : public ScriptedAI
+        {
+            npc_cloud_ringcAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                me->SetDisplayId(11686);
+                me->AddAura(129282, me);
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (Player* player = summoner->ToPlayer())
+                    playerGuid = player->GetGUID();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Player* player = Player::GetPlayer(*me, playerGuid))
+                {
+                    if (player->GetQuestStatus(30144) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (player->GetDistance2d(me) <= 1.0f)
+                        {
+                            me->DespawnOrUnsummon();
+                            player->KilledMonsterCredit(58426);
+                        }
+                    }
+
+                    else if (player->GetQuestStatus(30144) == QUEST_STATUS_COMPLETE)
+                        me->DespawnOrUnsummon();
+                }
+            }
+        };
+};
+
+class npc_instructor_skythorn : public CreatureScript
+{
+    public:
+        npc_instructor_skythorn() : CreatureScript("npc_instructor_skythorn")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 30142)  // Quest "It's A..."
+            {
+                if (player->HasItemCount(78962, 1))
+                {
+                    player->DestroyItemCount(78962, 1, false);
+                    player->KilledMonsterCredit(58315);
+                }
+
+                else if (player->HasItemCount(78960, 1))
+                {
+                    player->DestroyItemCount(78960, 1, false);
+                    player->KilledMonsterCredit(58315);
+                }
+
+                else if (player->HasItemCount(78961, 1))
+                {
+                    player->DestroyItemCount(78961, 1, false);
+                    player->KilledMonsterCredit(58315);
+                }
+            }
+
+            return true;
+        }
+};
+
 void AddSC_jade_forest()
 {
     // Rare mobs
@@ -1544,6 +1954,14 @@ void AddSC_jade_forest()
     new mob_pearlfin_aqualyte();
     new mob_pearlfin_villager();
     new mob_pearlfin_situation();
+    new mob_widow_s_web();
+    new mob_freed_sri_la_villager();
+    new mob_windward_hatchling();
+    new npc_custom_npc();
+    new mob_jade_cloud_serpent();
+    new mob_instructor_windblade();
+    new npc_cloud_ring();
+    new npc_instructor_skythorn();
     // Game Objects
     new gob_hozen_cage();
 }

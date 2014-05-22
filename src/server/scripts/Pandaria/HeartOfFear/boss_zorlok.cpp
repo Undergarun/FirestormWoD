@@ -142,7 +142,7 @@ class boss_zorlok : public CreatureScript
             uint8 sonicRingCount;
             uint8 sonicPulseCount;
             float ringOrientation;
-            float xr, yr, zr, or;       // Starting coords for sonic ring wave
+            float xr, yr, zr, orientation;       // Starting coords for sonic ring wave
             float pulseOrientation;
             float xp, yp, zp, op;       // Starting coords for sonic pulse wave (Heroic mode)
             bool clocksideRings;
@@ -195,7 +195,7 @@ class boss_zorlok : public CreatureScript
                 actualPlatform      = 0;
                 sonicRingCount      = 0;
                 sonicPulseCount     = 0;
-                xr = 0, yr = 0, zr = 0, or = 0;
+                xr = 0, yr = 0, zr = 0, orientation = 0;
                 xp = 0, yp = 0, zp = 0, op = 0;
                 clocksideRings      = true;
                 inhaleDone          = false;
@@ -555,12 +555,12 @@ class boss_zorlok : public CreatureScript
                             xr = me->GetPositionX();
                             yr = me->GetPositionY();
                             zr = me->GetPositionZ();
-                            or = me->GetOrientation();
+                            orientation = me->GetOrientation();
                         }
 
                         float variation = M_PI/2;
 
-                        float frontAngle = CorrectAngle(or + ringOrientation);
+                        float frontAngle = CorrectAngle(orientation + ringOrientation);
                         float leftAngle  = CorrectAngle(frontAngle + variation);
                         float rightAngle = CorrectAngle(frontAngle - variation);
                         float backAngle  = CorrectAngle(frontAngle + 2 * variation);
@@ -578,7 +578,7 @@ class boss_zorlok : public CreatureScript
                             xr = 0.0f;
                             yr = 0.0f;
                             zr = 0.0f;
-                            or = 0.0f;
+                            orientation = 0.0f;
                             // Reset Zor'lok in combat
                             me->SetReactState(REACT_DEFENSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
@@ -675,7 +675,7 @@ class boss_zorlok : public CreatureScript
                         sonicPulseCount = 0;
                         ringOrientation = 0.0f;
                         pulseOrientation = 0.0f;
-                        xr = 0.0f, yr = 0.0f, zr = 0.0f, or = 0.0f;
+                        xr = 0.0f, yr = 0.0f, zr = 0.0f, orientation = 0.0f;
                         xp = 0.0f, yp = 0.0f, zp = 0.0f, op = 0.0f;
                         clocksideRings = true;
                         inhaleDone = false;

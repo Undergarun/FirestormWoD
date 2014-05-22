@@ -2193,11 +2193,7 @@ class spell_alchemist_rejuvenation : public SpellScriptLoader
         }
 };
 
-enum AmberPrison
-{
-    SPELL_AMBER_PRISON     = 127266,
-};
-
+#define SPELL_AMBER_PRISON 127266
 
 class spell_item_amber_prison : public SpellScriptLoader
 {
@@ -2245,6 +2241,47 @@ class spell_item_amber_prison : public SpellScriptLoader
         }
 };
 
+class spell_item_first_aid : public SpellScriptLoader
+{
+    public:
+        spell_item_first_aid() : SpellScriptLoader("spell_item_first_aid") { }
+
+        class spell_item_first_aid_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_first_aid_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30148) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 58416)
+                            {
+                                player->KilledMonsterCredit(58417);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_first_aid_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_first_aid_SpellScript();
+        }
+};
 
 void AddSC_item_spell_scripts()
 {
@@ -2300,4 +2337,5 @@ void AddSC_item_spell_scripts()
     new spell_item_gen_alchemy_mop();
     new spell_alchemist_rejuvenation();
     new spell_item_amber_prison();
+    new spell_item_first_aid();
 }
