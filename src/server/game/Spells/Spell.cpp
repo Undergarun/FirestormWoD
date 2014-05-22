@@ -6797,6 +6797,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!m_caster->_IsValidAttackTarget(target, GetSpellInfo()))
                             return SPELL_FAILED_BAD_TARGETS;
                     }
+                    else if (m_caster->HasAura(63333) && target == m_caster)
+                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (m_spellInfo->Id == 19938)          // Awaken Peon
                 {
