@@ -421,36 +421,46 @@ class boss_spirit_kings_controler : public CreatureScript
                     }
                     case ACTION_SPIRIT_KILLED:
                     {
+                        if (!fightInProgress)
+                            break;
+
                         nextSpirit = ++vanquishedCount;
 
                         if (nextSpirit >= 4)
                         {
                             _JustDied();
-                            pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
+                            fightInProgress = false;
 
-                            for (auto entry: spiritKingsEntry)
+                            if (pInstance)
                             {
-                                if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
+                                pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                                for (auto entry: spiritKingsEntry)
                                 {
-                                    spirit->LowerPlayerDamageReq(spirit->GetMaxHealth());
-                                    spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                    spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    spirit->RemoveAura(SPELL_INACTIVE);
+                                    if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
+                                    {
+                                        spirit->LowerPlayerDamageReq(spirit->GetMaxHealth());
+                                        spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                        spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                        spirit->RemoveAura(SPELL_INACTIVE);
 
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
 
-                                    if (Unit* killer = spirit->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                        killer->Kill(spirit);
+                                        if (Unit* killer = spirit->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                            killer->Kill(spirit);
+                                        else
+                                            me->Kill(spirit);
+                                    }
                                 }
-
-                                // Removing Undying Shadows
-                                std::list<Creature*> shadList;
-                                GetCreatureListWithEntryInGrid(shadList, me, NPC_UNDYING_SHADOW, 300.0f);
-
-                                for (auto shadow : shadList)
-                                    shadow->DespawnOrUnsummon();
                             }
+
+                            // Removing Undying Shadows
+                            std::list<Creature*> shadList;
+                            GetCreatureListWithEntryInGrid(shadList, me, NPC_UNDYING_SHADOW, 300.0f);
+
+                            for (auto shadow : shadList)
+                                shadow->DespawnOrUnsummon();
 
                             if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
                             {
@@ -460,6 +470,10 @@ class boss_spirit_kings_controler : public CreatureScript
                                     lorewalkerCho->AI()->DoAction(ACTION_RUN);
                                 }
                             }
+
+                            if (GameObject* wall = GetClosestGameObjectWithEntry(me, GOB_SPIRIT_KINGS_EXIT, 100.0f))
+                                if (wall->GetGoState() == GO_STATE_READY)
+                                    wall->SetGoState(GO_STATE_ACTIVE);
                         }
                         else
                         {

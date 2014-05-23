@@ -875,98 +875,50 @@ class npc_lorewalker_cho : public CreatureScript
                     // Stop and wait for the event, and the for the spirit kings, to be done before restarting
                     case 42:
                     {
-                        if (GetClosestCreatureWithEntry(me, NPC_QIANG, 200.0f, true))
+                        Creature* mobMeng   = GetClosestCreatureWithEntry(me, MOB_MENG,  200.0f, true);
+                        Creature* kingQiang = GetClosestCreatureWithEntry(me, NPC_QIANG, 200.0f, true);
+                        // If either event and/or Spirit Kings need to be done
+                        if (mobMeng || kingQiang)
                         {
                             me->SetOrientation(1.51f);
                             me->SetFacingTo(1.51f);
                             SetEscortPaused(true);
                             Talk(SPIRIT_KINGS_01);
 
-                            if (Creature* mob_meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
+                            if (mobMeng)
                             {
-                                std::list<Creature*> sorcererMoguList;
-                                std::list<Creature*> mountedMoguList;
-                                std::list<Creature*> moguArcherList;
-                                std::list<Creature*> kingsGuardList;
+                                uint32 moguList[4] = {NPC_SORCERER_MOGU, NPC_MOUNTED_MOGU, NPC_MOGU_ARCHER, NPC_KINGSGUARD};
 
-                                me->GetCreatureListWithEntryInGrid(sorcererMoguList, NPC_SORCERER_MOGU, 100.0f);
-                                me->GetCreatureListWithEntryInGrid(mountedMoguList, NPC_MOUNTED_MOGU, 200.0f);
-                                me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 100.0f);
-                                me->GetCreatureListWithEntryInGrid(kingsGuardList, NPC_KINGSGUARD, 200.0f);
-
-                                for (auto itr : sorcererMoguList)
+                                for (uint8 i = 0; i < 4; ++i)
                                 {
-                                    if (Creature* sorcererMogu = itr)
+                                    std::list<Creature*> mobList;
+                                    me->GetCreatureListWithEntryInGrid(mobList, moguList[i], 100.0f);
+
+                                    for (auto itr : mobList)
                                     {
-                                        sorcererMogu->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                        sorcererMogu->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                        sorcererMogu->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                                        events.ScheduleEvent(EVENT_START_FIRST_COMBAT,	4000);
+                                        itr->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        itr->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        if (itr->GetEntry() == NPC_SORCERER_MOGU)
+                                        {
+                                            itr->AI()->DoAction(ACTION_BEFORE_COMBAT);
+                                            events.ScheduleEvent(EVENT_START_FIRST_COMBAT, 4000);
+                                        }
                                     }
                                 }
+                                uint32 mobKings[4] = {MOB_ZIAN, MOB_MENG, MOB_QIANG, MOB_SUBETAI};
 
-                                for (auto itr : mountedMoguList)
+                                for (uint8 i = 0; i < 4; ++i)
                                 {
-                                    if (Creature* mountedMogu = itr)
+                                    if (Creature* king = GetClosestCreatureWithEntry(me, mobKings[i], 200.0f))
                                     {
-                                        mountedMogu->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                        mountedMogu->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                    }
-                                }
-
-                                for (auto itr : moguArcherList)
-                                {
-                                    if (Creature* moguArcher = itr)
-                                    {
-                                        moguArcher->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                        moguArcher->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                    }
-                                }
-
-                                for (auto itr : kingsGuardList)
-                                {
-                                    if (Creature* kingsGuard = itr)
-                                    {
-                                        kingsGuard->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                        kingsGuard->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                    }
-                                }
-
-                                if (Creature* zian = GetClosestCreatureWithEntry(me, MOB_ZIAN, 200.0f))
-                                {
-                                    if (zian->AI())
-                                    {
-                                        zian->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                        zian->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                        zian->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                                        events.ScheduleEvent(EVENT_START_FIRST_COMBAT,	5000);
-                                    }
-                                }
-
-                                if (Creature* meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f))
-                                {
-                                    if (meng->AI())
-                                    {
-                                        meng->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                        meng->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                    }
-                                }
-
-                                if (Creature* qiang = GetClosestCreatureWithEntry(me, MOB_QIANG, 200.0f))
-                                {
-                                    if (qiang->AI())
-                                    {
-                                        qiang->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                        qiang->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
-                                    }
-                                }
-
-                                if (Creature* subetai = GetClosestCreatureWithEntry(me, MOB_SUBETAI, 200.0f))
-                                {
-                                    if (subetai->AI())
-                                    {
-                                        subetai->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
-                                        subetai->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        king->AI()->DoAction(ACTION_SET_GHOST_VISUAL);
+                                        king->AI()->DoAction(ACTION_SET_NATIVE_DISPLAYID);
+                                        
+                                        if (king->GetEntry() == MOB_ZIAN)
+                                        {
+                                            king->AI()->DoAction(ACTION_BEFORE_COMBAT);
+                                            events.ScheduleEvent(EVENT_START_FIRST_COMBAT, 5000);
+                                        }
                                     }
                                 }
                             }
@@ -977,9 +929,15 @@ class npc_lorewalker_cho : public CreatureScript
                                 if (wall->GetGoState() == GO_STATE_READY)
                                     wall->SetGoState(GO_STATE_ACTIVE);
 
+                            // If there're no spirit kings still alive (meaning they're vainquished) with wrong BossState, we change it
                             if (pInstance)
+                            {
                                 if (pInstance->GetBossState(DATA_SPIRIT_KINGS) == NOT_STARTED)
+                                {
                                     pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
+                                    pInstance->SaveToDB();
+                                }
+                            }
                         }
                         break;
                     }
@@ -1287,6 +1245,7 @@ class mob_zian : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_ZIAN_CHARGED_SHADOWS, urand(5000, 15000));
@@ -1308,7 +1267,7 @@ class mob_zian : public CreatureScript
                         break;
                     case ACTION_START_FIRST_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case ACTION_END_FIRST_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1368,6 +1327,7 @@ class mob_sorcerer_mogu : public CreatureScript
 
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_SORCERER_SHADOW_BLAST, 5000);
@@ -1389,7 +1349,7 @@ class mob_sorcerer_mogu : public CreatureScript
                     case ACTION_START_FIRST_COMBAT:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case ACTION_END_FIRST_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1445,6 +1405,7 @@ class mob_qiang : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_QIANG_ANNIHILATE, urand(5000, 15000));
@@ -1466,7 +1427,7 @@ class mob_qiang : public CreatureScript
                         break;
                     case ACTION_START_SECOND_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case ACTION_END_SECOND_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1559,6 +1520,7 @@ class mob_mounted_mogu : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_MOUNTED_MOGU_CRUSHING_ATTACKS, urand(5000, 12000));
@@ -1581,7 +1543,7 @@ class mob_mounted_mogu : public CreatureScript
                         break;
                     case ACTION_START_SECOND_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case ACTION_END_SECOND_COMBAT:
@@ -1644,6 +1606,7 @@ class mob_subetai : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_SUBETAI_VOLLEY, urand(5000, 15000));
@@ -1665,7 +1628,7 @@ class mob_subetai : public CreatureScript
                         break;
                     case ACTION_START_THIRD_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case ACTION_END_THIRD_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1758,6 +1721,7 @@ class mob_mogu_archer : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_MOGU_ARCHER_SHOOT, urand(5000, 12000));
@@ -1778,7 +1742,7 @@ class mob_mogu_archer : public CreatureScript
                         break;
                     case ACTION_START_THIRD_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case ACTION_END_THIRD_COMBAT:
@@ -1841,6 +1805,7 @@ class mob_meng : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
             }
@@ -1860,7 +1825,7 @@ class mob_meng : public CreatureScript
                         break;
                     case ACTION_START_FOURTH_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case ACTION_END_FOURTH_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1961,6 +1926,7 @@ class mob_kingsguard : public CreatureScript
             {
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_KINGS_GUARD_ENRAGE, urand(5000, 12000));
@@ -1982,7 +1948,7 @@ class mob_kingsguard : public CreatureScript
                         break;
                     case ACTION_START_FOURTH_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
-                        me->setFaction(14);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case ACTION_END_FOURTH_COMBAT:
