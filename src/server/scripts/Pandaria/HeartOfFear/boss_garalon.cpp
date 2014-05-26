@@ -154,6 +154,7 @@ public:
         std::list<uint32> legs;
         uint32 mendedLeg;
         bool damagedHeroic, castingCrush;
+        bool fightInProgress;
 
         void SummonAndAddLegs()
         {
@@ -199,9 +200,10 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            damagedHeroic = false;
-            castingCrush  = false;
-            mendedLeg     = 0;
+            damagedHeroic   = false;
+            castingCrush    = false;
+            fightInProgress = false;
+            mendedLeg       = 0;
 
             // Basic settings
             me->SetVisible(false);
@@ -228,6 +230,59 @@ public:
             return true;
         }
 
+        // Check if legs are in vehicle, and if not, add them
+        void CheckLegs()
+        {
+            std::list<Creature*> legList;
+            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 100.0f);
+
+            bool shouldRespawn = false;
+
+            // We don't have exactly 4 legs: we must reset them
+            if (legList.size() != 4)
+                shouldRespawn = true;
+            // We have 4 legs, we have to check they're riding Garalon
+            else
+            {
+                // For each leg, we look in the seats to find it
+                for (auto leg : legList)
+                {
+                    bool legFound = false;
+                    uint8 seat = 0;
+                    while (!legFound && seat < 4)
+                    {
+                        if (Unit* passenger = me->GetVehicleKit()->GetPassenger(seat))
+                            if (leg == passenger->ToCreature())
+                                legFound = true;
+                        ++seat;
+                    }
+                    // if leg hasn't been found, we should respawn the legs
+                    if (!legFound)
+                    {
+                        shouldRespawn = true;
+                        break;
+                    }
+                }
+            }
+
+            if (shouldRespawn)
+            {
+                // We must first despawn the existing legs
+                for (auto leg : legList)
+                    summons.Despawn(leg);
+
+                // Adding new legs
+                SummonAndAddLegs();
+            }
+        }
+
+        void DamageTaken(Unit* attacker)
+        {
+            if (!fightInProgress)
+                if (CheckTrash())
+                    EnterCombat(attacker);
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
             if (!CheckTrash() || !instance->CheckRequiredBosses(DATA_GARALON))
@@ -235,8 +290,12 @@ public:
                 me->SetFullHealth();
                 me->SetReactState(REACT_PASSIVE);
                 EnterEvadeMode();
+                if (fightInProgress)
+                    fightInProgress = false;
                 return;
             }
+
+            fightInProgress = true;
 
             // Activation of the walls
             std::list<GameObject*> doorList;
@@ -312,6 +371,7 @@ public:
             me->CombatStop(false);
             me->GetMotionMaster()->MoveTargetedHome();
             mendedLeg = 0;
+            fightInProgress = false;
 
             _EnterEvadeMode();
         }
@@ -342,6 +402,8 @@ public:
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_AURA); // Remove Pheromones.
             }
 
+            fightInProgress = false;
+
             _JustDied();
         }
 
@@ -360,10 +422,11 @@ public:
             {
                 // Furious Swipe failed to hit at least 2 targets, Garalon gains Fury.
                 case ACTION_FUR_SWIPE_FAILED:
+                {
                     Talk(ANN_FURY);
                     me->AddAura(SPELL_FURY, me);
                     break;
-
+                }
                 // Pheromones jumped to another player / there are players underneath his body, in Normal Difficulty Garalon casts Crush.
                 case ACTION_PHEROMONES_JUMP_OR_PLAYERS_UNDERNEATH:
                 {
@@ -386,17 +449,7 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     // Check if all legs are already here, else summons them
-                    std::list<Creature*> legList;
-                    GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 200.0f);
-
-                    if (legList.size() != 4)
-                    {
-                        // If some legs remain, we despawn them
-                        for (Creature* leg : legList)
-                            summons.Despawn(leg);
-                        // Now we respawn all the legs
-                        SummonAndAddLegs();
-                    }
+                    CheckLegs();
 
                     // Activate legs
                     for (uint8 i = 0; i < 4; ++i)
@@ -466,6 +519,9 @@ public:
                 else
                     me->SetReactState(REACT_PASSIVE);
             }
+
+            if (fightInProgress)
+                CheckLegs();
 
             // Damaged debuff for Heroic.
             if (!damagedHeroic && me->HealthBelowPct(34) && IsHeroic())
@@ -1184,6 +1240,35 @@ class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
         }
 };
 
+// 123081 - Pungency
+class spell_garalon_pungency : public SpellScriptLoader
+{
+    public:
+        spell_garalon_pungency() : SpellScriptLoader("spell_garalon_pungency") { }
+
+        class spell_garalon_pungencyAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_garalon_pungencyAuraScript);
+
+            void Duration(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (target->GetInstanceScript()->instance->IsHeroic())
+                        SetDuration(240000);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_garalon_pungencyAuraScript::Duration, EFFECT_0, SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_garalon_pungencyAuraScript();
+        }
+};
+
 void AddSC_boss_garalon()
 {
     new boss_garalon();                         // 62164
@@ -1200,4 +1285,5 @@ void AddSC_boss_garalon()
     new spell_garalon_pheromones_trail_dmg();   // 123120 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123120, "spell_garalon_pheromones_trail_dmg");
     new spell_garalon_pheromones_switch();      // 123100 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123100, "spell_garalon_pheromones_switch");
     new spell_garalon_weak_points_cosmetic();   // 128596, 128599, 128600, 128601
+    new spell_garalon_pungency();               // 123081
 }

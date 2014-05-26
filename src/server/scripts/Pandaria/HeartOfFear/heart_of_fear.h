@@ -172,18 +172,6 @@ enum eCreatures
     NPC_STORM_SPIRIT                = 69680,
     // Sonic Rings
     NPC_SONIC_RING                  = 62689,
-    // NPC_SONIC_RING_FORWARD          = 62689,
-    // NPC_SONIC_RING_30LEFT           = 62694,
-    // NPC_SONIC_RING_30RIGHT          = 62696,
-    // NPC_SONIC_RING_60LEFT           = 62716,
-    // NPC_SONIC_RING_60RIGHT          = 62717,
-    // NPC_SONIC_RING_120LEFT          = 62718,
-    // NPC_SONIC_RING_120RIGHT         = 62719,
-    // NPC_SONIC_RING_90LEFT           = 62726,
-    // NPC_SONIC_RING_90RIGHT          = 62727,
-    // NPC_SONIC_RING_150LEFT          = 62743,
-    // NPC_SONIC_RING_150RIGHT         = 62744,
-    // NPC_SONIC_RING_BACK             = 62746,
     // Sonic Pulse
     NPC_SONIC_PULSE                 = 63837,
 

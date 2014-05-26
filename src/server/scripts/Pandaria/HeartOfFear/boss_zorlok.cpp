@@ -635,18 +635,6 @@ class boss_zorlok : public CreatureScript
 
                         break;
                     }
-                    case ACTION_INHALE_PHEROMONES:
-                    {
-                        if (inhaleDone)
-                            return;
-
-                        me->RemoveAreaTrigger(SPELL_PHEROMONES_CLOUD);
-                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
-                        me->GetMotionMaster()->MoveLand(PHASE_ZORLOK2 + 10, oratiumCenter[1]);
-                        inhaleDone = true;
-                        SetLanding(PHASE_ZORLOK2);
-                        break;
-                    }
                     case ACTION_WIPE:
                     {
                         events.Reset();
@@ -741,6 +729,7 @@ class boss_zorlok : public CreatureScript
                     me->CastSpell(me, SPELL_INHALE_PHEROMONES, true);
                     me->MonsterTextEmote("Imperial Vizier Zor'lok inhales Pheromones of Zeal!", 0, true);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_CLOUD);
+                    events.ScheduleEvent(EVENT_PULL_RAID, 7000);
                 }
             }
 
@@ -971,6 +960,17 @@ class boss_zorlok : public CreatureScript
                     }
                     case EVENT_PULL_RAID:
                     {
+                        if (inhaleDone)
+                            break;
+
+                        // Removing pheromones cloud
+                        me->RemoveAreaTrigger(SPELL_PHEROMONES_CLOUD);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
+
+                        // Landing
+                        me->GetMotionMaster()->MoveLand(PHASE_ZORLOK2 + 10, oratiumCenter[1]);
+                        SetLanding(PHASE_ZORLOK2);
+
                         // Pulling far players
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 300.0f);
@@ -979,10 +979,12 @@ class boss_zorlok : public CreatureScript
                             if ((*itr)->GetPositionZ() > 408.5f)
                                 (*itr)->CastSpell(me, SPELL_MAGNETIC_PULSE, false);
 
-                        // Creating Walls
+                        // Creating Walls for final phase
                         for (uint8 i = 0; i < 3; ++i)
-                            // Final phase Doors
                             me->SummonGameObject(GOB_FINAL_PHASE_WALLS, finalPhaseWalls1[i].GetPositionX(), finalPhaseWalls1[i].GetPositionY(), finalPhaseWalls1[i].GetPositionZ(), finalPhaseWalls1[i].GetOrientation(), 0, 0, 0, 0, 7200);
+
+                        inhaleDone = true;
+
                         break;
                     }
                     default:
@@ -1463,56 +1465,6 @@ class spell_sonic_pulse : public SpellScriptLoader
         }
 };
 
-// Pheromones of Zeal - 124018
-class spell_pheromones_of_zeal : public SpellScriptLoader
-{
-    public:
-        spell_pheromones_of_zeal() : SpellScriptLoader("spell_pheromones_of_zeal") { }
-        
-        class spell_pheromones_of_zeal_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pheromones_of_zeal_AuraScript);
-
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->AddAura(SPELL_INHALE_PHEROMONES, caster);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pheromones_of_zeal_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        class spell_pheromones_of_zeal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pheromones_of_zeal_SpellScript);
-
-            void Effect()
-            {
-                if (Creature* caster = GetCaster()->ToCreature())
-                    caster->AI()->DoAction(ACTION_INHALE_PHEROMONES);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_pheromones_of_zeal_SpellScript::Effect);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pheromones_of_zeal_AuraScript();
-        }
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pheromones_of_zeal_SpellScript();
-        }
-
-};
-
 class ExhaleTargetFilter : public std::unary_function<Unit*, bool>
 {
     public:
@@ -1764,7 +1716,6 @@ void AddSC_boss_zorlok()
     new spell_force_verve();            // 122718 - Force and verve
     new spell_sonic_ring();             // 122336 - Sonic Ring
     new spell_sonic_pulse();            // 124673 - Sonic Pulse
-    new spell_pheromones_of_zeal();     // 124018 - Pheromones of Zeal
     new spell_zorlok_exhale();          // 122761 - Exhale
     new spell_zorlok_exhale_damage();   // 122760 - Exhale (damage aura)
     new spell_convert();                // 122740 - Convert
