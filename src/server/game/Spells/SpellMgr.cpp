@@ -553,12 +553,20 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
         }
         case SPELLFAMILY_MONK:
         {
-            // Disable (reduce movement speed) - limit to 8 seconds in PvP
-            if (spellproto->Id == 116095)
+            switch (spellproto->Id)
+            {
+                case 116095:// Disable (reduce movement speed) - limit to 8 seconds in PvP
+                    return 8 * IN_MILLISECONDS;
+                case 116706:// Disable (root) - limit to 4 seconds in PvP
+                    return 4 * IN_MILLISECONDS;
+            }
+
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            if (spellproto->Id == 605) // Dominate Mind
                 return 8 * IN_MILLISECONDS;
-            // Disable (root) - limit to 4 seconds in PvP
-            else if (spellproto->Id == 116706)
-                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
