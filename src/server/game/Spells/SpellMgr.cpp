@@ -87,6 +87,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                     return DIMINISHING_SILENCE;
                 case 107079: // Quaking Palm
                     return DIMINISHING_DISORIENT;
+                case 113506:// Cyclone (Symbiosis)
+                    return DIMINISHING_CYCLONE;
             }
 
             // Pet charge effects (Infernal Awakening, Demon Charge)
@@ -220,7 +222,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 case 113801:// Bash
                     return DIMINISHING_CONTROLLED_STUN;
                 case 33786: // Cyclone
-                case 113506:// Cyclone (Symbiosis)
                     return DIMINISHING_CYCLONE;
                 case 339:   // Entangling Roots
                 case 19975: // Entangling Roots (Nature's Grasp)
