@@ -773,16 +773,11 @@ class mob_hillpaw_s_chicken : public CreatureScript
     public:
         mob_hillpaw_s_chicken() : CreatureScript("mob_hillpaw_s_chicken")
         {
-            randomizer = 0;
         }
-
-        uint8 randomizer;
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
-            randomizer = urand(0, 5);
-
-            if (randomizer == 3)
+            if (!urand(0, 5))
                 if (player->GetQuestStatus(30318) == QUEST_STATUS_INCOMPLETE)
                     player->AddItem(80223, 1);
 

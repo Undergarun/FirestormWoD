@@ -71,7 +71,12 @@ enum eSpells
     SPELL_SKIN_FLAY                     = 127934,
     SPELL_LIGHTNING_BOLT_2              = 56326,
     SPELL_WATER_SHIELD                  = 34828,
-    SPELL_WATER_SHIELD_2                = 127939
+    SPELL_WATER_SHIELD_2                = 127939,
+    SPELL_HORIFIC_VISAGE                = 138040,
+    SPELL_METEOR_SHOWER                 = 138042,
+    SPELL_SCARAB_SWARM                  = 138036,
+    SPELL_THUNDER_CRUSH                 = 138044,
+    SPELL_VENGEFUL_SPIRIT               = 138043
 };
 
 enum eEvents
@@ -156,9 +161,14 @@ enum eEvents
     EVENT_HUNTER_S_MASK                     = 80,
     EVENT_BLOODY_RAGE                       = 81,
     EVENT_SKIN_FLAY                         = 82,
-    EVENT_LIGHTNING_BOLT_2                  = 56326,
-    EVENT_WATER_SHIELD                      = 34828,
-    EVENT_WATER_SHIELD_2                    = 127939
+    EVENT_LIGHTNING_BOLT_2                  = 83,
+    EVENT_WATER_SHIELD                      = 84,
+    EVENT_WATER_SHIELD_2                    = 85,
+    EVENT_HORIFIC_VISAGE                    = 86,
+    EVENT_METEOR_SHOWER                     = 87,
+    EVENT_SCARAB_SWARM                      = 88,
+    EVENT_THUNDER_CRUSH                     = 89,
+    EVENT_VENGEFUL_SPIRIT                   = 90
 };
 
 enum eQuests
