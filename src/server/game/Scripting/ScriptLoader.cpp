@@ -370,6 +370,7 @@ void AddSC_teldrassil();
 void AddSC_the_barrens();
 void AddSC_thousand_needles();
 void AddSC_thunder_bluff();
+void AddSC_uldum();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
 
@@ -1234,6 +1235,7 @@ void AddKalimdorScripts()
     AddSC_the_barrens();
     AddSC_thousand_needles();
     AddSC_thunder_bluff();
+    AddSC_uldum();
     AddSC_ungoro_crater();
     AddSC_winterspring();
 

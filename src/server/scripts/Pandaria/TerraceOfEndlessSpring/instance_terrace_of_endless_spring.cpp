@@ -153,7 +153,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
 
-                if (id == DATA_PROTECTORS && state == DONE)
+                if (id == DATA_PROTECTORS && state == DONE && GetBossState(DATA_TSULONG) != DONE)
                 {
                     if (Creature* c = instance->GetCreature(tsulongGuid))
                         c->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
@@ -161,7 +161,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                     if (Creature* shaOfFear = instance->GetCreature(shaOfFearGuid))
                         shaOfFear->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                 }
-                else if (id == DATA_TSULONG && state == DONE)
+                else if (id == DATA_TSULONG && state == DONE && GetBossState(DATA_LEI_SHI) != DONE)
                 {
                     if (Creature* leiShi = instance->GetCreature(leiShiGuid))
                     {
@@ -169,7 +169,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         leiShi->AI()->Reset();
                     }
                 }
-                else if (id == DATA_LEI_SHI && state == DONE)
+                else if (id == DATA_LEI_SHI && state == DONE && GetBossState(DATA_SHA_OF_FEAR) != DONE)
                 {
                     if (Creature* shaOfFear = instance->GetCreature(shaOfFearGuid))
                     {

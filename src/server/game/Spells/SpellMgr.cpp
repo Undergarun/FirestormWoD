@@ -87,6 +87,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                     return DIMINISHING_SILENCE;
                 case 107079: // Quaking Palm
                     return DIMINISHING_DISORIENT;
+                case 113506:// Cyclone (Symbiosis)
+                    return DIMINISHING_CYCLONE;
             }
 
             // Pet charge effects (Infernal Awakening, Demon Charge)
@@ -220,7 +222,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 case 113801:// Bash
                     return DIMINISHING_CONTROLLED_STUN;
                 case 33786: // Cyclone
-                case 113506:// Cyclone (Symbiosis)
                     return DIMINISHING_CYCLONE;
                 case 339:   // Entangling Roots
                 case 19975: // Entangling Roots (Nature's Grasp)
@@ -553,12 +554,20 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
         }
         case SPELLFAMILY_MONK:
         {
-            // Disable (reduce movement speed) - limit to 8 seconds in PvP
-            if (spellproto->Id == 116095)
+            switch (spellproto->Id)
+            {
+                case 116095:// Disable (reduce movement speed) - limit to 8 seconds in PvP
+                    return 8 * IN_MILLISECONDS;
+                case 116706:// Disable (root) - limit to 4 seconds in PvP
+                    return 4 * IN_MILLISECONDS;
+            }
+
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            if (spellproto->Id == 605) // Dominate Mind
                 return 8 * IN_MILLISECONDS;
-            // Disable (root) - limit to 4 seconds in PvP
-            else if (spellproto->Id == 116706)
-                return 4 * IN_MILLISECONDS;
             break;
         }
         default:

@@ -810,11 +810,11 @@ class mob_return_to_the_terrace : public CreatureScript
                     case EVENT_CHECK_GUARDIAN:
                     {
                         std::list<Creature*> guardianList;
-                        me->GetCreatureListWithEntryInGrid(guardianList, NPC_YANG_GUOSHI, 10.0f);
+                        me->GetCreatureListWithEntryInGrid(guardianList, NPC_YANG_GUOSHI, 30.0f);
                         if (guardianList.empty())
-                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_CHENG_KANG, 10.0f);
+                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_CHENG_KANG, 30.0f);
                         if (guardianList.empty())
-                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_JINLUN_KUN, 10.0f);
+                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_JINLUN_KUN, 30.0f);
 
                         bool died = false;
                         if (guardianList.empty())
@@ -958,6 +958,19 @@ class mob_shrine_guardian : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, me->GetFloatValue(UNIT_FIELD_MAXDAMAGE));
 
                 nextGlobePct = 95;
+
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
 
             void EnterCombat(Unit* /*attacker*/)
