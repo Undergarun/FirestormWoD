@@ -2278,6 +2278,8 @@ class mob_muckscale_ripper : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_RUPTURE, 5000);
                 events.ScheduleEvent(EVENT_SPRINT, 12000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
@@ -2529,6 +2531,8 @@ class mob_muckscale_flesheater : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 12000);
             }
@@ -2607,6 +2611,8 @@ class mob_muckscale_serpentus : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_FLAME_SHOCK, 5000);
                 events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 12000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
@@ -2689,6 +2695,8 @@ class mob_oracle_hiss_ir : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
                 events.ScheduleEvent(EVENT_CRY_OF_THE_SKY, 12000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
@@ -2755,6 +2763,8 @@ class mob_muckscale_flesh_hunter : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_LIGHTNING_BOLT_2, 5000);
                 events.ScheduleEvent(EVENT_WATER_SHIELD, 12000);
                 events.ScheduleEvent(EVENT_WATER_SHIELD_2, 18000);
@@ -2827,6 +2837,8 @@ class mob_muckscale_slayer : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_BLOODY_RAGE, 5000);
                 events.ScheduleEvent(EVENT_SKIN_FLAY, 12000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
@@ -2893,6 +2905,8 @@ class mob_muckscale_shaman : public CreatureScript
 
             void Reset()
             {
+                events.Reset();
+
                 events.ScheduleEvent(EVENT_BLOODY_RAGE, 5000);
                 events.ScheduleEvent(EVENT_SKIN_FLAY, 12000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
@@ -2937,8 +2951,109 @@ class mob_muckscale_shaman : public CreatureScript
         };
 };
 
+class mob_zandalari_warbringer : public CreatureScript
+{
+    public:
+        mob_zandalari_warbringer() : CreatureScript("mob_zandalari_warbringer")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zandalari_warbringerAI(creature);
+        }
+
+        struct mob_zandalari_warbringerAI : public ScriptedAI
+        {
+            mob_zandalari_warbringerAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+                me->AddAura(138046, me);
+                me->AddAura(138047, me);
+                me->AddAura(138048, me);
+                me->AddAura(138050, me);
+                me->AddAura(138049, me);
+
+                events.ScheduleEvent(EVENT_HORIFIC_VISAGE, 5000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 14000);
+                events.ScheduleEvent(EVENT_METEOR_SHOWER, 18000);
+                events.ScheduleEvent(EVENT_SCARAB_SWARM, 30000);
+                events.ScheduleEvent(EVENT_THUNDER_CRUSH, 55000);
+                events.ScheduleEvent(EVENT_VENGEFUL_SPIRIT, 60000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_HORIFIC_VISAGE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_HORIFIC_VISAGE, false);
+                            events.ScheduleEvent(EVENT_HORIFIC_VISAGE, 65000);
+                            break;
+                        case EVENT_METEOR_SHOWER:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_METEOR_SHOWER, false);
+                            events.ScheduleEvent(EVENT_METEOR_SHOWER, 65000);
+                            break;
+                        case EVENT_SCARAB_SWARM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            {
+                                std::list<Creature*> creatureList;
+                                GetCreatureListWithEntryInGrid(creatureList, me, 69773, 50.0f);
+
+                                if (!creatureList.empty()) // Checks if the creatures spawned while the last time this event has been executed have been killed
+                                    return;
+
+                                me->CastSpell(target, SPELL_SCARAB_SWARM, false);
+                            }
+                            events.ScheduleEvent(EVENT_SCARAB_SWARM, 65000);
+                            break;
+                        case EVENT_THUNDER_CRUSH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_THUNDER_CRUSH, false);
+                            events.ScheduleEvent(EVENT_THUNDER_CRUSH, 65000);
+                            break;
+                        case EVENT_VENGEFUL_SPIRIT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_VENGEFUL_SPIRIT, false);
+                            events.ScheduleEvent(EVENT_VENGEFUL_SPIRIT, 65000);
+                            break;
+                        case EVENT_UNSTABLE_SERUM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 65000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_dread_wastes()
 {
+    // Rare Elite Mobs
+    new mob_zandalari_warbringer();
     // Rare Mobs
     new mob_ik_ik_the_nimble();
     new mob_ai_li_skymirror();

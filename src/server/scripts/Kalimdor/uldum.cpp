@@ -1,4 +1,7 @@
 #include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 enum Spells
 {
@@ -384,10 +387,86 @@ public:
     };
 };
 
+enum eLurkingTempestSpells
+{
+    SPELL_LIGHTNING_BOLT    = 89105,
+    SPELL_LURK              = 85467
+};
+
+enum eLurkingTempestEvents
+{
+    EVENT_LIGHTNING_BOLT    = 1,
+    EVENT_LURK              = 2
+};
+
+
+class mob_lurking_tempest : public CreatureScript
+{
+public:
+    mob_lurking_tempest() : CreatureScript("mob_lurking_tempest")
+    {
+    }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_lurking_tempestAI(creature);
+    }
+
+    struct mob_lurking_tempestAI : public ScriptedAI
+    {
+        mob_lurking_tempestAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+
+            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 8000);
+            events.ScheduleEvent(EVENT_LURK, 14000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_LIGHTNING_BOLT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_LIGHTNING_BOLT, false);
+                        events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 12000);
+                        break;
+                    case EVENT_LURK:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_LURK, false);
+                        events.ScheduleEvent(EVENT_LURK, 12000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
 void AddSC_uldum()
 {
     new mob_harrison_jones();
     new mob_harrison_jones_2();
     new boss_akmahat();
     new npc_akmahat_fury_of_the_sands();
+    new mob_lurking_tempest();
 }
