@@ -1,0 +1,1 @@
+UPDATE gameobject_template SET faction = 1375, flags = 32, data1 = 0, NAME = 'Porte de l''arène' WHERE entry IN (212921, 213196, 213197);

@@ -4391,7 +4391,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_SSM                = 708,  // Silver shard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
-    BATTLEGROUND_TTP                = 757   // The Tiger's Peak @todo NYI
+    BATTLEGROUND_TTP                = 757   // The Tiger's Peak
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 758
