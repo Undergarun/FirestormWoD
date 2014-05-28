@@ -128,6 +128,7 @@ enum Events
 {
     /*** Boss ***/
     EVENT_WHIRLING_BLADE     = 1, // 36 secs after pull
+    EVENT_WHIRLING_BLADE_REM,
     EVENT_RAIN_OF_BLADES,         // 60 secs after pull
     EVENT_WIND_BOMB,
 
@@ -161,6 +162,8 @@ enum Adds
     NPC_SRATHIK_AMBER_TRAPPER     = 62405,
     NPC_ZARTHIK_BATTLE_MENDER     = 62408
 };
+
+#define TYPE_WHIRLING_BLADE 1
  /*
 // Mel'jarak add spawn points.
 Position const AddSummonPositions[9] =
@@ -184,6 +187,28 @@ Position const ReinforcementsSummonPositions[3] =
     { 4749.9819f, 79.0285f, 96.380f, 6.03f },
 };*/
 
+// Starting Positions for Kor'thik Elite Blademaster (62402)
+Position PosKorthikEliteMaster[3] =
+{
+    {-2084.55f, 483.10f, 503.57f, 3.141593f},
+    {-2089.31f, 475.97f, 503.57f, 3.141593f},
+    {-2084.55f, 467.61f, 503.57f, 3.141593f}
+};
+
+Position PosSrathikAmberTrapper[3] =
+{
+    {-2077.00f, 490.33f, 503.57f, 3.141593f},
+    {-2083.78f, 495.89f, 503.57f, 3.141593f},
+    {-2079.33f, 502.90f, 503.57f, 3.141593f}
+};
+
+Position PosZarthikBattleMender[3] =
+{
+    {-2077.00f, 461.88f, 503.57f, 3.141593f},
+    {-2083.78f, 456.09f, 503.57f, 3.141593f},
+    {-2079.33f, 449.28f, 503.57f, 3.141593f}
+};
+
 class boss_wind_lord_meljarak : public CreatureScript
 {
 public:
@@ -201,12 +226,14 @@ public:
         InstanceScript* instance;
         SummonList summons;
         EventMap events;
+        uint64 whirlingTarget;
         bool introDone, windBombScheduled, reinforcementsSummoned;
 
         void Reset()
         {
             events.Reset();
             summons.DespawnAll();
+            me->RemoveAllDynObjects();
 
             windBombScheduled = false;
             reinforcementsSummoned = false;
@@ -234,7 +261,7 @@ public:
             events.ScheduleEvent(EVENT_CHECK_ADD_CC_DEATH, 1000);
 
             // Normal events.
-            events.ScheduleEvent(EVENT_WHIRLING_BLADE, 36000);
+            events.ScheduleEvent(EVENT_WHIRLING_BLADE, 1000/*36000*/);
             events.ScheduleEvent(EVENT_RAIN_OF_BLADES, 60000);
             events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
 
@@ -281,6 +308,8 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
+            events.Reset();
+            me->RemoveAllDynObjects();
             summons.DespawnAll();
 
             if (instance)
@@ -299,6 +328,23 @@ public:
 
 			if (me->isInCombat())
                 summon->AI()->DoZoneInCombat();
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == TYPE_WHIRLING_BLADE)
+            {
+                if (Player* player = ObjectAccessor::FindPlayer(whirlingTarget))
+                    return player->GetGUIDLow();
+                return 0;
+            }
+            return 0;
+        }
+
+        void SetData(uint32 type, uint32 value)
+        {
+            if (type == TYPE_WHIRLING_BLADE)
+                whirlingTarget = value;
         }
 
         void UpdateAI(uint32 const diff)
@@ -321,6 +367,7 @@ public:
                     // Special Adds Check event.
 
                     case EVENT_CHECK_ADD_CC_DEATH:
+                    {
                         // Normal mode.
                         if (!me->GetMap()->IsHeroic())
                         {
@@ -355,7 +402,7 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_N);
 
-                                    events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    //events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
                                     reinforcementsSummoned = true;
                                 }
                             }
@@ -378,7 +425,7 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_N);
 
-                                    events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    //events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
                                     reinforcementsSummoned = true;
                                 }
                             }
@@ -390,7 +437,7 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_N);
 
-                                    events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    //events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
                                     reinforcementsSummoned = true;
                                 }
                             }
@@ -407,53 +454,71 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_H);
 
-                                    events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
                                     reinforcementsSummoned = true;
                                 }
                             }
                         }
                         events.ScheduleEvent(EVENT_CHECK_ADD_CC_DEATH, 100);
                         break;
-
+                    }
                     case EVENT_SUMMON_REINFORCEMENTS:
+                    {
                         SummonReinforcements();
                         break;
-
+                    }
                     // Elite Battlemasters event:
                     case EVENT_KORTHIK_STRIKE:
+                    {
 				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                             EliteBattleMastersCastStrike(target);
                         events.ScheduleEvent(EVENT_KORTHIK_STRIKE, urand(34000, 50000));
                         break;
-
+                    }
                     // Normal events.
-
                     case EVENT_WHIRLING_BLADE:
+                    {
                         Talk(SAY_WHIRLING_BLADES);
                         Talk(ANN_WHIRLING_BLADES);
 				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
-				            DoCast(target, SPELL_WHIRLING_BLADE);
-                        events.ScheduleEvent(EVENT_WHIRLING_BLADE, urand(48000, 64000));
+                        {
+                            whirlingTarget = target->GetGUID();
+                            me->CastSpell(target, SPELL_WHIRLING_BLADE, true);
+                            me->CastSpell(target, 121897, false);
+                            me->CastSpell(target, 122083, false);
+                        }
+                        events.ScheduleEvent(EVENT_WHIRLING_BLADE_REM, 1000);
+                        events.ScheduleEvent(EVENT_WHIRLING_BLADE, 10000/*urand(48000, 64000)*/);
 						break;
-
+                    }
+                    case EVENT_WHIRLING_BLADE_REM:
+                    {
+                        if (me->HasAura(SPELL_WHIRLING_BLADE))
+                            me->RemoveAura(SPELL_WHIRLING_BLADE);
+                        break;
+                    }
                     case EVENT_RAIN_OF_BLADES:
+                    {
                         Talk(SAY_RAIN_OF_BLADES);
                         Talk(ANN_RAIN_OF_BLADES);
 				        DoCast(me, SPELL_RAIN_OF_BLADES);
                         events.ScheduleEvent(EVENT_RAIN_OF_BLADES, urand(48000, 64000));
 						break;
-
+                    }
                     case EVENT_WIND_BOMB:
+                    {
 				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
 				            DoCast(target, SPELL_WIND_BOMB);
                         events.ScheduleEvent(EVENT_WIND_BOMB, urand(18000, 24000));
 						break;
-
+                    }
 					case EVENT_BERSERK_MELJARAK:
+                    {
 						DoCast(me, SPELL_BERSERK_MELJARAK);
 						break;
-
-                    default: break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -466,24 +531,11 @@ public:
 
         void SummonSwarmAdds()
         {
-            Position pos;
-
             for (uint8 i = 0; i < 3; i++)
             {
-                me->GetRandomNearPosition(pos, 15.f);
-                me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-            }
-
-            for (uint8 i = 3; i < 6; i++)
-            {
-                me->GetRandomNearPosition(pos, 15.f);
-                me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-            }
-
-            for (uint8 i = 6; i < 9; i++)
-            {
-                me->GetRandomNearPosition(pos, 15.f);
-                me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER, pos, TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, PosKorthikEliteMaster[i],  TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER,     PosSrathikAmberTrapper[i], TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER,     PosZarthikBattleMender[i], TEMPSUMMON_MANUAL_DESPAWN);
             }
         }
 
@@ -552,53 +604,26 @@ public:
 
         bool EliteBattleMastersDied()
         {
-            std::list<Creature*> battleMasters;
-
-            GetCreatureListWithEntryInGrid(battleMasters, me, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);
-
-            if (battleMasters.empty())
+            if (GetClosestCreatureWithEntry(me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f, true))
                 return true;
 
-            // Only need to check one, as their health is shared.
-            std::list<Creature*>::iterator iter = battleMasters.begin();
-            if ((*iter)->isAlive())
-                return true;
-
-            return false; // default.
+            return false;
         }
 
         bool AmberTrappersDied()
         {
-            std::list<Creature*> amberTrappers;
-
-            GetCreatureListWithEntryInGrid(amberTrappers, me, NPC_SRATHIK_AMBER_TRAPPER, 150.0f);
-
-            if (amberTrappers.empty())
+            if (GetClosestCreatureWithEntry(me, NPC_SRATHIK_AMBER_TRAPPER, 200.0f, true))
                 return true;
 
-            // Only need to check one, as their health is shared.
-            std::list<Creature*>::iterator iter = amberTrappers.begin();
-            if ((*iter)->isAlive())
-                return true;
-
-            return false; // default.
+            return false;
         }
 
         bool BattleMendersDied()
         {
-            std::list<Creature*> battleMenders;
-
-            GetCreatureListWithEntryInGrid(battleMenders, me, NPC_ZARTHIK_BATTLE_MENDER, 150.0f);
-
-            if (battleMenders.empty())
+            if (GetClosestCreatureWithEntry(me, NPC_ZARTHIK_BATTLE_MENDER, 200.0f, true))
                 return true;
 
-            // Only need to check one, as their health is shared.
-            std::list<Creature*>::iterator iter = battleMenders.begin();
-            if ((*iter)->isAlive())
-                return true;
-
-            return false; // default.
+            return false;
         }
 
         void SummonReinforcements()
@@ -753,10 +778,6 @@ class npc_wind_bomb_meljarak : public CreatureScript
         }
 };
 
-// Korthik Elite Blademaster: 62402. - Handled in boss script.
-
-// Srathik Amber Trapper: 62405.
-
 struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
 {
     public:
@@ -771,6 +792,57 @@ struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
 };
 
 
+// Korthik Elite Blademaster: 62402 - handled in boss script, script here only used for life sharing
+class npc_korthik_elite_blademaster: public CreatureScript
+{
+public:
+    npc_korthik_elite_blademaster() : CreatureScript("npc_korthik_elite_blademaster") { }
+
+    struct npc_korthik_elite_blademasterAI: public ScriptedAI
+    {
+        npc_korthik_elite_blademasterAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void JustDied(Unit* killer)
+        {
+            events.Reset();
+            // Killing the other adds of the same group
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            for (auto mob : mobList)
+                if (mob->isAlive())
+                    killer->Kill(mob, false);
+        }
+
+        void DamageTaken(Unit* killer, uint32 &damage)
+        {
+            if (killer->GetEntry() == me->GetEntry())
+                return;
+
+
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            if (damage > me->GetHealth())
+                for (auto mob : mobList)
+                    killer->Kill(mob, true);
+
+            else
+                for (auto mob : mobList)
+                    if (mob->GetGUID() != me->GetGUID())
+                        mob->ModifyHealth(-int32(damage));
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_korthik_elite_blademasterAI(creature);
+    }
+
+};
+
+// Srathik Amber Trapper: 62405.
 class npc_srathik_amber_trapper: public CreatureScript 
 {
 public:
@@ -797,6 +869,37 @@ public:
         {
             events.ScheduleEvent(EVENT_AMBER_PRISON, urand(13000, 47000));
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
+        }
+
+        void JustDied(Unit* killer)
+        {
+            events.Reset();
+            // Killing the other adds of the same group
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            for (auto mob : mobList)
+                if (mob->isAlive())
+                    killer->Kill(mob, false);
+        }
+
+        void DamageTaken(Unit* killer, uint32 &damage)
+        {
+            if (killer->GetEntry() == me->GetEntry())
+                return;
+
+
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            if (damage > me->GetHealth())
+                for (auto mob : mobList)
+                    killer->Kill(mob, true);
+
+            else
+                for (auto mob : mobList)
+                    if (mob->GetGUID() != me->GetGUID())
+                        mob->ModifyHealth(-int32(damage));
         }
 
         void UpdateAI(uint32 const diff)
@@ -939,6 +1042,37 @@ public:
         {
             events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
             events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));
+        }
+
+        void JustDied(Unit* killer)
+        {
+            events.Reset();
+            // Killing the other adds of the same group
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            for (auto mob : mobList)
+                if (mob->isAlive())
+                    killer->Kill(mob, false);
+        }
+
+        void DamageTaken(Unit* killer, uint32 &damage)
+        {
+            if (killer->GetEntry() == me->GetEntry())
+                return;
+
+
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            if (damage > me->GetHealth())
+                for (auto mob : mobList)
+                    killer->Kill(mob, true);
+
+            else
+                for (auto mob : mobList)
+                    if (mob->GetGUID() != me->GetGUID())
+                        mob->ModifyHealth(-int32(damage));
         }
 
         void UpdateAI(uint32 const diff)
@@ -1103,14 +1237,104 @@ public:
     }
 };
 
+// 121897 - Wirling Blade - Flying Sword
+class spell_whirling_blade_sword : public SpellScriptLoader
+{
+public:
+    spell_whirling_blade_sword() : SpellScriptLoader("spell_whirling_blade_sword") { }
+
+    class spell_whirling_blade_sword_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_whirling_blade_sword_SpellScript);
+
+        void BackToMeljarak(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                // Cast by Mel'jarak : target will cast it back
+                if (caster->GetEntry() == NPC_MELJARAK)
+                {
+                    uint32 lowTarget = caster->GetAI()->GetData(TYPE_WHIRLING_BLADE);
+                    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(lowTarget, 0, HIGHGUID_PLAYER)))
+                    {
+                        player->CastSpell(caster, 121897, false);
+                        player->CastSpell(caster, 122083, false);
+                        // Reset target
+                        caster->GetAI()->SetData(TYPE_WHIRLING_BLADE, 0);
+                    }
+                }
+                // Cast by player : remove aura to give Mel'jarak back his weapon and stop damages on players
+                else
+                    if (caster->HasAura(SPELL_WHIRLING_BLADE))
+                        caster->RemoveAura(SPELL_WHIRLING_BLADE);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_whirling_blade_sword_SpellScript::BackToMeljarak, EFFECT_0, SPELL_EFFECT_DUMMY);
+            //AfterHit += SpellHitFn(spell_whirling_blade_sword_SpellScript::BackToMeljarak);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_whirling_blade_sword_SpellScript();
+    }
+};
+
+// 121898 - Wirling Blade - Damages
+class spell_whirling_blade_damages : public SpellScriptLoader
+{
+public:
+    spell_whirling_blade_damages() : SpellScriptLoader("spell_whirling_blade_damages") { }
+
+    class spell_whirling_blade_damages_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_whirling_blade_damages_SpellScript);
+
+        void SelectTargets(std::list<WorldObject*> &targets)
+        {
+            targets.clear();
+            Unit* caster   = GetCaster();
+            Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(caster->GetAI()->GetData(TYPE_WHIRLING_BLADE), 0, HIGHGUID_PLAYER));
+
+            if (!caster || !target)
+                return;
+
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, caster, 30.0f);
+
+            for (auto player : playerList)
+                if (player->IsInBetween(caster, target, 3.0f))
+                    targets.push_back(player);
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_whirling_blade_damages_SpellScript::SelectTargets, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_whirling_blade_damages_SpellScript();
+    }
+};
+
+
 void AddSC_boss_meljarak()
 {
-    new boss_wind_lord_meljarak();
-    new npc_wind_bomb_meljarak();
-    new npc_srathik_amber_trapper();
-    new npc_corrosive_resin_pool();
-    new npc_amber_prison_meljarak();
-    new npc_zarthik_battle_mender();
-    new spell_meljarak_corrosive_resin();
-    new spell_mending();
+    new boss_wind_lord_meljarak();          // 62397
+    new npc_wind_bomb_meljarak();           // 67053
+    new npc_korthik_elite_blademaster();    // 62402
+    new npc_srathik_amber_trapper();        // 62405
+    new npc_corrosive_resin_pool();         // 67046
+    new npc_amber_prison_meljarak();        // 62531
+    new npc_zarthik_battle_mender();        // 62408
+    new spell_meljarak_corrosive_resin();   // 122064
+    new spell_mending();                    // 122147
+    // new spell_whirling_blade();             // 121896
+    new spell_whirling_blade_sword();       // 121897
+    new spell_whirling_blade_damages();     // 121898
 }

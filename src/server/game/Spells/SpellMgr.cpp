@@ -4286,6 +4286,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 0; // Cancel damages, done by Garalon' script
                 spellInfo->Effects[2].Effect = 3;
                 break;
+            case 121896:// Whirling Blade
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[3].Effect = 0;
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;

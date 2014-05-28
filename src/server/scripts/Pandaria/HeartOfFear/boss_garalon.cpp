@@ -276,7 +276,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* attacker)
+        void DamageTaken(Unit* attacker, uint32 /*damage*/)
         {
             if (!fightInProgress)
                 if (CheckTrash())

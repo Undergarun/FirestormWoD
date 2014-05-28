@@ -1578,12 +1578,9 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Unit* caster = GetCaster();
-
-                if (targets.empty() || !caster)
-                    return;
-
                 Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
-                if (!currentTarget)
+
+                if (targets.empty() || !caster || !currentTarget)
                     return;
 
                 // Remove players not between Zorlok and his target.
@@ -1597,7 +1594,7 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
                     if ((*itr) == currentTarget)
                         continue;
 
-                    if ((*itr)->GetTypeId() != TYPEID_PLAYER || !(*itr)->IsInBetween(caster, currentTarget))
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER || !(*itr)->IsInBetween(caster, currentTarget, 3.0f))
                         targets.remove(*itr);
                 }
 
