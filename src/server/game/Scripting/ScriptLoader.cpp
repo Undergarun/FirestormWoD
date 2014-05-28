@@ -790,6 +790,7 @@ void AddSC_dread_wastes();
 void AddSC_valley_of_the_four_winds();
 void AddSC_krasarang_wilds();
 void AddSC_jade_forest();
+void AddSC_the_veiled_stair();
 void AddSC_vale_of_eternal_blossoms();
 void AddSC_kun_lai_summit();
 
@@ -1627,6 +1628,7 @@ void AddPandarieScripts()
     AddSC_valley_of_the_four_winds();
     AddSC_krasarang_wilds();
     AddSC_jade_forest();
+    AddSC_the_veiled_stair();
     AddSC_kun_lai_summit();
     AddSC_vale_of_eternal_blossoms();
 

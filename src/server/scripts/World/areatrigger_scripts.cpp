@@ -564,48 +564,46 @@ class areatrigger_at_serpent_nests : public AreaTriggerScript
             if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
             {
                 std::list<Creature*> serpentsList;
-                GetCreatureListWithEntryInGrid(serpentsList, player, 58220, 30.0f);
+                uint32 entries[3] = { 58220, 58243, 58244 };
 
-                std::list<Creature*> secondSerpentsList;
-                GetCreatureListWithEntryInGrid(secondSerpentsList, player, 58243, 30.0f);
-
-                std::list<Creature*> thirdSerpentsList;
-                GetCreatureListWithEntryInGrid(thirdSerpentsList, player, 58244, 30.0f);
-
-                for (auto serpent: serpentsList)
+                for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
-                    {
-                        serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                        serpent->RemoveAllAuras();
-                        serpent->DespawnOrUnsummon();
-                        player->KilledMonsterCredit(58246);
-                    }
-                }
+                    GetCreatureListWithEntryInGrid(serpentsList, player, entries[i], 30.0f);
 
-                for (auto serpent: secondSerpentsList)
-                {
-                    if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                    for (auto serpent : serpentsList)
                     {
-                        serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                        serpent->RemoveAllAuras();
-                        serpent->DespawnOrUnsummon();
-                        player->KilledMonsterCredit(58246);
+                        if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                        {
+                            serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                            serpent->RemoveAllAuras();
+                            serpent->DespawnOrUnsummon();
+                            player->KilledMonsterCredit(58246);
+                        }
                     }
-                }
 
-                for (auto serpent: thirdSerpentsList)
-                {
-                    if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
-                    {
-                        serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                        serpent->RemoveAllAuras();
-                        serpent->DespawnOrUnsummon();
-                        player->KilledMonsterCredit(58246);
-                    }
+                    serpentsList.clear();
                 }
             }
 
+            return true;
+        }
+};
+
+class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_mason_s_folly() : AreaTriggerScript("AreaTrigger_at_mason_s_folly") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(31482) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (!player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_UNK6))
+                {
+                    player->KilledMonsterCredit(66586);
+                    player->SummonCreature(64822, 755.734f, -507.565f, 442.6f, 4.491428f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                }
+            }
 
             return true;
         }
@@ -627,4 +625,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_klaxxi_vess();
     new AreaTrigger_at_farmer_fung();
     new areatrigger_at_serpent_nests();
+    new AreaTrigger_at_mason_s_folly();
 }
