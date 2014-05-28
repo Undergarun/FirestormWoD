@@ -50,6 +50,9 @@ class npc_wrathion_mason : public CreatureScript
                 if (creature->isQuestGiver() && creature->AI())
                 {
                     creature->DespawnOrUnsummon();
+
+                    if (AchievementEntry const* AchievWC = sAchievementStore.LookupEntry(7533)) // Chapter I: Trial of the Black Prince
+                        player->CompletedAchievement(AchievWC);
                 }
             }
             return true;
@@ -78,10 +81,8 @@ class npc_wrathion_mason : public CreatureScript
                     {
                         SetDespawnAtFar(false);
                         SetDespawnAtEnd(false);
-                        SetEscortPaused(false);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         events.ScheduleEvent(EVENT_FIRST_MOVE, 2000);
-                        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_UNK6);
                         playerGuid = player->GetGUID();
                     }
                 }
@@ -162,7 +163,6 @@ class npc_wrathion_mason : public CreatureScript
                                 break;
                             case EVENT_FINAL:
                                 player->KilledMonsterCredit(64664);
-                                player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_UNK6);
                                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                                 break;
                             default:

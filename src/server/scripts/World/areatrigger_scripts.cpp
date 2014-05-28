@@ -598,7 +598,8 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
         {
             if (player->GetQuestStatus(31482) == QUEST_STATUS_INCOMPLETE)
             {
-                if (!player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_UNK6))
+                Creature* creature = GetClosestCreatureWithEntry(player, 64822, 140.0f, true);
+                if (!creature)
                 {
                     player->KilledMonsterCredit(66586);
                     player->SummonCreature(64822, 755.734f, -507.565f, 442.6f, 4.491428f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
