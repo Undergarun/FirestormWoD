@@ -2282,6 +2282,23 @@ class spell_warl_demonic_gateway : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_gateway_SpellScript);
 
+            SpellCastResult CheckElevation()
+            {
+                if (!GetCaster() || !GetCaster()->ToPlayer())
+                    return SPELL_FAILED_DONT_REPORT;
+
+                Player* player = GetCaster()->ToPlayer();
+
+                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
+                if (!dest)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f)
+                    return SPELL_FAILED_NOPATH;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
@@ -2290,6 +2307,7 @@ class spell_warl_demonic_gateway : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warl_demonic_gateway_SpellScript::CheckElevation);
                 AfterCast += SpellCastFn(spell_warl_demonic_gateway_SpellScript::HandleAfterCast);
             }
         };
