@@ -124,6 +124,8 @@ set(scripts_STAT_SRCS
   Pandaria/vale_of_eternal_blossoms.h
   Pandaria/timeless_isle.cpp
   Pandaria/timeless_isle.h
+  Pandaria/the_veiled_stair.cpp
+  Pandaria/the_veiled_stair.h
 )
 
 message("  -> Prepared: Pandaria")
