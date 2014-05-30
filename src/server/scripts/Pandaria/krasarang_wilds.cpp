@@ -356,6 +356,25 @@ class mob_go_kan : public CreatureScript
         };
 };
 
+class mob_spirit_of_the_crane : public CreatureScript
+{
+    public:
+        mob_spirit_of_the_crane() : CreatureScript("mob_spirit_of_the_crane")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30716) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->KilledMonsterCredit(60487);
+                creature->DespawnOrUnsummon();
+            }
+
+            return true;
+        }
+};
+
 void AddSC_krasarang_wilds()
 {
     new mob_gaarn_the_toxic();
@@ -363,4 +382,5 @@ void AddSC_krasarang_wilds()
     new mob_qu_nas();
     new mob_torik_ethis();
     new mob_go_kan();
+    new mob_spirit_of_the_crane();
 }

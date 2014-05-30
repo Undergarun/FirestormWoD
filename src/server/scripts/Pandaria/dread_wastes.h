@@ -134,7 +134,7 @@ enum eEvents
     EVENT_RAIN_DANCE                        = 53,
     EVENT_TORRENT                           = 54,
     EVENT_WATER_BOLT                        = 55,
-    EVENT_RAIN_DANCE_2                      = 56,
+    EVENT_ICE_TRAP                          = 56,
     EVENT_START_COMBAT                      = 57,
     EVENT_HISEK_TALK_1                      = 58,
     EVENT_HISEK_TALK_2                      = 59,
