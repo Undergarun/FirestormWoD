@@ -2295,7 +2295,6 @@ class spell_item_imputting_the_final_code : public SpellScriptLoader
             void HandleAfterCast()
             {
                 Unit* caster = GetCaster();
-                Unit* target = GetExplTargetUnit();
 
                 if (Player* player = caster->ToPlayer())
                 {
@@ -2379,6 +2378,48 @@ class spell_item_pot_of_fire : public SpellScriptLoader
         }
 };
 
+class spell_item_dit_da_jow : public SpellScriptLoader
+{
+    public:
+        spell_item_dit_da_jow() : SpellScriptLoader("spell_item_dit_da_jow") { }
+
+        class spell_item_dit_da_jow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_dit_da_jow_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30460) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 59143)
+                            {
+                                player->KilledMonsterCredit(59143);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_item_dit_da_jow_SpellScript::HandleBeforeCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_dit_da_jow_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2436,4 +2477,5 @@ void AddSC_item_spell_scripts()
     new spell_item_first_aid();
     new spell_item_imputting_the_final_code();
     new spell_item_pot_of_fire();
+    new spell_item_dit_da_jow();
 }
