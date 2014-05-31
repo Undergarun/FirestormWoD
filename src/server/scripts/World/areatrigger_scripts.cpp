@@ -532,6 +532,84 @@ class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
         }
 };
 
+class AreaTrigger_at_farmer_fung : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_farmer_fung() : AreaTriggerScript("AreaTrigger_at_farmer_fung") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(30518) == QUEST_STATUS_INCOMPLETE)
+                if (player->IsOnVehicle())
+                {
+                    if (Creature* creature = player->GetVehicleCreatureBase())
+                    {
+                        player->KilledMonsterCredit(59491);
+                        player->ExitVehicle();
+                        creature->DespawnOrUnsummon();
+                    }
+                }
+
+            return true;
+        }
+};
+
+class areatrigger_at_serpent_nests : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_serpent_nests() : AreaTriggerScript("areatrigger_at_serpent_nests") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
+            {
+                std::list<Creature*> serpentsList;
+                uint32 entries[3] = { 58220, 58243, 58244 };
+
+                for (uint8 i = 0; i < 3; ++i)
+                {
+                    GetCreatureListWithEntryInGrid(serpentsList, player, entries[i], 30.0f);
+
+                    for (auto serpent : serpentsList)
+                    {
+                        if (serpent->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+                        {
+                            serpent->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                            serpent->RemoveAllAuras();
+                            serpent->DespawnOrUnsummon();
+                            player->KilledMonsterCredit(58246);
+                        }
+                    }
+
+                    serpentsList.clear();
+                }
+            }
+
+            return true;
+        }
+};
+
+class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_mason_s_folly() : AreaTriggerScript("AreaTrigger_at_mason_s_folly") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (player->GetQuestStatus(31482) == QUEST_STATUS_INCOMPLETE)
+            {
+                Creature* creature = GetClosestCreatureWithEntry(player, 64822, 140.0f, true);
+                if (!creature)
+                {
+                    player->KilledMonsterCredit(66586);
+                    player->SummonCreature(64822, 755.734f, -507.565f, 442.6f, 4.491428f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                }
+            }
+
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -546,4 +624,7 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_bael_modan();
     new AreaTrigger_at_klaxxi_vess();
+    new AreaTrigger_at_farmer_fung();
+    new areatrigger_at_serpent_nests();
+    new AreaTrigger_at_mason_s_folly();
 }

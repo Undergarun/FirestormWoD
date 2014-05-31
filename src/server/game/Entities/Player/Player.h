@@ -64,6 +64,7 @@ class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
 class PhaseMgr;
+class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -507,8 +508,8 @@ enum PlayerFlags
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   3
-#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
+#define KNOWN_TITLES_SIZE   5
+#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -3043,6 +3044,11 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
+        /*********************************************************/
+        /***                  SCENES SYSTEM                    ***/
+        /*********************************************************/
+        void PlayScene(uint32 sceneId, WorldObject* spectator);
+
     private:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -3445,6 +3451,11 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonGames[MAX_PVP_SLOT];
         
         CUFProfiles m_cufProfiles;
+
+        /*********************************************************/
+        /***                  SCENES SYSTEM                    ***/
+        /*********************************************************/
+        SceneObject* m_LastPlayedScene;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

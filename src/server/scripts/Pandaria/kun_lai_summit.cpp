@@ -1072,7 +1072,7 @@ class mob_spirit_of_hatred : public CreatureScript
                         case EVENT_DEVASTATION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_DEVASTATION, false);
-                            events.ScheduleEvent(EVENT_DEVASTATION,      20000);
+                            events.ScheduleEvent(EVENT_DEVASTATION, 20000);
                             break;
                         case EVENT_HATED_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))

@@ -1214,8 +1214,8 @@ enum SpellEffects
     SPELL_EFFECT_182                                = 182, // despawwn areatrigger
     SPELL_EFFECT_183                                = 183, // Unused (5.0.5)
     SPELL_EFFECT_REPUTATION_REWARD                  = 184, // add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
-    SPELL_EFFECT_185                                = 185, // Scene related
-    SPELL_EFFECT_186                                = 186, // Scene related
+    SPELL_EFFECT_PLAY_SCENEOBJECT                   = 185,
+    SPELL_EFFECT_PLAY_SCENEOBJECT_2                 = 186,
     SPELL_EFFECT_RANDOM_DIGSITE                     = 187, // 126957 only
     SPELL_EFFECT_STAMPEDE                           = 188, // Stampede 121818
     SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
@@ -1227,7 +1227,7 @@ enum SpellEffects
     SPELL_EFFECT_195                                = 195, // Scene related
     SPELL_EFFECT_196                                = 196, // summon multi NPC
     SPELL_EFFECT_197                                = 197, // 130243 only
-    SPELL_EFFECT_198                                = 198, // Mini scene event
+    SPELL_EFFECT_PLAY_CINEMATIC                     = 198,
     SPELL_EFFECT_199                                = 199, //
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
     SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
@@ -3487,7 +3487,7 @@ enum CreatureFamily
     CREATURE_FAMILY_CRANE               = 125,      // New on MoP 5.0.5
     CREATURE_FAMILY_WATER_STRIDER       = 126,      // New on MoP 5.0.5
     CREATURE_FAMILY_PORCUPINE           = 127,      // New on MoP 5.0.5
-    CREATURE_FAMILY_QUIEL               = 128,      // New on MoP 5.0.5
+    CREATURE_FAMILY_QUILEN              = 128,      // New on MoP 5.0.5
     CREATURE_FAMILY_GOAT                = 129,      // New on MoP 5.0.5
     CREATURE_FAMILY_BASILISK            = 130,      // New on MoP 5.0.5
     CREATURE_FAMILY_DIREHORN            = 138       // New on MoP 5.2.0
@@ -4391,7 +4391,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_SSM                = 708,  // Silver shard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
-    BATTLEGROUND_TTP                = 757   // The Tiger's Peak @todo NYI
+    BATTLEGROUND_TTP                = 757   // The Tiger's Peak
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 758

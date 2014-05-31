@@ -77,7 +77,6 @@ enum RogueSpells
     ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
     ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
     ROGUE_SPELL_CHEATED_DEATH_MARKER            = 45181,
-    ROGUE_SPELL_ENERGETIC_RECOVERY_AURA         = 79152,
     ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR           = 56803,
     ROGUE_SPELL_WEAKENED_ARMOR                  = 113746,
     ROGUE_SPELL_DEADLY_BREW                     = 51626,
@@ -813,45 +812,22 @@ class spell_rog_restless_blades : public SpellScriptLoader
                         if (comboPoints)
                         {
                             if (_player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_ADRENALINE_RUSH);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, 0, uint32(time(NULL) + newCooldownDelay));
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_KILLING_SPREE);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_KILLING_SPREE, 0, uint32(time(NULL) + newCooldownDelay));
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_REDIRECT))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_REDIRECT);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_REDIRECT, 0, uint32(time(NULL) + newCooldownDelay));
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_SHADOW_BLADES);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, 0, uint32(time(NULL) + newCooldownDelay));
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_SPRINT);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_SPRINT, 0, uint32(time(NULL) + newCooldownDelay));
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, (-1 * comboPoints * 2000));
-                            }
+                            if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
 
                             comboPoints = 0;
                         }

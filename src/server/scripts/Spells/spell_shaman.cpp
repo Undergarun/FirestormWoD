@@ -1164,7 +1164,7 @@ class spell_sha_unleash_elements : public SpellScriptLoader
 };
 
 // Called by Lightning Bolt - 403 and Chain Lightning - 421
-// Lightning Bolt (Mastery) - 45284, Chain Lightning - 45297 and Lava Beam (Fire Ascendant) - 114074
+// Lightning Bolt (Mastery) - 45284, Chain Lightning (Mastery) - 45297 and Lava Beam (Fire Ascendant) - 114074
 // Rolling Thunder - 88764
 class spell_sha_rolling_thunder : public SpellScriptLoader
 {

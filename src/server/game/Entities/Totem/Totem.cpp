@@ -182,7 +182,7 @@ void Totem::UnSummon(uint32 msTime)
     }
 
     // Totemic Persistence
-    /*if (AuraEffectPtr totemicPersistence = m_owner->GetAuraEffect(108284, EFFECT_0))
+    if (AuraEffectPtr totemicPersistence = m_owner->GetAuraEffect(108284, EFFECT_0))
     {
         if (totemicPersistence->GetAmount() == 50)
         {
@@ -199,7 +199,7 @@ void Totem::UnSummon(uint32 msTime)
         }
         else if (totemicPersistence->GetAmount() == GetEntry())
             totemicPersistence->SetAmount(50);
-    }*/
+    }
 
     CombatStop();
     RemoveAurasDueToSpell(GetSpell(), GetGUID());

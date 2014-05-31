@@ -3728,6 +3728,7 @@ class npc_demonic_gateway_purple : public CreatureScript
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->CastSpell(me, 113931, true); // 0 Purple Charge
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
@@ -3818,6 +3819,7 @@ class npc_demonic_gateway_green : public CreatureScript
                 me->CastSpell(me, 113901, true); // Periodic add charges
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
@@ -5200,6 +5202,37 @@ class npc_rogue_decoy : public CreatureScript
         }
 };
 
+/*######
+## npc_army_of_the_dead - 24207
+######*/
+
+const uint32 displayIds[6] = { 26079, 25286, 10971, 201, 28292, 27870 };
+
+class npc_army_of_the_dead : public CreatureScript
+{
+    public:
+        npc_army_of_the_dead() : CreatureScript("npc_army_of_the_dead") { }
+
+        struct npc_army_of_the_deadAI : public ScriptedAI
+        {
+            npc_army_of_the_deadAI(Creature* c) : ScriptedAI(c) { }
+
+            void IsSummonedBy(Unit* owner)
+            {
+                if (!owner)
+                    return;
+
+                if (owner->HasAura(58642))
+                    me->SetDisplayId(displayIds[urand(0, 5)]);
+            }
+        };
+
+        CreatureAI* GetAI(Creature *creature) const
+        {
+            return new npc_army_of_the_deadAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -5261,4 +5294,5 @@ void AddSC_npcs_special()
     new npc_luo_meng();
     new npc_monk_spirit();
     new npc_rogue_decoy();
+    new npc_army_of_the_dead();
 }

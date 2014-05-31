@@ -2274,7 +2274,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             switch (Id)
             {
-                case 12292: // Death Wish
                 case 12880: // Enrage (Enrage)
                 case 57518: // Enrage (Wrecking Crew)
                     return SPELL_SPECIFIC_WARRIOR_ENRAGE;
@@ -2320,7 +2319,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 return SPELL_SPECIFIC_PRIEST_SANCTUM;
 
             // Priest chakras
-            if (HasAttribute(SPELL_ATTR9_AFFECTED_BY_SPELLSWAP) || Id == 81209)
+            if (Id == 81206 || Id == 81208 || Id == 81209)
                 return SPELL_SPECIFIC_CHAKRA;
 
             break;
@@ -3534,8 +3533,6 @@ bool SpellInfo::IsCustomCastCanceled(Unit* caster) const
             if (caster->HasAura(Id))
                 return true;
             break;
-        case 132365:// Vengeance (old)
-            return true;
     }
 
     return false;

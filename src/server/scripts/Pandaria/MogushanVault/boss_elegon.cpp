@@ -135,6 +135,7 @@ enum elegonActions
     ACTION_SPAWN_ENERGY_CHARGES     = 2,
     ACTION_DESPAWN_ENERGY_CHARGES   = 3,
     ACTION_EMPYREAL_FOCUS_KILLED    = 4,
+    ACTION_WIPE                     = 5,
 };
 
 enum eMovementPoints
@@ -263,11 +264,6 @@ class boss_elegon : public CreatureScript
                 energyChargeCounter       = 0;
                 empyrealFocusKilled       = 0;
 
-                events.ScheduleEvent(EVENT_CHECK_MELEE,             2500);
-                events.ScheduleEvent(EVENT_CELESTIAL_BREATH,        10000);
-                events.ScheduleEvent(EVENT_MATERIALIZE_PROTECTOR,   urand(35000, 40000));
-                events.ScheduleEvent(EVENT_ENRAGE_HARD,             570000); // 9min30
-
                 summons.DespawnAll();
 
                 if (pInstance)
@@ -286,14 +282,6 @@ class boss_elegon : public CreatureScript
                                 focus->GetAI()->DoAction(ACTION_RESET_EMPYREAL_FOCUS);
                     }
                 }
-            }
-
-            void JustReachedHome()
-            {
-                _JustReachedHome();
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_ELEGON, FAIL);
             }
 
             void EnterCombat(Unit* attacker)
@@ -318,8 +306,14 @@ class boss_elegon : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_15);
                 me->RemoveAurasDueToSpell(SPELL_APPARITION_VISUAL);
+                me->SetReactState(REACT_AGGRESSIVE);
 
                 Talk(TALK_AGGRO);
+
+                events.ScheduleEvent(EVENT_CHECK_MELEE,             2500);
+                events.ScheduleEvent(EVENT_CELESTIAL_BREATH,        10000);
+                events.ScheduleEvent(EVENT_MATERIALIZE_PROTECTOR,   urand(35000, 40000));
+                events.ScheduleEvent(EVENT_ENRAGE_HARD,             570000); // 9min30
             }
 
             void AttackStart(Unit* target)
@@ -463,6 +457,82 @@ class boss_elegon : public CreatureScript
 
                         break;
                     }
+                    case ACTION_WIPE:
+                    {
+                        // Events & summons
+                        events.Reset();
+                        summons.DespawnAll();
+
+                        // Areatriggers, auras, reset full life, and passive
+                        me->RemoveAllAreasTrigger();
+                        me->RemoveAllAuras();
+                        me->SetFullHealth();
+                        me->SetReactState(REACT_PASSIVE);
+
+                        if (pInstance)
+                        {
+                            // Encounter failed
+                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                            pInstance->SetBossState(DATA_ELEGON, FAIL);
+
+                            // Remove auras on players
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
+                        }
+                        // Set invisible and unselectable
+                        me->SetDisplayId(11686);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_15);
+
+                        me->RemoveAurasDueToSpell(SPELL_UNSTABLE_ENERGY);
+                        me->RemoveAurasDueToSpell(SPELL_PHASE_SHIFTED);
+                        me->RemoveAurasDueToSpell(SPELL_OVERLOADED);
+                        me->RemoveAurasDueToSpell(SPELL_RADIATING_ENERGIES_VISUAL);
+
+                        // Reset vars
+                        phase                     = PHASE_1;
+                        phase2WaveCount           = 0;
+                        successfulDrawingPower    = 0;
+                        energyChargeCounter       = 0;
+                        empyrealFocusKilled       = 0;
+
+                        // Reset Empyreal focuses
+                        for (int i = 0; i < 6; i++)
+                        {
+                            if (Unit* focus = ObjectAccessor::FindUnit(empyrealFocus[i]))
+                                if (focus->GetAI())
+                                    focus->GetAI()->DoAction(ACTION_RESET_EMPYREAL_FOCUS);
+                        }
+
+                        // Reset Game objects
+                        if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
+                            titanDisk->SetGoState(GO_STATE_ACTIVE);
+
+                        if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
+                            energyPlatform->SetGoState(GO_STATE_ACTIVE);
+
+                        if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
+                            titanCircle->SetGoState(GO_STATE_ACTIVE);
+
+                        if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f))
+                            titanCircle->SetGoState(GO_STATE_ACTIVE);
+
+                        if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f))
+                            titanCircle->SetGoState(GO_STATE_ACTIVE);
+
+                        for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
+                            if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                moguRune->SetGoState(GO_STATE_ACTIVE);
+
+                        // Reset Cho
+                        if (pInstance)
+                            if (Creature* Cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 300.0f))
+                                Cho->Respawn(true);
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -590,28 +660,19 @@ class boss_elegon : public CreatureScript
 
                 if (who->HasAura(SPELL_TOUCH_OF_THE_TITANS) || who->HasAura(SPELL_TOUCH_OF_TITANS_VISUAL) || who->HasAura(SPELL_ELEGON_OVERCHARGED))
                     return;
-
-                /*
-                if (me->IsWithinDistInMap(who, 38.5f))
-                {
-                    if (Player* player = who->ToPlayer())
-                    {
-                        if (player->isGameMaster())
-                            return;
-
-                        if (player->isAlive())
-                        {
-                            player->CastSpell(player, SPELL_TOUCH_OF_THE_TITANS, true);
-                            player->AddAura(SPELL_TOUCH_OF_TITANS_VISUAL, player);
-                            player->CastSpell(player, SPELL_ELEGON_OVERCHARGED, true);
-                        }
-                    }
-                }
-                */
             }
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        DoAction(ACTION_WIPE);
+                        return;
+                    }
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -703,6 +764,7 @@ class boss_elegon : public CreatureScript
                                 if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
                                     energyPlatform->SetGoState(GO_STATE_ACTIVE);
 
+                                /*
                                 std::list<GameObject*> titanCircles1;
                                 std::list<GameObject*> titanCircles2;
                                 std::list<GameObject*> titanCircles3;
@@ -716,18 +778,28 @@ class boss_elegon : public CreatureScript
                                     titanCircle->SetGoState(GO_STATE_ACTIVE);
                                 for (auto titanCircle : titanCircles3)
                                     titanCircle->SetGoState(GO_STATE_ACTIVE);
+                                */
 
-                                std::list<GameObject*> moguRune;
+                                if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
+                                    titanCircle->SetGoState(GO_STATE_ACTIVE);
 
-                                for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END; entry++)
-                                {
-                                    GetGameObjectListWithEntryInGrid(moguRune, me, entry, 500.0f);
+                                if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f))
+                                    titanCircle->SetGoState(GO_STATE_ACTIVE);
 
-                                    for (auto itr : moguRune)
+                                if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f))
+                                    titanCircle->SetGoState(GO_STATE_ACTIVE);
+
+                                // std::list<GameObject*> moguRune;
+
+                                for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
+                                    //GetGameObjectListWithEntryInGrid(moguRune, me, entry, 500.0f);
+                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                        moguRune->SetGoState(GO_STATE_ACTIVE);
+
+                                    /*for (auto itr : moguRune)
                                         itr->SetGoState(GO_STATE_ACTIVE);
 
-                                    moguRune.clear();
-                                }
+                                    moguRune.clear();*/
                             }
                         }
 
@@ -753,6 +825,7 @@ class boss_elegon : public CreatureScript
                                 if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
                                     energyPlatform->SetGoState(GO_STATE_READY);
 
+                                /*
                                 std::list<GameObject*> titanCircles1;
                                 std::list<GameObject*> titanCircles2;
                                 std::list<GameObject*> titanCircles3;
@@ -778,6 +851,20 @@ class boss_elegon : public CreatureScript
 
                                     moguRune.clear();
                                 }
+                                */
+
+                                if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
+                                    titanCircle->SetGoState(GO_STATE_READY);
+
+                                if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f))
+                                    titanCircle->SetGoState(GO_STATE_READY);
+
+                                if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f))
+                                    titanCircle->SetGoState(GO_STATE_READY);
+
+                                for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; ++entry)
+                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                        moguRune->SetGoState(GO_STATE_READY);
                             }
 
                             phase = PHASE_1;
@@ -1413,6 +1500,7 @@ class mob_infinite_energy : public CreatureScript
                             if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
                                 energyPlatform->SetGoState(GO_STATE_READY);
 
+                            /*
                             std::list<GameObject*> titanCircles1;
                             std::list<GameObject*> titanCircles2;
                             std::list<GameObject*> titanCircles3;
@@ -1438,6 +1526,20 @@ class mob_infinite_energy : public CreatureScript
 
                                 moguRune.clear();
                             }
+                            */
+                            if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
+                                titanCircle->SetGoState(GO_STATE_READY);
+
+                            if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f))
+                                titanCircle->SetGoState(GO_STATE_READY);
+
+                            if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f))
+                                titanCircle->SetGoState(GO_STATE_READY);
+
+                            for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; ++entry)
+                                if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                    moguRune->SetGoState(GO_STATE_READY);
+
                             events.ScheduleEvent(EVENT_CHECK_AURAS, 500);
                         }
                         break;

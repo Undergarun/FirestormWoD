@@ -210,32 +210,18 @@ void AreaTrigger::Update(uint32 p_time)
         case 116011:// Rune of Power
         {
             std::list<Unit*> targetList;
-            bool affected = false;
-            radius = 2.25f;
+            radius = 5.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
-
-            if (!targetList.empty())
+            if (caster->IsWithinDistInMap(this, 5.0f))
             {
-                for (auto itr : targetList)
-                {
-                    if (itr->GetGUID() == caster->GetGUID())
-                    {
-                        caster->CastSpell(itr, 116014, true); // Rune of Power
-                        affected = true;
+                if (!caster->HasAura(116014))
+                    caster->CastSpell(caster, 116014, true);
+                else if (AuraPtr runeOfPower = caster->GetAura(116014))
+                    runeOfPower->RefreshDuration();
 
-                        if (caster->ToPlayer())
-                            caster->ToPlayer()->UpdateManaRegen();
-
-                        return;
-                    }
-                }
+                if (caster->ToPlayer())
+                    caster->ToPlayer()->UpdateManaRegen();
             }
-
-            if (!affected)
-                caster->RemoveAura(116014);
 
             break;
         }
@@ -279,32 +265,6 @@ void AreaTrigger::Update(uint32 p_time)
                         itr->RemoveAura(122706);
                     else if (itr->GetDistance(this) <= 2.0f && !itr->HasAura(122706))
                         caster->AddAura(122706, itr);
-                }
-            }
-            break;
-        }
-        case 123811:// Pheromones of Zeal
-        {
-            std::list<Unit*> targetList;
-            radius = 50.0f;
-
-            // GetPlayerListInGrid(targetList, 200.0f);
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
-
-            if (!targetList.empty())
-            {
-                for (auto itr : targetList)
-                {
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        // Pheromones of Zeal - Periodic Damage
-                        if (itr->GetDistance(this) > 35.0f && itr->HasAura(123812))
-                            itr->RemoveAura(123812);
-                        else if (itr->GetDistance(this) <= 35.0f && !itr->HasAura(123812))
-                            caster->AddAura(123812, itr);
-                    }
                 }
             }
             break;

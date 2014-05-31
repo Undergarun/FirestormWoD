@@ -81,6 +81,7 @@
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
+#include "SceneObject.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -992,6 +993,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
+
+    m_LastPlayedScene = NULL;
 }
 
 Player::~Player()
@@ -4143,16 +4146,30 @@ void Player::InitSpellForLevel()
             learnSpell(spellId, false);
     }
 
-    // Aberration and Two Forms
+    // Aberration, Two Forms, Darkflight, Flayer, Viciousness
     if (getRace() == RACE_WORGEN)
     {
         learnSpell(68976, false);
         learnSpell(68996, false);
+        learnSpell(97709, false);
+        learnSpell(68992, false);
+        learnSpell(68978, false);
+        learnSpell(68975, false);
     }
     else
     {
-        removeSpell(68996, false, false);
-        removeSpell(68976, false, false);
+        if (HasSpell(68996))
+            removeSpell(68996, false, false);
+        if (HasSpell(68976))
+            removeSpell(68976, false, false);
+        if (HasSpell(97709))
+            removeSpell(97709, false, false);
+        if (HasSpell(68992))
+            removeSpell(68992, false, false);
+        if (HasSpell(68978))
+            removeSpell(68978, false, false);
+        if (HasSpell(68975))
+            removeSpell(68975, false, false);
     }
 
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
@@ -4173,16 +4190,6 @@ void Player::InitSpellForLevel()
             removeSpell(115913, false, false);
         if (HasSpell(90267) && getLevel() < 60)
             removeSpell(90267, false, false);
-    }
-
-    // Only for Worgens - Darkflight
-    if (getRace() != RACE_WORGEN)
-    {
-        if (HasSpell(68992))
-            removeSpell(68992, false, false);
-
-        if (HasSpell(97709))
-            removeSpell(97709, false, false); 
     }
 
     // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
@@ -4227,6 +4234,10 @@ void Player::RemoveSpecializationSpells()
         if (spell && !spell->SpecializationIdList.empty())
             spellToRemove.push_back(itr.first);
     }
+
+    spellToRemove.push_back(48517); // Lunar eclipse
+    spellToRemove.push_back(48518); // Solar eclipse
+    spellToRemove.push_back(107095); // Lunar eclipse (overrider)
 
     for (auto itr : spellToRemove)
         removeSpell(itr);
@@ -9900,6 +9911,10 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         if (!spellproto)
             continue;
 
+        // Item doesn't need to be equipped
+        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && spellproto->HasAura(SPELL_AURA_MOD_SKILL_VALUE))
+            continue;
+
         ApplyEquipSpell(spellproto, item, apply, form_change);
     }
 }
@@ -10858,6 +10873,8 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 3968:
         case 4378:
         case 3703:
+        case 6296:
+        case 6732:
             NumberOfFields = 9;
             break;
         case 4384:
@@ -11441,6 +11458,28 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 5833:
             data << uint32(0x1958) << uint32(0x1);
             data << uint32(0x1959) << uint32(0x4);
+            break;
+        // Tol'Viron Arena
+        case 6296:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TV)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xE10) << uint32(0x0);           // 7 gold
+                data << uint32(0xE11) << uint32(0x0);           // 8 green
+                data << uint32(0xE1A) << uint32(0x0);           // 9 show
+            }
+            break;
+        // The Tiger's Peak
+        case 6732:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TTP)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xE10) << uint32(0x0);           // 7 gold
+                data << uint32(0xE11) << uint32(0x0);           // 8 green
+                data << uint32(0xE1A) << uint32(0x0);           // 9 show
+            }
             break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
@@ -13984,9 +14023,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
             uint32 trigger = 0;
             if (IsTwoHandUsed())
-            {
                 trigger = 120275;
-            }
             else
             {
                 Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
@@ -14881,9 +14918,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
                 uint32 trigger = 0;
                 if (IsTwoHandUsed())
-                {
                     trigger = 120275;
-                }
                 else
                 {
                     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
@@ -22889,7 +22924,7 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
+void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
     uint32 messageLength = text.length();
     uint32 speakerNameLength = strlen(GetName());
@@ -22904,15 +22939,14 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     ObjectGuid guildGuid = 0;
 
     bool sendRealmID = false;
-    bool bit5256 = false;
     bool bit5264 = false;
 
     data->Initialize(SMSG_MESSAGE_CHAT, 100);
     data->WriteBit(0);                                          // Unk bit 5269
     data->WriteBit(messageLength ? 0 : 1);
-    data->WriteBit(!bit5256);                                   // !Unk bit 5256
-    data->WriteBit(0);                                          // has sender
-    data->WriteBit(1);                                          // has sender GUID
+    data->WriteBit(!false);                                     // !hasAchievement
+    data->WriteBit(!true);                                      // !hasSender
+    data->WriteBit(true);                                       // !hasSenderGUID - Fake
 
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
     data->WriteBitInOrder(senderUnkGuid, bitsOrder);
@@ -22929,7 +22963,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     data->WriteBits(speakerNameLength, 11);
 
-    data->WriteBit(senderGuid ? 1 : 0);                       // has receiver GUID
+    data->WriteBit(senderGuid ? 1 : 0);                         // has receiver GUID
 
     uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
     data->WriteBitInOrder(senderGuid, bitsOrder3);
@@ -22938,7 +22972,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
         data->WriteBits(prefixeLength, 5);
 
     data->WriteBit(1);                                          // has receiver
-    data->WriteBit(!(GetChatTag() > 0));                         // !hasChatTag
+    data->WriteBit(!(GetChatTag() > 0));                        // !hasChatTag
 
     if (messageLength)
         data->WriteBits(messageLength, 12);
@@ -22962,13 +22996,13 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     {
         data->WriteBits(channelLength, 7);
         data->FlushBits();
-        data->WriteString(channel);
+        data->append(channel.c_str(), channelLength);
     }
 
     if (speakerNameLength)
     {
         data->FlushBits();
-        data->WriteString(GetName());
+        data->append(GetName(), speakerNameLength);
     }
 
     uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
@@ -22983,7 +23017,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     data->WriteBytesSeq(senderUnkGuid, byteOrder2);
 
     if (prefixeLength)
-        data->WriteString(addonPrefix);
+        data->append(addonPrefix, prefixeLength);
 
     if (sendRealmID)
         *data << uint32(realmID);
@@ -22994,8 +23028,8 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     if (receiverLength)
         data->WriteString("");
 
-    if (bit5256)
-        *data << uint32(0);                                         // unk uint32
+    if (false)
+        *data << uint32(0);                                         // AchievementId
 
     if ((msgtype != CHAT_MSG_CHANNEL && msgtype != CHAT_MSG_WHISPER) || language == LANG_ADDON)
         *data << uint8(language);
@@ -23003,7 +23037,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
         *data << uint8(LANG_UNIVERSAL);
 
     if (messageLength)
-        data->WriteString(text);
+        data->append(text.c_str(), messageLength);
 
     if (bit5264)
         *data << uint32(0);                                         // unk uint32
@@ -30565,4 +30599,19 @@ void Player::SendRefreshSpellMods()
             SendDirectMessage(&data);
         }
     }
+}
+
+void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
+{
+    if (m_LastPlayedScene)
+    {
+        m_LastPlayedScene->DestroyForPlayer(this);
+        delete m_LastPlayedScene;
+        m_LastPlayedScene = NULL;
+    }
+
+    m_LastPlayedScene = SceneObject::CreateSceneObject(sceneId, spectator);
+
+    if (m_LastPlayedScene)
+        m_LastPlayedScene->SendUpdateToPlayer(this);
 }

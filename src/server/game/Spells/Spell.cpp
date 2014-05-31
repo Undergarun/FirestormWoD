@@ -1401,7 +1401,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         const uint8 *types = m_caster->HasAura(54923) ? types_glyph: types_noglyph;
 
                         // Normal case
-                        if (effIndex == 1 && !m_caster->HasAura(115738))
+                        if (effIndex == 0 && !m_caster->HasAura(115738))
                         {
                             for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
                             {
@@ -1435,7 +1435,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                             if (Unit* target = player->GetSelectedUnit())
                             {
-                                if (effIndex == 1)
+                                if (effIndex == 0)
                                 {
                                     bool found = false;
                                     uint8 types_i = 0;
@@ -1466,7 +1466,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                                 if (victim)
                                 {
-                                    if (effIndex == 1)
+                                    if (effIndex == 0)
                                     {
                                         bool found = false;
                                         uint8 types_i = 0;
@@ -1592,7 +1592,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
                     m_caster->CastSpell(m_caster, 129881, true);
                     m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
-                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && m_caster->getLevel() >= 20)
+                    if (m_caster->HasAura(139598))
                         m_caster->AddAura(139597, m_caster);
                     break;
                 default:
@@ -2870,7 +2870,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             break;
         }
     }
-    CallScriptOnHitHandlers();
 
     if (caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CanTriggerPoisonAdditional())
         caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, PROC_FLAG_TAKEN_DAMAGE, procEx);
@@ -2889,6 +2888,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         else
             procEx |= PROC_EX_NORMAL_HIT;
 
+        m_healing = addhealth;
+        CallScriptOnHitHandlers();
+        addhealth = m_healing;
+
         int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
         unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
         m_healing = gain;
@@ -2905,6 +2908,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
+
+        m_damage = damageInfo.damage;
+        CallScriptOnHitHandlers();
+        damageInfo.damage = m_damage;
+
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
         // Send log damage message to client
@@ -2935,6 +2943,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
     {
+        CallScriptOnHitHandlers();
+
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);
@@ -4313,6 +4323,7 @@ void Spell::finish(bool ok)
     switch (m_spellInfo->Id)
     {
         case 32379: // Shadow Word: Death
+        case 129176:// Shadow Word: Death (overrided by Glyph)
         {
             if (m_caster->GetTypeId() != TYPEID_PLAYER)
                 break;
@@ -6786,6 +6797,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!m_caster->_IsValidAttackTarget(target, GetSpellInfo()))
                             return SPELL_FAILED_BAD_TARGETS;
                     }
+                    else if (m_caster->HasAura(63333) && target == m_caster)
+                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (m_spellInfo->Id == 19938)          // Awaken Peon
                 {
@@ -7573,12 +7586,13 @@ SpellCastResult Spell::CheckCasterAuras() const
 
 SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 {
-    bool isRatedBattleground = false; // NYI
-    bool isArena = !isRatedBattleground;
+    Battleground* bg = m_caster->ToPlayer()->GetBattleground();
+    bool isRatedBG = bg ? bg->IsRatedBG() : false;
+    bool isArena = bg ? bg->isArena() : false;
 
     // check USABLE attributes
     // USABLE takes precedence over NOT_USABLE
-    if (isRatedBattleground && m_spellInfo->AttributesEx9 & SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS)
+    if (isRatedBG && m_spellInfo->AttributesEx9 & SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS)
         return SPELL_CAST_OK;
 
     if (isArena && m_spellInfo->AttributesEx4 & SPELL_ATTR4_USABLE_IN_ARENA)
@@ -7586,17 +7600,22 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 
     // check NOT_USABLE attributes
     if (m_spellInfo->AttributesEx4 & SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG)
-        return isArena ? SPELL_FAILED_NOT_IN_ARENA : SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
+    {
+        if (isArena)
+            return SPELL_FAILED_NOT_IN_ARENA;
+        else if (isRatedBG)
+            return SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
+    }
 
     if (isArena && m_spellInfo->AttributesEx9 & SPELL_ATTR9_NOT_USABLE_IN_ARENA)
-            return SPELL_FAILED_NOT_IN_ARENA;
+        return SPELL_FAILED_NOT_IN_ARENA;
 
     // check cooldowns
     uint32 spellCooldown = m_spellInfo->GetRecoveryTime();
     if (isArena && spellCooldown > 10 * MINUTE * IN_MILLISECONDS) // not sure if still needed
         return SPELL_FAILED_NOT_IN_ARENA;
 
-    if (isRatedBattleground && spellCooldown > 15 * MINUTE * IN_MILLISECONDS)
+    if (isRatedBG && spellCooldown > 15 * MINUTE * IN_MILLISECONDS)
         return SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
 
     return SPELL_CAST_OK;

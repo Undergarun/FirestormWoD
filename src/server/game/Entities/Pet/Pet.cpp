@@ -629,7 +629,7 @@ void Pet::Update(uint32 diff, uint32 entry)
     {
         case CORPSE:
         {
-            // Spirit Bond and Kindred Spirits
+            // Spirit Bond, Kindred Spirits and Blink Strikes
             if (Player* owner = GetOwner())
             {
                 if (!m_Stampeded)
@@ -639,6 +639,9 @@ void Pet::Update(uint32 diff, uint32 entry)
 
                     if (owner->HasAura(56315))
                         RemoveAura(56315);
+
+                    /*if (owner->HasSpell(130392))
+                        RemoveAura(130392);*/
                 }
             }
 
@@ -666,6 +669,10 @@ void Pet::Update(uint32 diff, uint32 entry)
             // Kindred Spirits
             if (owner->HasAura(56315) && !HasAura(56315) && !m_Stampeded)
                 CastSpell(this, 56315, true);
+
+            // Blink Strikes
+            /*if (owner->HasSpell(130392))
+                CastSpell(this, 130392, true);*/
 
             if (isControlled())
             {
@@ -728,10 +735,15 @@ void Pet::Update(uint32 diff, uint32 entry)
                     // Kindred Spirits
                     if (owner->HasAura(56315) && !m_Stampeded)
                         RemoveAura(56315);
+
+                    // Blink Strikes
+                    /*if (owner->HasSpell(130392))
+                        RemoveAura(130392);*/
                 }
             }
             break;
     }
+
     Creature::Update(diff, entry);
 }
 

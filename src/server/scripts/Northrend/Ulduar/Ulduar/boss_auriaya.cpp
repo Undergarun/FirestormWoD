@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "ulduar.h"
+#include "GridNotifiers.h"
 
 enum AuriayaSpells
 {

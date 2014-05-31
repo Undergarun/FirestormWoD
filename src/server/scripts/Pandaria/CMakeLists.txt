@@ -109,15 +109,23 @@ set(scripts_STAT_SRCS
   Pandaria/WanderingIsland/WanderingIsland_South.cpp
 
   Pandaria/townlong_steppes.cpp
+  Pandaria/townlong_steppes.h
   Pandaria/dread_wastes.cpp
+  Pandaria/dread_wastes.h
   Pandaria/valley_of_the_four_winds.cpp
+  Pandaria/valley_of_the_four_winds.h
   Pandaria/krasarang_wilds.cpp
+  Pandaria/krasarang_wilds.h
   Pandaria/kun_lai_summit.h
   Pandaria/kun_lai_summit.cpp
   Pandaria/jade_forest.cpp
+  Pandaria/jade_forest.h
   Pandaria/vale_of_eternal_blossoms.cpp
+  Pandaria/vale_of_eternal_blossoms.h
   Pandaria/timeless_isle.cpp
   Pandaria/timeless_isle.h
+  Pandaria/the_veiled_stair.cpp
+  Pandaria/the_veiled_stair.h
 )
 
 message("  -> Prepared: Pandaria")

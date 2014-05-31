@@ -49,6 +49,7 @@ class mob_kor_thik_slicer : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 10000);
                 events.ScheduleEvent(EVENT_VITAL_STRIKES, 5000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
             }
 
             void DamageTaken(Unit* killer, uint32& damage)
@@ -130,6 +131,7 @@ class mob_kor_thik_extremist : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_UNDYING_DEVOTION, 5000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
             }
 
             void UpdateAI(const uint32 diff)
@@ -193,7 +195,7 @@ class mob_sra_thik_shield_master : public CreatureScript
                 events.ScheduleEvent(EVENT_MASS_SPELL_REFLEXION, 19000);
                 events.ScheduleEvent(EVENT_SHIELD_SLAM, 26000);
                 events.ScheduleEvent(EVENT_STUNNING_STRIKE, 35000);
-
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
             }
 
             void UpdateAI(const uint32 diff)
@@ -274,6 +276,8 @@ class mob_set_thik_swiftblade : public CreatureScript
                 events.ScheduleEvent(EVENT_BLURRING_SLASH, 7000);
                 events.ScheduleEvent(EVENT_RIPOSTE, 12000);
 
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
+
             }
 
             void UpdateAI(const uint32 diff)
@@ -317,7 +321,7 @@ class mob_set_thik_swiftblade : public CreatureScript
         }
 };
 
-// 67177 - 66181 - 63853
+// 67177 - 66181 - 63853 - Zar'thik Supplicant
 class mob_zar_thik_supplicant : public CreatureScript
 {
     public:
@@ -383,7 +387,7 @@ class mob_zar_thik_supplicant : public CreatureScript
         }
 };
 
-// 63030
+// 63030 - Enslaved Bonesmasher
 class mob_enslaved_bonesmasher : public CreatureScript
 {
     public:
@@ -404,6 +408,8 @@ class mob_enslaved_bonesmasher : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_JAWBONE_SLAM, 7000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_8);
             }
 
             void UpdateAI(const uint32 diff)
@@ -442,7 +448,7 @@ class mob_enslaved_bonesmasher : public CreatureScript
         }
 };
 
-// 64358
+// 64358 - Set'thik Tempest
 class mob_set_thik_tempest : public CreatureScript
 {
     public:
@@ -458,18 +464,18 @@ class mob_set_thik_tempest : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_WIND_SLASH, 7000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
-            }
-
-            void Reset()
-            {
-                events.Reset();
-
-                events.ScheduleEvent(EVENT_WIND_SLASH, 7000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -499,7 +505,7 @@ class mob_set_thik_tempest : public CreatureScript
         }
 };
 
-// 63031
+// 63031 - Set'thik Fanatic
 class mob_set_thik_fanatic : public CreatureScript
 {
     public:
@@ -564,7 +570,7 @@ class mob_set_thik_fanatic : public CreatureScript
         }
 };
 
-// 63593
+// 63593 - Set'thik Zephyrian
 class mob_set_thik_zephyrian : public CreatureScript
 {
     public:
@@ -574,15 +580,24 @@ class mob_set_thik_zephyrian : public CreatureScript
         {
             mob_set_thik_zephyrianAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_SUMMON_ZEPHYR, 4000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_2);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
+                        garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -613,7 +628,7 @@ class mob_set_thik_zephyrian : public CreatureScript
         }
 };
 
-// 64353
+// 64353 - Set'thik Gale-Slicer
 class mob_set_thik_gale_slicer : public CreatureScript
 {
     public:
@@ -632,8 +647,8 @@ class mob_set_thik_gale_slicer : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_SWIFT_STEP, 4000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -671,7 +686,7 @@ class mob_set_thik_gale_slicer : public CreatureScript
         }
 };
 
-// 64338
+// 64338 - Instructor Kli'thak <Keeper of Wind Step>
 class mob_instructor_kli_thak : public CreatureScript
 {
     public:
@@ -690,9 +705,8 @@ class mob_instructor_kli_thak : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
-                events.ScheduleEvent(EVENT_WIND_STEP, 7000);
-                events.ScheduleEvent(EVENT_WIND_STEP_2, 15000);
+                events.ScheduleEvent(EVENT_WIND_STEP, 15000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -714,15 +728,12 @@ class mob_instructor_kli_thak : public CreatureScript
                     switch (id)
                     {
                         case EVENT_WIND_STEP:
+                        {
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_WIND_STEP, true);
+                                me->CastSpell(target, SPELL_WIND_STEP_TP, true);
                             events.ScheduleEvent(EVENT_WIND_STEP, 22000);
                             break;
-                        case EVENT_WIND_STEP_2:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_WIND_STEP_2, true);
-                            events.ScheduleEvent(EVENT_WIND_STEP_2, 22000);
-                            break;
+                        }
                         default:
                             break;
                     }
@@ -738,7 +749,7 @@ class mob_instructor_kli_thak : public CreatureScript
         }
 };
 
-// 64339
+// 64339 - Instructor Tak'thok <Keeper of Overwhelming Assault>
 class mob_instructor_tak_thok : public CreatureScript
 {
     public:
@@ -757,8 +768,9 @@ class mob_instructor_tak_thok : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 4000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -780,7 +792,7 @@ class mob_instructor_tak_thok : public CreatureScript
                     if (id == EVENT_OVERWHELMING_ASSAULT)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, SPELL_OVERWHELMING_ASSAULT, true);
+                            me->CastSpell(target, SPELL_OVERWHELMING_ASS, true);
                         events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 22000);
                         break;
                     }
@@ -796,7 +808,129 @@ class mob_instructor_tak_thok : public CreatureScript
         }
 };
 
-// 63035
+// 64340 - Instructor Maltik <Keeper of Unseen Strike>
+class mob_instructor_maltik : public CreatureScript
+{
+    public:
+        mob_instructor_maltik() : CreatureScript("mob_instructor_maltik") { }
+
+        struct mob_instructor_maltikAI : public ScriptedAI
+        {
+            mob_instructor_maltikAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            EventMap events;
+            InstanceScript* pInstance;
+
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_TRASH_UNSEEN_STRIKE, 15000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_1);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 id = events.ExecuteEvent())
+                {
+                    switch (id)
+                    {
+                        case EVENT_TRASH_UNSEEN_STRIKE:
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            {
+                                me->CastSpell(target, SPELL_UNSEEN_STRIKE_TR, true);
+                                me->AddAura(SPELL_UNSEEN_STRIKE_MKR, target);
+                                me->GetMotionMaster()->MoveChase(target);
+                                me->SetReactState(REACT_PASSIVE);
+                            }
+                            events.ScheduleEvent(EVENT_TRASH_UNSEEN_STRIKE, 22000);
+
+                        }
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_instructor_maltikAI(creature);
+        }
+};
+
+// 64341 - Instructor Zarik <Keeper of Tempest Slash>
+class mob_instructor_zarik : public CreatureScript
+{
+    public:
+        mob_instructor_zarik() : CreatureScript("mob_instructor_zarik") { }
+
+        struct mob_instructor_zarikAI : public ScriptedAI
+        {
+            mob_instructor_zarikAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            EventMap events;
+            InstanceScript* pInstance;
+
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_TRASH_TEMPEST_SLASH, 15000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                        tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 id = events.ExecuteEvent())
+                {
+                    switch (id)
+                    {
+                        case EVENT_TRASH_TEMPEST_SLASH:
+                        {
+                            DoCast(me, SPELL_TEMPEST_SLASH);
+                            events.ScheduleEvent(EVENT_TRASH_TEMPEST_SLASH, 22000);
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_instructor_zarikAI(creature);
+        }
+};
+
+// 63035 - Zar'thik Zealot
 class mob_zar_thik_zealot : public CreatureScript
 {
     public:
@@ -817,6 +951,8 @@ class mob_zar_thik_zealot : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ZEALOUS_RUSH, 7000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
             }
 
             void UpdateAI(const uint32 diff)
@@ -855,7 +991,7 @@ class mob_zar_thik_zealot : public CreatureScript
         }
 };
 
-// 64357
+// 64357 - Kor'thik Swarmer
 class mob_kor_thik_swarmer : public CreatureScript
 {
     public:
@@ -874,8 +1010,9 @@ class mob_kor_thik_swarmer : public CreatureScript
             void Reset()
             {
                 events.Reset();
-
                 events.ScheduleEvent(EVENT_UNDERWHELMING_ASSAULT, 4000);
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -913,7 +1050,7 @@ class mob_kor_thik_swarmer : public CreatureScript
         }
 };
 
-// 63592
+// 63592 - Set'thik Gustwing
 class mob_set_thik_gustwing : public CreatureScript
 {
     public:
@@ -923,9 +1060,11 @@ class mob_set_thik_gustwing : public CreatureScript
         {
             mob_set_thik_gustwingAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -933,6 +1072,14 @@ class mob_set_thik_gustwing : public CreatureScript
 
                 events.ScheduleEvent(EVENT_GUST, 3000);
                 events.ScheduleEvent(EVENT_ICE_TRAP, 7000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_3);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (pInstance)
+                    if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
+                        garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -971,7 +1118,7 @@ class mob_set_thik_gustwing : public CreatureScript
         }
 };
 
-// 63597
+// 63597 - Coagulated Amber
 class mob_coagulated_amber : public CreatureScript
 {
     public:
@@ -1040,8 +1187,8 @@ class mob_kor_thik_silentwing : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 84677);
-                events.ScheduleEvent(EVENT_ICE_TRAP, 5000);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_1);
+                events.ScheduleEvent(EVENT_ALMOST_UNSEEN_STRIKE, 15000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1062,11 +1209,11 @@ class mob_kor_thik_silentwing : public CreatureScript
                 {
                     switch (id)
                     {
-                        case EVENT_ICE_TRAP:
+                        case EVENT_ALMOST_UNSEEN_STRIKE:
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_ICE_TRAP, true);
-                            events.ScheduleEvent(EVENT_ICE_TRAP, 22000);
+                                me->CastSpell(target, SPELL_ALMOST_UNSEEN_STRIKE, true);
+                            events.ScheduleEvent(EVENT_ALMOST_UNSEEN_STRIKE, 22000);
                             break;
                         }
                         default:
@@ -1081,6 +1228,130 @@ class mob_kor_thik_silentwing : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_kor_thik_silentwingAI(creature);
+        }
+};
+
+// 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+class mob_zephyr : public CreatureScript
+{
+    public:
+        mob_zephyr() : CreatureScript("mob_zephyr") { }
+
+        struct mob_zephyrAI : public ScriptedAI
+        {
+            mob_zephyrAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->SetDisplayId(38493);
+                me->SetSpeed(MOVE_RUN, 5.0f);
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Reset()
+            {
+                me->CastSpell(me, SPELL_ZEPHYR, false);
+                me->DespawnOrUnsummon(30000);
+
+                Position targetPoint = GetTargetPoint(me, 100.0f);
+                me->GetMotionMaster()->MovePoint(0, targetPoint);
+            }
+
+            Position GetTargetPoint(Creature* mob, float dist)
+            {
+                /*
+                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
+                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
+                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
+                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
+                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
+                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
+                 * small.
+                 *
+                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
+                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
+                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
+                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
+                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
+                 */
+
+                float posX = mob->GetPositionX();
+                float posY = mob->GetPositionY();
+                float posZ = mob->GetPositionZ();
+                float orientation = mob->GetOrientation();
+
+                // Retrieving absolute orientation
+                float absOri = orientation;
+                uint8 turn = 0;
+                while (absOri > (M_PI / 2))
+                {
+                    absOri -= (M_PI / 2);
+                    turn = ++turn % 4;
+                }
+
+                // Looking for ratio between X and Y
+                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
+                float percentY = 1.0f - percentX;
+
+                // Applying negatives directions according to orientation
+                if (orientation > (M_PI / 2))
+                {
+                    if (orientation > M_PI)
+                        percentY = -percentY;
+
+                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
+                        percentX = -percentX;
+                }
+
+                // if turned, we need to switch X & Y
+                switch (turn)
+                {
+                    // -x / +y / switch
+                    case 1:
+                    {
+                        float tmpVal = percentX;
+                        percentX = -percentY;
+                        percentY = tmpVal;
+                        break;
+                    }
+                    // -x / -y / no switch
+                    case 2:
+                    {
+                        percentX = -percentX;
+                        percentY = -percentY;
+                        break;
+                    }
+                    // +x / -y / switch
+                    case 3:
+                    {
+                        float tmpVal = percentX;
+                        percentX = percentY;
+                        percentY = -tmpVal;
+                        break;
+                    }
+                    // +x / +y / no switch : no change
+                    default:
+                        break;
+                }
+
+                // Calculating reaching point
+                float pointX = posX;
+                float pointY = posY;
+
+                Position reachPoint = {pointX, pointY, posZ, orientation};
+
+                do
+                {
+                    pointX += percentX;
+                    pointY += percentY;
+                    reachPoint.Relocate(pointX, pointY);
+                } while (mob->GetDistance(reachPoint) < dist);
+
+                return reachPoint;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zephyrAI(creature);
         }
 };
 
@@ -1123,22 +1394,25 @@ class spell_vital_strikes : public SpellScriptLoader
 void AddSC_heart_of_fear()
 {
     // Trashes
-    new mob_kor_thik_slicer();
-    new mob_kor_thik_extremist();
-    new mob_sra_thik_shield_master();
-    new mob_set_thik_swiftblade();
-    new mob_zar_thik_supplicant();
-    new mob_enslaved_bonesmasher();
-    new mob_set_thik_tempest();
-    new mob_set_thik_fanatic();
-    new mob_set_thik_zephyrian();
-    new mob_set_thik_gale_slicer();
-    new mob_instructor_kli_thak();
-    new mob_instructor_tak_thok();
-    new mob_zar_thik_zealot();
-    new mob_kor_thik_swarmer();
-    new mob_set_thik_gustwing();
-    new mob_coagulated_amber();
-    new mob_kor_thik_silentwing();
-    new spell_vital_strikes();
+    new mob_kor_thik_slicer();          // 63048 - Kor'thik Slicer
+    new mob_kor_thik_extremist();       // 63036 - Kor'thik extremist
+    new mob_sra_thik_shield_master();   // 63032 - Sra'thik Shield Master
+    new mob_set_thik_swiftblade();      // 63049 - Set'thik Swiftblade
+    new mob_zar_thik_supplicant();      // 67177 - 66181 - 63853 - Zar'thik Supplicant
+    new mob_enslaved_bonesmasher();     // 63030 - Enslaved Bonesmasher
+    new mob_set_thik_tempest();         // 64358 - Set'thik Tempest
+    new mob_set_thik_fanatic();         // 63031 - Set'thik Fanatic
+    new mob_set_thik_zephyrian();       // 63593 - Set'thik Zephyrian
+    new mob_set_thik_gale_slicer();     // 64353 - Set'thik Gale-Slicer
+    new mob_instructor_kli_thak();      // 64338 - Instructor Kli'thak <Keeper of Wind Step>
+    new mob_instructor_tak_thok();      // 64339 - Instructor Tak'thok <Keeper of Overwhelming Assault>
+    new mob_instructor_maltik();        // 64340 - Instructor Maltik <Keeper of Unseen Strike>
+    new mob_instructor_zarik();         // 64341 - Instructor Zarik <Keeper of Tempest Slash>
+    new mob_zar_thik_zealot();          // 63035 - Zar'thik Zealot
+    new mob_kor_thik_swarmer();         // 64357 - Kor'thik Swarmer
+    new mob_set_thik_gustwing();        // 63592 - Set'thik Gustwing
+    new mob_coagulated_amber();         // 63597 - Coagulated Amber
+    new mob_kor_thik_silentwing();      // 64355 - Kor'thik Silentwing
+    new mob_zephyr();                   // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+    new spell_vital_strikes();          // 123421 - Vital Strikes
 }

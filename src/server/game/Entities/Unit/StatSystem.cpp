@@ -456,6 +456,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
 void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
 {
+    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
     UnitMods unitMod;
 
     switch (attType)
@@ -472,56 +475,53 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
+    bool dualWield = mainItem && offItem && CanDualWield();
+    bool hasVengeance = HasAura(132365);
+
     float att_speed = GetAPMultiplier(attType, normalized);
-
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) / 14.0f * att_speed;
-    float base_pct    = GetModifierValue(unitMod, BASE_PCT);
-    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
-    float total_pct   = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
-
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
+    float attackPower = GetTotalAttackPowerValue(attType);
 
-    if (IsInFeralForm())                                    //check if player is druid and in cat or bear forms
+    float attackPowerModifier = hasVengeance ? 11.0f : 14.0f;
+    float dualWieldModifier = dualWield ? 0.898882275f : 1.0f;
+    float vengeanceModifier = hasVengeance ? 0.4f : 1.0f;
+
+    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / attackPowerModifier);
+    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / attackPowerModifier);
+
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier * vengeanceModifier;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier * vengeanceModifier;
+
+    if (IsInFeralForm())
     {
-        float weaponSpeed = BASE_ATTACK_TIME / 1000.f;
-        if (Item* weapon = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-            if (weapon->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                weaponSpeed = float(0.001f * weapon->GetTemplate()->Delay); 
+        float weaponSpeed = BASE_ATTACK_TIME / 1000.0f;
+        if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            weaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
-            weapon_mindamage = weapon_mindamage / weaponSpeed;
-            weapon_maxdamage = weapon_maxdamage / weaponSpeed;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier));
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier));
         }
         else if (GetShapeshiftForm() == FORM_BEAR)
         {
-            weapon_mindamage = weapon_mindamage / weaponSpeed + weapon_mindamage / 2.5;
-            weapon_maxdamage = weapon_mindamage / weaponSpeed + weapon_maxdamage / 2.5;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.5f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.5f;
         }
     }
-    else if (!CanUseAttackType(attType))      //check if player not in form but still can't use (disarm case)
-    {
-        //cannot use ranged/off attack, set values to 0
-        if (attType != BASE_ATTACK)
-        {
-            min_damage = 0;
-            max_damage = 0;
-            return;
-        }
-        weapon_mindamage = BASE_MINDAMAGE;
-        weapon_maxdamage = BASE_MAXDAMAGE;
-    }
-    /*
-    TODO: Is this still needed after ammo has been removed?
-    else if (attType == RANGED_ATTACK)                       //add ammo DPS to ranged damage
-    {
-        weapon_mindamage += ammo * att_speed;
-        weapon_maxdamage += ammo * att_speed;
-    }*/
 
-    min_damage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
-    max_damage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
+    float base_value = GetModifierValue(unitMod, BASE_VALUE);
+    float base_pct = GetModifierValue(unitMod, BASE_PCT);
+    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
+    float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
+
+    min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
+    max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+
+    uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+    AddPct(min_damage, autoAttacksPctBonus);
+    AddPct(max_damage, autoAttacksPctBonus);
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType)

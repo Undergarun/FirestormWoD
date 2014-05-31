@@ -2095,6 +2095,317 @@ class spell_q24747_custom_kill_credit: public SpellScriptLoader
         }
 };
 
+#define KYPARI_ZAR_KILL_CREDIT 63286
+#define KYPARI_ZAR_KILL_CREDIT_2 63287
+#define KYPARI_ZAR_QUEST 31022
+
+class spell_q31022_attune_to_kypari_vos: public SpellScriptLoader
+{
+    public:
+        spell_q31022_attune_to_kypari_vos() : SpellScriptLoader("spell_q31022_attune_to_kypari_vos") { }
+
+        class spell_q31022_attune_to_kypari_vos_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31022_attune_to_kypari_vos_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player: playerList)
+                        if (player->GetQuestStatus(KYPARI_ZAR_QUEST) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(KYPARI_ZAR_KILL_CREDIT);
+                            player->KilledMonsterCredit(KYPARI_ZAR_KILL_CREDIT_2); // Speed code, needs a script for mobs attack waves
+                        }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31022_attune_to_kypari_vos_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31022_attune_to_kypari_vos_SpellScript();
+        }
+};
+
+#define FIRES_AND_FEARS_QUEST 31085
+#define FIRES_FIRST_KILL_CREDIT 63107
+#define FIRES_SECOND_KILL_CREDIT 63108
+
+class spell_q31085_ruining_fork: public SpellScriptLoader
+{
+    public:
+        spell_q31085_ruining_fork() : SpellScriptLoader("spell_q31085_ruining_fork") { }
+
+        class spell_q31085_ruining_fork_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31085_ruining_fork_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player: playerList)
+                        if (player->GetQuestStatus(FIRES_AND_FEARS_QUEST) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(FIRES_FIRST_KILL_CREDIT);
+                            player->KilledMonsterCredit(FIRES_SECOND_KILL_CREDIT); // Speed code, needs a script for mobs attack waves
+                        }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31085_ruining_fork_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31085_ruining_fork_SpellScript();
+        }
+};
+
+#define DEAD_ZONE_QUEST 31009
+#define IN_HER_CLUTCH_QUEST 31010
+#define CRYSTAL_KILL_CREDIT 62665
+
+class spell_q31009_klaxxi_resoning_crystal: public SpellScriptLoader
+{
+    public:
+        spell_q31009_klaxxi_resoning_crystal() : SpellScriptLoader("spell_q31009_klaxxi_resoning_crystal") { }
+
+        class spell_q31009_klaxxi_resoning_crystal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31009_klaxxi_resoning_crystal_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 10.0f);
+
+                    for (auto player: playerList)
+                        if (player->GetQuestStatus(DEAD_ZONE_QUEST) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            player->KilledMonsterCredit(CRYSTAL_KILL_CREDIT);
+
+                            if (Quest const* quest = sObjectMgr->GetQuestTemplate(DEAD_ZONE_QUEST))
+                                player->RewardQuest(quest, 0, NULL, true);
+
+                            if (Quest const* quest = sObjectMgr->GetQuestTemplate(IN_HER_CLUTCH_QUEST))
+                                player->AddQuest(quest, NULL);
+                        }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31009_klaxxi_resoning_crystal_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31009_klaxxi_resoning_crystal_SpellScript();
+        }
+};
+
+#define QUEST_A_WORTHY_BREW 31538
+#define A_WORTHY_BREW_KILL_CREDIT 64945
+
+class spell_q31538_ella_s_brew: public SpellScriptLoader
+{
+    public:
+        spell_q31538_ella_s_brew() : SpellScriptLoader("spell_q31538_ella_s_brew")
+        {
+        }
+
+        class spell_q31538_ella_s_brew_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q31538_ella_s_brew_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        if (player->GetQuestStatus(QUEST_A_WORTHY_BREW) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(A_WORTHY_BREW_KILL_CREDIT);
+
+                        if (player->GetQuestStatus(31537) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            if (Unit* target = GetExplTargetUnit())
+                            {
+                                if (Creature* creature = target->ToCreature())
+                                {
+                                    switch (creature->GetEntry())
+                                    {
+                                        case 58710:
+                                            player->KilledMonsterCredit(64941);
+                                            break;
+                                        case 58717:
+                                        player->KilledMonsterCredit(64943);
+                                            break;
+                                        case 58646:
+                                        case 58721:
+                                        player->KilledMonsterCredit(64942);
+                                            break;
+                                        case 64597:
+                                        player->KilledMonsterCredit(64944);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q31538_ella_s_brew_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q31538_ella_s_brew_SpellScript();
+        }
+};
+
+class spell_q29939_throw_goblin_fisher: public SpellScriptLoader
+{
+    public:
+        spell_q29939_throw_goblin_fisher() : SpellScriptLoader("spell_q29939_throw_goblin_fisher")
+        {
+        }
+
+        class spell_q29939_throw_goblin_fisher_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q29939_throw_goblin_fisher_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                    if (player->GetQuestStatus(29939) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->SummonGameObject(209877, 1060.907f, -411.995f, 253.360f, 0.0f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1065.42f, -393.578f, 253.336f, 1.6f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1071.28f, -394.54f, 254.467f, 0.5f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1082.9f, -398.03f, 252.8f, 5.9f, 0, 0, 0, 0, 604800);
+                        player->SummonGameObject(209877, 1085.48f, -384.223f, 252.29f, 6.0f, 0, 0, 0, 0, 604800);
+                    }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q29939_throw_goblin_fisher_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q29939_throw_goblin_fisher_SpellScript();
+        }
+};
+
+class spell_q30151_throw_ball: public SpellScriptLoader
+{
+    public:
+        spell_q30151_throw_ball() : SpellScriptLoader("spell_q30151_throw_ball")
+        {
+        }
+
+        class spell_q30151_throw_ball_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q30151_throw_ball_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                    if (player->GetQuestStatus(30151) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(58395);
+                    }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q30151_throw_ball_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q30151_throw_ball_SpellScript();
+        }
+};
+
+class spell_q30136_silken_rope: public SpellScriptLoader
+{
+    public:
+        spell_q30136_silken_rope() : SpellScriptLoader("spell_q30136_silken_rope")
+        {
+        }
+
+        class spell_q30136_silken_rope_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q30136_silken_rope_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 58220 || creature->GetEntry() == 58243 || creature->GetEntry() == 58244)
+                            {
+                                creature->GetMotionMaster()->MoveFollow(player, 2.5f, 2.5f, MOTION_SLOT_ACTIVE);
+                                creature->AI()->DoAction(1);
+                                player->CastSpell(creature, 107221);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_q30136_silken_rope_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q30136_silken_rope_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2148,4 +2459,11 @@ void AddSC_quest_spell_scripts()
     new spell_q13523_elune_s_presence_dummy();
     new spell_q13890_throw_oil();
     new spell_q24747_custom_kill_credit();
+    new spell_q31022_attune_to_kypari_vos();
+    new spell_q31085_ruining_fork();
+    new spell_q31009_klaxxi_resoning_crystal();
+    new spell_q31538_ella_s_brew();
+    new spell_q29939_throw_goblin_fisher();
+    new spell_q30151_throw_ball();
+    new spell_q30136_silken_rope();
 }

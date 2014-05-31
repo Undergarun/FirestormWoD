@@ -175,6 +175,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Unit
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Vehicle
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Transport
+  ${CMAKE_CURRENT_SOURCE_DIR}/Entities/SceneObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Events
   ${CMAKE_CURRENT_SOURCE_DIR}/Globals
   ${CMAKE_CURRENT_SOURCE_DIR}/Grids/Cells

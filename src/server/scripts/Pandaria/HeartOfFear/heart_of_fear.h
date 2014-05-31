@@ -39,30 +39,52 @@ enum eData
 enum eSpells
 {
     // Imperial Vizier Zor'lok
+    SPELL_MANTID_WINGS          = 126316,
     SPELL_ATTENUATION           = 122440,
     SPELL_CONVERT               = 122740,
     SPELL_INHALE                = 122852,
     SPELL_EXHALE                = 122761,
-    SPELL_PHEROMONES_OF_ZEAL    = 123812,
-    SPELL_PHEROMONES_CLOUD      = 123811,
+    SPELL_EXHALE_DMG            = 122760,
+    SPELL_PHEROMONES_OF_ZEAL    = 123812,   // Aura inflicting damages to players
+    SPELL_PHEROMONES_CLOUD      = 123811,   // Creating Cloud of pheromones
     SPELL_FORCE_AND_VERVE       = 122713,
     SPELL_NOISE_CANCELLING      = 122706,
     SPELL_MISSILE_NOISE_CANC    = 122707,
     SPELL_SONG_OF_THE_EMPRESS   = 123791,
     SPELL_SONIC_RING_VISUAL     = 122334,
     SPELL_SONIC_RING_AURA       = 122336,
+    SPELL_SONIC_PULSE_VISUAL    = 124668,
+    SPELL_SONIC_PULSE_AURA      = 124673,
     SPELL_INHALE_PHEROMONES     = 124018,
     SPELL_REINFORCE             = 123833,
     SPELL_BERSERK               = 120207,
+    SPELL_MAGNETIC_PULSE        = 147379,    // Pull the players on the boss
+    SPELL_ECHO_OF_ZORLOK        = 127496,
 
     // --- Blade Lord Ta'yak ---
+    SPELL_VISINTRO_TAYAK        = 128788,
     SPELL_TEMPEST_SLASH         = 122842,
-    SPELL_TEMPEST_TARGET        = 122838,
-    SPELL_TEMPEST_GESTURE       = 122850,
-    SPELL_WIND_STEP_2           = 123175,
-    SPELL_OVERWHELMING_ASSAULT  = 123474,
-    SPELL_BLADE_TEMPEST         = 125310,
-    SPELL_STORM_UNLEASHED       = 123815,
+    SPELL_TEMP_SLASH_AURA       = 122854,   // Visual + Periodic trigger aura for SPELL_TEMP_SLASH_DAMAGE.
+    SPELL_TEMP_SLASH_DAMAGE     = 122853,   // Aura Damage + Knock back
+    SPELL_UNSEEN_STRIKE_TR      = 122949,   // Unattackable + Speed 200%. Triggers SPELL_UNSEEN_STRIKE_DMG after 5 secs, SPELL_UNSEEN_STRIKE_MKR on target, SPELL_UNSEEN_STRIKE_INV on self.
+    SPELL_UNSEEN_STRIKE_MKR     = 123017,   // Target marker visual aura.
+    SPELL_WIND_STEP_TP          = 123175,   // Teleport. Triggers SPELL_WIND_STEP_DUMMY.
+    SPELL_WIND_STEP_B_DMG       = 123180,   // Bleed damage for 8y targets.
+    SPELL_WIND_STEP_DUMMY       = 123459,   // Aura Dummy.
+    SPELL_WIND_STEP_TP_BACK     = 123460,   // Teleport back to the main target.
+    SPELL_INTENSIFY_NORMAL      = 123470,   // Add spell 123471 every 1 minute, phase 1
+    SPELL_INTENSIFY_TORNADO     = 132254,   // Add spell 123471 every 10 secs, phase 2
+    SPELL_OVERWHELMING_ASS      = 123474,
+    SPELL_BLADE_TEMPEST_AUR     = 125310,   // Triggers SPELL_BLADE_TEMPEST_DMG each 0.5s, SPELL_BLADE_TEMPEST_AT.
+    SPELL_BLADE_TEMPES_J_FC     = 125325,   // Force Cast SPELL_BLADE_TEMPES_JUMP in 200 yards.
+    SPELL_STORM_UNLEASHED_D     = 123814,   // Boss Dummy Visual.
+    SPELL_SU_AURA               = 123598,   // Aura for the tornadoes, triggers SPELL_SU_RV_SE each 0.1 secs.
+    SPELL_SU_RV                 = 123599,   // Control Vehicle aura.
+    SPELL_SU_DUMMY_VIS          = 124024,   // Some dummy visual (for tornadoes?).
+    SPELL_SU_DMG_AURA           = 124785,   // Triggers SPELL_SU_DMG every 1 sec.
+    SPELL_SU_WIND_GALE          = 123633,
+    SPELL_SU_DUMMY_CRAP         = 123616, // Applies a dummy aura on a target.
+    SPELL_TAYAK_BERSERK         = 26662,     // Enrage, 490 seconds, or 8:10 minutes.
 
     // Trashes
     SPELL_ARTERIAL_SPIRIT       = 123422,
@@ -85,11 +107,12 @@ enum eSpells
     SPELL_WINDBURST             = 123499,
     SPELL_SUMMON_ZEPHYR         = 124085,
     SPELL_SWIFT_STEP            = 125742,
-    SPELL_WIND_STEP             = 123180,
+    SPELL_ALMOST_UNSEEN_STRIKE  = 125810,
     SPELL_ZEALOUS_RUSH          = 123622,
     SPELL_UNDERWHELMING_ASSAULT = 125728,
     SPELL_GUST                  = 124072,
     SPELL_BURST                 = 125054,
+    SPELL_ZEPHYR                = 124087,
 };
 
 enum eActions
@@ -97,14 +120,17 @@ enum eActions
     // --- Zorlok ---
     // Zor'lok
     ACTION_SUMMON_SONIC_RINGS   = 1,
-    ACTION_SONIC_CARD           = 2,
-    ACTION_SONIC_QUAD1          = 3,
-    ACTION_SONIC_QUAD2          = 4,
-    ACTION_INHALE_PHEROMONES    = 5,
-    ACTION_WIPE                 = 6,
+    ACTION_SONIC_RING           = 2,
+    ACTION_INHALE_PHEROMONES    = 3,
+    ACTION_WIPE                 = 4,
+    ACTION_SONIC_PULSE          = 5,
 
     // Ta'yak
-    ACTION_TAYAK_TALK_TRASH     = 7,
+    ACTION_TAYAK_TALK_TRASH     = 6,
+    ACTION_TAYAK_BT_PULL        = 7,
+
+    // Garalon
+    ACTION_GARALON_VISIBLE      = 9,
 };
 
 enum eCreatures
@@ -120,6 +146,7 @@ enum eCreatures
     NPC_SRATHIK_SHIELD_MASTER       = 63032,
     NPC_ZARTHIK_SUPPLICANT          = 63853,
     NPC_SETTHIK_ZEPHYRIAN           = 63593,
+    NPC_ZEPHYR                      = 63599,
     NPC_BURNING_BRAZIER             = 65597,
     NPC_WIND_LORD_MELJARAK          = 65501,
     NPC_ZARTHIK_BATTLEMENDER        = 65498,
@@ -131,10 +158,10 @@ enum eCreatures
     NPC_ENSLAVED_BONESMASHER        = 63030,
     NPC_ZARTHIK_SUPPLICANT_3        = 66181,
     NPC_SETTHIK_FANATIC             = 63031,
-    NPC_INSTRUCTOR_MALTIK           = 64340,
     NPC_INSTRUCTOR_KLITHAK          = 64338,
-    NPC_INSTRUCTOR_ZARIK            = 64341,
     NPC_INSTRUCTOR_TAKTHOK          = 64339,
+    NPC_INSTRUCTOR_MALTIK           = 64340,
+    NPC_INSTRUCTOR_ZARIK            = 64341,
     NPC_ZARTHIK_ZEALOT              = 63035,
     NPC_KORTHIK_SWARMER             = 64357,
     NPC_SETTHIK_GUSTWING            = 63592,
@@ -144,18 +171,9 @@ enum eCreatures
     NPC_ZORLOK                      = 62980,
     NPC_STORM_SPIRIT                = 69680,
     // Sonic Rings
-    NPC_SONIC_RING_FORWARD          = 62689,
-    NPC_SONIC_RING_30LEFT           = 62694,
-    NPC_SONIC_RING_30RIGHT          = 62696,
-    NPC_SONIC_RING_60LEFT           = 62716,
-    NPC_SONIC_RING_60RIGHT          = 62717,
-    NPC_SONIC_RING_120LEFT          = 62718,
-    NPC_SONIC_RING_120RIGHT         = 62719,
-    NPC_SONIC_RING_90LEFT           = 62726,
-    NPC_SONIC_RING_90RIGHT          = 62727,
-    NPC_SONIC_RING_150LEFT          = 62743,
-    NPC_SONIC_RING_150RIGHT         = 62744,
-    NPC_SONIC_RING_BACK             = 62746,
+    NPC_SONIC_RING                  = 62689,
+    // Sonic Pulse
+    NPC_SONIC_PULSE                 = 63837,
 
     // Heroic Adds
     NPC_ECHO_OF_ATTENUATION         = 65173,
@@ -181,9 +199,6 @@ enum eCreatures
 
     // Mel'jarak
     NPC_MELJARAK                    = 62397,
-    NPC_SRATHIK_AMBER_TRAPPER       = 65499,
-    NPC_ZARTHIK_BATTLE_MENDER       = 65498,
-    NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
 
     // Amber-Shaper Un'Sok
     NPC_UNSOK                       = 62511,
@@ -214,6 +229,10 @@ enum eGameObjects
     // Zor'lok Barriers
     GOB_ARENA_WALLS                 = 212916,
     GOB_FINAL_PHASE_WALLS           = 212943,
+
+    // Garalon Doors
+    GOB_DOOR_TO_MELJARAK            = 214634,
+    GOB_GARALON_WALLS               = 212695,
 };
 
 enum ePhases
@@ -227,8 +246,20 @@ enum ePhases
 
 enum eWeapons
 {
+    // --- Bosses ---
     EQUIP_ZORLOK                    = 85947,
     EQUIP_TAYAK                     = 85401,
+
+    // --- Trashes ---
+    EQUIP_TRASH_1                   = 84677,
+    EQUIP_TRASH_2                   = 45926,
+    EQUIP_TRASH_3                   = 88684,
+    EQUIP_TRASH_4                   = 85401,
+    EQUIP_TRASH_5                   = 85576,
+    EQUIP_TRASH_6                   = 85399,
+    EQUIP_TRASH_7                   = 82849,
+    EQUIP_TRASH_8                   = 84676,
+    EQUIP_TRASH_9                   = 84769,
 };
 
 enum eEvents
@@ -246,6 +277,9 @@ enum eEvents
     EVENT_FORCE_AND_VERVE           = 9,
     EVENT_CAST_FANDV                = 10,
     EVENT_CONVERT                   = 11,
+    EVENT_PULL_RAID                 = 12,
+    EVENT_SONIC_PULSE               = 13,
+    EVENT_SUMMON_LAST_ECHO          = 14,
 
     // Ta'yak
     // EVENT_TEMPEST_SLASH             = 15,
@@ -283,21 +317,25 @@ enum eEvents
     EVENT_SUMMON_ZEPHYR,
     EVENT_SWIFT_STEP,
     EVENT_WIND_STEP,
-    EVENT_WIND_STEP_2,
     EVENT_OVERWHELMING_ASSAULT,
+    EVENT_TRASH_TEMPEST_SLASH,
+    EVENT_TRASH_UNSEEN_STRIKE,
     EVENT_ZEALOUS_RUSH,
     EVENT_UNDERWHELMING_ASSAULT,
+    EVENT_ALMOST_UNSEEN_STRIKE,
     EVENT_GUST,
     EVENT_BURST,
 };
 
 enum eTypes
 {
+    // Zor'lok
+    TYPE_EXHALE_TARGET  = 1,
+    TYPE_PHASE_ZORLOK   = 2,
     // Tayak
-    TYPE_STORM_POINT    = 1,
-    TYPE_PHASE_TAYAK    = 2,
-    TYPE_STORM_PHASE    = 3,
-
+    TYPE_STORM_POINT    = 3,
+    TYPE_PHASE_TAYAK    = 4,
+    TYPE_STORM_PHASE    = 5,
 };
 
 #define DISPLAYID_INVISIBLE 11686
