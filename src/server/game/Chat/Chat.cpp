@@ -709,7 +709,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     bool bit5264 = false;
     bool sendRealmId = true;
 
-    data->Initialize(SMSG_MESSAGE_CHAT, 100);                   // guess size
+    data->Initialize(SMSG_CHAT, 100);                   // guess size
 
     data->WriteBit(false);                                      // Unk bit 5269
     data->WriteBit(message ? 0 : 1);                            // hasText

@@ -22941,7 +22941,7 @@ void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string
     bool sendRealmID = false;
     bool bit5264 = false;
 
-    data->Initialize(SMSG_MESSAGE_CHAT, 100);
+    data->Initialize(SMSG_CHAT, 100);
     data->WriteBit(0);                                          // Unk bit 5269
     data->WriteBit(messageLength ? 0 : 1);
     data->WriteBit(!false);                                     // !hasAchievement

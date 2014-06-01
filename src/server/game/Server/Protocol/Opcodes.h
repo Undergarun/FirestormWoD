@@ -129,6 +129,47 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Social
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamSocial
+        /// Voice chat
+        SMSG_VOICE_SESSION_ROSTER_UPDATE            = 0x0000,
+        SMSG_VOICE_SESSION_LEAVE                    = 0x0000,
+        SMSG_VOICE_PARENTAL_CONTROLS                = 0x0000,
+        SMSG_VOICE_CHAT_STATUS                      = 0x0000,
+        SMSG_AVAILABLE_VOICE_CHANNEL                = 0x0000,
+
+        /// Friend list
+        SMSG_USERLIST_ADD                           = 0x0000,
+        SMSG_USERLIST_REMOVE                        = 0x0000,
+        SMSG_USERLIST_UPDATE                        = 0x0000,
+
+        /// Misc
+        SMSG_SERVER_FIRST_ACHIEVEMENT               = 0x0000,
+        SMSG_RAID_INSTANCE_MESSAGE                  = 0x0000,
+        SMSG_MOTD                                   = 0x0000,
+        SMSG_EXPECTED_SPAM_RECORDS                  = 0x0000,
+        SMSG_DEFENSE_MESSAGE                        = 0x0000,
+        SMSG_ZONE_UNDER_ATTACK                      = 0x0000,
+        SMSG_WHO                                    = 0x0000,
+
+        /// Chat
+        SMSG_CHAT_SERVER_MESSAGE                    = 0x0000,
+        SMSG_CHAT_RESTRICTED                        = 0x0000,
+        SMSG_CHAT_RECONNECT                         = 0x0000,
+        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x0000,
+        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x0000,
+        SMSG_CHAT_NOT_IN_PARTY                      = 0x0000,
+        SMSG_CHAT_IS_DOWN                           = 0x0000,
+        SMSG_CHAT_IGNORED_ACCOUNT_MUTED             = 0x0000,
+        SMSG_CHAT_DOWN                              = 0x0000,
+        SMSG_CHAT_AUTO_RESPONDED                    = 0x0000,
+        SMSG_CHAT                                   = 0x0000,
+
+        /// Channel
+        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0000,
+        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x0000,
+        SMSG_CHANNEL_NOTIFY                         = 0x0000,
+        SMSG_CHANNEL_LIST                           = 0x0000,
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Move
@@ -814,7 +855,6 @@ enum Opcodes
     SMSG_AURA_UPDATE                                  = 0x0000,
     SMSG_AUTH_CHALLENGE                               = 0x0000,
     SMSG_AUTH_RESPONSE                                = 0x0000,
-    SMSG_AVAILABLE_VOICE_CHANNEL                      = 0x0000,
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x0000,
     SMSG_BARBER_SHOP_RESULT                           = 0x0000,
     SMSG_BATTLEFIELD_LIST                             = 0x0000,
@@ -907,9 +947,7 @@ enum Opcodes
     SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD             = 0x0000,
     SMSG_CHALLENGE_MODE_COMPLETE                      = 0x0000,
     SMSG_CHANGER_PLAYER_DIFFICULTY_RESULT             = 0x0000,
-    SMSG_CHANNEL_LIST                                 = 0x0000,
     SMSG_CHANNEL_MEMBER_COUNT                         = 0x0000,
-    SMSG_CHANNEL_NOTIFY                               = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                       = 0x0000,
     SMSG_CHAR_CREATE                                  = 0x0000,
     SMSG_CHAR_CUSTOMIZE                               = 0x0000,
@@ -917,16 +955,6 @@ enum Opcodes
     SMSG_CHAR_ENUM                                    = 0x0000,
     SMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x0000,
     SMSG_CHAR_RENAME                                  = 0x0000,
-    SMSG_CHAT_DOWN                                    = 0x0000,
-    SMSG_CHAT_IS_DOWN                                 = 0x0000,
-    SMSG_CHAT_IGNORED_ACCOUNT_MUTED                   = 0x0000,
-    SMSG_CHAT_NOT_IN_PARTY                            = 0x0000,
-    SMSG_CHAT_PLAYER_AMBIGUOUS                        = 0x0000,
-    SMSG_CHAT_PLAYER_NOT_FOUND                        = 0x0000,
-    SMSG_CHAT_RESTRICTED                              = 0x0000,
-    SMSG_CHAT_SERVER_DISCONNECTED                     = 0x0000,
-    SMSG_CHAT_SERVER_RECONNECTED                      = 0x0000,
-    SMSG_CHAT_WRONG_FACTION                           = 0x0000,
     SMSG_CHECK_FOR_BOTS                               = 0x0000,
     SMSG_CHEAT_IGNORE_REQUIEREMENTS_DISABLED          = 0x0000,
     SMSG_CHEAT_IGNORE_REQUIEREMENTS_ENABLED           = 0x0000,
@@ -980,7 +1008,6 @@ enum Opcodes
     SMSG_DB_REPLY                                     = 0x0000,
     SMSG_DEATH_RELEASE_LOC                            = 0x0000,
     SMSG_DEBUG_RUNE_REGEN                             = 0x0000,
-    SMSG_DEFENSE_MESSAGE                              = 0x0000,
     SMSG_DESTROY_OBJECT                               = 0x0000,
     SMSG_DESTROY_ARENA_UNIT                           = 0x0000,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,
@@ -1012,7 +1039,6 @@ enum Opcodes
     SMSG_ENVIRONMENTAL_DAMAGE_LOG                     = 0x0000,
     SMSG_EQUIPMENT_SET_LIST                           = 0x0000,
     SMSG_EQUIPMENT_SET_SAVED                          = 0x0000,
-    SMSG_EXPECTED_SPAM_RECORDS                        = 0x0000,
     SMSG_EXPLORATION_EXPERIENCE                       = 0x0000,
     SMSG_FACTION_BONUS_INFO                           = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                      = 0x0000,
@@ -1183,7 +1209,6 @@ enum Opcodes
     SMSG_MEETINGSTONE_IN_PROGRESS                     = 0x0000,
     SMSG_MEETINGSTONE_MEMBER_ADDED                    = 0x0000,
     SMSG_MEETINGSTONE_SETQUEUE                        = 0x0000,
-    SMSG_MESSAGE_CHAT                                 = 0x0000,
     SMSG_MESSAGE_BOX                                  = 0x0000,
     SMSG_MINIGAME_SETUP                               = 0x0000,
     SMSG_MINIGAME_STATE                               = 0x0000,
@@ -1193,7 +1218,6 @@ enum Opcodes
     SMSG_MODIFY_COOLDOWN                              = 0x0000,
     SMSG_MONEY_NOTIFY                                 = 0x0000,
     SMSG_MONSTER_MOVE                                 = 0x0000,
-    SMSG_MOTD                                         = 0x0000,
     SMSG_MOUNT_RESULT                                 = 0x0000,
     SMSG_MOUNT_SPECIAL_ANIM                           = 0x0000,
     SMSG_MOVE_COLLISION_DISABLE                       = 0x0000,
@@ -1363,7 +1387,6 @@ enum Opcodes
     SMSG_QUEST_QUERY_RESPONSE                         = 0x0000,
     SMSG_RAID_GROUP_ONLY                              = 0x0000,
     SMSG_RAID_INSTANCE_INFO                           = 0x0000,
-    SMSG_RAID_INSTANCE_MESSAGE                        = 0x0000,
     SMSG_RAID_MARKERS_CHANGED                         = 0x0000,
     SMSG_RAID_READY_CHECK_COMPLETED                   = 0x0000,
     SMSG_RAID_READY_CHECK_RESPONSE                    = 0x0000,
@@ -1428,10 +1451,8 @@ enum Opcodes
     SMSG_SERVER_BUCK_DATA                             = 0x0000,
     SMSG_SERVER_BUCK_DATA_START                       = 0x0000,
     SMSG_SERVER_TIME                                  = 0x0000,
-    SMSG_SERVER_FIRST_ACHIEVEMENT                     = 0x0000,
     SMSG_SERVER_INFO_QUERY_RESPONSE                   = 0x0000,
     SMSG_SERVER_INFO_RESPONSE                         = 0x0000,
-    SMSG_SERVER_MESSAGE                               = 0x0000,
     SMSG_SERVER_PERF                                  = 0x0000,
     SMSG_SET_ARENA_SEASON                             = 0x0000,
     SMSG_SETUP_RESEARCH_HISTORY                       = 0x0000,
@@ -1575,14 +1596,7 @@ enum Opcodes
     SMSG_UPDATE_SERVER_PLAYER_POSITION                = 0x0000,
     SMSG_UPDATE_TALENT_DATA                           = 0x0000,
     SMSG_UPDATE_WORLD_STATE                           = 0x0000,
-    SMSG_USERLIST_ADD                                 = 0x0000,
-    SMSG_USERLIST_REMOVE                              = 0x0000,
-    SMSG_USERLIST_UPDATE                              = 0x0000,
     SMSG_VOICE_SESSION_FULL                           = 0x0000,
-    SMSG_VOICE_CHAT_STATUS                            = 0x0000,
-    SMSG_VOICE_PARENTAL_CONTROLS                      = 0x0000,
-    SMSG_VOICE_SESSION_LEAVE                          = 0x0000,
-    SMSG_VOICE_SESSION_ROSTER_UPDATE                  = 0x0000,
     SMSG_VOICE_SET_TALKER_MUTED                       = 0x0000,
     SMSG_VOID_ITEM_SWAP_RESPONSE                      = 0x0000,
     SMSG_VOID_STORAGE_CONTENTS                        = 0x0000,
@@ -1600,12 +1614,10 @@ enum Opcodes
     SMSG_WEEKLY_RESET_CURRENCY                        = 0x0000,
     SMSG_WEEKLY_SPELL_USAGE                           = 0x0000,
     SMSG_WEEKLY_SPELL_USAGE_UPDATE                    = 0x0000,
-    SMSG_WHO                                          = 0x0000,
     SMSG_WHOIS                                        = 0x0000,
     SMSG_WORLD_SERVER_INFO                            = 0x0000,
     SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0000,
     SMSG_XP_GAIN_ABORTED                              = 0x0000,
-    SMSG_ZONE_UNDER_ATTACK                            = 0x0000
 };
 
 /// Player state

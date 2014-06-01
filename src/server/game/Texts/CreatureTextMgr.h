@@ -148,7 +148,7 @@ class CreatureTextLocalizer
             // create if not cached yet
             if (!_packetCache[loc_idx])
             {
-                messageTemplate = new WorldPacket(SMSG_MESSAGE_CHAT, 200);
+                messageTemplate = new WorldPacket(SMSG_CHAT, 200);
                 _builder(messageTemplate, loc_idx, tguid);
                 _packetCache[loc_idx] = messageTemplate;
             }

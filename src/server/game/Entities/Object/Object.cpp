@@ -2358,7 +2358,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     bool bit5256 = false;
     bool bit5264 = false;
 
-    data->Initialize(SMSG_MESSAGE_CHAT, 200);
+    data->Initialize(SMSG_CHAT, 200);
     data->WriteBit(0);                                          // Unk bit 5269
     data->WriteBit(messageLength ? 0 : 1);
     data->WriteBit(!bit5256);                                   // !Unk bit 5256
