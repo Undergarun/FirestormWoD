@@ -20,8 +20,8 @@ namespace BNet2 {
         uint8_t ServerEncryptionKey[SEED_KEY_SIZE] = { 0x68, 0xE0, 0xC7, 0x2E, 0xDD, 0xD6, 0xD2, 0xF3, 0x1E, 0x5A, 0xB1, 0x55, 0xB1, 0x8B, 0x63, 0x1E };
         uint8_t ServerDecryptionKey[SEED_KEY_SIZE] = { 0xDE, 0xA9, 0x65, 0xAE, 0x54, 0x3A, 0x1E, 0x93, 0x9E, 0x69, 0x0C, 0xAA, 0x68, 0xDE, 0x78, 0x39 };
 
-        HmacHash256 l_ServerEncryptHmac(2 * SHA256_DIGEST_LENGTH, (uint8_t*)p_SessionKey->AsByteArray(2 * SHA256_DIGEST_LENGTH).get());
-        HmacHash256 l_ClientDecryptHmac(2 * SHA256_DIGEST_LENGTH, (uint8_t*)p_SessionKey->AsByteArray(2 * SHA256_DIGEST_LENGTH).get());
+        HmacHash256 l_ServerEncryptHmac(2 * SHA256_DIGEST_LENGTH, (uint8_t*)p_SessionKey->AsByteArray(2 * SHA256_DIGEST_LENGTH));
+        HmacHash256 l_ClientDecryptHmac(2 * SHA256_DIGEST_LENGTH, (uint8_t*)p_SessionKey->AsByteArray(2 * SHA256_DIGEST_LENGTH));
 
         uint8_t * l_EncryptHash   = l_ServerEncryptHmac.ComputeHash(ServerEncryptionKey, SEED_KEY_SIZE);
         uint8_t * l_DecryptHash   = l_ClientDecryptHmac.ComputeHash(ServerDecryptionKey, SEED_KEY_SIZE);

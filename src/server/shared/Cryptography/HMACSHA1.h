@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,5 +43,27 @@ class HmacHash
         HMAC_CTX m_ctx;
         uint8 m_digest[SHA_DIGEST_LENGTH];
 };
+
+class HmacHash256
+{
+    public:
+    HmacHash256(uint32 len, uint8 *seed);
+    ~HmacHash256();
+    void UpdateData(const std::string &str);
+    void UpdateData(const uint8* data, size_t len);
+    void Finalize();
+    uint8 *ComputeHash(BigNumber* bn);
+    uint8 *ComputeHash(uint8 *seed, uint32 len);
+    uint8 *GetDigest() {
+        return (uint8*)m_digest;
+    }
+    int GetLength() const {
+        return SHA256_DIGEST_LENGTH;
+    }
+    private:
+    HMAC_CTX m_ctx;
+    uint8 m_digest[SHA256_DIGEST_LENGTH];
+};
+
 #endif
 

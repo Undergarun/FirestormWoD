@@ -106,13 +106,13 @@ namespace BNet2 {
             {
                 if ((uint8)OpcodeTable[l_I].Opcode == l_Opcode && (uint8)OpcodeTable[l_I].Channel == l_Channel)
                 {
-                    TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got data for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
+                    sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got data for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
 
                     m_CurrentPacket = &l_Packet;
 
                     if (!(*this.*OpcodeTable[l_I].Handler)(&l_Packet))
                     {
-                        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
+                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
                         GetSocket().shutdown();
                         m_CurrentPacket = NULL;
                         return;
@@ -124,7 +124,7 @@ namespace BNet2 {
             // Report unknown packets in the error log
             if (l_I == AUTH_TOTAL_COMMANDS)
             {
-                TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u size %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel, l_Size);
+                sLog->outError(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u size %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel, l_Size);
                 m_CurrentPacket = NULL;
                 return;
             }
@@ -135,12 +135,12 @@ namespace BNet2 {
     /// On accept
     void Session::OnAccept(void)
     {
-        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnAccept '%s:%d' Accepting connection", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort());
+        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnAccept '%s:%d' Accepting connection", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort());
     }
     /// On close
     void Session::OnClose(void)
     {
-        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnClose");
+        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnClose");
     }
     
     //////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ namespace BNet2 {
 
          GetSocket().send((char const*)l_Data, p_Packet->GetSize());
 
-         TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::Send opcode %u channel %u size %u", p_Packet->GetOpcode(), p_Packet->GetChannel(), p_Packet->GetSize());
+         sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::Send opcode %u channel %u size %u", p_Packet->GetOpcode(), p_Packet->GetChannel(), p_Packet->GetSize());
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -303,7 +303,7 @@ namespace BNet2 {
             if (l_Result != BNet2::BATTLENET2_AUTH_OK)
             {
                 SendAuthResult(l_Result);
-                TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Component(%s %s %u) not allowed, error code => %u", l_Component.Program.c_str(), l_Component.Platform.c_str(), l_Component.Build, l_Result);
+                sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Component(%s %s %u) not allowed, error code => %u", l_Component.Program.c_str(), l_Component.Platform.c_str(), l_Component.Build, l_Result);
 
                 return true;
             }
@@ -322,7 +322,7 @@ namespace BNet2 {
             if (l_Result)
             {
                 SendAuthResult(BNet2::BATTLENET2_AUTH_ACCOUNT_TEMP_BANNED);
-                TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest '%s:%d' Banned ip tries to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort());
+                sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest '%s:%d' Banned ip tries to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort());
                 return true;
             }
 
@@ -341,51 +341,17 @@ namespace BNet2 {
                 bool l_Locked = false;
                 if (l_Fields[2].GetUInt8() == 1)                  // if ip is locked
                 {
-                    TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account '%s' is locked to IP - '%s'", l_AccountName.c_str(), l_Fields[3].GetCString());
-                    TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Player address is '%s'", l_IPAddress.c_str());
+                    sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account '%s' is locked to IP - '%s'", l_AccountName.c_str(), l_Fields[3].GetCString());
+                    sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Player address is '%s'", l_IPAddress.c_str());
 
                     if (strcmp(l_Fields[4].GetCString(), l_IPAddress.c_str()) != 0)
                     {
-                        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "[AuthChallenge] Account IP differs");
+                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "[AuthChallenge] Account IP differs");
                         SendAuthResult(BNet2::BATTLENET2_AUTH_CONNECT_METHOD_CHANGED);
                         l_Locked = true;
                     }
                     else
-                        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account IP matches");
-                }
-                else
-                {
-                    TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account '%s' is not locked to ip", l_AccountName.c_str());
-
-                    std::string l_AccountCountry = l_Fields[3].GetString();
-
-                    if (l_AccountCountry.empty() || l_AccountCountry == "00")
-                        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account '%s' is not locked to country", l_AccountName.c_str());
-
-                    else if (!l_AccountCountry.empty())
-                    {
-                        uint32 l_Ip = inet_addr(l_IPAddress.c_str());
-                        EndianConvertReverse(l_Ip);
-
-                        l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
-                        l_Stmt->setUInt32(0, l_Ip);
-
-                        if (PreparedQueryResult sessionCountryQuery = LoginDatabase.Query(l_Stmt))
-                        {
-                            std::string loginCountry = (*sessionCountryQuery)[0].GetString();
-                            TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account '%s' is locked to country: '%s' Player country is '%s'", l_AccountName.c_str(), l_AccountCountry.c_str(), loginCountry.c_str());
-                            if (loginCountry != l_AccountCountry)
-                            {
-                                TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account country differs.");
-                                SendAuthResult(BNet2::BATTLENET2_AUTH_CONNECT_METHOD_CHANGED);
-                                l_Locked = true;
-                            }
-                            else
-                                TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account country matches");
-                        }
-                        else
-                            TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest IP2NATION Table empty");
-                    }
+                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account IP matches");
                 }
 
                 if (!l_Locked)
@@ -404,12 +370,12 @@ namespace BNet2 {
                         if ((*l_BanResult)[0].GetUInt32() == (*l_BanResult)[1].GetUInt32())
                         {
                             SendAuthResult(BNet2::BATTLENET2_AUTH_ACCOUNT_TEMP_BANNED);
-                            TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest Banned account %s tried to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(), l_AccountName.c_str());
+                            sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest Banned account %s tried to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(), l_AccountName.c_str());
                         }
                         else
                         {
                             SendAuthResult(BNet2::BATTLENET2_AUTH_ACCOUNT_TEMP_BANNED);
-                            TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest Temporarily banned account %s tried to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(), l_AccountName.c_str());
+                            sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest Temporarily banned account %s tried to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(), l_AccountName.c_str());
                         }
                     }
                     else
@@ -449,7 +415,7 @@ namespace BNet2 {
                         m_AccountSecurityLevel  = l_Fields[5].GetUInt8() <= SEC_ADMINISTRATOR ? AccountTypes(l_Fields[5].GetUInt8()) : SEC_ADMINISTRATOR;
                         m_Locale                = l_Locale;
 
-                        TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest account %s is using '%s' locale (%u)", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(),
+                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest account %s is using '%s' locale (%u)", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(),
                             l_AccountName.c_str(), l_Locale.c_str(), GetLocaleByName(l_Locale));
                     }
                 }
@@ -611,8 +577,6 @@ namespace BNet2 {
              //    name = ss.str();
              //}
  
-             l_ClientAddress.set_port_number(realm.ExternalAddress.get_port_number());
- 
              BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
  
              l_Buffer.WriteBits(true, 1);
@@ -679,7 +643,7 @@ namespace BNet2 {
         uint8_t sessionKey[0x28];
         memset(sessionKey, 0, sizeof(sessionKey));
 
-        HmacHash l_Hmac(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64).get());
+        HmacHash l_Hmac(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64));
         l_Hmac.UpdateData((const uint8_t*)"WoW", 4);
         l_Hmac.UpdateData(clientSalt, sizeof(clientSalt));
         l_Hmac.UpdateData(serverSalt, sizeof(serverSalt));
@@ -687,7 +651,7 @@ namespace BNet2 {
         
         memcpy(sessionKey, l_Hmac.GetDigest(), l_Hmac.GetLength());
         
-        HmacHash l_Hmac2(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64).get());
+        HmacHash l_Hmac2(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64));
         l_Hmac2.UpdateData((const uint8_t*)"WoW", 4);
         l_Hmac2.UpdateData(serverSalt, sizeof(serverSalt));
         l_Hmac2.UpdateData(clientSalt, sizeof(clientSalt));
@@ -761,11 +725,14 @@ namespace BNet2 {
             if (lock)
                 continue;
 
-            uint8_t port[2];
-            *(uint16_t*)port = realm.ExternalAddress.get_port_number();
-            std::reverse(port, port + sizeof(port));
+            ACE_INET_Addr l_Address;
+            l_Address.string_to_addr(realm.address.c_str());
 
-            uint32_t l_IpAddress = realm.ExternalAddress.get_ip_address();
+            uint8_t port[2];
+            *(uint16_t*)port = l_Address.get_port_number();
+            std::reverse(port, port + sizeof(port));
+            
+            uint32_t l_IpAddress = l_Address.get_ip_address();
             EndianConvertReverse(l_IpAddress);
 
             l_Buffer.Write(l_IpAddress);

@@ -45,7 +45,7 @@ namespace BNet2 { namespace WoWModules {
         if (!p_Session->GetSRP())
             return;
 
-        ACE_Auto_Array_Ptr<uint8> l_PrivateBBytes = p_Session->GetSRP()->PrivateB.AsByteArray(4 * SHA256_DIGEST_LENGTH);
+        uint8 * l_PrivateBBytes = p_Session->GetSRP()->PrivateB.AsByteArray(4 * SHA256_DIGEST_LENGTH);
 
         p_Packet->FlushBits();
         p_Packet->WriteBits(p_Session->GetState(), 8);
@@ -56,12 +56,12 @@ namespace BNet2 { namespace WoWModules {
                 p_Packet->AppendByteArray(p_Session->GetSRP()->I,           SHA256_DIGEST_LENGTH);
                 p_Packet->AppendByteArray(p_Session->GetSRP()->Salt,        SHA256_DIGEST_LENGTH);
                 p_Packet->AppendByteArray(p_Session->GetSRP()->PublicB, 4 * SHA256_DIGEST_LENGTH);
-                p_Packet->AppendByteArray(l_PrivateBBytes.get(),        4 * SHA256_DIGEST_LENGTH);
+                p_Packet->AppendByteArray(l_PrivateBBytes,              4 * SHA256_DIGEST_LENGTH);
                 break;
 
             case BNet2::BATTLENET2_SESSION_STATE_PROOF_VERIFICATION:
                 p_Packet->AppendByteArray(p_Session->GetSRP()->ServerM,     SHA256_DIGEST_LENGTH);
-                p_Packet->AppendByteArray(l_PrivateBBytes.get(),        4 * SHA256_DIGEST_LENGTH);
+                p_Packet->AppendByteArray(l_PrivateBBytes,              4 * SHA256_DIGEST_LENGTH);
                 break;
 
         }

@@ -45,7 +45,7 @@ namespace BNet2 {
 
         BigNumber l_Result = ((K * V) + G.ModExp(PrivateB, N)) % N;
         
-        ACE_Auto_Array_Ptr<uint8> l_BinResult = l_Result.AsByteArray(4 * SHA256_DIGEST_LENGTH);
+        uint8 * l_BinResult = l_Result.AsByteArray(4 * SHA256_DIGEST_LENGTH);
 
         for (uint32_t l_I = 0; l_I < sizeof(PublicB); ++l_I)
             PublicB[l_I] = l_BinResult[l_I];
@@ -83,15 +83,15 @@ namespace BNet2 {
     {
         uint32_t l_Size = S.GetNumBytes(); 
 
-        ACE_Auto_Array_Ptr<uint8> l_SBytes = S.AsByteArray(l_Size);
+        uint8 * l_SBytes = S.AsByteArray(l_Size);
 
         uint8_t * l_Part1 = new uint8_t[l_Size / 2];
         uint8_t * l_Part2 = new uint8_t[l_Size / 2];
 
         for (uint32_t l_I = 0; l_I < (l_Size / 2); l_I++)
         {
-            l_Part1[l_I] = l_SBytes.get()[l_I * 2];
-            l_Part2[l_I] = l_SBytes.get()[l_I * 2 + 1];
+            l_Part1[l_I] = l_SBytes[l_I * 2];
+            l_Part2[l_I] = l_SBytes[l_I * 2 + 1];
         }
 
         uint8_t l_Part1_Hash[SHA256_DIGEST_LENGTH];
@@ -145,7 +145,7 @@ namespace BNet2 {
         memcpy(l_Buffer + l_PtrPos, Salt,                                                       SHA256_DIGEST_LENGTH);      l_PtrPos += SHA256_DIGEST_LENGTH;
         memcpy(l_Buffer + l_PtrPos, p_A,                                                        p_ASize);                   l_PtrPos += p_ASize;
         memcpy(l_Buffer + l_PtrPos, PublicB,                                                    4 * SHA256_DIGEST_LENGTH);  l_PtrPos += 4 * SHA256_DIGEST_LENGTH;
-        memcpy(l_Buffer + l_PtrPos, SessionKey.AsByteArray(2 * SHA256_DIGEST_LENGTH).get(),     2 * SHA256_DIGEST_LENGTH);  l_PtrPos += 2 * SHA256_DIGEST_LENGTH;
+        memcpy(l_Buffer + l_PtrPos, SessionKey.AsByteArray(2 * SHA256_DIGEST_LENGTH),           2 * SHA256_DIGEST_LENGTH);  l_PtrPos += 2 * SHA256_DIGEST_LENGTH;
 
         Sha256(l_Buffer, l_BufferSize, ClientM);
 
@@ -154,16 +154,16 @@ namespace BNet2 {
     /// Compute server M
     void SRP6a::ComputeServerM(uint8_t * p_ClientM, uint32_t p_ClientMSize)
     {
-        uint32_t l_Size = A.GetNumBytes() > 0x80 ? 0x80 : (A.GetNumBytes() != 0 ? A.GetNumBytes() : 1);
-        ACE_Auto_Array_Ptr<uint8> l_ABytes = A.AsByteArray(0x80);
+        uint32_t l_Size     = A.GetNumBytes() > 0x80 ? 0x80 : (A.GetNumBytes() != 0 ? A.GetNumBytes() : 1);
+        uint8 *  l_ABytes   = A.AsByteArray(0x80);
 
-        uint32_t l_BufferSize = l_Size + p_ClientMSize + SessionKey.GetNumBytes();
-        uint8_t * l_Buffer = new uint8_t[l_BufferSize];
-        uint32_t l_PtrPos = 0;
+        uint32_t    l_BufferSize    = l_Size + p_ClientMSize + SessionKey.GetNumBytes();
+        uint8_t *   l_Buffer        = new uint8_t[l_BufferSize];
+        uint32_t    l_PtrPos        = 0;
 
-        memcpy(l_Buffer + l_PtrPos, l_ABytes.get(),                     l_Size);                    l_PtrPos += l_Size;
+        memcpy(l_Buffer + l_PtrPos, l_ABytes,                           l_Size);                    l_PtrPos += l_Size;
         memcpy(l_Buffer + l_PtrPos, p_ClientM,                          p_ClientMSize);             l_PtrPos += p_ClientMSize;
-        memcpy(l_Buffer + l_PtrPos, SessionKey.AsByteArray().get(),     SessionKey.GetNumBytes());  l_PtrPos += SessionKey.GetNumBytes();
+        memcpy(l_Buffer + l_PtrPos, SessionKey.AsByteArray(),           SessionKey.GetNumBytes());  l_PtrPos += SessionKey.GetNumBytes();
 
         Sha256(l_Buffer, l_BufferSize, ServerM);
 
