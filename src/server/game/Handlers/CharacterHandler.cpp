@@ -1049,13 +1049,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     {
         std::string l_MotdStr = sWorld->GetMotd();
         std::string::size_type l_Position, l_NextPosition;
+        std::vector<std::string> l_Lines;
+        uint32 l_LineCount = 0;
 
         l_Data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
-
-        uint32 l_LineCount = 0;
-        std::string l_MotdStr = sWorld->GetMotd();
-        std::string::size_type l_Position, l_NextPosition;
-        std::vector<std::string> l_Lines;
 
         l_Position = 0;
         while ((l_NextPosition = l_MotdStr.find('@', l_Position)) != std::string::npos)

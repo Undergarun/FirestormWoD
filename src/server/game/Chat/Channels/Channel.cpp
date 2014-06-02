@@ -847,7 +847,7 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
 
     p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 1 + m_name.size() + 4);
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
-    p_Data->WriteBits(l_UnkString, 10);         ///< Channel Name
+    p_Data->WriteBits(l_UnkString.length(), 10);///< Channel Name
     p_Data->FlushBits();
     *p_Data << uint8(GetFlags());               ///< Channel Flags
     *p_Data << uint32(GetChannelId());          ///< Channel ID

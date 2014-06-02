@@ -268,7 +268,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
     uint32 l_ChannelLength  = 0;
 
     std::string l_ReceiverName;
-    std::string l_Channel;
+    std::string l_ChannelName;
     std::string l_Text;
 
     bool l_IgnoreChecks = false;
@@ -290,14 +290,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_WHISPER:
             l_ReceiverLength    = p_RecvData.ReadBits(9);
             l_TextLenght        = p_RecvData.ReadBits(8);
-            l_ReceiverName          = p_RecvData.ReadString(l_ReceiverLength);
+            l_ReceiverName      = p_RecvData.ReadString(l_ReceiverLength);
             l_Text              = p_RecvData.ReadString(l_TextLenght);
             break;
 
         case CHAT_MSG_CHANNEL:
             l_ChannelLength     = p_RecvData.ReadBits(9);
             l_TextLenght        = p_RecvData.ReadBits(8);
-            l_Channel           = p_RecvData.ReadString(l_ChannelLength);
+            l_ChannelName       = p_RecvData.ReadString(l_ChannelLength);
             l_Text              = p_RecvData.ReadString(l_TextLenght);
             break;
 
@@ -532,7 +532,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
             if (ChannelMgr* l_ChannelManager = channelMgr(_player->GetTeam()))
             {
-                if (Channel* l_Channel = l_ChannelManager->GetChannel(l_Channel, _player))
+                if (Channel* l_Channel = l_ChannelManager->GetChannel(l_ChannelName, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, l_Type, l_Language, l_Text, l_Channel);
 

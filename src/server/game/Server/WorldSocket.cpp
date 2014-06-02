@@ -978,7 +978,7 @@ void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_Q
         l_Data.FlushBits();
     }
 
-    SendPacket(&l_Data);
+    SendPacket(l_Data);
 }
 
 int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
