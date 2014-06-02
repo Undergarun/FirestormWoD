@@ -13,6 +13,7 @@
 file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
 file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
 file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
+file(GLOB_RECURSE sources_bnet Bnet2/*.cpp Bnet2/*.hpp)
 file(GLOB sources_localdir *.cpp *.h)
 
 if( USE_COREPCH )
@@ -31,6 +32,7 @@ set(authserver_SRCS
   ${sources_authentication}
   ${sources_realms}
   ${sources_server}
+  ${sources_bnet}
   ${sources_localdir}
 )
 
