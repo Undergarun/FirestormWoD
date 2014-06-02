@@ -175,6 +175,7 @@ enum Types
     TYPE_WB_DEAL_DMG    = 2,
 };
 
+#define DISPLAYID_WINDBOMB 45684
 
 // Starting Positions for Kor'thik Elite Blademaster (62402)
 Position PosKorthikEliteMaster[3] =
@@ -716,9 +717,13 @@ class npc_wind_bomb_meljarak : public CreatureScript
             npc_wind_bomb_meljarakAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
+            bool canExplode;
 
             void IsSummonedBy(Unit* summoner)
             {
+                // Forcing display id, sometimes wrong otherwise
+                me->SetDisplayId(DISPLAYID_WINDBOMB);
+                canExplode = true;
                 me->SetInCombatWithZone();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
@@ -732,8 +737,15 @@ class npc_wind_bomb_meljarak : public CreatureScript
             {
                 events.Update(diff);
 
-                if (Player* player = me->FindNearestPlayer(6.0f, true))
+                if (!canExplode)
+                    return;
+
+                if (Player* player = me->FindNearestPlayer(2.5f, true))
+                {
                     DoCast(me, SPELL_WIND_BOMB_EXPLODE);
+                    canExplode = false;
+                    me->DespawnOrUnsummon();
+                }
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
