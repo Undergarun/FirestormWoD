@@ -380,7 +380,7 @@ namespace BNet2 {
                     }
                     else
                     {
-                        SetSRPParams(l_Fields[10].GetString(), l_AccountName, l_Fields[9].GetString());
+                        SetSRPParams(l_Fields[9].GetString(), l_AccountName, l_Fields[8].GetString());
                         GetSRP()->ComputePublicB();
 
                         std::list<BNet2::Module::Ptr> l_Modules = BNet2::ModuleManager::GetSingleton()->GetPlatformModules(GetClientPlatform());
@@ -412,7 +412,7 @@ namespace BNet2 {
 
                         m_AccountName           = l_AccountName;
                         m_AccountID             = l_Fields[1].GetUInt32();
-                        m_AccountSecurityLevel  = l_Fields[5].GetUInt8() <= SEC_ADMINISTRATOR ? AccountTypes(l_Fields[5].GetUInt8()) : SEC_ADMINISTRATOR;
+                        m_AccountSecurityLevel  = l_Fields[4].GetUInt8() <= SEC_ADMINISTRATOR ? AccountTypes(l_Fields[4].GetUInt8()) : SEC_ADMINISTRATOR;
                         m_Locale                = l_Locale;
 
                         sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' BNet2::Session::None_Handle_InformationRequest account %s is using '%s' locale (%u)", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort(),
