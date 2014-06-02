@@ -40,6 +40,9 @@ enum eSpells
 {
     // Imperial Vizier Zor'lok
     SPELL_MANTID_WINGS          = 126316,
+    SPELL_BROWN_MANTID_WINGS    = 140633,
+    SPELL_RED_MANTID_WINGS      = 138392,
+    SPELL_BLUE_MANTID_WINGS     = 138393,
     SPELL_ATTENUATION           = 122440,
     SPELL_CONVERT               = 122740,
     SPELL_INHALE                = 122852,
@@ -248,7 +251,7 @@ enum eWeapons
 {
     // --- Bosses ---
     EQUIP_ZORLOK                    = 85947,
-    EQUIP_TAYAK                     = 85401,
+    EQUIP_TAYAK_MELJARAK            = 85401,
 
     // --- Trashes ---
     EQUIP_TRASH_1                   = 84677,

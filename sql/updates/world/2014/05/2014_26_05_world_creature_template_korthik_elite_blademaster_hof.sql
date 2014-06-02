@@ -1,0 +1,1 @@
+UPDATE creature_template SET ScriptName = "npc_korthik_elite_blademaster" WHERE entry = 62402;

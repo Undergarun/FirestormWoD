@@ -154,7 +154,7 @@ class boss_tayak : public CreatureScript
                 for (auto stalker : stalkerList)
                     stalker->AI()->DoAction(ACTION_STOP_WIND);
 
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK);
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
 
                 _Reset();
             }

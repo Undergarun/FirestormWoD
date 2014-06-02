@@ -153,6 +153,13 @@ class instance_heart_of_fear : public InstanceMapScript
                         go->SetGoState(GO_STATE_READY);
                         garalonEntranceDoorGuid = go->GetGUID();
                         break;
+                    case GOB_DOOR_TO_MELJARAK:
+                        AddDoor(go, true);
+                        if (GetBossState(DATA_GARALON) == DONE)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        else
+                            go->SetGoState(GO_STATE_READY);
+                        break;
                     case GOB_BALCONY_DOOR_EXIT:
                         AddDoor(go, true);
                         go->SetGoState(GO_STATE_READY);
