@@ -810,144 +810,175 @@ int WorldSocket::HandleSendAuthSession()
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
     packet << uint16(0);
 
+    packet << m_Seed;
     for (int i = 0; i < 8; i++)
         packet << uint32(0);
 
     packet << uint8(1);
-    packet << m_Seed;
 
     return SendPacket(packet);
 }
 
-void WorldSocket::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
+void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_QueuePosition)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE);
+    WorldPacket l_Data(SMSG_AUTH_RESPONSE);
 
-    bool hasAccountData = true;
-    uint32 realmRaceCount = 15;
-    uint32 realmClassCount = 11;
+    uint32 l_RealmRaceCount = 15;
+    uint32 l_RealmClassCount = 11;
 
-    packet.WriteBit(queued);
-    packet.WriteBit(hasAccountData);
+    l_Data << uint8(p_AuthResult);
+    l_Data.WriteBit(p_AuthResult == AUTH_OK);
+    l_Data.WriteBit(p_Queued);
+    l_Data.FlushBits();
 
-    if (hasAccountData)
+    if (p_AuthResult == AUTH_OK)
     {
-        packet.WriteBits(0, 21);
-        packet.WriteBit(0);
-        packet.WriteBits(realmClassCount, 23);
-        packet.WriteBit(0);
-        packet.WriteBit(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint8(Expansion());
+        l_Data << uint8(Expansion());
+        l_Data << uint32(0);
+        l_Data << uint32(l_RealmRaceCount);
+        l_Data << uint32(l_RealmClassCount);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
 
-        packet.WriteBits(0, 21);
-        packet.WriteBit(0);
-        packet.WriteBits(realmRaceCount, 23);
-    }
-
-    if (queued)
-    {
-        packet.WriteBit(0);
-        packet << uint32(queuePos);
-    }
-
-    if (hasAccountData)
-    {
-        for (uint32 i = 0; i < realmClassCount; i++)
+        for (uint32 l_I = 0; l_I < l_RealmClassCount; l_I++)
         {
-            switch (i)
+            switch (l_I)
             {
                 case 0:
-                    packet << uint8(CLASS_WARRIOR);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_WARRIOR);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 1:
-                    packet << uint8(CLASS_PALADIN);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_PALADIN);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 2:
-                    packet << uint8(CLASS_HUNTER);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_HUNTER);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 3:
-                    packet << uint8(CLASS_ROGUE);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_ROGUE);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 4:
-                    packet << uint8(CLASS_PRIEST);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_PRIEST);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 5:
-                    packet << uint8(CLASS_DEATH_KNIGHT);
-                    packet << uint8(2); // Wotlk
+                    l_Data << uint8(CLASS_DEATH_KNIGHT);
+                    l_Data << uint8(2); // Wotlk
                     break;
                 case 6:
-                    packet << uint8(CLASS_SHAMAN);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_SHAMAN);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 7:
-                    packet << uint8(CLASS_MAGE);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_MAGE);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 8:
-                    packet << uint8(CLASS_WARLOCK);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_WARLOCK);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 9:
-                    packet << uint8(CLASS_DRUID);
-                    packet << uint8(0); // Prebc
+                    l_Data << uint8(CLASS_DRUID);
+                    l_Data << uint8(0); // Prebc
                     break;
                 case 10:
-                    packet << uint8(CLASS_MONK);
-                    packet << uint8(4); // MoP
+                    l_Data << uint8(CLASS_MONK);
+                    l_Data << uint8(4); // MoP
                     break;
             }
         }
 
-        packet << uint32(0);
+        for (uint32 l_I = 0; l_I < l_RealmRaceCount; l_I++)
+        {
+            switch (l_I)
+            {
+                case 0:
+                    l_Data << uint8(RACE_HUMAN);
+                    l_Data << uint8(0);
+                    break;
+                case 1:
+                    l_Data << uint8(RACE_ORC);
+                    l_Data << uint8(0);
+                    break;
+                case 2:
+                    l_Data << uint8(RACE_DWARF);
+                    l_Data << uint8(0);
+                    break;
+                case 3:
+                    l_Data << uint8(RACE_NIGHTELF);
+                    l_Data << uint8(0);
+                    break;
+                case 4:
+                    l_Data << uint8(RACE_UNDEAD_PLAYER);
+                    l_Data << uint8(0);
+                    break;
+                case 5:
+                    l_Data << uint8(RACE_TAUREN);
+                    l_Data << uint8(0);
+                    break;
+                case 6:
+                    l_Data << uint8(RACE_GNOME);
+                    l_Data << uint8(0);
+                    break;
+                case 7:
+                    l_Data << uint8(RACE_TROLL);
+                    l_Data << uint8(0);
+                    break;
+                case 9:
+                    l_Data << uint8(RACE_BLOODELF);
+                    l_Data << uint8(1);
+                    break;
+                case 10:
+                    l_Data << uint8(RACE_DRAENEI);
+                    l_Data << uint8(1);
+                    break;
+                case 8:
+                    l_Data << uint8(RACE_GOBLIN);
+                    l_Data << uint8(3);
+                    break;
+                case 11:
+                    l_Data << uint8(RACE_WORGEN);
+                    l_Data << uint8(3);
+                    break;
+                case 12:
+                    l_Data << uint8(RACE_PANDAREN_NEUTRAL);
+                    l_Data << uint8(4);
+                    break;
+                case 13:
+                    l_Data << uint8(RACE_PANDAREN_ALLI);
+                    l_Data << uint8(4);
+                    break;
+                case 14:
+                    l_Data << uint8(RACE_PANDAREN_HORDE);
+                    l_Data << uint8(4);
+                    break;
+            }
+        }
 
-        packet << uint8(0);
-        packet << uint8(RACE_HUMAN);
-        packet << uint8(0);
-        packet << uint8(RACE_ORC);
-        packet << uint8(0);
-        packet << uint8(RACE_DWARF);
-        packet << uint8(0);
-        packet << uint8(RACE_NIGHTELF);
-        packet << uint8(0);
-        packet << uint8(RACE_UNDEAD_PLAYER);
-        packet << uint8(0);
-        packet << uint8(RACE_TAUREN);
-        packet << uint8(0);
-        packet << uint8(RACE_GNOME);
-        packet << uint8(0);
-        packet << uint8(RACE_TROLL);
-        packet << uint8(1);
-        packet << uint8(RACE_GOBLIN);
-        packet << uint8(1);
-        packet << uint8(RACE_BLOODELF);
-        packet << uint8(1);
-        packet << uint8(RACE_DRAENEI);
-        packet << uint8(1);
-        packet << uint8(RACE_WORGEN);
-        packet << uint8(1);
-        packet << uint8(RACE_PANDAREN_NEUTRAL);
-        packet << uint8(1);
-        packet << uint8(RACE_PANDAREN_ALLI);
-        packet << uint8(1);
-        packet << uint8(RACE_PANDAREN_HORDE);
-
-        packet << uint32(0);
-        packet << uint32(0);
-
-        packet << uint8(Expansion());
-        packet << uint8(Expansion());
-
-        packet << uint32(0);
-        packet << uint32(0);
+        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);
+        l_Data.FlushBits();
     }
 
-    packet << uint8(code);
+    if (p_Queued)
+    {
+        l_Data << uint32(p_QueuePosition);
+        l_Data.WriteBit(p_Queued);
+        l_Data.FlushBits();
+    }
 
-    SendPacket(packet);
+    SendPacket(&l_Data);
 }
 
 int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)

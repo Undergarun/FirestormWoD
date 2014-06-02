@@ -44,10 +44,18 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Protocol
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamProtocol
+        /// Opcodes
+        SMSG_AUTH_CHALLENGE                         = 0x01C9,   /// 6.0.1 18322 => 0xC755A7
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Dispatch
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamDispatch
+        /// Base opcodes
+        SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Guild
@@ -988,8 +996,6 @@ enum Opcodes
     SMSG_AUCTION_OWNER_LIST_RESULT                    = 0x0000,
     SMSG_AUCTION_OWNER_BID_NOTIFICATION               = 0x0000,
     SMSG_AUCTION_REMOVED_NOTIFICATION                 = 0x0000,
-    SMSG_AUTH_CHALLENGE                               = 0x0000,
-    SMSG_AUTH_RESPONSE                                = 0x0000,
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x0000,
     SMSG_BARBER_SHOP_RESULT                           = 0x0000,
     SMSG_BATTLEFIELD_LIST                             = 0x0000,
