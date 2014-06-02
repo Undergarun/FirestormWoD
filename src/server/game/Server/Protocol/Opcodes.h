@@ -287,6 +287,35 @@ enum Opcodes
     /// Jam Client Garrison
     //////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Low protocol
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_HANDSHAKE                              = 0x4F57,
+    SMSG_HANDSHAKE                              = 0x4F57,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// User Router
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_LOG_STREAMING_ERROR                    = 0x0614,   ///< 6.0.1 18322 => 0x5D56FE
+    CMSG_QUEUED_MESSAGES_END                    = 0x0414,   ///< 6.0.1 18322 => 0x5DD190
+    CMSG_LOG_DISCONNECT                         = 0x0617,   ///< 6.0.1 18322 => 0x5D04C5
+    CMSG_PING                                   = 0x1403,   ///< 6.0.1 18322 => 0x5D0482
+    CMSG_AUTH_CONTINUED_SESSION                 = 001412,   ///< 6.0.1 18322 => 0x5D0585
+    CMSG_SUSPEND_TOKEN_RESPONSE                 = 0x1415,   ///< 6.0.1 18322 => 0x5D04C5
+    CMSG_AUTH_SESSION                           = 0x0602,   ///< 6.0.1 18322 => 0x5D0B4D
+    CMSG_ENABLE_NAGLE                           = 0x0C08,   ///< 6.0.1 18322 => 0x5D139A (nullsub)
+    CMSG_SUSPEND_COMMS_ACK                      = 0x0603,   ///< 6.0.1 18322 => 0x5D0542
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
     CMSG_ACCEPT_TRADE                                 = 0x0000,
@@ -320,7 +349,6 @@ enum Opcodes
     CMSG_AUCTION_PLACE_BID                            = 0x0000,
     CMSG_AUCTION_REMOVE_ITEM                          = 0x0000,
     CMSG_AUCTION_SELL_ITEM                            = 0x0000,
-    CMSG_AUTH_SESSION                                 = 0x0000,
     CMSG_AUTOBANK_ITEM                                = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM                               = 0x0000,
@@ -445,7 +473,6 @@ enum Opcodes
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
     CMSG_ENABLETAXI                                   = 0x0000,
-    CMSG_ENABLE_NAGLE                                 = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
     CMSG_EQUIPMENT_SET_USE                            = 0x0000,
     CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
@@ -572,7 +599,6 @@ enum Opcodes
     CMSG_LOAD_SCREEN                                  = 0x0000,
     CMSG_LOGOUT_CANCEL                                = 0x0000,
     CMSG_LOGOUT_REQUEST                               = 0x0000,
-    CMSG_LOG_DISCONNECT                               = 0x0000,
     CMSG_LOOT                                         = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
@@ -646,7 +672,6 @@ enum Opcodes
     CMSG_PET_RENAME                                   = 0x0000,
     CMSG_PET_SET_ACTION                               = 0x0000,
     CMSG_PET_STOP_ATTACK                              = 0x0000,
-    CMSG_PING                                         = 0x0000,
     CMSG_PLAYED_TIME                                  = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
     CMSG_PLAYER_LOGIN                                 = 0x0000,
@@ -887,7 +912,6 @@ enum Opcodes
     MSG_NOTIFY_PARTY_SQUELCH                          = 0x0000,
     MSG_QUERY_NEXT_MAIL_TIME                          = 0x0000,
     MSG_SET_RAID_DIFFICULTY                           = 0x0000,
-    MSG_VERIFY_CONNECTIVITY                           = 0x0000,
 
     // SMSG
     SMSG_SUPERCEDED_SPELL                             = 0x0000,

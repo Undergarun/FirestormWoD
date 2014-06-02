@@ -268,7 +268,7 @@ int WorldSocket::open (void *a)
 
     // not an opcode. this packet sends raw string WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT"
     // because of our implementation, bytes "WO" become the opcode
-    WorldPacket packet(MSG_VERIFY_CONNECTIVITY);
+    WorldPacket packet(SMSG_HANDSHAKE);
     packet << "RLD OF WARCRAFT CONNECTION - SERVER TO CLIENT";
 
     if (SendPacket(packet) == -1)
@@ -743,19 +743,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             }
-            /*case CMSG_REORDER_CHARACTERS:
-            {
-                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-
-                if (m_Session)
-                    if (OpcodeHandler* opHandle = opcodeTable[CMSG_REORDER_CHARACTERS])
-                        (m_Session->*opHandle->handler)(*new_pct);
-
-                return 0;
-            }*/
             // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
             // first 4 bytes become the opcode (2 dropped)
-            case MSG_VERIFY_CONNECTIVITY:
+            case CMSG_HANDSHAKE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
@@ -765,12 +755,12 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 return HandleSendAuthSession();
             }
-            /*case CMSG_ENABLE_NAGLE:
+            case CMSG_ENABLE_NAGLE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
-            }*/
+            }
             default:
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
@@ -960,60 +950,61 @@ void WorldSocket::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
     SendPacket(packet);
 }
 
-int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
+int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
 {
-    uint8 digest[20], unk1, unk2;
-    uint32 clientSeed, unk3, unk4, unk5, unk6;
-    uint64 unk7;
-    uint16 clientBuild, security;
-    uint32 id;
-    uint32 addonSize;
-    LocaleConstant locale;
-    std::string account;
-    SHA1Hash sha;
-    bool isPremium = false;
-    BigNumber k;
-    WorldPacket addonsData;
+    uint64 l_DosResponse = 0;
 
-    recvPacket.read_skip<uint16>();
-    recvPacket >> unk3;
-    recvPacket >> digest[4];
-    recvPacket >> unk4;
-    recvPacket >> unk1;
-    recvPacket >> digest[19];
-    recvPacket >> digest[12];
-    recvPacket >> digest[9];
-    recvPacket >> digest[6];
-    recvPacket >> digest[18];
-    recvPacket >> digest[17];
-    recvPacket >> digest[8];
-    recvPacket >> digest[13];
-    recvPacket >> digest[1];
-    recvPacket >> digest[10];
-    recvPacket >> digest[11];
-    recvPacket >> digest[15];
-    recvPacket >> clientSeed;
-    recvPacket >> digest[3];
-    recvPacket >> digest[14];
-    recvPacket >> digest[7];
-    recvPacket >> unk7;
-    recvPacket >> unk2;
-    recvPacket >> unk5;
-    recvPacket >> digest[5];
-    recvPacket >> digest[0];
-    recvPacket >> clientBuild;
-    recvPacket >> digest[16];
-    recvPacket >> digest[2];
-    recvPacket >> unk6;
+    uint32 l_LoginServerID              = 0;
+    uint32 l_RegionID                   = 0;
+    uint32 l_SiteID                     = 0;
+    uint32 l_RealmID                    = 0;
+    uint32 l_ClientSeed                 = 0;
+    uint32 l_AccountNameLenght          = 0;
+    uint32 l_AddonsCompressedDataSize   = 0;
 
-    recvPacket >> addonSize;
-    addonsData.resize(addonSize);
-    recvPacket.read((uint8*)addonsData.contents(), addonSize);
+    uint16 l_ClientBuild = 0;
 
-    uint32 accountNameLength = recvPacket.ReadBits(11);
-    recvPacket.ReadBit();
-    recvPacket.FlushBits();
-    account = recvPacket.ReadString(accountNameLength);
+    uint8 l_ClientAuthChallenge[20];
+    uint8 l_LoginServerType = 0;
+    uint8 l_BuildType       = 0;
+
+    bool l_UseIpV6 = false;
+
+    std::string l_AccountName;
+
+    WorldPacket l_AddonsCompressedData;
+
+    //////////////////////////////////////////////////////////////////////////
+
+    p_RecvPacket >> l_LoginServerID;
+    p_RecvPacket >> l_ClientBuild;
+    p_RecvPacket >> l_RegionID;
+    p_RecvPacket >> l_SiteID;
+    p_RecvPacket >> l_RealmID;
+    p_RecvPacket >> l_LoginServerType;
+    p_RecvPacket >> l_BuildType;
+    p_RecvPacket >> l_ClientSeed;
+    p_RecvPacket >> l_DosResponse;
+
+    p_RecvPacket.read(l_ClientAuthChallenge, 20);
+
+    l_AccountNameLenght = p_RecvPacket.ReadBits(11);
+    l_AccountName       = p_RecvPacket.ReadString(l_AccountNameLenght);
+
+    l_UseIpV6 = p_RecvPacket.ReadBit();
+
+    p_RecvPacket >> l_AddonsCompressedDataSize;
+    l_AddonsCompressedData.resize(l_AddonsCompressedDataSize);
+    p_RecvPacket.read((uint8*)l_AddonsCompressedData.contents(), l_AddonsCompressedDataSize);
+
+    //////////////////////////////////////////////////////////////////////////
+
+    uint32          l_AccountID             = 0;
+    uint16          l_AccountGMLevel        = 0;
+    uint8           l_AccountPremiumType    = 0;
+    bool            l_AccountIsPremium      = false;
+    LocaleConstant  l_AccountLocale;
+    BigNumber       l_SessionKey;
 
     if (sWorld->IsClosed())
     {
@@ -1022,38 +1013,35 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return -1;
     }
 
-    // Get the account information from the realmd database
-    std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
-    LoginDatabase.EscapeString (safe_account);
-    // No SQL injection, username escaped.
+    /// Get the account information from the auth database
+    std::string l_EscapedAccountName = l_AccountName; // Duplicate, else will screw the SHA hash verification below
+    LoginDatabase.EscapeString(l_EscapedAccountName);
 
-    //                                                 0       1          2       3     4  5      6          7       8         9      10
-    QueryResult result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os FROM account "
-                                               "WHERE username = '%s'", safe_account.c_str());
+    //                                                 0       1          2       3       4  5      6          7       8         9      10
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os FROM account  WHERE username = '%s'", l_EscapedAccountName.c_str());
 
-    // Stop if the account is not found
-    if (!result)
+    /// Stop if the account is not found
+    if (!l_Result)
     {
         SendAuthResponse(AUTH_UNKNOWN_ACCOUNT, false, 0);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         return -1;
     }
 
-    Field* fields = result->Fetch();
+    Field * l_Fields = l_Result->Fetch();
 
-    uint8 expansion = fields[6].GetUInt8();
-    uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
-    if (expansion > world_expansion)
-        expansion = world_expansion;
+    uint32 l_AccountExpansion   = l_Fields[6].GetUInt8();
+    uint32 l_ServerExpansion    = sWorld->getIntConfig(CONFIG_EXPANSION);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s",
-        fields[5].GetCString(),
-        fields[4].GetCString());
+    if (l_AccountExpansion > l_ServerExpansion)
+        l_AccountExpansion = l_ServerExpansion;
 
-    ///- Re-check ip locking (same check as in realmd).
-    if (fields[3].GetUInt8() == 1) // if ip is locked
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s", l_Fields[5].GetCString(), l_Fields[4].GetCString());
+
+    /// Re-check ip locking (same check as in auth server).
+    if (l_Fields[3].GetUInt8() == 1) // if ip is locked
     {
-        if (strcmp (fields[2].GetCString(), GetRemoteAddress().c_str()))
+        if (strcmp(l_Fields[2].GetCString(), GetRemoteAddress().c_str()))
         {
             SendAuthResponse(AUTH_FAILED, false, 0);
             sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs).");
@@ -1061,151 +1049,127 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         }
     }
 
-    id = fields[0].GetUInt32();
-    /*
-    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
-    security = SEC_ADMINISTRATOR;
-    */
+    l_AccountID = l_Fields[0].GetUInt32();
+    l_SessionKey.SetHexStr(l_Fields[1].GetCString());
 
-    k.SetHexStr(fields[1].GetCString());
+    int64 l_MuteTime = l_Fields[7].GetInt64();
 
-    int64 mutetime = fields[7].GetInt64();
-    //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
-    if (mutetime < 0)
+    /// Negative mute time indicates amount of seconds to be muted effective on next login - which is now.
+    if (l_MuteTime < 0)
     {
-        mutetime = time(NULL) + llabs(mutetime);
+        l_MuteTime = time(NULL) + llabs(l_MuteTime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
 
-        stmt->setInt64(0, mutetime);
-        stmt->setUInt32(1, id);
+        l_Stmt->setInt64(0, l_MuteTime);
+        l_Stmt->setUInt32(1, l_AccountID);
 
-        LoginDatabase.Execute(stmt);
+        LoginDatabase.Execute(l_Stmt);
     }
 
-    locale = LocaleConstant (fields[8].GetUInt8());
-    if (locale >= TOTAL_LOCALES)
-        locale = LOCALE_enUS;
+    l_AccountLocale = LocaleConstant(l_Fields[8].GetUInt8());
 
-    uint32 recruiter = fields[9].GetUInt32();
-    std::string os = fields[10].GetString();
+    if (l_AccountLocale >= TOTAL_LOCALES)
+        l_AccountLocale = LOCALE_enUS;
 
-    // Checks gmlevel per Realm
-    result =
-        LoginDatabase.PQuery ("SELECT "
-                              "RealmID, "            //0
-                              "gmlevel "             //1
-                              "FROM account_access "
-                              "WHERE id = '%d'"
-                              " AND (RealmID = '%d'"
-                              " OR RealmID = '-1')",
-                              id, realmID);
+    uint32      l_Recruiter = l_Fields[9].GetUInt32();
+    std::string l_AccountOS = l_Fields[10].GetString();
 
-    if (!result)
-        security = 0;
+    /// Checks gmlevel per Realm                0        1
+    l_Result = LoginDatabase.PQuery ("SELECT RealmID, gmlevel FROM account_access WHERE id = '%d' AND (RealmID = '%d' OR RealmID = '-1')", l_AccountID, realmID);
+
+    if (!l_Result)
+        l_AccountGMLevel = 0;
     else
     {
-        fields = result->Fetch();
-        security = fields[1].GetUInt8();
+        l_Fields            = l_Result->Fetch();
+        l_AccountGMLevel    = l_Fields[1].GetUInt8();
     }
 
-    // Re-check account ban (same check as in realmd)
-    QueryResult banresult =
-          LoginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1 "
-                                "UNION "
-                                "SELECT 1 FROM ip_banned WHERE ip = '%s'",
-                                id, GetRemoteAddress().c_str());
-    uint8 premiumType = 0;
-
-    if (banresult) // if account banned
+    /// Re-check account ban (same check as in auth server)
+    QueryResult l_BanResult = LoginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1  UNION  SELECT 1 FROM ip_banned WHERE ip = '%s'", l_AccountID, GetRemoteAddress().c_str());
+    
+    /// if account banned
+    if (l_BanResult)
     {
         SendAuthResponse(AUTH_BANNED, false, 0);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         return -1;
     }
 
-    QueryResult premresult = LoginDatabase.PQuery
-                               ("SELECT premium_type "
-                                "FROM account_premium "
-                                "WHERE id = '%u' "
-                                "AND active = 1",
-                                id);
-    if (premresult) // If account premium
+    QueryResult l_PremiumResult = LoginDatabase.PQuery("SELECT premium_type FROM account_premium WHERE id = '%u' AND active = 1", l_AccountID);
+
+    /// If account premium
+    if (l_PremiumResult)
     {
-        Field* premField = premresult->Fetch();
-        isPremium = true;
-        premiumType = premField->GetUInt8();
+        Field * l_PremiumFields = l_PremiumResult->Fetch();
+
+        l_AccountIsPremium      = true;
+        l_AccountPremiumType    = l_PremiumFields->GetUInt8();
     }
 
-    // Check locked state for server
-    AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Allowed Level: %u Player Level %u", allowedAccountType, AccountTypes(security));
-    if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
+    /// Check locked state for server
+    AccountTypes l_AllowedAccountType = sWorld->GetPlayerSecurityLimit();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Allowed Level: %u Player Level %u", l_AllowedAccountType, AccountTypes(l_AccountGMLevel));
+
+    if (l_AllowedAccountType > SEC_PLAYER && AccountTypes(l_AccountGMLevel) < l_AllowedAccountType)
     {
         SendAuthResponse(AUTH_UNAVAILABLE, false, 0);
         sLog->outInfo(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+
         return -1;
     }
 
-    // Check that Key and account name are the same on client and server
-    uint32 t = 0;
-    uint32 seed = m_Seed;
+    /// Check that Key and account name are the same on client and server
+    uint32 l_ChallengeT = 0;
+    uint32 l_ServerSeed = m_Seed;
 
-    sha.UpdateData(account);
-    sha.UpdateData((uint8*)&t, 4);
-    sha.UpdateData((uint8*)&clientSeed, 4);
-    sha.UpdateData((uint8*)&seed, 4);
-    sha.UpdateBigNumbers(&k, NULL);
-    sha.Finalize();
+    SHA1Hash l_ServerAuthChallenge;
+    l_ServerAuthChallenge.UpdateData(l_AccountName);
+    l_ServerAuthChallenge.UpdateData((uint8*)&l_ChallengeT, 4);
+    l_ServerAuthChallenge.UpdateData((uint8*)&l_ClientSeed, 4);
+    l_ServerAuthChallenge.UpdateData((uint8*)&l_ServerSeed, 4);
+    l_ServerAuthChallenge.UpdateBigNumbers(&l_SessionKey, NULL);
+    l_ServerAuthChallenge.Finalize();
 
-    std::string address = GetRemoteAddress();
+    std::string l_SessionIP = GetRemoteAddress();
 
-    /*if (memcmp(sha.GetDigest(), digest, 20))
+    if (memcmp(l_ServerAuthChallenge.GetDigest(), l_ClientAuthChallenge, SHA_DIGEST_LENGTH))
     {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-    packet.WriteBit(0); // has queue info
-    packet.WriteBit(0); // has account info
-    packet << uint8(AUTH_FAILED);
-    SendPacket(packet);
+        SendAuthResponse(AUTH_FAILED, false, 0);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", l_AccountID, l_AccountName.c_str(), l_SessionIP.c_str());
 
-    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
-    return -1;
-    }*/
+        return -1;
+    }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.",
-        account.c_str(),
-        address.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.", l_AccountName.c_str(), l_SessionIP.c_str());
 
-    bool isRecruiter = false;
+    bool l_AccountIsRecruiter = false;
 
-    // Update the last_ip in the database
-    // No SQL injection, username escaped.
-    LoginDatabase.EscapeString (address);
+    /// Update the last_ip in the database
+    /// No SQL injection, username escaped.
+    LoginDatabase.EscapeString(l_SessionIP);
+    LoginDatabase.PExecute("UPDATE account SET last_ip = '%s' WHERE username = '%s'", l_SessionIP.c_str(), l_EscapedAccountName.c_str());
 
-    LoginDatabase.PExecute ("UPDATE account "
-                            "SET last_ip = '%s' "
-                            "WHERE username = '%s'",
-                            address.c_str(),
-                            safe_account.c_str());
+    /// NOTE ATM the socket is single-threaded, have this in mind ...
+    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter), -1);
 
-    // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), isPremium, premiumType, expansion, mutetime, locale, recruiter, isRecruiter), -1);
-
-    m_Crypt.Init(&k);
+    m_Crypt.Init(&l_SessionKey);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
-    m_Session->ReadAddonsInfo(addonsData);
+    m_Session->ReadAddonsInfo(l_AddonsCompressedData);
 
-    // Initialize Warden system only if it is enabled by config
+    /// Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
-        m_Session->InitWarden(&k, os);
+        m_Session->InitWarden(&l_SessionKey, l_AccountOS);
 
-    // Sleep this Network thread for
-    uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
-    ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
+    /// Sleep this Network thread for
+    uint32 l_SleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
+    ACE_OS::sleep(ACE_Time_Value(0, l_SleepTime));
 
     sWorld->AddSession(m_Session);
+
     return 0;
 }
 
