@@ -55,6 +55,9 @@ enum Opcodes
     #pragma region JamDispatch
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
+
+        /// Character list
+        SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   /// 6.0.1 18322 => 0x608845
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1093,7 +1096,6 @@ enum Opcodes
     SMSG_CHAR_CREATE                                  = 0x0000,
     SMSG_CHAR_CUSTOMIZE                               = 0x0000,
     SMSG_CHAR_DELETE                                  = 0x0000,
-    SMSG_CHAR_ENUM                                    = 0x0000,
     SMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x0000,
     SMSG_CHAR_RENAME                                  = 0x0000,
     SMSG_CHECK_FOR_BOTS                               = 0x0000,

@@ -237,49 +237,52 @@ bool LoginQueryHolder::Initialize()
     return res;
 }
 
-void WorldSession::HandleCharEnum(PreparedQueryResult result)
+void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
 {
-    WorldPacket data(SMSG_CHAR_ENUM);
+    uint32 l_CharacterCount             = 0;
+    uint32 l_FactionChangeRestrictions  = 0;
 
-    uint32 unkCount = 0;
-    uint32 charCount = 0;
-    ByteBuffer bitBuffer;
-    ByteBuffer dataBuffer;
+    bool l_CanCreateCharacter = true;
 
-    bitBuffer.WriteBit(1); // Must send 1, else receive CHAR_LIST_FAILED error
-    bitBuffer.WriteBits(unkCount, 21); // unk uint32 count
-
-    if (result)
+    if (p_Result)
     {
         _allowedCharsToLogin.clear();
+        l_CharacterCount = uint32(p_Result->GetRowCount());
+    }
 
-        charCount = uint32(result->GetRowCount());
-        
-        bitBuffer.WriteBits(charCount, 16);
 
+    WorldPacket l_Data(SMSG_ENUM_CHARACTERS_RESULT);
+
+    l_Data.WriteBit(l_CanCreateCharacter);          ///< Allow char creation
+    l_Data.WriteBit(0);                             ///< unk
+    l_Data.FlushBits();
+
+    l_Data << l_CharacterCount;                     ///< Account character count
+    l_Data << l_FactionChangeRestrictions;          ///< Faction change restrictions
+
+    if (p_Result)
+    {
         do
         {
-            uint32 guidLow = (*result)[0].GetUInt32();
+            uint32 l_GuidLow = (*p_Result)[0].GetUInt32();
 
-            Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            Player::BuildEnumData(p_Result, &l_Data);
 
-            if (!sWorld->HasCharacterNameData(guidLow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                 sWorld->AddCharacterNameData(guidLow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
+            /// This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+            if (!sWorld->HasCharacterNameData(l_GuidLow)) 
+                sWorld->AddCharacterNameData(l_GuidLow, (*p_Result)[1].GetString(), (*p_Result)[4].GetUInt8(), (*p_Result)[2].GetUInt8(), (*p_Result)[3].GetUInt8(), (*p_Result)[7].GetUInt8());
 
-            _allowedCharsToLogin.insert(guidLow);
-        }
-        while (result->NextRow());
+            _allowedCharsToLogin.insert(l_GuidLow);
+        } while (p_Result->NextRow());
     }
-    else
-        bitBuffer.WriteBits(0, 16);
 
-    bitBuffer.FlushBits();
+    for (uint32 l_I = 0; l_I < l_FactionChangeRestrictions; l_I++)
+    {
+        l_Data << uint32(0);                        ///< Mask
+        l_Data << uint8(0);                         ///< Race ID
+    }
 
-    data.append(bitBuffer);
-    if (dataBuffer.size())
-        data.append(dataBuffer);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)

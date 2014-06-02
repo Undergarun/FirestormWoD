@@ -1288,7 +1288,7 @@ class Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time, uint32 entry = 0);
 
-        static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
+        static bool BuildEnumData(PreparedQueryResult p_Result, ByteBuffer * p_Data);
 
         void SetInWater(bool apply);
 
