@@ -32,6 +32,10 @@
 #include "SignalHandler.h"
 #include "RealmList.h"
 #include "RealmAcceptor.h"
+#include "BNet2/WoWModules/PasswordAuth.hpp"
+#include "BNet2/WoWModules/RiskFingerprintAuth.hpp"
+#include "BNet2/WoWModules/ThumbprintAuth.hpp"
+#include "BNet2/WoWModules/SelectGameAccountAuth.hpp"
 
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
@@ -66,6 +70,30 @@ void usage(const char *prog)
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r",
         prog);
+}
+
+void RegisterBNet2Components()
+{
+    BNet2::AuthComponentManager::GetSingleton()->Allow(37165, BNet2::BATTLENET2_PROGRAM_BNET, BNet2::BATTLENET2_PROGRAM_ALL, BNet2::BATTLENET2_LOCALE_NONE);
+}
+
+void RegisterBNet2WoWModules()
+{
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::PasswordAuthWin32));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::PasswordAuthWin64));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::PasswordAuthMac64));
+
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::RiskFingerprintAuthWin32));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::RiskFingerprintAuthWin64));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::RiskFingerprintAuthMac64));
+
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::ThumbprintAuthWin32));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::ThumbprintAuthWin64));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::ThumbprintAuthMac64));
+
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::SelectGameAccountAuthWin32));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::SelectGameAccountAuthWin64));
+    BNet2::ModuleManager::GetSingleton()->RegisterModule(BNet2::Module::Ptr(new BNet2::WoWModules::SelectGameAccountAuthMac64));
 }
 
 // Launch the auth server
@@ -128,6 +156,9 @@ extern int main(int argc, char **argv)
     if (!StartDB())
         return 1;
 
+    RegisterBNet2Components();
+    RegisterBNet2WoWModules();
+	
     sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
 
     // Get the list of realms for the server
