@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "RealmList.h"
 #include "Database/DatabaseEnv.h"
+#include "BNet2/AuthComponent.hpp"
 
 RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL))
 {
@@ -51,6 +52,8 @@ void RealmList::UpdateRealm(uint32 ID, const std::string& name, const std::strin
     ss << address << ':' << port;
     realm.address = ss.str();
     realm.gamebuild = build;
+	
+	BNet2::AuthComponentManager::GetSingleton()->Allow(build, BNet2::BATTLENET2_PROGRAM_ALL_CLIENTS, BNet2::BATTLENET2_PLATFORM_ALL, BNet2::BATTLENET2_LOCALE_ALL);
 }
 
 void RealmList::UpdateIfNeed()
