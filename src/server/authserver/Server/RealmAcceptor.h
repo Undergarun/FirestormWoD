@@ -24,6 +24,7 @@
 
 #include "RealmSocket.h"
 #include "AuthSocket.h"
+#include "BNet2/Session.hpp"
 
 class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor>
 {
@@ -42,7 +43,7 @@ protected:
             ACE_NEW_RETURN(sh, RealmSocket, -1);
 
         sh->reactor(reactor());
-        sh->set_session(new AuthSocket(*sh));
+        sh->set_session(new BNet2::Session(*sh));
         return 0;
     }
 
