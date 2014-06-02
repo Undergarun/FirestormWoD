@@ -2283,6 +2283,143 @@ class spell_item_first_aid : public SpellScriptLoader
         }
 };
 
+class spell_item_imputting_the_final_code : public SpellScriptLoader
+{
+    public:
+        spell_item_imputting_the_final_code() : SpellScriptLoader("spell_item_imputting_the_final_code") { }
+
+        class spell_item_imputting_the_final_code_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_imputting_the_final_code_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(10447) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(21039);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_imputting_the_final_code_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_imputting_the_final_code_SpellScript();
+        }
+};
+
+class spell_item_pot_of_fire : public SpellScriptLoader
+{
+    public:
+        spell_item_pot_of_fire() : SpellScriptLoader("spell_item_pot_of_fire") { }
+
+        class spell_item_pot_of_fire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_pot_of_fire_SpellScript);
+
+            void CorrectTarget(std::list<WorldObject*>& targets)
+            {
+                std::list<WorldObject*> tempTargets = targets;
+                for (auto itr : tempTargets)
+                {
+                    if (itr->GetEntry() != 61510)
+                        targets.remove(itr);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_pot_of_fire_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_pot_of_fire_SpellScript();
+        }
+
+        class spell_item_pot_of_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_pot_of_fire_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            {
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
+
+                if (Creature* creature = target->ToCreature())
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        player->KilledMonsterCredit(61510);
+                        creature->DespawnOrUnsummon();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_pot_of_fire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_item_pot_of_fire_AuraScript();
+        }
+};
+
+class spell_item_dit_da_jow : public SpellScriptLoader
+{
+    public:
+        spell_item_dit_da_jow() : SpellScriptLoader("spell_item_dit_da_jow") { }
+
+        class spell_item_dit_da_jow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_dit_da_jow_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30460) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 59143)
+                            {
+                                player->KilledMonsterCredit(59143);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_item_dit_da_jow_SpellScript::HandleBeforeCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_dit_da_jow_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2338,4 +2475,7 @@ void AddSC_item_spell_scripts()
     new spell_alchemist_rejuvenation();
     new spell_item_amber_prison();
     new spell_item_first_aid();
+    new spell_item_imputting_the_final_code();
+    new spell_item_pot_of_fire();
+    new spell_item_dit_da_jow();
 }

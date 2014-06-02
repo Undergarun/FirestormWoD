@@ -10873,6 +10873,8 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 3968:
         case 4378:
         case 3703:
+        case 6296:
+        case 6732:
             NumberOfFields = 9;
             break;
         case 4384:
@@ -11456,6 +11458,28 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 5833:
             data << uint32(0x1958) << uint32(0x1);
             data << uint32(0x1959) << uint32(0x4);
+            break;
+        // Tol'Viron Arena
+        case 6296:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TV)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xE10) << uint32(0x0);           // 7 gold
+                data << uint32(0xE11) << uint32(0x0);           // 8 green
+                data << uint32(0xE1A) << uint32(0x0);           // 9 show
+            }
+            break;
+        // The Tiger's Peak
+        case 6732:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TTP)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xE10) << uint32(0x0);           // 7 gold
+                data << uint32(0xE11) << uint32(0x0);           // 8 green
+                data << uint32(0xE1A) << uint32(0x0);           // 9 show
+            }
             break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7

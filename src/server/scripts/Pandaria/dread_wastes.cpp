@@ -1713,7 +1713,7 @@ class mob_vengeful_spirit : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_RAIN_DANCE_2, 5000);
+                events.ScheduleEvent(EVENT_ICE_TRAP, 5000);
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 12000);
             }
 
@@ -1736,10 +1736,10 @@ class mob_vengeful_spirit : public CreatureScript
                                 me->CastSpell(target, SPELL_UNSTABLE_SERUM, false);
                             events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 15000);
                             break;
-                        case EVENT_RAIN_DANCE_2:
+                        case EVENT_ICE_TRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_RAIN_DANCE, false);
-                            events.ScheduleEvent(EVENT_RAIN_DANCE_2, 15000);
+                                me->CastSpell(target, SPELL_ICE_TRAP, false);
+                            events.ScheduleEvent(EVENT_ICE_TRAP, 15000);
                             break;
                         default:
                             break;
