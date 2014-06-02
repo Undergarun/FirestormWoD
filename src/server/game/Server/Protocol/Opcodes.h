@@ -316,6 +316,31 @@ enum Opcodes
     CMSG_SUSPEND_COMMS_ACK                      = 0x0603,   ///< 6.0.1 18322 => 0x5D0542
 
     //////////////////////////////////////////////////////////////////////////
+    /// Chat
+    //////////////////////////////////////////////////////////////////////////
+    /// Addon chat
+    CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND        = 0x18EA,   ///< 6.0.1 18322 => 0xC76E6A
+    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x00A7,   ///< 6.0.1 18322 => 0xC774DC
+    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x1C89,   ///< 6.0.1 18322 => 0xC76E6A
+    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x10FD,   ///< 6.0.1 18322 => 0xC76E6A
+    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x0008,   ///< 6.0.1 18322 => 0xC76E6A
+    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x1CBC,   ///< 6.0.1 18322 => 0xC76E6A
+
+    /// Chat
+    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x18C9,   ///< 6.0.1 18322 => 0xC770CF
+    CMSG_CHAT_MESSAGE_PARTY                     = 0x1B69,   ///< 6.0.1 18322 => 0xC770CF
+    CMSG_CHAT_MESSAGE_YELL                      = 0x1EAC,   ///< 6.0.1 18322 => 0xC770CF
+    CMSG_CHAT_MESSAGE_SAY                       = 0x1E2A,   ///< 6.0.1 18322 => 0xC770CF
+    CMSG_CHAT_MESSAGE_OFFICER                   = 0x096E,   ///< 6.0.1 18322 => 0xC770CF
+    CMSG_CHAT_MESSAGE_EMOTE                     = 0x1B7E,   ///< 6.0.1 18322 => 0xC765AE
+    CMSG_CHAT_MESSAGE_AFK                       = 0x1293,   ///< 6.0.1 18322 => 0xC765AE
+    CMSG_CHAT_MESSAGE_DND                       = 0x0B6E,   ///< 6.0.1 18322 => 0xC765AE
+    CMSG_CHAT_MESSAGE_GUILD                     = 0x0EAA,   ///< 6.0.1 18322 => 0xC76550
+    CMSG_CHAT_MESSAGE_RAID                      = 0x0C09,   ///< 6.0.1 18322 => 0xC76550
+    CMSG_CHAT_MESSAGE_WHISPER                   = 0x1097,   ///< 6.0.1 18322 => 0xC77758
+    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0EB9,   ///< 6.0.1 18322 => 0xC77801
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -619,25 +644,6 @@ enum Opcodes
     CMSG_MAIL_TAKE_MONEY                              = 0x0000,
     CMSG_MANEUVER_START                               = 0x0000,
     CMSG_MEETINGSTONE_INFO                            = 0x0000,
-    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0x0000,
-    CMSG_MESSAGECHAT_ADDON_GUILD                      = 0x0000,
-    CMSG_MESSAGECHAT_ADDON_OFFICER                    = 0x0000,
-    CMSG_MESSAGECHAT_ADDON_PARTY                      = 0x0000,
-    CMSG_MESSAGECHAT_ADDON_RAID                       = 0x0000,
-    CMSG_MESSAGECHAT_ADDON_WHISPER                    = 0x0000,
-    CMSG_MESSAGECHAT_AFK                              = 0x0000,
-    CMSG_MESSAGECHAT_BATTLEGROUND                     = 0x0000,
-    CMSG_MESSAGECHAT_CHANNEL                          = 0x0000,
-    CMSG_MESSAGECHAT_DND                              = 0x0000,
-    CMSG_MESSAGECHAT_EMOTE                            = 0x0000,
-    CMSG_MESSAGECHAT_GUILD                            = 0x0000,
-    CMSG_MESSAGECHAT_OFFICER                          = 0x0000,
-    CMSG_MESSAGECHAT_PARTY                            = 0x0000,
-    CMSG_MESSAGECHAT_RAID                             = 0x0000,
-    CMSG_MESSAGECHAT_RAID_WARNING                     = 0x0000,
-    CMSG_MESSAGECHAT_SAY                              = 0x0000,
-    CMSG_MESSAGECHAT_WHISPER                          = 0x0000,
-    CMSG_MESSAGECHAT_YELL                             = 0x0000,
     CMSG_MINIGAME_MOVE                                = 0x0000,
     CMSG_MINIMAP_PING                                 = 0x0000,
     CMSG_MOUNTSPECIAL_ANIM                            = 0x0000,
