@@ -1977,17 +1977,13 @@ class Player : public Unit, public GridObject<Player>
         static uint64 const infinityCooldownDelay = uint64(2592000LL * 1000LL); // MONTH * IN_MILLISECONDS
         static uint64 const infinityCooldownDelayCheck = uint64(2592000LL/2 * 1000LL); // MONTH/2 * IN_MILLISECONDS
 
-        bool HasSpellCooldown(uint32 spell_id) const
-        {
-            SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-            uint64 timeMS = time(NULL) * IN_MILLISECONDS + getMSTime();
-            return itr != m_spellCooldowns.end() && itr->second.end > timeMS ? itr->second.end - timeMS : 0;
-        }
+        bool HasSpellCooldown(uint32 spell_id) const { return GetSpellCooldownDelay(spell_id) != 0; }
         uint32 GetSpellCooldownDelay(uint32 spell_id) const
         {
             SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-            uint32 t = time(NULL);
-            return uint32(itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0);
+            uint64 currTime = 0;
+            ACE_OS::gettimeofday().msec(currTime);
+            return uint32(itr != m_spellCooldowns.end() && itr->second.end > currTime ? itr->second.end - currTime : 0);
         }
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time);

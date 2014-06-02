@@ -5334,13 +5334,12 @@ void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
     if (itr == m_spellCooldowns.end())
         return;
 
-    uint32 now = getMSTime();
-    if (itr->second.end + modifyTime > now)
-        itr->second.end += modifyTime;
+    uint64 currTime = 0;
+    ACE_OS::gettimeofday().msec(currTime);
+    if (itr->second.end - modifyTime  > currTime)
+        itr->second.end -= modifyTime;
     else
         m_spellCooldowns.erase(itr);
-
-    AddSpellCooldown(spell_id, 0, itr->second.end);
 
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
     ObjectGuid guid = GetGUID();
@@ -24790,7 +24789,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
         catrec = spellInfo->CategoryRecoveryTime;
     }
 
-    time_t curTime = time(NULL);
+    uint64 curTime = 0;
+    ACE_OS::gettimeofday().msec(curTime);
 
     uint64 catrecTime;
     uint64 recTime;
@@ -24900,8 +24900,9 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time)
 {
     SpellCooldown sc;
-    uint64 timeMS = time(NULL) * IN_MILLISECONDS + getMSTime();
-    sc.end = timeMS + end_time;
+    uint64 currTime = 0;
+    ACE_OS::gettimeofday().msec(currTime);
+    sc.end = currTime + end_time;
     sc.itemid = itemid;
     m_spellCooldowns[spellid] = sc;
 }
