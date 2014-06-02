@@ -3429,6 +3429,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
+            case 119539: // Chi Torpedo
+                spellInfo->Effects[0].TriggerSpell = 0;
+                break;
             case 32409: // Shadow Word: Death (triggered)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
                 spellInfo->Effects[0].ApplyAuraName = 0;

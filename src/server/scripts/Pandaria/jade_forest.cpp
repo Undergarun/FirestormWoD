@@ -1392,6 +1392,22 @@ class npc_elder_anli : public CreatureScript
 
             return true;
         }
+
+        bool OnQuestReward(Player* player, Creature* creature, Quest* const quest)
+        {
+            switch (quest->GetQuestId())
+            {
+                case 30188:
+                case 31810:
+                case 31811:
+                    creature->CastSpell(player, 130487, false);
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        }
 };
 
 class mob_kher_shan : public CreatureScript
