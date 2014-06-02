@@ -774,7 +774,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 if (opcode >= NUM_OPCODE_HANDLERS)
                     return 0;
 
-                OpcodeHandler* handler = opcodeTable[WOW_CLIENT][opcode];
+                OpcodeHandler* handler = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
                 if (!handler || handler->status == STATUS_UNHANDLED)
                 {
                     sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode(), WOW_CLIENT).c_str(), m_Session->GetPlayerName(false).c_str());

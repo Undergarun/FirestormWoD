@@ -19,77 +19,82 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 
-OpcodeHandler* opcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS] = { };
+OpcodeHandler* g_OpcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS] = { };
 
 template<bool isInValidRange, bool isNonZero>
-inline void ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+inline void ValidateAndSetOpcode(uint16 /*p_Opcode*/, char const* /*p_Name*/, SessionStatus /*p_Status*/, PacketProcessing /*p_Processing*/, g_OpcodeHandlerType /*p_Handler*/)
 {
-    // if for some reason we are here, that means NUM_OPCODE_HANDLERS == 0 (or your compiler is broken)
+    /// if for some reason we are here, that means NUM_OPCODE_HANDLERS == 0 (or your compiler is broken)
 }
 
 template<>
-void ValidateAndSetOpcode<true, true>(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
+void ValidateAndSetOpcode<true, true>(uint16 p_Opcode, char const* p_Name, SessionStatus p_Status, PacketProcessing p_Processing, g_OpcodeHandlerType p_Handler)
 {
-    OpcodeTransferDirection dir = TRANSFER_DIRECTION_MAX;
+    OpcodeTransferDirection l_OpcodeDirection = TRANSFER_DIRECTION_MAX;
 
-    switch (name[0])
+    switch (p_Name[0])
     {
         case 'S':
         case 's':
-            dir = WOW_SERVER; // SMSG
+            l_OpcodeDirection = WOW_SERVER_TO_CLIENT; // SMSG
             break;
+
         case 'C':
         case 'c':
-            dir = WOW_CLIENT; // CMSG
+            l_OpcodeDirection = WOW_CLIENT_TO_SERVER; // CMSG
+
         //DEFault: // MSG
             break;
     }
 
-    if (dir == TRANSFER_DIRECTION_MAX)
+    if (l_OpcodeDirection == TRANSFER_DIRECTION_MAX)
     {
-        for (uint8 i = 0; i < 2; ++i)
+        for (uint8 l_CurrentDirection = 0; l_CurrentDirection < TRANSFER_DIRECTION_MAX; ++l_CurrentDirection)
         {
-
-            if (opcodeTable[i][opcode] != NULL) // register MSG opcode as client and server
+            if (g_OpcodeTable[l_CurrentDirection][p_Opcode] != NULL) // register MSG opcode as client and server
             {
-                sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[i][opcode]->name, name, opcode);
+                sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", g_OpcodeTable[l_CurrentDirection][p_Opcode]->name, p_Name, p_Opcode);
                 return;
             }
 
-            opcodeTable[i][opcode] = new OpcodeHandler(name, status, processing, handler);
+            g_OpcodeTable[l_CurrentDirection][p_Opcode] = new OpcodeHandler(p_Name, p_Status, p_Processing, p_Handler);
         }
 
         return;
     }
 
-    if (opcodeTable[dir][opcode] != NULL)
+    if (g_OpcodeTable[l_OpcodeDirection][p_Opcode] != NULL)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[dir][opcode]->name, name, opcode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", g_OpcodeTable[l_OpcodeDirection][p_Opcode]->name, p_Name, p_Opcode);
         return;
     }
 
-    opcodeTable[dir][opcode] = new OpcodeHandler(name, status, processing, handler);
+    g_OpcodeTable[l_OpcodeDirection][p_Opcode] = new OpcodeHandler(p_Name, p_Status, p_Processing, p_Handler);
 }
 
 template<>
-void ValidateAndSetOpcode<false, true>(uint16 opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void ValidateAndSetOpcode<false, true>(uint16 p_Opcode, char const* /*p_Name*/, SessionStatus /*p_Status*/, PacketProcessing /*p_Processing*/, g_OpcodeHandlerType /*p_Handler*/)
 {
-    sLog->outError(LOG_FILTER_NETWORKIO, "Tried to set handler for an invalid opcode %d", opcode);
+    sLog->outError(LOG_FILTER_NETWORKIO, "Tried to set handler for an invalid opcode %d", p_Opcode);
 }
 
 template<>
-void ValidateAndSetOpcode<true, false>(uint16 /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void ValidateAndSetOpcode<true, false>(uint16 /*p_Opcode*/, char const* p_Name, SessionStatus /*p_Status*/, PacketProcessing /*p_Processing*/, g_OpcodeHandlerType /*p_Handler*/)
 {
-    sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", name);
+    sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", p_Name);
 }
 
-#define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                      \
-    ValidateAndSetOpcode<(opcode < NUM_OPCODE_HANDLERS), (opcode != 0)>(opcode, #opcode, status, processing, handler);
+#define DEFINE_OPCODE_HANDLER(p_Opcode, p_Status, p_Processing, p_Handler)                                      \
+    ValidateAndSetOpcode<(p_Opcode < NUM_OPCODE_HANDLERS), (p_Opcode != 0)>(p_Opcode, #p_Opcode, p_Status, p_Processing, p_Handler);
 
 /// Correspondence between opcodes and their names
 void InitOpcodes()
 {
-    memset(opcodeTable, 0, sizeof(opcodeTable));
+    memset(g_OpcodeTable, 0, sizeof(g_OpcodeTable));
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Protocol
+    //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Dispatch

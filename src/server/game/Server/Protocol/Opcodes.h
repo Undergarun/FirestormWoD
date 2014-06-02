@@ -27,8 +27,8 @@
 
 enum OpcodeTransferDirection : uint8
 {
-    WOW_SERVER = 0,
-    WOW_CLIENT = 1,
+    WOW_SERVER_TO_CLIENT = 0,
+    WOW_CLIENT_TO_SERVER = 1,
 
     TRANSFER_DIRECTION_MAX = 2
 };
@@ -40,6 +40,10 @@ enum Opcodes
     UNKNOWN_OPCODE                                    = (0xFFFF+1),
     NULL_OPCODE                                       = 0,
     COMPRESSED_OPCODE_MASK                            = 0x8000,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Protocol
+    //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Dispatch
@@ -1706,21 +1710,21 @@ enum PacketProcessing
 class WorldPacket;
 class WorldSession;
 
-typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
+typedef void(WorldSession::*g_OpcodeHandlerType)(WorldPacket& recvPacket);
 
 struct OpcodeHandler
 {
     OpcodeHandler() {}
-    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
+    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, g_OpcodeHandlerType _handler)
         : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
 
     char const* name;
     SessionStatus status;
     PacketProcessing packetProcessing;
-    pOpcodeHandler handler;
+    g_OpcodeHandlerType handler;
 };
 
-extern OpcodeHandler* opcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS];
+extern OpcodeHandler* g_OpcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS];
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
@@ -1735,7 +1739,7 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
         bool foundet = false;
         for (int t = 0; t < 2; ++t)
         {
-            OpcodeHandler* handler = opcodeTable[t][uint32(id) & 0x7FFF];
+            OpcodeHandler* handler = g_OpcodeTable[t][uint32(id) & 0x7FFF];
             if (!handler)
                 continue;
 
