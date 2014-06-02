@@ -74,6 +74,9 @@ enum Spells
 {
     /*** Boss ***/
     SPELL_WHIRLING_BLADE    = 121896, // Triggers 121898 damage every 0.25s and 121897, 122083 dummy location spells (visuals?).
+    SPELL_WB_SWORD          = 121897, // Visual thrown sword
+    SPELL_WB_LIGHT          = 122083, // Light effect around thrown sword
+    SPELL_WB_SUMMON         = 124851, // Summons Whirling Blade NPC at target pos, which will trigger spell back to Mel'jarak
     SPELL_RAIN_OF_BLADES    = 122406, // Triggers 122407 damage spell every 0.5s.
     SPELL_WIND_BOMB         = 131813, // Triggers 131814 bomb summon npc 67053.
 
@@ -140,7 +143,6 @@ enum Events
     /*** Adds ***/
     // Wind Bomb
     EVENT_ARM,                    // 3 secs after spawn
-    EVENT_CHECK_PLAYER,           // Check if needs to explode.
 
     // The Swarm
 
@@ -153,39 +155,26 @@ enum Events
 
     // - Zar'thik Battle-Mender
     EVENT_MENDING,
-    EVENT_QUICKENING
+    EVENT_QUICKENING,
+
+    // - Whirling Blade
+    EVENT_WB_BACK,
 };
 
 enum Adds
 {
     NPC_KORTHIK_ELITE_BLADEMASTER = 62402,
     NPC_SRATHIK_AMBER_TRAPPER     = 62405,
-    NPC_ZARTHIK_BATTLE_MENDER     = 62408
+    NPC_ZARTHIK_BATTLE_MENDER     = 62408,
+    NPC_WHIRLING_BLADE            = 63930,
 };
 
-#define TYPE_WHIRLING_BLADE 1
- /*
-// Mel'jarak add spawn points.
-Position const AddSummonPositions[9] =
+enum Types
 {
-    { -2064.49f, 470.35f, 503.569f, 2.18f },
-    { -2076.037, 457.40f, 503.569f, 2.18f },
-    { 4749.9819f, 79.0285f, 96.380f, 6.03f }, // 3 NPC_KORTHIK_ELITE_BLADEMASTER.
-    { 4768.8496f, 30.3054f, 89.410f, 1.53f },
-    { 4786.0669f, 38.0198f, 94.897f, 1.99f },
-    { 4749.9819f, 79.0285f, 96.380f, 6.03f }, // 3 NPC_SRATHIK_AMBER_TRAPPER.
-    { 4768.8496f, 30.3054f, 89.410f, 1.53f },
-    { 4786.0669f, 38.0198f, 94.897f, 1.99f },
-    { 4749.9819f, 79.0285f, 96.380f, 6.03f }, // 3 NPC_ZARTHIK_BATTLE_MENDER.
+    TYPE_WHIRLING_BLADE = 1,
+    TYPE_WB_DEAL_DMG    = 2,
 };
 
-// Mel'jarak reinforcements spawn points.
-Position const ReinforcementsSummonPositions[3] =
-{
-    { 4768.8496f, 30.3054f, 89.410f, 1.53f },
-    { 4786.0669f, 38.0198f, 94.897f, 1.99f },
-    { 4749.9819f, 79.0285f, 96.380f, 6.03f },
-};*/
 
 // Starting Positions for Kor'thik Elite Blademaster (62402)
 Position PosKorthikEliteMaster[3] =
@@ -234,6 +223,10 @@ public:
             events.Reset();
             summons.DespawnAll();
             me->RemoveAllDynObjects();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
+
+            if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
+                DoCast(me, SPELL_BROWN_MANTID_WINGS);
 
             windBombScheduled = false;
             reinforcementsSummoned = false;
@@ -261,7 +254,7 @@ public:
             events.ScheduleEvent(EVENT_CHECK_ADD_CC_DEATH, 1000);
 
             // Normal events.
-            events.ScheduleEvent(EVENT_WHIRLING_BLADE, 1000/*36000*/);
+            events.ScheduleEvent(EVENT_WHIRLING_BLADE, 36000);
             events.ScheduleEvent(EVENT_RAIN_OF_BLADES, 60000);
             events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
 
@@ -365,7 +358,6 @@ public:
                 switch (eventId)
                 {
                     // Special Adds Check event.
-
                     case EVENT_CHECK_ADD_CC_DEATH:
                     {
                         // Normal mode.
@@ -402,7 +394,8 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_N);
 
-                                    //events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    if (IsHeroic())
+                                        events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
                                     reinforcementsSummoned = true;
                                 }
                             }
@@ -425,7 +418,8 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_N);
 
-                                    //events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    if (IsHeroic())
+                                        events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
                                     reinforcementsSummoned = true;
                                 }
                             }
@@ -437,12 +431,14 @@ public:
                                     Talk(SAY_ADD_GROUP_DIES);
                                     DoCast(me, SPELL_RECKLESNESS_N);
 
-                                    //events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 50000);
+                                    if (IsHeroic())
+                                        events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
                                     reinforcementsSummoned = true;
                                 }
                             }
                         }
-                        else // Heroic mode.
+                        // Heroic mode
+                        else
                         {
                             if (GetSpearImpaledAdds() > 3)
                                 RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 3);
@@ -482,35 +478,26 @@ public:
                         Talk(ANN_WHIRLING_BLADES);
 				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                         {
-                            whirlingTarget = target->GetGUID();
-                            me->CastSpell(target, SPELL_WHIRLING_BLADE, true);
-                            me->CastSpell(target, 121897, false);
-                            me->CastSpell(target, 122083, false);
+                            target->CastSpell(target, SPELL_WB_SUMMON, false);
+                            me->CastSpell(me, SPELL_WHIRLING_BLADE, true);
                         }
-                        events.ScheduleEvent(EVENT_WHIRLING_BLADE_REM, 1000);
-                        events.ScheduleEvent(EVENT_WHIRLING_BLADE, 10000/*urand(48000, 64000)*/);
+                        events.ScheduleEvent(EVENT_WHIRLING_BLADE, urand(48000, 64000));
 						break;
-                    }
-                    case EVENT_WHIRLING_BLADE_REM:
-                    {
-                        if (me->HasAura(SPELL_WHIRLING_BLADE))
-                            me->RemoveAura(SPELL_WHIRLING_BLADE);
-                        break;
                     }
                     case EVENT_RAIN_OF_BLADES:
                     {
                         Talk(SAY_RAIN_OF_BLADES);
                         Talk(ANN_RAIN_OF_BLADES);
-				        DoCast(me, SPELL_RAIN_OF_BLADES);
+                        DoCast(me, SPELL_RAIN_OF_BLADES);
                         events.ScheduleEvent(EVENT_RAIN_OF_BLADES, urand(48000, 64000));
 						break;
                     }
                     case EVENT_WIND_BOMB:
                     {
-				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
-				            DoCast(target, SPELL_WIND_BOMB);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 150.0f, true))
+                            DoCast(target, SPELL_WIND_BOMB);
                         events.ScheduleEvent(EVENT_WIND_BOMB, urand(18000, 24000));
-						break;
+                        break;
                     }
 					case EVENT_BERSERK_MELJARAK:
                     {
@@ -739,34 +726,26 @@ class npc_wind_bomb_meljarak : public CreatureScript
                 DoCast(me, SPELL_WIND_BOMB_THR_DMG);
 
                 events.ScheduleEvent(EVENT_ARM, 3000);
-                events.ScheduleEvent(EVENT_CHECK_PLAYER, 4000);
             }
 
             void UpdateAI(uint32 const diff)
             {
                 events.Update(diff);
 
+                if (Player* player = me->FindNearestPlayer(6.0f, true))
+                    DoCast(me, SPELL_WIND_BOMB_EXPLODE);
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_ARM:
+                        {
                             DoCast(me, SPELL_WIND_BOMB_ARM);
                             break;
-
-                        case EVENT_CHECK_PLAYER:
-                            if (Player* player = me->FindNearestPlayer(6.0f, true))
-                            {
-                                if (player->IsWithinDistInMap(me, 6.0f))
-                                    DoCast(me, SPELL_WIND_BOMB_EXPLODE);
-                                else
-                                    events.ScheduleEvent(EVENT_CHECK_PLAYER, 500);
-                            }
-                            else
-                                events.ScheduleEvent(EVENT_CHECK_PLAYER, 500);
+                        }
+                        default:
                             break;
-
-                        default: break;
                     }
                 }
             }
@@ -802,9 +781,15 @@ public:
     {
         npc_korthik_elite_blademasterAI(Creature* creature) : ScriptedAI(creature) { }
 
+        void Reset()
+        {
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
+            if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
+                DoCast(me, SPELL_BROWN_MANTID_WINGS);
+        }
+
         void JustDied(Unit* killer)
         {
-            events.Reset();
             // Killing the other adds of the same group
             std::list<Creature*> mobList;
             GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
@@ -863,6 +848,10 @@ public:
         void Reset()
         {
             events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_9);
+            if (!me->HasAura(SPELL_RED_MANTID_WINGS))
+                DoCast(SPELL_RED_MANTID_WINGS);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -990,6 +979,13 @@ public:
                 damage = 0;
         }
 
+        void JustDied(Unit* killer)
+        {
+            if (target)
+                target->RemoveAurasDueToSpell(SPELL_AMBER_PRISON_AURA);
+            me->CastSpell(killer, SPELL_RESIDUE, false);
+        }
+
         void UpdateAI(uint32 const diff)
         {
             if (timerChecktarget <= diff)
@@ -1000,12 +996,6 @@ public:
 
                 timerChecktarget = 500;
             } else timerChecktarget -= diff;
-        }
-
-        void JustDied(Unit* killer)
-        {
-            if (target) target->RemoveAurasDueToSpell(SPELL_AMBER_PRISON_AURA);
-            me->CastSpell(killer, SPELL_RESIDUE, false);
         }
     };
 
@@ -1036,6 +1026,9 @@ public:
         void Reset()
         {
             events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
+            if (!me->HasAura(SPELL_BLUE_MANTID_WINGS))
+                DoCast(me, SPELL_BLUE_MANTID_WINGS);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1088,27 +1081,17 @@ public:
                 {
                     case EVENT_MENDING:
                     {
-                        uint32 result = urand(1, 3);
-                        switch(result)
-                        {
-                            case 1:
-                                if (Unit* ally = me->FindNearestCreature(NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f, true))
-                                    DoCast(ally, SPELL_MENDING);
-                                break;
+                        uint32 result = urand(0, 2);
+                        uint32 addEntries[3] = {NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER};
 
-                            case 2:
-                                if (Unit* ally = me->FindNearestCreature(NPC_SRATHIK_AMBER_TRAPPER, 150.0f, true))
-                                    DoCast(ally, SPELL_MENDING);
-                                break;
+                        // Mending is cast on one add, but he shares his life with the whole group, all adds of the group are healed
+                        std::list<Creature*> addList;
+                        GetCreatureListWithEntryInGrid(addList, me, addEntries[result], 150.0f);
 
-                            case 3:
-                                DoCast(me, SPELL_MENDING);
-                                break;
+                        for (Creature* add : addList)
+                            me->CastSpell(add, SPELL_MENDING, true);
 
-                            default: break;
-                        }
-                        events.ScheduleEvent(EVENT_MENDING, urand(37000, 62000));
-                        break;
+                        events.ScheduleEvent(EVENT_MENDING, urand(30000, 40000));
                     }
                     case EVENT_QUICKENING:
                     {
@@ -1128,6 +1111,73 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_zarthik_battle_menderAI(creature);
+    }
+};
+
+// 63930 - Whirling Blade
+class npc_whirling_blade : public CreatureScript
+{
+public:
+    npc_whirling_blade(): CreatureScript("npc_whirling_blade") { }
+
+    struct npc_whirling_bladeAI : public ScriptedAI
+    {
+        npc_whirling_bladeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+        EventMap events;
+        uint32 dealDamages;
+
+        void Reset()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_WB_BACK, 3000);
+
+            if (Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+            {
+                Meljarak->CastSpell(me, SPELL_WB_SWORD, false);
+                Meljarak->CastSpell(me, SPELL_WB_LIGHT, false);
+                dealDamages = 1;
+            }
+            else
+                me->DespawnOrUnsummon();
+        }
+
+        void SetData(uint32 type, uint32 value)
+        {
+            if (type == TYPE_WB_DEAL_DMG)
+                dealDamages = value;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == TYPE_WB_DEAL_DMG)
+                return dealDamages;
+            return 0;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_WB_BACK)
+            {
+                if (Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                {
+                    me->CastSpell(Meljarak, SPELL_WB_SWORD, false);
+                    me->CastSpell(Meljarak, SPELL_WB_LIGHT, false);
+                    dealDamages = 1;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_whirling_bladeAI(creature);
     }
 };
 
@@ -1237,7 +1287,7 @@ public:
     }
 };
 
-// 121897 - Wirling Blade - Flying Sword
+// 121897 - Whirling Blade - Flying Sword
 class spell_whirling_blade_sword : public SpellScriptLoader
 {
 public:
@@ -1251,29 +1301,25 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                // Cast by Mel'jarak : target will cast it back
-                if (caster->GetEntry() == NPC_MELJARAK)
+                // In any case : Meljarak' sword not in flight, so stop damaging
+                if (Creature* whirlingBlade = GetClosestCreatureWithEntry(caster, NPC_WHIRLING_BLADE, 100.0f))
+                    whirlingBlade->AI()->SetData(TYPE_WB_DEAL_DMG, 0);
+
+                // Cast by NPC Whirling Blade: remove aura to give Mel'jarak back his weapon and stop damages on players
+                if (caster->GetEntry() == NPC_WHIRLING_BLADE)
                 {
-                    uint32 lowTarget = caster->GetAI()->GetData(TYPE_WHIRLING_BLADE);
-                    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(lowTarget, 0, HIGHGUID_PLAYER)))
+                    if (Creature* Meljarak = GetClosestCreatureWithEntry(caster, NPC_MELJARAK, 150.0f, true))
                     {
-                        player->CastSpell(caster, 121897, false);
-                        player->CastSpell(caster, 122083, false);
-                        // Reset target
-                        caster->GetAI()->SetData(TYPE_WHIRLING_BLADE, 0);
+                        if (Meljarak->HasAura(SPELL_WHIRLING_BLADE))
+                            Meljarak->RemoveAura(SPELL_WHIRLING_BLADE);
                     }
                 }
-                // Cast by player : remove aura to give Mel'jarak back his weapon and stop damages on players
-                else
-                    if (caster->HasAura(SPELL_WHIRLING_BLADE))
-                        caster->RemoveAura(SPELL_WHIRLING_BLADE);
             }
         }
 
         void Register()
         {
             OnEffectHit += SpellEffectFn(spell_whirling_blade_sword_SpellScript::BackToMeljarak, EFFECT_0, SPELL_EFFECT_DUMMY);
-            //AfterHit += SpellHitFn(spell_whirling_blade_sword_SpellScript::BackToMeljarak);
         }
     };
 
@@ -1296,23 +1342,29 @@ public:
         void SelectTargets(std::list<WorldObject*> &targets)
         {
             targets.clear();
-            Unit* caster   = GetCaster();
-            Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(caster->GetAI()->GetData(TYPE_WHIRLING_BLADE), 0, HIGHGUID_PLAYER));
 
-            if (!caster || !target)
-                return;
+            if (Unit* caster = GetCaster())
+            {
+                if (Creature* target = GetClosestCreatureWithEntry(caster, NPC_WHIRLING_BLADE, 100.0f))
+                {
+                    if (target->AI()->GetData(TYPE_WB_DEAL_DMG))
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, caster, 30.0f);
 
-            std::list<Player*> playerList;
-            GetPlayerListInGrid(playerList, caster, 30.0f);
-
-            for (auto player : playerList)
-                if (player->IsInBetween(caster, target, 3.0f))
-                    targets.push_back(player);
+                        for (auto player : playerList)
+                            if (player->IsInBetween(caster, target, 3.0f))
+                                targets.push_back(player);
+                    }
+                }
+                else
+                    caster->RemoveAura(SPELL_WHIRLING_BLADE);
+            }
         }
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_whirling_blade_damages_SpellScript::SelectTargets, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_whirling_blade_damages_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         }
     };
 
@@ -1321,7 +1373,6 @@ public:
         return new spell_whirling_blade_damages_SpellScript();
     }
 };
-
 
 void AddSC_boss_meljarak()
 {
@@ -1332,9 +1383,9 @@ void AddSC_boss_meljarak()
     new npc_corrosive_resin_pool();         // 67046
     new npc_amber_prison_meljarak();        // 62531
     new npc_zarthik_battle_mender();        // 62408
+    new npc_whirling_blade();               // 63930
     new spell_meljarak_corrosive_resin();   // 122064
     new spell_mending();                    // 122147
-    // new spell_whirling_blade();             // 121896
     new spell_whirling_blade_sword();       // 121897
     new spell_whirling_blade_damages();     // 121898
 }
