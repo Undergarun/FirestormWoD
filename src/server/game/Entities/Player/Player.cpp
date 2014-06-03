@@ -22859,7 +22859,7 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
 
     if (pet->isControlled() && !stampeded)
     {
-        WorldPacket data(SMSG_PET_SPELLS);
+        WorldPacket data(SMSG_PET_SPELLS_MESSAGE);
         data.WriteBit(0);
         data.WriteBit(0);
         data.WriteBit(0);
@@ -23139,7 +23139,7 @@ void Player::PetSpellInitialize()
             if (itr->second.state != PETSPELL_REMOVED)
                 ++addlist;
 
-    WorldPacket data(SMSG_PET_SPELLS);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[4]);
@@ -23243,7 +23243,7 @@ void Player::PossessSpellInitialize()
 
     ObjectGuid guid = charm->GetGUID();
 
-    WorldPacket data(SMSG_PET_SPELLS);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[4]);
@@ -23289,7 +23289,7 @@ void Player::VehicleSpellInitialize()
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
     ObjectGuid guid = vehicle->GetGUID();
 
-    WorldPacket data(SMSG_PET_SPELLS);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[4]);
@@ -23425,7 +23425,7 @@ void Player::CharmSpellInitialize()
 
     ObjectGuid guid = charm->GetGUID();
 
-    WorldPacket data(SMSG_PET_SPELLS);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE);
     data.WriteBit(guid[1]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[4]);
@@ -23484,7 +23484,7 @@ void Player::CharmSpellInitialize()
 
 void Player::SendRemoveControlBar()
 {
-    WorldPacket data(SMSG_PET_SPELLS);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE);
     data.WriteBit(0);
     data.WriteBit(0);
     data.WriteBit(0);
@@ -24980,7 +24980,7 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
 
 void Player::SendCategoryCooldown(uint32 categoryId, int32 cooldown)
 {
-    WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 12);
+    WorldPacket data(SMSG_CATEGORY_COOLDOWN, 12);
     data.WriteBits(1, 21);
     data << uint32(categoryId);
     data << uint32(cooldown);

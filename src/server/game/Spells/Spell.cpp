@@ -5621,7 +5621,7 @@ void Spell::SendLogExecute()
         return;
 
     ObjectGuid guid = m_caster->GetGUID();
-    WorldPacket data(SMSG_SPELLLOGEXECUTE, (8+4+4+4+4+8));
+    WorldPacket data(SMSG_SPELL_EXECUTE_LOG, (8+4+4+4+4+8));
 
     data.WriteBit(guid[6]);
     data.WriteBit(guid[5]);
