@@ -960,7 +960,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     }
 
     ByteBuffer buff;
-    WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE);
+    WorldPacket data(SMSG_QUEST_GIVER_STATUS_MULTIPLE);
     data.WriteBits(count, 21);
 
     uint8 bitOrder[8] = {6, 3, 4, 2, 5, 1, 7, 0};
@@ -1031,12 +1031,14 @@ void WorldSession::HandleQueryQuestsCompleted(WorldPacket& /*recvData*/)
 {
     size_t rew_count = _player->GetRewardedQuestCount();
 
-    WorldPacket data(SMSG_QUERY_QUESTS_COMPLETED_RESPONSE, 4 + 4 * rew_count);
-    data << uint32(rew_count);
 
     const RewardedQuestSet &rewQuests = _player->getRewardedQuests();
     for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
+    {
+        WorldPacket data(SMSG_IS_QUEST_COMPLETE_RESPONSE, 4 + 4 * rew_count);
         data << uint32(*itr);
+        data.WriteBit(1);
+        SendPacket(&data);
+    }
 
-    SendPacket(&data);
 }

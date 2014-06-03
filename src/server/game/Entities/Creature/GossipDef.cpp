@@ -349,7 +349,7 @@ void QuestMenu::ClearMenu()
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, uint64 npcGUID)
 {
     ObjectGuid guid = npcGUID;
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_LIST, 100);    // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100);    // guess size
     data.WriteBits(Title.size(), 11);
     data.WriteBit(guid[2]);
     data.WriteBit(guid[7]);
@@ -447,7 +447,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, uint64 npcGUID) const
 {
     ObjectGuid guid = npcGUID;
-    WorldPacket data(SMSG_QUESTGIVER_STATUS);
+    WorldPacket data(SMSG_QUEST_GIVER_STATUS);
     uint8 bitOrder[8] = {6, 5, 0, 1, 2, 4, 3, 7};
     data.WriteBitInOrder(guid, bitOrder);
     data.WriteByteSeq(guid[3]);
@@ -494,7 +494,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     ObjectGuid guid2 = npcGUID;
     bool hiddenRewardItem = quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
 
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS);
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_DETAILS);
 
     data << uint32(quest->GetRewardReputationMask());
     data << uint32(quest->GetRewardSkillPoints());
@@ -788,7 +788,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     uint8 count = 0;
     bool hiddenItemReward = quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD) || quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
 
-    WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 100);       // guess size
+    WorldPacket data(SMSG_QUERY_QUEST_INFO_RESPONSE, 100);       // guess size
     data.WriteBit(1);                                       // has data
     data.WriteBits(questDetails.size(), 12);
 
@@ -1219,7 +1219,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         }
     }
 
-    WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 50);     // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 50);     // guess size
     
     if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[2]))
         data << uint32(itemTemplate->DisplayInfoID);
@@ -1475,7 +1475,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     }
 
     ObjectGuid guid = npcGUID;
-    WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_REQUEST_ITEMS, 50);    // guess size
     data << uint32(0);
     data << uint32(0);
     data << uint32(quest->GetFlags());

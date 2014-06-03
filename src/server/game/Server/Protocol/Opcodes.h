@@ -182,6 +182,42 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Quest
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamQuest
+        /// Quest log
+        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x0000,
+        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0000,
+        SMSG_QUEST_UPDATE_FAILED                    = 0x0000,
+        SMSG_QUEST_UPDATE_COMPLETE                  = 0x0000,
+        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x0000,
+        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x0000,
+        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x0000,
+        SMSG_QUEST_PUSH_RESULT                      = 0x0000,
+        SMSG_QUEST_POIQUERY_RESPONSE                = 0x0000,
+        SMSG_QUEST_LOG_FULL                         = 0x0000,
+        SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000,
+        SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000,
+        SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000,
+        SMSG_DAILY_QUESTS_RESET                     = 0x0000,
+        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0000,
+        SMSG_QUEST_FORCE_REMOVED                    = 0x0000,
+        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000,
+        SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0000,
+
+        /// Quest giver
+        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x0000,
+        SMSG_QUEST_GIVER_STATUS                     = 0x0000,
+        SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x0000,
+        SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x0000,
+        SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0000,
+
+        /// Gossip
+        SMSG_GOSSIP_MESSAGE                         = 0x0000,
+        SMSG_GOSSIP_COMPLETE                        = 0x0000,
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Lfg
@@ -1103,8 +1139,6 @@ enum Opcodes
     SMSG_GM_TICKET_STATUS_UPDATE                      = 0x0000,
     SMSG_GM_UNSQUELCH                                 = 0x0000,
     SMSG_GOD_MODE                                     = 0x0000,
-    SMSG_GOSSIP_COMPLETE                              = 0x0000,
-    SMSG_GOSSIP_MESSAGE                               = 0x0000,
     SMSG_GOSSIP_POI                                   = 0x0000,
     SMSG_GROUP_ACTION_THROTTLED                       = 0x0000,
     SMSG_GROUP_CANCEL                                 = 0x0000,
@@ -1361,30 +1395,11 @@ enum Opcodes
     SMSG_PVP_CREDIT                                   = 0x0000,
     SMSG_PVP_LOG_DATA                                 = 0x0000,
     SMSG_PVP_OPTIONS_ENABLED                          = 0x0000,
-    SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0x0000,
     SMSG_QUERY_OBJECT_POSITION                        = 0x0000,
     SMSG_QUERY_OBJECT_ROTATION                        = 0x0000,
     SMSG_QUERY_TIME_RESPONSE                          = 0x0000,
     SMSG_QUERY_BATTLEPET_NAME_RESPONSE                = 0x0000,
     SMSG_QUERY_NPC_TEXT_RESPONSE                      = 0x0000,
-    SMSG_QUEST_PUSH_RESULT                            = 0x0000,
-    SMSG_QUESTGIVER_OFFER_REWARD                      = 0x0000,
-    SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x0000,
-    SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x0000,
-    SMSG_QUESTGIVER_QUEST_FAILED                      = 0x0000,
-    SMSG_QUESTGIVER_QUEST_INVALID                     = 0x0000,
-    SMSG_QUESTGIVER_QUEST_LIST                        = 0x0000,
-    SMSG_QUESTGIVER_REQUEST_ITEMS                     = 0x0000,
-    SMSG_QUESTGIVER_STATUS                            = 0x0000,
-    SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x0000,
-    SMSG_QUESTLOG_FULL                                = 0x0000,
-    SMSG_QUESTUPDATE_ADD_KILL                         = 0x0000,
-    SMSG_QUESTUPDATE_ADD_PVP_KILL                     = 0x0000,
-    SMSG_QUESTUPDATE_COMPLETE                         = 0x0000,
-    SMSG_QUESTUPDATE_FAILEDTIMER                      = 0x0000,
-    SMSG_QUEST_CONFIRM_ACCEPT                         = 0x0000,
-    SMSG_QUEST_POI_QUERY_RESPONSE                     = 0x0000,
-    SMSG_QUEST_QUERY_RESPONSE                         = 0x0000,
     SMSG_RAID_GROUP_ONLY                              = 0x0000,
     SMSG_RAID_INSTANCE_INFO                           = 0x0000,
     SMSG_RAID_MARKERS_CHANGED                         = 0x0000,

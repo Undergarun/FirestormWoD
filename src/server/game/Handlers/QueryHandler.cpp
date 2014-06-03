@@ -770,7 +770,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
         questList.push_back(recvData.read<uint32>());
 
 
-    WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4+(4+4)*count);
+    WorldPacket data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*count);
     data << uint32(count); // count
     data.WriteBits(count, 20);
 
