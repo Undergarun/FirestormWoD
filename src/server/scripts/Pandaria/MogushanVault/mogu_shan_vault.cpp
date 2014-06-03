@@ -738,6 +738,7 @@ class npc_lorewalker_cho : public CreatureScript
             bool hasSaidZandalariDeath;
             bool hasSaidSecretsKeeperCombat;
             bool hasSaidKeeperDied;
+            bool eventInProgress;
             InstanceScript* pInstance;
             EventMap events;
 
@@ -754,6 +755,7 @@ class npc_lorewalker_cho : public CreatureScript
                 hasSaidZandalariDeath = false;
                 hasSaidSecretsKeeperCombat = false;
                 hasSaidKeeperDied = false;
+                eventInProgress = false;
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -887,6 +889,7 @@ class npc_lorewalker_cho : public CreatureScript
 
                             if (mobMeng)
                             {
+                                eventInProgress = true;
                                 uint32 moguList[4] = {NPC_SORCERER_MOGU, NPC_MOUNTED_MOGU, NPC_MOGU_ARCHER, NPC_KINGSGUARD};
 
                                 for (uint8 i = 0; i < 4; ++i)
@@ -1137,6 +1140,30 @@ class npc_lorewalker_cho : public CreatureScript
                         hasSaidStoneguardDeath = true;
                         break;
                     }
+                    case ACTION_EVENT_WIPE:
+                    {
+                        uint32 eventMobs[4] = {NPC_SORCERER_MOGU, NPC_MOUNTED_MOGU, NPC_MOGU_ARCHER, NPC_KINGSGUARD};
+                        uint32 eventKing[4] = {MOB_ZIAN,          MOB_QIANG,        MOB_SUBETAI,     MOB_MENG};
+
+                        for (uint8 i = 0; i < 4; ++i)
+                        {
+                            std::list<Creature*> mobList;
+                            GetCreatureListWithEntryInGrid(mobList, me, eventMobs[i], 200.0f);
+
+                            Creature* king = GetClosestCreatureWithEntry(me, eventKing[i], 200.0f);
+                            if (!king)
+                                king = GetClosestCreatureWithEntry(me, eventKing[i], 200.0f, false);
+
+                            if (king)
+                                king->Respawn(true);
+
+                            for (Creature* mob : mobList)
+                                mob->Respawn(true);
+
+                            me->Respawn(true);
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1145,6 +1172,17 @@ class npc_lorewalker_cho : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 npc_escortAI::UpdateAI(diff);
+
+                // Wipe on event: reset all trashs of the events
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe() && eventInProgress)
+                    {
+                        eventInProgress = false;
+                        DoAction(ACTION_EVENT_WIPE);
+                        return;
+                    }
+                }
 
                 events.Update(diff);
 
@@ -1246,9 +1284,9 @@ class mob_zian : public CreatureScript
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+                SetEquipmentSlots(false, 0, 0, 0);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_ZIAN_CHARGED_SHADOWS, urand(5000, 15000));
             }
 
             void DoAction(const int32 action)
@@ -1268,6 +1306,7 @@ class mob_zian : public CreatureScript
                     case ACTION_START_FIRST_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        events.ScheduleEvent(EVENT_ZIAN_CHARGED_SHADOWS, urand(5000, 15000));
                         break;
                     case ACTION_END_FIRST_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1330,7 +1369,6 @@ class mob_sorcerer_mogu : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_SORCERER_SHADOW_BLAST, 5000);
             }
 
             void DoAction(const int32 action)
@@ -1350,6 +1388,7 @@ class mob_sorcerer_mogu : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        events.ScheduleEvent(EVENT_SORCERER_SHADOW_BLAST, 5000);
                         break;
                     case ACTION_END_FIRST_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1406,9 +1445,9 @@ class mob_qiang : public CreatureScript
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+                SetEquipmentSlots(false, 0, 0, 0);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_QIANG_ANNIHILATE, urand(5000, 15000));
             }
 
             void DoAction(const int32 action)
@@ -1428,6 +1467,7 @@ class mob_qiang : public CreatureScript
                     case ACTION_START_SECOND_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        events.ScheduleEvent(EVENT_QIANG_ANNIHILATE, urand(5000, 15000));
                         break;
                     case ACTION_END_SECOND_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1521,9 +1561,10 @@ class mob_mounted_mogu : public CreatureScript
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+                SetEquipmentSlots(false, 0, 0, 0);
+                me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 11686);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_MOUNTED_MOGU_CRUSHING_ATTACKS, urand(5000, 12000));
             }
 
             void DoAction(const int32 action)
@@ -1545,6 +1586,7 @@ class mob_mounted_mogu : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        events.ScheduleEvent(EVENT_MOUNTED_MOGU_CRUSHING_ATTACKS, urand(5000, 12000));
                         break;
                     case ACTION_END_SECOND_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1607,9 +1649,9 @@ class mob_subetai : public CreatureScript
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+                SetEquipmentSlots(false, 0, 0, 0);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_SUBETAI_VOLLEY, urand(5000, 15000));
             }
 
             void DoAction(const int32 action)
@@ -1629,6 +1671,7 @@ class mob_subetai : public CreatureScript
                     case ACTION_START_THIRD_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        events.ScheduleEvent(EVENT_SUBETAI_VOLLEY, urand(5000, 15000));
                         break;
                     case ACTION_END_THIRD_COMBAT:
                         me->DespawnOrUnsummon();
@@ -1724,7 +1767,6 @@ class mob_mogu_archer : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_MOGU_ARCHER_SHOOT, urand(5000, 12000));
             }
 
             void DoAction(const int32 action)
@@ -1744,6 +1786,7 @@ class mob_mogu_archer : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        events.ScheduleEvent(EVENT_MOGU_ARCHER_SHOOT, urand(5000, 12000));
                         break;
                     case ACTION_END_THIRD_COMBAT:
                         me->DespawnOrUnsummon();

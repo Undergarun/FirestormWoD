@@ -97,6 +97,7 @@ enum eActions
 
     ACTION_CHECK_SPIRITKINGS                = 41,
     ACTION_STOP_PETRIFY                     = 42,
+    ACTION_EVENT_WIPE                       = 43,
 };
 
 enum eCreatures
