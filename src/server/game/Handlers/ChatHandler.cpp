@@ -923,11 +923,14 @@ void WorldSession::SendPlayerNotFoundNotice(std::string name)
     SendPacket(&data);
 }
 
-void WorldSession::SendPlayerAmbiguousNotice(std::string name)
+void WorldSession::SendPlayerAmbiguousNotice(std::string p_Name)
 {
-    WorldPacket data(SMSG_CHAT_PLAYER_AMBIGUOUS, name.size()+1);
-    data << name;
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_CHAT_PLAYER_AMBIGUOUS, p_Name.size() + 2);
+    l_Data.WriteBits(p_Name.length(), 9);
+    l_Data.FlushBits();
+    l_Data.WriteString(p_Name);
+
+    SendPacket(&l_Data);
 }
 
 void WorldSession::SendWrongFactionNotice()

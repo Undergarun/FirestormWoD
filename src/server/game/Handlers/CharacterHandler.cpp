@@ -984,15 +984,19 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
-    pCurrChar->SendTokenResponse();
 
-    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << pCurrChar->GetPositionZ();
-    data << pCurrChar->GetMapId();
-    data << pCurrChar->GetPositionY();
-    data << pCurrChar->GetPositionX();
-    data << pCurrChar->GetOrientation();
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_RESUME_TOKEN, 5);
+    l_Data << uint32(0);
+    l_Data << uint8(0x80);
+    SendPacket(&l_Data);
+
+    l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
+    l_Data << pCurrChar->GetPositionZ();
+    l_Data << pCurrChar->GetMapId();
+    l_Data << pCurrChar->GetPositionY();
+    l_Data << pCurrChar->GetPositionX();
+    l_Data << pCurrChar->GetOrientation();
+    SendPacket(&l_Data);
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
@@ -1004,78 +1008,84 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     bool ingameStoreFeature = true;
     bool itemRestorationFeature = false;
 
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
+    l_Data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
 
-    data << uint32(1);                  // SoR remaining ?
-    data << uint32(realmID);
-    data << uint8(2);                   // Complain System Status ?
-    data << uint32(43);                 // Unk
-    data << uint32(1);                  // SoR per day ?
+    l_Data << uint32(1);                  // SoR remaining ?
+    l_Data << uint32(realmID);
+    l_Data << uint8(2);                   // Complain System Status ?
+    l_Data << uint32(43);                 // Unk
+    l_Data << uint32(1);                  // SoR per day ?
     
-    data.WriteBit(0);                   // Unk
-    data.WriteBit(1);                   // Is Voice Chat allowed ?
-    data.WriteBit(ingameStoreFeature);
-    data.WriteBit(sessionTimeAlert);
-    data.WriteBit(1);                   // Europa Ticket System Enabled ?
-    data.WriteBit(travelPass);          // Has Travel Pass
-    data.WriteBit(1);                   // Unk
-    data.WriteBit(itemRestorationFeature);
-    data.WriteBit(webTicketFeature);
+    l_Data.WriteBit(0);                   // Unk
+    l_Data.WriteBit(1);                   // Is Voice Chat allowed ?
+    l_Data.WriteBit(ingameStoreFeature);
+    l_Data.WriteBit(sessionTimeAlert);
+    l_Data.WriteBit(1);                   // Europa Ticket System Enabled ?
+    l_Data.WriteBit(travelPass);          // Has Travel Pass
+    l_Data.WriteBit(1);                   // Unk
+    l_Data.WriteBit(itemRestorationFeature);
+    l_Data.WriteBit(webTicketFeature);
 
     if (sessionTimeAlert)
     {
-        data << uint32(0);              // Session Alert Period
-        data << uint32(0);              // Session Alert DisplayTime
-        data << uint32(0);              // Session Alert Delay
+        l_Data << uint32(0);              // Session Alert Period
+        l_Data << uint32(0);              // Session Alert DisplayTime
+        l_Data << uint32(0);              // Session Alert Delay
     }
 
     if (travelPass)
     {
-        data << uint32(60000);          // Unk
-        data << uint32(10);             // Unk
-        data << uint32(114194674);      // Unk
-        data << uint32(1);              // Unk
+        l_Data << uint32(60000);          // Unk
+        l_Data << uint32(10);             // Unk
+        l_Data << uint32(114194674);      // Unk
+        l_Data << uint32(1);              // Unk
     }
    
-    SendPacket(&data);
+    SendPacket(&l_Data);
 
     uint32 time2 = getMSTime() - time1;
 
     // Send MOTD
     {
-        data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
+        std::string l_MotdStr = sWorld->GetMotd();
+        std::string::size_type l_Position, l_NextPosition;
 
-        ByteBuffer byteBuffer;
+        l_Data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
 
-        data.WriteBits(sWorld->GetMotdLineCount(), 4);
+        uint32 l_LineCount = 0;
+        std::string l_MotdStr = sWorld->GetMotd();
+        std::string::size_type l_Position, l_NextPosition;
+        std::vector<std::string> l_Lines;
 
-        std::string str_motd = sWorld->GetMotd();
-        std::string::size_type pos, nextpos;
-
-        pos = 0;
-        while ((nextpos = str_motd.find('@', pos)) != std::string::npos)
+        l_Position = 0;
+        while ((l_NextPosition = l_MotdStr.find('@', l_Position)) != std::string::npos)
         {
-            if (nextpos != pos)
+            if (l_NextPosition != l_Position)
             {
-                byteBuffer.WriteString(str_motd.substr(pos, nextpos - pos));
-                data.WriteBits(str_motd.substr(pos, nextpos-pos).size(), 7);
+                l_Lines.push_back(l_MotdStr.substr(l_Position, l_NextPosition - l_Position));
+                ++l_LineCount;
             }
-            pos = nextpos + 1;
+
+            l_Position = l_NextPosition + 1;
         }
 
-        if (pos < str_motd.length())
+        if (l_Position < l_MotdStr.length())
         {
-            byteBuffer.WriteString(str_motd.substr(pos));
-            data.WriteBits(str_motd.substr(pos).size(), 7);
+            l_Lines.push_back(l_MotdStr.substr(l_Position));
+            ++l_LineCount;
         }
 
-        if (!byteBuffer.empty())
+        l_Data.WriteBits(l_Lines.size(), 4);
+
+        for (size_t l_I = 0; l_I < l_Lines.size(); l_I++)
         {
-            data.FlushBits();
-            data.append(byteBuffer);
+            l_Data.WriteBits(l_Lines[l_I].length(), 7);
+            l_Data.FlushBits();
+            l_Data.WriteString(l_Lines[l_I]);
         }
 
-        SendPacket(&data);
+        SendPacket(&l_Data);
+
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_MOTD)");
 
         // send server info
@@ -1087,20 +1097,20 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     
     const static std::string timeZoneName = "Europe/Paris";
 
-    data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
-    data.WriteBits(timeZoneName.size(), 7);
-    data.WriteBits(timeZoneName.size(), 7);
-    data.FlushBits();
-    data.append(timeZoneName.c_str(), timeZoneName.size());
-    data.append(timeZoneName.c_str(), timeZoneName.size());
-    SendPacket(&data);
+    l_Data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
+    l_Data.WriteBits(timeZoneName.size(), 7);
+    l_Data.WriteBits(timeZoneName.size(), 7);
+    l_Data.FlushBits();
+    l_Data.append(timeZoneName.c_str(), timeZoneName.size());
+    l_Data.append(timeZoneName.c_str(), timeZoneName.size());
+    SendPacket(&l_Data);
 
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
     {
-        data.Initialize(SMSG_SET_ARENA_SEASON, 8);
-        data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1);
-        data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
-        SendPacket(&data);
+        l_Data.Initialize(SMSG_SET_ARENA_SEASON, 8);
+        l_Data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1);
+        l_Data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+        SendPacket(&l_Data);
     }
 
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
@@ -1119,21 +1129,21 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         pCurrChar->SetGuildLevel(0);
     }
 
-    data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    data << uint64(0);
-    SendPacket(&data);
+    l_Data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
+    l_Data << uint64(0);
+    SendPacket(&l_Data);
 
-    data.Initialize(SMSG_HOTFIX_INFO);
+    l_Data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 20);
-    data.FlushBits();
+    l_Data.WriteBits(hotfix.size(), 20);
+    l_Data.FlushBits();
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
-        data << uint32(hotfix[i].Entry);
-        data << uint32(hotfix[i].Timestamp);
-        data << uint32(hotfix[i].Type);
+        l_Data << uint32(hotfix[i].Entry);
+        l_Data << uint32(hotfix[i].Timestamp);
+        l_Data << uint32(hotfix[i].Type);
     }
-    SendPacket(&data);
+    SendPacket(&l_Data);
 
     uint32 time3 = getMSTime() - time2;
     

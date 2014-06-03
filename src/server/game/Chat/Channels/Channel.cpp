@@ -570,47 +570,51 @@ void Channel::SendWhoOwner(uint64 p)
     }
 }
 
-void Channel::List(Player* player)
+void Channel::List(Player * p_Player)
 {
-    uint64 p = player->GetGUID();
+    uint64 l_PlayerGuid = p_Player->GetGUID();
 
-    if (!IsOn(p))
+    if (!IsOn(l_PlayerGuid))
     {
         WorldPacket data;
         MakeNotMember(&data);
-        SendToOne(&data, p);
+        SendToOne(&data, l_PlayerGuid);
     }
     else
     {
-        WorldPacket data(SMSG_CHANNEL_LIST, 1+(GetName().size()+1)+1+4+players.size()*(8+1));
-        data << uint8(1);                                   // channel type?
-        data << GetName();                                  // channel name
-        data << uint8(GetFlags());                          // channel flags?
+        ByteBuffer l_Buffer;
+        uint32 l_MemberCount = 0;
+        uint32 l_GmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
-        size_t pos = data.wpos();
-        data << uint32(0);                                  // size of list, placeholder
-
-        uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
-
-        uint32 count  = 0;
-        for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        for (PlayerList::const_iterator l_I = players.begin(); l_I != players.end(); ++l_I)
         {
-            Player* member = ObjectAccessor::FindPlayer(i->first);
+            Player* l_Member = ObjectAccessor::FindPlayer(l_I->first);
 
-            // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
-            // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-            if (member && (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
-                member->IsVisibleGloballyFor(player))
+            /// PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
+            /// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
+            if (l_Member && (!AccountMgr::IsPlayerAccount(p_Player->GetSession()->GetSecurity()) || l_Member->GetSession()->GetSecurity() <= AccountTypes(l_GmLevelInWhoList)) &&
+                l_Member->IsVisibleGloballyFor(p_Player))
             {
-                data << uint64(i->first);
-                data << uint8(i->second.flags);             // flags seems to be changed...
-                ++count;
+                l_Buffer << uint64(l_I->first);                     ///< Member guid
+                l_Buffer << uint32(0);                              ///< virtualRealmAddress
+                l_Buffer << uint8(l_I->second.flags);               ///< Flags
+
+                ++l_MemberCount;
             }
         }
 
-        data.put<uint32>(pos, count);
+        WorldPacket l_Data(SMSG_CHANNEL_LIST, 1 + 1 + 4 + GetName().length() + (l_MemberCount * (8 + 4 + 1)));
+        l_Data.WriteBit(1);                                     ///< Display
+        l_Data.WriteBits(GetName().length(), 7);                ///< Channel name length
+        l_Data.FlushBits();
 
-        SendToOne(&data, p);
+        l_Data << uint8(GetFlags());                            ///< Channel flags
+        l_Data << uint32(l_MemberCount);                        ///< Member count
+        l_Data.WriteString(GetName());                          ///< Channel name
+
+        l_Data.append(l_Buffer);
+
+        SendToOne(&l_Data, l_PlayerGuid);
     }
 }
 
@@ -837,20 +841,30 @@ void Channel::MakeLeft(WorldPacket* data, uint64 guid)
 }
 
 // done 0x02
-void Channel::MakeYouJoined(WorldPacket* data)
+void Channel::MakeYouJoined(WorldPacket* p_Data)
 {
-    MakeNotifyPacket(data, CHAT_YOU_JOINED_NOTICE);
-    *data << uint8(GetFlags());
-    *data << uint32(GetChannelId());
-    *data << uint32(0);
+    std::string l_UnkString = "Channel::MakeYouJoined Unk string";
+
+    p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 1 + m_name.size() + 4);
+    p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
+    p_Data->WriteBits(l_UnkString, 10);         ///< Channel Name
+    p_Data->FlushBits();
+    *p_Data << uint8(GetFlags());               ///< Channel Flags
+    *p_Data << uint32(GetChannelId());          ///< Channel ID
+    *p_Data << uint32(0);                       ///< Unk
+    p_Data->WriteString(GetName());             ///< Channel Name
+    p_Data->WriteString(l_UnkString);           ///< Unk string
 }
 
 // done 0x03
-void Channel::MakeYouLeft(WorldPacket* data)
+void Channel::MakeYouLeft(WorldPacket* p_Data)
 {
-    MakeNotifyPacket(data, CHAT_YOU_LEFT_NOTICE);
-    *data << uint32(GetChannelId());
-    *data << uint8(IsConstant());
+    p_Data->Initialize(SMSG_CHANNEL_NOTIFY_LEFT, 1 + m_name.size() + 4);
+    p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
+    p_Data->WriteBit(0);                        ///< Is suspended
+    p_Data->FlushBits();
+    *p_Data << uint32(GetChannelId());          ///< Channel ID
+    p_Data->WriteString(GetName());             ///< Channel Name
 }
 
 // done 0x04

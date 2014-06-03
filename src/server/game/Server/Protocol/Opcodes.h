@@ -149,9 +149,9 @@ enum Opcodes
         /// Misc
         SMSG_SERVER_FIRST_ACHIEVEMENT               = 0x0000,
         SMSG_RAID_INSTANCE_MESSAGE                  = 0x0000,
-        SMSG_MOTD                                   = 0x0000,
+        SMSG_MOTD                                   = 0x1E5B,   ///< 6.0.1 18322 => 0xC7B979
         SMSG_EXPECTED_SPAM_RECORDS                  = 0x0000,
-        SMSG_DEFENSE_MESSAGE                        = 0x0000,
+        SMSG_DEFENSE_MESSAGE                        = 0x1C59,   ///< 6.0.1 18322 => 0xC7B154
         SMSG_ZONE_UNDER_ATTACK                      = 0x0000,
         SMSG_WHO                                    = 0x0000,
 
@@ -160,7 +160,7 @@ enum Opcodes
         SMSG_CHAT_RESTRICTED                        = 0x0000,
         SMSG_CHAT_RECONNECT                         = 0x0000,
         SMSG_CHAT_PLAYER_NOTFOUND                   = 0x0000,
-        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x0000,
+        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x1CFF,   ///< 6.0.1 18322 => 0xC7AEDE
         SMSG_CHAT_NOT_IN_PARTY                      = 0x0000,
         SMSG_CHAT_IS_DOWN                           = 0x0000,
         SMSG_CHAT_IGNORED_ACCOUNT_MUTED             = 0x0000,
@@ -169,10 +169,10 @@ enum Opcodes
         SMSG_CHAT                                   = 0x0000,
 
         /// Channel
-        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0000,
-        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x0000,
+        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x1C7B,   ///< 6.0.1 18322 => 0xC7AD77
+        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x1C7F,   ///< 6.0.1 18322 => 0xC7AEAF
         SMSG_CHANNEL_NOTIFY                         = 0x0000,
-        SMSG_CHANNEL_LIST                           = 0x0000,
+        SMSG_CHANNEL_LIST                           = 0x1D5A,   ///< 6.0.1 18322 => 0xC7B7FA
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
