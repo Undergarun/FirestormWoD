@@ -45,27 +45,36 @@ void UpdateData::AddUpdateBlock(const ByteBuffer &block)
     ++m_blockCount;
 }
 
-bool UpdateData::BuildPacket(WorldPacket* packet)
+bool UpdateData::BuildPacket(WorldPacket* p_Packet)
 {
-    ASSERT(packet->empty());                                // shouldn't happen
-    packet->Initialize(SMSG_UPDATE_OBJECT, 2 + 4 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + m_data.wpos());
+    ASSERT(p_Packet->empty());                                // shouldn't happen
+    p_Packet->Initialize(SMSG_UPDATE_OBJECT, 2 + 4 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + m_data.wpos());
 
     if (!HasData())
         return false;
 
-    *packet << uint16(m_map);
-    *packet << uint32(m_blockCount + (m_outOfRangeGUIDs.empty() ? 0 : 1));
+    *p_Packet << uint32(m_blockCount + (m_outOfRangeGUIDs.empty() ? 0 : 1));
+    *p_Packet << uint16(m_map);
+
+    uint32_t l_Pos = p_Packet->wpos();
+    *p_Packet << uint32(0);
 
     if (!m_outOfRangeGUIDs.empty())
     {
-        *packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
-        *packet << uint32(m_outOfRangeGUIDs.size());
+        *p_Packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
+        *p_Packet << uint32(m_outOfRangeGUIDs.size());
 
         for (std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
-            packet->appendPackGUID(*i);
+            p_Packet->appendPackGUID(*i);
     }
 
-    packet->append(m_data);
+    p_Packet->append(m_data);
+
+    uint32_t l_Size = p_Packet->wpos() - (l_Pos + 4);
+    p_Packet->wpos(l_Pos);
+
+    *p_Packet << uint32(l_Size);
+
     return true;
 }
 

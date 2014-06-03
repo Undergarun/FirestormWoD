@@ -55,6 +55,10 @@ enum Opcodes
     #pragma region JamDispatch
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
+        
+        /// World Object management
+        SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
+        SMSG_DESTROY_OBJECT                         = 0x104E,   /// 6.0.1 18322 => 0x5FAA12
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   /// 6.0.1 18322 => 0x608845
@@ -1150,7 +1154,6 @@ enum Opcodes
     SMSG_DB_REPLY                                     = 0x0000,
     SMSG_DEATH_RELEASE_LOC                            = 0x0000,
     SMSG_DEBUG_RUNE_REGEN                             = 0x0000,
-    SMSG_DESTROY_OBJECT                               = 0x0000,
     SMSG_DESTROY_ARENA_UNIT                           = 0x0000,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x0000,
@@ -1677,7 +1680,6 @@ enum Opcodes
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x0000,
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x0000,
     SMSG_UPDATE_LAST_INSTANCE                         = 0x0000,
-    SMSG_UPDATE_OBJECT                                = 0x0000,
     SMSG_UPDATE_SERVER_PLAYER_POSITION                = 0x0000,
     SMSG_UPDATE_TALENT_DATA                           = 0x0000,
     SMSG_UPDATE_WORLD_STATE                           = 0x0000,

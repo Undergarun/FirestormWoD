@@ -306,37 +306,20 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* target, bool onDeath) const
+void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 {
-    ASSERT(target);
+    ASSERT(p_Target);
 
-    WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
+    WorldPacket l_Data(SMSG_DESTROY_OBJECT, 8 + 1);
 
-    ObjectGuid guid = GetGUID();
-
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
+    l_Data << uint64(GetGUID());
 
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
-    data.WriteBit(onDeath);
-    data.WriteBit(guid[1]);
+    l_Data.WriteBit(p_OnDeath);
+    l_Data.FlushBits();
 
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-
-    target->GetSession()->SendPacket(&data);
+    p_Target->GetSession()->SendPacket(&l_Data);
 }
 
 void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
