@@ -106,7 +106,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
     if (guildCount == 0)
     {
-        WorldPacket packet(SMSG_LF_GUILD_BROWSE_UPDATED);
+        WorldPacket packet(SMSG_LFGUILD_BROWSE);
         packet.WriteBits(0, 18);
         player->SendDirectMessage(&packet);
         return;
@@ -125,14 +125,14 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
     if (returned)
     {
-        WorldPacket packet(SMSG_LF_GUILD_BROWSE_UPDATED);
+        WorldPacket packet(SMSG_LFGUILD_BROWSE);
         packet.WriteBits(0, 18);
         player->SendDirectMessage(&packet);
         return;
     }
 
     ByteBuffer bufferData;
-    WorldPacket data(SMSG_LF_GUILD_BROWSE_UPDATED);
+    WorldPacket data(SMSG_LFGUILD_BROWSE);
 
     data.WriteBits(guildCount, 18);
 
@@ -222,7 +222,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
     std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUIDLow());
     uint32 applicationsCount = applicatedGuilds.size();
 
-    WorldPacket data(SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED);
+    WorldPacket data(SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED);
 
     data << uint32(10 - sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUIDLow())); // Applications count left
 
@@ -301,7 +301,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
     uint32 recruitCount = recruitsList.size();
 
     ByteBuffer dataBuffer;
-    WorldPacket data(SMSG_LF_GUILD_RECRUIT_LIST_UPDATED);
+    WorldPacket data(SMSG_LFGUILD_RECRUITS);
 
     data << uint32(time(NULL)); // Unk time
     data.WriteBits(recruitCount, 18);
@@ -371,7 +371,7 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& recvPacket)
 
     LFGuildSettings settings = sGuildFinderMgr->GetGuildSettings(player->GetGuildId());
 
-    WorldPacket data(SMSG_LF_GUILD_POST_UPDATED);
+    WorldPacket data(SMSG_LFGUILD_POST);
     data.WriteBit(isGuildMaster);
 
     if (isGuildMaster)

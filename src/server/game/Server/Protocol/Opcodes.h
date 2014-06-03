@@ -41,6 +41,115 @@ enum Opcodes
     NULL_OPCODE                                       = 0,
     COMPRESSED_OPCODE_MASK                            = 0x8000,
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Dispatch
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Guild
+    //////////////////////////////////////////////////////////////////////////
+    #pragma region JamGuild
+        /// Guild Finder
+        SMSG_LFGUILD_BROWSE                         = 0x0000,
+        SMSG_LFGUILD_APPLICATIONS                   = 0x0000,
+        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x0000,
+        SMSG_LFGUILD_COMMAND_RESULT                 = 0x0000,
+        SMSG_LFGUILD_RECRUITS                       = 0x0000,
+        SMSG_LFGUILD_POST                           = 0x0000,
+        SMSG_LFGUILD_APPLICANT_LIST_CHANGED         = 0x0000,
+
+        /// Bank
+        SMSG_GUILD_RANK                             = 0x0000,
+        SMSG_GUILD_BANK_LOG_QUERY_RESULT            = 0x0000,
+        SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0000,
+        SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x0000,
+        SMSG_GUILD_BANK_QUERY_RESULTS               = 0x0000,
+        SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x0000,
+
+        /// Achievement
+        SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x0000,
+        SMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x0000,
+        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x0000,
+        SMSG_GUILD_CRITERIA_UPDATE                  = 0x0000,
+        SMSG_GUILD_CRITERIA_DELETED                 = 0x0000,
+        SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x0000,
+
+        /// Info
+        SMSG_GUILD_ROSTER                           = 0x0000,
+        SMSG_GUILD_ROSTER_UPDATE                    = 0x0000,
+        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x0000,
+        SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,
+        SMSG_GUILD_XPEARNED                         = 0x0000,
+        SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000,
+        SMSG_GUILD_REWARDS_LIST                     = 0x0000,
+        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0000,
+        SMSG_GUILD_CHALLENGE_UPDATED                = 0x0000,
+        SMSG_GUILD_REPUTATION_WEEKLY_CAP            = 0x0000,
+        SMSG_GUILD_MEMBER_RECIPES                   = 0x0000,
+        SMSG_GUILD_INVITE_EXPIRED                   = 0x0000,
+        SMSG_GUILD_COMMAND_RESULT                   = 0x0000,
+        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0000,
+        SMSG_GUILD_SEND_GUILD_XP                    = 0x0000,
+        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x0000,
+        SMSG_GUILD_KNOWN_RECIPES                    = 0x0000,
+        SMSG_GUILD_MEMBER_DAILY_RESET               = 0x0000,
+        SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x0000,
+        SMSG_GUILD_NAME_CHANGED                     = 0x0000,
+        SMSG_GUILD_RESET                            = 0x0000,
+        SMSG_GUILD_CHANGE_NAME_RESULT               = 0x0000,
+        SMSG_GUILD_INVITE                           = 0x0000,
+        SMSG_GUILD_INVITE_DECLINED                  = 0x0000,
+        SMSG_GUILD_PARTY_STATE                      = 0x0000,
+        SMSG_GUILD_MEMBERS_WITH_RECIPE              = 0x0000,
+        SMSG_GUILD_MOVE_STARTING                    = 0x0000,
+        SMSG_GUILD_MOVED                            = 0x0000,
+        SMSG_GUILD_NEWS                             = 0x0000,
+        SMSG_GUILD_NEWS_DELETED                     = 0x0000,
+
+        /// Event system
+        SMSG_GUILD_EVENT_NEW_LEADER                 = 0x0000,
+        SMSG_GUILD_EVENT_PRESENCE_CHANGE            = 0x0000,
+        SMSG_GUILD_EVENT_PLAYER_JOINED              = 0x0000,
+        SMSG_GUILD_EVENT_PLAYER_LEFT                = 0x0000,
+        SMSG_GUILD_EVENT_RANKS_UPDATED              = 0x0000,
+        SMSG_GUILD_EVENT_RANK_CHANGED               = 0x0000,
+        SMSG_GUILD_EVENT_LOG_QUERY_RESULTS          = 0x0000,
+        SMSG_GUILD_EVENT_MOTD                       = 0x0000,
+        SMSG_GUILD_EVENT_DISBANDED                  = 0x0000,
+        SMSG_GUILD_EVENT_TAB_MODIFIED               = 0x0000,
+        SMSG_GUILD_EVENT_TAB_DELETED                = 0x0000,
+        SMSG_GUILD_EVENT_TAB_TEXT_CHANGED           = 0x0000,
+        SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED      = 0x0000,
+        SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x0000,
+
+        /// Misc
+        SMSG_GMGUILD_SAVE_RESPONSE                  = 0x0000,
+    #pragma endregion
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Social
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Move
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Spell
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Quest
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Lfg
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Jam Client Garrison
+    //////////////////////////////////////////////////////////////////////////
+
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
     CMSG_ACCEPT_TRADE                                 = 0x0000,
@@ -979,60 +1088,6 @@ enum Opcodes
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x0000,
     SMSG_GROUP_SET_LEADER                             = 0x0000,
     SMSG_GROUP_UNINVITE                               = 0x0000,
-    SMSG_GUILD_ACHIEVEMENT_DATA                       = 0x0000,
-    SMSG_GUILD_ACHIEVEMENT_DELETED                    = 0x0000,
-    SMSG_GUILD_ACHIEVEMENT_EARNED                     = 0x0000,
-    SMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0x0000,
-    SMSG_GUILD_BANK_LIST                              = 0x0000,
-    SMSG_GUILD_BANK_LOG_QUERY_RESULT                  = 0x0000,
-    SMSG_GUILD_BANK_MONEY_WITHDRAWN                   = 0x0000,
-    SMSG_GUILD_BANK_QUERY_TEXT_RESULT                 = 0x0000,
-    SMSG_GUILD_CANCEL                                 = 0x0000,
-    SMSG_GUILD_CHALLENGE_COMPLETED                    = 0x0000,
-    SMSG_GUILD_CHALLENGE_UPDATED                      = 0x0000,
-    SMSG_GUILD_CHANGE_NAME_RESULT                     = 0x0000,
-    SMSG_GUILD_COMMAND_RESULT                         = 0x0000,
-    SMSG_GUILD_COMMAND_RESULT_2                       = 0x0000,
-    SMSG_GUILD_CRITERIA_DATA                          = 0x0000,
-    SMSG_GUILD_CRITERIA_DELETED                       = 0x0000,
-    SMSG_GUILD_DECLINE                                = 0x0000,
-    SMSG_GUILD_EVENT                                  = 0x0000,
-    SMSG_GUILD_EVENT_LOG_QUERY_RESULT                 = 0x0000,
-    SMSG_GUILD_FLAGGED_FOR_RENAME                     = 0x0000,
-    SMSG_GUILD_INVITE                                 = 0x0000,
-    SMSG_GUILD_INVITE_CANCEL                          = 0x0000,
-    SMSG_GUILD_KNOWN_RECIPES                          = 0x0000,
-    SMSG_GUILD_MAX_DAILY_XP                           = 0x0000,
-    SMSG_GUILD_MEMBERS_FOR_RECIPE                     = 0x0000,
-    SMSG_GUILD_MEMBER_DAILY_RESET                     = 0x0000,
-    SMSG_GUILD_MEMBER_RECIPES                         = 0x0000,
-    SMSG_GUILD_MEMBER_UPDATE_NOTE                     = 0x0000,
-    SMSG_GUILD_MOVE_COMPLETE                          = 0x0000,
-    SMSG_GUILD_MOVE_STARTING                          = 0x0000,
-    SMSG_GUILD_NEWS_DELETED                           = 0x0000,
-    SMSG_GUILD_NEWS_UPDATE                            = 0x0000,
-    SMSG_GUILD_PARTY_STATE_RESPONSE                   = 0x0000,
-    SMSG_GUILD_PERMISSIONS_QUERY_RESULTS              = 0x0000,
-    SMSG_GUILD_QUERY_RESPONSE                         = 0x0000,
-    SMSG_GUILD_RANK                                   = 0x0000,
-    SMSG_GUILD_RANKS_UPDATE                           = 0x0000,
-    SMSG_GUILD_RECIPES                                = 0x0000,
-    SMSG_GUILD_RENAMED                                = 0x0000,
-    SMSG_GUILD_REPUTATION_REACTION_CHANGED            = 0x0000,
-    SMSG_GUILD_REPUTATION_WEEKLY_CAP                  = 0x0000,
-    SMSG_GUILD_SEND_MEMBER_LEAVE                      = 0x0000,
-    SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS               = 0x0000,
-    SMSG_GUILD_SEND_PLAYER_JOINED                     = 0x0000,
-    SMSG_GUILD_RESET                                  = 0x0000,
-    SMSG_GUILD_REWARDS_LIST                           = 0x0000,
-    SMSG_GUILD_ROSTER                                 = 0x0000,
-    SMSG_GUILD_SEND_MOTD                              = 0x0000,
-    SMSG_GUILD_SET_NOTE                               = 0x0000,
-    SMSG_GUILD_TRADESKILL_UPDATE                      = 0x0000,
-    SMSG_GUILD_UPDATE_ROSTER                          = 0x0000,
-    SMSG_GUILD_XP                                     = 0x0000,
-    SMSG_GUILD_XP_GAIN                                = 0x0000,
-    SMSG_GUILD_XP_UPDATE                              = 0x0000,
     SMSG_HEALTH_UPDATE                                = 0x0000,
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x0000,
     SMSG_HOTFIX_INFO                                  = 0x0000,
@@ -1095,11 +1150,6 @@ enum Opcodes
     SMSG_LFG_UPDATE_SEARCH                            = 0x0000,
     SMSG_LFG_UPDATE_STATUS                            = 0x0000,
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
-    SMSG_LF_GUILD_BROWSE_UPDATED                      = 0x0000,
-    SMSG_LF_GUILD_COMMAND_RESULT                      = 0x0000,
-    SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED             = 0x0000,
-    SMSG_LF_GUILD_POST_UPDATED                        = 0x0000,
-    SMSG_LF_GUILD_RECRUIT_LIST_UPDATED                = 0x0000,
     SMSG_LIST_INVENTORY                               = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
     SMSG_LOAD_CUF_PROFILES                            = 0x0000,

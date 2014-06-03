@@ -327,7 +327,7 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
     uint32 recruitCount = recruitsList.size();
 
     ByteBuffer dataBuffer;
-    WorldPacket data(SMSG_LF_GUILD_RECRUIT_LIST_UPDATED);
+    WorldPacket data(SMSG_LFGUILD_RECRUITS);
 
     data << uint32(time(NULL)); // Unk time
     data.WriteBits(recruitCount, 18);
@@ -389,7 +389,7 @@ void GuildFinderMgr::SendMembershipRequestListUpdate(Player& player)
     std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(player.GetGUIDLow());
     uint32 applicationsCount = applicatedGuilds.size();
 
-    WorldPacket data(SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED);
+    WorldPacket data(SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED);
 
     data << uint32(10 - sGuildFinderMgr->CountRequestsFromPlayer(player.GetGUIDLow())); // Applications count left
 

@@ -1165,7 +1165,7 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     if (ret)
         sScriptMgr->OnGuildCreate(this, pLeader, name);
 
-    WorldPacket data(SMSG_GUILD_SEND_MOTD);
+    WorldPacket data(SMSG_GUILD_EVENT_MOTD);
 
     data.WriteBits(m_motd.size(), 10);
     data.FlushBits();
@@ -1378,7 +1378,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 
 void Guild::HandleQuery(WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_QUERY_RESPONSE);
+    WorldPacket data(SMSG_QUERY_GUILD_INFO_RESPONSE);
     ObjectGuid guildGuid = GetGUID(); // Guild GUID is sent twice
 
     data.WriteBit(guildGuid[6]);
@@ -1510,7 +1510,7 @@ void Guild::HandleSetMOTD(WorldSession* session, const std::string& motd)
         stmt->setUInt32(1, m_id);
         CharacterDatabase.Execute(stmt);
 
-        WorldPacket data(SMSG_GUILD_SEND_MOTD);
+        WorldPacket data(SMSG_GUILD_EVENT_MOTD);
 
         data.WriteBits(m_motd.size(), 10);
         data.FlushBits();
@@ -1816,7 +1816,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
 
         WorldPacket data;
 
-        data.Initialize(SMSG_GUILD_SEND_PLAYER_JOINED);
+        data.Initialize(SMSG_GUILD_EVENT_PLAYER_JOINED);
         ObjectGuid playerGuid = player->GetGUID();
 
         data.WriteBits(strlen(player->GetName()), 6);
@@ -1844,7 +1844,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
 
         BroadcastPacket(&data);
 
-        data.Initialize(SMSG_GUILD_SEND_MOTD);
+        data.Initialize(SMSG_GUILD_EVENT_MOTD);
 
         data.WriteBits(m_motd.size(), 10);
         data.FlushBits();
@@ -1854,7 +1854,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
 
         session->SendPacket(&data);
 
-        data.Initialize(SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS);
+        data.Initialize(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
         data.WriteBit(0);
         data.WriteBits(strlen(session->GetPlayer()->GetName()), 6);
         data.WriteBit(1);
@@ -2147,7 +2147,7 @@ void Guild::HandleMemberLogout(WorldSession* session)
     ObjectGuid playerGuid = player->GetGUID();
 
     // Login event
-    WorldPacket data(SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS);
+    WorldPacket data(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
     data.WriteBit(0);
     data.WriteBits(strlen(session->GetPlayer()->GetName()), 6);
     data.WriteBit(0);
@@ -2197,7 +2197,7 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     if (!IsMember(player->GetGUID()) || !group)
         return;
 
-    WorldPacket data(SMSG_GUILD_PARTY_STATE_RESPONSE, 13);
+    WorldPacket data(SMSG_GUILD_PARTY_STATE, 13);
 
     data << float(0.f);                                                                 // Guild XP multiplier
     data << uint32(0);                                                                  // Current guild members
@@ -2213,10 +2213,10 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
 // Send data to client
 void Guild::SendEventLog(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULT);
+    WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS);
     m_eventLog->WritePacket(data);
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULT)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULTS)");
 }
 
 void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
@@ -2240,7 +2240,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
 void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const
 {
     ByteBuffer tabData;
-    WorldPacket data(SMSG_GUILD_BANK_LIST);
+    WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS);
 
     uint32 itemCount = 0;
     if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
@@ -2369,7 +2369,7 @@ void Guild::SendPermissions(WorldSession* session) const
 
 void Guild::SendMoneyInfo(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_MONEY_WITHDRAWN, 4);
+    WorldPacket data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 4);
     data << uint64(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_BANK_MONEY_WITHDRAWN");
@@ -2379,7 +2379,7 @@ void Guild::SendLoginInfo(WorldSession* session)
 {
     /*
         Login sequence:
-          SMSG_GUILD_SEND_MOTD
+          SMSG_GUILD_EVENT_MOTD
           SMSG_GUILD_RANK
           -- learn perks
           SMSG_GUILD_REPUTATION_WEEKLY_CAP
@@ -2388,13 +2388,13 @@ void Guild::SendLoginInfo(WorldSession* session)
           SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS
     */
 
-    WorldPacket data(SMSG_GUILD_SEND_MOTD);
+    WorldPacket data(SMSG_GUILD_EVENT_MOTD);
     data.WriteBits(m_motd.size(), 10);
     data.FlushBits();
     if (m_motd.size() > 0)
         data.append(m_motd.c_str(), m_motd.size());
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_SEND_MOTD");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_EVENT_MOTD");
 
     HandleGuildRanks(session);
 
@@ -2416,7 +2416,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     ObjectGuid playerGuid = session->GetPlayer()->GetGUID();
 
     // Login event
-    data.Initialize(SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS);
+    data.Initialize(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
     data.WriteBit(0);
     data.WriteBits(strlen(session->GetPlayer()->GetName()), 6);
     data.WriteBit(1);
@@ -2453,7 +2453,7 @@ void Guild::SendGuildReputationWeeklyCap(WorldSession* session) const
 
 void Guild::SendGuildRecipes(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_RECIPES);
+    WorldPacket data(SMSG_GUILD_KNOWN_RECIPES);
 
     data.WriteBits(0, 15);
 
@@ -2471,7 +2471,7 @@ void Guild::SendGuildRecipes(WorldSession* session) const
 
 void Guild::SendMemberLeave(WorldSession* session, ObjectGuid playerGuid, bool kicked)
 {
-    WorldPacket data(SMSG_GUILD_SEND_MEMBER_LEAVE, 20);
+    WorldPacket data(SMSG_GUILD_EVENT_PLAYER_LEFT, 20);
 
     ObjectGuid kickerGuid = session->GetPlayer()->GetGUID();
 
@@ -3467,7 +3467,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     if (BankTab const* tab = GetBankTab(tabId))
     {
         ByteBuffer tabData;
-        WorldPacket data(SMSG_GUILD_BANK_LIST);
+        WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS);
         data.WriteBits(slots.size(), 18);                                           // Item count
         data.WriteBits(0, 21);                                                      // Tab count
 
@@ -3537,7 +3537,7 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* par
 {
     uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
+    WorldPacket data;// (SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
     data << uint8(guildEvent);
     data << uint8(count);
 
@@ -3564,7 +3564,7 @@ void Guild::SendGuildRanksUpdate(uint64 setterGuid, uint64 targetGuid, uint32 ra
     Member* member = GetMember(targetGuid);
     ASSERT(member);
 
-    WorldPacket data(SMSG_GUILD_RANKS_UPDATE, 100);
+    WorldPacket data(SMSG_GUILD_SEND_RANK_CHANGE, 100);
     data.WriteBit(setGuid[2]);
     data.WriteBit(setGuid[6]);
     data.WriteBit(rank < member->GetRankId()); // 1 == higher, 0 = lower?
@@ -3620,7 +3620,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
     if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
         xp = 0; // SMSG_GUILD_XP_GAIN is always sent, even for no gains
 
-    WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
+    WorldPacket data(SMSG_GUILD_XPEARNED, 8);
     data << uint64(xp);    // XP missing for next level
     source->GetSession()->SendPacket(&data);
 
@@ -3668,7 +3668,7 @@ void Guild::SendGuildXP(WorldSession* session) const
 {
     Member const* member = GetMember(session->GetGuidLow());
 
-    WorldPacket data(SMSG_GUILD_XP, 32);
+    WorldPacket data(SMSG_GUILD_SEND_GUILD_XP, 40);
     data << uint64(0);
     data << uint64(sGuildMgr->GetXPForGuildLevel(GetLevel()) - GetExperience());    // XP missing for next level
     data << uint64(GetExperience());
@@ -3730,7 +3730,7 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
 
 void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data)
 {
-    data.Initialize(SMSG_GUILD_NEWS_UPDATE);
+    data.Initialize(SMSG_GUILD_NEWS);
 
     data.WriteBits(1, 19);
 
@@ -3761,7 +3761,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, Wor
 
 void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 {
-    data.Initialize(SMSG_GUILD_NEWS_UPDATE);
+    data.Initialize(SMSG_GUILD_NEWS);
 
     data.WriteBits(_newsLog.size(), 19);
 

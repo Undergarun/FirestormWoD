@@ -1296,7 +1296,7 @@ template<>
 void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
 {
     // Will send response to criteria progress request
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA);
+    WorldPacket data;// (SMSG_GUILD_CRITERIA_DATA);
 
     ObjectGuid counter = progress->counter; // For accessing every byte individually
     ObjectGuid guid = progress->CompletedGUID;
@@ -2447,7 +2447,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 {
-    WorldPacket data(SMSG_GUILD_ACHIEVEMENT_DATA, m_completedAchievements.size() * (4 + 4) + 3);
+    WorldPacket data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4) + 3);
     data.WriteBits(m_completedAchievements.size(), 22);
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
@@ -2607,7 +2607,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
     if (!criteria)
     {
         // Send empty packet
-        WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
+        WorldPacket data;// (SMSG_GUILD_CRITERIA_DATA, 3);
         data.WriteBits(0, 19);
         receiver->GetSession()->SendPacket(&data);
         return;
@@ -2686,7 +2686,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         criteriaData.WriteByteSeq(guid[5]);
     }
 
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, criteriaBits.size() + criteriaData.size());
+    WorldPacket data;// (SMSG_GUILD_CRITERIA_DATA, criteriaBits.size() + criteriaData.size());
 
     data.append(criteriaBits);
     data.FlushBits();
