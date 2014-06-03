@@ -862,9 +862,9 @@ void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteI
 
 void ArchaeologyMgr::SendSearchSiteComplete(uint16 siteId)
 {
-    WorldPacket data(SMSG_RESEARCH_SITE_COMPLETE, 12);
-    data << uint32(siteId);
-    data << uint32(time(NULL));
-    data << uint32(1);
-    _player->GetSession()->SendPacket(&data);
+//     WorldPacket data(SMSG_RESEARCH_SITE_COMPLETE, 12);
+//     data << uint32(siteId);
+//     data << uint32(time(NULL));
+//     data << uint32(1);
+//     _player->GetSession()->SendPacket(&data);
 }
