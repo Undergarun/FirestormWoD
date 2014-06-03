@@ -1744,7 +1744,7 @@ extern OpcodeHandler* g_OpcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS]
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(Opcodes id)
+inline std::string GetOpcodeNameForLogging(Opcodes id, int p_Direction)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
@@ -1753,9 +1753,9 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
     if (id < UNKNOWN_OPCODE)
     {
         bool foundet = false;
-        for (int t = 0; t < 2; ++t)
+        for (;;)
         {
-            OpcodeHandler* handler = g_OpcodeTable[t][uint32(id) & 0x7FFF];
+            OpcodeHandler* handler = g_OpcodeTable[p_Direction][uint32(id) & 0x7FFF];
             if (!handler)
                 continue;
 
