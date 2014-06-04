@@ -1065,14 +1065,14 @@ class WorldSession
 
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture _accountSpellCallback;
+        PreparedQueryResultFuture m_AccountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
         QueryCallback<PreparedQueryResult, uint32> _setPetSlotCallback;
         QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
-        QueryResultHolderFuture _charLoginCallback;
+        QueryResultHolderFuture m_CharacterLoginCallback;
 
     private:
         // private trade methods
@@ -1151,7 +1151,7 @@ class WorldSession
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
 
-        uint8 playerLoginCounter;
+        uint8 m_PlayerLoginCounter;
         z_stream_s* _compressionStream;
 };
 #endif

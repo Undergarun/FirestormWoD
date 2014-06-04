@@ -168,6 +168,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
         l_Data.WriteBit(0);
         l_Data.WriteBit(0);
         l_Data.WriteBit(0);
+        l_Data.WriteBit(0);
         l_Data.FlushBits();
     }
 
@@ -183,7 +184,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
 
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
-    WorldPacket data(SMSG_CLIENT_CACHE_VERSION, 4);
+    WorldPacket data(SMSG_CACHE_VERSION, 4);
     data << uint32(version);
     SendPacket(&data);
 }

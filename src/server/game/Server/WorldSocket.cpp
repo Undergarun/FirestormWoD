@@ -480,7 +480,6 @@ int WorldSocket::handle_input_header (void)
 {
     ACE_ASSERT(m_RecvWPct == NULL);
 
-
     if (m_Crypt.IsInitialized())
     {
         ACE_ASSERT(m_WorldHeader.length() == sizeof(WorldClientPktHeader));
@@ -491,6 +490,10 @@ int WorldSocket::handle_input_header (void)
         uint32 value = *(uint32*)uintHeader;
         header.cmd = value & 0x1FFF;
         header.size = ((value & ~(uint32)0x1FFF) >> 13);
+
+        std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
+
+        printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
 
         if (header.size > 10236)
         {
@@ -772,8 +775,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (opcode != CMSG_PLAYER_MOVE)
         sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
 
-    printf("Receive opcode %s\n", opcodeName.c_str());
-
     try
     {
         switch (opcode)
@@ -1025,6 +1026,7 @@ void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_Q
             }
         }
 
+        l_Data.WriteBit(0);
         l_Data.WriteBit(0);
         l_Data.WriteBit(0);
         l_Data.WriteBit(0);

@@ -55,13 +55,18 @@ enum Opcodes
     #pragma region JamDispatch
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
-        
+        SMSG_CACHE_VERSION                          = 0x10EA,   /// 6.0.1 18322 => 0x5FA4A5
+
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
         SMSG_DESTROY_OBJECT                         = 0x104E,   /// 6.0.1 18322 => 0x5FAA12
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   /// 6.0.1 18322 => 0x608845
+        SMSG_CREATE_CHAR                            = 0x0447,   /// 6.0.1 18322 => 0x5F23F2
+
+        /// Account data
+        SMSG_ACCOUNT_DATA_TIMES                     = 0x0762,   /// 6.0.1 18322 => 0x5F7A8D
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -331,6 +336,19 @@ enum Opcodes
     CMSG_SUSPEND_COMMS_ACK                      = 0x0603,   ///< 6.0.1 18322 => 0x5D0542
 
     //////////////////////////////////////////////////////////////////////////
+    /// Character
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_ENUM_CHARACTERS                        = 0x0344,   ///< 6.0.1 18322 => 0x5D139A (nullsub)
+    CMSG_CREATE_CHARACTER                       = 0x0961,   ///< 6.0.1 18322 => 0x5D3A5A
+    CMSG_PLAYER_LOGIN                           = 0x0026,   ///< 6.0.1 18322 => 0x5D3E69
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Account data
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_READY_FOR_ACCOUNT_DATA_TIMES           = 0x0A17,   ///< 6.0.1 18322 => 0x5D139A (nullsub)
+    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x0897,   ///< 6.0.1 18322 => 0x5D139A (nullsub)
+
+    //////////////////////////////////////////////////////////////////////////
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
@@ -475,10 +493,8 @@ enum Opcodes
     CMSG_CHANNEL_UNSILENCE_VOICE                      = 0x0000,
     CMSG_CHANNEL_VOICE_OFF                            = 0x0000,
     CMSG_CHANNEL_VOICE_ON                             = 0x0000,
-    CMSG_CHAR_CREATE                                  = 0x0000,
     CMSG_CHAR_CUSTOMIZE                               = 0x0000,
     CMSG_CHAR_DELETE                                  = 0x0000,
-    CMSG_CHAR_ENUM                                    = 0x0000,
     CMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x0000,
     CMSG_CHAR_RENAME                                  = 0x0000,
     CMSG_CHAT_FILTERED                                = 0x0000,
@@ -699,7 +715,6 @@ enum Opcodes
     CMSG_PET_STOP_ATTACK                              = 0x0000,
     CMSG_PLAYED_TIME                                  = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
-    CMSG_PLAYER_LOGIN                                 = 0x0000,
     CMSG_PLAYER_LOGOUT                                = 0x0000,
     CMSG_PLAYER_VEHICLE_ENTER                         = 0x0000,
     CMSG_PLAY_DANCE                                   = 0x0000,
@@ -732,7 +747,6 @@ enum Opcodes
     CMSG_RAID_TARGET_UPDATE                           = 0x0000,
     CMSG_RANDOM_ROLL                                  = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
-    CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0x0000,
     CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_NAME_QUERY                             = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
@@ -948,7 +962,6 @@ enum Opcodes
     SMSG_SPELL_FAILURE                                = 0x0000,
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x0000,
     SMSG_ACCOUNT_CRITERIA_UPDATE_ALL                  = 0x0000,
-    SMSG_ACCOUNT_DATA_TIMES                           = 0x0000,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x0000,
     SMSG_ACCOUNT_PROFILE                              = 0x0000,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x0000,
@@ -1097,7 +1110,6 @@ enum Opcodes
     SMSG_CHANGER_PLAYER_DIFFICULTY_RESULT             = 0x0000,
     SMSG_CHANNEL_MEMBER_COUNT                         = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                       = 0x0000,
-    SMSG_CHAR_CREATE                                  = 0x0000,
     SMSG_CHAR_CUSTOMIZE                               = 0x0000,
     SMSG_CHAR_DELETE                                  = 0x0000,
     SMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x0000,
@@ -1111,7 +1123,6 @@ enum Opcodes
     SMSG_CLEAR_LOSS_OF_CONTROL                        = 0x0000,
     SMSG_CLEAR_TARGET                                 = 0x0000,
     SMSG_CLEAR_ITEM_CHALLENGE_MODE_DATA               = 0x0000,
-    SMSG_CLIENT_CACHE_VERSION                         = 0x0000,
     SMSG_CLIENT_CONTROL_UPDATE                        = 0x0000,
     SMSG_COMBAT_EVENT_FAILED                          = 0x0000,
     SMSG_COMBAT_LOG_MULTIPLE                          = 0x0000,
@@ -1753,19 +1764,13 @@ inline std::string GetOpcodeNameForLogging(Opcodes id, int p_Direction)
     if (id < UNKNOWN_OPCODE)
     {
         bool foundet = false;
-        for (;;)
-        {
-            OpcodeHandler* handler = g_OpcodeTable[p_Direction][uint32(id) & 0x7FFF];
-            if (!handler)
-                continue;
 
-            foundet = true;
-            ss << handler->name;
-            break;
-        }
+        OpcodeHandler* handler = g_OpcodeTable[p_Direction][uint32(id) & 0x7FFF];
 
-        if (!foundet)
+        if (!handler)
             ss << "UNKNOWN OPCODE";
+        else
+            ss << handler->name;
     }
     else
         ss << "INVALID OPCODE";

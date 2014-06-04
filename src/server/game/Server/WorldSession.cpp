@@ -108,7 +108,7 @@ timeLastChannelUnmoderCommand(0),
 timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
-playerLoginCounter(0),
+m_PlayerLoginCounter(0),
 timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand(0),
 m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), timeLastSellItemOpcode(0)
 {
@@ -405,7 +405,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
                     // some auth opcodes can be recieved before STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes
                     // however when we recieve CMSG_CHAR_ENUM we are surely no longer during the logout process.
-                    if (packet->GetOpcode() == CMSG_CHAR_ENUM)
+                    if (packet->GetOpcode() == CMSG_ENUM_CHARACTERS)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
@@ -850,21 +850,17 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     m_accountData[type].Data = data;
 }
 
-void WorldSession::SendAccountDataTimes(uint32 mask)
+void WorldSession::SendAccountDataTimes(uint32 p_Mask)
 {
-    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
+    WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
 
-    data << uint32(time(NULL));                             // Server time
+    l_Data << uint32(time(NULL));                                           ///< Server time
+    l_Data << uint32(p_Mask);                                               ///< type mask
 
-    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        data << uint32(GetAccountData(AccountDataType(i))->Time);// also unix time
+    for (uint32 l_I = 0; l_I < NUM_ACCOUNT_DATA_TYPES; ++l_I)
+        l_Data << uint32(GetAccountData(AccountDataType(l_I))->Time);       ///< also unix time
 
-    data << uint32(mask);                                   // type mask
-    data.WriteBit(0);
-
-    data.FlushBits();
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::LoadTutorialsData()
@@ -1151,14 +1147,14 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.ready() && _accountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
     {
         SQLQueryHolder* param;
-        _charLoginCallback.get(param);
-        _accountSpellCallback.get(result);
+        m_CharacterLoginCallback.get(param);
+        m_AccountSpellCallback.get(result);
         HandlePlayerLogin((LoginQueryHolder*)param, result);
-        _charLoginCallback.cancel();
-        _accountSpellCallback.cancel();
+        m_CharacterLoginCallback.cancel();
+        m_AccountSpellCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
