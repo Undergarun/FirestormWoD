@@ -232,6 +232,9 @@ public:
             windBombScheduled = false;
             reinforcementsSummoned = false;
 
+            if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+                instance->SetBossState(DATA_MELJARAK, NOT_STARTED);
+
             _Reset();
 
             // Summon the adds.
@@ -247,8 +250,39 @@ public:
             introDone = true;
         }
 
+        void DamageTaken(Unit* attacker, uint32& damage)
+        {
+            if (instance)
+            {
+                // Already resetting : cancel damage, and do nothing more
+                if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+                {
+                    damage = 0;
+                    return;
+                }
+
+                if (!instance->CheckRequiredBosses(DATA_MELJARAK))
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            }
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
+            if (instance)
+            {
+                if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+                    return;
+
+                if (!instance->CheckRequiredBosses(DATA_MELJARAK))
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            }
+
             Talk(SAY_AGGRO);
 
             // Special Adds Check event.
@@ -280,14 +314,27 @@ public:
         void EnterEvadeMode()
         {
             me->RemoveAllAuras();
-            Reset();
+            //Reset();
+            events.Reset();
+            summons.DespawnAll();
             me->DeleteThreatList();
-            me->CombatStop(false);
+            me->CombatStop(true);
             me->GetMotionMaster()->MoveTargetedHome();
+            me->SetFullHealth();
+            me->RemoveAllDynObjects();
+            me->SetReactState(REACT_PASSIVE);
+            windBombScheduled = false;
+            reinforcementsSummoned = false;
+
+            SummonSwarmAdds();
 
             if (instance)
             {
-                instance->SetData(DATA_MELJARAK, FAIL);
+                if (instance->IsWipe())
+                    instance->SetData(DATA_MELJARAK, FAIL);
+                else
+                    instance->SetData(DATA_MELJARAK, TO_BE_DECIDED);
+
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
             }
 
@@ -791,7 +838,12 @@ public:
 
     struct npc_korthik_elite_blademasterAI: public ScriptedAI
     {
-        npc_korthik_elite_blademasterAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_korthik_elite_blademasterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -809,6 +861,14 @@ public:
             for (auto mob : mobList)
                 if (mob->isAlive())
                     killer->Kill(mob, false);
+        }
+
+        void EnterCombat(Unit* attacker)
+        {
+            if (pInstance)
+                if (Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    if (!Meljarak->getVictim() && !Meljarak->HasUnitState(UNIT_STATE_CASTING))
+                        Meljarak->AI()->EnterCombat(attacker);
         }
 
         void DamageTaken(Unit* killer, uint32 &damage)
@@ -866,8 +926,13 @@ public:
                 DoCast(SPELL_RED_MANTID_WINGS);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* attacker)
         {
+            if (instance)
+                if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
+                    if (!Meljarak->getVictim() && !Meljarak->HasUnitState(UNIT_STATE_CASTING))
+                        Meljarak->AI()->EnterCombat(attacker);
+
             events.ScheduleEvent(EVENT_AMBER_PRISON, urand(13000, 47000));
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
         }
@@ -1043,11 +1108,15 @@ public:
                 DoCast(me, SPELL_BLUE_MANTID_WINGS);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* attacker)
         {
+            if (instance)
+                if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
+                    if (!Meljarak->getVictim() && !Meljarak->HasUnitState(UNIT_STATE_CASTING))
+                        Meljarak->AI()->EnterCombat(attacker);
+
             events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
-            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));
-        }
+            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        }
 
         void JustDied(Unit* killer)
         {
