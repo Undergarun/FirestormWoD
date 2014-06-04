@@ -255,6 +255,10 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         spiritKingsControlerGuid = creature->GetGUID();
                         break;
                     case NPC_ZIAN:
+                        // Will be false only if BossState = DONE or NOT_STARTED, as NOT_STARTED = 0, DONE = 0, and max value for BossState = 5
+                        if (GetBossState(DATA_SPIRIT_KINGS) % DONE != NOT_STARTED)
+                            SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
+                        // No break here!!!
                     case NPC_MENG:
                     case NPC_QIANG:
                     case NPC_SUBETAI:
