@@ -981,9 +981,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!m_caster->HasAura(96923))
                         return;
 
-                    uint32 crit = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_MELEE);
-                    uint32 mastery = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_MASTERY);
-                    uint32 haste = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE);
+                    uint32 crit = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_CRIT_MELEE);
+                    uint32 mastery = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
+                    uint32 haste = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
                     
                     uint8 stacks = 1;
                     if (AuraPtr aur = m_caster->GetAura(96923))
@@ -1071,10 +1071,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* offItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
                     break;
                 }
                 case 41055: // Copy Mainhand Weapon
@@ -1088,10 +1088,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* mainItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                            unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
                     break;
                 }
                 default:
@@ -2349,7 +2349,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 1.25 / 100.0f;
+                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25 / 100.0f;
 
                     if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
                     {
@@ -2369,7 +2369,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 3.0f / 100.0f;
+                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
                     float healthpct = unitTarget->GetHealthPct();
 
                     float bonus = 0;
@@ -2382,7 +2382,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         // 77485 - Mastery : Echo of Light
         if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
         {
-            float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
+            float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
             int32 bp = (Mastery * addhealth) / 6;
 
             bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
@@ -3082,7 +3082,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     if (gameObjTarget)
         SendLoot(guid, LOOT_SKINNING);
     else if (itemTarget)
-        itemTarget->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED);
+        itemTarget->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_UNLOCKED);
 
     // not allow use skill grow at item base open
     if (!m_CastItem && skillId != SKILL_NONE)
@@ -3146,9 +3146,9 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
         if (m_CastItem->GetEnchantmentId(EnchantmentSlot(j)))
             pNewItem->SetEnchantment(EnchantmentSlot(j), m_CastItem->GetEnchantmentId(EnchantmentSlot(j)), m_CastItem->GetEnchantmentDuration(EnchantmentSlot(j)), m_CastItem->GetEnchantmentCharges(EnchantmentSlot(j)));
 
-    if (m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
+    if (m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY))
     {
-        double lossPercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
+        double lossPercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY));
         player->DurabilityLoss(pNewItem, lossPercent);
     }
 
@@ -3441,8 +3441,8 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         return;
 
                     summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
-                    summon->SetUInt32Value(UNIT_NPC_FLAGS + 1, summon->GetCreatureTemplate()->npcflag2);
+                    summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                    summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, summon->GetCreatureTemplate()->npcflag2);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
@@ -3491,7 +3491,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         {
                             summon->SetOwnerGUID(m_originalCaster->GetGUID());
                             summon->setFaction(m_originalCaster->getFaction());
-                            summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+                            summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
                         }
 
                         // Explosive Decoy and Explosive Decoy 2.0
@@ -4262,7 +4262,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             pet->SetReactState(REACT_DEFENSIVE);
     }
 
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
 
     if (m_caster->GetTypeId() == TYPEID_UNIT)
     {
@@ -5781,8 +5781,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
         return;
     }
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, m_caster->getFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1);
+    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, m_caster->getFaction());
+    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_caster->getLevel()+1);
     int32 duration = m_spellInfo->GetDuration();
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
@@ -5854,8 +5854,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
-    caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
+    caster->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
+    target->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);
 }
@@ -5876,7 +5876,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (target->isInFlight())
         return;
 
-    if (target->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (target->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         target->RepopAtGraveyard();
     else
         target->TeleportTo(target->GetStartPosition(), TELE_TO_SPELL);
@@ -6863,7 +6863,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
         Creature* totem = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
         if (totem && totem->isTotem())
         {
-            uint32 spell_id = totem->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+            uint32 spell_id = totem->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
@@ -7493,7 +7493,7 @@ void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
         return;
 
     FactionTemplateEntry const* casterFaction = caster->getFactionTemplateEntry();
-    FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
+    FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE));
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
     if ((casterFaction && targetFaction && !casterFaction->IsFriendlyTo(*targetFaction)) || !targetFaction)
         gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
@@ -7595,10 +7595,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS))
             {
                 summon->SetDisplayId(11686);
-                summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+                summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, weapon);
             }
             else
                 summon->SetDisplayId(1126);
@@ -7619,7 +7619,7 @@ void Spell::EffectRenamePet(SpellEffIndex /*effIndex*/)
         !unitTarget->ToCreature()->isPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
 
-    unitTarget->SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
+    unitTarget->SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED);
 }
 
 void Spell::EffectPlayMusic(SpellEffIndex effIndex)

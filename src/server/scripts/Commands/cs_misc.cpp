@@ -131,7 +131,7 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+            if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
                 handler->GetSession()->SendNotification(LANG_DEV_ON);
             else
                 handler->GetSession()->SendNotification(LANG_DEV_OFF);
@@ -142,14 +142,14 @@ public:
 
         if (argstr == "on")
         {
-            handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+            handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
             handler->GetSession()->SendNotification(LANG_DEV_ON);
             return true;
         }
 
         if (argstr == "off")
         {
-            handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+            handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
             handler->GetSession()->SendNotification(LANG_DEV_OFF);
             return true;
         }
@@ -1025,7 +1025,7 @@ public:
             return false;
         }
 
-        if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if (player->isDead() || player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         {
             // if player is dead and stuck, send ghost to graveyard
             player->RepopAtGraveyard();
@@ -1180,8 +1180,8 @@ public:
             return false;
         }
 
-        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
-        playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields | val)));
+        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+        playerTarget->SetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields | val)));
 
         handler->SendSysMessage(LANG_EXPLORE_AREA);
         return true;
@@ -1211,8 +1211,8 @@ public:
             return false;
         }
 
-        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
-        playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields ^ val)));
+        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+        playerTarget->SetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields ^ val)));
 
         handler->SendSysMessage(LANG_UNEXPLORE_AREA);
         return true;
@@ -2546,8 +2546,8 @@ public:
         creatureTarget->RemoveCorpse();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+        pet->SetUInt64Value(UNIT_FIELD_CREATED_BY, player->GetGUID());
+        pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, player->getFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {

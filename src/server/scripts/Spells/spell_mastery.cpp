@@ -66,7 +66,7 @@ class spell_mastery_icicles : public SpellScriptLoader
                         int32 hitDamage = GetHitDamage();
                         if (GetSpell()->IsCritForTarget(target))
                             hitDamage *= 2;
-                        float Mastery = (_player->GetFloatValue(PLAYER_MASTERY) * 2.0f) / 100.0f;
+                        float Mastery = (_player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f) / 100.0f;
                         hitDamage *= Mastery;
 
                         int8 currentMaxAura = 0;
@@ -305,7 +305,7 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
                 {
                     if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
                     {
-                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_MASTERY) * 2.5f / 100.0f);
+                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
                         amount = int32(amount * Mastery);
                     }
                 }
@@ -345,7 +345,7 @@ class spell_mastery_blood_shield : public SpellScriptLoader
                             // Check the Mastery aura while in Blood presence
                             if (_plr->HasAura(77513) && _plr->HasAura(48263))
                             {
-                                float Mastery = _plr->GetFloatValue(PLAYER_MASTERY) * 6.25f / 100.0f;
+                                float Mastery = _plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 6.25f / 100.0f;
 
                                 int32 bp = -int32(GetHitDamage() * Mastery);
 
@@ -398,7 +398,7 @@ class spell_mastery_ignite : public SpellScriptLoader
                             uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (procSpellId != MASTERY_SPELL_IGNITE)
                             {
-                                float value = caster->GetFloatValue(PLAYER_MASTERY) * 1.5f / 100.0f;
+                                float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
 
                                 int32 bp = GetHitDamage();
                                 bp = int32(bp * value / 2);
@@ -450,7 +450,7 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
                             uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (procSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
                             {
-                                float value = caster->GetFloatValue(PLAYER_MASTERY) * 1.85f;
+                                float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.85f;
 
                                 int32 bp = int32(GetHitDamage() * value / 100);
 
@@ -513,7 +513,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
                                     // Lava Burst
                                     case 51505:
                                     {
-                                        float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 2.0f;
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
                                         if (roll_chance_f(Mastery))
                                             caster->CastSpell(unitTarget, MASTERY_SPELL_LAVA_BURST, true);
@@ -523,7 +523,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
                                     // Lightning Bolt
                                     case 403:
                                     {
-                                        float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 2.0f;
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
                                         if (roll_chance_f(Mastery))
                                             caster->CastSpell(unitTarget, MASTERY_SPELL_LIGHTNING_BOLT, true);
@@ -533,7 +533,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
                                     // Chain Lightning
                                     case 421:
                                     {
-                                        float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 2.0f;
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
                                         if (roll_chance_f(Mastery))
                                             caster->CastSpell(unitTarget, MASTERY_SPELL_CHAIN_LIGHTNING, true);
@@ -543,7 +543,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
                                     // Elemental Blast
                                     case 117014:
                                     {
-                                        float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 2.0f;
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
                                         if (roll_chance_f(Mastery))
                                         {

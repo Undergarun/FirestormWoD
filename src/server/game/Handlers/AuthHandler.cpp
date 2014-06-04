@@ -41,61 +41,10 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
         l_Data << uint8(Expansion());
         l_Data << uint8(Expansion());
         l_Data << uint32(0);
-        l_Data << uint32(l_RealmRaceCount);
         l_Data << uint32(l_RealmClassCount);
+        l_Data << uint32(l_RealmRaceCount);
         l_Data << uint32(0);
         l_Data << uint32(0);
-
-        for (uint32 l_I = 0; l_I < l_RealmClassCount; l_I++)
-        {
-            switch (l_I)
-            {
-                case 0:
-                    l_Data << uint8(CLASS_WARRIOR);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 1:
-                    l_Data << uint8(CLASS_PALADIN);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 2:
-                    l_Data << uint8(CLASS_HUNTER);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 3:
-                    l_Data << uint8(CLASS_ROGUE);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 4:
-                    l_Data << uint8(CLASS_PRIEST);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 5:
-                    l_Data << uint8(CLASS_DEATH_KNIGHT);
-                    l_Data << uint8(2); // Wotlk
-                    break;
-                case 6:
-                    l_Data << uint8(CLASS_SHAMAN);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 7:
-                    l_Data << uint8(CLASS_MAGE);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 8:
-                    l_Data << uint8(CLASS_WARLOCK);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 9:
-                    l_Data << uint8(CLASS_DRUID);
-                    l_Data << uint8(0); // Prebc
-                    break;
-                case 10:
-                    l_Data << uint8(CLASS_MONK);
-                    l_Data << uint8(4); // MoP
-                    break;
-            }
-        }
 
         for (uint32 l_I = 0; l_I < l_RealmRaceCount; l_I++)
         {
@@ -160,6 +109,57 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
                 case 14:
                     l_Data << uint8(RACE_PANDAREN_HORDE);
                     l_Data << uint8(4);
+                    break;
+            }
+        }
+
+        for (uint32 l_I = 0; l_I < l_RealmClassCount; l_I++)
+        {
+            switch (l_I)
+            {
+                case 0:
+                    l_Data << uint8(CLASS_WARRIOR);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 1:
+                    l_Data << uint8(CLASS_PALADIN);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 2:
+                    l_Data << uint8(CLASS_HUNTER);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 3:
+                    l_Data << uint8(CLASS_ROGUE);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 4:
+                    l_Data << uint8(CLASS_PRIEST);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 5:
+                    l_Data << uint8(CLASS_DEATH_KNIGHT);
+                    l_Data << uint8(2); // Wotlk
+                    break;
+                case 6:
+                    l_Data << uint8(CLASS_SHAMAN);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 7:
+                    l_Data << uint8(CLASS_MAGE);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 8:
+                    l_Data << uint8(CLASS_WARLOCK);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 9:
+                    l_Data << uint8(CLASS_DRUID);
+                    l_Data << uint8(0); // Prebc
+                    break;
+                case 10:
+                    l_Data << uint8(CLASS_MONK);
+                    l_Data << uint8(4); // MoP
                     break;
             }
         }

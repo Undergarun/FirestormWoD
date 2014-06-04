@@ -3219,12 +3219,12 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             duration = 0;
                             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                                 if (constAuraEffectPtr eff = m_spellAura->GetEffect(i))
-                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_MOD_CAST_SPEED
-                                        duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED)));
+                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
+                                        duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED)));
 
                             // if there is no periodic effect
                             if (!duration)
-                                duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED)));
+                                duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED)));
                         }
                     }
 
@@ -4273,7 +4273,7 @@ void Spell::finish(bool ok)
         if (Unit* charm = m_caster->GetCharm())
             if (charm->GetTypeId() == TYPEID_UNIT
                 && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
-                && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
+                && charm->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) == m_spellInfo->Id)
                 ((Puppet*)charm)->UnSummon();
     }
 
@@ -4286,7 +4286,7 @@ void Spell::finish(bool ok)
     if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isSummon())
     {
         // Unsummon statue
-        uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+        uint32 spell = m_caster->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
         if (spellInfo && spellInfo->SpellIconID == 2056)
         {
@@ -5819,7 +5819,7 @@ void Spell::SendChannelUpdate(uint32 time)
     if (time == 0)
     {
         //m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
-        m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
+        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
     WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8+4);
@@ -5873,7 +5873,7 @@ void Spell::SendChannelStart(uint32 duration)
         m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
 
     if (m_spellInfo->Id != 101546)
-        m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
+        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
 }
 
 void Spell::SendResurrectRequest(Player* target)
@@ -6452,7 +6452,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         Player* player = m_caster->ToPlayer();
 
         // Can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
             && !(player->HasAura(46924) && m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
             || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499)) // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
             return SPELL_FAILED_SPELL_IN_PROGRESS;
@@ -6474,7 +6474,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL && !m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
+    if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL && !m_caster->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
     {
         m_customError = SPELL_CUSTOM_ERROR_GM_ONLY;
         return SPELL_FAILED_CUSTOM_ERROR;
@@ -9243,7 +9243,7 @@ void Spell::TriggerGlobalCooldown()
             return;
 
         // Apply haste rating
-        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
         if (gcd < MIN_GCD)
             gcd = MIN_GCD;
         else if (gcd > MAX_GCD)

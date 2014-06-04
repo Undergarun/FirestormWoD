@@ -72,7 +72,7 @@ void Totem::InitStats(uint32 duration)
         data << uint32(duration);
         data.WriteByteSeq(totemGuid[1]);
         data.WriteByteSeq(totemGuid[3]);
-        data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        data << uint32(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
         data.WriteByteSeq(totemGuid[7]);
         data.WriteByteSeq(totemGuid[4]);
         data.WriteByteSeq(totemGuid[0]);
@@ -88,15 +88,15 @@ void Totem::InitStats(uint32 duration)
             SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
 
         // Light's Hammer
-        if (GetUInt32Value(UNIT_CREATED_BY_SPELL) == 122773)
+        if (GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) == 122773)
             SetDisplayId(11686);
 
         // Totemic Encirclement
         if (m_owner->HasAura(58057)
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120214
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120217
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120218
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120219)
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120214
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120217
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120218
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120219)
         {
             for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
             {
@@ -104,7 +104,7 @@ void Totem::InitStats(uint32 duration)
                 {
                     if (Creature* totem = m_owner->GetMap()->GetCreature(m_owner->m_SummonSlot[i]))
                     {
-                        uint32 spell_id = totem->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+                        uint32 spell_id = totem->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
                         if (spell_id != 120214 && spell_id != 120217 && spell_id != 120218 && spell_id != 120219)
                             continue;
                     }
@@ -225,7 +225,7 @@ void Totem::UnSummon(uint32 msTime)
     {
         owner->SendAutoRepeatCancel(this);
 
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
+        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL)))
             owner->SendCooldownEvent(spell, 0, NULL, false);
 
         if (Group* group = owner->GetGroup())

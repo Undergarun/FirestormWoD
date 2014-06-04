@@ -82,7 +82,7 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     _dynamicFields      = NULL;
     m_valuesCount       = 0;
     _dynamicTabCount    = 0;
-    _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
+    _fieldNotifyFlags   = UF_FLAG_URGENT;
 
     m_inWorld           = false;
     m_objectUpdated     = false;
@@ -582,7 +582,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         }
     }
 
-    if (UPDATEFLAG_GO_TRANSPORT_POSITION)
+    if (p_Flags & UPDATEFLAG_GO_TRANSPORT_POSITION)
     {
         *p_Data << uint64(l_WorldObject->m_movementInfo.t_guid);            ///< Transport Guid
         *p_Data << float(l_WorldObject->GetTransOffsetX());                 ///< Transport X offset
@@ -757,7 +757,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     /// Here unk block
 
-    if (UPDATEFLAG_SCENEOBJECT)
+    if (p_Flags & UPDATEFLAG_SCENEOBJECT)
     {
         /// TODO
     }
@@ -914,7 +914,8 @@ void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 cou
 
 uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 {
-    uint32 visibleFlag = UF_FLAG_PUBLIC;
+    uint32 visibleFlag = UF_FLAG_PUBLIC | UF_FLAG_VIEWER_DEPENDENT;
+
     if (target == this)
         visibleFlag |= UF_FLAG_PRIVATE;
 
@@ -924,7 +925,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         case TYPEID_CONTAINER:
             flags = ItemUpdateFieldFlags;
             if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
-                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
@@ -936,7 +937,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 
             if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
                 if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
-                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
+                    visibleFlag |= UF_FLAG_EMPATH;
 
             if (plr && plr->IsInSameRaidWith(target))
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
@@ -2643,7 +2644,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return NULL;
     }
 
-    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
 
     summon->SetHomePosition(pos);
 
@@ -2825,12 +2826,12 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     }
 
     pet->SetCreatorGUID(GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+    pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
 
     pet->setPowerType(POWER_MANA);
-    pet->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-    pet->SetUInt32Value(UNIT_NPC_FLAGS + 1, 0);
-    pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+    pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
+    pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
+    pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
     pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.
@@ -2841,9 +2842,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         case SUMMON_PET:
             // this enables pet details window (Shift+P)
             pet->GetCharmInfo()->SetPetNumber(pet_number, true);
-            pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
-            pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-            pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+            pet->SetUInt32Value(UNIT_FIELD_SEX, 2048);
+            pet->SetUInt32Value(UNIT_FIELD_PET_NUMBER, 0);
+            pet->SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, 1000);
             pet->SetFullHealth();
             pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
             pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped in this case
@@ -3640,7 +3641,7 @@ struct WorldObjectChangeAccumulator
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetUInt64Value(PLAYER_FARSIGHT) == source->GetGUID())
+                    if (caster->GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }

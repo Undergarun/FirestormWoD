@@ -141,7 +141,7 @@ class spell_sha_totemic_projection : public SpellScriptLoader
                     {
                         if ((*itr)->isTotem())
                         {
-                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo((*itr)->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo((*itr)->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
                             if (!spellInfo)
                                 continue;
 

@@ -122,20 +122,20 @@ class spell_rog_killing_spree : public SpellScriptLoader
                     {
                         UnitList targets;
                         {
-                            // eff_radius == 0
-                            float radius = GetSpellInfo()->GetMaxRange(false);
+                            //// eff_radius == 0
+                            //float radius = GetSpellInfo()->GetMaxRange(false);
 
-                            CellCoord p(JadeCore::ComputeCellCoord(caster->GetPositionX(), caster->GetPositionY()));
-                            Cell cell(p);
+                            //CellCoord p(JadeCore::ComputeCellCoord(caster->GetPositionX(), caster->GetPositionY()));
+                            //Cell cell(p);
 
-                            JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck u_check(caster, radius);
-                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> checker(caster, targets, u_check);
+                            //JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck u_check(caster, radius);
+                            //JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> checker(caster, targets, u_check);
 
-                            TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                            TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+                            //TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+                            //TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
 
-                            cell.Visit(p, grid_object_checker,  *caster->GetMap(), *caster, radius);
-                            cell.Visit(p, world_object_checker, *caster->GetMap(), *caster, radius);
+                            //cell.Visit(p, grid_object_checker,  *caster->GetMap(), *caster, radius);
+                            //cell.Visit(p, world_object_checker, *caster->GetMap(), *caster, radius);
                         }
 
                         std::vector<uint64> validTargets;

@@ -139,14 +139,14 @@ void Vehicle::Reset(bool evading /*= false*/)
     if (_me->GetTypeId() == TYPEID_PLAYER)
     {
         if (_usableSeatNum)
-            _me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+            _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
     }
     else
     {
         ApplyAllImmunities();
         InstallAllAccessories(evading);
         if (_usableSeatNum)
-            _me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
@@ -387,9 +387,9 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         if (!_usableSeatNum)
         {
             if (_me->GetTypeId() == TYPEID_PLAYER)
-                _me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+                _me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
             else
-                _me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                _me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
     }
 
@@ -466,9 +466,9 @@ void Vehicle::RemovePassenger(Unit* unit)
         if (!_usableSeatNum)
         {
             if (_me->GetTypeId() == TYPEID_PLAYER)
-                _me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+                _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
             else
-                _me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
         ++_usableSeatNum;
     }

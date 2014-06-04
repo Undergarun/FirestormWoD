@@ -145,10 +145,10 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i <= BG_SA_PORTAL_DEFFENDER_RED; i++)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
+        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, defF);
     }
 
-    GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+    GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, atF);
     GetBGObject(BG_SA_TITAN_RELIC)->Refresh();
 
     for (uint8 i = 0; i <= 5; i++)
@@ -186,7 +186,7 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, atF);
     }
 
     for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
@@ -195,9 +195,9 @@ bool BattlegroundSA::ResetObjs()
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, atF);
         if (i > 46)
-            GetBGObject(i)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            GetBGObject(i)->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
     }
 
     //Player may enter BEFORE we set up BG - lets update his worldstates anyway...
@@ -638,7 +638,7 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
                     for (uint8 bombIndex = 47; bombIndex < 59; bombIndex++)
                     {
                         if (GetBGObject(bombIndex))
-                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BG_SA_BLUE_GATE:
@@ -647,7 +647,7 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
                     for (uint8 bombIndex = 59; bombIndex < 68; bombIndex++)
                     {
                         if (GetBGObject(bombIndex))
-                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BG_SA_RED_GATE:
@@ -656,7 +656,7 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
                     for (uint8 bombIndex = 68; bombIndex < 77; bombIndex++)
                     {
                         if (GetBGObject(bombIndex))
-                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BG_SA_PURPLE_GATE:
@@ -665,14 +665,14 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
                     for (uint8 bombIndex = 68; bombIndex < 77; bombIndex++)
                     {
                         if (GetBGObject(bombIndex))
-                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BG_SA_YELLOW_GATE:
                     for (uint8 bombIndex = 77; bombIndex < 93; bombIndex++)
                     {
                         if (GetBGObject(bombIndex))
-                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            GetBGObject(bombIndex)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 default:

@@ -776,7 +776,7 @@ class spell_hun_stampede : public SpellScriptLoader
                                     pet->SetReactState(REACT_AGGRESSIVE);
                                     pet->m_Stampeded = true;
 
-                                    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                                    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                                     pet->CastSpell(pet, HUNTER_SPELL_STAMPEDE_DAMAGE_REDUCTION, true);
                                     pet->AI()->AttackStart(target);
                                 }
@@ -802,7 +802,7 @@ class spell_hun_stampede : public SpellScriptLoader
                                     pet->SetReactState(REACT_AGGRESSIVE);
                                     pet->m_Stampeded = true;
 
-                                    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                                    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                                     pet->CastSpell(pet, HUNTER_SPELL_STAMPEDE_DAMAGE_REDUCTION, true);
                                     pet->AI()->AttackStart(target);
                                 }

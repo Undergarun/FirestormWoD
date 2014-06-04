@@ -100,13 +100,13 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         if (!item)
             continue;
 
-        ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR);
+        ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFT_CREATOR);
         ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
 
         data.WriteBit(giftCreatorGuid[3]);
         data.WriteBit(giftCreatorGuid[0]);
         data.WriteBit(giftCreatorGuid[6]);
-        bool notWrapped = data.WriteBit(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED));
+        bool notWrapped = data.WriteBit(!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED));
         data.WriteBit(giftCreatorGuid[1]);
         data.WriteBit(giftCreatorGuid[2]);
         data.WriteBit(giftCreatorGuid[7]);
@@ -207,7 +207,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                                             myItems[i]->GetTemplate()->Name1.c_str(), myItems[i]->GetEntry(), myItems[i]->GetCount());*/
 
                 // adjust time (depends on /played)
-                if (myItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+                if (myItems[i]->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
                     myItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, trader->GetTotalPlayedTime()-(_player->GetTotalPlayedTime()-myItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
                 // store
                 trader->MoveItemToInventory(traderDst, myItems[i], true, true);
@@ -232,7 +232,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                                             hisItems[i]->GetTemplate()->Name1.c_str(), hisItems[i]->GetEntry(), hisItems[i]->GetCount());*/
 
                 // adjust time (depends on /played)
-                if (hisItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+                if (hisItems[i]->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
                     hisItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, _player->GetTotalPlayedTime()-(trader->GetTotalPlayedTime()-hisItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
                 // store
                 _player->MoveItemToInventory(playerDst, hisItems[i], true, true);
@@ -497,12 +497,12 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         {
             if (myItems[i])
             {
-                myItems[i]->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
+                myItems[i]->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, _player->GetGUID());
                 _player->MoveItemFromInventory(myItems[i]->GetBagSlot(), myItems[i]->GetSlot(), true);
             }
             if (hisItems[i])
             {
-                hisItems[i]->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, trader->GetGUID());
+                hisItems[i]->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, trader->GetGUID());
                 trader->MoveItemFromInventory(hisItems[i]->GetBagSlot(), hisItems[i]->GetSlot(), true);
             }
         }

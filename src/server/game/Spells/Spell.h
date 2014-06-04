@@ -558,7 +558,7 @@ class Spell
         int32 GetTimer() const { return m_timer; }
         bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const { return _triggeredCastFlags & TRIGGERED_FULL_MASK; };
-        bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
+        bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_FIELD_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
         bool IsCritForTarget(Unit* target) const;
 

@@ -56,6 +56,7 @@ enum Opcodes
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
         SMSG_CACHE_VERSION                          = 0x10EA,   /// 6.0.1 18322 => 0x5FA4A5
+        SMSG_ADDON_INFO                             = 0x0EE2,   /// 6.0.1 18322 => 0x6073F0
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
@@ -969,7 +970,6 @@ enum Opcodes
     SMSG_ACHIEVEMENT_EARNED                           = 0x0000,
     SMSG_ACTIVATE_TAXI_REPLY                          = 0x0000,
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
-    SMSG_ADDON_INFO                                   = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
     SMSG_ADD_RUNE_POWER                               = 0x0000,

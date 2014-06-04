@@ -1159,7 +1159,7 @@ class spell_mage_inferno_blast : public SpellScriptLoader
                             // 1 : Ignite
                             if (target->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
                             {
-                                float value = _player->GetFloatValue(PLAYER_MASTERY) * 1.5f / 100.0f;
+                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
 
                                 int32 igniteBp = 0;
 

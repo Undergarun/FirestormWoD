@@ -338,11 +338,11 @@ class spell_monk_storm_earth_and_fire_stats : public SpellScriptLoader
                     if (Unit* caster = GetCaster())
                     {
                         // Convert Owner's haste into the Spirit haste
-                        float ownerHaste = 1.0f  +  owner->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) *
+                        float ownerHaste = 1.0f  +  owner->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) *
                                                     owner->GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
-                        caster->ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
-                        caster->ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, ownerHaste, false);
-                        caster->ApplyPercentModFloatValue(UNIT_MOD_HASTE, ownerHaste, false);
+                        caster->ApplyPercentModFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, ownerHaste, false);
+                        caster->ApplyPercentModFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, ownerHaste, false);
+                        caster->ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, ownerHaste, false);
                     }
                 }
             }
@@ -682,7 +682,7 @@ class spell_monk_chi_brew : public SpellScriptLoader
                     {
                         bool mastery = false;
                         // Mastery: Bottled Fury
-                        float Mastery = _player->GetFloatValue(PLAYER_MASTERY) * 2.5f;
+                        float Mastery = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
                         if (_player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
                             mastery = true;
 
@@ -1424,9 +1424,9 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
-                    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));
                     summon->SetHealth(summon->GetMaxHealth());
                     summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
@@ -2049,9 +2049,9 @@ class spell_monk_jade_serpent_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
-                    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));
                     summon->SetHealth(summon->GetMaxHealth());
                 }
@@ -2225,7 +2225,7 @@ class spell_monk_mana_tea_stacks : public SpellScriptLoader
 
                     // Brewing: Mana Tea passive bonus
                     float crit_chance = 0.0f;
-                    crit_chance += GetCaster()->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + SPELL_SCHOOL_MASK_NORMAL);
+                    crit_chance += GetCaster()->GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                     if (roll_chance_f(crit_chance))
                     {
                         if (GetCaster())
@@ -3854,7 +3854,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
                         player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
                         // Mastery: Bottled Fury
-                        float Mastery = player->GetFloatValue(PLAYER_MASTERY) * 2.5f;
+                        float Mastery = player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
                         if (player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
                             player->CastSpell(player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
                     }

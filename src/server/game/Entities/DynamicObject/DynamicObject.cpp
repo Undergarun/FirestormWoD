@@ -95,7 +95,7 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
 
     SetEntry(spell->Id);
     SetObjectScale(1.0f);
-    SetUInt64Value(DYNAMICOBJECT_CASTER, caster->GetGUID());
+    SetUInt64Value(DYNAMICOBJECT_FIELD_CASTER, caster->GetGUID());
 
     // The lower word of DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID must be 0x0001. This value means that the visual radius will be overriden
     // by client for most of the "ground patch" visual effect spells and a few "skyfall" ones like Hurricane.
@@ -111,9 +111,9 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
         SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
     }
 
-    SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
-    SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
-    SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
+    SetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID, spell->Id);
+    SetFloatValue(DYNAMICOBJECT_FIELD_RADIUS, radius);
+    SetUInt32Value(DYNAMICOBJECT_FIELD_CAST_TIME, getMSTime());
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
