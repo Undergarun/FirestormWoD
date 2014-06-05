@@ -1030,11 +1030,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     SendPacket(&l_Data);
 
     l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
-    l_Data << pCurrChar->GetPositionZ();
-    l_Data << pCurrChar->GetMapId();
-    l_Data << pCurrChar->GetPositionY();
-    l_Data << pCurrChar->GetPositionX();
-    l_Data << pCurrChar->GetOrientation();
+    l_Data << pCurrChar->GetMapId();                                        ///< uint32
+    l_Data << pCurrChar->GetPositionX();                                    ///< float
+    l_Data << pCurrChar->GetPositionY();                                    ///< float
+    l_Data << pCurrChar->GetPositionZ();                                    ///< float
+    l_Data << pCurrChar->GetOrientation();                                  ///< float
+    l_Data << uint32(0);                                                    ///< uint32 => TransferSpellID
     SendPacket(&l_Data);
 
     // load player specific part before send times
@@ -1152,14 +1153,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
     
-    const static std::string timeZoneName = "Europe/Paris";
+    const static std::string l_TimeZoneName = "Europe/Paris";
 
-    l_Data.Initialize(SMSG_TIME_ZONE_INFORMATION, 26);
-    l_Data.WriteBits(timeZoneName.size(), 7);
-    l_Data.WriteBits(timeZoneName.size(), 7);
+    l_Data.Initialize(SMSG_SET_TIME_ZONE_INFORMATION, 26);
+    l_Data.WriteBits(l_TimeZoneName.size(), 7);
+    l_Data.WriteBits(l_TimeZoneName.size(), 7);
     l_Data.FlushBits();
-    l_Data.append(timeZoneName.c_str(), timeZoneName.size());
-    l_Data.append(timeZoneName.c_str(), timeZoneName.size());
+
+    l_Data.WriteString(l_TimeZoneName);
+    l_Data.WriteString(l_TimeZoneName);
+
     SendPacket(&l_Data);
 
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))

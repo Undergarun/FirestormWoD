@@ -58,6 +58,8 @@ enum Opcodes
         SMSG_CACHE_VERSION                          = 0x10EA,   /// 6.0.1 18322 => 0x5FA4A5
         SMSG_ADDON_INFO                             = 0x0EE2,   /// 6.0.1 18322 => 0x6073F0
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x0647,   /// 6.0.1 18322 => 0x5F49FF
+        SMSG_SET_TIME_ZONE_INFORMATION              = 0x0547,   /// 6.0.1 18322 => 0x5FB4A6
+        SMSG_LOGIN_VERIFY_WORLD                     = 0x017D,   /// 6.0.1 18322 => 0x5ECDA2
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
@@ -1347,7 +1349,6 @@ enum Opcodes
     SMSG_LIST_TARGETS                                 = 0x0000,
     SMSG_LOAD_CUF_PROFILES                            = 0x0000,
     SMSG_LOGIN_SET_TIME_SPEED                         = 0x0000,
-    SMSG_LOGIN_VERIFY_WORLD                           = 0x0000,
     SMSG_LOGOUT_CANCEL_ACK                            = 0x0000,
     SMSG_LOGOUT_COMPLETE                              = 0x0000,
     SMSG_LOGOUT_RESPONSE                              = 0x0000,
@@ -1677,7 +1678,6 @@ enum Opcodes
     SMSG_THREAT_UPDATE                                = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
     SMSG_TIME_SYNC_REQUEST                            = 0x0000,
-    SMSG_TIME_ZONE_INFORMATION                        = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,
     SMSG_TOGGLE_XP_GAIN                               = 0x0000,
