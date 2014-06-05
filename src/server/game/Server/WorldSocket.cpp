@@ -164,8 +164,7 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
         sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
 
     if (pct.GetOpcode() == 0)
-        return;
-
+        return 0;
 
     WorldPacket const* pkt = &pct;
 

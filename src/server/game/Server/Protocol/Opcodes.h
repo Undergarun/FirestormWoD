@@ -1621,7 +1621,6 @@ enum Opcodes
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
-    SMSG_SET_TIME_ZONE_INFORMATION                    = 0x0000,
     SMSG_SHOW_TAXI_NODES                              = 0x0000,
     SMSG_SHOW_BANK                                    = 0x0000,
     SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI        = 0x0000,

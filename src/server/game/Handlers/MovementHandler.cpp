@@ -680,7 +680,8 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
                 break;
 
             case MSETransportGuid:
-                p_Data >> l_MoverGuid;
+                if (l_HasTransportData)
+                    p_Data >> l_TransportGuid;
                 break;
 
             case MSETransportPositionX:
@@ -900,7 +901,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
 
     if (!l_Sequence)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::WriteMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::WriteMovementInfo: No movement sequence found for opcode 0x%04X", uint32(p_Data.GetOpcode()));
         return;
     }
 
