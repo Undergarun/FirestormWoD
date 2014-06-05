@@ -375,9 +375,75 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0EB9,   ///< 6.0.1 18322 => 0xC77801
 
     //////////////////////////////////////////////////////////////////////////
+    /// Movement
+    //////////////////////////////////////////////////////////////////////////
+    /// Start
+    CMSG_MOVE_START_FORWARD                     = 0x0B94,   ///< 6.0.1 18322 => 0x5D66EE
+    CMSG_MOVE_START_TURN_LEFT                   = 0x08B3,   ///< 6.0.1 18322 => 0x5D66EE
+    CMSG_MOVE_START_TURN_RIGHT                  = 0x089B,   ///< 6.0.1 18322 => 0x5D66EE
+    CMSG_MOVE_START_BACKWARD                    = 0x0041,   ///< 6.0.1 18322 => 0x5D66EE
+    
+    /// Misc
+    CMSG_MOVE_JUMP                              = 0x0BAC,   ///< 6.0.1 18322 => 0x5D66EE
+
+    /// Update
+    CMSG_MOVE_HEARTBEAT                         = 0x1861,   ///< 6.0.1 18322 => 0x5D66EE
+    CMSG_MOVE_SET_FACING                        = 0x18C7,   ///< 6.0.1 18322 => 0x5D66EE
+
+    /// Stop
+    CMSG_MOVE_STOP                              = 0x0B83,   ///< 6.0.1 18322 => 0x5D66EE
+    CMSG_MOVE_STOP_TURN                         = 0x08E3,   ///< 6.0.1 18322 => 0x5D66EE
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+
+    // MSG
+    MSG_INSPECT_ARENA_TEAMS = 0x0000,
+    MSG_AUCTION_HELLO = 0x0000,
+    MSG_BATTLEGROUND_PLAYER_POSITIONS = 0x0000,
+    MSG_GM_BIND_OTHER = 0x0000,
+    MSG_GM_SHOWLABEL = 0x0000,
+    MSG_GM_SUMMON = 0x0000,
+    MSG_MOVE_CHARM_TELEPORT_CHEAT = 0x0000,
+    MSG_MOVE_FALL_LAND = 0x0000,
+    MSG_MOVE_GRAVITY_CHNG = 0x0000,
+    MSG_MOVE_HOVER = 0x0000,
+    MSG_MOVE_JUMP = 0x0000,
+    MSG_MOVE_SET_ALL_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_SET_COLLISION_HEIGHT = 0x0000,
+    MSG_MOVE_SET_FACING = 0x0000,
+    MSG_MOVE_SET_FLIGHT_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_SET_PITCH = 0x0000,
+    MSG_MOVE_SET_RAW_POSITION_ACK = 0x0000,
+    MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_SET_RUN_MODE = 0x0000,
+    MSG_MOVE_SET_RUN_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_SET_SWIM_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_SET_TURN_RATE_CHEAT = 0x0000,
+    MSG_MOVE_SET_WALK_MODE = 0x0000,
+    MSG_MOVE_SET_WALK_SPEED_CHEAT = 0x0000,
+    MSG_MOVE_START_ASCEND = 0x0000,
+    MSG_MOVE_START_DESCEND = 0x0000,
+    MSG_MOVE_TELEPORT_ACK = 0x0000,
+    MSG_MOVE_TELEPORT_CHEAT = 0x0000,
+    MSG_MOVE_TIME_SKIPPED = 0x0000,
+    MSG_MOVE_TOGGLE_COLLISION_CHEAT = 0x0000,
+    MSG_MOVE_TOGGLE_FALL_LOGGING = 0x0000,
+    MSG_MOVE_TOGGLE_LOGGING = 0x0000,
+    MSG_MOVE_UPDATE_CAN_FLY = 0x0000,
+    MSG_MOVE_UPDATE_FLIGHT_SPEED = 0x0000,
+    MSG_MOVE_UPDATE_RUN_SPEED = 0x0000,
+    MSG_MOVE_UPDATE_TELEPORT = 0x0000,
+    MSG_MOVE_WATER_WALK = 0x0000,
+    MSG_MOVE_WORLDPORT_ACK = 0x0000,
+    MSG_NOTIFY_PARTY_SQUELCH = 0x0000,
+    MSG_QUERY_NEXT_MAIL_TIME = 0x0000,
+    MSG_SET_RAID_DIFFICULTY = 0x0000,
+
 
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
@@ -899,59 +965,10 @@ enum Opcodes
     CMSG_WORLD_TELEPORT                               = 0x0000,
     CMSG_WRAP_ITEM                                    = 0x0000,
     CMSG_ZONEUPDATE                                   = 0x0000,
-    CMSG_PLAYER_MOVE                                  = 0x0000 + 2,
     CMSG_CORPSE_QUERY                                 = 0x0000,
     CMSG_CONQUEST_POINTS_STATS_REQUEST                = 0x0000,
     CMSG_ARENA_2v2_STATS_REQUEST                      = 0x0000,
     CMSG_ARENA_3v3_STATS_REQUEST                      = 0x0000,
-
-    // MSG
-    MSG_INSPECT_ARENA_TEAMS                           = 0x0000,
-    MSG_AUCTION_HELLO                                 = 0x0000,
-    MSG_BATTLEGROUND_PLAYER_POSITIONS                 = 0x0000,
-    MSG_GM_BIND_OTHER                                 = 0x0000,
-    MSG_GM_SHOWLABEL                                  = 0x0000,
-    MSG_GM_SUMMON                                     = 0x0000,
-    MSG_MOVE_CHARM_TELEPORT_CHEAT                     = 0x0000,
-    MSG_MOVE_FALL_LAND                                = 0x0000,
-    MSG_MOVE_GRAVITY_CHNG                             = 0x0000,
-    MSG_MOVE_HOVER                                    = 0x0000,
-    MSG_MOVE_HEARTBEAT                                = 0x0000,
-    MSG_MOVE_JUMP                                     = 0x0000,
-    MSG_MOVE_SET_ALL_SPEED_CHEAT                      = 0x0000,
-    MSG_MOVE_SET_COLLISION_HEIGHT                     = 0x0000,
-    MSG_MOVE_SET_FACING                               = 0x0000,
-    MSG_MOVE_SET_FLIGHT_SPEED_CHEAT                   = 0x0000,
-    MSG_MOVE_SET_PITCH                                = 0x0000,
-    MSG_MOVE_SET_RAW_POSITION_ACK                     = 0x0000,
-    MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT                 = 0x0000,
-    MSG_MOVE_SET_RUN_MODE                             = 0x0000,
-    MSG_MOVE_SET_RUN_SPEED_CHEAT                      = 0x0000,
-    MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT                = 0x0000,
-    MSG_MOVE_SET_SWIM_SPEED_CHEAT                     = 0x0000,
-    MSG_MOVE_SET_TURN_RATE_CHEAT                      = 0x0000,
-    MSG_MOVE_SET_WALK_MODE                            = 0x0000,
-    MSG_MOVE_SET_WALK_SPEED_CHEAT                     = 0x0000,
-    MSG_MOVE_START_ASCEND                             = 0x0000,
-    MSG_MOVE_START_BACKWARD                           = 0x0000,
-    MSG_MOVE_START_DESCEND                            = 0x0000,
-    MSG_MOVE_STOP                                     = 0x0000,
-    MSG_MOVE_TELEPORT_ACK                             = 0x0000,
-    MSG_MOVE_TELEPORT_CHEAT                           = 0x0000,
-    MSG_MOVE_TIME_SKIPPED                             = 0x0000,
-    MSG_MOVE_TOGGLE_COLLISION_CHEAT                   = 0x0000,
-    MSG_MOVE_TOGGLE_FALL_LOGGING                      = 0x0000,
-    MSG_MOVE_TOGGLE_LOGGING                           = 0x0000,
-    MSG_MOVE_UPDATE_CAN_FLY                           = 0x0000,
-    MSG_MOVE_UPDATE_FLIGHT_SPEED                      = 0x0000,
-    MSG_MOVE_UPDATE_MOUSE                             = 0x0000,
-    MSG_MOVE_UPDATE_RUN_SPEED                         = 0x0000,
-    MSG_MOVE_UPDATE_TELEPORT                          = 0x0000,
-    MSG_MOVE_WATER_WALK                               = 0x0000,
-    MSG_MOVE_WORLDPORT_ACK                            = 0x0000,
-    MSG_NOTIFY_PARTY_SQUELCH                          = 0x0000,
-    MSG_QUERY_NEXT_MAIL_TIME                          = 0x0000,
-    MSG_SET_RAID_DIFFICULTY                           = 0x0000,
 
     // SMSG
     SMSG_SUPERCEDED_SPELL                             = 0x0000,

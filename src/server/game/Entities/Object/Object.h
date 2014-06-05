@@ -601,7 +601,7 @@ struct MovementInfo
         uint32 HaveSplineElevation;
     };
     // BitClientData
-    bool hasFallData;
+    bool HasFallData;
     bool hasFallDirection;
     uint32 Alive32;
 
@@ -617,7 +617,7 @@ struct MovementInfo
         t_guid = 0;
         t_pos.Relocate(0, 0, 0, 0);
         t_seat = -1;
-        hasFallData = false;
+        HasFallData = false;
         hasFallDirection = false;
         Alive32 = 0;
     }

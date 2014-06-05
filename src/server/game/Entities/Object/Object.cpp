@@ -1386,7 +1386,7 @@ void MovementInfo::Normalize()
 
     pitch = Position::NormalizePitch(pitch);
 
-    if (hasFallDirection && !hasFallData)
+    if (hasFallDirection && !HasFallData)
         hasFallDirection = false;
 }
 
