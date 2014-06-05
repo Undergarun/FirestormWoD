@@ -1041,45 +1041,66 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    bool sessionTimeAlert = false;
-    bool travelPass = true;
-    bool webTicketFeature = false;
-    bool ingameStoreFeature = true;
-    bool itemRestorationFeature = false;
+    bool l_EuropaTicketSystemEnabled            = true;
+    bool l_PlayTimeAlert                        = false;
+    bool l_ScrollOfResurrectionEnabled          = false;
+    bool l_VoiceChatSystemEnabled               = false;
+    bool l_ItemRestorationButtonEnbaled         = false;
+    bool l_RecruitAFriendSystem                 = false;
+    bool l_HasTravelPass                        = false;
+    bool l_WebTicketSystemStatus                = false;
+    bool l_StoreEnabled                         = false;
+    bool l_StoreIsDisabledByParentalControls    = false;
+    bool l_StoreIsAvailable                     = true;
 
-    l_Data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 35);
+    uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
+    uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
+    uint32 l_PlayTimeAlertDisplayAlertPeriod    = 0;
 
-    l_Data << uint32(1);                  // SoR remaining ?
-    l_Data << uint32(realmID);
-    l_Data << uint8(2);                   // Complain System Status ?
-    l_Data << uint32(43);                 // Unk
-    l_Data << uint32(1);                  // SoR per day ?
-    
-    l_Data.WriteBit(0);                   // Unk
-    l_Data.WriteBit(1);                   // Is Voice Chat allowed ?
-    l_Data.WriteBit(ingameStoreFeature);
-    l_Data.WriteBit(sessionTimeAlert);
-    l_Data.WriteBit(1);                   // Europa Ticket System Enabled ?
-    l_Data.WriteBit(travelPass);          // Has Travel Pass
-    l_Data.WriteBit(1);                   // Unk
-    l_Data.WriteBit(itemRestorationFeature);
-    l_Data.WriteBit(webTicketFeature);
+    uint32 l_SORRemaining = 1;
+    uint32 l_SORMaxPerDay = 1;
 
-    if (sessionTimeAlert)
+    uint32 l_ConfigRealmRecordID    = 640;
+    uint32 l_ConfigRealmID          = realmID;
+
+    uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
+
+    l_Data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);
+
+    l_Data << uint8(l_ComplainSystemStatus);                        ///< Complaints System Status
+    l_Data << uint32(l_SORMaxPerDay);                               ///< Max SOR Per day
+    l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
+    l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
+    l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
+
+    l_Data.WriteBit(l_VoiceChatSystemEnabled);                      ///< voice Chat System Status
+    l_Data.WriteBit(l_EuropaTicketSystemEnabled);                   ///< Europa Ticket System Enabled
+    l_Data.WriteBit(l_ScrollOfResurrectionEnabled);                 ///< Scroll Of Resurrection Enabled
+    l_Data.WriteBit(l_StoreEnabled);                                ///< Store system status
+    l_Data.WriteBit(l_StoreIsAvailable);                            ///< Can purchase in store
+    l_Data.WriteBit(l_StoreIsDisabledByParentalControls);           ///< Is store disabled by parental controls
+    l_Data.WriteBit(l_ItemRestorationButtonEnbaled);                ///< Item Restoration Button Enabled
+    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled     
+    l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
+    l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
+    l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.) 
+    l_Data.FlushBits();
+
+    if (l_EuropaTicketSystemEnabled)
     {
-        l_Data << uint32(0);              // Session Alert Period
-        l_Data << uint32(0);              // Session Alert DisplayTime
-        l_Data << uint32(0);              // Session Alert Delay
+        l_Data << uint32(0);
+        l_Data << uint32(60);
+        l_Data << uint32(10);
+        l_Data << uint32(1);
     }
 
-    if (travelPass)
+    if (l_PlayTimeAlert)
     {
-        l_Data << uint32(60000);          // Unk
-        l_Data << uint32(10);             // Unk
-        l_Data << uint32(114194674);      // Unk
-        l_Data << uint32(1);              // Unk
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertDelay);       ///< Alert delay
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertPeriod);      ///< Alert period
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertTime);        ///< Alert display time
     }
-   
+
     SendPacket(&l_Data);
 
     uint32 time2 = getMSTime() - time1;

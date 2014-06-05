@@ -57,6 +57,7 @@ enum Opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
         SMSG_CACHE_VERSION                          = 0x10EA,   /// 6.0.1 18322 => 0x5FA4A5
         SMSG_ADDON_INFO                             = 0x0EE2,   /// 6.0.1 18322 => 0x6073F0
+        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0647,   /// 6.0.1 18322 => 0x5F49FF
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
@@ -1213,7 +1214,6 @@ enum Opcodes
     SMSG_EXPLORATION_EXPERIENCE                       = 0x0000,
     SMSG_FACTION_BONUS_INFO                           = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                      = 0x0000,
-    SMSG_FEATURE_SYSTEM_STATUS                        = 0x0000,
     SMSG_FEIGN_DEATH_RESISTED                         = 0x0000,
     SMSG_FISH_ESCAPED                                 = 0x0000,
     SMSG_FISH_NOT_HOOKED                              = 0x0000,
