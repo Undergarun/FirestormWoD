@@ -25699,11 +25699,11 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
+    data << uint32(secsToTimeBitFields(sWorld->GetGameTime());  // server hour
+    data << uint32(secsToTimeBitFields(sWorld->GetGameTime());  // local hour
     data << float(0.01666667f);                                 // game speed
-    data << uint32(secsToTimeBitFields(time(NULL)));            // server hour
-    data << uint32(0);                                          // added in 3.1.2
-    data << uint32(0);                                          // added in 5.4.0
-    data << uint32(secsToTimeBitFields(time(NULL)));            // local hour
+    data << uint32(1);                                          // added in 5.4.0
+    data << uint32(1);                                          // added in 3.1.2
     GetSession()->SendPacket(&data);
 
     data.Initialize(SMSG_WORLD_SERVER_INFO, 4 * 5);

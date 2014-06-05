@@ -61,6 +61,7 @@ enum Opcodes
         SMSG_SET_TIME_ZONE_INFORMATION              = 0x0547,   ///< 6.0.1 18322 => 0x5FB4A6
         SMSG_LOGIN_VERIFY_WORLD                     = 0x017D,   ///< 6.0.1 18322 => 0x5ECDA2
         SMSG_NEW_WORLD                              = 0x16E5,   ///< 6.0.1 18322 => 0x5F2767
+        SMSG_LOGIN_SET_TIME_SPEED                   = 0x1654,   ///< 6.0.1 18322 => 0x5F5CB5
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x1269,   ///< 6.0.1 18322 => 0x5EEBFF
@@ -1352,7 +1353,6 @@ enum Opcodes
     SMSG_LIST_INVENTORY                               = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
     SMSG_LOAD_CUF_PROFILES                            = 0x0000,
-    SMSG_LOGIN_SET_TIME_SPEED                         = 0x0000,
     SMSG_LOGOUT_CANCEL_ACK                            = 0x0000,
     SMSG_LOGOUT_COMPLETE                              = 0x0000,
     SMSG_LOGOUT_RESPONSE                              = 0x0000,
