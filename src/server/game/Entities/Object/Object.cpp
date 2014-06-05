@@ -506,7 +506,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                 bool l_IsParabolicOrAnimated    = l_Spline->splineflags & (Movement::MoveSplineFlag::Parabolic | Movement::MoveSplineFlag::Animation);
                 bool l_HasUnkSpline             = false;
 
-                uint8 l_FinalFacingMove = 0;
+                uint8 l_FinalFacingMove = 4;
 
                 switch (l_Spline->splineflags & Movement::MoveSplineFlag::Mask_Final_Facing)
                 {

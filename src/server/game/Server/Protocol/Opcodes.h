@@ -207,6 +207,9 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Move
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamMove
+        SMSG_MONSTER_MOVE                           = 0x03F5,   ///< 6.0.1 18322 => 0xC7A031
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Spell
@@ -1392,7 +1395,6 @@ enum Opcodes
     SMSG_MISSILE_CANCEL                               = 0x0000,
     SMSG_MODIFY_COOLDOWN                              = 0x0000,
     SMSG_MONEY_NOTIFY                                 = 0x0000,
-    SMSG_MONSTER_MOVE                                 = 0x0000,
     SMSG_MOUNT_RESULT                                 = 0x0000,
     SMSG_MOUNT_SPECIAL_ANIM                           = 0x0000,
     SMSG_MOVE_COLLISION_DISABLE                       = 0x0000,

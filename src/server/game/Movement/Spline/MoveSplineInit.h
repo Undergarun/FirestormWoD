@@ -145,7 +145,7 @@ namespace Movement
     protected:
 
         MoveSplineInitArgs args;
-        Unit&  unit;
+        Unit&  m_Unit;
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.flying = true; }
@@ -162,7 +162,7 @@ namespace Movement
     {
         args.path_Idx_offset = path_offset;
         args.path.resize(controls.size());
-        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
+        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(m_Unit, args.TransformForTransport));
     }
 
     inline void MoveSplineInit::MoveTo(float x, float y, float z)
@@ -186,7 +186,7 @@ namespace Movement
 
     inline void MoveSplineInit::SetFacing(Vector3 const& spot)
     {
-        TransportPathTransform transform(unit, args.TransformForTransport);
+        TransportPathTransform transform(m_Unit, args.TransformForTransport);
         Vector3 finalSpot = transform(spot);
         args.facing.f.x = finalSpot.x;
         args.facing.f.y = finalSpot.y;
