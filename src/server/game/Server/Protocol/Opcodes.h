@@ -60,6 +60,7 @@ enum Opcodes
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x0647,   /// 6.0.1 18322 => 0x5F49FF
         SMSG_SET_TIME_ZONE_INFORMATION              = 0x0547,   /// 6.0.1 18322 => 0x5FB4A6
         SMSG_LOGIN_VERIFY_WORLD                     = 0x017D,   /// 6.0.1 18322 => 0x5ECDA2
+        SMSG_NEW_WORLD                              = 0x16E5,   /// 6.0.1 18322 => 0x5F2767
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
@@ -225,7 +226,7 @@ enum Opcodes
         /// Spell Book / Bar
         SMSG_UPDATE_WEEKLY_SPELL_USAGE                  = 0x0000,
         SMSG_WEEKLY_SPELL_USAGE                         = 0x0000,
-        SMSG_SEND_KNOWN_SPELLS                          = 0x0000,
+        SMSG_SEND_KNOWN_SPELLS                          = 0x0845,   ///< 6.0.1 18322 => 0xC6FF0B
         SMSG_SEND_SPELL_CHARGES                         = 0x0000,
         SMSG_SEND_SPELL_HISTORY                         = 0x0000,
         SMSG_SEND_UNLEARN_SPELLS                        = 0x0000,
@@ -388,6 +389,7 @@ enum Opcodes
     
     /// Misc
     CMSG_MOVE_JUMP                              = 0x0BAC,   ///< 6.0.1 18322 => 0x5D66EE
+    CMSG_WORLD_PORT_RESPONSE                    = 0x0B27,   ///< 6.0.1 18322 => 0x5D139A (nullsub)
 
     /// Update
     CMSG_MOVE_HEARTBEAT                         = 0x1861,   ///< 6.0.1 18322 => 0x5D66EE
@@ -442,7 +444,6 @@ enum Opcodes
     MSG_MOVE_UPDATE_RUN_SPEED = 0x0000,
     MSG_MOVE_UPDATE_TELEPORT = 0x0000,
     MSG_MOVE_WATER_WALK = 0x0000,
-    MSG_MOVE_WORLDPORT_ACK = 0x0000,
     MSG_NOTIFY_PARTY_SQUELCH = 0x0000,
     MSG_QUERY_NEXT_MAIL_TIME = 0x0000,
     MSG_SET_RAID_DIFFICULTY = 0x0000,
@@ -1436,7 +1437,6 @@ enum Opcodes
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
     SMSG_NAME_QUERY_RESPONSE                          = 0x0000,
     SMSG_NEW_TAXI_PATH                                = 0x0000,
-    SMSG_NEW_WORLD                                    = 0x0000,
     SMSG_NEW_WORLD_ABORT                              = 0x0000,
     SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x0000,
     SMSG_NOTIFICATION                                 = 0x0000,

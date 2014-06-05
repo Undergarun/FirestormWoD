@@ -2901,13 +2901,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << float(m_teleport_dest.GetPositionY());
-                data << float(m_teleport_dest.GetOrientation());
-                data << float(m_teleport_dest.GetPositionZ());
-                data << float(m_teleport_dest.GetPositionX());
-                data << uint32(mapid);
-                GetSession()->SendPacket(&data);
+                WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+
+                l_Data << uint32(mapid);                                    ///< uint32
+                l_Data << float(m_teleport_dest.GetPositionX());            ///< float
+                l_Data << float(m_teleport_dest.GetPositionY());            ///< float
+                l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
+                l_Data << float(m_teleport_dest.GetOrientation());          ///< float
+                l_Data << uint32(0);                                        ///< uint32 => TransferSpellID
+
+                GetSession()->SendPacket(&l_Data);
+
                 SendSavedInstances();
             }
 
@@ -4403,8 +4407,10 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFullHealth();
     SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+
     if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
         SetPower(POWER_RAGE, GetMaxPower(POWER_RAGE));
+
     SetPower(POWER_FOCUS, GetMaxPower(POWER_FOCUS));
     SetPower(POWER_RUNIC_POWER, 0);
     SetPower(POWER_CHI, 0);
@@ -4421,36 +4427,36 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
 void Player::SendKnownSpells()
 {
-    ByteBuffer bitBuffer;
-    ByteBuffer dataBuffer;
-    uint16 spellCount = 0;
+    uint32 l_SpellCount = 0;
 
-    WorldPacket data(SMSG_SEND_KNOWN_SPELLS);
-    
+    WorldPacket l_Data(SMSG_SEND_KNOWN_SPELLS);   
+
+    l_Data.WriteBit(1);
+    l_Data.FlushBits();
+
+    l_Data << uint32(l_SpellCount);
+
     // spell count placeholder
-    for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    for (PlayerSpellMap::const_iterator l_It = m_spells.begin(); l_It != m_spells.end(); ++l_It)
     {
-        if (!itr->second)
+        if (!l_It->second)
             continue;
 
-        if (itr->second->state == PLAYERSPELL_REMOVED)
+        if (l_It->second->state == PLAYERSPELL_REMOVED)
             continue;
 
-        if (!itr->second->active || itr->second->disabled)
+        if (!l_It->second->active || l_It->second->disabled)
             continue;
 
-        dataBuffer << uint32(itr->first);
+        l_Data << uint32(l_It->first);
 
-        ++spellCount;
+        ++l_SpellCount;
     }
 
-    bitBuffer.WriteBits(spellCount, 22);
-    bitBuffer.WriteBit(1);
-    bitBuffer.FlushBits();
-    data.append(bitBuffer);
-    data.append(dataBuffer);
+    l_Data.wpos(1);
+    l_Data << uint32(l_SpellCount);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CHARACTER: Sent Send Known Spells");
 }
