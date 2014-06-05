@@ -7816,9 +7816,9 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
     return GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MODIFIER + field, offset);
 }
 
-void Player::SendActionButtons(uint32 state) const
+void Player::SendActionButtons(uint32 p_State) const
 {
-    WorldPacket data(SMSG_UPDATE_ACTION_BUTTONS);
+    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS);
 
     /*
         state can be 0, 1, 2
@@ -7827,48 +7827,39 @@ void Player::SendActionButtons(uint32 state) const
         2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
     */
 
-    uint8 buttons[MAX_ACTION_BUTTONS][8];
-    ActionButtonPacket* buttonsTab = (ActionButtonPacket*)buttons;
-    memset(buttons, 0, MAX_ACTION_BUTTONS * 8);
+    uint64 l_ButtonsRaw[MAX_ACTION_BUTTONS];
 
-    for (uint8 i = 0; i < MAX_ACTION_BUTTONS; ++i)
+    ActionButtonPacket* l_ButtonsTab = (ActionButtonPacket*)l_ButtonsRaw;
+
+    memset(l_ButtonsRaw, 0, MAX_ACTION_BUTTONS * 8);
+
+    for (uint8 l_I = 0; l_I < MAX_ACTION_BUTTONS; ++l_I)
     {
-        ActionButton const* ab = ((Player*)this)->GetActionButton(i);
-        if (!ab)
+        ActionButton const* l_ActionButton = ((Player*)this)->GetActionButton(l_I);
+
+        if (!l_ActionButton)
         {
-            buttonsTab[i].id = 0;
-            buttonsTab[i].type = 0;
+            l_ButtonsTab[l_I].id    = 0;
+            l_ButtonsTab[l_I].type  = 0;
             continue;
         }
 
-        buttonsTab[i].id = ab->GetAction();
-        buttonsTab[i].type = uint32(ab->GetType()) << 24;
+        l_ButtonsTab[l_I].id    = l_ActionButton->GetAction();
+        l_ButtonsTab[l_I].type  = uint32(l_ActionButton->GetType()) << 24;
     }
 
-    if (state != 2)
+    if (p_State != 2)
     {
-        BuildActionButtonsDatas(&data, buttons, 7);
-        BuildActionButtonsDatas(&data, buttons, 2);
-        BuildActionButtonsDatas(&data, buttons, 1);
-        BuildActionButtonsDatas(&data, buttons, 6);
-        BuildActionButtonsDatas(&data, buttons, 3);
-        BuildActionButtonsDatas(&data, buttons, 4);
-        BuildActionButtonsDatas(&data, buttons, 5);
-        BuildActionButtonsDatas(&data, buttons, 0);
-        BuildActionButtonsDatas(&data, buttons, 3, true);
-        BuildActionButtonsDatas(&data, buttons, 1, true);
-        BuildActionButtonsDatas(&data, buttons, 4, true);
-        BuildActionButtonsDatas(&data, buttons, 5, true);
-        BuildActionButtonsDatas(&data, buttons, 6, true);
-        BuildActionButtonsDatas(&data, buttons, 2, true);
-        BuildActionButtonsDatas(&data, buttons, 7, true);
-        BuildActionButtonsDatas(&data, buttons, 0, true);
+        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+            l_Data << uint64(l_ButtonsRaw[button]);
     }
     else
-        data.resize(MAX_ACTION_BUTTONS * 4);    // insert crap, client doesnt even parse this for state == 2
+        l_Data.resize(MAX_ACTION_BUTTONS * 8);    // insert crap, client doesnt even parse this for state == 2
 
-    data << uint8(state);
-    GetSession()->SendPacket(&data);
+    l_Data << uint8(p_State);
+
+    GetSession()->SendPacket(&l_Data);
+
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
 }
 

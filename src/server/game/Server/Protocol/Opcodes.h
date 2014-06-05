@@ -54,24 +54,27 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamDispatch
         /// Base opcodes
-        SMSG_AUTH_RESPONSE                          = 0x0028,   /// 6.0.1 18322 => 0x60BDBA
-        SMSG_CACHE_VERSION                          = 0x10EA,   /// 6.0.1 18322 => 0x5FA4A5
-        SMSG_ADDON_INFO                             = 0x0EE2,   /// 6.0.1 18322 => 0x6073F0
-        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0647,   /// 6.0.1 18322 => 0x5F49FF
-        SMSG_SET_TIME_ZONE_INFORMATION              = 0x0547,   /// 6.0.1 18322 => 0x5FB4A6
-        SMSG_LOGIN_VERIFY_WORLD                     = 0x017D,   /// 6.0.1 18322 => 0x5ECDA2
-        SMSG_NEW_WORLD                              = 0x16E5,   /// 6.0.1 18322 => 0x5F2767
+        SMSG_AUTH_RESPONSE                          = 0x0028,   ///< 6.0.1 18322 => 0x60BDBA
+        SMSG_CACHE_VERSION                          = 0x10EA,   ///< 6.0.1 18322 => 0x5FA4A5
+        SMSG_ADDON_INFO                             = 0x0EE2,   ///< 6.0.1 18322 => 0x6073F0
+        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0647,   ///< 6.0.1 18322 => 0x5F49FF
+        SMSG_SET_TIME_ZONE_INFORMATION              = 0x0547,   ///< 6.0.1 18322 => 0x5FB4A6
+        SMSG_LOGIN_VERIFY_WORLD                     = 0x017D,   ///< 6.0.1 18322 => 0x5ECDA2
+        SMSG_NEW_WORLD                              = 0x16E5,   ///< 6.0.1 18322 => 0x5F2767
+
+        /// Misc
+        SMSG_UPDATE_ACTION_BUTTONS                  = 0x1269,   ///< 6.0.1 18322 => 0x5EEBFF
 
         /// World Object management
-        SMSG_UPDATE_OBJECT                          = 0x086D,   /// 6.0.1 18322 => 0x5FA2AA
-        SMSG_DESTROY_OBJECT                         = 0x104E,   /// 6.0.1 18322 => 0x5FAA12
+        SMSG_UPDATE_OBJECT                          = 0x086D,   ///< 6.0.1 18322 => 0x5FA2AA
+        SMSG_DESTROY_OBJECT                         = 0x104E,   ///< 6.0.1 18322 => 0x5FAA12
 
         /// Character list
-        SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   /// 6.0.1 18322 => 0x608845
-        SMSG_CREATE_CHAR                            = 0x0447,   /// 6.0.1 18322 => 0x5F23F2
+        SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   ///< 6.0.1 18322 => 0x608845
+        SMSG_CREATE_CHAR                            = 0x0447,   ///< 6.0.1 18322 => 0x5F23F2
 
         /// Account data
-        SMSG_ACCOUNT_DATA_TIMES                     = 0x0762,   /// 6.0.1 18322 => 0x5F7A8D
+        SMSG_ACCOUNT_DATA_TIMES                     = 0x0762,   ///< 6.0.1 18322 => 0x5F7A8D
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -107,7 +110,7 @@ enum Opcodes
         SMSG_GUILD_ROSTER                           = 0x0000,
         SMSG_GUILD_ROSTER_UPDATE                    = 0x0000,
         SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x0000,
-        SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,   /// Debug opcode (disabled)
+        SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,   ///< Debug opcode (disabled)
         SMSG_GUILD_XPEARNED                         = 0x0000,
         SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000,
         SMSG_GUILD_REWARDS_LIST                     = 0x0000,
@@ -152,7 +155,7 @@ enum Opcodes
         SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x0000,
 
         /// Misc
-        SMSG_GMGUILD_SAVE_RESPONSE                  = 0x0000,   /// Debug opcode (disabled)
+        SMSG_GMGUILD_SAVE_RESPONSE                  = 0x0000,   ///< Debug opcode (disabled)
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -261,11 +264,11 @@ enum Opcodes
         SMSG_SPELL_MISS_LOG                             = 0x0000,
         SMSG_ENVIRONMENTAL_DAMAGE_LOG                   = 0x0000,
         SMSG_SPELL_PERIODIC_AURA_LOG                    = 0x0000,
-        SMSG_SPELL_PROC_SCRIPT_LOG                      = 0x0000,   /// Debug opcode (disabled)
-        SMSG_SPELL_PROCS_PER_MINUTE_LOG                 = 0x0000,   /// Debug opcode (disabled)
-        SMSG_SPELL_CHANCE_PROC_LOG                      = 0x0000,   /// Debug opcode (disabled)
-        SMSG_RESIST_LOG                                 = 0x0000,   /// Debug opcode (disabled)
-        SMSG_AURA_CAST_LOG                              = 0x0000,   /// Debug opcode (disabled)
+        SMSG_SPELL_PROC_SCRIPT_LOG                      = 0x0000,   ///< Debug opcode (disabled)
+        SMSG_SPELL_PROCS_PER_MINUTE_LOG                 = 0x0000,   ///< Debug opcode (disabled)
+        SMSG_SPELL_CHANCE_PROC_LOG                      = 0x0000,   ///< Debug opcode (disabled)
+        SMSG_RESIST_LOG                                 = 0x0000,   ///< Debug opcode (disabled)
+        SMSG_AURA_CAST_LOG                              = 0x0000,   ///< Debug opcode (disabled)
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1698,7 +1701,6 @@ enum Opcodes
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
     SMSG_UNIT_SPELLCAST_START                         = 0x0000,
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x0000,
-    SMSG_UPDATE_ACTION_BUTTONS                        = 0x0000,
     SMSG_UPDATE_COMBO_POINTS                          = 0x0000,
     SMSG_UPDATE_CURRENCY                              = 0x0000,
     SMSG_UPDATE_CURRENCY_WEEK_LIMIT                   = 0x0000,
