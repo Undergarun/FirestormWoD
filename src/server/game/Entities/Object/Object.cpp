@@ -412,6 +412,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             p_Data->WriteBit(0);                                            ///< Unk
             p_Data->WriteBit(0);                                            ///< Unk
             p_Data->WriteBit(0);                                            ///< Unk
+
             p_Data->FlushBits();
 
             if (l_HasTransportInformations)
@@ -426,6 +427,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
                 p_Data->WriteBit(l_Unit->m_movementInfo.t_time2);           ///< Has transport time 2
                 p_Data->WriteBit(l_Unit->m_movementInfo.t_time3);           ///< Has transport time 3
+                p_Data->FlushBits();
 
                 if (l_Unit->m_movementInfo.t_time2)
                     *p_Data << uint32(l_Unit->m_movementInfo.t_time2);      ///< Transport time 2
@@ -481,7 +483,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         if (l_HasSpline)
         {
             Movement::MoveSpline * l_Spline = l_Unit->movespline;
-            *p_Data << uint32(l_Spline->GetId());                           ///< Spline ID
+
+            *p_Data << uint32(getMSTime());                                 ///< Move Ticks
 
             if (!l_Spline->isCyclic())
             {
@@ -499,6 +502,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             }
 
             p_Data->WriteBit(!l_Spline->Finalized());
+            p_Data->FlushBits();
 
             if (!l_Spline->Finalized())
             {
@@ -535,13 +539,13 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                 *p_Data << float(1.f);                                      ///< splineInfo.duration_mod_next; added in 3.1
                 *p_Data << uint32(l_Spline->getPath().size());              ///< Path node count
 
-                if (l_Spline->splineflags & Movement::MoveSplineFlag::Final_Angle)
+                if (l_FinalFacingMove == 3)
                     *p_Data << float(l_Spline->facing.angle);               ///< Final facing angle
 
-                if (l_Spline->splineflags & Movement::MoveSplineFlag::Final_Target)
+                if (l_FinalFacingMove == 2)
                     *p_Data << uint64(l_Spline->facing.target);             ///< Final facing target object
 
-                if (l_Spline->splineflags & Movement::MoveSplineFlag::Final_Point)
+                if (l_FinalFacingMove == 1)
                 {
                     *p_Data << float(l_Spline->facing.f.x);                 ///< Final facing X
                     *p_Data << float(l_Spline->facing.f.y);                 ///< Final facing Y
@@ -594,6 +598,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
         p_Data->WriteBit(l_WorldObject->m_movementInfo.t_time2);            ///< Has transport time 2
         p_Data->WriteBit(l_WorldObject->m_movementInfo.t_time3);            ///< Has transport time 3
+        p_Data->FlushBits();
 
         if (l_WorldObject->m_movementInfo.t_time2)
             *p_Data << uint32(l_WorldObject->m_movementInfo.t_time2);       ///< Transport time 2

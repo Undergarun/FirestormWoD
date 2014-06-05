@@ -260,7 +260,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamMove
         DEFINE_OPCODE_HANDLER(SMSG_MONSTER_MOVE,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-    #pragma endrgion
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Spell
