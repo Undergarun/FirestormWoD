@@ -436,6 +436,8 @@ class boss_spirit_kings_controler : public CreatureScript
                             {
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
 
                                 for (auto entry: spiritKingsEntry)
                                 {
@@ -672,6 +674,10 @@ class boss_spirit_kings : public CreatureScript
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 }
+                else
+                    if (pInstance)
+                        if (pInstance->GetBossState(DATA_SPIRIT_KINGS) == FAIL)
+                            pInstance->SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
              }
 
             Creature* GetControler()
@@ -790,7 +796,6 @@ class boss_spirit_kings : public CreatureScript
                         summons.DespawnAll();
                         me->SetFullHealth();
                         me->SetReactState(REACT_PASSIVE);
-                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                         vanquished      = false;
                         _introQiangDone = false;

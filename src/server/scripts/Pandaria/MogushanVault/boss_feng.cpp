@@ -54,7 +54,7 @@ enum eSpells
     SPELL_ARCANE_VELOCITY               = 116364,
     SPELL_ARCANE_RESONANCE              = 116417,
 
-    // Spirit of the Shield ( Heroic )
+    // Spirit of the Shield (Heroic)
     SPELL_SHADOWBURN                    = 131792,
     SPELL_SIPHONING_SHIELD              = 118071,
     SPELL_CHAINS_OF_SHADOW              = 118783,
@@ -829,31 +829,31 @@ class mob_siphon_shield : public CreatureScript
             {
                 switch (action)
                 {
-                case ACTION_SOUL_HOME:
-                {
-                    if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
-                        feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
-                    soulsCount--;
-                    break;
-                }
-                case ACTION_SOUL_KILLED:
-                {
-                    soulsCount--;
-                    break;
-                }
-                case ACTION_SOUL_REMOVE:
-                {
-                    std::list<Creature*> soulList;
-                    GetCreatureListWithEntryInGrid(soulList, me, NPC_SOUL_FRAGMENT, 200.0f);
+                    case ACTION_SOUL_HOME:
+                    {
+                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                            feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
+                        soulsCount--;
+                        break;
+                    }
+                    case ACTION_SOUL_KILLED:
+                    {
+                        soulsCount--;
+                        break;
+                    }
+                    case ACTION_SOUL_REMOVE:
+                    {
+                        std::list<Creature*> soulList;
+                        GetCreatureListWithEntryInGrid(soulList, me, NPC_SOUL_FRAGMENT, 200.0f);
 
-                    for (auto soul : soulList)
-                        soul->DespawnOrUnsummon(1000);
+                        for (auto soul : soulList)
+                            soul->DespawnOrUnsummon(1000);
 
-                    soulsCount = 0;
-                    break;
-                }
-                default:
-                    break;
+                        soulsCount = 0;
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
