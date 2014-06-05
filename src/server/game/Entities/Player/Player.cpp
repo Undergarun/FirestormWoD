@@ -182,53 +182,6 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     // Level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
-
-    // Add Taxi Nodes availables from player level
-    for (uint32 i = 0; i < sTaxiNodesStore.GetNumRows(); i++)
-    {
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
-        if (!node)
-            continue;
-
-        // Bad map id
-        if (!sMapStore.LookupEntry(node->map_id))
-            continue;
-
-        int gx=(int)(32-node->x/SIZE_OF_GRIDS);             //grid x
-        int gy=(int)(32-node->y/SIZE_OF_GRIDS);             //grid y
-
-        // Bad positions
-        if (gx < 0 || gy < 0)
-            continue;
-
-        uint32 zone = sMapMgr->GetZoneId(node->map_id, node->x, node->y, node->z);
-        if (!zone)
-            continue;
-
-        WorldMapAreaEntry const* worldMapArea = sWorldMapAreaStore.LookupEntry(zone);
-        if (!worldMapArea)
-            continue;
-
-        uint32 team = Player::TeamForRace(race);
-
-        if (team == PANDAREN_NEUTRAL)
-            continue;
-
-        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0])
-            continue;
-
-        if (!worldMapArea->minRecommendedLevel)
-            continue;
-
-        uint32 minLevel = worldMapArea->minRecommendedLevel;
-
-        // Hackfix for TwilightHighlands map swapping
-        if (worldMapArea->area_id == 4922)
-            minLevel = 84;
-
-        if (minLevel <= level)
-            SetTaximaskNode(node->ID);
-    }
 }
 
 void PlayerTaxi::LoadTaxiMask(std::string const &data)

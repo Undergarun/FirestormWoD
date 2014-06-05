@@ -287,12 +287,6 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
 {
-    time_t now = time(NULL);
-    if (now - timeCharEnumOpcode < 5)
-        return;
-    else
-        timeCharEnumOpcode = now;
-    
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
