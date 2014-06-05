@@ -7771,43 +7771,28 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 p_State) const
 {
-    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS);
-
-    /*
-        state can be 0, 1, 2
-        0 - Sends initial action buttons, client does not validate if we have the spell or not
-        1 - Used used after spec swaps, client validates if a spell is known.
-        2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
-    */
-
-    uint64 l_ButtonsRaw[MAX_ACTION_BUTTONS];
-
-    ActionButtonPacket* l_ButtonsTab = (ActionButtonPacket*)l_ButtonsRaw;
-
-    memset(l_ButtonsRaw, 0, MAX_ACTION_BUTTONS * 8);
-
-    for (uint8 l_I = 0; l_I < MAX_ACTION_BUTTONS; ++l_I)
-    {
-        ActionButton const* l_ActionButton = ((Player*)this)->GetActionButton(l_I);
-
-        if (!l_ActionButton)
-        {
-            l_ButtonsTab[l_I].id    = 0;
-            l_ButtonsTab[l_I].type  = 0;
-            continue;
-        }
-
-        l_ButtonsTab[l_I].id    = l_ActionButton->GetAction();
-        l_ButtonsTab[l_I].type  = uint32(l_ActionButton->GetType()) << 24;
-    }
+    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 132));
 
     if (p_State != 2)
     {
+        //Masks
         for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-            l_Data << uint64(l_ButtonsRaw[button]);
+        {
+            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+            
+            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
+                l_Data << uint64(itr->second.packedData);
+            else
+                l_Data << uint64(0);
+        }
     }
     else
-        l_Data.resize(MAX_ACTION_BUTTONS * 8);    // insert crap, client doesnt even parse this for state == 2
+    {
+        for (uint32 l_I = 0; l_I < MAX_ACTION_BUTTONS; l_I++)
+        {
+            l_Data << uint64(0);
+        }
+    }
 
     l_Data << uint8(p_State);
 
