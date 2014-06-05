@@ -1355,6 +1355,337 @@ class mob_zephyr : public CreatureScript
         }
 };
 
+// 64916 - Kor'thik Swarmguard
+class mob_korthik_swarmguard : public CreatureScript
+{
+public:
+    mob_korthik_swarmguard() : CreatureScript("mob_korthik_swarmguard") { }
+
+    struct mob_korthik_swarmguardAI : public ScriptedAI
+    {
+        mob_korthik_swarmguardAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        uint64 protectedAmberCallerGuid;
+        InstanceScript* pInstance;
+        bool inCombat;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
+            protectedAmberCallerGuid = 0;
+            inCombat = false;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            protectedAmberCallerGuid = 0;
+            inCombat = false;
+        }
+
+        void EnterCombat(Unit* attacker)
+        {
+            if (!inCombat)
+            {
+                events.ScheduleEvent(EVENT_CARAPACE, 2000);
+                // Retreiving list of ambercallers (maximum: 2 if all is alright)
+                std::list<Creature*> amberCallerList;
+                GetCreatureListWithEntryInGrid(amberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
+
+                if (amberCallerList.size())
+                {
+                    std::list<Creature*>::iterator itr = amberCallerList.begin();
+
+                    // Trying to bind to the first amber caller
+                    Creature* amberCaller = *itr;
+
+                    // Need to get the the other Kor'thik SwarmGuard
+                    std::list<Creature*> meList;
+                    GetCreatureListWithEntryInGrid(meList, me, me->GetEntry(), 50.0f);
+                    std::list<Creature*>::iterator meItr = meList.begin();
+                    Creature* otherSwarmGuard = *meItr;
+
+                    // Should not be me (that's why we get the list)!
+                    if (otherSwarmGuard == me)
+                        otherSwarmGuard = *(++meItr);
+
+                    // Other SwarmGuard could be invalid (if dead, for instance)
+                    if (otherSwarmGuard)
+                    {
+                        // Checking if the ambercaller we picked isn't already bind to the other SwarmGuard, and if so, picking the next amberCaller in the list
+                        uint64 alreadyProtected = CAST_AI(mob_korthik_swarmguard::mob_korthik_swarmguardAI, otherSwarmGuard->AI())->protectedAmberCallerGuid;
+                        if (amberCaller->GetGUID() == alreadyProtected)
+                        {
+                            amberCaller = *(++itr);
+                            uint64 amberGuid = amberCaller->GetGUID();
+                        }
+                    }
+
+                    // amberCaller could be not valid
+                    if (amberCaller)
+                    {
+                        protectedAmberCallerGuid = amberCaller->GetGUID();
+                        DoCast(amberCaller, SPELL_SWARMGUARDS_AEGIS);
+                        amberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
+                    }
+                }
+                inCombat = true;
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!inCombat)
+                return;
+
+            if (pInstance)
+            {
+                if (pInstance->IsWipe())
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    me->SetFullHealth();
+                    me->RemoveAllAuras();
+                    Reset();
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            // Looking for Sra'thik Ambercaller to protect
+            Creature* amberCaller = ObjectAccessor::FindUnit(protectedAmberCallerGuid)->ToCreature();
+            // Ambercaller not found, dead or too far
+            if (!amberCaller || !amberCaller->isAlive() || me->GetDistance(amberCaller) > 30.0f)
+            {
+                if (!me->HasAura(SPELL_SEPARATION_ANXIETY))
+                    me->AddAura(SPELL_SEPARATION_ANXIETY, me);
+            }
+            // Ambercaller is here: we remove anxiety aura if set
+            else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
+                me->RemoveAura(SPELL_SEPARATION_ANXIETY);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                if (eventId == EVENT_CARAPACE)
+                {
+                    DoCast(me, SPELL_CARAPACE);
+                    events.ScheduleEvent(EVENT_CARAPACE, urand(10000, 20000));
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_korthik_swarmguardAI(creature);
+    }
+};
+
+// 64917 - Sra'thik Ambercaller
+class mob_srathik_ambercaller : public CreatureScript
+{
+public:
+    mob_srathik_ambercaller() : CreatureScript("mob_srathik_ambercaller") { }
+
+    struct mob_srathik_ambercallerAI : public ScriptedAI
+    {
+        mob_srathik_ambercallerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void DoAction(int32 const action)
+        {
+            if (action == ACTION_AMBER_VOLLEY)
+            {
+                DoCast(SPELL_AMBER_VOLLEY);
+                events.ScheduleEvent(EVENT_AMBER_VOLLEY, 2000);
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (pInstance)
+            {
+                if (pInstance->IsWipe())
+                {
+                    me->RemoveAllAuras();
+                    me->SetFullHealth();
+                    Reset();
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_AMBER_VOLLEY)
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 100.0f);
+
+                if (playerList.size())
+                {
+                    // Picking a random player to attack
+                    std::list<Player*>::iterator itr = playerList.begin();
+                    bool search = true;
+
+                    while (search)
+                    {
+                        if (urand(0, 1))
+                        {
+                            me->CastSpell(*itr, SPELL_AMBER_VOLLEY_MISSILE, true);
+                            search = false;
+                            break;
+                        }
+
+                        ++itr;
+                        if (itr == playerList.end())
+                            itr = playerList.begin();
+                    }
+
+                    // Rescheduling
+                    if (pInstance)
+                    {
+                        uint32 mode = pInstance->instance->GetSpawnMode();
+                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, mode == RAID_TOOL_DIFFICULTY ? 3000 : Is25ManRaid() ? 2000 : 5000);
+                    }
+                }
+            }
+            // No melee attack
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_srathik_ambercallerAI(creature);
+    }
+};
+
+Position atriumPath[9] =
+{
+    {-2429.16f, 431.90f, 554.52f, 0.0f},
+    {-2417.22f, 456.37f, 554.52f, 0.0f},
+    {-2417.60f, 498.18f, 554.52f, 0.0f},
+    {-2436.80f, 524.51f, 554.52f, 0.0f},
+    {-2451.77f, 531.64f, 554.52f, 0.0f},
+    {-2504.65f, 534.39f, 554.52f, 0.0f},
+    {-2538.70f, 508.50f, 554.52f, 0.0f},
+    {-2543.00f, 454.06f, 554.52f, 0.0f},
+    {-2528.75f, 432.90f, 554.52f, 0.0f},
+};
+
+// 64902 - Kor'thik Fleshrender
+class mob_korthik_fleshrender : public CreatureScript
+{
+public:
+    mob_korthik_fleshrender() : CreatureScript("mob_korthik_fleshrender") { }
+
+    struct mob_korthik_fleshrenderAI : ScriptedAI
+    {
+        mob_korthik_fleshrenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+        uint8 point;
+        int8 direction;
+        uint32 walkTimer;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
+            point = me->GetPositionY() < 460.0f ? 0 : 1;
+            direction = -1;
+            me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+            walkTimer = 0;
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE || !id)
+                return;
+
+            walkTimer = 1;
+
+            point += direction;
+            // Turning back
+            if (point < 0 || point > 8)
+            {
+                direction *= -1;
+                point += 2 * direction;
+            }
+        }
+
+        void EnterCombat(Unit* /*attacker*/)
+        {
+            events.ScheduleEvent(EVENT_GREVIOUS_WHIRL, 5000);
+            events.ScheduleEvent(EVENT_MORTAL_REND,    12000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (walkTimer)
+            {
+                if (walkTimer > diff)
+                    walkTimer -= diff;
+                else
+                {
+                    me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+                    walkTimer = 0;
+                }
+            }
+
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while(uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_GREVIOUS_WHIRL:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_GREVIOUS_WHIRL, true);
+                        events.ScheduleEvent(EVENT_GREVIOUS_WHIRL, 20000);
+                        break;
+                    }
+                    case EVENT_MORTAL_REND:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_MORTAL_REND, true);
+                        events.ScheduleEvent(EVENT_MORTAL_REND, 20000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_korthik_fleshrenderAI(creature);
+    }
+
+};
+
 // 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
@@ -1414,5 +1745,8 @@ void AddSC_heart_of_fear()
     new mob_coagulated_amber();         // 63597 - Coagulated Amber
     new mob_kor_thik_silentwing();      // 64355 - Kor'thik Silentwing
     new mob_zephyr();                   // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+    new mob_korthik_swarmguard();       // 64916 - Kor'thik Swarmguard
+    new mob_srathik_ambercaller();      // 64917 - Sra'thik Ambercaller
+    new mob_korthik_fleshrender();      // 64902 - Kor'thik Fleshrender
     new spell_vital_strikes();          // 123421 - Vital Strikes
 }
