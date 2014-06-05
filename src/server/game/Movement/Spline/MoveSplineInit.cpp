@@ -290,8 +290,6 @@ namespace Movement
         m_Unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         l_MoveSpline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
-
         uint64 l_MoverGUID = m_Unit.GetGUID();
         uint64 l_TransportGUID = m_Unit.GetTransGUID();
 
