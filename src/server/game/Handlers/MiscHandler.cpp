@@ -1296,10 +1296,10 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
     uint8 bytesOrder[8] = { 2, 7, 1, 4, 0, 5, 3, 6 };
     recvData.ReadBytesSeq(packetData, bytesOrder);
 
-    uint32 action = uint64(packetData) & 0xFFFFFFFF;
-    uint8  type   = (uint64(packetData) & 0xFF00000000000000) >> 56;
+    uint8 type = ACTION_BUTTON_TYPE(uint64(packetData));
+    uint32 actionId = ACTION_BUTTON_ACTION(uint64(packetData));
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, actionId, type);
     if (!packetData)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
@@ -1307,29 +1307,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
     }
     else
     {
-        switch (type)
-        {
-            case ACTION_BUTTON_MACRO:
-            case ACTION_BUTTON_CMACRO:
-                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, button);
-                break;
-            case ACTION_BUTTON_EQSET:
-                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSet %u into button %u", action, button);
-                break;
-            case ACTION_BUTTON_SPELL:
-                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, button);
-                break;
-            case ACTION_BUTTON_SUB_BUTTON:
-                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, button);
-                break;
-            case ACTION_BUTTON_ITEM:
-                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, button);
-                break;
-            default:
-                sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
-                return;
-        }
-        GetPlayer()->addActionButton(button, action, type);
+        GetPlayer()->addActionButton(button, actionId, type);
     }
 }
 
