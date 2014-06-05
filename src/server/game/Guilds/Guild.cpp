@@ -525,7 +525,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
         stmt->setUInt32(3, item->GetGUIDLow());
         CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
-        item->SetUInt64Value(ITEM_FIELD_CONTAINED, 0);
+        item->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, 0);
         item->SetUInt64Value(ITEM_FIELD_OWNER, 0);
         item->FSetState(ITEM_NEW);
         item->SaveToDB(trans);                                 // Not in inventory and can be saved standalone
@@ -1323,7 +1323,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         // for (2 professions)
         for (int i = 0; i < 2; ++i)
         {
-            uint32 id = player ? player->GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + i) : 0;
+            uint32 id = player ? player->GetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE + i) : 0;
 
             if (id)
                 memberData << uint32(id) << uint32(player->GetSkillValue(id)) << uint32(player->GetSkillStep(id));

@@ -688,7 +688,7 @@ public:
         int32 objectState = atoi(state);
 
         if (objectType < 4)
-            object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
+            object->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, objectType, objectState);
         else if (objectType == 4)
         {
             WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);

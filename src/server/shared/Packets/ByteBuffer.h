@@ -151,19 +151,19 @@ class ByteBuffer
         const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
-        ByteBuffer() : _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
+        ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _curbitval(0), _rbitpos(8)
         {
             _storage.reserve(DEFAULT_SIZE);
         }
 
-        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
+        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _curbitval(0), _rbitpos(8)
         {
             _storage.reserve(reserve);
         }
 
         // copy constructor
         ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
+            _wbitpos(buf._wbitpos), _curbitval(buf._curbitval), _storage(buf._storage), _rbitpos(8)
         {
         }
 
@@ -172,7 +172,7 @@ class ByteBuffer
             _storage.clear();
             _rpos = _wpos = 0;
             _curbitval = 0;
-            _bitpos = 8;
+            _wbitpos = _rbitpos = 8;
         }
 
         template <typename T> void append(T value)
@@ -184,12 +184,12 @@ class ByteBuffer
 
         void FlushBits()
         {
-            if (_bitpos == 8)
+            if (_wbitpos == 8)
                 return;
 
             append((uint8 *)&_curbitval, sizeof(uint8));
             _curbitval = 0;
-            _bitpos = 8;
+            _wbitpos = 8;
         }
 
         void WriteBitInOrder(ObjectGuid guid, uint8 order[8])
@@ -200,13 +200,13 @@ class ByteBuffer
 
         bool WriteBit(uint32 bit)
         {
-            --_bitpos;
+            --_wbitpos;
             if (bit)
-                _curbitval |= (1 << (_bitpos));
+                _curbitval |= (1 << (_wbitpos));
 
-            if (_bitpos == 0)
+            if (_wbitpos == 0)
             {
-                _bitpos = 8;
+                _wbitpos = 8;
                 append((uint8 *)&_curbitval, sizeof(_curbitval));
                 _curbitval = 0;
             }
@@ -222,14 +222,14 @@ class ByteBuffer
 
         bool ReadBit()
         {
-            ++_bitpos;
-            if (_bitpos > 7)
+            ++_rbitpos;
+            if (_rbitpos > 7)
             {
-                _bitpos = 0;
                 _curbitval = read<uint8>();
+                _rbitpos = 0;
             }
 
-            return ((_curbitval >> (7-_bitpos)) & 1) != 0;
+            return ((_curbitval >> (7-_rbitpos)) & 1) != 0;
         }
 
         template <typename T> void WriteBits(T value, size_t bits)
@@ -487,6 +487,7 @@ class ByteBuffer
         size_t rpos(size_t rpos_)
         {
             _rpos = rpos_;
+            _rbitpos = 8;
             return _rpos;
         }
 
@@ -504,13 +505,13 @@ class ByteBuffer
         }
 
         /// Returns position of last written bit
-        size_t bitwpos() const { return _wpos * 8 + 8 - _bitpos; }
+        size_t bitwpos() const { return _wpos * 8 + 8 - _wbitpos; }
 
         size_t bitwpos(size_t newPos)
         {
             _wpos = newPos / 8;
-            _bitpos = 8 - (newPos % 8);
-            return _wpos * 8 + 8 - _bitpos;
+            _wbitpos = 8 - (newPos % 8);
+            return _wpos * 8 + 8 - _wbitpos;
         }
 
         template<typename T>
@@ -521,6 +522,8 @@ class ByteBuffer
             if (_rpos + skip > size())
                 throw ByteBufferPositionException(false, _rpos, skip, size());
             _rpos += skip;
+
+            _rbitpos = 8;
         }
 
         template <typename T> T read()
@@ -536,6 +539,7 @@ class ByteBuffer
                 throw ByteBufferPositionException(false, pos, sizeof(T), size());
             T val = *((T const*)&_storage[pos]);
             EndianConvert(val);
+            const_cast<ByteBuffer*>(this)->_rbitpos = 8;
             return val;
         }
 
@@ -545,6 +549,7 @@ class ByteBuffer
                throw ByteBufferPositionException(false, _rpos, len, size());
             memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
+            _rbitpos = 8;
         }
 
         void readPackGUID(uint64& guid)
@@ -746,11 +751,11 @@ class ByteBuffer
 
         size_t GetBitPos() const
         {
-            return _bitpos;
+            return _wbitpos;
         }
 
     protected:
-        size_t _rpos, _wpos, _bitpos;
+        size_t _rpos, _wpos, _wbitpos, _rbitpos;
         uint8 _curbitval;
         std::vector<uint8> _storage;
 };

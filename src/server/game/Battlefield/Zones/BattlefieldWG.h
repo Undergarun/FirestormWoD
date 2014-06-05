@@ -1210,7 +1210,7 @@ struct BfWGGameObjectBuilding
             m_WG->SendUpdateWorldState(m_WorldState, m_State);
         }
         UpdateCreatureAndGo();
-        m_Build->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_Team]);
+        m_Build->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[m_Team]);
     }
 
     // Called when associated gameobject is damaged
@@ -1263,7 +1263,7 @@ struct BfWGGameObjectBuilding
                     go->EnableCollision(false);
                 m_WG->SetRelicInteractible(true);
                 if (m_WG->GetRelic())
-                    m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
                 else
                     sLog->outError(LOG_FILTER_GENERAL, "BattlefieldWG: Relic not found.");
                 break;

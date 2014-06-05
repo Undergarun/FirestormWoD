@@ -30,7 +30,7 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), m_caster(NULL), m
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
 
-    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
+    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_AREATRIGGER;
 
     m_valuesCount = AREATRIGGER_END;
 }
@@ -78,11 +78,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
-    SetUInt64Value(AREATRIGGER_CASTER, caster->GetGUID());
-    SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
-    SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-    SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE_X));
+    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
+    SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
+    SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
 
     if (float radius = sSpellMgr->GetAreaTriggerVisual(spell->Id))
         SetVisualRadius(radius);
@@ -111,7 +111,7 @@ void AreaTrigger::Update(uint32 p_time)
 
     WorldObject::Update(p_time);
 
-    SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_SPELLID));
+    SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_FIELD_SPELL_ID));
     if (!m_spellInfo)
         return;
 
@@ -435,7 +435,7 @@ void AreaTrigger::Remove()
 {
     if (IsInWorld())
     {
-        SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_SPELLID));
+        SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_FIELD_SPELL_ID));
         if (!m_spellInfo)
             return;
 

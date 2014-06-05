@@ -2127,7 +2127,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->SetReducedThreatPercent(0, 0);
                     break;
                 case 71289: // Mind Control (Lady Deathwisper)
-                    target->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE_X, 100.0f, apply);
+                    target->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE, 100.0f, apply);
                     break;
             }
             break;

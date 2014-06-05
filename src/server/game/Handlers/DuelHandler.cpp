@@ -118,8 +118,8 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     duel2->isMounted  = 0;//(GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
-    caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
+    caster->SetUInt64Value(PLAYER_FIELD_DUELARBITER, pGameObj->GetGUID());
+    target->SetUInt64Value(PLAYER_FIELD_DUELARBITER, pGameObj->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);*/
 }

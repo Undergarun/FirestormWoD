@@ -2436,7 +2436,7 @@ class spell_warl_ember_tap : public SpellScriptLoader
 
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    float Mastery = 3.0f * _player->GetFloatValue(PLAYER_MASTERY) / 100.0f;
+                    float Mastery = 3.0f * _player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
                     float pct = 0.15f * (1 + Mastery);
 
                     int32 healAmount = int32(_player->GetMaxHealth() * pct);

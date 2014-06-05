@@ -108,7 +108,7 @@ timeLastChannelUnmoderCommand(0),
 timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
-playerLoginCounter(0),
+m_PlayerLoginCounter(0),
 timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand(0),
 m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), timeLastSellItemOpcode(0)
 {
@@ -227,7 +227,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
         OpcodeHandler* handler = g_OpcodeTable[WOW_SERVER_TO_CLIENT][packet->GetOpcode()];
         if (!handler || handler->status == STATUS_UNHANDLED)
         {
-            sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_SERVER).c_str(), GetPlayerName(false).c_str());
+            sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str(), GetPlayerName(false).c_str());
             return;
         }
     }
@@ -280,14 +280,14 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received unexpected opcode %s Status: %s Reason: %s from %s",
-        GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT).c_str(), status, reason, GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), status, reason, GetPlayerName(false).c_str());
 }
 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
-        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT).c_str(), GetPlayerName(false).c_str());
+        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
     packet->print_storage();
 }
 
@@ -357,7 +357,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             QueuePacket(packet);
                             //! Log
                                 sLog->outDebug(LOG_FILTER_NETWORKIO, "Re-enqueueing packet with opcode %s with with status STATUS_LOGGEDIN. "
-                                    "Player is currently not in world yet.", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT).c_str());
+                                    "Player is currently not in world yet.", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str());
                         }
                     }
                     else if (_player->IsInWorld())
@@ -405,7 +405,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
                     // some auth opcodes can be recieved before STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes
                     // however when we recieve CMSG_CHAR_ENUM we are surely no longer during the logout process.
-                    if (packet->GetOpcode() == CMSG_CHAR_ENUM)
+                    if (packet->GetOpcode() == CMSG_ENUM_CHARACTERS)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
@@ -414,11 +414,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:
-                        sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT).c_str()
+                        sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str()
                             , GetPlayerName(false).c_str());
                     break;
                 case STATUS_UNHANDLED:
-                        sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT).c_str()
+                        sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str()
                             , GetPlayerName(false).c_str());
                     break;
             }
@@ -499,7 +499,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         sLog->OutPandashan("Session of account [%u] take more than 50 ms to execute (%u ms)", GetAccountId(), sessionDiff);
         for (auto itr : pktHandle)
-            sLog->OutPandashan("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first, WOW_CLIENT).c_str(), itr.second.totalTime);
+            sLog->OutPandashan("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first, WOW_CLIENT_TO_SERVER).c_str(), itr.second.totalTime);
     }
 
     return true;
@@ -636,9 +636,9 @@ void WorldSession::LogoutPlayer(bool Save)
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
             {
                 eslot = j - BUYBACK_SLOT_START;
-                _player->SetUInt64Value(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), 0);
-                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
-                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, 0);
+                _player->SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (eslot * 2), 0);
+                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
+                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
             _player->SaveToDB();
         }
@@ -751,25 +751,25 @@ const char *WorldSession::GetTrinityString(int32 entry) const
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT).c_str(), GetPlayerName(false).c_str());
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT).c_str(), GetPlayerName(false).c_str());
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT).c_str(), GetPlayerName(false).c_str());
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT).c_str(), GetPlayerName(false).c_str());
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)
@@ -850,21 +850,17 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     m_accountData[type].Data = data;
 }
 
-void WorldSession::SendAccountDataTimes(uint32 mask)
+void WorldSession::SendAccountDataTimes(uint32 p_Mask)
 {
-    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
+    WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
 
-    data << uint32(time(NULL));                             // Server time
+    l_Data << uint32(time(NULL));                                           ///< Server time
+    l_Data << uint32(p_Mask);                                               ///< type mask
 
-    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        data << uint32(GetAccountData(AccountDataType(i))->Time);// also unix time
+    for (uint32 l_I = 0; l_I < NUM_ACCOUNT_DATA_TYPES; ++l_I)
+        l_Data << uint32(GetAccountData(AccountDataType(l_I))->Time);       ///< also unix time
 
-    data << uint32(mask);                                   // type mask
-    data.WriteBit(0);
-
-    data.FlushBits();
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::LoadTutorialsData()
@@ -990,7 +986,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
 void WorldSession::SendAddonsInfo()
 {
-    uint8 addonPublicKey[256] =
+    uint8 l_AddonPublicKey[256] =
     {
         0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54,
         0x5A, 0xA3, 0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75,
@@ -1010,56 +1006,56 @@ void WorldSession::SendAddonsInfo()
         0x0D, 0x36, 0xEA, 0x01, 0xE0, 0xAA, 0x91, 0x20, 0x54, 0xF0, 0x72, 0xD8, 0x1E, 0xC7, 0x89, 0xD2
     };
 
-    WorldPacket data(SMSG_ADDON_INFO, 4);
+    uint32 l_AllowedAddonCount  = m_addonsList.size();
+    uint32 l_BannedAddonCount   = 0;
 
-    data.WriteBits(m_addonsList.size(), 23);
+    WorldPacket l_Data(SMSG_ADDON_INFO, 4000);
 
-    for (AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
+    l_Data << uint32(l_AllowedAddonCount);                                  ///< Allowed addon count
+    l_Data << uint32(l_BannedAddonCount);                                   ///< Banned addon count
+
+    for (AddonsList::iterator l_It = m_addonsList.begin(); l_It != m_addonsList.end(); ++l_It)
     {
-        bool hasString = 0;
-        data.WriteBit(hasString);
+        std::string l_Url = "";
 
-        bool usePublicKey = (itr->CRC != STANDARD_ADDON_CRC);
-        data.WriteBit(usePublicKey); // Addon public key
+        bool l_HasUrl       = !l_Url.empty();
+        bool l_UsePublicKey = l_It->CRC != STANDARD_ADDON_CRC;
+        bool l_UsePublicCRC = l_It->UsePublicKeyOrCRC;
 
-        if (hasString)
-            data.WriteBits(0, 8); // String size
+        l_Data << uint8(l_It->State);                                       ///< Addon state (2 for login)
 
-        bool crcpub = itr->UsePublicKeyOrCRC;
-        data.WriteBit(crcpub);
-    }
+        l_Data.WriteBit(l_UsePublicCRC);                                    ///< Has crc informations
+        l_Data.WriteBit(l_UsePublicKey);                                    ///< Has new addon public key
+        l_Data.WriteBit(l_HasUrl);                                          ///< Has addon url
+        l_Data.FlushBits();
 
-    data.WriteBits(0, 18); // count for an unknown for loop
-
-    for (AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
-    {
-        bool crcpub = itr->UsePublicKeyOrCRC;
-
-        bool unk3 = 0;
-        if (unk3)
-            data.WriteString("");
-
-        bool usePublicKey = (itr->CRC != STANDARD_ADDON_CRC);
-        if (usePublicKey)
+        if (l_HasUrl)
         {
-            sLog->outInfo(LOG_FILTER_GENERAL, "ADDON: CRC (0x%x) for addon %s is wrong (does not match expected 0x%x), sending pubkey",
-                itr->CRC, itr->Name.c_str(), STANDARD_ADDON_CRC);
-
-            data.append(addonPublicKey, sizeof(addonPublicKey));
+            l_Data.WriteBits(l_Url.length(), 8);                            ///< Url length
+            l_Data.WriteString(l_Url);                                      ///< Url str
         }
 
-        if (crcpub)
+        if (l_UsePublicCRC)
         {
-            data << uint8(1); // unk 2
-            data << uint32(0);// unk 1
+            uint32 l_PublicCRC = 0;
+
+            uint8 l_IsEnabled = 1;
+            
+            l_Data << l_IsEnabled;                                          ///< uint8  => Is enabled
+            l_Data << l_PublicCRC;                                          ///< uint32 => new CRC
         }
 
-        data << uint8(itr->State);
-    }
+        if (l_UsePublicKey)
+        {
+            sLog->outInfo(LOG_FILTER_GENERAL, "ADDON: CRC (0x%x) for addon %s is wrong (does not match expected 0x%x), sending pubkey", l_It->CRC, l_It->Name.c_str(), STANDARD_ADDON_CRC);
 
+            l_Data.append(l_AddonPublicKey, sizeof(l_AddonPublicKey));      ///< Addon public key
+        }
+    }
+    
     m_addonsList.clear();
 
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 bool WorldSession::IsAddonRegistered(const std::string& prefix) const
@@ -1151,14 +1147,14 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.ready() && _accountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
     {
         SQLQueryHolder* param;
-        _charLoginCallback.get(param);
-        _accountSpellCallback.get(result);
+        m_CharacterLoginCallback.get(param);
+        m_AccountSpellCallback.get(result);
         HandlePlayerLogin((LoginQueryHolder*)param, result);
-        _charLoginCallback.cancel();
-        _accountSpellCallback.cancel();
+        m_CharacterLoginCallback.cancel();
+        m_AccountSpellCallback.cancel();
     }
 
     //! HandleAddFriendOpcode

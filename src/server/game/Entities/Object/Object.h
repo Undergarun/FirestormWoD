@@ -175,10 +175,10 @@ class Object
         uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
         ObjectGuid GetObjectGuid() const { return ObjectGuid(GetUInt64Value(0)); }
         const ByteBuffer& GetPackGUID() const { return m_PackGUID; }
-        uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
-        void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
+        uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY_ID); }
+        void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }
 
-        void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
+        void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE, scale); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType); }
@@ -601,7 +601,7 @@ struct MovementInfo
         uint32 HaveSplineElevation;
     };
     // BitClientData
-    bool hasFallData;
+    bool HasFallData;
     bool hasFallDirection;
     uint32 Alive32;
 
@@ -617,7 +617,7 @@ struct MovementInfo
         t_guid = 0;
         t_pos.Relocate(0, 0, 0, 0);
         t_seat = -1;
-        hasFallData = false;
+        HasFallData = false;
         hasFallDirection = false;
         Alive32 = 0;
     }
@@ -749,7 +749,7 @@ class WorldObject : public Object, public WorldLocation
 
         float GetObjectSize() const
         {
-            return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE;
+            return (m_valuesCount > UNIT_FIELD_COMBAT_REACH) ? m_floatValues[UNIT_FIELD_COMBAT_REACH] : DEFAULT_WORLD_OBJECT_SIZE;
         }
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;

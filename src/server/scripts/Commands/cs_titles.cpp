@@ -92,7 +92,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         target->SetTitle(titleInfo);                            // to be sure that title now known
-        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
+        target->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, titleInfo->bit_index);
 
         handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, titleInfo->name, tNameLink.c_str());
 
@@ -191,9 +191,9 @@ public:
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 
-        if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
+        if (!target->HasTitle(target->GetInt32Value(PLAYER_FIELD_PLAYER_TITLE)))
         {
-            target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+            target->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, 0);
             handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink.c_str());
         }
 
@@ -233,9 +233,9 @@ public:
         target->SetUInt64Value(PLAYER_FIELD_KNOWN_TITLES, titles);
         handler->SendSysMessage(LANG_DONE);
 
-        if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
+        if (!target->HasTitle(target->GetInt32Value(PLAYER_FIELD_PLAYER_TITLE)))
         {
-            target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+            target->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, 0);
             handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, handler->GetNameLink(target).c_str());
         }
 

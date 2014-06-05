@@ -1219,7 +1219,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             if (player->isDead())
                 status |= MEMBER_STATUS_DEAD;
 
-            if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
                 status |= MEMBER_STATUS_GHOST;
 
             if (player->isAFK())

@@ -107,7 +107,7 @@ bool Group::Create(Player* leader)
     m_leaderGuid = leaderGuid;
     m_leaderName = leader->GetName();
 
-    leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+    leader->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
 
     m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
@@ -345,7 +345,7 @@ bool Group::AddLeaderInvite(Player* player)
 
     m_leaderGuid = player->GetGUID();
     m_leaderName = player->GetName();
-    player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+    player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
     return true;
 }
 
@@ -502,7 +502,7 @@ bool Group::AddMember(Player* player)
 
         {
             // Broadcast new player group member fields to rest of the group
-            player->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+            player->SetFieldNotifyFlag(UF_FLAG_ALL_UNITS);
 
             UpdateData groupData(player->GetMapId());
             WorldPacket groupDataPacket;
@@ -517,9 +517,9 @@ bool Group::AddMember(Player* player)
                 {
                     if (player->HaveAtClient(member))   // must be on the same map, or shit will break
                     {
-                        member->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                        member->SetFieldNotifyFlag(UF_FLAG_ALL_UNITS);
                         member->BuildValuesUpdateBlockForPlayer(&groupData, player);
-                        member->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                        member->RemoveFieldNotifyFlag(UF_FLAG_ALL_UNITS);
                     }
 
                     if (member->HaveAtClient(player))
@@ -540,7 +540,7 @@ bool Group::AddMember(Player* player)
                 if (groupData.BuildPacket(&groupDataPacket))
                     player->SendDirectMessage(&groupDataPacket);
 
-            player->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+            player->RemoveFieldNotifyFlag(UF_FLAG_ALL_UNITS);
         }
 
         if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
@@ -837,12 +837,12 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
     Player* oldLeader = ObjectAccessor::FindPlayer(m_leaderGuid);
 
     if (oldLeader)
-        oldLeader->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+        oldLeader->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
     m_leaderGuid = newLeader->GetGUID();
     m_leaderName = newLeader->GetName();
 
-    newLeader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+    newLeader->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
@@ -3105,8 +3105,8 @@ void Group::BroadcastGroupUpdate(void)
         Player* pp = ObjectAccessor::FindPlayer(citr->guid);
         if (pp && pp->IsInWorld())
         {
-            pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
-            pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
+            pp->ForceValuesUpdateAtIndex(UNIT_FIELD_SHAPESHIFT_FORM);
+            pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTION_TEMPLATE);
             sLog->outDebug(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName());
         }
     }

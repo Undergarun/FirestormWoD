@@ -286,7 +286,7 @@ void Player::UpdateArmor()
     // 77494 - Mastery : Nature's Guardian
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77494))
     {
-        float Mastery = 1.0f + GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
+        float Mastery = 1.0f + GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
         value *= Mastery;
     }
 
@@ -535,16 +535,16 @@ void Player::UpdateDamagePhysical(WeaponAttackType attType)
     {
         case BASE_ATTACK:
         default:
-            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, maxdamage);
             break;
         case OFF_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, maxdamage);
             break;
         case RANGED_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, maxdamage);
             break;
     }
 }
@@ -563,12 +563,12 @@ void Player::UpdateBlockPercentage()
         // Custom MoP Script
         // 76671 - Mastery : Divine Bulwark - Block Percentage
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
-            value += GetFloatValue(PLAYER_MASTERY);
+            value += GetFloatValue(PLAYER_FIELD_MASTERY);
 
         // Custom MoP Script
         // 76857 - Mastery : Critical Block - Block Percentage
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_MASTERY) / 2.0f;
+            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
 
         // Increase from rating
         value += GetRatingBonusValue(CR_BLOCK);
@@ -578,7 +578,7 @@ void Player::UpdateBlockPercentage()
 
         value = value < 0.0f ? 0.0f : value;
     }
-    SetStatFloatValue(PLAYER_BLOCK_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE, value);
 }
 
 void Player::UpdateCritPercentage(WeaponAttackType attType)
@@ -591,18 +591,18 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     {
         case OFF_ATTACK:
             modGroup = OFFHAND_CRIT_PERCENTAGE;
-            index = PLAYER_OFFHAND_CRIT_PERCENTAGE;
+            index = PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE;
             cr = CR_CRIT_MELEE;
             break;
         case RANGED_ATTACK:
             modGroup = RANGED_CRIT_PERCENTAGE;
-            index = PLAYER_RANGED_CRIT_PERCENTAGE;
+            index = PLAYER_FIELD_RANGED_CRIT_PERCENTAGE;
             cr = CR_CRIT_RANGED;
             break;
         case BASE_ATTACK:
         default:
             modGroup = CRIT_PERCENTAGE;
-            index = PLAYER_CRIT_PERCENTAGE;
+            index = PLAYER_FIELD_CRIT_PERCENTAGE;
             cr = CR_CRIT_MELEE;
             break;
     }
@@ -684,7 +684,7 @@ void Player::UpdateParryPercentage()
     if (pclass = CLASS_MONK)
         value += 5.0f;
 
-    SetStatFloatValue(PLAYER_PARRY_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, value);
 }
 
 void Player::UpdateDodgePercentage()
@@ -718,7 +718,7 @@ void Player::UpdateDodgePercentage()
         value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
 
     value = value < 0.0f ? 0.0f : value;
-    SetStatFloatValue(PLAYER_DODGE_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, value);
 }
 
 void Player::UpdateSpellCritChance(uint32 school)
@@ -726,7 +726,7 @@ void Player::UpdateSpellCritChance(uint32 school)
     // For normal school set zero crit chance
     if (school == SPELL_SCHOOL_NORMAL)
     {
-        SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1, 0.0f);
+        SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE, 0.0f);
         return;
     }
     // For others recalculate it from:
@@ -743,7 +743,7 @@ void Player::UpdateSpellCritChance(uint32 school)
     crit += GetRatingBonusValue(CR_CRIT_SPELL);
 
     // Store crit value
-    SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
+    SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + school, crit);
 
     if (Pet* pet = GetPet())
         pet->m_baseSpellCritChance = crit;
@@ -761,7 +761,7 @@ void Player::UpdateMasteryPercentage()
         value += GetRatingBonusValue(CR_MASTERY);
         value = value < 0.0f ? 0.0f : value;
     }
-    SetFloatValue(PLAYER_MASTERY, value);
+    SetFloatValue(PLAYER_FIELD_MASTERY, value);
     // Custom MoP Script
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage
     // 76857 - Mastery : Critical Block - Update Block Percentage
@@ -888,9 +888,9 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     switch (attack)
     {
-        case BASE_ATTACK: SetFloatValue(PLAYER_EXPERTISE, expertise);          break;
-        case OFF_ATTACK:  SetFloatValue(PLAYER_OFFHAND_EXPERTISE, expertise);  break;
-        case RANGED_ATTACK: SetFloatValue(PLAYER_RANGED_EXPERTISE, expertise); break;
+        case BASE_ATTACK: SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);          break;
+        case OFF_ATTACK:  SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);  break;
+        case RANGED_ATTACK: SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise); break;
         default: break;
     }
 }
@@ -914,7 +914,7 @@ void Player::UpdateManaRegen()
     // Mana regen from spirit
     float spirit_regen = OCTRegenMPPerSpirit();
     spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-    float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+    float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
 
     float combat_regen = 0.004f * GetMaxPower(POWER_MANA) + spirit_regen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
     float base_regen = 0.004f * GetMaxPower(POWER_MANA) + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
@@ -944,7 +944,7 @@ void Player::UpdateManaRegen()
     if (HasAura(111546))
     {
         // haste also increase your mana regeneration
-        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
 
         combat_regen = combat_regen + (combat_regen * 6.25f);
         combat_regen *= HastePct;
@@ -954,7 +954,7 @@ void Player::UpdateManaRegen()
     // Nether Attunement - 117957 : Haste also increase your mana regeneration
     if (HasAura(117957))
     {
-        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+        HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
 
         combat_regen *= HastePct;
         base_regen *= HastePct;
@@ -992,7 +992,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
-    SetFloatValue(PLAYER_RUNE_REGEN_1 + uint8(rune), regen);
+    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
 }
 
 void Player::UpdateAllRunesRegen()
@@ -1006,7 +1006,7 @@ void Player::UpdateAllRunesRegen()
             if (regen < 0.0099999998f)
                 regen = 0.01f;
 
-            SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regen);
+            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
         }
     }
 }
@@ -1166,16 +1166,16 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     {
         case BASE_ATTACK:
         default:
-            SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, maxdamage);
             break;
         case OFF_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, maxdamage);
             break;
         case RANGED_ATTACK:
-            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, mindamage);
-            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxdamage);
+            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, maxdamage);
             break;
     }
 }
@@ -1540,13 +1540,13 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
-    SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
-    SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, mindamage);
+    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, maxdamage);
 
     if (GetEntry() == ENTRY_WRATHGUARD || GetEntry() == ENTRY_SHIVARRA)
     {
-        SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindamage / 2);
-        SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, maxdamage / 2);
+        SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, mindamage / 2);
+        SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, maxdamage / 2);
     }
 }
 
@@ -1554,5 +1554,5 @@ void Guardian::SetBonusDamage(int32 damage)
 {
     m_bonusSpellDamage = damage;
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
+        GetOwner()->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, damage);
 }

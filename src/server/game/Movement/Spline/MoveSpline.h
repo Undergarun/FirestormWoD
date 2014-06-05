@@ -50,6 +50,8 @@ namespace Movement
         };
         friend class PacketBuilder;
         friend class MoveSplineInit;
+        friend class Object;
+
     protected:
         MySpline        spline;
 

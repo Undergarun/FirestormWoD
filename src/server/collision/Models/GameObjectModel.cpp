@@ -119,7 +119,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     //ID = 0;
     iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
     phasemask = go.GetPhaseMask();
-    iScale = go.GetUInt32Value(OBJECT_FIELD_SCALE_X);
+    iScale = go.GetUInt32Value(OBJECT_FIELD_SCALE);
     iInvScale = 1.f / iScale;
 
     G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
