@@ -627,6 +627,297 @@ class mob_sha_of_despair : public CreatureScript
         };
 };
 
+class npc_thelonius : public CreatureScript
+{
+    public:
+        npc_thelonius() : CreatureScript("npc_thelonius")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            switch (quest->GetQuestId())
+            {
+                case 30725:
+                    player->SummonCreature(60530, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                    break;
+                case 30739:
+                    player->SummonCreature(60545, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                    break;
+                case 30727:
+                    player->SummonCreature(60533, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                    break;
+                case 30732:
+                    player->SummonCreature(60538, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        }
+};
+
+#define GOSSIP_CHOICE_1 "Let's fight !"
+
+class mob_ellia_ravenmane : public CreatureScript
+{
+    public:
+        mob_ellia_ravenmane() : CreatureScript("mob_ellia_ravenmane")
+        {
+        }
+
+#define CHECK_STATUS(a) (player->GetQuestStatus(a) == QUEST_STATUS_INCOMPLETE)
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (CHECK_STATUS(30725) || CHECK_STATUS(30739) || CHECK_STATUS(30727) || CHECK_STATUS(30732))
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_ellia_ravenmaneAI(creature);
+        }
+
+        struct mob_ellia_ravenmaneAI : public ScriptedAI
+        {
+            mob_ellia_ravenmaneAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                switch (me->GetEntry())
+                {
+                    case 60530:
+                        events.ScheduleEvent(EVENT_JAB, 3000);
+                        events.ScheduleEvent(EVENT_KICK, 6000);
+                        break;
+                    case 60545:
+                        events.ScheduleEvent(EVENT_CRY_OUT_IN_DESPAIR, 3000);
+                        events.ScheduleEvent(EVENT_SHA_BLAST, 8000);
+                        events.ScheduleEvent(EVENT_SHA_SPIKE, 13000);
+                        break;
+                    case 60533:
+                        events.ScheduleEvent(EVENT_FIERCE_JAB, 3000);
+                        events.ScheduleEvent(EVENT_FIERCE_KICK, 6000);
+                        break;
+                    case 60538:
+                        events.ScheduleEvent(EVENT_FIERCE_JAB_2, 3000);
+                        events.ScheduleEvent(EVENT_FISTS_OF_FURY, 8000);
+                        events.ScheduleEvent(EVENT_VICIOUS_KICK, 13000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    switch (me->GetEntry())
+                    {
+                        case 60530:
+                            if (CHECK_STATUS(30725))
+                            {
+                                if (damage > me->GetHealth())
+                                {
+                                    damage = 0;
+                                    me->SetFullHealth();
+                                    DoAction(ACTION_REINITIALIZE);
+                                    player->KilledMonsterCredit(60530);
+                                    me->DespawnOrUnsummon();
+                                }
+                            }
+                            break;
+                        case 60545:
+                            if (CHECK_STATUS(30739))
+                            {
+                                if (damage > me->GetHealth())
+                                {
+                                    damage = 0;
+                                    me->SetFullHealth();
+                                    DoAction(ACTION_REINITIALIZE);
+                                    player->KilledMonsterCredit(60545);
+                                    me->DespawnOrUnsummon();
+                                }
+                            }
+                            break;
+                        case 60533:
+                            if (CHECK_STATUS(30727))
+                            {
+                                if (damage > me->GetHealth())
+                                {
+                                    damage = 0;
+                                    me->SetFullHealth();
+                                    DoAction(ACTION_REINITIALIZE);
+                                    player->KilledMonsterCredit(60533);
+                                    me->DespawnOrUnsummon();
+                                }
+                            }
+                            break;
+                        case 60538:
+                            if (CHECK_STATUS(30732))
+                            {
+                                if (damage > me->GetHealth())
+                                {
+                                    damage = 0;
+                                    me->SetFullHealth();
+                                    DoAction(ACTION_REINITIALIZE);
+                                    player->KilledMonsterCredit(60538);
+                                    me->DespawnOrUnsummon();
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                        
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        return;
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        // Entry 60530
+                        case EVENT_JAB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_JAB, false);
+                            events.ScheduleEvent(EVENT_JAB, 7000);
+                            break;
+                        case EVENT_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_KICK, false);
+                            events.ScheduleEvent(EVENT_KICK, 7000);
+                            break;
+                            // Entry 60545
+                        case EVENT_CRY_OUT_IN_DESPAIR:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_CRY_OUT_IN_DESPAIR, false);
+                            events.ScheduleEvent(EVENT_CRY_OUT_IN_DESPAIR, 15000);
+                            break;
+                        case EVENT_SHA_BLAST:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_SHA_BLAST, false);
+                            events.ScheduleEvent(EVENT_SHA_BLAST, 15000);
+                            break;
+                        case EVENT_SHA_SPIKE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_SHA_SPIKE, false);
+                            events.ScheduleEvent(EVENT_SHA_SPIKE, 15000);
+                            break;
+                            // Entry 60533
+                        case EVENT_FIERCE_JAB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FIERCE_JAB, false);
+                            events.ScheduleEvent(EVENT_FIERCE_JAB, 7000);
+                            break;
+                        case EVENT_FIERCE_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FIERCE_KICK, false);
+                            events.ScheduleEvent(EVENT_FIERCE_KICK, 7000);
+                            break;
+                            // Entry 60538
+                        case EVENT_FIERCE_JAB_2:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FIERCE_JAB, false);
+                            events.ScheduleEvent(EVENT_FIERCE_JAB_2, 15000);
+                            break;
+                        case EVENT_FISTS_OF_FURY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FISTS_OF_FURY, false);
+                            events.ScheduleEvent(EVENT_FISTS_OF_FURY, 15000);
+                            break;
+                        case EVENT_VICIOUS_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_VICIOUS_KICK, false);
+                            events.ScheduleEvent(EVENT_VICIOUS_KICK, 15000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_krasarang_wilds()
 {
     new mob_gaarn_the_toxic();
@@ -641,4 +932,6 @@ void AddSC_krasarang_wilds()
     new mob_anduin_wrynn_escort();
     new npc_chi_ji();
     new mob_sha_of_despair();
+    new npc_thelonius();
+    new mob_ellia_ravenmane();
 }

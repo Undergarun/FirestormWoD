@@ -23,7 +23,16 @@ enum eSpells
     SPELL_HUNDRED_HAND_SLAP    = 119074,
     SPELL_SPINNING_CRANE_KICK  = 119018,
     SPELL_UPPERCUT             = 119498,
-    SPELL_WHEELBARROW_ROLL     = 119520
+    SPELL_WHEELBARROW_ROLL     = 119520,
+    SPELL_JAB                  = 119007,
+    SPELL_KICK                 = 119008,
+    SPELL_CRY_OUT_IN_DESPAIR   = 132095,
+    SPELL_SHA_BLAST            = 117009,
+    SPELL_SHA_SPIKE            = 117010,
+    SPELL_FIERCE_JAB           = 119004,
+    SPELL_FIERCE_KICK          = 119006,
+    SPELL_FISTS_OF_FURY        = 119014,
+    SPELL_VICIOUS_KICK         = 119010
 };
 
 enum eEvents
@@ -47,7 +56,17 @@ enum eEvents
     EVENT_HUNDRED_HAND_SLAP     = 17,
     EVENT_SPINNING_CRANE_KICK   = 18,
     EVENT_UPPERCUT              = 19,
-    EVENT_WHEELBARROW_ROLL      = 20
+    EVENT_WHEELBARROW_ROLL      = 20,
+    EVENT_JAB                   = 21,
+    EVENT_KICK                  = 22,
+    EVENT_CRY_OUT_IN_DESPAIR    = 23,
+    EVENT_SHA_BLAST             = 24,
+    EVENT_SHA_SPIKE             = 25,
+    EVENT_FIERCE_JAB            = 26,
+    EVENT_FIERCE_KICK           = 27,
+    EVENT_FISTS_OF_FURY         = 28,
+    EVENT_VICIOUS_KICK          = 29,
+    EVENT_FIERCE_JAB_2          = 30,
 };
 
 enum eQuests
@@ -56,6 +75,8 @@ enum eQuests
 
 enum eActions
 {
+    ACTION_REMOVE_FLAG          = 1,
+    ACTION_REINITIALIZE         = 2
 };
 
 enum eCreatures
