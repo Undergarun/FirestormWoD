@@ -27,7 +27,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
-    uint64 vehicleGUID = _player->GetCharmGUID();
+    uint64 vehicleGUID = m_Player->GetCharmGUID();
 
     if (!vehicleGUID)                                       // something wrong here...
     {
@@ -37,7 +37,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
     // Too lazy to parse all data, just read pos and forge pkt
     MovementInfo mi;
-    mi.guid = _player->GetGUID();
+    mi.guid = m_Player->GetGUID();
     mi.flags2 = MOVEMENTFLAG2_INTERPOLATED_PITCHING;
     mi.pos.m_positionX = recvData.read<float>();
     mi.pos.m_positionZ = recvData.read<float>();
@@ -46,11 +46,11 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
     WorldPacket data(SMSG_MOVE_UPDATE);
     WorldSession::WriteMovementInfo(data, &mi);
-    _player->SendMessageToSet(&data, _player);
+    m_Player->SendMessageToSet(&data, m_Player);
 
-    _player->m_movementInfo = mi;
+    m_Player->m_movementInfo = mi;
 
-    _player->ExitVehicle();
+    m_Player->ExitVehicle();
 
     // prevent warnings spam
     recvData.rfinish();
@@ -227,18 +227,18 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
     {
         if (!player->GetVehicleKit())
             return;
-        if (!player->IsInRaidWith(_player))
+        if (!player->IsInRaidWith(m_Player))
             return;
-        if (!player->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!player->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
             return;
 
-        _player->EnterVehicle(player);
+        m_Player->EnterVehicle(player);
     }
 }
 
 void WorldSession::HandleEjectPassenger(WorldPacket& data)
 {
-    Vehicle* vehicle = _player->GetVehicleKit();
+    Vehicle* vehicle = m_Player->GetVehicleKit();
     if (!vehicle)
     {
         data.rfinish();                                     // prevent warnings spam
@@ -277,7 +277,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
 
     else if (IS_CREATURE_GUID(guid))
     {
-        Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+        Unit* unit = ObjectAccessor::GetUnit(*m_Player, guid);
         if (!unit) // creatures can be ejected too from player mounts
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));

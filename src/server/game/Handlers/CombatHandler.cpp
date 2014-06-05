@@ -38,7 +38,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
-    Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* pEnemy = ObjectAccessor::GetUnit(*m_Player, guid);
 
     if (!pEnemy)
     {
@@ -47,7 +47,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!_player->IsValidAttackTarget(pEnemy))
+    if (!m_Player->IsValidAttackTarget(pEnemy))
     {
         // stop attack state at client
         SendAttackStop(pEnemy);
@@ -57,9 +57,9 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
     //! so we'll place the same check here. Note that it might be possible to reuse this snippet
     //! in other places as well.
-    if (Vehicle* vehicle = _player->GetVehicle())
+    if (Vehicle* vehicle = m_Player->GetVehicle())
     {
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(_player);
+        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(m_Player);
         ASSERT(seat);
         if (!(seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
@@ -68,7 +68,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
         }
     }
 
-    _player->Attack(pEnemy, true);
+    m_Player->Attack(pEnemy, true);
 }
 
 void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)

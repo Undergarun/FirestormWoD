@@ -73,7 +73,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
             GameObject* go = player->GetMap()->GetGameObject(lguid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-            if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
+            if (!go || ((go->GetOwnerGUID() != m_Player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE)))
             {
                 player->SendLootRelease(lguid);
                 return;
@@ -110,7 +110,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 
             bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
-            if (!lootAllowed || (!creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE) && !_player->HasSpell(125048)))
+            if (!lootAllowed || (!creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125048)))
             {
                 player->SendLootRelease(lguid);
                 return;
@@ -326,7 +326,7 @@ void WorldSession::HandleLootOpcode(WorldPacket & recvData)
     recvData.ReadBytesSeq(guid, byteOrder);
 
     // Check possible cheat
-    if (!_player->isAlive())
+    if (!m_Player->isAlive())
         return;
 
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
@@ -375,7 +375,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         GameObject* go = GetPlayer()->GetMap()->GetGameObject(lguid);
 
         // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-        if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
+        if (!go || ((go->GetOwnerGUID() != m_Player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE)))
             return;
 
         loot = &go->loot;
@@ -422,7 +422,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     else if (IS_CORPSE_GUID(lguid))        // ONLY remove insignia at BG
     {
         Corpse* corpse = ObjectAccessor::GetCorpse(*player, lguid);
-        if (!corpse || !corpse->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!corpse || !corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
             return;
 
         loot = &corpse->loot;
@@ -465,7 +465,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
         bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
-        if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!lootAllowed || !creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
             return;
 
         loot = &creature->loot;
@@ -541,9 +541,9 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
     uint8 byteOrder[8] = {2, 0, 7, 5, 3, 6, 1, 4};
     recvData.ReadBytesSeq(guid, byteOrder);
 
-    if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
+    if (!m_Player->GetGroup() || m_Player->GetGroup()->GetLooterGuid() != m_Player->GetGUID())
     {
-        _player->SendLootRelease(GetPlayer()->GetLootGUID());
+        m_Player->SendLootRelease(GetPlayer()->GetLootGUID());
         return;
     }
 
@@ -589,7 +589,7 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 
     loot->alreadyAskedForRoll = true;
 
-    _player->GetGroup()->DoRollForAllMembers(guid, slot, _player->GetMapId(), loot, item, _player);
+    m_Player->GetGroup()->DoRollForAllMembers(guid, slot, m_Player->GetMapId(), loot, item, m_Player);
 }
 
 void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
@@ -638,9 +638,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     //recvData >> lootguid >> slotid >> target_playerguid;
 
-    if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
+    if (!m_Player->GetGroup() || m_Player->GetGroup()->GetLooterGuid() != m_Player->GetGUID())
     {
-        _player->SendLootRelease(GetPlayer()->GetLootGUID());
+        m_Player->SendLootRelease(GetPlayer()->GetLootGUID());
         return;
     }
 
@@ -703,7 +703,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         {
             target->SendEquipError(msg, NULL, NULL, item.itemid);
             // send duplicate of error massage to master looter
-            _player->SendEquipError(msg, NULL, NULL, item.itemid);
+            m_Player->SendEquipError(msg, NULL, NULL, item.itemid);
             return;
         }
 

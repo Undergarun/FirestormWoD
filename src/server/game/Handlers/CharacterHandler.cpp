@@ -1488,28 +1488,28 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
     recvData >> replistid;
     inactive = recvData.ReadBit();
 
-    _player->GetReputationMgr().SetInactive(replistid, inactive);
+    m_Player->GetReputationMgr().SetInactive(replistid, inactive);
 }
 
 void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOW_ACCOUNT_ACHIEVEMENT for %s", _player->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOW_ACCOUNT_ACHIEVEMENT for %s", m_Player->GetName());
 
     bool showing = recvData.ReadBit();
 }
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_HELM for %s", _player->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_HELM for %s", m_Player->GetName());
     recvData.read_skip<uint8>(); // unknown, bool?
-    _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
+    m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_CLOAK for %s", _player->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_CLOAK for %s", m_Player->GetName());
     recvData.read_skip<uint8>(); // unknown, bool?
-    _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
+    m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
 
 void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
@@ -1753,18 +1753,18 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     recvData >> Color >> FacialHair >> SkinColor >> Hair;
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
-    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->getRace() || bs_hair->gender != _player->getGender())
+    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != m_Player->getRace() || bs_hair->gender != m_Player->getGender())
         return;
 
     BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
-    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->getRace() || bs_facialHair->gender != _player->getGender())
+    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != m_Player->getRace() || bs_facialHair->gender != m_Player->getGender())
         return;
 
     BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
-    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
+    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != m_Player->getRace() || bs_skinColor->gender != m_Player->getGender()))
         return;
 
-    GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
+    GameObject* go = m_Player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
@@ -1773,7 +1773,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
         return;
     }
 
-    if (_player->getStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
+    if (m_Player->getStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
         data << uint32(2);
@@ -1781,12 +1781,12 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
         return;
     }
 
-    uint32 cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
+    uint32 cost = m_Player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
 
     // 0 - ok
     // 1, 3 - not enough money
     // 2 - you have to sit on barber chair
-    if (!_player->HasEnoughMoney((uint64)cost))
+    if (!m_Player->HasEnoughMoney((uint64)cost))
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
         data << uint32(1);                                  // no money
@@ -1800,18 +1800,18 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
         SendPacket(&data);
     }
 
-    _player->ModifyMoney(-int64(cost));                     // it isn't free
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
+    m_Player->ModifyMoney(-int64(cost));                     // it isn't free
+    m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    _player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2, uint8(bs_hair->hair_id));
-    _player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3, uint8(Color));
-    _player->SetByteValue(PLAYER_FIELD_REST_STATE, 0, uint8(bs_facialHair->hair_id));
+    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2, uint8(bs_hair->hair_id));
+    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3, uint8(Color));
+    m_Player->SetByteValue(PLAYER_FIELD_REST_STATE, 0, uint8(bs_facialHair->hair_id));
     if (bs_skinColor)
-        _player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0, uint8(bs_skinColor->hair_id));
+        m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0, uint8(bs_skinColor->hair_id));
 
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+    m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
-    _player->SetStandState(0);                              // stand up
+    m_Player->SetStandState(0);                              // stand up
 }
 
 void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
@@ -1825,13 +1825,13 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
         return;
     }
 
-    if (uint32 glyph = _player->GetGlyph(_player->GetActiveSpec(), slot))
+    if (uint32 glyph = m_Player->GetGlyph(m_Player->GetActiveSpec(), slot))
     {
         if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
-            _player->RemoveAurasDueToSpell(gp->SpellId);
-            _player->SetGlyph(slot, 0);
-            _player->SendTalentsInfoData(false);
+            m_Player->RemoveAurasDueToSpell(gp->SpellId);
+            m_Player->SetGlyph(slot, 0);
+            m_Player->SendTalentsInfoData(false);
         }
     }
 }
@@ -2108,7 +2108,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
             continue;
         }
 
-        Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        Item* item = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
         if (!item && itemGuid[i])                               // cheating check 1
             return;
@@ -2139,7 +2139,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     eqSet.IconName  = iconName;
     eqSet.state     = EQUIPMENT_SET_NEW;
 
-    _player->SetEquipmentSet(index, eqSet);
+    m_Player->SetEquipmentSet(index, eqSet);
 
     delete[] itemGuid;
     itemGuid = 0;
@@ -2157,7 +2157,7 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
     uint8 bytesOrder[8] = { 5, 1, 3, 4, 2, 0, 7, 6 };
     recvData.ReadBytesSeq(setGuid, bytesOrder);
 
-    _player->DeleteEquipmentSet(setGuid);
+    m_Player->DeleteEquipmentSet(setGuid);
 }
 
 void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
@@ -2167,7 +2167,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 
     ObjectGuid* itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
 
-    EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
+    EquipmentSlots startSlot = m_Player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         recvData >> srcslot[i] >> srcbag[i];
@@ -2203,25 +2203,25 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (itemGuid[i] == 1)
             continue;
 
-        Item* item = _player->GetItemByGuid(itemGuid[i]);
+        Item* item = m_Player->GetItemByGuid(itemGuid[i]);
 
         uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
         if (!item)
         {
-            Item* uItem = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            Item* uItem = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (!uItem)
                 continue;
 
             ItemPosCountVec sDest;
-            InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
+            InventoryResult msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
             if (msg == EQUIP_ERR_OK)
             {
-                _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                _player->StoreItem(sDest, uItem, true);
+                m_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
+                m_Player->StoreItem(sDest, uItem, true);
             }
             else
-                _player->SendEquipError(msg, uItem, NULL);
+                m_Player->SendEquipError(msg, uItem, NULL);
 
             continue;
         }
@@ -2229,7 +2229,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (item->GetPos() == dstpos)
             continue;
 
-        _player->SwapItem(item->GetPos(), dstpos);
+        m_Player->SwapItem(item->GetPos(), dstpos);
     }
 
     for (uint8 i = 0; i < unkCounter; i++)

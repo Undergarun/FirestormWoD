@@ -404,7 +404,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
             if (!l_Group)
             {
-                l_Group = _player->GetGroup();
+                l_Group = m_Player->GetGroup();
                 if (!l_Group || l_Group->isBGGroup())
                     return;
             }
@@ -523,20 +523,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         {
             if (AccountMgr::IsPlayerAccount(GetSecurity()))
             {
-                if (_player->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
+                if (m_Player->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
                 {
                     SendNotification(GetTrinityString(LANG_CHANNEL_REQ), sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
                     return;
                 }
             }
 
-            if (ChannelMgr* l_ChannelManager = channelMgr(_player->GetTeam()))
+            if (ChannelMgr* l_ChannelManager = channelMgr(m_Player->GetTeam()))
             {
-                if (Channel* l_Channel = l_ChannelManager->GetChannel(l_ChannelName, _player))
+                if (Channel* l_Channel = l_ChannelManager->GetChannel(l_ChannelName, m_Player))
                 {
-                    sScriptMgr->OnPlayerChat(_player, l_Type, l_Language, l_Text, l_Channel);
+                    sScriptMgr->OnPlayerChat(m_Player, l_Type, l_Language, l_Text, l_Channel);
 
-                    l_Channel->Say(_player->GetGUID(), l_Text.c_str(), l_Language);
+                    l_Channel->Say(m_Player->GetGUID(), l_Text.c_str(), l_Language);
                 }
             }
 
@@ -544,43 +544,43 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         }
         case CHAT_MSG_AFK:
         {
-            if ((l_Text.empty() || !_player->isAFK()) && !_player->isInCombat())
+            if ((l_Text.empty() || !m_Player->isAFK()) && !m_Player->isInCombat())
             {
-                if (!_player->isAFK())
+                if (!m_Player->isAFK())
                 {
                     if (l_Text.empty())
                         l_Text  = GetTrinityString(LANG_PLAYER_AFK_DEFAULT);
 
-                    _player->afkMsg = l_Text;
+                    m_Player->afkMsg = l_Text;
                 }
 
-                sScriptMgr->OnPlayerChat(_player, l_Type, l_Language, l_Text);
+                sScriptMgr->OnPlayerChat(m_Player, l_Type, l_Language, l_Text);
 
-                _player->ToggleAFK();
+                m_Player->ToggleAFK();
 
-                if (_player->isAFK() && _player->isDND())
-                    _player->ToggleDND();
+                if (m_Player->isAFK() && m_Player->isDND())
+                    m_Player->ToggleDND();
             }
 
             break;
         }
         case CHAT_MSG_DND:
         {
-            if (l_Text.empty() || !_player->isDND())
+            if (l_Text.empty() || !m_Player->isDND())
             {
-                if (!_player->isDND())
+                if (!m_Player->isDND())
                 {
                     if (l_Text.empty())
                         l_Text = GetTrinityString(LANG_PLAYER_DND_DEFAULT);
-                    _player->dndMsg = l_Text;
+                    m_Player->dndMsg = l_Text;
                 }
 
-                sScriptMgr->OnPlayerChat(_player, l_Type, l_Language, l_Text);
+                sScriptMgr->OnPlayerChat(m_Player, l_Type, l_Language, l_Text);
 
-                _player->ToggleDND();
+                m_Player->ToggleDND();
 
-                if (_player->isDND() && _player->isAFK())
-                    _player->ToggleAFK();
+                if (m_Player->isDND() && m_Player->isAFK())
+                    m_Player->ToggleAFK();
             }
 
             break;
@@ -861,7 +861,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
              break;
     }
 
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
+    Unit* unit = ObjectAccessor::GetUnit(*m_Player, guid);
 
     CellCoord p = JadeCore::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
 

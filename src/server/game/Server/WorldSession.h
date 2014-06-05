@@ -271,7 +271,7 @@ class WorldSession
         bool IsPremium() const { return _ispremium; }
         uint8 getPremiumType() const { return _premiumType; }
         uint32 GetAccountId() const { return _accountId; }
-        Player* GetPlayer() const { return _player; }
+        Player* GetPlayer() const { return m_Player; }
         std::string GetPlayerName(bool simple = true) const;
         uint32 GetGuidLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
@@ -1093,7 +1093,7 @@ class WorldSession
         std::set<uint32> _allowedCharsToLogin;
 
         uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
-        Player* _player;
+        Player* m_Player;
         WorldSocket* m_Socket;
         std::string m_Address;
 

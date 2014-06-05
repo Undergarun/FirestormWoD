@@ -432,7 +432,7 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     uint32 corpsemapid = mapid;
 
     // if corpse at different map
-    if (mapid != _player->GetMapId())
+    if (mapid != m_Player->GetMapId())
     {
         // search entrance map for proper show entrance
         if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
@@ -779,10 +779,10 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     {
         uint32 questId = itr;
         bool questOk = false;
-        uint16 questSlot = _player->FindQuestSlot(questId);
+        uint16 questSlot = m_Player->FindQuestSlot(questId);
 
         if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
+            questOk =m_Player->GetQuestSlotQuestId(questSlot) == questId;
 
         if (questOk)
         {
@@ -806,10 +806,10 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     {
         uint32 questId = itr;
         bool questOk = false;
-        uint16 questSlot = _player->FindQuestSlot(questId);
+        uint16 questSlot = m_Player->FindQuestSlot(questId);
 
         if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
+            questOk =m_Player->GetQuestSlotQuestId(questSlot) == questId;
 
         if (questOk)
         {

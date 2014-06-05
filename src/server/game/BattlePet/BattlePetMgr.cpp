@@ -150,8 +150,8 @@ void WorldSession::HandleSummonBattlePet(WorldPacket& recvData)
     uint8 bytesOrder[8] = { 4, 1, 0, 2, 6, 3, 7, 5 };
     recvData.ReadBytesSeq(battlePetGuid, bytesOrder);
 
-    if (!_player->HasSpell(uint32(battlePetGuid)))
+    if (!m_Player->HasSpell(uint32(battlePetGuid)))
         return;
 
-    _player->CastSpell(_player, uint32(battlePetGuid), true);
+    m_Player->CastSpell(m_Player, uint32(battlePetGuid), true);
 }

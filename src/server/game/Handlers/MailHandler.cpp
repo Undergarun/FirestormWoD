@@ -110,7 +110,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (receiver.empty())
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
     if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
@@ -342,7 +342,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
     Mail* m = player->GetMail(mailId);
     if (m)
     {
@@ -363,8 +363,8 @@ void WorldSession::HandleMailDelete(WorldPacket& recvData)
     recvData.read_skip<uint32>();   
     recvData >> mailId;                       // mailTemplateId
 
-    Mail* m = _player->GetMail(mailId);
-    Player* player = _player;
+    Mail* m = m_Player->GetMail(mailId);
+    Player* player = m_Player;
     player->m_mailsUpdated = true;
     if (m)
     {
@@ -399,7 +399,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
     //if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
     //    return;
 
-    Player* player = _player;
+    Player* player = m_Player;
     Mail* m = player->GetMail(mailId);
     if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
     {
@@ -474,7 +474,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
 
     Mail* m = player->GetMail(mailId);
     if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
@@ -493,7 +493,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     Item* item = player->GetMItem(itemId);
 
     ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false);
+    uint8 msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false);
     if (msg == EQUIP_ERR_OK)
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -582,7 +582,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
 
     Mail* m = player->GetMail(mailId);
     if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
@@ -631,7 +631,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailBoxGuid, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
 
     //load players mails, and mailed items
     if (!player->m_mailsLoaded)
@@ -783,7 +783,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     SendPacket(&data);
 
     // recalculate m_nextMailDelivereTime and unReadMails
-    _player->UpdateNextMailTimeAndUnreads();
+    m_Player->UpdateNextMailTimeAndUnreads();
 }
 
 // Used when player copies mail body to his inventory
@@ -807,7 +807,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
 
     Mail* m = player->GetMail(mailId);
     if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
@@ -844,7 +844,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);
+    uint8 msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);
     if (msg == EQUIP_ERR_OK)
     {
         m->checked = m->checked | MAIL_CHECK_MASK_COPIED;
@@ -866,10 +866,10 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
 
-    if (!_player->m_mailsLoaded)
-        _player->_LoadMail();
+    if (!m_Player->m_mailsLoaded)
+        m_Player->_LoadMail();
 
-    if (_player->unReadMails > 0)
+    if (m_Player->unReadMails > 0)
     {
         data << float(0);                                  // float
         data << uint32(0);                                 // count
@@ -877,7 +877,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
         uint32 count = 0;
         time_t now = time(NULL);
         std::set<uint32> sentSenders;
-        for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
+        for (PlayerMails::iterator itr = m_Player->GetMailBegin(); itr != m_Player->GetMailEnd(); ++itr)
         {
             Mail* m = (*itr);
             // must be not checked yet

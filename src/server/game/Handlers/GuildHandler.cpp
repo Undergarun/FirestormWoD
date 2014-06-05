@@ -335,7 +335,7 @@ void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
     recvData.ReadBytesSeq(guildGuid, byteOrder);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(_player->GetGUID()))
+        if (guild->IsMember(m_Player->GetGUID()))
             guild->HandleGuildRanks(this);
 }
 
@@ -785,7 +785,7 @@ void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
     recvPacket.ReadBytesSeq(guildGuid, byteOrder);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(_player->GetGUID()))
+        if (guild->IsMember(m_Player->GetGUID()))
             guild->SendGuildXP(this);
 }
 
@@ -861,7 +861,7 @@ void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
     {
-        if (guild->IsMember(_player->GetGUID()))
+        if (guild->IsMember(m_Player->GetGUID()))
         {
             WorldPacket data(SMSG_GUILD_SEND_MAX_DAILY_XP, 8);
             data << uint64(sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP));
@@ -883,7 +883,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
     uint32 unk = 0;
     recvPacket >> unk;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+    if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
@@ -930,7 +930,7 @@ void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
     {
-        if (guild->IsMember(_player->GetGUID()))
+        if (guild->IsMember(m_Player->GetGUID()))
         {
             WorldPacket data;
             guild->GetNewsLog().BuildNewsData(data);
@@ -960,7 +960,7 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
     uint8 byteOrder[8] = {0, 7, 2, 3, 6, 5, 1, 4};
     recvPacket.ReadBytesSeq(guid, byteOrder);
 
-    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+    if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
     {
         if (GuildNewsEntry* newsEntry = guild->GetNewsLog().GetNewsById(newsId))
         {
@@ -1016,6 +1016,6 @@ void WorldSession::HandleGuildRequestGuildRecipes(WorldPacket& recvPacket)
     recvPacket.ReadBytesSeq(guildGuid, bytesOrder);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(_player->GetGUID()))
+        if (guild->IsMember(m_Player->GetGUID()))
             guild->SendGuildRecipes(this);
 }

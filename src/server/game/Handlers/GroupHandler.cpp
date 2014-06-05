@@ -623,7 +623,7 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)
     if (!grp)
         return;
 
-    if (_player->InBattleground())
+    if (m_Player->InBattleground())
     {
         SendPartyResult(PARTY_OP_INVITE, "", ERR_INVITE_RESTRICTED);
         return;
@@ -812,7 +812,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
         uint8 byteOrder[8] = { 5, 4, 6, 0, 1, 2, 3, 7 };
         recvData.ReadBytesSeq(guid, byteOrder);
 
-        group->SetTargetIcon(x, _player->GetGUID(), guid);
+        group->SetTargetIcon(x, m_Player->GetGUID(), guid);
     }
 }
 
@@ -824,7 +824,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
-    if (_player->InBattleground())
+    if (m_Player->InBattleground())
         return;
 
     // Error handling
@@ -1510,7 +1510,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
 {
     // every time the player checks the character screen
-    _player->SendRaidInfo();
+    m_Player->SendRaidInfo();
 }
 
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)

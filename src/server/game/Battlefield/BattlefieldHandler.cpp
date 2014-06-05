@@ -182,7 +182,7 @@ void WorldSession::SendBfEntered(uint64 guid)
     data.WriteBit(bgGuid[3]);
     data.WriteBit(bgGuid[2]);
     data.WriteBit(1); // unk
-    data.WriteBit(_player->isAFK() ? 1 : 0); //Clear AFK
+    data.WriteBit(m_Player->isAFK() ? 1 : 0); //Clear AFK
     data.WriteBit(bgGuid[6]);
     data.WriteBit(bgGuid[0]);
     data.WriteBit(bgGuid[5]);
@@ -255,7 +255,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     if (!bf)
         return;
     
-    bf->PlayerAcceptInviteToQueue(_player);
+    bf->PlayerAcceptInviteToQueue(m_Player);
 }
 
 //Send by client on clicking in accept or refuse of invitation windows for join game
@@ -286,10 +286,10 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
         return;
 
     if (accepted)
-        bf->PlayerAcceptInviteToWar(_player);
+        bf->PlayerAcceptInviteToWar(m_Player);
     else
-        if (_player->GetZoneId() == bf->GetZoneId())
-            bf->KickPlayerFromBattlefield(_player->GetGUID());
+        if (m_Player->GetZoneId() == bf->GetZoneId())
+            bf->KickPlayerFromBattlefield(m_Player->GetGUID());
 }
 
 void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
@@ -307,12 +307,12 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
     {
         if (bf->IsWarTime())
-            bf->InvitePlayerToWar(_player);
+            bf->InvitePlayerToWar(m_Player);
         else
         {
             uint32 timer = bf->GetTimer() / 1000;
             if (timer < 15 * MINUTE)
-                bf->InvitePlayerToQueue(_player);
+                bf->InvitePlayerToQueue(m_Player);
         }
     }
 }
@@ -334,15 +334,15 @@ void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
     SendBfLeaveMessage(guid);
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
-        bf->AskToLeaveQueue(_player);
+        bf->AskToLeaveQueue(m_Player);
 }
 
 void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
 {
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest");
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId());
+    Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId());
     if (bf)
-         bf->KickPlayerFromBattlefield(_player->GetGUID());
+         bf->KickPlayerFromBattlefield(m_Player->GetGUID());
 }
 
 void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
@@ -364,9 +364,9 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: %s reported %s", _player->GetName(), reportedPlayer->GetName());
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: %s reported %s", m_Player->GetName(), reportedPlayer->GetName());
 
-    reportedPlayer->ReportedAfkBy(_player);
+    reportedPlayer->ReportedAfkBy(m_Player);
 }
 
 void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
@@ -404,7 +404,7 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
 
-    _player->SendPvpRewards();
+    m_Player->SendPvpRewards();
 }
 
 void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
@@ -415,14 +415,14 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 
     for (int i = 0; i < MAX_PVP_SLOT; i++)
     {
-        data << uint32(_player->GetWeekGames(i)); // games of week
-        data << uint32(_player->GetSeasonGames(i)); // games of season
+        data << uint32(m_Player->GetWeekGames(i)); // games of week
+        data << uint32(m_Player->GetSeasonGames(i)); // games of season
         data << uint32(0);
         data << uint32(0);
-        data << uint32(_player->GetArenaPersonalRating(i)); // current rating
-        data << uint32(_player->GetBestRatingOfSeason(i)); // best rating of season
-        data << uint32(_player->GetBestRatingOfWeek(i)); // best rating of week
-        data << uint32(_player->GetPrevWeekWins(i)); // wins of prev week
+        data << uint32(m_Player->GetArenaPersonalRating(i)); // current rating
+        data << uint32(m_Player->GetBestRatingOfSeason(i)); // best rating of season
+        data << uint32(m_Player->GetBestRatingOfWeek(i)); // best rating of week
+        data << uint32(m_Player->GetPrevWeekWins(i)); // wins of prev week
     }
 
     SendPacket(&data);

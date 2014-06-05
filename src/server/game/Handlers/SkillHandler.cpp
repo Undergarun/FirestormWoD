@@ -29,10 +29,10 @@
 void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
 {
     uint32 tab = recvData.read<uint32>();
-    uint8 classId = _player->getClass();
+    uint8 classId = m_Player->getClass();
 
     // Avoid cheat - hack
-    if (_player->GetSpecializationId(_player->GetActiveSpec()))
+    if (m_Player->GetSpecializationId(m_Player->GetActiveSpec()))
         return;
 
     uint32 specializationId = 0;
@@ -54,12 +54,12 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
 
     if (specializationId)
     {
-        _player->SetSpecializationId(_player->GetActiveSpec(), specializationId);
-        _player->SendTalentsInfoData(false);
+        m_Player->SetSpecializationId(m_Player->GetActiveSpec(), specializationId);
+        m_Player->SendTalentsInfoData(false);
         if (specializationSpell)
-            _player->learnSpell(specializationSpell, false);
-        _player->InitSpellForLevel();
-        _player->UpdateMasteryPercentage();
+            m_Player->learnSpell(specializationSpell, false);
+        m_Player->InitSpellForLevel();
+        m_Player->UpdateMasteryPercentage();
     }
 }
 
@@ -71,16 +71,16 @@ void WorldSession::HandleLearnTalents(WorldPacket& recvData)
     if (count > MAX_TALENT_SPELLS)
         return;
 
-    if (count > _player->GetFreeTalentPoints())
+    if (count > m_Player->GetFreeTalentPoints())
         return;
 
     for (uint32 i = 0; i < count; i++)
     {
         uint16 talentId = recvData.read<uint16>();
-        _player->LearnTalent(talentId);
+        m_Player->LearnTalent(talentId);
     }
 
-    _player->SendTalentsInfoData(false);
+    m_Player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
@@ -97,7 +97,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 
     if (!specializationReset)
     {
-        if (!_player->ResetTalents())
+        if (!m_Player->ResetTalents())
         {
             WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8+4);    //you have not any talent
             data << uint8(0); // 0 guid bit
@@ -108,12 +108,12 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         }
     }
     else
-        _player->ResetSpec();
+        m_Player->ResetSpec();
 
-    _player->SendTalentsInfoData(false);
+    m_Player->SendTalentsInfoData(false);
 
-    if (Unit* unit = _player->GetSelectedUnit())
-        unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    if (Unit* unit = m_Player->GetSelectedUnit())
+        unit->CastSpell(m_Player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
