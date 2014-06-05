@@ -352,6 +352,12 @@ enum Opcodes
     CMSG_PLAYER_LOGIN                           = 0x0026,   ///< 6.0.1 18322 => 0x5D3E69
 
     //////////////////////////////////////////////////////////////////////////
+    /// Interaction
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_SET_ACTION_BUTTON                      = 0x0444,   ///< 6.0.1 18322 => 0x5D36ED
+    CMSG_SET_SELECTION                          = 0x19F8,   ///< 6.0.1 18322 => 0x5DCB29
+
+    //////////////////////////////////////////////////////////////////////////
     /// Account data
     //////////////////////////////////////////////////////////////////////////
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES           = 0x0A17,   ///< 6.0.1 18322 => 0x5D139A (nullsub)
@@ -874,7 +880,6 @@ enum Opcodes
     CMSG_SETDEATHBINDPOINT                            = 0x0000,
     CMSG_SETSHEATHED                                  = 0x0000,
     CMSG_SET_ACTIONBAR_TOGGLES                        = 0x0000,
-    CMSG_SET_ACTION_BUTTON                            = 0x0000,
     CMSG_SET_ACTIVE_MOVER                             = 0x0000,
     CMSG_SET_ACTIVE_VOICE_CHANNEL                     = 0x0000,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                    = 0x0000,
@@ -896,7 +901,6 @@ enum Opcodes
     CMSG_SET_PREFERED_CEMETERY                        = 0x0000,
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
-    CMSG_SET_SELECTION                                = 0x0000,
     CMSG_SET_SKILL_CHEAT                              = 0x0000,
     CMSG_SET_SPECIALIZATION                           = 0x0000,
     CMSG_SET_TAXI_BENCHMARK_MODE                      = 0x0000,

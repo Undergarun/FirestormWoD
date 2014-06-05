@@ -685,19 +685,13 @@ void WorldSession::HandleReturnToGraveyard(WorldPacket& /*recvPacket*/)
     GetPlayer()->RepopAtGraveyard();
 }
 
-void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSelectionOpcode(WorldPacket& p_RecvData)
 {
-    ObjectGuid guid;
+    uint64 l_NewTargetGuid;
 
-    uint8 bitsOrder[8] = { 1, 3, 4, 6, 0, 5, 7, 2 };
-    recvData.ReadBitInOrder(guid, bitsOrder); 
+    p_RecvData >> l_NewTargetGuid;
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 6, 0, 2, 3, 1, 4, 5 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    _player->SetSelection(guid);
+    _player->SetSelection(l_NewTargetGuid);
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
@@ -1281,33 +1275,30 @@ int32 WorldSession::HandleEnableNagleAlgorithm()
     return 0;
 }
 
-void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetActionButtonOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ACTION_BUTTON");
-    uint8 button;
 
-    recvData >> button;
+    uint64 l_PackedData = 0;
 
-    ObjectGuid packetData;
+    uint8 l_Button = 0;
 
-    uint8 bitsOrder[8] = { 1, 7, 6, 5, 2, 4, 0, 3 };
-    recvData.ReadBitInOrder(packetData, bitsOrder);
+    p_RecvData >> l_PackedData;
+    p_RecvData >> l_Button;
 
-    uint8 bytesOrder[8] = { 2, 7, 1, 4, 0, 5, 3, 6 };
-    recvData.ReadBytesSeq(packetData, bytesOrder);
+    uint8   l_Type      = ACTION_BUTTON_TYPE(l_PackedData);
+    uint32  l_ActionID  = ACTION_BUTTON_ACTION(l_PackedData);
 
-    uint8 type = ACTION_BUTTON_TYPE(uint64(packetData));
-    uint32 actionId = ACTION_BUTTON_ACTION(uint64(packetData));
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", l_Button, l_ActionID, l_Type);
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, actionId, type);
-    if (!packetData)
+    if (!l_PackedData)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
-        GetPlayer()->removeActionButton(button);
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", l_Button);
+        GetPlayer()->removeActionButton(l_Button);
     }
     else
     {
-        GetPlayer()->addActionButton(button, actionId, type);
+        GetPlayer()->addActionButton(l_Button, l_ActionID, l_Type);
     }
 }
 
