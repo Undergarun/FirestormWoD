@@ -28,7 +28,7 @@ class mob_arness_the_scale : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_GRAPPLING_HOOK,  40000);
+                events.ScheduleEvent(EVENT_GRAPPLING_HOOK, 40000);
                 events.ScheduleEvent(EVENT_VANISH, 20000);
                 events.ScheduleEvent(EVENT_VICIOUS_REND, 15000);
             }
@@ -225,9 +225,9 @@ class mob_torik_ethis : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_BLADE_FURY,       8000);
-                events.ScheduleEvent(EVENT_TORNADO,         40000);
-                events.ScheduleEvent(EVENT_WINDSONG,        32000);
+                events.ScheduleEvent(EVENT_BLADE_FURY, 8000);
+                events.ScheduleEvent(EVENT_TORNADO, 40000);
+                events.ScheduleEvent(EVENT_WINDSONG, 32000);
             }
 
             void JustSummoned(Creature* summon)
@@ -269,7 +269,6 @@ class mob_torik_ethis : public CreatureScript
                                 me->CastSpell(target, SPELL_WINDSONG, false);
                             events.ScheduleEvent(EVENT_WINDSONG, 32000);
                             break;
-
                         default:
                             break;
                     }
@@ -279,8 +278,6 @@ class mob_torik_ethis : public CreatureScript
             }
         };
 };
-
-#define GO_KAN_SAY_1        "Feel the strength of the Yaungol!"
 
 class mob_go_kan : public CreatureScript
 {
@@ -306,9 +303,9 @@ class mob_go_kan : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT);
                 events.Reset();
-                events.ScheduleEvent(EVENT_BELLOWING_RAGE,       8000);
-                events.ScheduleEvent(EVENT_RUSHING_CHARGE,      17000);
-                events.ScheduleEvent(EVENT_YAUNGOL_STOMP,       25000);
+                events.ScheduleEvent(EVENT_BELLOWING_RAGE, 8000);
+                events.ScheduleEvent(EVENT_RUSHING_CHARGE, 17000);
+                events.ScheduleEvent(EVENT_YAUNGOL_STOMP, 25000);
             }
 
             void EnterCombat(Unit* who)
@@ -345,7 +342,6 @@ class mob_go_kan : public CreatureScript
                                 me->CastSpell(target, SPELL_YAUNGOL_STOMP, false);
                             events.ScheduleEvent(EVENT_YAUNGOL_STOMP, 35000);
                             break;
-
                         default:
                             break;
                     }
@@ -375,6 +371,262 @@ class mob_spirit_of_the_crane : public CreatureScript
         }
 };
 
+class mob_champion_of_chi_ji : public CreatureScript
+{
+    public:
+        mob_champion_of_chi_ji() : CreatureScript("mob_champion_of_chi_ji")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_champion_of_chi_jiAI(creature);
+        }
+
+        struct mob_champion_of_chi_jiAI : public ScriptedAI
+        {
+            mob_champion_of_chi_jiAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_CHI_TORPEDO, 4000);
+                events.ScheduleEvent(EVENT_HUNDRED_HAND_SLAP, 17000);
+                events.ScheduleEvent(EVENT_SPINNING_CRANE_KICK, 27000);
+                events.ScheduleEvent(EVENT_UPPERCUT, 35000);
+            }
+
+            void MoveInLineOfSight(Unit* who) // Dynamic Aggro !
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (CAST_PLR(who)->GetQuestStatus(30740) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (me->GetDistance(who) >= 10.0f && me->GetDistance(who) <= 40.0f)
+                            me->CastSpell(who, SPELL_FLYING_SERPENT_KICK, false);
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CHI_TORPEDO:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_CHI_TORPEDO, false);
+                            events.ScheduleEvent(EVENT_CHI_TORPEDO, 40000);
+                            break;
+                        case EVENT_HUNDRED_HAND_SLAP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_HUNDRED_HAND_SLAP, false);
+                            events.ScheduleEvent(EVENT_HUNDRED_HAND_SLAP, 40000);
+                            break;
+                        case EVENT_SPINNING_CRANE_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_SPINNING_CRANE_KICK, false);
+                            events.ScheduleEvent(EVENT_SPINNING_CRANE_KICK, 40000);
+                            break;
+                        case EVENT_UPPERCUT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_UPPERCUT, false);
+                            events.ScheduleEvent(EVENT_UPPERCUT, 40000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+// Chi Torpedo - 119539
+class spell_chi_torpedo_periodic : public SpellScriptLoader
+{
+    public:
+        spell_chi_torpedo_periodic() : SpellScriptLoader("spell_chi_torpedo_periodic") { }
+
+        class spell_chi_torpedo_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_chi_torpedo_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = caster->getVictim())
+                    {
+                        caster->CastSpell(target, 119520, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_chi_torpedo_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_chi_torpedo_periodic_AuraScript();
+        }
+};
+
+class mob_anduin_wrynn : public CreatureScript
+{
+    public:
+        mob_anduin_wrynn() : CreatureScript("mob_anduin_wrynn")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 30273)
+            {
+                player->SummonCreature(66975, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+            }
+
+            return true;
+        }
+};
+
+class mob_anduin_wrynn_escort : public CreatureScript
+{
+    public:
+        mob_anduin_wrynn_escort() : CreatureScript("mob_anduin_wrynn_escort")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_anduin_wrynn_escortAI(creature);
+        }
+
+        struct mob_anduin_wrynn_escortAI : public ScriptedAI
+        {
+            mob_anduin_wrynn_escortAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+
+            void Reset()
+            {
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (CAST_PLR(summoner)->GetQuestStatus(30273) == QUEST_STATUS_INCOMPLETE)
+                {
+                    me->GetMotionMaster()->MoveFollow(summoner, 2.0f, 2.0f, MOTION_SLOT_ACTIVE);
+                    playerGuid = summoner->GetGUID();
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                Player* summoner = sObjectAccessor->FindPlayer(playerGuid);
+                if (!summoner)
+                    return;
+
+                if (Unit* target = summoner->getVictim())
+                {
+                    if (CAST_CRE(target)->GetEntry() == 59651)
+                    {
+                        me->Attack(target, true);
+                        DoMeleeAttackIfReady();
+                    }
+                }
+            }
+        };
+};
+
+#define GOSSIP_CHOICE "<Reach out to touch Chi-Ji.>"
+
+class npc_chi_ji : public CreatureScript
+{
+    public:
+        npc_chi_ji() : CreatureScript("npc_chi_ji")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->GetQuestStatus(30273) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(30003, creature->GetGUID());
+            }
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                creature->DespawnOrUnsummon();
+                player->SummonCreature(59651, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ()); // , 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+            }
+
+            return true;
+        }
+};
+
+class mob_sha_of_despair : public CreatureScript
+{
+    public:
+        mob_sha_of_despair() : CreatureScript("mob_sha_of_despair")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_sha_of_despairAI(creature);
+        }
+
+        struct mob_sha_of_despairAI : public ScriptedAI
+        {
+            mob_sha_of_despairAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void JustDied(Unit* killer)
+            {
+                me->DespawnOrUnsummon();
+                me->SummonCreature(59653, -1813.46f, 1052.33f, -31.115f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
+
+                std::list<Creature*> creatureList;
+                GetCreatureListWithEntryInGrid(creatureList, me, 66975, 40.0f);
+
+                for (auto creature: creatureList)
+                    creature->DespawnOrUnsummon();
+            }
+        };
+};
+
 void AddSC_krasarang_wilds()
 {
     new mob_gaarn_the_toxic();
@@ -383,4 +635,10 @@ void AddSC_krasarang_wilds()
     new mob_torik_ethis();
     new mob_go_kan();
     new mob_spirit_of_the_crane();
+    new mob_champion_of_chi_ji();
+    new spell_chi_torpedo_periodic();
+    new mob_anduin_wrynn();
+    new mob_anduin_wrynn_escort();
+    new npc_chi_ji();
+    new mob_sha_of_despair();
 }
