@@ -13240,77 +13240,9 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         AddPct(DoneTotalMod, PvPPower);
     }
 
-    // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
-
-    if (!DoneAdvertisedBenefit || (SpellBaseHealingBonusDone(spellProto->GetSchoolMask()) < SpellBaseDamageBonusDone(spellProto->GetSchoolMask())))
-    {
-        DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
-
-        AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
-        for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
-            if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & spellProto->GetSchoolMask()) != 0)
-                DoneAdvertisedBenefit += (*i)->GetAmount();
-    }
-
-    // Check for table values
-    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-    float coeff = 0;
-    float factorMod = 1.0f;
-    if (bonus)
-    {
-        if (damagetype == DOT)
-        {
-            coeff = bonus->dot_damage;
-            if (bonus->ap_dot_bonus > 0)
-                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
-        }
-        else
-        {
-            coeff = bonus->direct_damage;
-            if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(BASE_ATTACK));
-        }
-    }
-    else
-    {
-        // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
-        if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
-            return healamount;
-    }
-
-    // Default calculation
-    if (DoneAdvertisedBenefit)
-    {
-        if (!bonus || coeff < 0)
-            coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack) * 1.88f;  // As wowwiki says: C = (Cast Time / 3.5) * 1.88 (for healing spells)
-
-        factorMod *= CalculateLevelPenalty(spellProto) * stack;
-
-        if (Player* modOwner = GetSpellModOwner())
-        {
-            coeff *= 100.0f;
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
-            coeff /= 100.0f;
-        }
-
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
-    }
-
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        switch (spellProto->Effects[i].ApplyAuraName)
-        {
-            // Bonus healing does not apply to these spells
-            case SPELL_AURA_PERIODIC_LEECH:
-            case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                DoneTotal = 0;
-                break;
-        }
-        if (spellProto->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
-            DoneTotal = 0;
-    }
+    // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
+    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+        return healamount;
 
     // Fix spellPower bonus for Holy Prism
     if (spellProto && (spellProto->Id == 114871 || spellProto->Id == 114852) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_PALADIN)
