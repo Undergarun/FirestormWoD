@@ -1118,7 +1118,15 @@ class mob_set_thik_gustwing : public CreatureScript
         }
 };
 
-// 63597 - Coagulated Amber
+Position unsokRoomAngle[4] =
+{
+    {-2440.82f, 662.18f, 581.55f, 0.0f},    // NE - Starting point for 63597
+    {-2513.15f, 662.18f, 581.55f, 0.0f},    // SE - Starting point for 63594
+    {-2513.15f, 734.44f, 581.55f, 0.0f},    // SW
+    {-2440.82f, 734.44f, 581.55f, 0.0f},    // NW
+};
+
+// 63594 / 63597 - Coagulated Amber
 class mob_coagulated_amber : public CreatureScript
 {
     public:
@@ -1126,36 +1134,62 @@ class mob_coagulated_amber : public CreatureScript
 
         struct mob_coagulated_amberAI : public ScriptedAI
         {
-            mob_coagulated_amberAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_coagulated_amberAI(Creature* creature) : ScriptedAI(creature) { }
 
-            EventMap events;
+            uint8 walkTimer;
+            uint8 point;
+            int8 clockwise;
 
             void Reset()
             {
-                events.Reset();
+                bool isClockwise = me->GetEntry() == 63597;
+                walkTimer = 0;
+                clockwise = isClockwise ? 1 : -1;
+                point     = isClockwise ? 1 : 2;
 
-                events.ScheduleEvent(EVENT_BURST, 4000);
+                me->SetFacingTo(isClockwise ? M_PI : 0.0f);
+                me->SetOrientation(isClockwise ? M_PI : 0.0f);
+
+                me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                /***
+                 * +4 because if we're not clockwise (ie. clockwise = -1), at point = 0, point + clockwise = -1, and -1 % 4 = -1, and so, -1 + 4 = 3 and
+                 * 3 % 4 = 3, so we go from 0 to 3. For any other value, it won't have any incidence (for ex. if point + clockwise = 2, then 2 + 4 = 6 and
+                 * 6 % 4 = 2, and even if point + clockwise = 4, 4 + 4 = 8 and 8 % 4 = 0.
+                 *
+                 * So this will always return a valid value between 0 and 3, whatever the values of point and clockwise.
+                 ***/
+                point = (point + clockwise + 4) % 4;
+                walkTimer = 1;
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                // Explode
+                DoCast(SPELL_BURST);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 id = events.ExecuteEvent())
+                if (walkTimer)
                 {
-                    if (id == EVENT_BURST)
+                    if (walkTimer > diff)
+                        walkTimer -= diff;
+                    else
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, SPELL_BURST, true);
-                        events.ScheduleEvent(EVENT_BURST, 22000);
-                        break;
+                        me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+                        walkTimer = 0;
                     }
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 DoMeleeAttackIfReady();
             }
@@ -1167,6 +1201,74 @@ class mob_coagulated_amber : public CreatureScript
         }
 };
 
+Position unsokDiagPoint[2] =
+{
+    {-2409.33f, 630.0f, 582.92f, 0.0f},
+    {-2549.87f, 770.0f, 582.92f, 0.0f}
+};
+
+// 62691 - Living Amber
+class mob_living_amber : public CreatureScript
+{
+public:
+    mob_living_amber() : CreatureScript("mob_living_amber") { }
+
+    struct mob_living_amberAI : ScriptedAI
+    {
+        mob_living_amberAI(Creature* creature) : ScriptedAI(creature) { }
+
+        uint8 targetPoint;
+        uint8 walkTimer;
+
+        void Reset()
+        {
+            events.Reset();
+            DoCast(SPELL_CORROSIVE_AURA);
+            walkTimer = 0;
+            targetPoint = me->GetPositionY() > 700 ? 0 : 1;
+            me->GetMotionMaster()->MovePoint(targetPoint + 1, unsokDiagPoint[targetPoint]);
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            // As target point can be 0 or 1, 1-targetPoint can be either 1-0 = 1 or 1-1 = 0, so we switch the value of targetPoint
+            targetPoint = 1 - targetPoint;
+            walkTimer = 1;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoCast(SPELL_BURST);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (walkTimer)
+            {
+                if (walkTimer > diff)
+                    walkTimer -= diff;
+                else
+                {
+                    me->GetMotionMaster()->MovePoint(targetPoint + 1, unsokDiagPoint[targetPoint]);
+                    walkTimer = 0;
+                }
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_living_amberAI(creature);
+    }
+};
 
 // 64355 - Kor'thik Silentwing
 class mob_kor_thik_silentwing : public CreatureScript
@@ -1654,7 +1756,7 @@ public:
 
             events.Update(diff);
 
-            while(uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1684,6 +1786,170 @@ public:
         return new mob_korthik_fleshrenderAI(creature);
     }
 
+};
+
+// 63569 - Amber Searsting
+class mob_amber_searsting : public CreatureScript
+{
+public:
+    mob_amber_searsting() : CreatureScript("mob_amber_searsting") { }
+
+    struct mob_amber_searstingAI : public ScriptedAI
+    {
+        mob_amber_searstingAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_BURNING_STING, 8000);
+            events.ScheduleEvent(EVENT_SEARING_SLASH, 4000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BURNING_STING:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_BURNING_STING, true);
+                        events.ScheduleEvent(EVENT_BURNING_STING, 15000);
+                        break;
+                    }
+                    case EVENT_SEARING_SLASH:
+                    {
+                        DoCast(SPELL_SEARING_SLASH);
+                        events.ScheduleEvent(EVENT_SEARING_SLASH, 12000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_amber_searstingAI(creature);
+    }
+};
+
+// 63568 - Amber-Ridden Mushan
+class mob_amberridden_mushan : public CreatureScript
+{
+public:
+    mob_amberridden_mushan() : CreatureScript("mob_amberridden_mushan") { }
+
+    struct mob_amberridden_mushanAI : public ScriptedAI
+    {
+        mob_amberridden_mushanAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_AMBER_SPEW, 9000);
+            events.ScheduleEvent(EVENT_SLAM,       4000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_AMBER_SPEW:
+                    {
+                        DoCast(SPELL_AMBER_SPEW);
+                        events.ScheduleEvent(EVENT_AMBER_SPEW, 10000);
+                        break;
+                    }
+                    case EVENT_SLAM:
+                    {
+                        DoCast(SPELL_SLAM);
+                        events.ScheduleEvent(EVENT_SLAM, 22000);
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_amberridden_mushanAI(creature);
+    }
+};
+
+// 63570 - Sra'thik Pool-Tender
+class mob_srathik_pooltender : public CreatureScript
+{
+public:
+    mob_srathik_pooltender() : CreatureScript("mob_srathik_pooltender") { }
+
+    struct mob_srathik_pooltenderAI : public ScriptedAI
+    {
+        mob_srathik_pooltenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+            DoCast(SPELL_AMBER_EMANATION);
+            events.ScheduleEvent(EVENT_AMBER_INFUSION, 20000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_AMBER_INFUSION)
+            {
+                DoCast(SPELL_AMBER_INFUSION);
+                events.ScheduleEvent(EVENT_AMBER_INFUSION, urand(25000, 30000));
+            }
+
+            if (UpdateVictim())
+                DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_srathik_pooltenderAI(creature);
+    }
 };
 
 // 123421 - Vital Strikes
@@ -1742,11 +2008,15 @@ void AddSC_heart_of_fear()
     new mob_zar_thik_zealot();          // 63035 - Zar'thik Zealot
     new mob_kor_thik_swarmer();         // 64357 - Kor'thik Swarmer
     new mob_set_thik_gustwing();        // 63592 - Set'thik Gustwing
-    new mob_coagulated_amber();         // 63597 - Coagulated Amber
+    new mob_coagulated_amber();         // 63597 / 63594 - Coagulated Amber
+    new mob_living_amber();             // 62691 - Living Amber
     new mob_kor_thik_silentwing();      // 64355 - Kor'thik Silentwing
     new mob_zephyr();                   // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
     new mob_korthik_swarmguard();       // 64916 - Kor'thik Swarmguard
     new mob_srathik_ambercaller();      // 64917 - Sra'thik Ambercaller
     new mob_korthik_fleshrender();      // 64902 - Kor'thik Fleshrender
+    new mob_amber_searsting();          // 63569 - Amber Searsting
+    new mob_amberridden_mushan();       // 63568 - Amber-Ridden Mushan
+    new mob_srathik_pooltender();       // 63570 - Sra'thik Pool-Tender
     new spell_vital_strikes();          // 123421 - Vital Strikes
 }
