@@ -2420,6 +2420,40 @@ class spell_item_dit_da_jow : public SpellScriptLoader
         }
 };
 
+class spell_item_zuluhed_chains : public SpellScriptLoader
+{
+    public:
+        spell_item_zuluhed_chains() : SpellScriptLoader("spell_item_zuluhed_chains") { }
+
+        class spell_item_zuluhed_chains_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_zuluhed_chains_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(10866) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(22112);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_zuluhed_chains_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_zuluhed_chains_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2478,4 +2512,5 @@ void AddSC_item_spell_scripts()
     new spell_item_imputting_the_final_code();
     new spell_item_pot_of_fire();
     new spell_item_dit_da_jow();
+    new spell_item_zuluhed_chains();
 }

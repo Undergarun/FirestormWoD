@@ -121,7 +121,9 @@ enum eQuests
 
 enum eActions
 {
-    ACTION_SET_FLAG = 1
+    ACTION_SET_FLAG     = 1,
+    ACTION_REINITIALIZE = 2,
+    ACTION_REMOVE_FLAG  = 3
 };
 
 enum eCreatures

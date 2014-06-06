@@ -4,6 +4,7 @@
 #include "ScriptedEscortAI.h"
 #include "dread_wastes.h"
 
+// Ik-Ik the Nimble - 50836
 class mob_ik_ik_the_nimble : public CreatureScript
 {
     public:
@@ -84,6 +85,7 @@ class mob_ik_ik_the_nimble : public CreatureScript
         };
 };
 
+// Adjunct Kree'zot - 62301
 class mob_adjunct_kree_zot : public CreatureScript
 {
     public:
@@ -158,6 +160,7 @@ class mob_adjunct_kree_zot : public CreatureScript
         };
 };
 
+// Dread Fearbringer - 65496
 class mob_dread_fearbringer : public CreatureScript
 {
     public:
@@ -210,6 +213,7 @@ class mob_dread_fearbringer : public CreatureScript
         };
 };
 
+// Dread Kunchong - 64717
 class mob_dread_kunchong : public CreatureScript
 {
     public:
@@ -337,6 +341,7 @@ class mob_dread_kunchong : public CreatureScript
         };
 };
 
+// Dread Matriarch - 66187
 class mob_dread_matriarch : public CreatureScript
 {
     public:
@@ -408,6 +413,7 @@ class mob_dread_matriarch : public CreatureScript
         };
 };
 
+// Elder Spindlegrin - 65391
 class mob_elder_spindlegrin : public CreatureScript
 {
     public:
@@ -482,6 +488,7 @@ class mob_elder_spindlegrin : public CreatureScript
         };
 };
 
+// Hulking Kor'thik Fleshrender - 62686
 class mob_hulking_kor_thik_fleshrender : public CreatureScript
 {
     public:
@@ -550,6 +557,7 @@ class mob_hulking_kor_thik_fleshrender : public CreatureScript
         };
 };
 
+// Ik'thik Amberstinger - 63728
 class mob_ik_thik_amberstinger : public CreatureScript
 {
     public:
@@ -624,6 +632,7 @@ class mob_ik_thik_amberstinger : public CreatureScript
         };
 };
 
+// Ik'thik Kunchong - 65582
 class mob_ik_thik_kunchong : public CreatureScript
 {
     public:
@@ -686,6 +695,7 @@ class mob_ik_thik_kunchong : public CreatureScript
         };
 };
 
+// Ik'thik Terrorclaw - 65632
 class mob_ik_thik_terrorclaw : public CreatureScript
 {
     public:
@@ -819,6 +829,7 @@ class mob_ik_thik_terrorclaw : public CreatureScript
         };
 };
 
+// Karanosh - 64724
 class mob_karanosh : public CreatureScript
 {
     public:
@@ -881,6 +892,7 @@ class mob_karanosh : public CreatureScript
         };
 };
 
+// Kypa'rak - 65229
 class mob_kypa_rak : public CreatureScript
 {
     public:
@@ -960,6 +972,7 @@ class mob_kypa_rak : public CreatureScript
         };
 };
 
+// Manifestation of Terror - 66785
 class mob_manifestation_of_terror : public CreatureScript
 {
     public:
@@ -1034,6 +1047,7 @@ class mob_manifestation_of_terror : public CreatureScript
         };
 };
 
+// Shox'tik - 66784
 class mob_shox_tik : public CreatureScript
 {
     public:
@@ -1108,6 +1122,7 @@ class mob_shox_tik : public CreatureScript
         };
 };
 
+// Wake of Horror - 64626
 class mob_wake_of_horror : public CreatureScript
 {
     public:
@@ -1235,6 +1250,7 @@ class mob_wake_of_horror : public CreatureScript
         };
 };
 
+// Warlord Gurthan - 65502
 class mob_warlord_gurthan : public CreatureScript
 {
     public:
@@ -1309,7 +1325,8 @@ class mob_warlord_gurthan : public CreatureScript
         };
 };
 
- class mob_ai_li_skymirror : public CreatureScript
+// Ai-Li Skymirror - 50821
+class mob_ai_li_skymirror : public CreatureScript
  {
      public:
          mob_ai_li_skymirror() : CreatureScript("mob_ai_li_skymirror")
@@ -1383,6 +1400,7 @@ class mob_warlord_gurthan : public CreatureScript
          };
 };
 
+// Overgrown Seacarp - 65394
 class mob_overgrown_seacarp : public CreatureScript
 {
     public:
@@ -1445,6 +1463,7 @@ class mob_overgrown_seacarp : public CreatureScript
         };
 };
 
+// Gar'lok - 50739
 class mob_gar_lok : public CreatureScript
 {
     public:
@@ -1531,6 +1550,7 @@ class mob_gar_lok : public CreatureScript
         };
 };
 
+// Dak the Breaker - 50334
 class mob_dak_the_breaker : public CreatureScript
 {
     public:
@@ -1610,6 +1630,7 @@ class mob_dak_the_breaker : public CreatureScript
         };
 };
 
+// Nalash Verdantis - 50776
 class mob_nalash_verdantis : public CreatureScript
 {
     public:
@@ -1689,6 +1710,7 @@ class mob_nalash_verdantis : public CreatureScript
         };
 };
 
+// Vengeful Spirit - 69806
 class mob_vengeful_spirit : public CreatureScript
 {
     public:
@@ -1751,6 +1773,7 @@ class mob_vengeful_spirit : public CreatureScript
         };
 };
 
+// Hisek the Swarmkeeper - 64672
 class mob_hisek_the_swarmkeeper : public CreatureScript
 {
     public:
@@ -1787,6 +1810,7 @@ class mob_hisek_the_swarmkeeper : public CreatureScript
         };
 };
 
+// Hisek the Swarmkeeper - 64705
 class mob_hisek_the_swarmkeeper_two : public CreatureScript
 {
     public:
@@ -1915,6 +1939,7 @@ class mob_hisek_the_swarmkeeper_two : public CreatureScript
         };
 };
 
+// Klaxxi Traitor - 64583
 class mob_klaxxi_traitor : public CreatureScript
 {
     public:
@@ -1972,6 +1997,7 @@ class mob_klaxxi_traitor : public CreatureScript
         };
 };
 
+// Ancient Amber Chunk - 212980/212868/214674
 class go_ancient_amber_chunk : public GameObjectScript
 {
     public:
@@ -1998,6 +2024,7 @@ class go_ancient_amber_chunk : public GameObjectScript
         }
 };
 
+// Discover Amberglow Bunny - 65328
 class mob_discover_amberglow_bunny : public CreatureScript
 {
     public:
@@ -2028,6 +2055,7 @@ class mob_discover_amberglow_bunny : public CreatureScript
         };
 };
 
+//  Kaz'Tik the Manipulator - 63876
 class mob_kaz_tik_the_manipulator : public CreatureScript
 {
     public:
@@ -2089,6 +2117,7 @@ class mob_kaz_tik_the_manipulator : public CreatureScript
         };
 };
 
+// Kunchong Cage - 214292
 class go_kunchong_cage : public GameObjectScript
 {
 public:
@@ -2106,6 +2135,7 @@ public:
     }
 };
 
+// Kaz'tik the Manipulator - 64013
 class mob_second_kaz_tik_the_manipulator : public CreatureScript
 {
     public:
@@ -2254,6 +2284,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
         };
 };
 
+// Muckscale Ripper - 64197
 class mob_muckscale_ripper : public CreatureScript
 {
     public:
@@ -2339,6 +2370,7 @@ class mob_muckscale_ripper : public CreatureScript
         };
 };
 
+// Skeer the Bloodseeker - 63071
 class mob_skeer_the_bloodseeker : public CreatureScript
 {
     public:
@@ -2507,6 +2539,7 @@ class mob_skeer_the_bloodseeker : public CreatureScript
         };
 };
 
+// Muckscale Flesheater - 63465
 class mob_muckscale_flesheater : public CreatureScript
 {
     public:
@@ -2587,6 +2620,7 @@ class mob_muckscale_flesheater : public CreatureScript
         };
 };
 
+// Muckscale Serpentus - 63466
 class mob_muckscale_serpentus : public CreatureScript
 {
     public:
@@ -2673,6 +2707,7 @@ class mob_muckscale_serpentus : public CreatureScript
         };
 };
 
+// Oracle Hiss'ir - 63998
 class mob_oracle_hiss_ir : public CreatureScript
 {
     public:
@@ -2741,6 +2776,7 @@ class mob_oracle_hiss_ir : public CreatureScript
         };
 };
 
+// Muckscale Flesh-Hunter - 63997/64194
 class mob_muckscale_flesh_hunter : public CreatureScript
 {
     public:
@@ -2768,7 +2804,7 @@ class mob_muckscale_flesh_hunter : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNING_BOLT_2, 5000);
                 events.ScheduleEvent(EVENT_WATER_SHIELD, 12000);
                 events.ScheduleEvent(EVENT_WATER_SHIELD_2, 18000);
-                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
+                events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 24000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -2815,6 +2851,7 @@ class mob_muckscale_flesh_hunter : public CreatureScript
         };
 };
 
+// Muckscale Slayer - 64196/63999
 class mob_muckscale_slayer : public CreatureScript
 {
     public:
@@ -2883,6 +2920,7 @@ class mob_muckscale_slayer : public CreatureScript
         };
 };
 
+// Muckscale Shaman - 64195/64008
 class mob_muckscale_shaman : public CreatureScript
 {
     public:
@@ -2951,6 +2989,7 @@ class mob_muckscale_shaman : public CreatureScript
         };
 };
 
+// Zandalari Warbringer - 69769/69842
 class mob_zandalari_warbringer : public CreatureScript
 {
     public:

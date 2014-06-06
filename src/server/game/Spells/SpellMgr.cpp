@@ -3424,6 +3424,21 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 113504: // Wind Sword
+                spellInfo->Effects[0].BasePoints *= 10;
+                break;
+            case 119691: // Heavy Dynamite
+                spellInfo->Effects[0].BasePoints *= 31;
+                break;
+            case 89909: // Water Spout
+                spellInfo->Effects[0].BasePoints *= 22;
+                break;
+            case 118600: // Chi Torpedo
+                spellInfo->Effects[0].BasePoints *= 10;
+                break;
+            case 118592: // Spinning Crane Kick
+                spellInfo->Effects[0].BasePoints = urand(180, 230);
+                break;
             case 48505: // Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;

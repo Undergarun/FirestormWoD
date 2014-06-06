@@ -4,6 +4,7 @@
 #include "ScriptedEscortAI.h"
 #include "townlong_steppes.h"
 
+// Kah'tir - 50355
 class mob_kah_tir : public CreatureScript
 {
     public:
@@ -72,6 +73,7 @@ class mob_kah_tir : public CreatureScript
         };
 };
 
+// Lith'ik the Stalker - 50734
 class mob_lith_ik : public CreatureScript
 {
     public:
@@ -151,6 +153,7 @@ class mob_lith_ik : public CreatureScript
         };
 };
 
+// Darkwoods Faerie - 62522
 class mob_darkwoods_faerie : public CreatureScript
 {
     public:
@@ -235,6 +238,7 @@ class mob_darkwoods_faerie : public CreatureScript
         };
 };
 
+// Hei Feng - 63920
 class mob_hei_feng : public CreatureScript
 {
     public:
@@ -303,6 +307,7 @@ class mob_hei_feng : public CreatureScript
         };
 };
 
+// Eshelon - 50772
 class mob_eshelon : public CreatureScript
 {
     public:
@@ -377,6 +382,7 @@ class mob_eshelon : public CreatureScript
         };
 };
 
+// Restless Leng - 65586
 class mob_restless_leng : public CreatureScript
 {
     public:
