@@ -667,6 +667,9 @@ class npc_thelonius : public CreatureScript
                 case 30728:
                     player->SummonCreature(60534, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
                     break;
+                case 30737:
+                    player->SummonCreature(60543, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                    break;
                 default:
                     break;
             }
