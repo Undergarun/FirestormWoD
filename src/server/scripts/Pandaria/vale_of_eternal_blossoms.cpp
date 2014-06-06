@@ -5,6 +5,7 @@
 #include "ScriptedEscortAI.h"
 #include "vale_of_eternal_blossoms.h"
 
+// Zhao-Jin the Bloodletter - 60273
 class mob_zhao_jin : public CreatureScript
 {
     public:
@@ -64,6 +65,7 @@ class mob_zhao_jin : public CreatureScript
         };
 };
 
+// Reanimated Jade Warrior - 60121
 class mob_reanimated_jade_warrior : public CreatureScript
 {
     public:
@@ -120,6 +122,7 @@ class mob_reanimated_jade_warrior : public CreatureScript
         }
 };
 
+// Subjugated Serpent - 59158
 class mob_subjuged_serpent : public CreatureScript
 {
     public:
@@ -199,6 +202,7 @@ class mob_subjuged_serpent : public CreatureScript
         }
 };
 
+// Shao-Tien Behemoth - 65824
 class mob_shao_tien_behemoth : public CreatureScript
 {
     public:
@@ -275,6 +279,7 @@ class mob_shao_tien_behemoth : public CreatureScript
         }
 };
 
+// Shao-Tien Surveyor - 59379
 class mob_shao_tien_surveyor : public CreatureScript
 {
     public:
@@ -348,6 +353,7 @@ class mob_shao_tien_surveyor : public CreatureScript
         }
 };
 
+// Shado Pan Flare - 123193
 class spell_shadow_pan_flare : public SpellScriptLoader
 {
     public:

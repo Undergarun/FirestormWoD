@@ -4,6 +4,11 @@
 #include "ScriptedEscortAI.h"
 #include "krasarang_wilds.h"
 
+#define CHECK_STATUS(a) (player->GetQuestStatus(a) == QUEST_STATUS_INCOMPLETE)
+#define GOSSIP_CHOICE_1 "Let's fight !"
+#define GOSSIP_CHOICE "<Reach out to touch Chi-Ji.>"
+
+// Arness the Scale - 50787
 class mob_arness_the_scale : public CreatureScript
 {
     public:
@@ -71,6 +76,7 @@ class mob_arness_the_scale : public CreatureScript
         };
 };
 
+// Gaarn the Toxic - 50340
 class mob_gaarn_the_toxic : public CreatureScript
 {
     public:
@@ -133,6 +139,7 @@ class mob_gaarn_the_toxic : public CreatureScript
         };
 };
 
+// Qu Nas - 50352
 class mob_qu_nas : public CreatureScript
 {
     public:
@@ -201,6 +208,7 @@ class mob_qu_nas : public CreatureScript
         };
 };
 
+// Torik Ethis - 50388
 class mob_torik_ethis : public CreatureScript
 {
     public:
@@ -279,6 +287,7 @@ class mob_torik_ethis : public CreatureScript
         };
 };
 
+// Go Kan - 50331
 class mob_go_kan : public CreatureScript
 {
     public:
@@ -352,6 +361,7 @@ class mob_go_kan : public CreatureScript
         };
 };
 
+// Spirit of the Crane - 60487
 class mob_spirit_of_the_crane : public CreatureScript
 {
     public:
@@ -371,6 +381,7 @@ class mob_spirit_of_the_crane : public CreatureScript
         }
 };
 
+// Champion of Chi Ji - 60546
 class mob_champion_of_chi_ji : public CreatureScript
 {
     public:
@@ -490,6 +501,7 @@ class spell_chi_torpedo_periodic : public SpellScriptLoader
         }
 };
 
+// Andruin Wrynn - 59608
 class mob_anduin_wrynn : public CreatureScript
 {
     public:
@@ -508,6 +520,7 @@ class mob_anduin_wrynn : public CreatureScript
         }
 };
 
+// Andruin Wrynn - 66975
 class mob_anduin_wrynn_escort : public CreatureScript
 {
     public:
@@ -560,8 +573,7 @@ class mob_anduin_wrynn_escort : public CreatureScript
         };
 };
 
-#define GOSSIP_CHOICE "<Reach out to touch Chi-Ji.>"
-
+// Chi Ji - 59653
 class npc_chi_ji : public CreatureScript
 {
     public:
@@ -595,6 +607,7 @@ class npc_chi_ji : public CreatureScript
         }
 };
 
+// Sha of Despair - 59651
 class mob_sha_of_despair : public CreatureScript
 {
     public:
@@ -627,6 +640,7 @@ class mob_sha_of_despair : public CreatureScript
         };
 };
 
+// Thelonius - 60506
 class npc_thelonius : public CreatureScript
 {
     public:
@@ -650,6 +664,9 @@ class npc_thelonius : public CreatureScript
                 case 30732:
                     player->SummonCreature(60538, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
                     break;
+                case 30728:
+                    player->SummonCreature(60534, -2318.079f, 1449.463f, 29.617f, 0.539766f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+                    break;
                 default:
                     break;
             }
@@ -658,16 +675,13 @@ class npc_thelonius : public CreatureScript
         }
 };
 
-#define GOSSIP_CHOICE_1 "Let's fight !"
-
+//Ella Ravenmane - 60530/60545/60533/60538
 class mob_ellia_ravenmane : public CreatureScript
 {
     public:
         mob_ellia_ravenmane() : CreatureScript("mob_ellia_ravenmane")
         {
         }
-
-#define CHECK_STATUS(a) (player->GetQuestStatus(a) == QUEST_STATUS_INCOMPLETE)
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -841,9 +855,26 @@ class mob_ellia_ravenmane : public CreatureScript
                         return;
                     }
 
-                    if (!CHECK_STATUS(30725) || !CHECK_STATUS(30739) || !CHECK_STATUS(30727) || !CHECK_STATUS(30732))
+                    switch (me->GetEntry())
                     {
-                        me->DespawnOrUnsummon();
+                        case 60530:
+                            if (CHECK_STATUS(30725))
+                                me->DespawnOrUnsummon();
+                            break;
+                        case 60545:
+                            if (CHECK_STATUS(30739))
+                                me->DespawnOrUnsummon();
+                            break;
+                        case 60533:
+                            if (CHECK_STATUS(30727))
+                                me->DespawnOrUnsummon();
+                            break;
+                        case 60538:
+                            if (CHECK_STATUS(30732))
+                                me->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
                     }
                 }
 
@@ -923,6 +954,214 @@ class mob_ellia_ravenmane : public CreatureScript
         };
 };
 
+// Fat Long Fat - 60534/60543
+class mob_fat_long_fat : public CreatureScript
+{
+    public:
+        mob_fat_long_fat() : CreatureScript("mob_fat_long_fat")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (CHECK_STATUS(30728) || CHECK_STATUS(30737))
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_fat_long_fatAI(creature);
+        }
+
+        struct mob_fat_long_fatAI : public ScriptedAI
+        {
+            mob_fat_long_fatAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                switch (me->GetEntry())
+                {
+                    case 60534:
+                        events.ScheduleEvent(EVENT_BREATH_OF_FIRE, 3000);
+                        events.ScheduleEvent(EVENT_STORM_STOUT, 6000);
+                        break;
+                    case 60543:
+                        events.ScheduleEvent(EVENT_FAT_LONG_FLOP, 3000);
+                        events.ScheduleEvent(EVENT_BREATH_OF_FIRE_2, 8000);
+                        events.ScheduleEvent(EVENT_STORM_STOUT_2, 13000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    switch (me->GetEntry())
+                    {
+                        case 60534:
+                            if (CHECK_STATUS(30728))
+                            {
+                                if (damage > me->GetHealth())
+                                {
+                                    damage = 0;
+                                    me->SetFullHealth();
+                                    DoAction(ACTION_REINITIALIZE);
+                                    player->KilledMonsterCredit(60534);
+                                    me->DespawnOrUnsummon();
+                                }
+                            }
+                            break;
+                        case 60543:
+                            if (CHECK_STATUS(30737))
+                            {
+                                if (damage > me->GetHealth())
+                                {
+                                    damage = 0;
+                                    me->SetFullHealth();
+                                    DoAction(ACTION_REINITIALIZE);
+                                    player->KilledMonsterCredit(60543);
+                                    me->DespawnOrUnsummon();
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        return;
+                    }
+
+                    switch (me->GetEntry())
+                    {
+                        case 60534:
+                            if (CHECK_STATUS(30728))
+                                me->DespawnOrUnsummon();
+                            break;
+                        case 60543:
+                            if (CHECK_STATUS(30737))
+                                me->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        // Entry 60534
+                        case EVENT_BREATH_OF_FIRE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_BREATH_OF_FIRE, false);
+                            events.ScheduleEvent(EVENT_BREATH_OF_FIRE, 7000);
+                            break;
+                        case EVENT_STORM_STOUT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_STORM_STOUT, false);
+                            events.ScheduleEvent(EVENT_STORM_STOUT, 7000);
+                            break;
+                            // Entry 60543
+                        case EVENT_FAT_LONG_FLOP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FAT_LONG_FLOP, false);
+                            events.ScheduleEvent(EVENT_FAT_LONG_FLOP, 15000);
+                            break;
+                        case EVENT_BREATH_OF_FIRE_2:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_BREATH_OF_FIRE, false);
+                            events.ScheduleEvent(EVENT_BREATH_OF_FIRE_2, 15000);
+                            break;
+                        case EVENT_STORM_STOUT_2:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_STORM_STOUT, false);
+                            events.ScheduleEvent(EVENT_STORM_STOUT_2, 15000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_krasarang_wilds()
 {
     new mob_gaarn_the_toxic();
@@ -939,4 +1178,5 @@ void AddSC_krasarang_wilds()
     new mob_sha_of_despair();
     new npc_thelonius();
     new mob_ellia_ravenmane();
+    new mob_fat_long_fat();
 }

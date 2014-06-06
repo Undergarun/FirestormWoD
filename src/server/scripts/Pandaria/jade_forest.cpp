@@ -4,6 +4,12 @@
 #include "ScriptedEscortAI.h"
 #include "jade_forest.h"
 
+#define REPUTATION_ORDER_OF_THE_CLOUD_SERPENT 1271
+#define GOSSIP_TEXT_I 12585
+#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel !"
+#define GOSSIP_CHOICE_1 "Challenge the Patriarch."
+
+// Shadow of Doubt - 57389
 class mob_shadow_of_doubt : public CreatureScript
 {
     public:
@@ -70,6 +76,7 @@ class mob_shadow_of_doubt : public CreatureScript
         };
 };
 
+// Kor'nas Nightsavage - 50338
 class mob_kor_nas_nightsavage : public CreatureScript
 {
     public:
@@ -132,6 +139,7 @@ class mob_kor_nas_nightsavage : public CreatureScript
         };
 };
 
+// Krax'ik - 50363
 class mob_krax_ik : public CreatureScript
 {
     public:
@@ -218,6 +226,7 @@ class mob_krax_ik : public CreatureScript
         };
 };
 
+// Mister Ferocious - 50823
 class mob_mister_ferocious : public CreatureScript
 {
     public:
@@ -291,6 +300,7 @@ class mob_mister_ferocious : public CreatureScript
         };
 };
 
+// Akkalar - 66937
 class mob_akkalar : public CreatureScript
 {
     public:
@@ -371,6 +381,7 @@ class mob_akkalar : public CreatureScript
         };
 };
 
+// Grookin Outrunner - 67149
 class mob_grookin_outrunner : public CreatureScript
 {
     public:
@@ -432,6 +443,7 @@ class mob_grookin_outrunner : public CreatureScript
         };
 };
 
+// Bamboo Python - 59769
 class mob_bamboo_python : public CreatureScript
 {
     public:
@@ -489,6 +501,7 @@ class mob_bamboo_python : public CreatureScript
         };
 };
 
+// Rakira - 66622
 class mob_rakira : public CreatureScript
 {
     public:
@@ -569,6 +582,7 @@ class mob_rakira : public CreatureScript
         };
 };
 
+// Ro'shen - 66617
 class mob_ro_shen : public CreatureScript
 {
     public:
@@ -667,6 +681,7 @@ class mob_ro_shen : public CreatureScript
         };
 };
 
+// Sha Remnant - 59434
 class mob_sha_reminant : public CreatureScript
 {
     public:
@@ -729,8 +744,7 @@ class mob_sha_reminant : public CreatureScript
         };
 };
 
-#define GOSSIP_CHOICE_1 "Challenge the Patriarch."
-
+// Pandriarch Windfur - 56206
 class mob_pandriarch_windfur : public CreatureScript
 {
     public:
@@ -867,6 +881,7 @@ class mob_pandriarch_windfur : public CreatureScript
         };
 };
 
+// Pandriarch Bramblestaff - 56209
 class mob_pandriarch_bramblestaff : public CreatureScript
 {
     public:
@@ -1012,6 +1027,7 @@ class mob_pandriarch_bramblestaff : public CreatureScript
         };
 };
 
+// Pandriarch Goldendraft - 56210
 class mob_pandriarch_goldendraft : public CreatureScript
 {
     public:
@@ -1139,8 +1155,7 @@ class mob_pandriarch_goldendraft : public CreatureScript
         };
 };
 
-#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel !"
-
+// Big Bao - 58512
 class mob_big_bao : public CreatureScript
 {
     public:
@@ -1274,6 +1289,7 @@ class mob_big_bao : public CreatureScript
         };
 };
 
+// Hutia - 69946
 class mob_hutia : public CreatureScript
 {
     public:
@@ -1342,9 +1358,7 @@ class mob_hutia : public CreatureScript
         };
 };
 
-#define REPUTATION_ORDER_OF_THE_CLOUD_SERPENT 1271
-#define GOSSIP_TEXT_I 12585
-
+// Elder Anli - 58564
 class npc_elder_anli : public CreatureScript
 {
     public:
@@ -1410,6 +1424,7 @@ class npc_elder_anli : public CreatureScript
         }
 };
 
+// Kher Shan - 56329
 class mob_kher_shan : public CreatureScript
 {
     public:
@@ -1439,6 +1454,7 @@ class mob_kher_shan : public CreatureScript
         };
 };
 
+// Pearlfin Aqualyte - 54959/56585/56591/56592
 class mob_pearlfin_aqualyte : public CreatureScript
 {
     public:
@@ -1458,6 +1474,7 @@ class mob_pearlfin_aqualyte : public CreatureScript
         }
 };
 
+// Pearlfin Villager - 56233
 class mob_pearlfin_villager : public CreatureScript
 {
     public:
@@ -1477,6 +1494,7 @@ class mob_pearlfin_villager : public CreatureScript
         }
 };
 
+// Elder Lusshan - 54960 ## Instructor Sharpfin - 56690 ## Ot-Temmdo - 56693 ## Pearlkeeper Fujin - 59058
 class mob_pearlfin_situation : public CreatureScript
 {
     public:
@@ -1530,6 +1548,7 @@ class mob_pearlfin_situation : public CreatureScript
         }
 };
 
+// Hozen Cage - 209586
 // Initial LockId : 1979
 class gob_hozen_cage : public GameObjectScript
 {
@@ -1554,6 +1573,7 @@ class gob_hozen_cage : public GameObjectScript
         }
 };
 
+// Widow's Web - 65634
 class mob_widow_s_web : public CreatureScript
 {
     public:
@@ -1592,6 +1612,7 @@ class mob_widow_s_web : public CreatureScript
         };
 };
 
+// Freed Sri-La Villager - 65647
 class mob_freed_sri_la_villager : public CreatureScript
 {
     public:
@@ -1634,6 +1655,7 @@ class mob_freed_sri_la_villager : public CreatureScript
         };
 };
 
+// Windward Hatchling - 58220/58243/58244
 class mob_windward_hatchling : public CreatureScript
 {
     public:
@@ -1665,6 +1687,7 @@ class mob_windward_hatchling : public CreatureScript
         };
 };
 
+// Custom npc 1 - 690701
 class npc_custom_npc : public CreatureScript
 {
     public:
@@ -1738,6 +1761,7 @@ class npc_custom_npc : public CreatureScript
         };
 };
 
+// Jade Cloud Serpent - 58527
 class mob_jade_cloud_serpent : public CreatureScript
 {
     public:
@@ -1810,6 +1834,7 @@ class mob_jade_cloud_serpent : public CreatureScript
         };
 };
 
+// Instructor Windblade - 58420
 class mob_instructor_windblade : public CreatureScript
 {
     public:
@@ -1858,6 +1883,7 @@ class mob_instructor_windblade : public CreatureScript
         }
 };
 
+// Cloud Ring - 58426
 class npc_cloud_ring : public CreatureScript
 {
     public:
@@ -1911,6 +1937,7 @@ class npc_cloud_ring : public CreatureScript
         };
 };
 
+// Instructor Skythorn - 58228
 class npc_instructor_skythorn : public CreatureScript
 {
     public:

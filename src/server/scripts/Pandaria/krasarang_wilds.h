@@ -32,7 +32,10 @@ enum eSpells
     SPELL_FIERCE_JAB           = 119004,
     SPELL_FIERCE_KICK          = 119006,
     SPELL_FISTS_OF_FURY        = 119014,
-    SPELL_VICIOUS_KICK         = 119010
+    SPELL_VICIOUS_KICK         = 119010,
+    SPELL_BREATH_OF_FIRE       = 132165,
+    SPELL_STORM_STOUT          = 119070,
+    SPELL_FAT_LONG_FLOP        = 119057
 };
 
 enum eEvents
@@ -67,6 +70,11 @@ enum eEvents
     EVENT_FISTS_OF_FURY         = 28,
     EVENT_VICIOUS_KICK          = 29,
     EVENT_FIERCE_JAB_2          = 30,
+    EVENT_BREATH_OF_FIRE        = 31,
+    EVENT_STORM_STOUT           = 32,
+    EVENT_FAT_LONG_FLOP         = 33,
+    EVENT_BREATH_OF_FIRE_2      = 34,
+    EVENT_STORM_STOUT_2         = 35,
 };
 
 enum eQuests

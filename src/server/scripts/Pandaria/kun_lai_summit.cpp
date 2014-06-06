@@ -4,7 +4,9 @@
 #include "ScriptedEscortAI.h"
 #include "kun_lai_summit.h"
 
+#define GOSSIP_CHOICE_1 "I challenge you."
 
+// Nessos the Oracle - 50789
 class mob_nessos_the_oracle : public CreatureScript
 {
     public:
@@ -75,6 +77,7 @@ class mob_nessos_the_oracle : public CreatureScript
         };
 };
 
+// Ski'thik - 50733
 class mob_ski_thik : public CreatureScript
 {
     public:
@@ -155,6 +158,7 @@ class mob_ski_thik : public CreatureScript
         };
 };
 
+// Havak - 50354
 class mob_havak : public CreatureScript
 {
     public:
@@ -224,6 +228,7 @@ class mob_havak : public CreatureScript
         };
 };
 
+// Mogujia Soul-Caller - 59797
 class mob_mogujia_soul_caller : public CreatureScript
 {
     public:
@@ -292,6 +297,7 @@ class mob_mogujia_soul_caller : public CreatureScript
         };
 };
 
+// Quilen Stonemaw - 64014
 class mob_quilen_stonemaw : public CreatureScript
 {
     public:
@@ -348,6 +354,7 @@ class mob_quilen_stonemaw : public CreatureScript
         };
 };
 
+// Zai the Outcast - 50769
 class mob_zai_the_outcast : public CreatureScript
 {
     public:
@@ -427,6 +434,7 @@ class mob_zai_the_outcast : public CreatureScript
         };
 };
 
+// Zhi the Harmonious - 64537
 class mob_zhi_the_harmonious : public CreatureScript
 {
     public:
@@ -470,6 +478,7 @@ class mob_zhi_the_harmonious : public CreatureScript
         };
 };
 
+// Anduin Wrynn - 64540
 class mob_andruin_wrynn : public CreatureScript
 {
     public:
@@ -519,6 +528,7 @@ class mob_andruin_wrynn : public CreatureScript
         };
 };
 
+// Taran Zhu - 64536
 class mob_taran_zhu_white_tiger : public CreatureScript
 {
     public:
@@ -568,6 +578,7 @@ class mob_taran_zhu_white_tiger : public CreatureScript
         };
 };
 
+// Xuen - 64528
 class npc_xuen : public CreatureScript
 {
     public:
@@ -824,6 +835,7 @@ class npc_xuen : public CreatureScript
         };
 };
 
+// Spirit of Violence - 64656
 class mob_spirit_of_violence : public CreatureScript
 {
     public:
@@ -910,6 +922,7 @@ class mob_spirit_of_violence : public CreatureScript
         };
 };
 
+// Spirit of Anger - 64684
 class mob_spirit_of_anger : public CreatureScript
 {
     public:
@@ -1005,6 +1018,7 @@ class mob_spirit_of_anger : public CreatureScript
         };
 };
 
+// Spirit of Hatred - 64742/64744
 class mob_spirit_of_hatred : public CreatureScript
 {
     public:
@@ -1099,6 +1113,7 @@ class mob_spirit_of_hatred : public CreatureScript
         };
 };
 
+// Xuen - 60968
 class npc_questgiver_xuen : public CreatureScript
 {
     public:
@@ -1145,8 +1160,7 @@ class npc_questgiver_xuen : public CreatureScript
         }
 };
 
-#define GOSSIP_CHOICE_1 "I challenge you."
-
+// Lun-Chi - 60994
 class mob_lun_chi : public CreatureScript
 {
     public:
@@ -1301,6 +1315,7 @@ class mob_lun_chi : public CreatureScript
         };
 };
 
+// Brewmaster Chani - 60996
 class mob_brewmaster_chani : public CreatureScript
 {
     public:
@@ -1449,6 +1464,7 @@ class mob_brewmaster_chani : public CreatureScript
         };
 };
 
+// Kang Bramblestaff - 60978
 class mob_kang_bramblestaff : public CreatureScript
 {
     public:
@@ -1603,6 +1619,7 @@ class mob_kang_bramblestaff : public CreatureScript
         };
 };
 
+// Clever Ashyo - 60980
 class mob_clever_ashyo : public CreatureScript
 {
     public:
@@ -1773,6 +1790,7 @@ class mob_clever_ashyo : public CreatureScript
         };
 };
 
+// Ken-Ken - 60979
 class mob_ken_ken : public CreatureScript
 {
     public:
@@ -1943,6 +1961,7 @@ class mob_ken_ken : public CreatureScript
         };
 };
 
+// The Wrestler - 60997
 class mob_the_wrestler : public CreatureScript
 {
     public:
@@ -2097,6 +2116,7 @@ class mob_the_wrestler : public CreatureScript
         };
 };
 
+// Master Boom Boom - 61013
 class mob_master_boom_boom : public CreatureScript
 {
     public:
@@ -2245,6 +2265,7 @@ class mob_master_boom_boom : public CreatureScript
         };
 };
 
+// Master Windfur - 61012
 class mob_master_windfur : public CreatureScript
 {
     public:
@@ -2393,6 +2414,7 @@ class mob_master_windfur : public CreatureScript
         };
 };
 
+// Tankiss - 61006
 class mob_tankiss : public CreatureScript
 {
     public:
@@ -2581,6 +2603,7 @@ class mob_tankiss : public CreatureScript
         };
 };
 
+// Healiss - 61004
 class mob_healiss : public CreatureScript
 {
     public:
@@ -2769,6 +2792,7 @@ class mob_healiss : public CreatureScript
         };
 };
 
+// Hackiss - 61007
 class mob_hackiss : public CreatureScript
 {
     public:
