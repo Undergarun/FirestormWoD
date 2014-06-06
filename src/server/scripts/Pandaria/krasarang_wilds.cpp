@@ -840,6 +840,11 @@ class mob_ellia_ravenmane : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (!CHECK_STATUS(30725) || !CHECK_STATUS(30739) || !CHECK_STATUS(30727) || !CHECK_STATUS(30732))
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())

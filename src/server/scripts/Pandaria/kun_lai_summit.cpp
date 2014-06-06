@@ -1257,6 +1257,11 @@ class mob_lun_chi : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (player->GetQuestStatus(30880) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -1405,6 +1410,11 @@ class mob_brewmaster_chani : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (player->GetQuestStatus(30879) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -1548,6 +1558,11 @@ class mob_kang_bramblestaff : public CreatureScript
                     {
                         DoAction(ACTION_REINITIALIZE);
                         return;
+                    }
+
+                    if (player->GetQuestStatus(30882) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
                     }
                 }
 
@@ -1719,6 +1734,11 @@ class mob_clever_ashyo : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (player->GetQuestStatus(30881) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -1884,6 +1904,11 @@ class mob_ken_ken : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (player->GetQuestStatus(30881) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -2027,6 +2052,11 @@ class mob_the_wrestler : public CreatureScript
                     {
                         DoAction(ACTION_REINITIALIZE);
                         return;
+                    }
+
+                    if (player->GetQuestStatus(30883) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
                     }
                 }
 
@@ -2176,6 +2206,11 @@ class mob_master_boom_boom : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (player->GetQuestStatus(30885) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -2318,6 +2353,11 @@ class mob_master_windfur : public CreatureScript
                     {
                         DoAction(ACTION_REINITIALIZE);
                         return;
+                    }
+
+                    if (player->GetQuestStatus(30902) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
                     }
                 }
 
@@ -2496,6 +2536,11 @@ class mob_tankiss : public CreatureScript
                     {
                         DoAction(ACTION_REINITIALIZE);
                         return;
+                    }
+
+                    if (player->GetQuestStatus(30907) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
                     }
                 }
 
@@ -2680,6 +2725,11 @@ class mob_healiss : public CreatureScript
                         DoAction(ACTION_REINITIALIZE);
                         return;
                     }
+
+                    if (player->GetQuestStatus(30907) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -2862,6 +2912,11 @@ class mob_hackiss : public CreatureScript
                     {
                         DoAction(ACTION_REINITIALIZE);
                         return;
+                    }
+
+                    if (player->GetQuestStatus(30907) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
                     }
                 }
 
