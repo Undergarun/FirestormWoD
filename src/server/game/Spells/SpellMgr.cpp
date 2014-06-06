@@ -4526,7 +4526,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115175:// Soothing Mists
             case 116694:// Surging Mists
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                break
+                break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 spellInfo->AttackPowerBonus = 2.316f;
