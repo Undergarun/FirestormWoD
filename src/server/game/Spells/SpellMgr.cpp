@@ -4308,6 +4308,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
                 break;
+            case 122370:// Reshape Life
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CHANNEL_TARGET;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_FACTION;
+                spellInfo->Effects[0].MiscValue = 2577;
+                spellInfo->Effects[0].MiscValueB = 1;
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CHANNEL_TARGET;
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_TRANSFORM;
+                spellInfo->Effects[1].MiscValue = 62701;
+                spellInfo->Effects[5].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[5].TargetA = TARGET_UNIT_CHANNEL_TARGET;
+                spellInfo->Effects[5].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL_2;
+                spellInfo->Effects[5].MiscValue = 58044;
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
