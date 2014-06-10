@@ -2552,6 +2552,168 @@ class mob_suchi_the_sweet : public CreatureScript
         };
 };
 
+// Fei - 56784
+class npc_fei : public CreatureScript
+{
+    public:
+        npc_fei() : CreatureScript("npc_fei")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 30000)
+            {
+                player->PlayScene(202, player);
+                player->KilledMonsterCredit(57243);
+
+                if (Creature* questTaker = GetClosestCreatureWithEntry(creature, 57242, 200.0f, true))
+                    player->TeleportTo(870, questTaker->GetPositionX() + 1.4f, questTaker->GetPositionY() + 1.5f, questTaker->GetPositionZ(), 0.0f, NULL);
+            }
+
+            return true;
+        }
+};
+
+// Student of Chi-Ji - 60601/60602/60603
+class mob_chi_ji_student : public CreatureScript
+{
+    public:
+        mob_chi_ji_student() : CreatureScript("mob_chi_ji_student")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_chi_ji_studentAI(creature);
+        }
+
+        struct mob_chi_ji_studentAI : public ScriptedAI
+        {
+            mob_chi_ji_studentAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                switch (me->GetEntry())
+                {
+                    case 60601:
+                        events.ScheduleEvent(EVENT_GIFT_OF_CHI_JI, 3000);
+                        events.ScheduleEvent(EVENT_BLESSING_OF_CHI_JI, 6000);
+                        events.ScheduleEvent(EVENT_WRATH_OF_CHI_JI, 11000);
+                        break;
+                    case 60602:
+                        events.ScheduleEvent(EVENT_BLACKOUT_KICK, 3000);
+                        events.ScheduleEvent(EVENT_FLYING_SERPENT_KICK, 8000);
+                        events.ScheduleEvent(EVENT_JAB, 13000);
+                        break;
+                    case 60603:
+                        events.ScheduleEvent(EVENT_MIGHTY_CHOP, 3000);
+                        events.ScheduleEvent(EVENT_STRIKE_FROM_THE_HEAVENS, 6000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                if (attacker->GetTypeId() == TYPEID_PLAYER)
+                    playerGuid = CAST_PLR(attacker)->GetGUID();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30718) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(60601);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        // Entry 60601
+                        case EVENT_GIFT_OF_CHI_JI:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_GIFT_OF_CHI_JI, false);
+                            events.ScheduleEvent(EVENT_GIFT_OF_CHI_JI, 7000);
+                            break;
+                        case EVENT_BLESSING_OF_CHI_JI:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(me, SPELL_BLESSING_OF_CHI_JI, false);
+                            events.ScheduleEvent(EVENT_BLESSING_OF_CHI_JI, 7000);
+                            break;
+                        case EVENT_WRATH_OF_CHI_JI:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_WRATH_OF_CHI_JI, false);
+                            events.ScheduleEvent(EVENT_WRATH_OF_CHI_JI, 7000);
+                            break;
+                            // Entry 60602
+                        case EVENT_BLACKOUT_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_BLACKOUT_KICK, false);
+                            events.ScheduleEvent(EVENT_BLACKOUT_KICK, 15000);
+                            break;
+                        case EVENT_FLYING_SERPENT_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FLYING_SERPENT_KICK, false);
+                            events.ScheduleEvent(EVENT_FLYING_SERPENT_KICK, 15000);
+                            break;
+                        case EVENT_JAB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_JAB, false);
+                            events.ScheduleEvent(EVENT_JAB, 15000);
+                            break;
+                            // Entry 60603
+                        case EVENT_MIGHTY_CHOP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_MIGHTY_CHOP, false);
+                            events.ScheduleEvent(EVENT_MIGHTY_CHOP, 7000);
+                            break;
+                        case EVENT_STRIKE_FROM_THE_HEAVENS:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_STRIKE_FROM_THE_HEAVENS, false);
+                            events.ScheduleEvent(EVENT_STRIKE_FROM_THE_HEAVENS, 7000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
 void AddSC_jade_forest()
 {
     // Rare mobs
@@ -2590,6 +2752,8 @@ void AddSC_jade_forest()
     new mob_ningha_darkwheel();
     new mob_qua_row_whitebrow();
     new mob_suchi_the_sweet();
+    new npc_fei();
+    new mob_chi_ji_student();
     // Game Objects
     new gob_hozen_cage();
 }

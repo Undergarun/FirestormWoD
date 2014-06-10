@@ -43,7 +43,12 @@ enum eSpells
     SPELL_FLUID_LIKE_WATR        = 119077,
     SPELL_STILL_WATERS_RUN_DEEP  = 119078,
     SPELL_SOOTHING_MIST          = 132218,
-    SPELL_PAW_PUNCH              = 119496
+    SPELL_PAW_PUNCH              = 119496,
+    SPELL_SUNFLARE_KICK          = 119535,
+    SPELL_SUNSTRIKE              = 119538,
+    SPELL_POUND_YOU              = 119510,
+    SPELL_KICK_YOU               = 119506,
+    SPELL_PUNCH_YOU              = 119504
 };
 
 enum eEvents
@@ -92,7 +97,12 @@ enum eEvents
     EVENT_SOOTHING_MIST          = 42,
     EVENT_FLYING_SERPENT_KICK_2  = 43,
     EVENT_PAW_PUNCH              = 44,
-    EVENT_UPPERCUT_2             = 45
+    EVENT_UPPERCUT_2             = 45,
+    EVENT_SUNFLARE_KICK          = 46,
+    EVENT_SUNSTRIKE              = 47,
+    EVENT_POUND_YOU              = 48,
+    EVENT_KICK_YOU               = 49,
+    EVENT_PUNCH_YOU              = 50
 };
 
 enum eQuests
