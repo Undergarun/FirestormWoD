@@ -22,7 +22,7 @@
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
 
-// Zorlok - 62980
+// 62511 - Amber-Shaper Un'sok
 class boss_unsok : public CreatureScript
 {
     public:
@@ -37,6 +37,47 @@ class boss_unsok : public CreatureScript
 
             InstanceScript* pInstance;
             EventMap events;
+            uint8 phase;
+
+            void Reset()
+            {
+                events.Reset();
+                summons.DespawnAll();
+                phase = 0;
+
+                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_UNSOK);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+
+            }
+
+            void DamageTaken(Unit* attacker, uint32 &damage)
+            {
+
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    /*
+                    switch (eventId)
+                    {
+                        default:
+                            break;
+                    }
+                    */
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -47,5 +88,5 @@ class boss_unsok : public CreatureScript
 
 void AddSC_boss_unsok()
 {
-    new boss_unsok();
+    new boss_unsok();   // 62511
 }

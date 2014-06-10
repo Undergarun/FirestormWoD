@@ -1118,7 +1118,15 @@ class mob_set_thik_gustwing : public CreatureScript
         }
 };
 
-// 63597 - Coagulated Amber
+Position unsokRoomAngle[4] =
+{
+    {-2440.82f, 662.18f, 581.55f, 0.0f},    // NE - Starting point for 63597
+    {-2513.15f, 662.18f, 581.55f, 0.0f},    // SE - Starting point for 63594
+    {-2513.15f, 734.44f, 581.55f, 0.0f},    // SW
+    {-2440.82f, 734.44f, 581.55f, 0.0f},    // NW
+};
+
+// 63594 / 63597 - Coagulated Amber
 class mob_coagulated_amber : public CreatureScript
 {
     public:
@@ -1126,36 +1134,62 @@ class mob_coagulated_amber : public CreatureScript
 
         struct mob_coagulated_amberAI : public ScriptedAI
         {
-            mob_coagulated_amberAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_coagulated_amberAI(Creature* creature) : ScriptedAI(creature) { }
 
-            EventMap events;
+            uint8 walkTimer;
+            uint8 point;
+            int8 clockwise;
 
             void Reset()
             {
-                events.Reset();
+                bool isClockwise = me->GetEntry() == 63597;
+                walkTimer = 0;
+                clockwise = isClockwise ? 1 : -1;
+                point     = isClockwise ? 1 : 2;
 
-                events.ScheduleEvent(EVENT_BURST, 4000);
+                me->SetFacingTo(isClockwise ? M_PI : 0.0f);
+                me->SetOrientation(isClockwise ? M_PI : 0.0f);
+
+                me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                /***
+                 * +4 because if we're not clockwise (ie. clockwise = -1), at point = 0, point + clockwise = -1, and -1 % 4 = -1, and so, -1 + 4 = 3 and
+                 * 3 % 4 = 3, so we go from 0 to 3. For any other value, it won't have any incidence (for ex. if point + clockwise = 2, then 2 + 4 = 6 and
+                 * 6 % 4 = 2, and even if point + clockwise = 4, 4 + 4 = 8 and 8 % 4 = 0.
+                 *
+                 * So this will always return a valid value between 0 and 3, whatever the values of point and clockwise.
+                 ***/
+                point = (point + clockwise + 4) % 4;
+                walkTimer = 1;
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                // Explode
+                DoCast(SPELL_BURST);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 id = events.ExecuteEvent())
+                if (walkTimer)
                 {
-                    if (id == EVENT_BURST)
+                    if (walkTimer > diff)
+                        walkTimer -= diff;
+                    else
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, SPELL_BURST, true);
-                        events.ScheduleEvent(EVENT_BURST, 22000);
-                        break;
+                        me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+                        walkTimer = 0;
                     }
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 DoMeleeAttackIfReady();
             }
@@ -1167,6 +1201,74 @@ class mob_coagulated_amber : public CreatureScript
         }
 };
 
+Position unsokDiagPoint[2] =
+{
+    {-2409.33f, 630.0f, 582.92f, 0.0f},
+    {-2549.87f, 770.0f, 582.92f, 0.0f}
+};
+
+// 62691 - Living Amber
+class mob_living_amber : public CreatureScript
+{
+public:
+    mob_living_amber() : CreatureScript("mob_living_amber") { }
+
+    struct mob_living_amberAI : ScriptedAI
+    {
+        mob_living_amberAI(Creature* creature) : ScriptedAI(creature) { }
+
+        uint8 targetPoint;
+        uint8 walkTimer;
+
+        void Reset()
+        {
+            events.Reset();
+            DoCast(SPELL_CORROSIVE_AURA);
+            walkTimer = 0;
+            targetPoint = me->GetPositionY() > 700 ? 0 : 1;
+            me->GetMotionMaster()->MovePoint(targetPoint + 1, unsokDiagPoint[targetPoint]);
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            // As target point can be 0 or 1, 1-targetPoint can be either 1-0 = 1 or 1-1 = 0, so we switch the value of targetPoint
+            targetPoint = 1 - targetPoint;
+            walkTimer = 1;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoCast(SPELL_BURST);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (walkTimer)
+            {
+                if (walkTimer > diff)
+                    walkTimer -= diff;
+                else
+                {
+                    me->GetMotionMaster()->MovePoint(targetPoint + 1, unsokDiagPoint[targetPoint]);
+                    walkTimer = 0;
+                }
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_living_amberAI(creature);
+    }
+};
 
 // 64355 - Kor'thik Silentwing
 class mob_kor_thik_silentwing : public CreatureScript
@@ -1355,6 +1457,501 @@ class mob_zephyr : public CreatureScript
         }
 };
 
+// 64916 - Kor'thik Swarmguard
+class mob_korthik_swarmguard : public CreatureScript
+{
+public:
+    mob_korthik_swarmguard() : CreatureScript("mob_korthik_swarmguard") { }
+
+    struct mob_korthik_swarmguardAI : public ScriptedAI
+    {
+        mob_korthik_swarmguardAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        uint64 protectedAmberCallerGuid;
+        InstanceScript* pInstance;
+        bool inCombat;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
+            protectedAmberCallerGuid = 0;
+            inCombat = false;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            protectedAmberCallerGuid = 0;
+            inCombat = false;
+        }
+
+        void EnterCombat(Unit* attacker)
+        {
+            if (!inCombat)
+            {
+                events.ScheduleEvent(EVENT_CARAPACE, 2000);
+                // Retreiving list of ambercallers (maximum: 2 if all is alright)
+                std::list<Creature*> amberCallerList;
+                GetCreatureListWithEntryInGrid(amberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
+
+                if (amberCallerList.size())
+                {
+                    std::list<Creature*>::iterator itr = amberCallerList.begin();
+
+                    // Trying to bind to the first amber caller
+                    Creature* amberCaller = *itr;
+
+                    // Need to get the the other Kor'thik SwarmGuard
+                    std::list<Creature*> meList;
+                    GetCreatureListWithEntryInGrid(meList, me, me->GetEntry(), 50.0f);
+                    std::list<Creature*>::iterator meItr = meList.begin();
+                    Creature* otherSwarmGuard = *meItr;
+
+                    // Should not be me (that's why we get the list)!
+                    if (otherSwarmGuard == me)
+                        otherSwarmGuard = *(++meItr);
+
+                    // Other SwarmGuard could be invalid (if dead, for instance)
+                    if (otherSwarmGuard)
+                    {
+                        // Checking if the ambercaller we picked isn't already bind to the other SwarmGuard, and if so, picking the next amberCaller in the list
+                        uint64 alreadyProtected = CAST_AI(mob_korthik_swarmguard::mob_korthik_swarmguardAI, otherSwarmGuard->AI())->protectedAmberCallerGuid;
+                        if (amberCaller->GetGUID() == alreadyProtected)
+                        {
+                            amberCaller = *(++itr);
+                            uint64 amberGuid = amberCaller->GetGUID();
+                        }
+                    }
+
+                    // amberCaller could be not valid
+                    if (amberCaller)
+                    {
+                        protectedAmberCallerGuid = amberCaller->GetGUID();
+                        DoCast(amberCaller, SPELL_SWARMGUARDS_AEGIS);
+                        amberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
+                    }
+                }
+                inCombat = true;
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!inCombat)
+                return;
+
+            if (pInstance)
+            {
+                if (pInstance->IsWipe())
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    me->SetFullHealth();
+                    me->RemoveAllAuras();
+                    Reset();
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            // Looking for Sra'thik Ambercaller to protect
+            Creature* amberCaller = ObjectAccessor::FindUnit(protectedAmberCallerGuid)->ToCreature();
+            // Ambercaller not found, dead or too far
+            if (!amberCaller || !amberCaller->isAlive() || me->GetDistance(amberCaller) > 30.0f)
+            {
+                if (!me->HasAura(SPELL_SEPARATION_ANXIETY))
+                    me->AddAura(SPELL_SEPARATION_ANXIETY, me);
+            }
+            // Ambercaller is here: we remove anxiety aura if set
+            else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
+                me->RemoveAura(SPELL_SEPARATION_ANXIETY);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                if (eventId == EVENT_CARAPACE)
+                {
+                    DoCast(me, SPELL_CARAPACE);
+                    events.ScheduleEvent(EVENT_CARAPACE, urand(10000, 20000));
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_korthik_swarmguardAI(creature);
+    }
+};
+
+// 64917 - Sra'thik Ambercaller
+class mob_srathik_ambercaller : public CreatureScript
+{
+public:
+    mob_srathik_ambercaller() : CreatureScript("mob_srathik_ambercaller") { }
+
+    struct mob_srathik_ambercallerAI : public ScriptedAI
+    {
+        mob_srathik_ambercallerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void DoAction(int32 const action)
+        {
+            if (action == ACTION_AMBER_VOLLEY)
+            {
+                DoCast(SPELL_AMBER_VOLLEY);
+                events.ScheduleEvent(EVENT_AMBER_VOLLEY, 2000);
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (pInstance)
+            {
+                if (pInstance->IsWipe())
+                {
+                    me->RemoveAllAuras();
+                    me->SetFullHealth();
+                    Reset();
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_AMBER_VOLLEY)
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 100.0f);
+
+                if (playerList.size())
+                {
+                    // Picking a random player to attack
+                    std::list<Player*>::iterator itr = playerList.begin();
+                    bool search = true;
+
+                    while (search)
+                    {
+                        if (urand(0, 1))
+                        {
+                            me->CastSpell(*itr, SPELL_AMBER_VOLLEY_MISSILE, true);
+                            search = false;
+                            break;
+                        }
+
+                        ++itr;
+                        if (itr == playerList.end())
+                            itr = playerList.begin();
+                    }
+
+                    // Rescheduling
+                    if (pInstance)
+                    {
+                        uint32 mode = pInstance->instance->GetSpawnMode();
+                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, mode == RAID_TOOL_DIFFICULTY ? 3000 : Is25ManRaid() ? 2000 : 5000);
+                    }
+                }
+            }
+            // No melee attack
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_srathik_ambercallerAI(creature);
+    }
+};
+
+Position atriumPath[9] =
+{
+    {-2429.16f, 431.90f, 554.52f, 0.0f},
+    {-2417.22f, 456.37f, 554.52f, 0.0f},
+    {-2417.60f, 498.18f, 554.52f, 0.0f},
+    {-2436.80f, 524.51f, 554.52f, 0.0f},
+    {-2451.77f, 531.64f, 554.52f, 0.0f},
+    {-2504.65f, 534.39f, 554.52f, 0.0f},
+    {-2538.70f, 508.50f, 554.52f, 0.0f},
+    {-2543.00f, 454.06f, 554.52f, 0.0f},
+    {-2528.75f, 432.90f, 554.52f, 0.0f},
+};
+
+// 64902 - Kor'thik Fleshrender
+class mob_korthik_fleshrender : public CreatureScript
+{
+public:
+    mob_korthik_fleshrender() : CreatureScript("mob_korthik_fleshrender") { }
+
+    struct mob_korthik_fleshrenderAI : ScriptedAI
+    {
+        mob_korthik_fleshrenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+        uint8 point;
+        int8 direction;
+        uint32 walkTimer;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
+            point = me->GetPositionY() < 460.0f ? 0 : 1;
+            direction = -1;
+            me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+            walkTimer = 0;
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE || !id)
+                return;
+
+            walkTimer = 1;
+
+            point += direction;
+            // Turning back
+            if (point < 0 || point > 8)
+            {
+                direction *= -1;
+                point += 2 * direction;
+            }
+        }
+
+        void EnterCombat(Unit* /*attacker*/)
+        {
+            events.ScheduleEvent(EVENT_GREVIOUS_WHIRL, 5000);
+            events.ScheduleEvent(EVENT_MORTAL_REND,    12000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (walkTimer)
+            {
+                if (walkTimer > diff)
+                    walkTimer -= diff;
+                else
+                {
+                    me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+                    walkTimer = 0;
+                }
+            }
+
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_GREVIOUS_WHIRL:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_GREVIOUS_WHIRL, true);
+                        events.ScheduleEvent(EVENT_GREVIOUS_WHIRL, 20000);
+                        break;
+                    }
+                    case EVENT_MORTAL_REND:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_MORTAL_REND, true);
+                        events.ScheduleEvent(EVENT_MORTAL_REND, 20000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_korthik_fleshrenderAI(creature);
+    }
+
+};
+
+// 63569 - Amber Searsting
+class mob_amber_searsting : public CreatureScript
+{
+public:
+    mob_amber_searsting() : CreatureScript("mob_amber_searsting") { }
+
+    struct mob_amber_searstingAI : public ScriptedAI
+    {
+        mob_amber_searstingAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_BURNING_STING, 8000);
+            events.ScheduleEvent(EVENT_SEARING_SLASH, 4000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BURNING_STING:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_BURNING_STING, true);
+                        events.ScheduleEvent(EVENT_BURNING_STING, 15000);
+                        break;
+                    }
+                    case EVENT_SEARING_SLASH:
+                    {
+                        DoCast(SPELL_SEARING_SLASH);
+                        events.ScheduleEvent(EVENT_SEARING_SLASH, 12000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_amber_searstingAI(creature);
+    }
+};
+
+// 63568 - Amber-Ridden Mushan
+class mob_amberridden_mushan : public CreatureScript
+{
+public:
+    mob_amberridden_mushan() : CreatureScript("mob_amberridden_mushan") { }
+
+    struct mob_amberridden_mushanAI : public ScriptedAI
+    {
+        mob_amberridden_mushanAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_AMBER_SPEW, 9000);
+            events.ScheduleEvent(EVENT_SLAM,       4000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_AMBER_SPEW:
+                    {
+                        DoCast(SPELL_AMBER_SPEW);
+                        events.ScheduleEvent(EVENT_AMBER_SPEW, 10000);
+                        break;
+                    }
+                    case EVENT_SLAM:
+                    {
+                        DoCast(SPELL_SLAM);
+                        events.ScheduleEvent(EVENT_SLAM, 22000);
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_amberridden_mushanAI(creature);
+    }
+};
+
+// 63570 - Sra'thik Pool-Tender
+class mob_srathik_pooltender : public CreatureScript
+{
+public:
+    mob_srathik_pooltender() : CreatureScript("mob_srathik_pooltender") { }
+
+    struct mob_srathik_pooltenderAI : public ScriptedAI
+    {
+        mob_srathik_pooltenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+            DoCast(SPELL_AMBER_EMANATION);
+            events.ScheduleEvent(EVENT_AMBER_INFUSION, 20000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_AMBER_INFUSION)
+            {
+                DoCast(SPELL_AMBER_INFUSION);
+                events.ScheduleEvent(EVENT_AMBER_INFUSION, urand(25000, 30000));
+            }
+
+            if (UpdateVictim())
+                DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_srathik_pooltenderAI(creature);
+    }
+};
+
 // 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
@@ -1411,8 +2008,15 @@ void AddSC_heart_of_fear()
     new mob_zar_thik_zealot();          // 63035 - Zar'thik Zealot
     new mob_kor_thik_swarmer();         // 64357 - Kor'thik Swarmer
     new mob_set_thik_gustwing();        // 63592 - Set'thik Gustwing
-    new mob_coagulated_amber();         // 63597 - Coagulated Amber
+    new mob_coagulated_amber();         // 63597 / 63594 - Coagulated Amber
+    new mob_living_amber();             // 62691 - Living Amber
     new mob_kor_thik_silentwing();      // 64355 - Kor'thik Silentwing
     new mob_zephyr();                   // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+    new mob_korthik_swarmguard();       // 64916 - Kor'thik Swarmguard
+    new mob_srathik_ambercaller();      // 64917 - Sra'thik Ambercaller
+    new mob_korthik_fleshrender();      // 64902 - Kor'thik Fleshrender
+    new mob_amber_searsting();          // 63569 - Amber Searsting
+    new mob_amberridden_mushan();       // 63568 - Amber-Ridden Mushan
+    new mob_srathik_pooltender();       // 63570 - Sra'thik Pool-Tender
     new spell_vital_strikes();          // 123421 - Vital Strikes
 }

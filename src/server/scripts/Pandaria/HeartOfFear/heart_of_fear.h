@@ -116,6 +116,20 @@ enum eSpells
     SPELL_GUST                  = 124072,
     SPELL_BURST                 = 125054,
     SPELL_ZEPHYR                = 124087,
+    SPELL_CARAPACE              = 126928,
+    SPELL_SEPARATION_ANXIETY    = 126933,
+    SPELL_SWARMGUARDS_AEGIS     = 126926,
+    SPELL_AMBER_VOLLEY          = 126937,
+    SPELL_AMBER_VOLLEY_MISSILE  = 126941,
+    SPELL_GREVIOUS_WHIRL        = 126907,
+    SPELL_MORTAL_REND           = 126901,
+    SPELL_BURNING_STING         = 125490,
+    SPELL_SEARING_SLASH         = 125480,
+    SPELL_AMBER_SPEW            = 125069,
+    SPELL_SLAM                  = 125081,
+    SPELL_CORROSIVE_AURA        = 122348,
+    SPELL_AMBER_EMANATION       = 125426,
+    SPELL_AMBER_INFUSION        = 125432,
 };
 
 enum eActions
@@ -134,6 +148,9 @@ enum eActions
 
     // Garalon
     ACTION_GARALON_VISIBLE      = 9,
+
+    // Trash
+    ACTION_AMBER_VOLLEY         = 10,
 };
 
 enum eCreatures
@@ -169,6 +186,8 @@ enum eCreatures
     NPC_KORTHIK_SWARMER             = 64357,
     NPC_SETTHIK_GUSTWING            = 63592,
     NPC_COAGULATED_AMBER            = 63597,
+    NPC_KORTHIK_SWARGUARD           = 64916,
+    NPC_SRATHIK_AMBERCALLER         = 64917,
 
     // Zor'lok
     NPC_ZORLOK                      = 62980,
@@ -252,6 +271,7 @@ enum eWeapons
     // --- Bosses ---
     EQUIP_ZORLOK                    = 85947,
     EQUIP_TAYAK_MELJARAK            = 85401,
+    EQUIP_UNSOK                     = 86983,
 
     // --- Trashes ---
     EQUIP_TRASH_1                   = 84677,
@@ -328,6 +348,16 @@ enum eEvents
     EVENT_ALMOST_UNSEEN_STRIKE,
     EVENT_GUST,
     EVENT_BURST,
+    EVENT_CARAPACE,
+    EVENT_AMBER_VOLLEY,
+    EVENT_GREVIOUS_WHIRL,
+    EVENT_MORTAL_REND,
+    EVENT_ATRIUM_PATH,
+    EVENT_BURNING_STING,
+    EVENT_SEARING_SLASH,
+    EVENT_AMBER_SPEW,
+    EVENT_SLAM,
+    EVENT_AMBER_INFUSION,
 };
 
 enum eTypes
