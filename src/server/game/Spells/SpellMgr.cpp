@@ -3424,6 +3424,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 129869:
+                spellInfo->Effects[0].TriggerSpell = 129639;
+                break;
             case 113504: // Wind Sword
                 spellInfo->Effects[0].BasePoints *= 10;
                 break;

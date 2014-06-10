@@ -54,7 +54,15 @@ enum eSpells
     SPELL_SPIRIT_BEAST_BLESSING     = 127830,
     SPELL_SPIRIT_HEAL_2             = 138477,
     SPELL_SPIRIT_MEND               = 90361,
-    SPELL_STRONG_WILL               = 138472
+    SPELL_STRONG_WILL               = 138472,
+    SPELL_GIFT_OF_CHI_JI            = 129929,
+    SPELL_BLESSING_OF_CHI_JI        = 129919,
+    SPELL_WRATH_OF_CHI_JI           = 129917,
+    SPELL_BLACKOUT_KICK             = 129112,
+    SPELL_FLYING_SERPENT_KICK       = 119500,
+    SPELL_JAB                       = 119007,
+    SPELL_MIGHTY_CHOP               = 129636,
+    SPELL_STRIKE_FROM_THE_HEAVENS   = 129869
 };
 
 enum eEvents
@@ -107,7 +115,15 @@ enum eEvents
     EVENT_SPIRIT_BEAST_BLESSING     = 46,
     EVENT_SPIRIT_HEAL               = 47,
     EVENT_CHECK_PLAYER              = 48,
-    EVENT_CHECK_TARGET              = 49
+    EVENT_CHECK_TARGET              = 49,
+    EVENT_GIFT_OF_CHI_JI            = 50,
+    EVENT_BLESSING_OF_CHI_JI        = 51,
+    EVENT_WRATH_OF_CHI_JI           = 52,
+    EVENT_BLACKOUT_KICK             = 53,
+    EVENT_FLYING_SERPENT_KICK       = 54,
+    EVENT_JAB                       = 55,
+    EVENT_MIGHTY_CHOP               = 56,
+    EVENT_STRIKE_FROM_THE_HEAVENS   = 57
 };
 
 enum eQuests
