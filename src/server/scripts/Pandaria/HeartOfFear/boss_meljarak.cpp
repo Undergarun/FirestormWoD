@@ -83,6 +83,7 @@ enum Spells
     SPELL_WATCHFUL_EYE_1    = 125933, // Starting Normal and always Heroic aura - 9 adds alive, can control 4 / 3 on Heroic.
     SPELL_WATCHFUL_EYE_2    = 125935, // 6 adds alive, can control 2.
     SPELL_WATCHFUL_EYE_3    = 125936, // 3 adds alive, can control 0.
+    SPELL_COWARDS           = 122399, // Remove crowd control from Mel'jarak's allies.
 
     SPELL_RECKLESNESS_N     = 122354, // Normal stackable version.
     SPELL_RECKLESNESS_H     = 125873, // Heroic 30 sec version.
@@ -167,12 +168,14 @@ enum Adds
     NPC_SRATHIK_AMBER_TRAPPER     = 62405,
     NPC_ZARTHIK_BATTLE_MENDER     = 62408,
     NPC_WHIRLING_BLADE            = 63930,
+    NPC_CORROSIVE_RESIN_POOL      = 67046,
 };
 
 enum Types
 {
     TYPE_WHIRLING_BLADE = 1,
     TYPE_WB_DEAL_DMG    = 2,
+    TYPE_IS_IN_COMBAT   = 3,
 };
 
 #define DISPLAYID_WINDBOMB 45684
@@ -216,21 +219,32 @@ public:
         InstanceScript* instance;
         SummonList summons;
         EventMap events;
-        uint64 whirlingTarget;
-        bool introDone, windBombScheduled, reinforcementsSummoned;
+        bool introDone;
+        bool windBombScheduled;
+        bool reinforcementsSummoned;
+        bool inCombat;
 
         void Reset()
         {
             events.Reset();
             summons.DespawnAll();
+
+            // Removing pools
+            std::list<Creature*> poolList;
+            GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
+            for (Creature* pool : poolList)
+                    pool->DespawnOrUnsummon();
+
+            introDone = false;
+            windBombScheduled = false;
+            reinforcementsSummoned = false;
+            inCombat = false;
             me->RemoveAllDynObjects();
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
 
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
 
-            windBombScheduled = false;
-            reinforcementsSummoned = false;
 
             if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
                 instance->SetBossState(DATA_MELJARAK, NOT_STARTED);
@@ -248,11 +262,13 @@ public:
 
             Talk(SAY_INTRO);
             introDone = true;
+
+            EnterCombat(who);
         }
 
         void DamageTaken(Unit* attacker, uint32& damage)
         {
-            if (instance)
+            if (instance && !inCombat)
             {
                 // Already resetting : cancel damage, and do nothing more
                 if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
@@ -266,21 +282,55 @@ public:
                     EnterEvadeMode();
                     return;
                 }
+
+                EnterCombat(attacker);
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* attacker)
         {
-            if (instance)
-            {
-                if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
-                    return;
+            if (attacker->GetTypeId() != TYPEID_PLAYER)
+                return;
 
-                if (!instance->CheckRequiredBosses(DATA_MELJARAK))
+            if (!inCombat)
+            {
+                if (instance)
                 {
-                    EnterEvadeMode();
-                    return;
+                    if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+                        return;
+
+                    if (!instance->CheckRequiredBosses(DATA_MELJARAK))
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+
+                    // Adds enter in combat
+                    std::list<Creature*> korthikList;
+                    std::list<Creature*> srathikList;
+                    std::list<Creature*> zarthikList;
+
+                    GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
+                    GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
+                    GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
+
+                    for (Creature* korthik : korthikList)
+                        if (!korthik->AI()->GetData(0))
+                            korthik->AI()->EnterCombat(attacker);
+
+                    for (Creature* srathik : srathikList)
+                        if (!srathik->AI()->GetData(0))
+                            srathik->AI()->EnterCombat(attacker);
+
+                    for (Creature* zarthik : zarthikList)
+                        if (!zarthik->AI()->GetData(0))
+                            zarthik->AI()->EnterCombat(attacker);
+
+                    inCombat = true;
+                    me->SetInCombatWith(attacker);
+                    AttackStart(attacker);
                 }
+                inCombat = true;
             }
 
             Talk(SAY_AGGRO);
@@ -303,6 +353,10 @@ public:
             }
 
             _EnterCombat();
+
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->SetInCombatWith(attacker);
+            AttackStart(attacker);
         }
 
         void KilledUnit(Unit* victim)
@@ -321,10 +375,18 @@ public:
             me->CombatStop(true);
             me->GetMotionMaster()->MoveTargetedHome();
             me->SetFullHealth();
+            me->RemoveAllAuras();
             me->RemoveAllDynObjects();
             me->SetReactState(REACT_PASSIVE);
             windBombScheduled = false;
             reinforcementsSummoned = false;
+            inCombat = false;
+
+            // Remove resin pools
+            std::list<Creature*> poolList;
+            GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
+            for (Creature* pool : poolList)
+                pool->DespawnOrUnsummon();
 
             SummonSwarmAdds();
 
@@ -353,6 +415,13 @@ public:
             me->RemoveAllDynObjects();
             summons.DespawnAll();
 
+            // Removing pools
+            std::list<Creature*> poolList;
+            GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
+            if (poolList.size())
+                for (std::list<Creature*>::iterator itr = poolList.begin(); itr != poolList.end(); ++itr)
+                    (*itr)->DespawnOrUnsummon();
+
             if (instance)
             {
                 instance->SetData(DATA_MELJARAK, DONE);
@@ -373,23 +442,22 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            if (type == TYPE_WHIRLING_BLADE)
-            {
-                if (Player* player = ObjectAccessor::FindPlayer(whirlingTarget))
-                    return player->GetGUIDLow();
-                return 0;
-            }
+            if (type == TYPE_IS_IN_COMBAT)
+                return inCombat ? 1 : 0;
             return 0;
-        }
-
-        void SetData(uint32 type, uint32 value)
-        {
-            if (type == TYPE_WHIRLING_BLADE)
-                whirlingTarget = value;
         }
 
         void UpdateAI(uint32 const diff)
         {
+            if (instance)
+            {
+                if (instance->IsWipe())
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            }
+
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
@@ -421,7 +489,8 @@ public:
                                     me->AddAura(SPELL_WATCHFUL_EYE_1, me);
 
                                 if (GetSpearImpaledAdds() > 4)
-                                    RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 4);
+                                    //RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 4);
+                                    DoCast(SPELL_COWARDS);
                             }
                             // Check for CC'ed adds. Also one of the groups died, so summon reinforcements if not summoned.
                             else if (GetLivingAddCount() == 6)
@@ -435,7 +504,8 @@ public:
                                     me->AddAura(SPELL_WATCHFUL_EYE_2, me);
 
                                 if (GetSpearImpaledAdds() > 2)
-                                    RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 2);
+                                    // RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 2);
+                                    DoCast(SPELL_COWARDS);
 
                                 if (!reinforcementsSummoned)
                                 {
@@ -459,7 +529,8 @@ public:
                                     me->AddAura(SPELL_WATCHFUL_EYE_3, me);
 
                                 if (GetSpearImpaledAdds() > 0)
-                                    RemoveImpaledAddsAuras(GetSpearImpaledAdds());
+                                    DoCast(SPELL_COWARDS);
+                                    // RemoveImpaledAddsAuras(GetSpearImpaledAdds());
 
                                 if (!reinforcementsSummoned)
                                 {
@@ -489,7 +560,8 @@ public:
                         else
                         {
                             if (GetSpearImpaledAdds() > 3)
-                                RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 3);
+                                DoCast(SPELL_COWARDS);
+                                // RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 3);
 
                             if (GetLivingAddCount() < 9)
                             {
@@ -753,6 +825,429 @@ public:
     }
 };
 
+// Korthik Elite Blademaster: 62402 - handled in boss script, script here only used for life sharing
+class npc_korthik_elite_blademaster: public CreatureScript
+{
+public:
+    npc_korthik_elite_blademaster() : CreatureScript("npc_korthik_elite_blademaster") { }
+
+    struct npc_korthik_elite_blademasterAI: public ScriptedAI
+    {
+        npc_korthik_elite_blademasterAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+        bool inCombat;
+
+        void Reset()
+        {
+            inCombat = false;
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
+            if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
+                DoCast(me, SPELL_BROWN_MANTID_WINGS);
+        }
+
+        void JustDied(Unit* killer)
+        {
+            // Killing the other adds of the same group
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            for (auto mob : mobList)
+                if (mob->isAlive())
+                    killer->Kill(mob, false);
+        }
+
+        void EnterCombat(Unit* attacker)
+        {
+            if (attacker->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            if (!inCombat)
+            {
+                inCombat = true;
+                // Boss enters in combat
+                if (pInstance)
+                    if (Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        if (!Meljarak->AI()->GetData(TYPE_IS_IN_COMBAT))
+                            Meljarak->AI()->EnterCombat(attacker);
+
+                // Other adds enter in combat
+                std::list<Creature*> korthikList;
+                std::list<Creature*> srathikList;
+                std::list<Creature*> zarthikList;
+
+                GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
+                GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
+                GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
+
+                for (Creature* korthik : korthikList)
+                    if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        korthik->AI()->EnterCombat(attacker);
+
+                for (Creature* srathik : srathikList)
+                    if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        srathik->AI()->EnterCombat(attacker);
+
+                for (Creature* zarthik : zarthikList)
+                    if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        zarthik->AI()->EnterCombat(attacker);
+
+                me->SetInCombatWith(attacker);
+                AttackStart(attacker);
+            }
+        }
+
+        void DamageTaken(Unit* killer, uint32 &damage)
+        {
+            if (killer->GetEntry() == me->GetEntry())
+                return;
+
+
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            if (damage > me->GetHealth())
+                for (auto mob : mobList)
+                    killer->Kill(mob, true);
+
+            else
+                for (auto mob : mobList)
+                    if (mob->GetGUID() != me->GetGUID())
+                        mob->ModifyHealth(-int32(damage));
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == TYPE_IS_IN_COMBAT)
+                return inCombat ? 1 : 0;
+            return 0;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_korthik_elite_blademasterAI(creature);
+    }
+
+};
+
+struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
+{
+    public:
+        NonAlreadyAmberPrisoner() { }
+        bool operator()(Unit const* target) const
+        {
+            if (target->HasAura(SPELL_AMBER_PRISON_AURA))
+                return false;
+
+            return true;
+        }
+};
+
+// Srathik Amber Trapper: 62405.
+class npc_srathik_amber_trapper: public CreatureScript 
+{
+public:
+    npc_srathik_amber_trapper() : CreatureScript("npc_srathik_amber_trapper") { }
+
+    struct npc_srathik_amber_trapperAI: public ScriptedAI 
+    {
+        npc_srathik_amber_trapperAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = creature->GetInstanceScript();
+            charged = false;
+        }
+
+        InstanceScript* instance;
+        EventMap events;
+        bool charged;
+        bool inCombat;
+
+        void Reset()
+        {
+            events.Reset();
+            inCombat = false;
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_9);
+            if (!me->HasAura(SPELL_RED_MANTID_WINGS))
+                DoCast(SPELL_RED_MANTID_WINGS);
+        }
+
+        void EnterCombat(Unit* attacker)
+        {
+            if (attacker->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            if (!inCombat)
+            {
+                inCombat = true;
+                // Boss enters in combat
+                if (instance)
+                    if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
+                        if (!Meljarak->AI()->GetData(TYPE_IS_IN_COMBAT))
+                            Meljarak->AI()->EnterCombat(attacker);
+
+                // Other adds enter in combat
+                std::list<Creature*> korthikList;
+                std::list<Creature*> srathikList;
+                std::list<Creature*> zarthikList;
+
+                GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
+                GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
+                GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
+
+                for (Creature* korthik : korthikList)
+                    if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        korthik->AI()->EnterCombat(attacker);
+
+                for (Creature* srathik : srathikList)
+                    if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        srathik->AI()->EnterCombat(attacker);
+
+                for (Creature* zarthik : zarthikList)
+                    if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        zarthik->AI()->EnterCombat(attacker);
+
+                me->SetInCombatWith(attacker);
+                AttackStart(attacker);
+            }
+
+            events.ScheduleEvent(EVENT_AMBER_PRISON, urand(13000, 47000));
+            events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
+        }
+
+        void JustDied(Unit* killer)
+        {
+            events.Reset();
+            // Killing the other adds of the same group
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            for (auto mob : mobList)
+                if (mob->isAlive())
+                    killer->Kill(mob, false);
+        }
+
+        void DamageTaken(Unit* killer, uint32 &damage)
+        {
+            if (killer->GetEntry() == me->GetEntry())
+                return;
+
+
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            if (damage > me->GetHealth())
+                for (auto mob : mobList)
+                    killer->Kill(mob, true);
+
+            else
+                for (auto mob : mobList)
+                    if (mob->GetGUID() != me->GetGUID())
+                        mob->ModifyHealth(-int32(damage));
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == TYPE_IS_IN_COMBAT)
+                return inCombat ? 1 : 0;
+            return 0;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent()) 
+            {
+                switch (eventId) 
+                {
+                    case EVENT_AMBER_PRISON:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonAlreadyAmberPrisoner()))
+                            DoCast(target, SPELL_AMBER_PRISON);
+                        events.ScheduleEvent(EVENT_AMBER_PRISON, urand(35000, 70000));
+                        break;
+
+                    case EVENT_CORROSIVE_RESIN:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
+                            DoCast(target, SPELL_CORROSIVE_RESIN);
+                        events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(25000, 32000));
+                        break;
+
+                    default: break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_srathik_amber_trapperAI(creature);
+    }
+};
+
+// Zarthik Battle Mender: 62408.
+class npc_zarthik_battle_mender: public CreatureScript 
+{
+public:
+    npc_zarthik_battle_mender() : CreatureScript("npc_zarthik_battle_mender") { }
+
+    struct npc_zarthik_battle_menderAI: public ScriptedAI 
+    {
+        npc_zarthik_battle_menderAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = creature->GetInstanceScript();
+            charged = false;
+        }
+
+        InstanceScript* instance;
+        EventMap events;
+        bool charged;
+        bool inCombat;
+
+        void Reset()
+        {
+            events.Reset();
+            inCombat = false;
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
+            if (!me->HasAura(SPELL_BLUE_MANTID_WINGS))
+                DoCast(me, SPELL_BLUE_MANTID_WINGS);
+        }
+
+        void EnterCombat(Unit* attacker)
+        {
+            if (attacker->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            if (!inCombat)
+            {
+                inCombat = true;
+                // Boss enters in combat
+                if (instance)
+                    if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
+                        if (!Meljarak->AI()->GetData(TYPE_IS_IN_COMBAT))
+                            Meljarak->AI()->EnterCombat(attacker);
+
+                // Other adds enter in combat
+                std::list<Creature*> korthikList;
+                std::list<Creature*> srathikList;
+                std::list<Creature*> zarthikList;
+
+                GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
+                GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
+                GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
+
+                for (Creature* korthik : korthikList)
+                    if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        korthik->AI()->EnterCombat(attacker);
+
+                for (Creature* srathik : srathikList)
+                    if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        srathik->AI()->EnterCombat(attacker);
+
+                for (Creature* zarthik : zarthikList)
+                    if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
+                        zarthik->AI()->EnterCombat(attacker);
+
+                me->SetInCombatWith(attacker);
+                AttackStart(attacker);
+            }
+
+            events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
+            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        }
+
+        void JustDied(Unit* killer)
+        {
+            events.Reset();
+            // Killing the other adds of the same group
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            for (auto mob : mobList)
+                if (mob->isAlive())
+                    killer->Kill(mob, false);
+        }
+
+        void DamageTaken(Unit* killer, uint32 &damage)
+        {
+            if (killer->GetEntry() == me->GetEntry())
+                return;
+
+
+            std::list<Creature*> mobList;
+            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+
+            if (damage > me->GetHealth())
+                for (auto mob : mobList)
+                    killer->Kill(mob, true);
+
+            else
+                for (auto mob : mobList)
+                    if (mob->GetGUID() != me->GetGUID())
+                        mob->ModifyHealth(-int32(damage));
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == TYPE_IS_IN_COMBAT)
+                return inCombat ? 1 : 0;
+            return 0;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent()) 
+            {
+                switch (eventId) 
+                {
+                    case EVENT_MENDING:
+                    {
+                        uint32 result = urand(0, 2);
+                        uint32 addEntries[3] = {NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER};
+
+                        // Mending is cast on one add, but he shares his life with the whole group, all adds of the group are healed
+                        std::list<Creature*> addList;
+                        GetCreatureListWithEntryInGrid(addList, me, addEntries[result], 150.0f);
+
+                        for (Creature* add : addList)
+                            me->CastSpell(add, SPELL_MENDING, true);
+
+                        events.ScheduleEvent(EVENT_MENDING, urand(30000, 40000));
+                    }
+                    case EVENT_QUICKENING:
+                    {
+                        DoCast(me, SPELL_QUICKENING);
+                        events.ScheduleEvent(EVENT_QUICKENING, urand(33000, 54000));
+                        break;
+                    }
+
+                    default: break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_zarthik_battle_menderAI(creature);
+    }
+};
+
 // Wind Bomb: 67053.
 class npc_wind_bomb_meljarak : public CreatureScript
 {
@@ -814,195 +1309,6 @@ class npc_wind_bomb_meljarak : public CreatureScript
         {
             return new npc_wind_bomb_meljarakAI(creature);
         }
-};
-
-struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
-{
-    public:
-        NonAlreadyAmberPrisoner() { }
-        bool operator()(Unit const* target) const
-        {
-            if (target->HasAura(SPELL_AMBER_PRISON_AURA))
-                return false;
-
-            return true;
-        }
-};
-
-
-// Korthik Elite Blademaster: 62402 - handled in boss script, script here only used for life sharing
-class npc_korthik_elite_blademaster: public CreatureScript
-{
-public:
-    npc_korthik_elite_blademaster() : CreatureScript("npc_korthik_elite_blademaster") { }
-
-    struct npc_korthik_elite_blademasterAI: public ScriptedAI
-    {
-        npc_korthik_elite_blademasterAI(Creature* creature) : ScriptedAI(creature)
-        {
-            pInstance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-
-        void Reset()
-        {
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
-            if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
-                DoCast(me, SPELL_BROWN_MANTID_WINGS);
-        }
-
-        void JustDied(Unit* killer)
-        {
-            // Killing the other adds of the same group
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
-
-            for (auto mob : mobList)
-                if (mob->isAlive())
-                    killer->Kill(mob, false);
-        }
-
-        void EnterCombat(Unit* attacker)
-        {
-            if (pInstance)
-                if (Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                    if (!Meljarak->getVictim() && !Meljarak->HasUnitState(UNIT_STATE_CASTING))
-                        Meljarak->AI()->EnterCombat(attacker);
-        }
-
-        void DamageTaken(Unit* killer, uint32 &damage)
-        {
-            if (killer->GetEntry() == me->GetEntry())
-                return;
-
-
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
-
-            if (damage > me->GetHealth())
-                for (auto mob : mobList)
-                    killer->Kill(mob, true);
-
-            else
-                for (auto mob : mobList)
-                    if (mob->GetGUID() != me->GetGUID())
-                        mob->ModifyHealth(-int32(damage));
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_korthik_elite_blademasterAI(creature);
-    }
-
-};
-
-// Srathik Amber Trapper: 62405.
-class npc_srathik_amber_trapper: public CreatureScript 
-{
-public:
-    npc_srathik_amber_trapper() : CreatureScript("npc_srathik_amber_trapper") { }
-
-    struct npc_srathik_amber_trapperAI: public ScriptedAI 
-    {
-        npc_srathik_amber_trapperAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-            charged = false;
-        }
-
-        InstanceScript* instance;
-        EventMap events;
-        bool charged;
-
-        void Reset()
-        {
-            events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_9);
-            if (!me->HasAura(SPELL_RED_MANTID_WINGS))
-                DoCast(SPELL_RED_MANTID_WINGS);
-        }
-
-        void EnterCombat(Unit* attacker)
-        {
-            if (instance)
-                if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
-                    if (!Meljarak->getVictim() && !Meljarak->HasUnitState(UNIT_STATE_CASTING))
-                        Meljarak->AI()->EnterCombat(attacker);
-
-            events.ScheduleEvent(EVENT_AMBER_PRISON, urand(13000, 47000));
-            events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
-        }
-
-        void JustDied(Unit* killer)
-        {
-            events.Reset();
-            // Killing the other adds of the same group
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
-
-            for (auto mob : mobList)
-                if (mob->isAlive())
-                    killer->Kill(mob, false);
-        }
-
-        void DamageTaken(Unit* killer, uint32 &damage)
-        {
-            if (killer->GetEntry() == me->GetEntry())
-                return;
-
-
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
-
-            if (damage > me->GetHealth())
-                for (auto mob : mobList)
-                    killer->Kill(mob, true);
-
-            else
-                for (auto mob : mobList)
-                    if (mob->GetGUID() != me->GetGUID())
-                        mob->ModifyHealth(-int32(damage));
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent()) 
-            {
-                switch (eventId) 
-                {
-                    case EVENT_AMBER_PRISON:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonAlreadyAmberPrisoner()))
-                            DoCast(target, SPELL_AMBER_PRISON);
-                        events.ScheduleEvent(EVENT_AMBER_PRISON, urand(35000, 70000));
-                        break;
-
-                    case EVENT_CORROSIVE_RESIN:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
-                            DoCast(target, SPELL_CORROSIVE_RESIN);
-                        events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(25000, 32000));
-                        break;
-
-                    default: break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_srathik_amber_trapperAI(creature);
-    }
 };
 
 // Corrosive Resin Pool: 67046.
@@ -1079,119 +1385,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_amber_prison_meljarakAI (creature);
-    }
-};
-
-// Zarthik Battle Mender: 62408.
-class npc_zarthik_battle_mender: public CreatureScript 
-{
-public:
-    npc_zarthik_battle_mender() : CreatureScript("npc_zarthik_battle_mender") { }
-
-    struct npc_zarthik_battle_menderAI: public ScriptedAI 
-    {
-        npc_zarthik_battle_menderAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-            charged = false;
-        }
-
-        InstanceScript* instance;
-        EventMap events;
-        bool charged;
-
-        void Reset()
-        {
-            events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
-            if (!me->HasAura(SPELL_BLUE_MANTID_WINGS))
-                DoCast(me, SPELL_BLUE_MANTID_WINGS);
-        }
-
-        void EnterCombat(Unit* attacker)
-        {
-            if (instance)
-                if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
-                    if (!Meljarak->getVictim() && !Meljarak->HasUnitState(UNIT_STATE_CASTING))
-                        Meljarak->AI()->EnterCombat(attacker);
-
-            events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
-            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        }
-
-        void JustDied(Unit* killer)
-        {
-            events.Reset();
-            // Killing the other adds of the same group
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
-
-            for (auto mob : mobList)
-                if (mob->isAlive())
-                    killer->Kill(mob, false);
-        }
-
-        void DamageTaken(Unit* killer, uint32 &damage)
-        {
-            if (killer->GetEntry() == me->GetEntry())
-                return;
-
-
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
-
-            if (damage > me->GetHealth())
-                for (auto mob : mobList)
-                    killer->Kill(mob, true);
-
-            else
-                for (auto mob : mobList)
-                    if (mob->GetGUID() != me->GetGUID())
-                        mob->ModifyHealth(-int32(damage));
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent()) 
-            {
-                switch (eventId) 
-                {
-                    case EVENT_MENDING:
-                    {
-                        uint32 result = urand(0, 2);
-                        uint32 addEntries[3] = {NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER};
-
-                        // Mending is cast on one add, but he shares his life with the whole group, all adds of the group are healed
-                        std::list<Creature*> addList;
-                        GetCreatureListWithEntryInGrid(addList, me, addEntries[result], 150.0f);
-
-                        for (Creature* add : addList)
-                            me->CastSpell(add, SPELL_MENDING, true);
-
-                        events.ScheduleEvent(EVENT_MENDING, urand(30000, 40000));
-                    }
-                    case EVENT_QUICKENING:
-                    {
-                        DoCast(me, SPELL_QUICKENING);
-                        events.ScheduleEvent(EVENT_QUICKENING, urand(33000, 54000));
-                        break;
-                    }
-
-                    default: break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_zarthik_battle_menderAI(creature);
     }
 };
 
@@ -1458,12 +1651,12 @@ public:
 void AddSC_boss_meljarak()
 {
     new boss_wind_lord_meljarak();          // 62397
-    new npc_wind_bomb_meljarak();           // 67053
     new npc_korthik_elite_blademaster();    // 62402
     new npc_srathik_amber_trapper();        // 62405
+    new npc_zarthik_battle_mender();        // 62408
+    new npc_wind_bomb_meljarak();           // 67053
     new npc_corrosive_resin_pool();         // 67046
     new npc_amber_prison_meljarak();        // 62531
-    new npc_zarthik_battle_mender();        // 62408
     new npc_whirling_blade();               // 63930
     new spell_meljarak_corrosive_resin();   // 122064
     new spell_mending();                    // 122147

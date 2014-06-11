@@ -151,6 +151,7 @@ enum eActions
 
     // Trash
     ACTION_AMBER_VOLLEY         = 10,
+    ACTION_REACH_HOME           = 11,
 };
 
 enum eCreatures
@@ -186,8 +187,10 @@ enum eCreatures
     NPC_KORTHIK_SWARMER             = 64357,
     NPC_SETTHIK_GUSTWING            = 63592,
     NPC_COAGULATED_AMBER            = 63597,
+    NPC_COAGULATED_AMBER2           = 63594,
     NPC_KORTHIK_SWARGUARD           = 64916,
     NPC_SRATHIK_AMBERCALLER         = 64917,
+    NPC_SRATHIK_POOLTENDER          = 63570,
 
     // Zor'lok
     NPC_ZORLOK                      = 62980,

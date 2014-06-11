@@ -1126,6 +1126,12 @@ Position unsokRoomAngle[4] =
     {-2440.82f, 734.44f, 581.55f, 0.0f},    // NW
 };
 
+Position unsokDiagPoint[2] =
+{
+    {-2409.33f, 630.0f, 582.92f, 0.0f},
+    {-2549.87f, 770.0f, 582.92f, 0.0f}
+};
+
 // 63594 / 63597 - Coagulated Amber
 class mob_coagulated_amber : public CreatureScript
 {
@@ -1139,18 +1145,27 @@ class mob_coagulated_amber : public CreatureScript
             uint8 walkTimer;
             uint8 point;
             int8 clockwise;
+            bool isTurning;
+            bool isClockwise;
 
             void Reset()
             {
-                bool isClockwise = me->GetEntry() == 63597;
+                isTurning = me->GetPositionZ() < 582.0f;
+                isClockwise = me->GetEntry() == 63597;
+
                 walkTimer = 0;
                 clockwise = isClockwise ? 1 : -1;
-                point     = isClockwise ? 1 : 2;
 
-                me->SetFacingTo(isClockwise ? M_PI : 0.0f);
-                me->SetOrientation(isClockwise ? M_PI : 0.0f);
+                if (isTurning)
+                    point = isClockwise ? 1 : 2;
+                else
+                    point = me->GetPositionY() > 700 ? 0 : 1;
 
-                me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+                if (isTurning)
+                    me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+                else
+                    me->GetMotionMaster()->MovePoint(point + 10, unsokDiagPoint[point]);
+
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -1158,14 +1173,21 @@ class mob_coagulated_amber : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                /***
-                 * +4 because if we're not clockwise (ie. clockwise = -1), at point = 0, point + clockwise = -1, and -1 % 4 = -1, and so, -1 + 4 = 3 and
-                 * 3 % 4 = 3, so we go from 0 to 3. For any other value, it won't have any incidence (for ex. if point + clockwise = 2, then 2 + 4 = 6 and
-                 * 6 % 4 = 2, and even if point + clockwise = 4, 4 + 4 = 8 and 8 % 4 = 0.
-                 *
-                 * So this will always return a valid value between 0 and 3, whatever the values of point and clockwise.
-                 ***/
-                point = (point + clockwise + 4) % 4;
+                // turning movement
+                if (id < 10)
+                    /***
+                     * +4 because if we're not clockwise (ie. clockwise = -1), at point = 0, point + clockwise = -1, and -1 % 4 = -1, and so, -1 + 4 = 3 and
+                     * 3 % 4 = 3, so we go from 0 to 3. For any other value, it won't have any incidence (for ex. if point + clockwise = 2, then 2 + 4 = 6 and
+                     * 6 % 4 = 2, and even if point + clockwise = 4, 4 + 4 = 8 and 8 % 4 = 0.
+                     *
+                     * So this will always return a valid value between 0 and 3, whatever the values of point and clockwise.
+                     ***/
+                    point = (point + clockwise + 4) % 4;
+                // diagonal movement
+                else
+                    // As target point can be 0 or 1, 1-targetPoint can be either 1-0 = 1 or 1-1 = 0, so we switch the value of targetPoint
+                    point = 1 - point;
+
                 walkTimer = 1;
             }
 
@@ -1183,7 +1205,11 @@ class mob_coagulated_amber : public CreatureScript
                         walkTimer -= diff;
                     else
                     {
-                        me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+                        if (isTurning)
+                            me->GetMotionMaster()->MovePoint(point + 1, unsokRoomAngle[point]);
+                        else
+                            me->GetMotionMaster()->MovePoint(point + 10, unsokDiagPoint[point]);
+
                         walkTimer = 0;
                     }
                 }
@@ -1199,75 +1225,6 @@ class mob_coagulated_amber : public CreatureScript
         {
             return new mob_coagulated_amberAI(creature);
         }
-};
-
-Position unsokDiagPoint[2] =
-{
-    {-2409.33f, 630.0f, 582.92f, 0.0f},
-    {-2549.87f, 770.0f, 582.92f, 0.0f}
-};
-
-// 62691 - Living Amber
-class mob_living_amber : public CreatureScript
-{
-public:
-    mob_living_amber() : CreatureScript("mob_living_amber") { }
-
-    struct mob_living_amberAI : ScriptedAI
-    {
-        mob_living_amberAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint8 targetPoint;
-        uint8 walkTimer;
-
-        void Reset()
-        {
-            events.Reset();
-            DoCast(SPELL_CORROSIVE_AURA);
-            walkTimer = 0;
-            targetPoint = me->GetPositionY() > 700 ? 0 : 1;
-            me->GetMotionMaster()->MovePoint(targetPoint + 1, unsokDiagPoint[targetPoint]);
-        }
-
-        void MovementInform(uint32 type, uint32 id)
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            // As target point can be 0 or 1, 1-targetPoint can be either 1-0 = 1 or 1-1 = 0, so we switch the value of targetPoint
-            targetPoint = 1 - targetPoint;
-            walkTimer = 1;
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoCast(SPELL_BURST);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (walkTimer)
-            {
-                if (walkTimer > diff)
-                    walkTimer -= diff;
-                else
-                {
-                    me->GetMotionMaster()->MovePoint(targetPoint + 1, unsokDiagPoint[targetPoint]);
-                    walkTimer = 0;
-                }
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_living_amberAI(creature);
-    }
 };
 
 // 64355 - Kor'thik Silentwing
@@ -1479,6 +1436,7 @@ public:
         {
             events.Reset();
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
+            me->SetReactState(REACT_AGGRESSIVE);
             protectedAmberCallerGuid = 0;
             inCombat = false;
         }
@@ -2009,7 +1967,6 @@ void AddSC_heart_of_fear()
     new mob_kor_thik_swarmer();         // 64357 - Kor'thik Swarmer
     new mob_set_thik_gustwing();        // 63592 - Set'thik Gustwing
     new mob_coagulated_amber();         // 63597 / 63594 - Coagulated Amber
-    new mob_living_amber();             // 62691 - Living Amber
     new mob_kor_thik_silentwing();      // 64355 - Kor'thik Silentwing
     new mob_zephyr();                   // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
     new mob_korthik_swarmguard();       // 64916 - Kor'thik Swarmguard
