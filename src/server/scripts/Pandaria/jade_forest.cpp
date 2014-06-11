@@ -2024,6 +2024,12 @@ class mob_second_big_bao : public CreatureScript
             }
 
             uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
@@ -2049,6 +2055,11 @@ class mob_second_big_bao : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2066,15 +2077,29 @@ class mob_second_big_bao : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
                     if (!player->isAlive())
                     {
                         DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
                         return;
                     }
 
                     if (player->GetQuestStatus(31718) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
                     {
                         me->DespawnOrUnsummon();
                     }
@@ -2140,6 +2165,12 @@ class mob_ace_longpaw : public CreatureScript
             }
 
             uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
@@ -2165,6 +2196,11 @@ class mob_ace_longpaw : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2182,15 +2218,29 @@ class mob_ace_longpaw : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
                     if (!player->isAlive())
                     {
                         DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
                         return;
                     }
 
                     if (player->GetQuestStatus(31717) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
                     {
                         me->DespawnOrUnsummon();
                     }
@@ -2256,6 +2306,12 @@ class mob_ningha_darkwheel : public CreatureScript
             }
 
             uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
@@ -2281,6 +2337,11 @@ class mob_ningha_darkwheel : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2298,15 +2359,29 @@ class mob_ningha_darkwheel : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
                     if (!player->isAlive())
                     {
                         DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
                         return;
                     }
 
                     if (player->GetQuestStatus(31719) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
                     {
                         me->DespawnOrUnsummon();
                     }
@@ -2372,6 +2447,12 @@ class mob_qua_row_whitebrow : public CreatureScript
             }
 
             uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
@@ -2397,6 +2478,11 @@ class mob_qua_row_whitebrow : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2414,15 +2500,29 @@ class mob_qua_row_whitebrow : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
                     if (!player->isAlive())
                     {
                         DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
                         return;
                     }
 
                     if (player->GetQuestStatus(31721) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
                     {
                         me->DespawnOrUnsummon();
                     }
@@ -2488,6 +2588,12 @@ class mob_suchi_the_sweet : public CreatureScript
             }
 
             uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
@@ -2513,6 +2619,11 @@ class mob_suchi_the_sweet : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2530,15 +2641,29 @@ class mob_suchi_the_sweet : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
                     if (!player->isAlive())
                     {
                         DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
                         return;
                     }
 
                     if (player->GetQuestStatus(31720) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
                     {
                         me->DespawnOrUnsummon();
                     }

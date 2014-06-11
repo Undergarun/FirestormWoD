@@ -126,7 +126,8 @@ enum eEvents
     EVENT_MIND_FLAY                  = 66,
     EVENT_ACID_SPLIT                 = 67,
     EVENT_BACKSTAB                   = 68,
-    EVENT_VILE_SPITTLE               = 69
+    EVENT_VILE_SPITTLE               = 69,
+    EVENT_DESPAWN                    = 70
 };
 
 enum eQuests

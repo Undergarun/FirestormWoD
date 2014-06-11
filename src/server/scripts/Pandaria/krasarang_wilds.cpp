@@ -859,6 +859,11 @@ class mob_ellia_ravenmane : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -972,6 +977,9 @@ class mob_ellia_ravenmane : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_VICIOUS_KICK, false);
                             events.ScheduleEvent(EVENT_VICIOUS_KICK, 15000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1101,6 +1109,11 @@ class mob_fat_long_fat : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1179,6 +1192,9 @@ class mob_fat_long_fat : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_STORM_STOUT, false);
                             events.ScheduleEvent(EVENT_STORM_STOUT_2, 15000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1277,6 +1293,11 @@ class mob_huck_wheelbarrow : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1332,6 +1353,9 @@ class mob_huck_wheelbarrow : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_ROLLING_THROW, false);
                             events.ScheduleEvent(EVENT_ROLLING_THROW, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1430,6 +1454,11 @@ class mob_dextrous_izissha : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1485,6 +1514,9 @@ class mob_dextrous_izissha : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_STILL_WATERS_RUN_DEEP, false);
                             events.ScheduleEvent(EVENT_STILL_WATERS_RUN_DEEP, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1582,6 +1614,11 @@ class mob_julia_bates : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1632,6 +1669,9 @@ class mob_julia_bates : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(me, SPELL_SOOTHING_MIST, false);
                             events.ScheduleEvent(EVENT_SOOTHING_MIST, 7000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1730,6 +1770,11 @@ class mob_kuo_na : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1785,6 +1830,9 @@ class mob_kuo_na : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(me, SPELL_UPPERCUT, false);
                             events.ScheduleEvent(EVENT_UPPERCUT_2, 21000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1882,6 +1930,11 @@ class mob_mindel_sunspeaker : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1932,6 +1985,9 @@ class mob_mindel_sunspeaker : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(me, SPELL_SUNSTRIKE, false);
                             events.ScheduleEvent(EVENT_SUNSTRIKE, 12000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2029,6 +2085,11 @@ class mob_minh_do_tan : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2079,6 +2140,9 @@ class mob_minh_do_tan : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(me, SPELL_VICIOUS_KICK, false);
                             events.ScheduleEvent(EVENT_VICIOUS_KICK, 12000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2178,6 +2242,11 @@ class mob_thelonius : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2238,6 +2307,9 @@ class mob_thelonius : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(me, SPELL_FLYING_SERPENT_KICK, false);
                             events.ScheduleEvent(EVENT_FLYING_SERPENT_KICK, 25000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2336,6 +2408,11 @@ class mob_tukka_tuk : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2391,6 +2468,9 @@ class mob_tukka_tuk : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_PUNCH_YOU, false);
                             events.ScheduleEvent(EVENT_PUNCH_YOU, 20000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2489,6 +2569,11 @@ class mob_yan_quillpaw : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2544,6 +2629,9 @@ class mob_yan_quillpaw : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_PAW_PUNCH, false);
                             events.ScheduleEvent(EVENT_PAW_PUNCH, 20000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;

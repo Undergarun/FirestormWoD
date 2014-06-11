@@ -102,7 +102,8 @@ enum eEvents
     EVENT_SUNSTRIKE              = 47,
     EVENT_POUND_YOU              = 48,
     EVENT_KICK_YOU               = 49,
-    EVENT_PUNCH_YOU              = 50
+    EVENT_PUNCH_YOU              = 50,
+    EVENT_DESPAWN                = 51
 };
 
 enum eQuests

@@ -1247,6 +1247,11 @@ class mob_lun_chi : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1304,6 +1309,9 @@ class mob_lun_chi : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_SPINNING_CRANE_KICK, false);
                             events.ScheduleEvent(EVENT_SPINNING_CRANE_KICK, 28000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1401,6 +1409,11 @@ class mob_brewmaster_chani : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1453,6 +1466,9 @@ class mob_brewmaster_chani : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_THE_STEAMER, false);
                             events.ScheduleEvent(EVENT_THE_STEAMER, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1551,6 +1567,11 @@ class mob_kang_bramblestaff : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1608,6 +1629,9 @@ class mob_kang_bramblestaff : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_WHIRLWIND, false);
                             events.ScheduleEvent(EVENT_WHIRLWIND, 25000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1716,6 +1740,11 @@ class mob_clever_ashyo : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -1779,6 +1808,9 @@ class mob_clever_ashyo : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_WATER_SPOUT, false);
                             events.ScheduleEvent(EVENT_WATER_SPOUT, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -1887,6 +1919,11 @@ class mob_ken_ken : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void EnterCombat(Unit* victim)
             {
                 if (Creature* ashyo = GetClosestCreatureWithEntry(me, 60980, 20.0f, true))
@@ -1950,6 +1987,9 @@ class mob_ken_ken : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_KEN_KEN_RAMPAGE, false);
                             events.ScheduleEvent(EVENT_KEN_KEN_RAMPAGE, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2048,6 +2088,11 @@ class mob_the_wrestler : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2105,6 +2150,9 @@ class mob_the_wrestler : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_VULNERABLE, false);
                             events.ScheduleEvent(EVENT_VULNERABLE, 50000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2202,6 +2250,11 @@ class mob_master_boom_boom : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2254,6 +2307,9 @@ class mob_master_boom_boom : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_TOSS_A_BOOM_BOOM, false);
                             events.ScheduleEvent(EVENT_TOSS_A_BOOM_BOOM, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2351,6 +2407,11 @@ class mob_master_windfur : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2403,6 +2464,9 @@ class mob_master_windfur : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(target, SPELL_WINDFUR_PUNCH, false);
                             events.ScheduleEvent(EVENT_WINDFUR_PUNCH, 18000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2523,6 +2587,11 @@ class mob_tankiss : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2592,6 +2661,9 @@ class mob_tankiss : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_GROUND_PUMMEL, false);
                             events.ScheduleEvent(EVENT_GROUND_PUMMEL, 25000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2712,6 +2784,11 @@ class mob_healiss : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2781,6 +2858,9 @@ class mob_healiss : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_MIND_FLAY, false);
                             events.ScheduleEvent(EVENT_MIND_FLAY, 25000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;
@@ -2901,6 +2981,11 @@ class mob_hackiss : public CreatureScript
                     playerGuid = guid;
             }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
             void DoAction(int32 const action)
             {
                 if (action == ACTION_REMOVE_FLAG)
@@ -2970,6 +3055,9 @@ class mob_hackiss : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_VILE_SPITTLE, false);
                             events.ScheduleEvent(EVENT_VILE_SPITTLE, 25000);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
                             break;
                         default:
                             break;

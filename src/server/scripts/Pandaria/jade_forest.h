@@ -123,7 +123,8 @@ enum eEvents
     EVENT_FLYING_SERPENT_KICK       = 54,
     EVENT_JAB                       = 55,
     EVENT_MIGHTY_CHOP               = 56,
-    EVENT_STRIKE_FROM_THE_HEAVENS   = 57
+    EVENT_STRIKE_FROM_THE_HEAVENS   = 57,
+    EVENT_DESPAWN                   = 58
 };
 
 enum eQuests
