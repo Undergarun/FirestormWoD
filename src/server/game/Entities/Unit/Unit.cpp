@@ -20797,7 +20797,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 modelid = formEntry->modelID_H;
 
             // If the player is horde but there are no values for the horde modelid - take the alliance modelid
-            if (!modelid && Player::TeamForRace(getRace()) == HORDE)
+            if (!modelid && (Player::TeamForRace(getRace()) == HORDE || Player::TeamForRace(getRace()) == PANDAREN_NEUTRAL))
                 modelid = formEntry->modelID_A;
         }
     }

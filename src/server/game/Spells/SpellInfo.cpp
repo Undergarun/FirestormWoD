@@ -646,7 +646,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
     if (caster && CanScale() && (_spellInfo->AttackPowerBonus > 0.0f || EffectSpellPowerBonus > 0.0f))
     {
-        WeaponAttackType attType = (_spellInfo->IsRangedWeaponSpell() && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+        bool rangedDamageClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
+        WeaponAttackType attType = (_spellInfo->IsRangedWeaponSpell() && rangedDamageClass) ? RANGED_ATTACK : BASE_ATTACK;
         float ap = caster->GetTotalAttackPowerValue(attType);
         float sp = float(((Unit*)caster)->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask()));
 
