@@ -315,15 +315,15 @@ public:
                     GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
 
                     for (Creature* korthik : korthikList)
-                        if (!korthik->AI()->GetData(0))
+                        if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
                             korthik->AI()->EnterCombat(attacker);
 
                     for (Creature* srathik : srathikList)
-                        if (!srathik->AI()->GetData(0))
+                        if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
                             srathik->AI()->EnterCombat(attacker);
 
                     for (Creature* zarthik : zarthikList)
-                        if (!zarthik->AI()->GetData(0))
+                        if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
                             zarthik->AI()->EnterCombat(attacker);
 
                     inCombat = true;
@@ -1160,9 +1160,11 @@ public:
                 me->SetInCombatWith(attacker);
                 AttackStart(attacker);
             }
-
+            
             events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
-            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        }
+            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        
+            
+        }
 
         void JustDied(Unit* killer)
         {
