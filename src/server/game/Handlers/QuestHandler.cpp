@@ -519,12 +519,32 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
         switch (object->GetTypeId())
         { 
-        case TYPEID_UNIT:
-        case TYPEID_PLAYER:
-            {
-                //For AutoSubmition was added plr case there as it almost same exclude AI script cases.
-                Creature *creatureQGiver = object->ToCreature();
-                if (!creatureQGiver || !(sScriptMgr->OnQuestReward(_player, creatureQGiver, quest, reward)))
+            case TYPEID_UNIT:
+            case TYPEID_PLAYER:
+                {
+                    //For AutoSubmition was added plr case there as it almost same exclude AI script cases.
+                    Creature *creatureQGiver = object->ToCreature();
+                    if (!creatureQGiver || !(sScriptMgr->OnQuestReward(_player, creatureQGiver, quest, reward)))
+                    {
+                        // Send next quest
+                        if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                        {
+                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
+                            {
+                                _player->AddQuest(nextQuest, object);
+                                if (_player->CanCompleteQuest(nextQuest->GetQuestId()))
+                                    _player->CompleteQuest(nextQuest->GetQuestId());
+                            }
+
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                        }
+                        if (creatureQGiver)
+                            creatureQGiver->AI()->sQuestReward(_player, quest, reward);
+                    }
+                    break;
+                }
+            case TYPEID_GAMEOBJECT:
+                if (!sScriptMgr->OnQuestReward(_player, ((GameObject*)object), quest, reward))
                 {
                     // Send next quest
                     if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
@@ -538,32 +558,12 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                         _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
                     }
-                    if (creatureQGiver)
-                        creatureQGiver->AI()->sQuestReward(_player, quest, reward);
+
+                    object->ToGameObject()->AI()->QuestReward(_player, quest, reward);
                 }
                 break;
-            }
-        case TYPEID_GAMEOBJECT:
-            if (!sScriptMgr->OnQuestReward(_player, ((GameObject*)object), quest, reward))
-            {
-                // Send next quest
-                if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
-                {
-                    if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                    {
-                        _player->AddQuest(nextQuest, object);
-                        if (_player->CanCompleteQuest(nextQuest->GetQuestId()))
-                            _player->CompleteQuest(nextQuest->GetQuestId());
-                    }
-
-                    _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
-                }
-
-                object->ToGameObject()->AI()->QuestReward(_player, quest, reward);
-            }
-            break;
-        default:
-            break;
+            default:
+                break;
         }
     }
     else 
