@@ -10880,6 +10880,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 4384:
             NumberOfFields = 28;
             break;
+        case 5449:
+            NumberOfFields = 30;
+            break;
         case 4710:
             NumberOfFields = 26;
             break;

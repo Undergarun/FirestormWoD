@@ -210,11 +210,11 @@ uint32 BlackMarketMgr::GetNewAuctionId()
     return newId;
 }
 
-uint32 BlackMarketMgr::GetAuctionOutBid(uint32 bid)
+uint64 BlackMarketMgr::GetAuctionOutBid(uint64 bid)
 {
     // The / 10000 and * 10000 prevent sending price with silver or copper
     // Because the client allow only golds for Blackmarket price
-    uint32 outbid = CalculatePct((bid / 10000), 5) * 10000;
+    uint64 outbid = CalculatePct((bid / 10000), 5) * 10000;
     return outbid ? outbid : 1;
 }
 
@@ -338,7 +338,7 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
     return strm.str();
 }
 
-void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
+void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans)
 {
     Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER));
     if (bidder)
