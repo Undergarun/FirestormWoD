@@ -1670,7 +1670,8 @@ public:
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
             point = me->GetPositionY() < 460.0f ? 0 : 1;
             direction = -1;
-            me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+            if (me->isAlive())
+                me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
             walkTimer = 0;
         }
 
