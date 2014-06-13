@@ -167,6 +167,8 @@ enum Adds
     NPC_KORTHIK_ELITE_BLADEMASTER = 62402,
     NPC_SRATHIK_AMBER_TRAPPER     = 62405,
     NPC_ZARTHIK_BATTLE_MENDER     = 62408,
+    NPC_WIND_BOMB                 = 67053,
+    NPC_AMBER_PRISON              = 62531,
     NPC_WHIRLING_BLADE            = 63930,
     NPC_CORROSIVE_RESIN_POOL      = 67046,
 };
@@ -315,15 +317,15 @@ public:
                     GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
 
                     for (Creature* korthik : korthikList)
-                        if (!korthik->AI()->GetData(0))
+                        if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
                             korthik->AI()->EnterCombat(attacker);
 
                     for (Creature* srathik : srathikList)
-                        if (!srathik->AI()->GetData(0))
+                        if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
                             srathik->AI()->EnterCombat(attacker);
 
                     for (Creature* zarthik : zarthikList)
-                        if (!zarthik->AI()->GetData(0))
+                        if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
                             zarthik->AI()->EnterCombat(attacker);
 
                     inCombat = true;
@@ -371,6 +373,18 @@ public:
             //Reset();
             events.Reset();
             summons.DespawnAll();
+
+            // Removing wind bombs, amber prisons and whirling blades NPC
+            uint32 addEntries[3] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE};
+            for (uint32 entry : addEntries)
+            {
+                std::list<Creature*> addList;
+                GetCreatureListWithEntryInGrid(addList, me, entry, 300.0f);
+
+                for (Creature* add : addList)
+                    add->DespawnOrUnsummon();
+            }
+
             me->DeleteThreatList();
             me->CombatStop(true);
             me->GetMotionMaster()->MoveTargetedHome();
@@ -1160,9 +1174,11 @@ public:
                 me->SetInCombatWith(attacker);
                 AttackStart(attacker);
             }
-
+            
             events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
-            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        }
+            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        
+            
+        }
 
         void JustDied(Unit* killer)
         {
@@ -1265,7 +1281,7 @@ class npc_wind_bomb_meljarak : public CreatureScript
             {
                 // Forcing display id, sometimes wrong otherwise
                 me->SetDisplayId(DISPLAYID_WINDBOMB);
-                canExplode = true;
+                canExplode = false;
                 me->SetInCombatWithZone();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
@@ -1279,27 +1295,19 @@ class npc_wind_bomb_meljarak : public CreatureScript
             {
                 events.Update(diff);
 
-                if (!canExplode)
-                    return;
-
-                if (Player* player = me->FindNearestPlayer(2.5f, true))
+                if (events.ExecuteEvent() == EVENT_ARM)
                 {
-                    DoCast(me, SPELL_WIND_BOMB_EXPLODE);
-                    canExplode = false;
-                    me->DespawnOrUnsummon();
+                    DoCast(me, SPELL_WIND_BOMB_ARM);
+                    canExplode = true;
                 }
 
-                while (uint32 eventId = events.ExecuteEvent())
+                if (canExplode)
                 {
-                    switch (eventId)
+                    if (Player* player = me->FindNearestPlayer(2.5f, true))
                     {
-                        case EVENT_ARM:
-                        {
-                            DoCast(me, SPELL_WIND_BOMB_ARM);
-                            break;
-                        }
-                        default:
-                            break;
+                        DoCast(me, SPELL_WIND_BOMB_EXPLODE);
+                        canExplode = false;
+                        me->DespawnOrUnsummon();
                     }
                 }
             }
