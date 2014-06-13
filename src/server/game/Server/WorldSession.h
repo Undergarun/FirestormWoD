@@ -999,7 +999,7 @@ class WorldSession
         void SendCalendarClearPendingAction();
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void SendCalendarCommandResult(CalendarError err, char const* param = NULL);
+        void SendCalendarCommandResult(CalendarError err, char const* param = "");
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);
@@ -1144,7 +1144,6 @@ class WorldSession
         time_t timeLastChannelKickCommand;
         time_t timeLastServerCommand;
         time_t timeLastArenaTeamCommand;
-        time_t timeLastCalendarInvCommand;
         time_t timeLastChangeSubGroupCommand;
         time_t timeLastSellItemOpcode;
 

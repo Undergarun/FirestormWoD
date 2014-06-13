@@ -341,12 +341,15 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
 void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans)
 {
     Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER));
+    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(auction->bm_template->itemEntry);
+    if (!itemTemplate)
+        return;
     if (bidder)
     {
         WorldPacket data(SMSG_BLACK_MARKET_OUT_BID, 12);
-        data << uint32(auction->bm_template->itemEntry);
-        data << uint32(1);
-        data << uint32(1);
+        data << uint32(itemTemplate->ItemId);
+        data << uint32(itemTemplate->RandomProperty);
+        data << uint32(itemTemplate->RandomSuffix);
         bidder->GetSession()->SendPacket(&data);
     }
 
@@ -359,18 +362,18 @@ void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& tra
 {
     uint64 bidderGUID = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
     Player* bidder = sObjectAccessor->FindPlayer(bidderGUID);
-    if (bidder)
-    {
-        WorldPacket data(SMSG_BLACK_MARKET_WON, 12);
-        data << uint32(1);
-        data << uint32(1);
-        data << uint32(auction->bm_template->itemEntry);
-        bidder->GetSession()->SendPacket(&data);
-    }
-
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(auction->bm_template->itemEntry);
     if (!itemTemplate)
         return;
+
+    if (bidder)
+    {
+        WorldPacket data(SMSG_BLACK_MARKET_WON, 12);
+        data << uint32(itemTemplate->RandomSuffix);
+        data << uint32(itemTemplate->RandomProperty);
+        data << uint32(itemTemplate->ItemId);
+        bidder->GetSession()->SendPacket(&data);
+    }
 
     Item* pItem = Item::CreateItem(auction->bm_template->itemEntry, auction->bm_template->itemCount, bidder);
     pItem->SetUInt64Value(ITEM_FIELD_OWNER, bidderGUID);

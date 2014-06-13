@@ -248,6 +248,26 @@ class ByteBuffer
             return value;
         }
 
+        uint32 ReadPackedTime()
+        {
+            uint32 l_Date = read<uint32>();
+            tm l_Time = tm();
+
+            l_Time.tm_min = l_Date & 0x3F;
+            l_Time.tm_hour = (l_Date >> 6) & 0x1F;
+            l_Time.tm_mday = ((l_Date >> 14) & 0x3F) + 1;
+            l_Time.tm_mon = (l_Date >> 20) & 0xF;
+            l_Time.tm_year = ((l_Date >> 24) & 0x1F) + 100;
+
+            return uint32(mktime(&l_Time) + timezone);
+        }
+
+        ByteBuffer& ReadPackedTime(uint32& p_Time)
+        {
+            p_Time = ReadPackedTime();
+            return *this;
+        }
+
         void ReadBytesSeq(ObjectGuid& guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)

@@ -1278,10 +1278,10 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
     else
         data << uint32(timedCompleted ? 0 : 1);
 
-    data << uint32(timeElapsed);                        // Time elapsed in seconds
+    data << uint32(timeElapsed);                        // Time from start
     data << uint32(secsToTimeBitFields(progress->date));
     data << uint64(progress->counter);
-    data << uint32(0);                                  // Unk
+    data << uint32(0);                                  // Time from create
 
     uint8 bitsOrder[8] = { 2, 4, 1, 5, 3, 6, 7, 0 };
     data.WriteBitInOrder(playerGuid, bitsOrder);
