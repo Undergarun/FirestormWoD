@@ -352,6 +352,9 @@ class boss_sha_of_fear : public CreatureScript
                         if (shrine1)
                             DoAction(ACTION_ACTIVATE_SHRINE_1 + urand(1, 2));
 
+                        if (shrine1 && shrine2 && shrine3)
+                            break;
+
                         shrine1 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[0].GetPositionX(), shrinesPos[0].GetPositionY(), shrinesPos[0].GetPositionZ());
                         me->SummonCreature(NPC_RETURN_TO_THE_TERRACE, shrinesPos[0].GetPositionX(), shrinesPos[0].GetPositionY(), shrinesPos[0].GetPositionZ());
@@ -367,6 +370,9 @@ class boss_sha_of_fear : public CreatureScript
                                 DoAction(ACTION_ACTIVATE_SHRINE_3);
                         }
 
+                        if (shrine1 && shrine2 && shrine3)
+                            break;
+
                         shrine2 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[1].GetPositionX(), shrinesPos[1].GetPositionY(), shrinesPos[1].GetPositionZ());
                         me->SummonCreature(NPC_RETURN_TO_THE_TERRACE, shrinesPos[1].GetPositionX(), shrinesPos[1].GetPositionY(), shrinesPos[1].GetPositionZ());
@@ -376,6 +382,9 @@ class boss_sha_of_fear : public CreatureScript
                     {
                         if (shrine3)
                             DoAction(ACTION_ACTIVATE_SHRINE_1 + urand(0, 1));
+
+                        if (shrine1 && shrine2 && shrine3)
+                            break;
 
                         shrine3 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[2].GetPositionX(), shrinesPos[2].GetPositionY(), shrinesPos[2].GetPositionZ());

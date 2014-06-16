@@ -8304,7 +8304,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             bp = CalculatePct(bp, 40);
 
                             Item* mainItem = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                            if (mainItem)
+                            if (mainItem && mainItem->GetTemplate())
                                 bp = CalculatePct(bp, (mainItem->GetTemplate()->Delay / 2600));
 
                             if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
@@ -8359,7 +8359,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                                 bp = CalculatePct(bp, 40);
 
                                 Item* mainItem = m_owner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                                if (mainItem)
+                                if (mainItem && mainItem->GetTemplate())
                                     bp = CalculatePct(bp, (mainItem->GetTemplate()->Delay / 2600));
 
                                 if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
@@ -8959,27 +8959,30 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // All ModStackAmount with amount -1 because of AddAura
                     if (Item* mainItem = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                     {
-                        if (mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                        if (mainItem->GetTemplate())
                         {
-                            if (mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                            if (mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
                             {
-                                // 25% chance to generate 2 charges or 75% chance to generate 3 charges
-                                if (roll_chance_i(25))
-                                    elusiveBrew->ModStackAmount(1);
-                                else
+                                if (mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                                {
+                                    // 25% chance to generate 2 charges or 75% chance to generate 3 charges
+                                    if (roll_chance_i(25))
+                                        elusiveBrew->ModStackAmount(1);
+                                    else
+                                        elusiveBrew->ModStackAmount(2);
+                                }
+                                else if (mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM)
+                                {
+                                    // 100% chance to generate 3 charges
                                     elusiveBrew->ModStackAmount(2);
+                                }
                             }
-                            else if (mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM)
+                            else
                             {
-                                // 100% chance to generate 3 charges
-                                elusiveBrew->ModStackAmount(2);
+                                // 50% chance to generate 1 charges or 50% chance to generate 2 charges
+                                if (roll_chance_i(50))
+                                    elusiveBrew->ModStackAmount(1);
                             }
-                        }
-                        else
-                        {
-                            // 50% chance to generate 1 charges or 50% chance to generate 2 charges
-                            if (roll_chance_i(50))
-                                elusiveBrew->ModStackAmount(1);
                         }
                     }
 
@@ -9005,15 +9008,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         Item* mainItem = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
                         Item* offItem = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
-                        if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK && mainItem)
+                        if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK && mainItem && mainItem->GetTemplate())
                         {
                             if (mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON) // 2H
                                 roll_chance = 0.06f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                             else // 1H
                                 roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
                         }
-                        else if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK && offItem)
-                            roll_chance = 0.03f * float(mainItem->GetTemplate()->Delay) / 10.0f;
+                        else if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK && offItem && offItem->GetTemplate())
+                            roll_chance = 0.03f * float(offItem->GetTemplate()->Delay) / 10.0f;
                     }
 
                     if (!roll_chance_f(roll_chance))
