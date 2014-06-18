@@ -5722,6 +5722,9 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
     uint32 roleId = 0;
 
+    if (!specializationId)
+        specializationId = GetSpecializationId(GetActiveSpec());
+
     switch (specializationId)
     {
         case SPEC_MAGE_FROST:
