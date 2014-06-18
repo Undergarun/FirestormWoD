@@ -108,6 +108,11 @@ set(scripts_STAT_SRCS
   Pandaria/WanderingIsland/WanderingIsland_West.cpp
   Pandaria/WanderingIsland/WanderingIsland_South.cpp
 
+  Pandaria/ThroneOfThunder/instance_throne_of_thunder.cpp
+  Pandaria/ThroneOfThunder/throne_of_thunder.h
+  Pandaria/ThroneOfThunder/throne_of_thunder.cpp
+  Pandaria/ThroneOfThunder/boss_jin_rokh_the_breaker.cpp
+
   Pandaria/townlong_steppes.cpp
   Pandaria/townlong_steppes.h
   Pandaria/dread_wastes.cpp
