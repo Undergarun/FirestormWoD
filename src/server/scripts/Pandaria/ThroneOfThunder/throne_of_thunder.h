@@ -72,6 +72,8 @@ enum eCreatures
     NPC_LIGHTNING_FISSURE           = 69609,
     NPC_STATUE                      = 69467,
     NPC_CONDUCTIVE_WATER            = 69469,
+    NPC_LIGHTNING_SPARK             = 69635,
+    NPC_LIGHTNING_PILLER_STALKER    = 69813,
 
     NPC_HORRIDON                    = 68476,
 
