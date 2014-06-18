@@ -73,59 +73,62 @@ enum Yells
 enum Spells
 {
     /*** Boss ***/
-    SPELL_WHIRLING_BLADE    = 121896, // Triggers 121898 damage every 0.25s and 121897, 122083 dummy location spells (visuals?).
-    SPELL_WB_SWORD          = 121897, // Visual thrown sword
-    SPELL_WB_LIGHT          = 122083, // Light effect around thrown sword
-    SPELL_WB_SUMMON         = 124851, // Summons Whirling Blade NPC at target pos, which will trigger spell back to Mel'jarak
-    SPELL_RAIN_OF_BLADES    = 122406, // Triggers 122407 damage spell every 0.5s.
-    SPELL_WIND_BOMB         = 131813, // Triggers 131814 bomb summon npc 67053.
+    SPELL_WHIRLING_BLADE        = 121896, // Triggers 121898 damage every 0.25s and 121897, 122083 dummy location spells (visuals?).
+    SPELL_WB_SWORD              = 121897, // Visual thrown sword
+    SPELL_WB_LIGHT              = 122083, // Light effect around thrown sword
+    SPELL_WB_SUMMON             = 124851, // Summons Whirling Blade NPC at target pos, which will trigger spell back to Mel'jarak
+    SPELL_RAIN_OF_BLADES        = 122406, // Triggers 122407 damage spell every 0.5s.
+    SPELL_WIND_BOMB             = 131813, // Triggers 131814 bomb summon npc 67053.
 
-    SPELL_WATCHFUL_EYE_1    = 125933, // Starting Normal and always Heroic aura - 9 adds alive, can control 4 / 3 on Heroic.
-    SPELL_WATCHFUL_EYE_2    = 125935, // 6 adds alive, can control 2.
-    SPELL_WATCHFUL_EYE_3    = 125936, // 3 adds alive, can control 0.
-    SPELL_COWARDS           = 122399, // Remove crowd control from Mel'jarak's allies.
+    SPELL_WATCHFUL_EYE_1        = 125933, // Starting Normal and always Heroic aura - 9 adds alive, can control 4 / 3 on Heroic.
+    SPELL_WATCHFUL_EYE_2        = 125935, // 6 adds alive, can control 2.
+    SPELL_WATCHFUL_EYE_3        = 125936, // 3 adds alive, can control 0.
+    SPELL_COWARDS               = 122399, // Remove crowd control from Mel'jarak's allies.
 
-    SPELL_RECKLESNESS_N     = 122354, // Normal stackable version.
-    SPELL_RECKLESNESS_H     = 125873, // Heroic 30 sec version.
+    SPELL_RECKLESNESS_N         = 122354, // Normal stackable version.
+    SPELL_RECKLESNESS_H         = 125873, // Heroic 30 sec version.
 
-    SPELL_BERSERK_MELJARAK  = 120207, // 480 seconds or 8 mins Enrage.
+    SPELL_BERSERK_MELJARAK      = 120207, // 480 seconds or 8 mins Enrage.
 
     /*** Misc / Impaling Spear ***/
-    SPELL_IMP_SPEAR_ABIL    = 122220, // Aura player receives when clicking on the racks. Gives Action Bar with button 1 to throw spear.
-    SPELL_IMP_SPEAR         = 122224, // Incapacitates an add for 50 seconds, damage breaks it.
+    SPELL_IMP_SPEAR_ABIL        = 122220, // Aura player receives when clicking on the racks. Gives Action Bar with button 1 to throw spear.
+    SPELL_IMP_SPEAR             = 122224, // Incapacitates an add for 50 seconds, damage breaks it.
+    SPELL_BROWN_MANTID_WINGS    = 140633,
+    SPELL_RED_MANTID_WINGS      = 138392,
+    SPELL_BLUE_MANTID_WINGS     = 138393,
 
     /*** Adds ***/
     // Wind Bomb
-    SPELL_WIND_BOMB_THR_DMG = 131830, // Damage in 5 yards at throwing.
-    SPELL_WIND_BOMB_ARM     = 131835, // Visual bomb arm.
-    SPELL_WIND_BOMB_EXPLODE = 131842, // If a player goes in 6 yards (on off checked with 131836).
+    SPELL_WIND_BOMB_THR_DMG     = 131830, // Damage in 5 yards at throwing.
+    SPELL_WIND_BOMB_ARM         = 131835, // Visual bomb arm.
+    SPELL_WIND_BOMB_EXPLODE     = 131842, // If a player goes in 6 yards (on off checked with 131836).
 
     // The Swarm
-    SPELL_FATE_OF_THE_KORT  = 121774, // Share Damage spell for Kor'thik Elite Blademasters.
-    SPELL_FATE_OF_THE_SRAT  = 121802, // Share Damage spell for Sra'thik Amber-Trappers.
-    SPELL_FATE_OF_THE_ZART  = 121807, // Share Damage spell for Zar'thik Battle-Menders.
+    SPELL_FATE_OF_THE_KORT      = 121774, // Share Damage spell for Kor'thik Elite Blademasters.
+    SPELL_FATE_OF_THE_SRAT      = 121802, // Share Damage spell for Sra'thik Amber-Trappers.
+    SPELL_FATE_OF_THE_ZART      = 121807, // Share Damage spell for Zar'thik Battle-Menders.
 
     // - Kor'thik Elite Blademaster
-    SPELL_KORTHIK_STRIKE    = 123962, // All 3 use this at once on the same player.
+    SPELL_KORTHIK_STRIKE        = 123962, // All 3 use this at once on the same player.
 
     // - Sra'thik Amber-Trapper
-    SPELL_AMBER_PRISON      = 121876, // Initial cast, triggers 121881 after 3 seconds.
-    SPELL_AMBER_PRISON_TRIG = 121881, // Triggers 121874 cast.
-    SPELL_AMBER_PRISON_FC   = 121874, // Triggers 121885 aura.
-    SPELL_AMBER_PRISON_AURA = 121885, // Stun, root, visual etc. !ADD THIS: /* insert into spell_linked_spell values (121885, 129078, 1, 'Summon Amber Prison when hit by aura'); */
-    SPELL_AMBER_PRISON_SUMM = 129078, // Summons 62531 Amber Prison npc.
+    SPELL_AMBER_PRISON          = 121876, // Initial cast, triggers 121881 after 3 seconds.
+    SPELL_AMBER_PRISON_TRIG     = 121881, // Triggers 121874 cast.
+    SPELL_AMBER_PRISON_FC       = 121874, // Triggers 121885 aura.
+    SPELL_AMBER_PRISON_AURA     = 121885, // Stun, root, visual etc. !ADD THIS: /* insert into spell_linked_spell values (121885, 129078, 1, 'Summon Amber Prison when hit by aura'); */
+    SPELL_AMBER_PRISON_SUMM     = 129078, // Summons 62531 Amber Prison npc.
 
-    SPELL_RESIDUE           = 122055, // Residue afflicts players who destroy Amber Prisons.
+    SPELL_RESIDUE               = 122055, // Residue afflicts players who destroy Amber Prisons.
 
-    SPELL_CORROSIVE_RESIN   = 122064,
+    SPELL_CORROSIVE_RESIN       = 122064,
 
     // !-  Moving while afflicted by Corrosive Resin removes a stack of Corrosive Resin and creates a Corrosive Resin Pool at the player's location. -!
-    SPELL_CORR_RESIN_POOL_S = 122123, // Summons Corrosive Resin Pool npc 67046.
-    SPELL_CORR_RESIN_POOL_A = 129005, // Aura for Corrosive Resin Pool, triggers 122125 dmg each sec.
+    SPELL_CORR_RESIN_POOL_S     = 122123, // Summons Corrosive Resin Pool npc 67046.
+    SPELL_CORR_RESIN_POOL_A     = 129005, // Aura for Corrosive Resin Pool, triggers 122125 dmg each sec.
 
     // - Zar'thik Battle-Mender
-    SPELL_MENDING           = 122193, // Triggers a 200 yard dummy + heal spell 122147.
-    SPELL_QUICKENING        = 122149  // All Swarm gets boost 25% dmg + as.
+    SPELL_MENDING               = 122193, // Triggers a 200 yard dummy + heal spell 122147.
+    SPELL_QUICKENING            = 122149  // All Swarm gets boost 25% dmg + as.
 };
 
 enum Events
@@ -352,7 +355,7 @@ public:
             // Normal events.
             events.ScheduleEvent(EVENT_WHIRLING_BLADE, 36000);
             events.ScheduleEvent(EVENT_RAIN_OF_BLADES, 60000);
-            events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BERSERK_MELJARAK, 8 * MINUTE * IN_MILLISECONDS);
 
             // Elite Battlemasters event.
             events.ScheduleEvent(EVENT_KORTHIK_STRIKE, 19000);

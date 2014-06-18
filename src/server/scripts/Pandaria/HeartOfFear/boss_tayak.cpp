@@ -37,6 +37,28 @@
 
 #include "heart_of_fear.h"
 
+enum eTayakSpells
+{
+    SPELL_VISINTRO_TAYAK        = 128788,
+    SPELL_TEMP_SLASH_AURA       = 122854,   // Visual + Periodic trigger aura for SPELL_TEMP_SLASH_DAMAGE.
+    SPELL_TEMP_SLASH_DAMAGE     = 122853,   // Aura Damage + Knock back
+    SPELL_WIND_STEP_B_DMG       = 123180,   // Bleed damage for 8y targets.
+    SPELL_WIND_STEP_DUMMY       = 123459,   // Aura Dummy.
+    SPELL_WIND_STEP_TP_BACK     = 123460,   // Teleport back to the main target.
+    SPELL_INTENSIFY_NORMAL      = 123470,   // Add spell 123471 every 1 minute, phase 1
+    SPELL_INTENSIFY_TORNADO     = 132254,   // Add spell 123471 every 10 secs, phase 2
+    SPELL_BLADE_TEMPEST_AUR     = 125310,   // Triggers SPELL_BLADE_TEMPEST_DMG each 0.5s, SPELL_BLADE_TEMPEST_AT.
+    SPELL_BLADE_TEMPES_J_FC     = 125325,   // Force Cast SPELL_BLADE_TEMPES_JUMP in 200 yards.
+    SPELL_STORM_UNLEASHED_D     = 123814,   // Boss Dummy Visual.
+    SPELL_SU_AURA               = 123598,   // Aura for the tornadoes, triggers SPELL_SU_RV_SE each 0.1 secs.
+    SPELL_SU_RV                 = 123599,   // Control Vehicle aura.
+    SPELL_SU_DUMMY_VIS          = 124024,   // Some dummy visual (for tornadoes?).
+    SPELL_SU_DMG_AURA           = 124785,   // Triggers SPELL_SU_DMG every 1 sec.
+    SPELL_SU_WIND_GALE          = 123633,
+    SPELL_SU_DUMMY_CRAP         = 123616, // Applies a dummy aura on a target.
+    SPELL_TAYAK_BERSERK         = 26662,     // Enrage, 490 seconds, or 8:10 minutes.
+};
+
 enum Yells
 {
     // Blade Lord Ta'yak
@@ -75,12 +97,31 @@ enum TayakPhases
     PHASE_STORM_UNLEASHED   = 2
 };
 
-#define NPC_US_TORNADO 63278
+enum eTayakAdds
+{
+    NPC_US_TORNADO          = 63278,
+    NPC_GALE_WINDS_STALKER  = 63292,
+    NPC_SETTHIK_TEMPEST     = 64358,
+};
 
-enum GWStalkerActions
+enum eTayakActions
 {
     ACTION_WIND             = 1,
     ACTION_STOP_WIND        = 2,
+    ACTION_TAYAK_BT_PULL    = 7,
+};
+
+enum eTayakPhases
+{
+    PHASE_TAYAK1                    = 2,
+    PHASE_TAYAK2                    = 3,
+};
+
+enum eTayakTypes
+{
+    TYPE_STORM_POINT    = 3,
+    TYPE_PHASE_TAYAK    = 4,
+    TYPE_STORM_PHASE    = 5,
 };
 
 Position TayakStormPoints[2] =
