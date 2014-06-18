@@ -4326,6 +4326,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[5].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL_2;
                 spellInfo->Effects[5].MiscValue = 58044;
                 break;
+            case 122457:// Rough Landing
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
