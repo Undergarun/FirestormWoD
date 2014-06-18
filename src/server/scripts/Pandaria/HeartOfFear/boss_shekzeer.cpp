@@ -22,6 +22,13 @@
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
 
+
+enum eShekzeedAdds
+{
+    NPC_SETTHIK_WINDBLADE           = 64453,
+    NPC_KORTHIK_REAVER              = 63591,
+};
+
 // Zorlok - 62980
 class boss_shekzeer : public CreatureScript
 {

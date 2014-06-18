@@ -133,6 +133,12 @@ enum Actions
     ACTION_MEND_LEG          // Heal leg.
 };
 
+enum
+{
+    NPC_GARALON_LEG                 = 63053,
+    NPC_PHEROMONE_TRAIL             = 63021,
+};
+
 // 62164 - Garalon
 class boss_garalon : public CreatureScript
 {
@@ -245,23 +251,23 @@ public:
             else
             {
                 // For each leg, we look in the seats to find it
-                for (auto leg : legList)
+                std::list<Creature*>::iterator itr = legList.begin();
+                while (itr != legList.end() && !shouldRespawn)
                 {
-                    bool legFound = false;
                     uint8 seat = 0;
-                    while (!legFound && seat < 4)
+                    bool legFound = false;
+                    while (seat < 4 && !legFound)
                     {
                         if (Unit* passenger = me->GetVehicleKit()->GetPassenger(seat))
-                            if (leg == passenger->ToCreature())
+                            if (*itr == passenger->ToCreature())
                                 legFound = true;
                         ++seat;
                     }
-                    // if leg hasn't been found, we should respawn the legs
+
                     if (!legFound)
-                    {
                         shouldRespawn = true;
-                        break;
-                    }
+
+                    ++itr;
                 }
             }
 

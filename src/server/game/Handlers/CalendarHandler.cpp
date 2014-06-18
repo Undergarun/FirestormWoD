@@ -328,8 +328,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& p_RecvData)
     std::string l_Title, l_Desc;
 
     // ??
-    bool repeatable;
-    int32 dungeonId;
+    // bool repeatable;
+    // int32 dungeonId;
 
     p_RecvData >> l_Flags;
     p_RecvData.ReadPackedTime(l_UnkTime);
