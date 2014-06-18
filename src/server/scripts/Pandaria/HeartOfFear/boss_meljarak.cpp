@@ -204,6 +204,53 @@ Position PosZarthikBattleMender[3] =
     {-2079.33f, 449.28f, 503.57f, 3.141593f}
 };
 
+std::list<Creature*> GetAddList(uint32 entry, Creature* source, float dist)
+{
+    std::list<Creature*> addList;
+    GetCreatureListWithEntryInGrid(addList, source, entry, dist);
+    return addList;
+}
+
+bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
+{
+    if (!pInstance)
+        return false;
+
+    // Avoid multiple call
+    if (pInstance->GetBossState(DATA_MELJARAK) == IN_PROGRESS || pInstance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+        return false;
+
+    Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK));
+    if (!Meljarak)
+        return false;
+
+    // Previous boss must have been done
+    if (!pInstance->CheckRequiredBosses(DATA_MELJARAK))
+    {
+        Meljarak->AI()->EnterEvadeMode();
+        return false;
+    }
+
+    // Set boss in combat
+    pInstance->SetBossState(DATA_MELJARAK, IN_PROGRESS);
+    if (launcher->GetEntry() != NPC_MELJARAK)
+    {
+        Meljarak->SetInCombatWithZone();
+        Meljarak->AI()->EnterCombat(attacker);
+    }
+
+    // Set adds in combat
+    uint32 addEntries[3] = {NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER};
+    for (uint32 entry : addEntries)
+    {
+        std::list<Creature*> addList = GetAddList(entry, launcher, 30.0f);
+        for (Creature* add : addList)
+            add->SetInCombatWithZone();
+    }
+
+    return true;
+}
+
 class boss_wind_lord_meljarak : public CreatureScript
 {
 public:
@@ -294,46 +341,8 @@ public:
             if (attacker->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (!inCombat)
-            {
-                if (instance)
-                {
-                    if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
-                        return;
-
-                    if (!instance->CheckRequiredBosses(DATA_MELJARAK))
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-
-                    // Adds enter in combat
-                    std::list<Creature*> korthikList;
-                    std::list<Creature*> srathikList;
-                    std::list<Creature*> zarthikList;
-
-                    GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
-                    GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
-                    GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
-
-                    for (Creature* korthik : korthikList)
-                        if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                            korthik->AI()->EnterCombat(attacker);
-
-                    for (Creature* srathik : srathikList)
-                        if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                            srathik->AI()->EnterCombat(attacker);
-
-                    for (Creature* zarthik : zarthikList)
-                        if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                            zarthik->AI()->EnterCombat(attacker);
-
-                    inCombat = true;
-                    me->SetInCombatWith(attacker);
-                    AttackStart(attacker);
-                }
-                inCombat = true;
-            }
+            if (!StartPack(instance, me, attacker) && instance->GetBossState(DATA_MELJARAK) != IN_PROGRESS)
+                return;
 
             Talk(SAY_AGGRO);
 
@@ -350,7 +359,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_MELJARAK, IN_PROGRESS);
+                instance->SetBossState(DATA_MELJARAK, IN_PROGRESS);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me); // Add
             }
 
@@ -387,7 +396,6 @@ public:
 
             me->DeleteThreatList();
             me->CombatStop(true);
-            me->GetMotionMaster()->MoveTargetedHome();
             me->SetFullHealth();
             me->RemoveAllAuras();
             me->RemoveAllDynObjects();
@@ -407,19 +415,23 @@ public:
             if (instance)
             {
                 if (instance->IsWipe())
-                    instance->SetData(DATA_MELJARAK, FAIL);
+                    instance->SetBossState(DATA_MELJARAK, FAIL);
                 else
-                    instance->SetData(DATA_MELJARAK, TO_BE_DECIDED);
+                    instance->SetBossState(DATA_MELJARAK, TO_BE_DECIDED);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
             }
 
+            me->GetMotionMaster()->MoveTargetedHome();
             _EnterEvadeMode();
         }
 
 		void JustReachedHome()
 		{
 			DoCast(me, SPELL_WATCHFUL_EYE_1);
+            if (instance)
+                if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+                    instance->SetBossState(DATA_MELJARAK, NOT_STARTED);
 		}
 
         void JustDied(Unit* /*killer*/)
@@ -438,7 +450,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_MELJARAK, DONE);
+                instance->SetBossState(DATA_MELJARAK, DONE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
             }
 
@@ -879,39 +891,11 @@ public:
             if (attacker->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (!inCombat)
-            {
-                inCombat = true;
-                // Boss enters in combat
-                if (pInstance)
-                    if (Creature* Meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        if (!Meljarak->AI()->GetData(TYPE_IS_IN_COMBAT))
-                            Meljarak->AI()->EnterCombat(attacker);
+            if (!StartPack(pInstance, me, attacker))
+                return;
 
-                // Other adds enter in combat
-                std::list<Creature*> korthikList;
-                std::list<Creature*> srathikList;
-                std::list<Creature*> zarthikList;
-
-                GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
-                GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
-                GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
-
-                for (Creature* korthik : korthikList)
-                    if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        korthik->AI()->EnterCombat(attacker);
-
-                for (Creature* srathik : srathikList)
-                    if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        srathik->AI()->EnterCombat(attacker);
-
-                for (Creature* zarthik : zarthikList)
-                    if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        zarthik->AI()->EnterCombat(attacker);
-
-                me->SetInCombatWith(attacker);
-                AttackStart(attacker);
-            }
+            me->SetInCombatWith(attacker);
+            AttackStart(attacker);
         }
 
         void DamageTaken(Unit* killer, uint32 &damage)
@@ -995,39 +979,11 @@ public:
             if (attacker->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (!inCombat)
-            {
-                inCombat = true;
-                // Boss enters in combat
-                if (instance)
-                    if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
-                        if (!Meljarak->AI()->GetData(TYPE_IS_IN_COMBAT))
-                            Meljarak->AI()->EnterCombat(attacker);
+            me->SetInCombatWith(attacker);
+            AttackStart(attacker);
 
-                // Other adds enter in combat
-                std::list<Creature*> korthikList;
-                std::list<Creature*> srathikList;
-                std::list<Creature*> zarthikList;
-
-                GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
-                GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
-                GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
-
-                for (Creature* korthik : korthikList)
-                    if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        korthik->AI()->EnterCombat(attacker);
-
-                for (Creature* srathik : srathikList)
-                    if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        srathik->AI()->EnterCombat(attacker);
-
-                for (Creature* zarthik : zarthikList)
-                    if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        zarthik->AI()->EnterCombat(attacker);
-
-                me->SetInCombatWith(attacker);
-                AttackStart(attacker);
-            }
+            if (!StartPack(instance, me, attacker))
+                return;
 
             events.ScheduleEvent(EVENT_AMBER_PRISON, urand(13000, 47000));
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
@@ -1141,40 +1097,12 @@ public:
             if (attacker->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (!inCombat)
-            {
-                inCombat = true;
-                // Boss enters in combat
-                if (instance)
-                    if (Creature* Meljarak = instance->instance->GetCreature(instance->GetData64(NPC_MELJARAK)))
-                        if (!Meljarak->AI()->GetData(TYPE_IS_IN_COMBAT))
-                            Meljarak->AI()->EnterCombat(attacker);
+            if (!StartPack(instance, me, attacker))
+                return;
 
-                // Other adds enter in combat
-                std::list<Creature*> korthikList;
-                std::list<Creature*> srathikList;
-                std::list<Creature*> zarthikList;
+            me->SetInCombatWith(attacker);
+            AttackStart(attacker);
 
-                GetCreatureListWithEntryInGrid(korthikList, me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f);
-                GetCreatureListWithEntryInGrid(srathikList, me, NPC_SRATHIK_AMBER_TRAPPER,     200.0f);
-                GetCreatureListWithEntryInGrid(zarthikList, me, NPC_ZARTHIK_BATTLE_MENDER,     200.0f);
-
-                for (Creature* korthik : korthikList)
-                    if (!korthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        korthik->AI()->EnterCombat(attacker);
-
-                for (Creature* srathik : srathikList)
-                    if (!srathik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        srathik->AI()->EnterCombat(attacker);
-
-                for (Creature* zarthik : zarthikList)
-                    if (!zarthik->AI()->GetData(TYPE_IS_IN_COMBAT))
-                        zarthik->AI()->EnterCombat(attacker);
-
-                me->SetInCombatWith(attacker);
-                AttackStart(attacker);
-            }
-            
             events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
             events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        
             
