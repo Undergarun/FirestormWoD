@@ -26,48 +26,53 @@
 
 enum eSpells
 {
-    SPELL_STATIC_BURST                      = 137162,
-    SPELL_STATIC_WOUND                      = 138349,
-    SPELL_STATIC_WOUND_DAMAGE               = 138389,
+    SPELL_STATIC_BURST                          = 137162,
+    SPELL_STATIC_WOUND                          = 138349,
+    SPELL_STATIC_WOUND_DAMAGE                   = 138389,
 
-    SPELL_FOCUSED_LIGHTNING                 = 137194,
-    SPELL_FOCUSED_LIGHTNING_VISUAL          = 139233,
-    SPELL_FOCUSED_LIGHTNING_PERIODIC        = 137389,
-    SPELL_FOCUSED_LIGHTNING_AREA            = 137429,
-    SPELL_FOCUSED_LIGHTNING_DAMAGE          = 137423,
-    SPELL_FOCUSED_LIGHTNING_DETONATION      = 139211,
+    SPELL_FOCUSED_LIGHTNING                     = 137399,
+    SPELL_FOCUSED_LIGHTNING_VISUAL              = 139233,
+    SPELL_FOCUSED_LIGHTNING_PERIODIC            = 137389,
+    SPELL_FOCUSED_LIGHTNING_AREA                = 137429,
+    SPELL_FOCUSED_LIGHTNING_DAMAGE              = 137423,
+    SPELL_FOCUSED_LIGHTNING_DETONATION          = 139211,
+    SPELL_FOCUSED_LIGHTNING_EYES                = 137422,
+    SPELL_FOCUSED_LIGHTNING_IMPLOSION           = 137507,
 
-    SPELL_LIGHTNING_FISSURE_SUMMON          = 137479,
-    SPELL_LIGHTNING_FISSURE_VISUAL          = 137480,
-    SPELL_LIGHTNING_FISSURE_PERIODIC        = 137484,
+    SPELL_LIGHTNING_FISSURE_SUMMON              = 137479,
+    SPELL_LIGHTNING_FISSURE_VISUAL              = 137480,
+    SPELL_LIGHTNING_FISSURE_PERIODIC            = 137484,
 
     // In EffectMovementGenerator::MovementInform(Unit &unit)
-    SPELL_THUNDERING_THROW_AOE              = 137167,
-    SPELL_THUNDERING_THROW_STUN_PLAYER      = 137371,
+    SPELL_THUNDERING_THROW_AOE                  = 137167,
+    SPELL_THUNDERING_THROW_STUN_PLAYER          = 137371,
 
-    SPELL_CONTROL_VEHICLE                   = 43671,
-    SPELL_THUNDERING_THROW_VEHICLE          = 137161,
-    SPELL_THUNDERING_THROW_DAMAGE           = 137370,
-    SPELL_THUNDERING_THROW_EJECT_PLAYER     = 137180,
-    SPELL_THUNDERING_THROW_JUMP_DEST        = 137173,
+    SPELL_CONTROL_VEHICLE                       = 43671,
+    SPELL_THUNDERING_THROW_VEHICLE              = 137161,
+    SPELL_THUNDERING_THROW_DAMAGE               = 137370,
+    SPELL_THUNDERING_THROW_EJECT_PLAYER         = 137180,
+    SPELL_THUNDERING_THROW_JUMP_DEST            = 137173,
 
-    SPELL_CONDUCTIVE_WATER_SUMMON           = 137145,
-    SPELL_CONDUCTIVE_WATER_VISUAL           = 137277,
-    SPELL_CONDUCTIVE_WATER_FOUNTAIN         = 137340,
-    SPELL_CONDUCTIVE_WATER_GROW_SCALE       = 137676,
-    SPELL_CONDUCTIVE_WATER_DAMAGE_TAKEN     = 138470,
-    SPELL_CONDUCTIVE_WATER_FLUIDITY         = 138002,
-    SPELL_CONDUCTIVE_WATER_ELECTRIFIED      = 137978,
-    SPELL_CONDUCTIVE_WATER_LIGHT_VISUAL     = 138568,
+    SPELL_CONDUCTIVE_WATER_SUMMON               = 137145,
+    SPELL_CONDUCTIVE_WATER_VISUAL               = 137277,
+    SPELL_CONDUCTIVE_WATER_FOUNTAIN             = 137340,
+    SPELL_CONDUCTIVE_WATER_GROW_SCALE           = 137676,
+    SPELL_CONDUCTIVE_WATER_DAMAGE_TAKEN         = 138470,
+    SPELL_CONDUCTIVE_WATER_FLUIDITY             = 138002,
+    SPELL_CONDUCTIVE_WATER_ELECTRIFIED          = 137978,
+    SPELL_CONDUCTIVE_WATER_LIGHT_VISUAL         = 138568,
 
-    SPELL_FOCUSED_LIGHTNING_CONDUCTION      = 137530,
-    SPELL_LIGHTNING_FISSURE_CONDUCTION      = 138133,
+    SPELL_ELECTRIFIED_WATERS_PERIODIC_DMG       = 138006,
+    SPELL_FOCUSED_LIGHTNING_VIOLENT_DETONATION  = 138990,
 
-    SPELL_LIGHTNING_STORM                   = 137313,
-    SPELL_LIGHTNING_STORM_SUMMON            = 137283,
-    SPELL_LIGHTNING_STORM_SPAWN_EFFECT      = 137260,
-    SPELL_LIGHTNING_STORM_SMALL             = 140811,
-    SPELL_LIGHTNING_STORM_BIG               = 140555
+    SPELL_FOCUSED_LIGHTNING_CONDUCTION          = 137530,
+    SPELL_LIGHTNING_FISSURE_CONDUCTION          = 138133,
+
+    SPELL_LIGHTNING_STORM                       = 137313,
+    SPELL_LIGHTNING_STORM_SUMMON                = 137283,
+    SPELL_LIGHTNING_STORM_SPAWN_EFFECT          = 137260,
+    SPELL_LIGHTNING_STORM_SMALL                 = 140811,
+    SPELL_LIGHTNING_STORM_BIG                   = 140555
 };
 
 enum eEvents
@@ -80,7 +85,8 @@ enum eEvents
     EVENT_CONDUCTIVE_WATER_DAMAGE_TAKEN = 6,
     EVENT_STOP_FOUNTAINS                = 7,
     EVENT_SPAWN_CONDUCTIVE_WATER        = 8,
-    EVENT_LIGHTNING_STORM               = 9
+    EVENT_LIGHTNING_STORM               = 9,
+    EVENT_CHECK_LIGHTNING_FISSURES      = 10
 };
 
 enum eSays
@@ -98,6 +104,7 @@ enum eSays
 
 enum eActions
 {
+    ACTION_ELECTRIFY_CONDUCTIVE_WATERS
 };
 
 enum ePhases
@@ -141,10 +148,12 @@ class boss_jin_rokh_the_breaker : public CreatureScript
             Vehicle* vehicle;
             uint8 statuesPhase;
             bool introDone;
+            uint32 electrifyTimer;
 
             void Reset()
             {
-                statuesPhase = PHASE_NONE;
+                statuesPhase    = PHASE_NONE;
+                electrifyTimer  = 0;
 
                 events.Reset();
 
@@ -168,13 +177,29 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONTROL_VEHICLE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_STUN_PLAYER);
 
-                    uint32 firstMoguFountain = GOB_MOGU_FOUNTAIN_SE;
                     for (uint32 i = 0; i < 4; ++i)
                     {
-                        if (GameObject* moguFoutain = GameObject::GetGameObject(*me, pInstance->GetData64(firstMoguFountain)))
-                            moguFoutain->SetGoState(GO_STATE_READY);
-
-                        firstMoguFountain++;
+                        switch (i)
+                        {
+                            case 0:
+                                if (GameObject* moguFoutain = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_MOGU_FOUNTAIN_NW)))
+                                    moguFoutain->SetGoState(GO_STATE_READY);
+                                break;
+                            case 1:
+                                if (GameObject* moguFoutain = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_MOGU_FOUNTAIN_SW)))
+                                    moguFoutain->SetGoState(GO_STATE_READY);
+                                break;
+                            case 2:
+                                if (GameObject* moguFoutain = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_MOGU_FOUNTAIN_NE)))
+                                    moguFoutain->SetGoState(GO_STATE_READY);
+                                break;
+                            case 3:
+                                if (GameObject* moguFoutain = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_MOGU_FOUNTAIN_SE)))
+                                    moguFoutain->SetGoState(GO_STATE_READY);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -238,12 +263,45 @@ class boss_jin_rokh_the_breaker : public CreatureScript
 
             void DoAction(const int32 action)
             {
+                switch (action)
+                {
+                    case ACTION_ELECTRIFY_CONDUCTIVE_WATERS:
+                    {
+                        std::list<Creature*> waterList;
+                        me->GetCreatureListWithEntryInGrid(waterList, NPC_CONDUCTIVE_WATER, 200.0f);
+
+                        for (auto itr : waterList)
+                        {
+                            if (itr->HasAura(SPELL_CONDUCTIVE_WATER_VISUAL))
+                            {
+                                itr->RemoveAura(SPELL_CONDUCTIVE_WATER_VISUAL);
+                                itr->AddAura(SPELL_CONDUCTIVE_WATER_ELECTRIFIED, itr);
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
+                {
+                    if (me->isInCombat())
+                        me->CombatStop();
+                    EnterEvadeMode();
                     return;
+                }
+
+                if (electrifyTimer)
+                {
+                    if (electrifyTimer <= diff)
+                        DoAction(ACTION_ELECTRIFY_CONDUCTIVE_WATERS);
+                    else
+                        electrifyTimer -= diff;
+                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -264,7 +322,8 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                         break;
                     case EVENT_FOCUSED_LIGHTNING:
                         Talk(TALK_FOCUSED_LIGHTNING);
-                        me->CastSpell(me, SPELL_FOCUSED_LIGHTNING, false);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_FOCUSED_LIGHTNING, false);
                         events.ScheduleEvent(EVENT_FOCUSED_LIGHTNING, urand(10000, 18000));
                         break;
                     case EVENT_THUNDERING_THROW:
@@ -290,6 +349,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     case EVENT_LIGHTNING_STORM:
                         Talk(TALK_LIGHTNING_STORM);
                         me->CastSpell(me, SPELL_LIGHTNING_STORM, false);
+                        electrifyTimer = 10000;
                         events.ScheduleEvent(EVENT_LIGHTNING_STORM, 90000);
                         break;
                     default:
@@ -370,10 +430,15 @@ class mob_focused_lightning : public CreatureScript
             mob_focused_lightningAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint64 focusedGuid;
+            bool exploded;
+            EventMap events;
 
             void Reset()
             {
                 focusedGuid = 0;
+                exploded = false;
+
+                events.Reset();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
 
@@ -386,30 +451,71 @@ class mob_focused_lightning : public CreatureScript
                 focusedGuid = guid;
 
                 if (Player* target = Player::GetPlayer(*me, focusedGuid))
-                    me->GetMotionMaster()->MoveFollow(target, 0.0f, me->GetOrientation());
+                {
+                    me->CastSpell(target, SPELL_FOCUSED_LIGHTNING_EYES, true);
+                    me->ClearUnitState(UNIT_STATE_CASTING | UNIT_STATE_STUNNED);
+
+                    if (target && me->Attack(target, true))
+                    {
+                        me->GetMotionMaster()->MoveChase(target, 0.5f);
+                        events.ScheduleEvent(EVENT_CHECK_LIGHTNING_FISSURES, 100);
+                    }
+                }
             }
 
             void UpdateAI(const uint32 diff)
             {
+                if (exploded)
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CHECK_LIGHTNING_FISSURES:
+                    {
+                        if (Creature* fissure = GetClosestCreatureWithEntry(me, NPC_LIGHTNING_FISSURE, 1.0f))
+                        {
+                            exploded = true;
+                            fissure->CastSpell(fissure, SPELL_FOCUSED_LIGHTNING_IMPLOSION, true);
+                            me->DespawnOrUnsummon();
+                            fissure->DespawnOrUnsummon(50);
+                            return;
+                        }
+
+                        events.ScheduleEvent(EVENT_CHECK_LIGHTNING_FISSURES, 100);
+                    }
+                    default:
+                        break;
+                }
+
                 if (Player* target = Player::GetPlayer(*me, focusedGuid))
                 {
-                    if (me->GetDistance(target) <= 0.5f)
+                    if (me->GetDistance(target) <= 1.0f)
                     {
-                        me->CastSpell(me, SPELL_FOCUSED_LIGHTNING_DETONATION, true);
                         me->CastSpell(me, SPELL_LIGHTNING_FISSURE_SUMMON, true);
-                        me->DespawnOrUnsummon();
+                        me->DespawnOrUnsummon(50);
+                        exploded = true;
 
                         std::list<Creature*> conductiveWaters;
                         me->GetCreatureListWithEntryInGrid(conductiveWaters, NPC_CONDUCTIVE_WATER, 200.0f);
 
                         for (auto itr : conductiveWaters)
                         {
-                            if (itr->GetDistance(me) <= 30.0f)
-                                itr->CastSpell(itr, SPELL_FOCUSED_LIGHTNING_CONDUCTION, true);
+                            float scale = itr->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                            float distToCheck = 30.0f * (scale / 12.0f);
+                            if (itr->GetDistance(me) <= distToCheck)
+                            {
+                                if (itr->HasAura(SPELL_CONDUCTIVE_WATER_ELECTRIFIED))
+                                    itr->CastSpell(itr, SPELL_FOCUSED_LIGHTNING_VIOLENT_DETONATION, true);
+                                else
+                                {
+                                    itr->CastSpell(itr, SPELL_FOCUSED_LIGHTNING_CONDUCTION, true);
+                                    me->CastSpell(target, SPELL_FOCUSED_LIGHTNING_DETONATION, true);
+                                }
+                            }
                         }
                     }
-                    else
-                        me->GetMotionMaster()->MoveFollow(target, 0.0f, me->GetOrientation());
                 }
             }
         };
@@ -447,11 +553,13 @@ class mob_lightning_fissure : public CreatureScript
                 for (auto itr : conductiveWaters)
                 {
                     float scale = itr->GetFloatValue(OBJECT_FIELD_SCALE_X);
-                    float distToCheck = 30.0f * scale / 2.0f;
-                    if (itr->GetDistance(me) <= distToCheck)
-                        itr->CastSpell(itr, SPELL_LIGHTNING_FISSURE_CONDUCTION, true);
+                    float distToCheck = 30.0f * (scale / 12.0f);
 
-                    found = true;
+                    if (itr->GetDistance(me) <= distToCheck)
+                    {
+                        itr->CastSpell(itr, SPELL_LIGHTNING_FISSURE_CONDUCTION, true);
+                        found = true;
+                    }
                 }
 
                 if (found)
@@ -614,8 +722,12 @@ class mob_conductive_water : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_CONDUCTIVE_WATER_DAMAGE_TAKEN:
+                        if (!me->HasAura(SPELL_CONDUCTIVE_WATER_ELECTRIFIED))
+                            me->CastSpell(me, SPELL_CONDUCTIVE_WATER_FLUIDITY, true);
+                        else
+                            me->CastSpell(me, SPELL_ELECTRIFIED_WATERS_PERIODIC_DMG, true);
+
                         me->CastSpell(me, SPELL_CONDUCTIVE_WATER_DAMAGE_TAKEN, true);
-                        me->CastSpell(me, SPELL_CONDUCTIVE_WATER_FLUIDITY, true);
                         events.ScheduleEvent(EVENT_CONDUCTIVE_WATER_DAMAGE_TAKEN, 1000);
                         break;
                     case EVENT_STOP_FOUNTAINS:
@@ -659,6 +771,7 @@ class mob_call_da_storm_stalker : public CreatureScript
                 else
                     me->CastSpell(me, SPELL_LIGHTNING_STORM_BIG, true);
 
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
         };
@@ -783,7 +896,7 @@ class spell_static_wound_damage : public SpellScriptLoader
         }
 };
 
-// Focused Lightning - 137194
+// Focused Lightning - 137399
 class spell_focused_lightning : public SpellScriptLoader
 {
     public:
@@ -976,6 +1089,7 @@ class spell_lightning_storm_periodic : public SpellScriptLoader
             {
                 if (Unit* target = GetTarget())
                 {
+                    target->CastSpell(target, SPELL_LIGHTNING_STORM_SUMMON, true);
                     target->CastSpell(target, SPELL_LIGHTNING_STORM_SUMMON, true);
                     target->CastSpell(target, SPELL_LIGHTNING_STORM_SUMMON, true);
                 }

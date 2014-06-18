@@ -104,11 +104,11 @@ class instance_throne_of_thunder : public InstanceMapScript
                         moguFountainsGuids[1] = go->GetGUID();
                         go->SetGoState(GO_STATE_READY);
                         break;
-                    case GOB_MOGU_FOUNTAIN_SE:
+                    case GOB_MOGU_FOUNTAIN_SW:
                         moguFountainsGuids[2] = go->GetGUID();
                         go->SetGoState(GO_STATE_READY);
                         break;
-                    case GOB_MOGU_FOUNTAIN_SW:
+                    case GOB_MOGU_FOUNTAIN_SE:
                         moguFountainsGuids[3] = go->GetGUID();
                         go->SetGoState(GO_STATE_READY);
                         break;
@@ -124,20 +124,21 @@ class instance_throne_of_thunder : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch (type)
+                /*switch (type)
                 {
                     default:
                         break;
-                }
+                }*/
             }
 
             uint32 GetData(uint32 type)
             {
-                switch (type)
+                return 0;
+                /*switch (type)
                 {
                     default:
                         return 0;
-                }
+                }*/
             }
 
             uint64 GetData64(uint32 type)

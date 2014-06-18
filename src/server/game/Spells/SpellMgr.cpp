@@ -3427,6 +3427,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869: // Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 137422: // Focused Lightning (eyes)
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             case 140555: // Lightning Storm (cosmetic - not sure)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(37); // 1ms
                 break;
@@ -3434,6 +3437,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
             case 138470: // Conductive Water (Damage taken)
+            case 138006: // Electrified Waters (periodic damage)
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
