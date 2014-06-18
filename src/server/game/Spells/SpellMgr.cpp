@@ -3424,8 +3424,60 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 129869:
+            case 129869: // Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
+                break;
+            case 137422: // Focused Lightning (eyes)
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 140555: // Lightning Storm (cosmetic - not sure)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(37); // 1ms
+                break;
+            case 137145: // Conductive Water (summon)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 138470: // Conductive Water (Damage taken)
+            case 138006: // Electrified Waters (periodic damage)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 138002: // Conductive Water (Damage - Healing done)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
+                spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
+                spellInfo->Effects[2].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[3].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
+                spellInfo->Effects[3].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[3].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 137261: // Lightning Storm (damage)
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                break;
+            case 137530: // Focused Lightning Conduction
+            case 138133: // Lightning Fissure Conduction
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30 yards
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 137484: // Lightning Fissure (periodic)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 137485: // Lightning Fissure (damage)
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); // 5 yards
+                break;
+            case 137194: // Focused Lightning
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); // 2.000
+                break;
+            case 139218: // Storm Weapon
+                spellInfo->Effects[0].TriggerSpell = 0;
                 break;
             case 113504: // Wind Sword
                 spellInfo->Effects[0].BasePoints *= 10;

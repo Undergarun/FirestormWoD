@@ -88,10 +88,18 @@ void PointMovementGenerator<T>::Reset(T &unit)
 
 enum specialSpells
 {
-    BABY_ELEPHANT_TAKES_A_BATH  = 108938,
-    BABY_ELEPHANT_TAKES_A_BATH_2= 108937,
-    MONK_CLASH                  = 126452,
-    MONK_CLASH_IMPACT           = 126451,
+    BABY_ELEPHANT_TAKES_A_BATH          = 108938,
+    BABY_ELEPHANT_TAKES_A_BATH_2        = 108937,
+    MONK_CLASH                          = 126452,
+    MONK_CLASH_IMPACT                   = 126451,
+    TOT_RETRIEVE_SPEAR                  = 137070,
+    TOT_RETRIEVE_SPEAR_DAMAGE           = 137072,
+
+    // Jin'Rokh the Breaker - ToT
+    SPELL_THUNDERING_THROW_JUMP_DEST    = 137173,
+    SPELL_THUNDERING_THROW_VEHICLE      = 137161,
+    SPELL_THUNDERING_THROW_AOE          = 137167,
+    SPELL_THUNDERING_THROW_STUN_PLAYER  = 137371
 };
 
 template<class T>
@@ -164,5 +172,20 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
     }
     else if (unit.GetTypeId() == TYPEID_PLAYER)
     {
+    }
+
+    switch (m_Id)
+    {
+        case TOT_RETRIEVE_SPEAR:
+            unit.CastSpell(&unit, TOT_RETRIEVE_SPEAR_DAMAGE, true);
+            break;
+        case SPELL_THUNDERING_THROW_JUMP_DEST:
+            if (unit.HasAura(SPELL_THUNDERING_THROW_VEHICLE))
+                break;
+            unit.CastSpell(&unit, SPELL_THUNDERING_THROW_AOE, true);
+            unit.CastSpell(&unit, SPELL_THUNDERING_THROW_STUN_PLAYER, true);
+            break;
+        default:
+            break;
     }
 }
