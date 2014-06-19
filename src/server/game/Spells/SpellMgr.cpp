@@ -3427,6 +3427,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869: // Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 139550: // Torment
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 139900: // Stormcloud
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
             case 137313: // Lightning Storm
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
@@ -3441,6 +3448,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137145: // Conductive Water (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 139364: // Spirit Lantern
+                spellInfo->Effects[1].Effect = 0;
+                break;
+            case 139461: // Spirit Light
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
             case 137905: // Lightning Diffusion
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;

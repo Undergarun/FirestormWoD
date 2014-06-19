@@ -65,6 +65,8 @@ enum eCreatures
     NPC_THROWN_SPEAR                = 69438,
     NPC_ZANDALARI_STORM_CALLER      = 69390,
     NPC_TRASH_FOCUSED_LIGHTNING     = 70174,
+    NPC_ANCIENT_PYTHON              = 70448,
+    NPC_DARK_WINDS_BUNNY            = 59394,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
@@ -108,10 +110,18 @@ enum eCreatures
 
 enum eGameObjects
 {
-    GOB_MOGU_FOUNTAIN_NW        = 218678,
-    GOB_MOGU_FOUNTAIN_SW        = 218676,
-    GOB_MOGU_FOUNTAIN_NE        = 218677,
-    GOB_MOGU_FOUNTAIN_SE        = 218675
+    GOB_MOGU_FOUNTAIN_NW            = 218678,
+    GOB_MOGU_FOUNTAIN_SW            = 218676,
+    GOB_MOGU_FOUNTAIN_NE            = 218677,
+    GOB_MOGU_FOUNTAIN_SE            = 218675,
+
+    GOB_JIN_ROKH_ENTRANCE_DOOR      = 218664,
+    GOB_JIN_ROKH_EXIT_DOOR          = 218663,
+    GOB_HORRIDON_ENTRANCE_DOOR      = 218667,
+    GOB_HORRIDON_EXIT_DOOR          = 218666,
+    GOB_COUNCIL_ENTRANCE_DOOR_LEFT  = 218655,
+    GOB_COUNCIL_ENTRANCE_DOOR_RIGHT = 218656,
+    GOB_COUNCIL_EXIT_DOOR           = 218657
 };
 
 enum eAchievementData

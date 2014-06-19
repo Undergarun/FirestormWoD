@@ -361,7 +361,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     uint32 bitCounter2 = 0;
-    bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER) && ((AreaTrigger*)this)->GetVisualRadius() != 0.0f;
+    bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER);
     bool isSceneObject = false;
 
     data->WriteBit(hasAreaTriggerData);                         // isAreaTrigger
@@ -416,13 +416,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        data->WriteBit(true);   // scale
+        data->WriteBit(((AreaTrigger*)this)->GetVisualRadius() != 0.0f);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
-        data->WriteBit(false);
+        data->WriteBit(((AreaTrigger*)this)->IsAreaTriggerBox());
         data->WriteBit(false);
         data->WriteBit(false);   // unk, always true on retail sniff
         data->WriteBit(false);
@@ -524,9 +524,23 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
+        if (((AreaTrigger*)this)->IsAreaTriggerBox())
+        {
+            *data << float(20.0f);
+            *data << float(5.0f);
+            *data << float(25.0f);
+            *data << float(25.0f);
+            *data << float(5.0f);
+            *data << float(20.0f);
+        }
+
         *data << uint32(8);                                         // ObjectType AreaTrigger
-        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
-        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+
+        if (((AreaTrigger*)this)->GetVisualRadius() != 0.0f)
+        {
+            *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+            *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+        }
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
