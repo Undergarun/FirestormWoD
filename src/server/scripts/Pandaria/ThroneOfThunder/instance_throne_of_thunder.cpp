@@ -22,6 +22,18 @@
 #include "VMapFactory.h"
 #include "throne_of_thunder.h"
 
+DoorData const doorData[] =
+{
+    { GOB_JIN_ROKH_ENTRANCE_DOOR,           DATA_JIN_ROKH_THE_BREAKER,  DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_JIN_ROKH_EXIT_DOOR,               DATA_JIN_ROKH_THE_BREAKER,  DOOR_TYPE_PASSAGE,  BOUNDARY_S      },
+    { GOB_HORRIDON_ENTRANCE_DOOR,           DATA_HORRIDON,              DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_HORRIDON_EXIT_DOOR,               DATA_HORRIDON,              DOOR_TYPE_PASSAGE,  BOUNDARY_N      },
+    { GOB_COUNCIL_ENTRANCE_DOOR_LEFT,       DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_COUNCIL_ENTRANCE_DOOR_RIGHT,      DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_COUNCIL_EXIT_DOOR,                DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_PASSAGE,  BOUNDARY_E      },
+    { 0,                                    0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE   }  // END
+};
+
 Position statuesPos[4] =
 {
     { 5946.0f, 6317.5f, 158.083f, 3.923960f }, // NW
@@ -51,6 +63,7 @@ class instance_throne_of_thunder : public InstanceMapScript
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
+                LoadDoorData(doorData);
 
                 jinRokhTheBreakerGuid   = 0;
 

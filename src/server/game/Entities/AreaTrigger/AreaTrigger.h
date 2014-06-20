@@ -48,6 +48,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         float GetVisualRadius() const { return m_visualRadius; }
         void SetVisualRadius(float radius) { m_visualRadius = radius; }
 
+        bool IsAreaTriggerBox() const { return GetSpellId() == 140781; }
+
     protected:
         int32 _duration;
         Unit* m_caster;
