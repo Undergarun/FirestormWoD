@@ -539,7 +539,7 @@ public:
                                 if (!reinforcementsSummoned)
                                 {
                                     Talk(SAY_ADD_GROUP_DIES);
-                                    DoCast(me, SPELL_RECKLESNESS_N);
+                                    me->AddAura(SPELL_RECKLESNESS_N, me);
 
                                     if (IsHeroic())
                                         events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
@@ -564,7 +564,7 @@ public:
                                 if (!reinforcementsSummoned)
                                 {
                                     Talk(SAY_ADD_GROUP_DIES);
-                                    DoCast(me, SPELL_RECKLESNESS_N);
+                                    me->AddAura(SPELL_RECKLESNESS_N, me);
 
                                     if (IsHeroic())
                                         events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
@@ -577,7 +577,7 @@ public:
                                 if (!reinforcementsSummoned)
                                 {
                                     Talk(SAY_ADD_GROUP_DIES);
-                                    DoCast(me, SPELL_RECKLESNESS_N);
+                                    me->AddAura(SPELL_RECKLESNESS_N, me);
 
                                     if (IsHeroic())
                                         events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
@@ -597,7 +597,7 @@ public:
                                 if (!reinforcementsSummoned)
                                 {
                                     Talk(SAY_ADD_GROUP_DIES);
-                                    DoCast(me, SPELL_RECKLESNESS_H);
+                                    me->AddAura(SPELL_RECKLESNESS_H, me);
 
                                     events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
                                     reinforcementsSummoned = true;

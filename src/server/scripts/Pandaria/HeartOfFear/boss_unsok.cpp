@@ -197,6 +197,7 @@ class boss_unsok : public CreatureScript
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_RESHAPE_LIFE);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_GROWTH);
                     pInstance->SetData(DATA_UNSOK, DONE);
                 }
 
@@ -256,6 +257,7 @@ class boss_unsok : public CreatureScript
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_RESHAPE_LIFE);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_GROWTH);
                     pInstance->SetData(DATA_UNSOK, TO_BE_DECIDED);
                 }
 
@@ -338,6 +340,7 @@ class boss_unsok : public CreatureScript
                     me->RemoveAura(SPELL_AMBER_CARAPACE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->AddAura(SPELL_CONCENTRATED_MUTATION, me);
+                    me->MonsterTextEmote("The nearby pools of Amber begin to bubble violently", 0, true);
                     events.RescheduleEvent(EVENT_RESHAPE_LIFE, 15000);
                     events.ScheduleEvent(EVENT_GROW, 250);
                     if (IsHeroic())
@@ -499,6 +502,7 @@ class boss_unsok : public CreatureScript
                                     if (urand(0, 1))
                                     {
                                         (*itr)->CastSpell(*itr, SPELL_AMBER_EXPLOSION, true);
+                                        (*itr)->MonsterTextEmote("Against your will, you begin to unleash an |cffBA0022|Hspell:122398|h[Amber Explosion]|h|r", 0, true);
                                         search = false;
                                     }
                                 }
@@ -582,6 +586,7 @@ class mob_mutated_construct : public CreatureScript
 
                 if (events.ExecuteEvent() == EVENT_AMBER_EXPLOSION)
                 {
+                    me->MonsterTextEmote("The Amber Monstruosity readies an |cffBA0022|Hspell:122398|h[Amber Explosion]|h|r", 0, true);
                     DoCast(SPELL_MUTATED_EXPLOSION);
                     events.ScheduleEvent(EVENT_AMBER_EXPLOSION, 30000);
                 }
