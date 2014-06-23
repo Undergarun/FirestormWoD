@@ -187,6 +187,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
 
                 if (pInstance)
                 {
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->SetBossState(DATA_JIN_ROKH_THE_BREAKER, NOT_STARTED);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STATIC_WOUND);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_VEHICLE);
@@ -253,8 +254,12 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 Talk(TALK_AGGRO);
 
                 if (pInstance)
+                {
                     pInstance->SetBossState(DATA_JIN_ROKH_THE_BREAKER, IN_PROGRESS);
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                }
 
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_ENRAGE, 540 * IN_MILLISECONDS); // 9 min
                 events.ScheduleEvent(EVENT_STATIC_BURST, 13000);
                 events.ScheduleEvent(EVENT_FOCUSED_LIGHTNING, 8000);
@@ -268,6 +273,8 @@ class boss_jin_rokh_the_breaker : public CreatureScript
             void JustDied(Unit* killer)
             {
                 Talk(TALK_DEATH);
+
+                _JustDied();
 
                 summons.DespawnAll();
                 DespawnAllVisuals();
@@ -325,8 +332,11 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 if (!UpdateVictim())
                 {
                     if (me->isInCombat())
+                    {
                         me->CombatStop();
-                    EnterEvadeMode();
+                        EnterEvadeMode();
+                    }
+
                     return;
                 }
 
@@ -420,27 +430,26 @@ class boss_jin_rokh_the_breaker : public CreatureScript
             {
                 std::list<Creature*> visualList;
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_LIGHTNING_FISSURE, 200.0f);
-
                 for (auto itr : visualList)
                     itr->DespawnOrUnsummon();
 
+                visualList.clear();
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_CONDUCTIVE_WATER, 200.0f);
-
                 for (auto itr : visualList)
                     itr->DespawnOrUnsummon();
 
+                visualList.clear();
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_STATUE, 200.0f);
-
                 for (auto itr : visualList)
                     itr->RemoveAura(SPELL_CONDUCTIVE_WATER_FOUNTAIN);
 
+                visualList.clear();
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_LIGHTNING_SPARK, 200.0f);
-
                 for (auto itr : visualList)
                     itr->DespawnOrUnsummon();
 
+                visualList.clear();
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_LIGHTNING_PILLER_STALKER, 200.0f);
-
                 for (auto itr : visualList)
                     itr->DespawnOrUnsummon();
             }
@@ -648,11 +657,16 @@ class mob_statue : public CreatureScript
                 playerGuid  = 0;
                 returned    = false;
 
+                me->SetReactState(REACT_PASSIVE);
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
+
                 events.Reset();
             }
 
             void SetGUID(uint64 guid, int32 type)
             {
+                returned = false;
                 playerGuid = guid;
             }
 
