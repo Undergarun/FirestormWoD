@@ -24,6 +24,10 @@
 #include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
+#include "GridNotifiers.h"
+#include "ObjectAccessor.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 // Only for large/long winds
 Position const darkWindPos[2] =
@@ -87,47 +91,120 @@ enum eSpells
     SPELL_DARK_WINDS_SMALL              = 139499,
     SPELL_DARK_WINDS_LARGE              = 140781,
     SPELL_DARK_WINDS_LONG               = 139535,
-    SPELL_DARK_WINDS_FORCE_WEATHER      = 139485
+    SPELL_DARK_WINDS_FORCE_WEATHER      = 139485,
+
+    // Drakkari Frost Warden
+    SPELL_FROST_BULWARK                 = 138668,
+    SPELL_GLACIAL_FREEZE_TOTEM          = 138690,
+    SPELL_GLACIAL_FREEZE_PERIODIC       = 138678,
+
+    // Gurubashi Berserker
+    SPELL_BERSERKER_FRENZY              = 138427,
+    SPELL_BLOODLETTING                  = 138693,
+
+    // Amani'Shi Flame Caster
+    SPELL_ERUPTION                      = 137652,
+    SPELL_ERUPTION_DAMAGE               = 138658,
+    SPELL_CALL_FLAMES                   = 138607,
+    SPELL_FIERY_CORE                    = 138610,
+    SPELL_MOLTEN_BARRAGE                = 138651,
+
+    // Farraki Sand Conjurer
+    SPELL_CHOCKING_SANDS                = 138742,
+    SPELL_CONJURE_ELEMENTALS_RIGHT      = 140634,
+    SPELL_CONJURE_ELEMENTALS_LEFT       = 140635,
+    SPELL_SAND_BOLT                     = 138739,
+
+    // Zandalari High Priest
+    SPELL_LIGHT_OF_THE_LOA              = 139228,
+
+    // Zandalari Prophet
+    SPELL_MARK_OF_THE_PROPHET           = 140400,
+    SPELL_VISIONS_OF_DEMISE             = 140115,
+    SPELL_VISIONS_OF_GRANDEUR           = 139205,
+
+    // Zandalari Warlord
+    SPELL_CLEAVE                        = 140414,
+    SPELL_STRENGTH_OF_THE_LOA           = 140422,
+    SPELL_ZANDALARI_WARCRY              = 134856,
+
+    // Zandalari Prelate
+    SPELL_SEAL_OF_THE_LOA               = 139212,
+    SPELL_MARK_OF_THE_LOA               = 139213,
+    SPELL_JUDGEMENT_OF_THE_LOA          = 139223
 };
 
 enum eEvents
 {
     // Zandalari Water-Binder
     EVENT_BIND_WATER            = 1,
-    EVENT_DELUGE                = 2,
-    EVENT_FROSTBOLT             = 3,
+    EVENT_DELUGE,
+    EVENT_FROSTBOLT,
 
     // Zandalari Blade Initiate
-    EVENT_WOUNDING_STRIKE       = 4,
+    EVENT_WOUNDING_STRIKE,
 
     // Zandalari Spear-Shaper
-    EVENT_BERSERKING            = 5,
-    EVENT_RETRIEVE_SPEAR        = 6,
-    EVENT_SPEAR_SPIN            = 7,
-    EVENT_THROW_SPEAR           = 8,
+    EVENT_BERSERKING,
+    EVENT_RETRIEVE_SPEAR,
+    EVENT_SPEAR_SPIN,
+    EVENT_THROW_SPEAR,
 
     // Zandalari Storm-Caller
-    EVENT_WATER_BOLT            = 9,
-    EVENT_STORM_WEAPON          = 10,
-    EVENT_FOCUSED_LIGHTNING     = 11,
-    EVENT_FOCUSED_LIGHTNING_AOE = 12,
+    EVENT_WATER_BOLT,
+    EVENT_STORM_WEAPON,
+    EVENT_FOCUSED_LIGHTNING,
+    EVENT_FOCUSED_LIGHTNING_AOE,
 
     // Ancient Python
-    EVENT_ANCIENT_VENOM         = 13,
+    EVENT_ANCIENT_VENOM,
 
     // Spirit Flayer
-    EVENT_SPIRIT_LIGHT          = 14,
+    EVENT_SPIRIT_LIGHT,
 
     // Tormented Spirit
-    EVENT_TORMENT               = 15,
+    EVENT_TORMENT,
 
     // Soul-Fed Construct
-    EVENT_CRUSH_ARMOR           = 16,
-    EVENT_SPIRITFIRE_BEAM       = 17,
+    EVENT_CRUSH_ARMOR,
+    EVENT_SPIRITFIRE_BEAM,
 
     // Stormbringer Draz'Kil
-    EVENT_CHAIN_LIGHTNING       = 18,
-    EVENT_STORMCLOUD            = 19
+    EVENT_CHAIN_LIGHTNING,
+    EVENT_STORMCLOUD,
+
+    // Drakkari Frost Warden
+    EVENT_FROST_BULWARK,
+    EVENT_GLACIAL_FREEZE_TOTEM,
+
+    // Gurubashi Berserker
+    EVENT_BERSERKER_FRENZY,
+    EVENT_BLOODLETTING,
+
+    // Amani'Shi Flame Chanter
+    EVENT_ERUPTION,
+    EVENT_CALL_FLAMES,
+
+    // Farraki Sand Conjurer
+    EVENT_CHOCKING_SAND,
+    EVENT_CONJURE_ELEMENTALS,
+    EVENT_SAND_BOLT,
+
+    // Zandalari High Priest
+    EVENT_LIGHT_OF_THE_LOA,
+
+    // Zandalari Prophet
+    EVENT_MARK_OF_THE_PROPHET,
+    EVENT_VISIONS_OF_DEMISE,
+    EVENT_VISIONS_OF_GRANDEUR,
+
+    // Zandalari Warlord
+    EVENT_CLEAVE,
+    EVENT_STRENGTH_OF_THE_LOA,
+    EVENT_ZANDALARI_WARCRY,
+
+    // Zandalari Prelate
+    EVENT_JUDGEMENT_OF_THE_LOA
 };
 
 enum eEquipIds
@@ -149,7 +226,34 @@ enum eEquipIds
     SPIRIT_FLAYER_LAMP  = 93755,
 
     // Stormbringer Draz'Kil
-    DRAZ_KIL_SPEAR      = 94247
+    DRAZ_KIL_SPEAR      = 94247,
+
+    // Drakkari Frost Warden
+    FROST_WARDEN_EQ_1   = 94118,
+    FROST_WARDEN_EQ_2   = 94194,
+
+    // Gurubashi Berserker
+    GURUBASHI_ZERK_EQ_1 = 90001,
+    GURUBASHI_ZERK_EQ_2 = 90007,
+
+    // Amani'Shi Flame Chanter
+    FLAME_CHANTER_STAFF = 93241,
+
+    // Farraki Sand Conjurer
+    SAND_CONJURER_AXE   = 93238,
+
+    // Zandalari High Priest
+    HIGH_PRIEST_STAFF   = 94134,
+
+    // Zandalari Prophet
+    PROPHET_WEAPON      = 94248,
+
+    // Zandalari Warlord
+    WARLORD_WEAPON      = 93283,
+
+    // Zandalari Prelate
+    PRELATE_MAIN_HAND   = 94122,
+    PRELATE_OFF_HAND    = 94193
 };
 
 // Zandalari Water-Binder - 69455
@@ -783,9 +887,13 @@ class mob_stormbringer_draz_kil : public CreatureScript
 
         struct mob_stormbringer_draz_kilAI : public ScriptedAI
         {
-            mob_stormbringer_draz_kilAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_stormbringer_draz_kilAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -801,6 +909,12 @@ class mob_stormbringer_draz_kil : public CreatureScript
             {
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
                 events.ScheduleEvent(EVENT_STORMCLOUD, 10000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                if (pInstance)
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STORMCLOUD);
             }
 
             void UpdateAI(const uint32 diff)
@@ -960,6 +1074,610 @@ class mob_dark_winds : public CreatureScript
         }
 };
 
+// Drakkari Frost Warden - 69910
+class mob_drakkari_frost_warden : public CreatureScript
+{
+    public:
+        mob_drakkari_frost_warden() : CreatureScript("mob_drakkari_frost_warden") { }
+
+        struct mob_drakkari_frost_wardenAI : public ScriptedAI
+        {
+            mob_drakkari_frost_wardenAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, FROST_WARDEN_EQ_1, FROST_WARDEN_EQ_2, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_FROST_BULWARK, 2000);
+                events.ScheduleEvent(EVENT_GLACIAL_FREEZE_TOTEM, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_FROST_BULWARK:
+                        me->CastSpell(me, SPELL_FROST_BULWARK, false);
+                        events.ScheduleEvent(EVENT_FROST_BULWARK, 10000);
+                        break;
+                    case EVENT_GLACIAL_FREEZE_TOTEM:
+                        me->CastSpell(me, SPELL_GLACIAL_FREEZE_TOTEM, true);
+                        events.ScheduleEvent(EVENT_GLACIAL_FREEZE_TOTEM, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_drakkari_frost_wardenAI(creature);
+        }
+};
+
+// Glacial Freeze Totem - 70047
+class mob_gacial_freeze_totem : public CreatureScript
+{
+    public:
+        mob_gacial_freeze_totem() : CreatureScript("mob_gacial_freeze_totem") { }
+
+        struct mob_gacial_freeze_totemAI : public ScriptedAI
+        {
+            mob_gacial_freeze_totemAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->CastSpell(me, SPELL_GLACIAL_FREEZE_PERIODIC, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_gacial_freeze_totemAI(creature);
+        }
+};
+
+// Gurubashi Berserker - 69905
+// Gurubashi Berserker - 69916
+class mob_gurubashi_berserker : public CreatureScript
+{
+    public:
+        mob_gurubashi_berserker() : CreatureScript("mob_gurubashi_berserker") { }
+
+        struct mob_gurubashi_berserkerAI : public ScriptedAI
+        {
+            mob_gurubashi_berserkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, GURUBASHI_ZERK_EQ_1, GURUBASHI_ZERK_EQ_2, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_BERSERKER_FRENZY, 1000);
+                events.ScheduleEvent(EVENT_BLOODLETTING, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_BERSERKER_FRENZY:
+                        me->CastSpell(me, SPELL_BERSERKER_FRENZY, false);
+                        break;
+                    case EVENT_BLOODLETTING:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f))
+                            me->CastSpell(target, SPELL_BLOODLETTING, true);
+                        events.ScheduleEvent(EVENT_BLOODLETTING, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_gurubashi_berserkerAI(creature);
+        }
+};
+
+// Amani'shi Flame Chanter - 69909
+class mob_amani_shi_flame_chanter : public CreatureScript
+{
+    public:
+        mob_amani_shi_flame_chanter() : CreatureScript("mob_amani_shi_flame_chanter") { }
+
+        struct mob_amani_shi_flame_chanterAI : public ScriptedAI
+        {
+            mob_amani_shi_flame_chanterAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, FLAME_CHANTER_STAFF, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_ERUPTION, 2000);
+                events.ScheduleEvent(EVENT_CALL_FLAMES, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_ERUPTION:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_ERUPTION, false);
+                        events.ScheduleEvent(EVENT_ERUPTION, 10000);
+                        break;
+                    case EVENT_CALL_FLAMES:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            me->CastSpell(target, SPELL_CALL_FLAMES, false);
+                            me->CastSpell(me, SPELL_FIERY_CORE, true);
+                        }
+
+                        events.ScheduleEvent(EVENT_CALL_FLAMES, 7000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_amani_shi_flame_chanterAI(creature);
+        }
+};
+
+// Farraki Sand Conjurer - 69899
+class mob_farraki_sand_conjurer : public CreatureScript
+{
+    public:
+        mob_farraki_sand_conjurer() : CreatureScript("mob_farraki_sand_conjurer") { }
+
+        struct mob_farraki_sand_conjurerAI : public ScriptedAI
+        {
+            mob_farraki_sand_conjurerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, SAND_CONJURER_AXE, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_CHOCKING_SAND, 2000);
+                events.ScheduleEvent(EVENT_SAND_BOLT, 5000);
+                events.ScheduleEvent(EVENT_CONJURE_ELEMENTALS, 8000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CHOCKING_SAND:
+                        me->CastSpell(me, SPELL_CHOCKING_SANDS, false);
+                        events.ScheduleEvent(EVENT_CHOCKING_SAND, 15000);
+                        break;
+                    case EVENT_SAND_BOLT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_SAND_BOLT, false);
+                        events.ScheduleEvent(EVENT_SAND_BOLT, 10000);
+                        break;
+                    case EVENT_CONJURE_ELEMENTALS:
+                        me->CastSpell(me, SPELL_CONJURE_ELEMENTALS_RIGHT, true);
+                        me->CastSpell(me, SPELL_CONJURE_ELEMENTALS_LEFT, true);
+                        events.ScheduleEvent(EVENT_CONJURE_ELEMENTALS, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_farraki_sand_conjurerAI(creature);
+        }
+};
+
+// Sand Elemental - 69944
+class mob_sand_elemental : public CreatureScript
+{
+    public:
+        mob_sand_elemental() : CreatureScript("mob_sand_elemental") { }
+
+        struct mob_sand_elementalAI : public ScriptedAI
+        {
+            mob_sand_elementalAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_sand_elementalAI(creature);
+        }
+};
+
+// Zandalari High Priest - 69906
+class mob_zandalari_high_priest : public CreatureScript
+{
+    public:
+        mob_zandalari_high_priest() : CreatureScript("mob_zandalari_high_priest") { }
+
+        struct mob_zandalari_high_priestAI : public ScriptedAI
+        {
+            mob_zandalari_high_priestAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, HIGH_PRIEST_STAFF, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_LIGHT_OF_THE_LOA, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_LIGHT_OF_THE_LOA:
+                    {
+                        std::list<Unit*> assistList;
+                        {
+                            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 10.0f);
+                            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(me, assistList, u_check);
+                            me->VisitNearbyObject(10.0f, searcher);
+                        }
+
+                        Unit* target = NULL;
+                        if (!assistList.empty())
+                        {
+                            assistList.sort(JadeCore::HealthPctOrderPred());
+                            target = assistList.front();
+                        }
+
+                        if (target)
+                            me->CastSpell(target, SPELL_LIGHT_OF_THE_LOA, false);
+
+                        events.ScheduleEvent(EVENT_LIGHT_OF_THE_LOA, 10000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zandalari_high_priestAI(creature);
+        }
+};
+
+// Zandalari Prophet - 70557
+class mob_zandalari_prophet : public CreatureScript
+{
+    public:
+        mob_zandalari_prophet() : CreatureScript("mob_zandalari_prophet") { }
+
+        struct mob_zandalari_prophetAI : public ScriptedAI
+        {
+            mob_zandalari_prophetAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, PROPHET_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_MARK_OF_THE_PROPHET, 5000);
+                events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 10000);
+                events.ScheduleEvent(EVENT_VISIONS_OF_GRANDEUR, 10000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_MARK_OF_THE_PROPHET:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_MARK_OF_THE_PROPHET, false);
+                        events.ScheduleEvent(EVENT_MARK_OF_THE_PROPHET, 10000);
+                        break;
+                    case EVENT_VISIONS_OF_DEMISE:
+                        me->CastSpell(me, SPELL_VISIONS_OF_DEMISE, false);
+                        events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 15000);
+                        break;
+                    case EVENT_VISIONS_OF_GRANDEUR:
+                        me->CastSpell(me, SPELL_VISIONS_OF_GRANDEUR, false);
+                        events.ScheduleEvent(EVENT_VISIONS_OF_GRANDEUR, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zandalari_prophetAI(creature);
+        }
+};
+
+// Zandalari Warlord - 69911
+class mob_zandalari_warlord : public CreatureScript
+{
+    public:
+        mob_zandalari_warlord() : CreatureScript("mob_zandalari_warlord") { }
+
+        struct mob_zandalari_warlordAI : public ScriptedAI
+        {
+            mob_zandalari_warlordAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                SetEquipmentSlots(false, WARLORD_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_CLEAVE, 5000);
+                events.ScheduleEvent(EVENT_STRENGTH_OF_THE_LOA, 8000);
+                events.ScheduleEvent(EVENT_ZANDALARI_WARCRY, 10000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CLEAVE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_CLEAVE, true);
+                        events.ScheduleEvent(EVENT_CLEAVE, 8000);
+                        break;
+                    case EVENT_STRENGTH_OF_THE_LOA:
+                        me->CastSpell(me, SPELL_STRENGTH_OF_THE_LOA, false);
+                        events.ScheduleEvent(EVENT_STRENGTH_OF_THE_LOA, 10000);
+                        break;
+                    case EVENT_ZANDALARI_WARCRY:
+                        me->CastSpell(me, SPELL_ZANDALARI_WARCRY, true);
+                        events.ScheduleEvent(EVENT_ZANDALARI_WARCRY, 12000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zandalari_warlordAI(creature);
+        }
+};
+
+// Zandalari Prelate - 69927
+class mob_zandalari_prelate : public CreatureScript
+{
+    public:
+        mob_zandalari_prelate() : CreatureScript("mob_zandalari_prelate") { }
+
+        struct mob_zandalari_prelateAI : public ScriptedAI
+        {
+            mob_zandalari_prelateAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+                me->CastSpell(me, SPELL_SEAL_OF_THE_LOA, true);
+
+                SetEquipmentSlots(false, PRELATE_MAIN_HAND, PRELATE_OFF_HAND, EQUIP_NO_CHANGE);
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_JUDGEMENT_OF_THE_LOA, 8000);
+                events.ScheduleEvent(EVENT_LIGHT_OF_THE_LOA, 10000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_JUDGEMENT_OF_THE_LOA:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_JUDGEMENT_OF_THE_LOA, true);
+                        events.ScheduleEvent(EVENT_JUDGEMENT_OF_THE_LOA, 10000);
+                        break;
+                    case EVENT_LIGHT_OF_THE_LOA:
+                    {
+                        std::list<Unit*> assistList;
+                        {
+                            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 10.0f);
+                            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(me, assistList, u_check);
+                            me->VisitNearbyObject(10.0f, searcher);
+                        }
+
+                        Unit* target = NULL;
+                        if (!assistList.empty())
+                        {
+                            assistList.sort(JadeCore::HealthPctOrderPred());
+                            target = assistList.front();
+                        }
+
+                        if (target)
+                            me->CastSpell(target, SPELL_LIGHT_OF_THE_LOA, false);
+
+                        events.ScheduleEvent(EVENT_LIGHT_OF_THE_LOA, 15000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_zandalari_prelateAI(creature);
+        }
+};
+
 // Water Bolt - 139231
 class spell_water_bolt : public SpellScriptLoader
 {
@@ -1108,6 +1826,136 @@ class spell_spirit_light : public SpellScriptLoader
         }
 };
 
+// Glacial Freeze (damage & stun) - 138687
+class spell_glacial_freeze : public SpellScriptLoader
+{
+    public:
+        spell_glacial_freeze() : SpellScriptLoader("spell_glacial_freeze") { }
+
+        class spell_glacial_freeze_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_glacial_freeze_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (GetCaster()->ToCreature())
+                    GetCaster()->ToCreature()->DespawnOrUnsummon();
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_glacial_freeze_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_glacial_freeze_SpellScript();
+        }
+};
+
+// Eruption - 138652
+class spell_eruption : public SpellScriptLoader
+{
+    public:
+        spell_eruption() : SpellScriptLoader("spell_eruption") { }
+
+        class spell_eruption_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_eruption_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, SPELL_ERUPTION_DAMAGE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_eruption_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_eruption_SpellScript();
+        }
+};
+
+// Fiery Core - 138610
+class spell_fiery_core : public SpellScriptLoader
+{
+    public:
+        spell_fiery_core() : SpellScriptLoader("spell_fiery_core") { }
+
+        class spell_fiery_core_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_fiery_core_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (AuraPtr fieryCore = aurEff->GetBase())
+                {
+                    if (fieryCore->GetStackAmount() >= 5)
+                    {
+                        GetTarget()->RemoveAura(SPELL_FIERY_CORE);
+                        GetTarget()->CastSpell(GetTarget(), SPELL_MOLTEN_BARRAGE, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_fiery_core_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_fiery_core_AuraScript();
+        }
+};
+
+// Judgement of the Loa - 139223
+class spell_judgement_of_the_loa : public SpellScriptLoader
+{
+    public:
+        spell_judgement_of_the_loa() : SpellScriptLoader("spell_judgement_of_the_loa") { }
+
+        class spell_judgement_of_the_loa_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_judgement_of_the_loa_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 stacks = 1;
+                        if (AuraPtr loaStacks = target->GetAura(SPELL_MARK_OF_THE_LOA))
+                            stacks = loaStacks->GetStackAmount();
+
+                        SetHitDamage(GetHitDamage() * stacks);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_judgement_of_the_loa_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_judgement_of_the_loa_SpellScript();
+        }
+};
+
 void AddSC_throne_of_thunder()
 {
     new mob_zandalari_water_binder();
@@ -1122,8 +1970,22 @@ void AddSC_throne_of_thunder()
     new mob_soul_fed_construct();
     new mob_stormbringer_draz_kil();
     new mob_dark_winds();
+    new mob_drakkari_frost_warden();
+    new mob_gacial_freeze_totem();
+    new mob_gurubashi_berserker();
+    new mob_amani_shi_flame_chanter();
+    new mob_farraki_sand_conjurer();
+    new mob_sand_elemental();
+    new mob_zandalari_high_priest();
+    new mob_zandalari_prophet();
+    new mob_zandalari_warlord();
+    new mob_zandalari_prelate();
     new spell_storm_weapon();
     new spell_water_bolt();
     new spell_focused_lightning_aoe();
     new spell_spirit_light();
+    new spell_glacial_freeze();
+    new spell_eruption();
+    new spell_fiery_core();
+    new spell_judgement_of_the_loa();
 }

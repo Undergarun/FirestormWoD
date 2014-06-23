@@ -3427,6 +3427,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869: // Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 138652: // Eruption
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
             case 140946: // Dire Fixation
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -3448,6 +3452,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 139550: // Torment
+            case 138742: // Chocking Sands
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 139900: // Stormcloud
