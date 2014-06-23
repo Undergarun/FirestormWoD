@@ -3427,6 +3427,26 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869: // Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 140946: // Dire Fixation
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 136644: // Venomous Effusion
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[3].Effect = 0;
+                break;
+            case 136654: // Rending Charge
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(153); // 60 yards
+                break;
+            case 136740: // Double Swipe (back)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
+                break;
+            case 136797: // Dino Mending
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 139550: // Torment
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;

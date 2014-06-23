@@ -6569,7 +6569,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
 
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize());
+        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), 42.0f, m_spellInfo->Id);
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
@@ -6699,12 +6699,22 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     float speedz = float(damage/10.0f);
     bool back = true;
 
-    // Fix Glyph of Disengage
-    if (m_caster->HasAura(56844) && m_spellInfo->Id == 56446)
-        speedz = (75.0f * 1.5f) / 10.0f;
+    switch (m_spellInfo->Id)
+    {
+        case 56446: // Glyph of Disengage
+            if (m_caster->HasAura(56844))
+                speedz = (75.0f * 1.5f) / 10.0f;
+            break;
+        case 102383:// Wild Charge (Moonkin)
+        case 140949:// Weak Link (Horridon - Heroic)
+            back = false;
+            break;
+        default:
+            break;
+    }
 
-    // Wild Charge (Moonkin) and Disengage
-    if (m_spellInfo->Id == 102383 || m_spellInfo->SpellIconID == 1891)
+    // Disengage
+    if (m_spellInfo->SpellIconID == 1891)
         back = false;
 
     m_caster->JumpTo(speedxy, speedz, back);
