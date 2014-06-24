@@ -62,6 +62,9 @@
 #include "BattlefieldMgr.h"
 #include <math.h>
 #include "SpellAuraEffects.h"
+#include "BattlegroundKT.h"
+#include "BattlegroundWS.h"
+#include "BattlegroundTP.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -4347,12 +4350,27 @@ void Unit::RemoveFlagsAuras()
 {
     RemoveAura(131528); // Horde Insigna
     RemoveAura(131527); // Alliance Insigna
-    RemoveAura(121177); // Orb 4
-    RemoveAura(121176); // Orb 3
-    RemoveAura(121175); // Orb 2
-    RemoveAura(121164); // Orb 1
-    RemoveAura(23335);  // Silverwing Flag
-    RemoveAura(23333);  // Warsong Flag
+
+    if (Player* plr = ToPlayer())
+    {
+        if (Battleground* bg = plr->GetBattleground())
+        {
+            switch (bg->GetTypeID())
+            {
+                case BATTLEGROUND_KT:
+                    ((BattlegroundKT*)bg)->EventPlayerDroppedOrb(plr);
+                    break;
+                case BATTLEGROUND_WS:
+                    ((BattlegroundWS*)bg)->EventPlayerDroppedFlag(plr);
+                    break;
+                case BATTLEGROUND_TP:
+                    ((BattlegroundTP*)bg)->EventPlayerDroppedFlag(plr);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID)
