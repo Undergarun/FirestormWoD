@@ -368,14 +368,15 @@ class boss_horridon : public CreatureScript
                 pInstance->SetBossState(DATA_HORRIDON, IN_PROGRESS);
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                /*events.ScheduleEvent(EVENT_ENRAGE, 720000); // 12min
+                events.ScheduleEvent(EVENT_ENRAGE, 720000); // 12min
                 events.ScheduleEvent(EVENT_TRIPLE_PUNCTURE, 10000);
                 events.ScheduleEvent(EVENT_DOUBLE_SWIPE, 16000);
                 events.ScheduleEvent(EVENT_CHARGE_PLAYER, 31000);
-                events.ScheduleEvent(EVENT_NEXT_DOOR, 10000);*/
+                events.ScheduleEvent(EVENT_NEXT_DOOR, 10000);
 
                 // Heroic mode
-                events.ScheduleEvent(EVENT_DIRE_CALL, 60000);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_DIRE_CALL, 60000);
             }
 
             void JustDied(Unit* killer)
@@ -685,6 +686,9 @@ class boss_horridon : public CreatureScript
                     }
                     case EVENT_DIRE_CALL:
                     {
+                        if (!IsHeroic())
+                            break;
+
                         me->CastSpell(me, SPELL_DIRE_CALL, false);
                         events.ScheduleEvent(EVENT_DIRE_CALL, 60000);
                         break;
@@ -2158,6 +2162,9 @@ class go_horridon_intro_door : public GameObjectScript
         {
             InstanceScript* pInstance = go->GetInstanceScript();
             if (!pInstance)
+                return false;
+
+            if (pInstance->GetBossState(DATA_JIN_ROKH_THE_BREAKER) != DONE)
                 return false;
 
             if (Creature* jalak = Creature::GetCreature(*go, pInstance->GetData64(NPC_WAR_GOD_JALAK)))
