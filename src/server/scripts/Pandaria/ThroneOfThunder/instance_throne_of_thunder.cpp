@@ -22,6 +22,18 @@
 #include "VMapFactory.h"
 #include "throne_of_thunder.h"
 
+DoorData const doorData[] =
+{
+    { GOB_JIN_ROKH_ENTRANCE_DOOR,           DATA_JIN_ROKH_THE_BREAKER,  DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_JIN_ROKH_EXIT_DOOR,               DATA_JIN_ROKH_THE_BREAKER,  DOOR_TYPE_PASSAGE,  BOUNDARY_S      },
+    { GOB_HORRIDON_ENTRANCE_DOOR,           DATA_HORRIDON,              DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_HORRIDON_EXIT_DOOR,               DATA_HORRIDON,              DOOR_TYPE_PASSAGE,  BOUNDARY_N      },
+    { GOB_COUNCIL_ENTRANCE_DOOR_LEFT,       DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_COUNCIL_ENTRANCE_DOOR_RIGHT,      DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_ROOM,     BOUNDARY_W      },
+    { GOB_COUNCIL_EXIT_DOOR,                DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_PASSAGE,  BOUNDARY_E      },
+    { 0,                                    0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE   }  // END
+};
+
 Position statuesPos[4] =
 {
     { 5946.0f, 6317.5f, 158.083f, 3.923960f }, // NW
@@ -53,9 +65,15 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 highPriestressMarLiGuid;
             uint64 garaJalGuid;
 
+            uint64 horridonGuid;
+            uint64 horridonGateGuid;
+            uint64 tribalDoorsGuid[4];
+            uint64 warGodJalakGuid;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
+                LoadDoorData(doorData);
 
                 jinRokhTheBreakerGuid   = 0;
                 kazraJinGuid            = 0;
@@ -63,11 +81,15 @@ class instance_throne_of_thunder : public InstanceMapScript
                 forostKingMalakkGuid    = 0;
                 highPriestressMarLiGuid = 0;
                 garaJalGuid = 0;
+                horridonGuid            = 0;
+                horridonGateGuid        = 0;
+                warGodJalakGuid         = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    moguFountainsGuids[i] = 0;
-                    moguStatuesGuids[i] = 0;
+                    moguFountainsGuids[i]   = 0;
+                    moguStatuesGuids[i]     = 0;
+                    tribalDoorsGuid[i]      = 0;
                 }
             }
 
@@ -80,6 +102,11 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case NPC_GARA_JAL_SOUL:
                         garaJalGuid = creature->GetGUID();
+                    case NPC_HORRIDON:
+                        horridonGuid = creature->GetGUID();
+                        break;
+                    case NPC_WAR_GOD_JALAK:
+                        warGodJalakGuid = creature->GetGUID();
                         break;
                     case NPC_STATUE:
                     {
@@ -137,6 +164,21 @@ class instance_throne_of_thunder : public InstanceMapScript
                         moguFountainsGuids[3] = go->GetGUID();
                         go->SetGoState(GO_STATE_READY);
                         break;
+                    case GOB_HORRIDON_GATE:
+                        horridonGateGuid = go->GetGUID();
+                        break;
+                    case GOB_FARRAKI_TRIBAL_DOOR:
+                        tribalDoorsGuid[0] = go->GetGUID();
+                        break;
+                    case GOB_GURUBASHI_TRIBAL_DOOR:
+                        tribalDoorsGuid[1] = go->GetGUID();
+                        break;
+                    case GOB_DRAKKARI_TRIBAL_DOOR:
+                        tribalDoorsGuid[2] = go->GetGUID();
+                        break;
+                    case GOB_AMANI_TRIBAL_DOOR:
+                        tribalDoorsGuid[3] = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -144,6 +186,9 @@ class instance_throne_of_thunder : public InstanceMapScript
 
             bool SetBossState(uint32 id, EncounterState state)
             {
+                if (!InstanceScript::SetBossState(id, state))
+                    return false;
+
                 return true;
             }
 
@@ -175,6 +220,10 @@ class instance_throne_of_thunder : public InstanceMapScript
                     case NPC_GARA_JAL_SOUL:
                         return garaJalGuid;
                         break;
+                    case NPC_HORRIDON:
+                        return horridonGuid;
+                    case NPC_WAR_GOD_JALAK:
+                        return warGodJalakGuid;
                     case GOB_MOGU_FOUNTAIN_NE:
                         return moguFountainsGuids[0];
                     case GOB_MOGU_FOUNTAIN_NW:
@@ -183,15 +232,22 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return moguFountainsGuids[2];
                     case GOB_MOGU_FOUNTAIN_SW:
                         return moguFountainsGuids[3];
+                    case GOB_HORRIDON_GATE:
+                        return horridonGateGuid;
+                    case GOB_FARRAKI_TRIBAL_DOOR:
+                        return tribalDoorsGuid[0];
+                    case GOB_GURUBASHI_TRIBAL_DOOR:
+                        return tribalDoorsGuid[1];
+                    case GOB_DRAKKARI_TRIBAL_DOOR:
+                        return tribalDoorsGuid[2];
+                    case GOB_AMANI_TRIBAL_DOOR:
+                        return tribalDoorsGuid[3];
                     case DATA_STATUE_0:
                         return moguStatuesGuids[0];
-                        break;
                     case DATA_STATUE_1:
                         return moguStatuesGuids[1];
-                        break;
                     case DATA_STATUE_2:
                         return moguStatuesGuids[2];
-                        break;
                     case DATA_STATUE_3:
                         return moguStatuesGuids[3];
                         break;

@@ -72,7 +72,17 @@ enum eSpells
     SPELL_LIGHTNING_STORM_SUMMON                = 137283,
     SPELL_LIGHTNING_STORM_SPAWN_EFFECT          = 137260,
     SPELL_LIGHTNING_STORM_SMALL                 = 140811,
-    SPELL_LIGHTNING_STORM_BIG                   = 140555
+    SPELL_LIGHTNING_STORM_BIG                   = 140555,
+    SPELL_LIGHTNING_STORM_SMALL_FLOOR           = 140819,
+
+    // Heroic mode
+    SPELL_IONIZATION                            = 138732,
+    SPELL_IONIZATION_DAMAGE                     = 138733,
+    SPELL_IONIZATION_CONDUCTION                 = 138743,
+    SPELL_LIGHTNING_STRIKE_PILLAR_VISUAL        = 138299,
+    SPELL_LIGHTNING_STRIKE_SUMMON               = 138012,
+    SPELL_LIGHTNING_STRIKE_DAMAGE               = 137647,
+    SPELL_LIGHTNING_DIFFUSION                   = 137905
 };
 
 enum eEvents
@@ -86,7 +96,12 @@ enum eEvents
     EVENT_STOP_FOUNTAINS                = 7,
     EVENT_SPAWN_CONDUCTIVE_WATER        = 8,
     EVENT_LIGHTNING_STORM               = 9,
-    EVENT_CHECK_LIGHTNING_FISSURES      = 10
+    EVENT_CHECK_LIGHTNING_FISSURES      = 10,
+
+    // Heroic mode
+    EVENT_IONIZATION                    = 11,
+    EVENT_SPAWN_LIGHTNING_SPARKS        = 12,
+    EVENT_LIGHTNING_DIFFUSION           = 13
 };
 
 enum eSays
@@ -104,7 +119,8 @@ enum eSays
 
 enum eActions
 {
-    ACTION_ELECTRIFY_CONDUCTIVE_WATERS
+    ACTION_ELECTRIFY_CONDUCTIVE_WATERS,
+    ACTION_SPAWN_LIGHTNING_PILLARS
 };
 
 enum ePhases
@@ -171,11 +187,14 @@ class boss_jin_rokh_the_breaker : public CreatureScript
 
                 if (pInstance)
                 {
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->SetBossState(DATA_JIN_ROKH_THE_BREAKER, NOT_STARTED);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STATIC_WOUND);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_VEHICLE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONTROL_VEHICLE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_STUN_PLAYER);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IONIZATION);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCUSED_LIGHTNING_IMPLOSION);
 
                     for (uint32 i = 0; i < 4; ++i)
                     {
@@ -235,18 +254,27 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 Talk(TALK_AGGRO);
 
                 if (pInstance)
+                {
                     pInstance->SetBossState(DATA_JIN_ROKH_THE_BREAKER, IN_PROGRESS);
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                }
 
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_ENRAGE, 540 * IN_MILLISECONDS); // 9 min
                 events.ScheduleEvent(EVENT_STATIC_BURST, 13000);
                 events.ScheduleEvent(EVENT_FOCUSED_LIGHTNING, 8000);
                 events.ScheduleEvent(EVENT_THUNDERING_THROW, 30000);
                 events.ScheduleEvent(EVENT_LIGHTNING_STORM, 90000);
+
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_IONIZATION, 60000);
             }
 
             void JustDied(Unit* killer)
             {
                 Talk(TALK_DEATH);
+
+                _JustDied();
 
                 summons.DespawnAll();
                 DespawnAllVisuals();
@@ -258,6 +286,8 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_VEHICLE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONTROL_VEHICLE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_STUN_PLAYER);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IONIZATION);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCUSED_LIGHTNING_IMPLOSION);
                 }
             }
 
@@ -280,6 +310,18 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                         }
                         break;
                     }
+                    case ACTION_SPAWN_LIGHTNING_PILLARS:
+                    {
+                        if (!IsHeroic())
+                            break;
+
+                        float rotation = frand(0, 2 * M_PI);
+                        float x = me->GetPositionX() + (frand(5.0f, 35.0f) * cos(rotation));
+                        float y = me->GetPositionY() + (frand(5.0f, 35.0f) * sin(rotation));
+
+                        me->SummonCreature(NPC_LIGHTNING_PILLER_STALKER, x, y, me->GetPositionZ());
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -290,15 +332,21 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 if (!UpdateVictim())
                 {
                     if (me->isInCombat())
+                    {
                         me->CombatStop();
-                    EnterEvadeMode();
+                        EnterEvadeMode();
+                    }
+
                     return;
                 }
 
                 if (electrifyTimer)
                 {
                     if (electrifyTimer <= diff)
+                    {
                         DoAction(ACTION_ELECTRIFY_CONDUCTIVE_WATERS);
+                        electrifyTimer = 0;
+                    }
                     else
                         electrifyTimer -= diff;
                 }
@@ -352,6 +400,10 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                         electrifyTimer = 10000;
                         events.ScheduleEvent(EVENT_LIGHTNING_STORM, 90000);
                         break;
+                    case EVENT_IONIZATION:
+                        me->CastSpell(me, SPELL_IONIZATION, false);
+                        events.ScheduleEvent(EVENT_IONIZATION, 90000);
+                        break;
                     default:
                         break;
                 }
@@ -378,19 +430,28 @@ class boss_jin_rokh_the_breaker : public CreatureScript
             {
                 std::list<Creature*> visualList;
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_LIGHTNING_FISSURE, 200.0f);
-
                 for (auto itr : visualList)
                     itr->DespawnOrUnsummon();
 
+                visualList.clear();
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_CONDUCTIVE_WATER, 200.0f);
-
                 for (auto itr : visualList)
                     itr->DespawnOrUnsummon();
 
+                visualList.clear();
                 me->GetCreatureListWithEntryInGrid(visualList, NPC_STATUE, 200.0f);
-
                 for (auto itr : visualList)
                     itr->RemoveAura(SPELL_CONDUCTIVE_WATER_FOUNTAIN);
+
+                visualList.clear();
+                me->GetCreatureListWithEntryInGrid(visualList, NPC_LIGHTNING_SPARK, 200.0f);
+                for (auto itr : visualList)
+                    itr->DespawnOrUnsummon();
+
+                visualList.clear();
+                me->GetCreatureListWithEntryInGrid(visualList, NPC_LIGHTNING_PILLER_STALKER, 200.0f);
+                for (auto itr : visualList)
+                    itr->DespawnOrUnsummon();
             }
 
             uint32 GetData(uint32 type)
@@ -596,11 +657,16 @@ class mob_statue : public CreatureScript
                 playerGuid  = 0;
                 returned    = false;
 
+                me->SetReactState(REACT_PASSIVE);
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
+
                 events.Reset();
             }
 
             void SetGUID(uint64 guid, int32 type)
             {
+                returned = false;
                 playerGuid = guid;
             }
 
@@ -771,6 +837,7 @@ class mob_call_da_storm_stalker : public CreatureScript
                 else
                     me->CastSpell(me, SPELL_LIGHTNING_STORM_BIG, true);
 
+                me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
@@ -779,6 +846,112 @@ class mob_call_da_storm_stalker : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_call_da_storm_stalkerAI(creature);
+        }
+};
+
+// Lightning Spark - 69635
+class mob_lightning_spark : public CreatureScript
+{
+    public:
+        mob_lightning_spark() : CreatureScript("mob_lightning_spark") { }
+
+        struct mob_lightning_sparkAI : public ScriptedAI
+        {
+            mob_lightning_sparkAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.Reset();
+
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+
+                events.ScheduleEvent(EVENT_LIGHTNING_DIFFUSION, 500);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_LIGHTNING_DIFFUSION:
+                        me->CastSpell(me, SPELL_LIGHTNING_DIFFUSION, true);
+                        events.ScheduleEvent(EVENT_LIGHTNING_DIFFUSION, 500);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_lightning_sparkAI(creature);
+        }
+};
+
+// Lightning Pillar Spark Stalker - 69813
+class mob_lightning_pillar_stalker : public CreatureScript
+{
+    public:
+        mob_lightning_pillar_stalker() : CreatureScript("mob_lightning_pillar_stalker") { }
+
+        struct mob_lightning_pillar_stalkerAI : public ScriptedAI
+        {
+            mob_lightning_pillar_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.Reset();
+
+                me->CastSpell(me, SPELL_LIGHTNING_STRIKE_PILLAR_VISUAL, true);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                events.ScheduleEvent(EVENT_SPAWN_LIGHTNING_SPARKS, 4000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_SPAWN_LIGHTNING_SPARKS:
+                    {
+                        me->CastSpell(me, SPELL_LIGHTNING_STRIKE_DAMAGE, true);
+
+                        float orientation = frand(0, M_PI * 2);
+                        for (uint8 i = 0; i < 4; ++i)
+                        {
+                            if (Creature* spark = me->SummonCreature(NPC_LIGHTNING_SPARK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), orientation, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            {
+                                float x = spark->GetPositionX() + (150.0f * cos(orientation));
+                                float y = spark->GetPositionY() + (150.0f * sin(orientation));
+
+                                spark->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_CASTING);
+                                spark->GetMotionMaster()->MovePoint(1, x, y, spark->GetPositionZ());
+                            }
+
+                            orientation += (M_PI * 2) / 4;
+                        }
+
+                        me->DespawnOrUnsummon();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_lightning_pillar_stalkerAI(creature);
         }
 };
 
@@ -1092,18 +1265,132 @@ class spell_lightning_storm_periodic : public SpellScriptLoader
                     target->CastSpell(target, SPELL_LIGHTNING_STORM_SUMMON, true);
                     target->CastSpell(target, SPELL_LIGHTNING_STORM_SUMMON, true);
                     target->CastSpell(target, SPELL_LIGHTNING_STORM_SUMMON, true);
+                    target->CastSpell(target, SPELL_LIGHTNING_STORM_SMALL_FLOOR, true);
+                    target->ToCreature()->AI()->DoAction(ACTION_SPAWN_LIGHTNING_PILLARS);
                 }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_lightning_storm_periodic_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_lightning_storm_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_lightning_storm_periodic_AuraScript();
+        }
+};
+
+// Ionization - 138732
+class spell_ionization : public SpellScriptLoader
+{
+    public:
+        spell_ionization() : SpellScriptLoader("spell_ionization") { }
+
+        class spell_ionization_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ionization_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<WorldObject*> targetsToRemove;
+                for (auto target : targets)
+                {
+                    if (!target->ToPlayer())
+                        continue;
+
+                    Player* plr = target->ToPlayer();
+                    if (plr->GetRoleForGroup(plr->GetSpecializationId(plr->GetActiveSpec())) == ROLES_TANK)
+                        targetsToRemove.push_back(target);
+                }
+
+                for (auto itr : targetsToRemove)
+                    targets.remove(itr);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ionization_SpellScript();
+        }
+
+        class spell_ionization_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ionization_AuraScript);
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetTarget())
+                    {
+                        int32 basepoints = aurEff->GetAmount();
+                        caster->CastCustomSpell(target, SPELL_IONIZATION_DAMAGE, &basepoints, NULL, NULL, true);
+
+                        if (target->FindNearestCreature(NPC_CONDUCTIVE_WATER, 30.0f))
+                            target->CastCustomSpell(target, SPELL_IONIZATION_CONDUCTION, &basepoints, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_ionization_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ionization_AuraScript();
+        }
+};
+
+// Ionization Conduction - 138743
+// Focused Lightning Conduction - 137530
+// Lightning Fissure Conduction - 138133
+class spell_ionization_conduction : public SpellScriptLoader
+{
+    public:
+        spell_ionization_conduction() : SpellScriptLoader("spell_ionization_conduction") { }
+
+        class spell_ionization_conduction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ionization_conduction_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<WorldObject*> targetsToRemove;
+                for (auto target : targets)
+                {
+                    if (!target->FindNearestCreature(NPC_CONDUCTIVE_WATER, 30.0f))
+                        targetsToRemove.push_back(target);
+                }
+
+                for (auto itr : targetsToRemove)
+                    targets.remove(itr);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ionization_conduction_SpellScript();
         }
 };
 
@@ -1115,6 +1402,8 @@ void AddSC_boss_jin_rokh_the_breaker()
     new mob_statue();
     new mob_conductive_water();
     new mob_call_da_storm_stalker();
+    new mob_lightning_spark();
+    new mob_lightning_pillar_stalker();
     new spell_static_burst();
     new spell_static_wound();
     new spell_static_wound_damage();
@@ -1123,4 +1412,6 @@ void AddSC_boss_jin_rokh_the_breaker()
     new spell_focused_lightning_damage();
     new spell_thundering_throw_eject();
     new spell_lightning_storm_periodic();
+    new spell_ionization();
+    new spell_ionization_conduction();
 }

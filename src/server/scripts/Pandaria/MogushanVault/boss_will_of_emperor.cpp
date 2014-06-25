@@ -514,8 +514,13 @@ class boss_jin_qin_xi : public CreatureScript
 
                 // Check wipe
                 if (pInstance)
+                {
                     if (isActive && pInstance->IsWipe())
+                    {
                         DoAction(ACTION_REACHHOME);
+                        return;
+                    }
+                }
 
                 // Check life sharing
                 if (isActive && me->GetHealth() > 0)
@@ -1362,6 +1367,7 @@ class mob_ancient_mogu_machine : public CreatureScript
 
             mob_ancient_mogu_machineAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
@@ -1371,6 +1377,7 @@ class mob_ancient_mogu_machine : public CreatureScript
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             // Talk
             void DoAction(const int32 action)
@@ -1385,6 +1392,14 @@ class mob_ancient_mogu_machine : public CreatureScript
                     case ACTION_MOGU_STOP:
                     {
                         events.Reset();
+                        me->RemoveAllAuras();
+                        if (pInstance)
+                        {
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_AURA);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_AURA2);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_HEROIC);
+                        }
                         break;
                     }
                     default:

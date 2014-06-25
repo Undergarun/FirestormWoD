@@ -81,20 +81,14 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetUInt64Value(AREATRIGGER_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
-    SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
+
+    if (spell->GetDuration() != -1)
+        SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
+
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE_X));
 
     if (float radius = sSpellMgr->GetAreaTriggerVisual(spell->Id))
         SetVisualRadius(radius);
-
-    switch (spell->Id)
-    {
-        case 123811:// Pheromones of Zeal - 2h
-            SetDuration(7200000);
-            break;
-        default:
-            break;
-    }
 
     if (!GetMap()->AddToMap(this))
         return false;
@@ -104,9 +98,10 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
 void AreaTrigger::Update(uint32 p_time)
 {
+    // Don't decrease infinite durations
     if (GetDuration() > int32(p_time))
         _duration -= p_time;
-    else
+    else if (GetDuration() != -1)
         Remove(); // expired
 
     WorldObject::Update(p_time);

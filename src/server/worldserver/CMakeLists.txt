@@ -34,6 +34,27 @@ set(worldserver_SRCS
   ${sources_localdir}
 )
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${worldserver_SRCS}")
+
+set(worldserver_SRCS
+  ${worldserver_SRCS}
+)
+
 if( WIN32 )
   set(worldserver_SRCS
     ${worldserver_SRCS}
@@ -147,6 +168,7 @@ include_directories(
 set(worldserver_LINK_FLAGS "")
 
 add_executable(worldserver ${worldserver_SRCS})
+set_property(TARGET worldserver PROPERTY FOLDER "server")
 
 if( NOT WIN32 )
   add_definitions(-D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"')

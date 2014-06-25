@@ -61,9 +61,6 @@ class instance_heart_of_fear : public InstanceMapScript
             uint64 unsokGuid;
             uint64 shekzeerGuid;
 
-            // Add GUIDs
-            uint64 stormSpiritGuid;
-
             // Special Doors GUIDs
             uint64 zorlokEntranceDoorGuid;
             uint64 tayakEntranceDoorGuid;
@@ -100,9 +97,6 @@ class instance_heart_of_fear : public InstanceMapScript
                 {
                     case NPC_ZORLOK:
                         zorlokGuid = creature->GetGUID();
-                        break;
-                    case NPC_STORM_SPIRIT:
-                        stormSpiritGuid = creature->GetGUID();
                         break;
                     case NPC_TAYAK:
                         tayakGuid = creature->GetGUID();
@@ -202,8 +196,6 @@ class instance_heart_of_fear : public InstanceMapScript
                     // --- Creatures ---
                     case NPC_ZORLOK:
                         return zorlokGuid;
-                    case NPC_STORM_SPIRIT:
-                        return stormSpiritGuid;
                     case NPC_TAYAK:
                         return tayakGuid;
                     case NPC_GARALON:

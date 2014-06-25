@@ -3451,6 +3451,44 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869: // Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 138652: // Eruption
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 140946: // Dire Fixation
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 136644: // Venomous Effusion
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[3].Effect = 0;
+                break;
+            case 136654: // Rending Charge
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(153); // 60 yards
+                break;
+            case 136740: // Double Swipe (back)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
+                break;
+            case 136797: // Dino Mending
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 139550: // Torment
+            case 138742: // Chocking Sands
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 139900: // Stormcloud
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 137313: // Lightning Storm
+                spellInfo->Effects[1].TriggerSpell = 0;
+                break;
+            case 138732: // Ionization
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                break;
             case 137422: // Focused Lightning (eyes)
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -3459,6 +3497,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137145: // Conductive Water (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 139364: // Spirit Lantern
+                spellInfo->Effects[1].Effect = 0;
+                break;
+            case 139461: // Spirit Light
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 137905: // Lightning Diffusion
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(7); // 2 yards
                 break;
             case 138470: // Conductive Water (Damage taken)
             case 138006: // Electrified Waters (periodic damage)
@@ -4401,6 +4454,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_CHANNEL_TARGET;
                 spellInfo->Effects[5].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL_2;
                 spellInfo->Effects[5].MiscValue = 58044;
+                break;
+            case 122457:// Rough Landing
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;

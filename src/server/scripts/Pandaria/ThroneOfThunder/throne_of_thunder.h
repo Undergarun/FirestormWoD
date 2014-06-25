@@ -65,6 +65,19 @@ enum eCreatures
     NPC_THROWN_SPEAR                = 69438,
     NPC_ZANDALARI_STORM_CALLER      = 69390,
     NPC_TRASH_FOCUSED_LIGHTNING     = 70174,
+    NPC_ANCIENT_PYTHON              = 70448,
+    NPC_DARK_WINDS_BUNNY            = 59394,
+    NPC_DRAKKARI_FROST_WARDEN       = 69910,
+    NPC_GLACIAL_FREEZE_TOTEM        = 70047,
+    NPC_GURUBASHI_BERSERKER_1       = 69905,
+    NPC_GURUBASHI_BERSERKER_2       = 69916,
+    NPC_AMANI_SHI_FLAME_CHANTER     = 69909,
+    NPC_FARRAKI_SAND_CONJURER       = 69899,
+    NPC_SAND_ELEMENTAL              = 69944,
+    NPC_ZANDALARI_HIGH_PRIEST       = 69906,
+    NPC_ZANDALARI_PROPHET           = 70557,
+    NPC_ZANDALARI_WARLORD           = 69911,
+    NPC_ZANDALARI_PRELATE           = 69927,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
@@ -72,8 +85,34 @@ enum eCreatures
     NPC_LIGHTNING_FISSURE           = 69609,
     NPC_STATUE                      = 69467,
     NPC_CONDUCTIVE_WATER            = 69469,
+    NPC_LIGHTNING_SPARK             = 69635,
+    NPC_LIGHTNING_PILLER_STALKER    = 69813,
 
+    // Horridon
     NPC_HORRIDON                    = 68476,
+    NPC_WAR_GOD_JALAK               = 69374,
+    NPC_DIREHORN_SPIRIT             = 70688,
+    // Farraki tribe
+    NPC_SUL_LITHUZ_STONEGAZER       = 69172,
+    NPC_FARRAKI_SKIRMICHER          = 69173,
+    NPC_FARRAKI_WASTEWALKER         = 69175,
+    NPC_ZANDALARI_DINOMANCER        = 69221,
+    NPC_SAND_TRAP                   = 69346,
+    // Gurubashi tribe
+    NPC_GURUBASHI_BLOODLORD         = 69167,
+    NPC_GURUBASHI_VENOM_PRIEST      = 69164,
+    NPC_VENOMOUS_EFFUSION           = 69314,
+    // Drakkari tribe
+    NPC_RISEN_DRAKKARI_WARRIOR      = 69184,
+    NPC_RISEN_DRAKKARI_CHAMPION     = 69185,
+    NPC_DRAKKARI_FROZEN_WARLORD     = 69178,
+    NPC_FROZEN_ORB                  = 69268,
+    // Amani tribe
+    NPC_AMANI_SHI_FLAME_CASTER      = 69168,
+    NPC_AMANI_SHI_PROTECTOR         = 69169,
+    NPC_AMANI_SHI_BEAST_SHAMAN      = 69176,
+    NPC_AMANI_WARBEAR               = 69177,
+    NPC_LIGHTNING_NOVA_TOTEM        = 69215,
 
     // Council of Elders
     NPC_KAZRA_JIN                   = 69134,
@@ -107,10 +146,28 @@ enum eCreatures
 
 enum eGameObjects
 {
-    GOB_MOGU_FOUNTAIN_NW        = 218678,
-    GOB_MOGU_FOUNTAIN_SW        = 218676,
-    GOB_MOGU_FOUNTAIN_NE        = 218677,
-    GOB_MOGU_FOUNTAIN_SE        = 218675
+    GOB_MOGU_FOUNTAIN_NW            = 218678,
+    GOB_MOGU_FOUNTAIN_SW            = 218676,
+    GOB_MOGU_FOUNTAIN_NE            = 218677,
+    GOB_MOGU_FOUNTAIN_SE            = 218675,
+
+    GOB_HORRIDON_GATE               = 218674,
+    GOB_FARRAKI_TRIBAL_DOOR         = 218672,
+    GOB_FARRAKI_ORB_OF_CONTROL      = 218193,
+    GOB_GURUBASHI_TRIBAL_DOOR       = 218670,
+    GOB_GURUBASHI_ORB_OF_CONTROL    = 218374,
+    GOB_DRAKKARI_TRIBAL_DOOR        = 218671,
+    GOB_DRAKKARI_ORB_OF_CONTROL     = 218375,
+    GOB_AMANI_TRIBAL_DOOR           = 218673,
+    GOB_AMANI_ORB_OF_CONTROL        = 218376,
+
+    GOB_JIN_ROKH_ENTRANCE_DOOR      = 218664,
+    GOB_JIN_ROKH_EXIT_DOOR          = 218663,
+    GOB_HORRIDON_ENTRANCE_DOOR      = 218667,
+    GOB_HORRIDON_EXIT_DOOR          = 218666,
+    GOB_COUNCIL_ENTRANCE_DOOR_LEFT  = 218655,
+    GOB_COUNCIL_ENTRANCE_DOOR_RIGHT = 218656,
+    GOB_COUNCIL_EXIT_DOOR           = 218657
 };
 
 enum eAchievementData
@@ -120,6 +177,7 @@ enum eAchievementData
 enum eSharedSpells
 {
     SPELL_ENRAGE    = 47008,
+    SPELL_SELF_ROOT = 125467
 };
 
 #endif // THRONE_OF_THUNDER_H_

@@ -99,7 +99,11 @@ enum specialSpells
     SPELL_THUNDERING_THROW_JUMP_DEST    = 137173,
     SPELL_THUNDERING_THROW_VEHICLE      = 137161,
     SPELL_THUNDERING_THROW_AOE          = 137167,
-    SPELL_THUNDERING_THROW_STUN_PLAYER  = 137371
+    SPELL_THUNDERING_THROW_STUN_PLAYER  = 137371,
+
+    // Horridon - ToT
+    SPELL_HORRIDON_CHARGE               = 136769,
+    SPELL_DOUBLE_SWIPE                  = 136741
 };
 
 template<class T>
@@ -116,6 +120,9 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit
     {
         case BABY_ELEPHANT_TAKES_A_BATH:
             unit.CastSpell(&unit, BABY_ELEPHANT_TAKES_A_BATH_2, true);
+            break;
+        case SPELL_HORRIDON_CHARGE:
+            unit.CastSpell(&unit, SPELL_DOUBLE_SWIPE, false);
             break;
         default:
             break;
