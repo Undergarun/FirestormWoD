@@ -4435,6 +4435,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
+            case 123255:// Dissonance Field
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_DUMMY; // Cancel triggering 123596 (knock back)
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
