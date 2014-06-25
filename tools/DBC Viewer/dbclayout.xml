@@ -1,0 +1,1246 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: dbclayout.xml 2010-18-09 0:13:00 TOM_RUS $ -->
+<DBFilesClient>
+  <Achievement build="18179">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="uint" name="m_ID" />
+    <field type="int" name="m_faction" />
+    <field type="int" name="m_instance_id" />
+    <field type="uint" name="m_supercedes" />
+    <field type="string" name="m_title_lang" />
+    <field type="string" name="m_description_lang" />
+    <field type="uint" name="m_category" />
+    <field type="uint" name="m_points" />
+    <field type="uint" name="m_ui_order" />
+    <field type="uint" name="m_flags" />
+    <field type="uint" name="m_iconID" />
+    <field type="string" name="m_reward_lang" />
+    <field type="uint" name="m_minimum_criteria" />
+    <field type="uint" name="m_shares_criteria" />
+    <field type="uint" name="m_criteria_tree" />
+  </Achievement>
+  <Achievement_Category build="18179">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_parent" />
+    <field type="string" name="m_name_lang" />
+    <field type="int" name="m_ui_order" />
+  </Achievement_Category>
+  <AnimKitBoneSetAlias build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_boneDataID" />
+    <field type="int" name="m_animKitBoneSetID" />
+  </AnimKitBoneSetAlias>
+  <AnimKitBoneSet build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_name" />
+    <field type="int" name="m_boneDataID" />
+    <field type="int" name="m_parentAnimKitBoneSetID" />
+    <field type="int" name="m_extraBoneCount" />
+    <field type="int" name="m_altAnimKitBoneSetID" />
+  </AnimKitBoneSet>
+  <AnimKitConfigBoneSet build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_parentAnimKitConfigID" />
+    <field type="int" name="m_animKitBoneSetID" />
+    <field type="int" name="m_animKitPriorityID" />
+  </AnimKitConfigBoneSet>
+  <AnimKitConfig build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_configFlags" />
+  </AnimKitConfig>
+  <AnimKitPriority build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_priority" />
+  </AnimKitPriority>
+  <AnimKit build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_oneShotDuration" />
+    <field type="int" name="m_oneShotStopAnimKitID" />
+    <field type="int" name="m_lowDefAnimKitID" />
+  </AnimKit>
+  <AnimKitSegment build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_parentAnimKitID" />
+    <field type="int" name="m_orderIndex" />
+    <field type="int" name="m_animID" />
+    <field type="int" name="m_animStartTime" />
+    <field type="int" name="m_animKitConfigID" />
+    <field type="int" name="m_startCondition" />
+    <field type="int" name="m_startConditionParam" />
+    <field type="int" name="m_startConditionDelay" />
+    <field type="int" name="m_endCondition" />
+    <field type="int" name="m_endConditionParam" />
+    <field type="int" name="m_endConditionDelay" />
+    <field type="float" name="m_speed" />
+    <field type="int" name="m_segmentFlags" />
+    <field type="int" name="m_forcedVariation" />
+    <field type="int" name="m_overrideConfigFlags" />
+    <field type="int" name="m_loopToSegmentIndex" />
+  </AnimKitSegment>
+  <AnimReplacement build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_srcAnimID" />
+    <field type="int" name="m_dstAnimID" />
+    <field type="int" name="m_parentAnimReplacementSetID" />
+  </AnimReplacement>
+  <AnimReplacementSet build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_execOrder" />
+  </AnimReplacementSet>
+  <AreaAssignment build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="m_MapID" />
+    <field type="int" name="m_AreaID" />
+    <field type="int" name="m_ChunkX" />
+    <field type="int" name="m_ChunkY" />
+  </AreaAssignment>
+  <AreaGroup build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_areaID_1" />
+    <field type="int" name="m_areaID_2" />
+    <field type="int" name="m_areaID_3" />
+    <field type="int" name="m_areaID_4" />
+    <field type="int" name="m_areaID_5" />
+    <field type="int" name="m_areaID_6" />
+    <field type="int" name="m_nextAreaID" />
+  </AreaGroup>
+  <AreaPOI build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_importance" />
+    <field type="int" name="m_icon_1" />
+    <field type="int" name="m_icon_2" />
+    <field type="int" name="m_icon_3" />
+    <field type="int" name="m_icon_4" />
+    <field type="int" name="m_icon_5" />
+    <field type="int" name="m_icon_6" />
+    <field type="int" name="m_icon_7" />
+    <field type="int" name="m_icon_8" />
+    <field type="int" name="m_icon_9" />
+    <field type="int" name="m_factionID" />
+    <field type="float" name="m_pos_1" />
+    <field type="float" name="m_pos_2" />
+    <field type="int" name="m_continentID" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_areaID" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_description_lang" />
+    <field type="int" name="m_worldStateID" />
+    <field type="int" name="m_playerConditionID" />
+    <field type="int" name="m_worldMapLink" />
+    <field type="int" name="m_portLocID" />
+  </AreaPOI>
+  <AreaTriggerActionSet build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_flags" />
+  </AreaTriggerActionSet>
+  <AreaTriggerBox build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_extents_1" />
+    <field type="float" name="m_extents_2" />
+    <field type="float" name="m_extents_3" />
+  </AreaTriggerBox>
+  <AreaTriggerCylinder build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_radius" />
+    <field type="float" name="m_height" />
+  </AreaTriggerCylinder>
+  <AreaTrigger build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_ContinentID" />
+    <field type="float" name="m_pos_1" />
+    <field type="float" name="m_pos_2" />
+    <field type="float" name="m_pos_3" />
+    <field type="int" name="m_phaseUseFlags" />
+    <field type="int" name="m_phaseID" />
+    <field type="int" name="m_phaseGroupID" />
+    <field type="float" name="m_radius" />
+    <field type="float" name="m_box_length" />
+    <field type="float" name="m_box_width" />
+    <field type="float" name="m_box_height" />
+    <field type="float" name="m_box_yaw" />
+    <field type="int" name="m_shapeType" />
+    <field type="int" name="m_shapeID" />
+    <field type="int" name="m_areaTriggerActionSetID" />
+    <field type="int" name="m_flags" />
+  </AreaTrigger>
+  <AreaTriggerSphere build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_maxRadius" />
+  </AreaTriggerSphere>
+  <ArmorLocation build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_clothmodifier" />
+    <field type="float" name="m_leathermodifier" />
+    <field type="float" name="m_chainmodifier" />
+    <field type="float" name="m_platemodifier" />
+    <field type="float" name="m_modifier" />
+  </ArmorLocation>
+  <AuctionHouse build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_factionID" />
+    <field type="int" name="m_depositRate" />
+    <field type="int" name="m_consignmentRate" />
+    <field type="string" name="m_name_lang" />
+  </AuctionHouse>
+  <BankBagSlotPrices build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_Cost" />
+  </BankBagSlotPrices>
+  <BannedAddOns build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_nameMD5_1" />
+    <field type="int" name="m_nameMD5_2" />
+    <field type="int" name="m_nameMD5_3" />
+    <field type="int" name="m_nameMD5_4" />
+    <field type="int" name="m_versionMD5_1" />
+    <field type="int" name="m_versionMD5_2" />
+    <field type="int" name="m_versionMD5_3" />
+    <field type="int" name="m_versionMD5_4" />
+    <field type="int" name="m_lastModified" />
+    <field type="int" name="m_flags" />
+  </BannedAddOns>
+  <BarberShopStyle build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_type" />
+    <field type="string" name="m_DisplayName_lang" />
+    <field type="string" name="m_Description_lang" />
+    <field type="float" name="m_Cost_Modifier" />
+    <field type="int" name="m_race" />
+    <field type="int" name="m_sex" />
+    <field type="int" name="m_data" />
+  </BarberShopStyle>
+  <BattleMasterList build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_mapID_1" />
+    <field type="int" name="m_mapID_2" />
+    <field type="int" name="m_mapID_3" />
+    <field type="int" name="m_mapID_4" />
+    <field type="int" name="m_mapID_5" />
+    <field type="int" name="m_mapID_6" />
+    <field type="int" name="m_mapID_7" />
+    <field type="int" name="m_mapID_8" />
+    <field type="int" name="m_mapID_9" />
+    <field type="int" name="m_mapID_10" />
+    <field type="int" name="m_mapID_11" />
+    <field type="int" name="m_mapID_12" />
+    <field type="int" name="m_mapID_13" />
+    <field type="int" name="m_mapID_14" />
+    <field type="int" name="m_mapID_15" />
+    <field type="int" name="m_mapID_16" />
+    <field type="int" name="m_instanceType" />
+    <field type="int" name="m_groupsAllowed" />
+    <field type="string" name="m_name_lang" />
+    <field type="int" name="m_maxGroupSize" />
+    <field type="int" name="m_holidayWorldState" />
+    <field type="int" name="m_minlevel" />
+    <field type="int" name="m_maxlevel" />
+    <field type="int" name="m_ratedPlayers" />
+    <field type="int" name="m_minPlayers" />
+    <field type="int" name="m_maxPlayers" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_iconFileDataID" />
+    <field type="string" name="m_gametype_lang" />
+  </BattleMasterList>
+  <CameraMode build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_name" />
+    <field type="int" name="m_type" />
+    <field type="int" name="m_flags" />
+    <field type="float" name="m_positionOffset_1" />
+    <field type="float" name="m_positionOffset_2" />
+    <field type="float" name="m_positionOffset_3" />
+    <field type="float" name="m_targetOffset_1" />
+    <field type="float" name="m_targetOffset_2" />
+    <field type="float" name="m_targetOffset_3" />
+    <field type="float" name="m_positionSmoothing" />
+    <field type="float" name="m_rotationSmoothing" />
+    <field type="float" name="m_fieldOfView" />
+    <field type="int" name="m_lockedPositionOffsetBase" />
+    <field type="int" name="m_lockedPositionOffsetDirection" />
+    <field type="int" name="m_lockedTargetOffsetBase" />
+    <field type="int" name="m_lockedTargetOffsetDirection" />
+  </CameraMode>
+  <CameraShakes build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_shakeType" />
+    <field type="int" name="m_direction" />
+    <field type="float" name="m_amplitude" />
+    <field type="float" name="m_frequency" />
+    <field type="float" name="m_duration" />
+    <field type="float" name="m_phase" />
+    <field type="float" name="m_coefficient" />
+    <field type="int" name="m_flags" />
+  </CameraShakes>
+  <CastableRaidBuffs build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_spellID" />
+    <field type="int" name="m_castingSpellID" />
+  </CastableRaidBuffs>
+  <Cfg_Categories build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_localeMask" />
+    <field type="int" name="m_create_charsetMask" />
+    <field type="int" name="m_existing_charsetMask" />
+    <field type="int" name="m_flags" />
+    <field type="string" name="m_name_lang" />
+  </Cfg_Categories>
+  <Cfg_Regions build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_tag" />
+    <field type="int" name="m_region_group_mask" />
+    <field type="int" name="m_rulesetID" />
+  </Cfg_Regions>
+  <CharacterLoadoutItem build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_characterLoadoutID" />
+    <field type="int" name="m_itemID" />
+    <field type="int" name="m_itemDisplayInfoID" />
+    <field type="int" name="m_itemInventoryType" />
+  </CharacterLoadoutItem>
+  <CharacterLoadout build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_chrClassID" />
+    <field type="int" name="m_purpose" />
+    <field type="int" name="m_racemask" />
+  </CharacterLoadout>
+  <CharBaseInfo build="0">
+    <field type="byte" name="m_raceID" />
+    <field type="byte" name="m_classID" />
+    <field type="int" name="UNK" />
+  </CharBaseInfo>
+  <CharBaseSection build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_fallbackID" />
+    <field type="int" name="m_layoutResType" />
+  </CharBaseSection>
+  <CharComponentTextureLayouts build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_width" />
+    <field type="int" name="m_height" />
+  </CharComponentTextureLayouts>
+  <CharComponentTextureSections build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_charComponentTextureLayoutID" />
+    <field type="int" name="m_sectionType" />
+    <field type="int" name="m_x" />
+    <field type="int" name="m_y" />
+    <field type="int" name="m_width" />
+    <field type="int" name="m_height" />
+  </CharComponentTextureSections>
+  <CharStartOutfit build="0">
+    <field type="int" name="m_ID" />
+    <field type="byte" name="m_raceID" />
+    <field type="byte" name="m_classID" />
+    <field type="byte" name="m_sexID" />
+    <field type="byte" name="m_outfitID" />
+    <field type="int" name="m_ItemID_1" />
+    <field type="int" name="m_ItemID_2" />
+    <field type="int" name="m_ItemID_3" />
+    <field type="int" name="m_ItemID_4" />
+    <field type="int" name="m_ItemID_5" />
+    <field type="int" name="m_ItemID_6" />
+    <field type="int" name="m_ItemID_7" />
+    <field type="int" name="m_ItemID_8" />
+    <field type="int" name="m_ItemID_9" />
+    <field type="int" name="m_ItemID_10" />
+    <field type="int" name="m_ItemID_11" />
+    <field type="int" name="m_ItemID_12" />
+    <field type="int" name="m_ItemID_13" />
+    <field type="int" name="m_ItemID_14" />
+    <field type="int" name="m_ItemID_15" />
+    <field type="int" name="m_ItemID_16" />
+    <field type="int" name="m_ItemID_17" />
+    <field type="int" name="m_ItemID_18" />
+    <field type="int" name="m_ItemID_19" />
+    <field type="int" name="m_ItemID_20" />
+    <field type="int" name="m_ItemID_21" />
+    <field type="int" name="m_ItemID_22" />
+    <field type="int" name="m_ItemID_23" />
+    <field type="int" name="m_ItemID_24" />
+    <field type="int" name="m_DisplayItemID_1" />
+    <field type="int" name="m_DisplayItemID_2" />
+    <field type="int" name="m_DisplayItemID_3" />
+    <field type="int" name="m_DisplayItemID_4" />
+    <field type="int" name="m_DisplayItemID_5" />
+    <field type="int" name="m_DisplayItemID_6" />
+    <field type="int" name="m_DisplayItemID_7" />
+    <field type="int" name="m_DisplayItemID_8" />
+    <field type="int" name="m_DisplayItemID_9" />
+    <field type="int" name="m_DisplayItemID_10" />
+    <field type="int" name="m_DisplayItemID_11" />
+    <field type="int" name="m_DisplayItemID_12" />
+    <field type="int" name="m_DisplayItemID_13" />
+    <field type="int" name="m_DisplayItemID_14" />
+    <field type="int" name="m_DisplayItemID_15" />
+    <field type="int" name="m_DisplayItemID_16" />
+    <field type="int" name="m_DisplayItemID_17" />
+    <field type="int" name="m_DisplayItemID_18" />
+    <field type="int" name="m_DisplayItemID_19" />
+    <field type="int" name="m_DisplayItemID_20" />
+    <field type="int" name="m_DisplayItemID_21" />
+    <field type="int" name="m_DisplayItemID_22" />
+    <field type="int" name="m_DisplayItemID_23" />
+    <field type="int" name="m_DisplayItemID_24" />
+    <field type="int" name="m_InventoryType_1" />
+    <field type="int" name="m_InventoryType_2" />
+    <field type="int" name="m_InventoryType_3" />
+    <field type="int" name="m_InventoryType_4" />
+    <field type="int" name="m_InventoryType_5" />
+    <field type="int" name="m_InventoryType_6" />
+    <field type="int" name="m_InventoryType_7" />
+    <field type="int" name="m_InventoryType_8" />
+    <field type="int" name="m_InventoryType_9" />
+    <field type="int" name="m_InventoryType_10" />
+    <field type="int" name="m_InventoryType_11" />
+    <field type="int" name="m_InventoryType_12" />
+    <field type="int" name="m_InventoryType_13" />
+    <field type="int" name="m_InventoryType_14" />
+    <field type="int" name="m_InventoryType_15" />
+    <field type="int" name="m_InventoryType_16" />
+    <field type="int" name="m_InventoryType_17" />
+    <field type="int" name="m_InventoryType_18" />
+    <field type="int" name="m_InventoryType_19" />
+    <field type="int" name="m_InventoryType_20" />
+    <field type="int" name="m_InventoryType_21" />
+    <field type="int" name="m_InventoryType_22" />
+    <field type="int" name="m_InventoryType_23" />
+    <field type="int" name="m_InventoryType_24" />
+    <field type="int" name="m_petDisplayID" />
+    <field type="int" name="m_petFamilyID" />
+  </CharStartOutfit>
+  <CharTitles build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_Condition_ID" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_name1_lang" />
+    <field type="int" name="m_mask_ID" />
+    <field type="int" name="m_flags" />
+  </CharTitles>
+  <ChatChannels build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_factionGroup" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_shortcut_lang" />
+  </ChatChannels>
+  <ChatProfanity build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_text" />
+    <field type="int" name="m_Language" />
+  </ChatProfanity>
+  <ChrClasses build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_DisplayPower" />
+    <field type="string" name="m_petNameToken" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_name_female_lang" />
+    <field type="string" name="m_name_male_lang" />
+    <field type="string" name="m_filename" />
+    <field type="int" name="m_spellClassSet" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_cinematicSequenceID" />
+    <field type="int" name="m_attackPowerPerStrength" />
+    <field type="int" name="m_attackPowerPerAgility" />
+    <field type="int" name="m_rangedAttackPowerPerAgility" />
+    <field type="int" name="m_defaultSpec" />
+    <field type="int" name="m_createScreenFileDataID" />
+    <field type="int" name="m_selectScreenFileDataID" />
+    <field type="int" name="m_lowResScreenFileDataID" />
+    <field type="int" name="m_iconFileDataID" />
+  </ChrClasses>
+  <ChrClassesXPowerTypes build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_classID" />
+    <field type="int" name="m_powerType" />
+  </ChrClassesXPowerTypes>
+  <ChrRaces build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_factionID" />
+    <field type="int" name="m_ExplorationSoundID" />
+    <field type="int" name="m_MaleDisplayId" />
+    <field type="int" name="m_FemaleDisplayId" />
+    <field type="string" name="m_ClientPrefix" />
+    <field type="int" name="m_BaseLanguage" />
+    <field type="int" name="m_creatureType" />
+    <field type="int" name="m_ResSicknessSpellID" />
+    <field type="int" name="m_SplashSoundID" />
+    <field type="string" name="m_clientFileString" />
+    <field type="int" name="m_cinematicSequenceID" />
+    <field type="int" name="m_alliance" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_name_female_lang" />
+    <field type="string" name="m_name_male_lang" />
+    <field type="string" name="m_facialHairCustomization_1" />
+    <field type="string" name="m_facialHairCustomization_2" />
+    <field type="string" name="m_hairCustomization" />
+    <field type="int" name="m_race_related" />
+    <field type="int" name="m_unalteredVisualRaceID" />
+    <field type="int" name="m_uaMaleCreatureSoundDataID" />
+    <field type="int" name="m_uaFemaleCreatureSoundDataID" />
+    <field type="int" name="m_charComponentTextureLayoutID" />
+    <field type="int" name="m_defaultClassID" />
+    <field type="int" name="m_createScreenFileDataID" />
+    <field type="int" name="m_selectScreenFileDataID" />
+    <field type="float" name="m_maleCustomizeOffset_1" />
+    <field type="float" name="m_maleCustomizeOffset_2" />
+    <field type="float" name="m_maleCustomizeOffset_3" />
+    <field type="float" name="m_femaleCustomizeOffset_1" />
+    <field type="float" name="m_femaleCustomizeOffset_2" />
+    <field type="float" name="m_femaleCustomizeOffset_3" />
+    <field type="int" name="m_neutralRaceID" />
+    <field type="int" name="m_lowResScreenFileDataID" />
+    <field type="int" name="m_HighResMaleDisplayId" />
+    <field type="int" name="m_HighResFemaleDisplayId" />
+    <field type="int" name="m_charComponentTexLayoutHiResID" />
+  </ChrRaces>
+  <ChrSpecialization build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_backgroundFile" />
+    <field type="int" name="m_classID" />
+    <field type="int" name="m_masterySpellID_1" />
+    <field type="int" name="m_masterySpellID_2" />
+    <field type="int" name="m_orderIndex" />
+    <field type="int" name="m_petTalentType" />
+    <field type="int" name="m_role" />
+    <field type="int" name="m_spellIconID" />
+    <field type="int" name="m_raidBuffs" />
+    <field type="int" name="m_flags" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_description_lang" />
+    <field type="int" name="m_maxBuffs" />
+    <field type="int" name="m_primaryStatOrder_1" />
+    <field type="int" name="m_primaryStatOrder_2" />
+    <field type="int" name="m_primaryStatOrder_3" />
+  </ChrSpecialization>
+  <CinematicCamera build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_model" />
+    <field type="int" name="m_soundID" />
+    <field type="float" name="m_origin_1" />
+    <field type="float" name="m_origin_2" />
+    <field type="float" name="m_origin_3" />
+    <field type="float" name="m_originFacing" />
+  </CinematicCamera>
+  <CinematicSequences build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_soundID" />
+    <field type="int" name="m_camera_1" />
+    <field type="int" name="m_camera_2" />
+    <field type="int" name="m_camera_3" />
+    <field type="int" name="m_camera_4" />
+    <field type="int" name="m_camera_5" />
+    <field type="int" name="m_camera_6" />
+    <field type="int" name="m_camera_7" />
+    <field type="int" name="field9" />
+  </CinematicSequences>
+  <CombatCondition build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_worldStateExpressionID" />
+    <field type="int" name="m_selfConditionID" />
+    <field type="int" name="m_targetConditionID" />
+    <field type="int" name="m_friendConditionID_1" />
+    <field type="int" name="m_friendConditionID_2" />
+    <field type="int" name="m_friendConditionOp_1" />
+    <field type="int" name="m_friendConditionOp_2" />
+    <field type="int" name="m_friendConditionCount_1" />
+    <field type="int" name="m_friendConditionCount_2" />
+    <field type="int" name="m_friendConditionLogic" />
+    <field type="int" name="m_enemyConditionID_1" />
+    <field type="int" name="m_enemyConditionID_2" />
+    <field type="int" name="m_enemyConditionOp_1" />
+    <field type="int" name="m_enemyConditionOp_2" />
+    <field type="int" name="m_enemyConditionCount_1" />
+    <field type="int" name="m_enemyConditionCount_2" />
+    <field type="int" name="m_enemyConditionLogic" />
+  </CombatCondition>
+  <CreatureDisplayInfoExtra build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_DisplayRaceID" />
+    <field type="int" name="m_DisplaySexID" />
+    <field type="int" name="m_SkinID" />
+    <field type="int" name="m_FaceID" />
+    <field type="int" name="m_HairStyleID" />
+    <field type="int" name="m_HairColorID" />
+    <field type="int" name="m_FacialHairID" />
+    <field type="int" name="m_NPCItemDisplay_1" />
+    <field type="int" name="m_NPCItemDisplay_2" />
+    <field type="int" name="m_NPCItemDisplay_3" />
+    <field type="int" name="m_NPCItemDisplay_4" />
+    <field type="int" name="m_NPCItemDisplay_5" />
+    <field type="int" name="m_NPCItemDisplay_6" />
+    <field type="int" name="m_NPCItemDisplay_7" />
+    <field type="int" name="m_NPCItemDisplay_8" />
+    <field type="int" name="m_NPCItemDisplay_9" />
+    <field type="int" name="m_NPCItemDisplay_10" />
+    <field type="int" name="m_NPCItemDisplay_11" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_fileDataID" />
+    <field type="int" name="m_hdFileDataID" />
+  </CreatureDisplayInfoExtra>
+  <CreatureDisplayInfo build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_modelID" />
+    <field type="int" name="m_soundID" />
+    <field type="int" name="m_extendedDisplayInfoID" />
+    <field type="float" name="m_creatureModelScale" />
+    <field type="int" name="m_creatureModelAlpha" />
+    <field type="string" name="m_textureVariation_1" />
+    <field type="string" name="m_textureVariation_2" />
+    <field type="string" name="m_textureVariation_3" />
+    <field type="string" name="m_portraitTextureName" />
+    <field type="int" name="m_portraitCreatureDisplayInfoID" />
+    <field type="int" name="m_sizeClass" />
+    <field type="int" name="m_bloodID" />
+    <field type="int" name="m_NPCSoundID" />
+    <field type="int" name="m_particleColorID" />
+    <field type="int" name="m_creatureGeosetData" />
+    <field type="int" name="m_objectEffectPackageID" />
+    <field type="int" name="m_animReplacementSetID" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_gender" />
+    <field type="int" name="m_stateSpellVisualKitID" />
+  </CreatureDisplayInfo>
+  <CreatureFamily build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_minScale" />
+    <field type="int" name="m_minScaleLevel" />
+    <field type="float" name="m_maxScale" />
+    <field type="int" name="m_maxScaleLevel" />
+    <field type="int" name="m_skillLine_1" />
+    <field type="int" name="m_skillLine_2" />
+    <field type="int" name="m_petFoodMask" />
+    <field type="int" name="m_petTalentType" />
+    <field type="int" name="m_categoryEnumID" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_iconFile" />
+  </CreatureFamily>
+  <CreatureImmunities build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_school" />
+    <field type="int" name="m_dispelType" />
+    <field type="int" name="m_mechanicsAllowed" />
+    <field type="int" name="m_mechanic" />
+    <field type="int" name="m_effectsAllowed" />
+    <field type="int" name="m_effect_1" />
+    <field type="int" name="m_effect_2" />
+    <field type="int" name="m_effect_3" />
+    <field type="int" name="m_effect_4" />
+    <field type="int" name="m_effect_5" />
+    <field type="int" name="m_effect_6" />
+    <field type="int" name="m_effect_7" />
+    <field type="int" name="m_statesAllowed" />
+    <field type="int" name="m_state_1" />
+    <field type="int" name="m_state_2" />
+    <field type="int" name="m_state_3" />
+    <field type="int" name="m_state_4" />
+    <field type="int" name="m_state_5" />
+    <field type="int" name="m_state_6" />
+    <field type="int" name="m_state_7" />
+    <field type="int" name="m_state_8" />
+    <field type="int" name="m_state_9" />
+    <field type="int" name="m_state_10" />
+    <field type="int" name="m_state_11" />
+    <field type="int" name="m_state_12" />
+    <field type="int" name="m_state_13" />
+    <field type="int" name="m_state_14" />
+    <field type="int" name="m_state_15" />
+    <field type="int" name="m_flags" />
+  </CreatureImmunities>
+  <CreatureModelData build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_fileDataID" />
+    <field type="int" name="m_sizeClass" />
+    <field type="float" name="m_modelScale" />
+    <field type="int" name="m_bloodID" />
+    <field type="int" name="m_footprintTextureID" />
+    <field type="float" name="m_footprintTextureLength" />
+    <field type="float" name="m_footprintTextureWidth" />
+    <field type="float" name="m_footprintParticleScale" />
+    <field type="int" name="m_foleyMaterialID" />
+    <field type="int" name="m_footstepShakeSize" />
+    <field type="int" name="m_deathThudShakeSize" />
+    <field type="int" name="m_soundID" />
+    <field type="float" name="m_collisionWidth" />
+    <field type="float" name="m_collisionHeight" />
+    <field type="float" name="m_mountHeight" />
+    <field type="float" name="m_geoBoxMin_1" />
+    <field type="float" name="m_geoBoxMin_2" />
+    <field type="float" name="m_geoBoxMin_3" />
+    <field type="float" name="m_geoBoxMax_1" />
+    <field type="float" name="m_geoBoxMax_2" />
+    <field type="float" name="m_geoBoxMax_3" />
+    <field type="float" name="m_worldEffectScale" />
+    <field type="float" name="m_attachedEffectScale" />
+    <field type="float" name="m_missileCollisionRadius" />
+    <field type="float" name="m_missileCollisionPush" />
+    <field type="float" name="m_missileCollisionRaise" />
+    <field type="float" name="m_overrideLootEffectScale" />
+    <field type="float" name="m_overrideNameScale" />
+    <field type="float" name="m_overrideSelectionRadius" />
+    <field type="float" name="m_tamedPetBaseScale" />
+    <field type="int" name="m_creatureGeosetDataID" />
+    <field type="float" name="m_hoverHeight" />
+  </CreatureModelData>
+  <CreatureMovementInfo build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_smoothFacingChaseRate" />
+  </CreatureMovementInfo>
+  <CreatureSoundData build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_soundExertionID" />
+    <field type="int" name="m_soundExertionCriticalID" />
+    <field type="int" name="m_soundInjuryID" />
+    <field type="int" name="m_soundInjuryCriticalID" />
+    <field type="int" name="m_soundInjuryCrushingBlowID" />
+    <field type="int" name="m_soundDeathID" />
+    <field type="int" name="m_soundStunID" />
+    <field type="int" name="m_soundStandID" />
+    <field type="int" name="m_soundFootstepID" />
+    <field type="int" name="m_soundAggroID" />
+    <field type="int" name="m_soundWingFlapID" />
+    <field type="int" name="m_soundWingGlideID" />
+    <field type="int" name="m_soundAlertID" />
+    <field type="int" name="m_soundFidget_1" />
+    <field type="int" name="m_soundFidget_2" />
+    <field type="int" name="m_soundFidget_3" />
+    <field type="int" name="m_soundFidget_4" />
+    <field type="int" name="m_soundFidget_5" />
+    <field type="int" name="m_customAttack_1" />
+    <field type="int" name="m_customAttack_2" />
+    <field type="int" name="m_customAttack_3" />
+    <field type="int" name="m_customAttack_4" />
+    <field type="int" name="m_NPCSoundID" />
+    <field type="int" name="m_loopSoundID" />
+    <field type="int" name="m_creatureImpactType" />
+    <field type="int" name="m_soundJumpStartID" />
+    <field type="int" name="m_soundJumpEndID" />
+    <field type="int" name="m_soundPetAttackID" />
+    <field type="int" name="m_soundPetOrderID" />
+    <field type="int" name="m_soundPetDismissID" />
+    <field type="float" name="m_fidgetDelaySecondsMin" />
+    <field type="float" name="m_fidgetDelaySecondsMax" />
+    <field type="int" name="m_birthSoundID" />
+    <field type="int" name="m_spellCastDirectedSoundID" />
+    <field type="int" name="m_submergeSoundID" />
+    <field type="int" name="m_submergedSoundID" />
+    <field type="int" name="m_creatureSoundDataIDPet" />
+    <field type="int" name="m_transformSoundID" />
+    <field type="int" name="m_transformAnimatedSoundID" />
+  </CreatureSoundData>
+  <CreatureSpellData build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_spells_1" />
+    <field type="int" name="m_spells_2" />
+    <field type="int" name="m_spells_3" />
+    <field type="int" name="m_spells_4" />
+    <field type="int" name="m_availability_1" />
+    <field type="int" name="m_availability_2" />
+    <field type="int" name="m_availability_3" />
+    <field type="int" name="m_availability_4" />
+  </CreatureSpellData>
+  <CreatureType build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_name_lang" />
+    <field type="int" name="m_flags" />
+  </CreatureType>
+  <Criteria build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_type" />
+    <field type="int" name="m_asset" />
+    <field type="int" name="m_start_event" />
+    <field type="int" name="m_start_asset" />
+    <field type="int" name="m_start_timer" />
+    <field type="int" name="m_fail_event" />
+    <field type="int" name="m_fail_asset" />
+    <field type="int" name="m_modifier_tree_id" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_eligibility_world_state_ID" />
+    <field type="int" name="m_eligibility_world_state_value" />
+  </Criteria>
+  <!--   Mauvaise structure ou mauvaise DBC  m_amout_1 et m_amout_2 est passé en "int" pour l'affichage, le field m_orderIndex n'est pas dans la DBC actuelle
+  struct CriteriaTreeRec // sizeof(0x28)
+{
+    DWORD m_ID; // +0x0, size 0x4, type 0
+    DWORD m_criteriaID; // +0x4, size 0x4, type 0
+    float m_amount[2]; // +0x8, size 0x8, type 1
+    DWORD m_operator; // +0x10, size 0x4, type 0
+    DWORD m_parent; // +0x14, size 0x4, type 0
+    DWORD m_flags; // +0x18, size 0x4, type 0
+    char* m_description_lang; // +0x1C, size 0x4, type 2
+    DWORD m_orderIndex; // +0x20, size 0x4, type 0
+}; -->
+  <CriteriaTree build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_criteriaID" />
+    <field type="int" name="m_amount_1" />
+    <field type="int" name="m_amount_2" />
+    <field type="int" name="m_operator" />
+    <field type="int" name="m_parent" />
+    <field type="int" name="m_flags" />
+    <field type="string" name="m_description_lang" />
+  </CriteriaTree>
+  <CriteriaTreeXEffect build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_criteriaTreeID" />
+    <field type="int" name="m_worldEffectID" />
+  </CriteriaTreeXEffect>
+  <CurrencyCategory build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_flags" />
+    <field type="string" name="m_name_lang" />
+  </CurrencyCategory>
+  <CurrencyTypes build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_categoryID" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_inventoryIcon_1" />
+    <field type="string" name="m_inventoryIcon_2" />
+    <field type="int" name="m_spellWeight" />
+    <field type="int" name="m_spellCategory" />
+    <field type="int" name="m_maxQty" />
+    <field type="int" name="m_maxEarnablePerWeek" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_quality" />
+    <field type="string" name="m_description_lang" />
+  </CurrencyTypes>
+  <DeathThudLookups build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_SizeClass" />
+    <field type="int" name="m_TerrainTypeSoundID" />
+    <field type="int" name="m_SoundEntryID" />
+    <field type="int" name="m_SoundEntryIDWater" />
+  </DeathThudLookups>
+  <DestructibleModelData build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_state0Wmo" />
+    <field type="int" name="m_state0ImpactEffectDoodadSet" />
+    <field type="int" name="m_state0AmbientDoodadSet" />
+    <field type="int" name="m_state0NameSet" />
+    <field type="int" name="m_state1Wmo" />
+    <field type="int" name="m_state1DestructionDoodadSet" />
+    <field type="int" name="m_state1ImpactEffectDoodadSet" />
+    <field type="int" name="m_state1AmbientDoodadSet" />
+    <field type="int" name="m_state1NameSet" />
+    <field type="int" name="m_state2Wmo" />
+    <field type="int" name="m_state2DestructionDoodadSet" />
+    <field type="int" name="m_state2ImpactEffectDoodadSet" />
+    <field type="int" name="m_state2AmbientDoodadSet" />
+    <field type="int" name="m_state2NameSet" />
+    <field type="int" name="m_state3Wmo" />
+    <field type="int" name="m_state3InitDoodadSet" />
+    <field type="int" name="m_state3AmbientDoodadSet" />
+    <field type="int" name="m_state3NameSet" />
+    <field type="int" name="m_ejectDirection" />
+    <field type="int" name="m_repairGroundFx" />
+    <field type="int" name="m_doNotHighlight" />
+    <field type="int" name="m_healEffect" />
+    <field type="int" name="m_healEffectSpeed" />
+  </DestructibleModelData>
+  <Difficulty build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_fallbackDifficultyID" />
+    <field type="int" name="m_instanceType" />
+    <field type="int" name="m_minPlayers" />
+    <field type="int" name="m_maxPlayers" />
+    <field type="int" name="m_oldEnumValue" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_toggleDifficultyID" />
+    <field type="int" name="m_groupSizeHealthCurveID" />
+    <field type="int" name="m_groupSizeDmgCurveID" />
+    <field type="int" name="m_groupSizeSpellPointsCurveID" />
+    <field type="string" name="m_name_lang" />
+  </Difficulty>
+  <DungeonEncounter build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_mapID" />
+    <field type="int" name="m_difficultyID" />
+    <field type="int" name="m_orderIndex" />
+    <field type="int" name="m_Bit" />
+    <field type="string" name="m_name_lang" />
+    <field type="int" name="m_CreatureDisplayID" />
+    <field type="int" name="m_spellIconID" />
+    <field type="int" name="m_flags" />
+  </DungeonEncounter>
+  <DungeonMapChunk build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_mapID" />
+    <field type="int" name="m_wmoGroupID" />
+    <field type="int" name="m_dungeonMapID" />
+    <field type="float" name="m_minZ" />
+    <field type="int" name="m_doodadPlacementID" />
+  </DungeonMapChunk>
+  <DungeonMap build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_mapID" />
+    <field type="int" name="m_floorIndex" />
+    <field type="float" name="m_min_1" />
+    <field type="float" name="m_min_2" />
+    <field type="float" name="m_max_1" />
+    <field type="float" name="m_max_2" />
+    <field type="int" name="m_parentWorldMapID" />
+    <field type="int" name="m_flags" />
+  </DungeonMap>
+  <DurabilityCosts build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_weaponSubClassCost_1" />
+    <field type="int" name="m_weaponSubClassCost_2" />
+    <field type="int" name="m_weaponSubClassCost_3" />
+    <field type="int" name="m_weaponSubClassCost_4" />
+    <field type="int" name="m_weaponSubClassCost_5" />
+    <field type="int" name="m_weaponSubClassCost_6" />
+    <field type="int" name="m_weaponSubClassCost_7" />
+    <field type="int" name="m_weaponSubClassCost_8" />
+    <field type="int" name="m_weaponSubClassCost_9" />
+    <field type="int" name="m_weaponSubClassCost_10" />
+    <field type="int" name="m_weaponSubClassCost_11" />
+    <field type="int" name="m_weaponSubClassCost_12" />
+    <field type="int" name="m_weaponSubClassCost_13" />
+    <field type="int" name="m_weaponSubClassCost_14" />
+    <field type="int" name="m_weaponSubClassCost_15" />
+    <field type="int" name="m_weaponSubClassCost_16" />
+    <field type="int" name="m_weaponSubClassCost_17" />
+    <field type="int" name="m_weaponSubClassCost_18" />
+    <field type="int" name="m_weaponSubClassCost_19" />
+    <field type="int" name="m_weaponSubClassCost_20" />
+    <field type="int" name="m_weaponSubClassCost_21" />
+    <field type="int" name="m_armorSubClassCost_1" />
+    <field type="int" name="m_armorSubClassCost_2" />
+    <field type="int" name="m_armorSubClassCost_3" />
+    <field type="int" name="m_armorSubClassCost_4" />
+    <field type="int" name="m_armorSubClassCost_5" />
+    <field type="int" name="m_armorSubClassCost_6" />
+    <field type="int" name="m_armorSubClassCost_7" />
+    <field type="int" name="m_armorSubClassCost_8" />
+  </DurabilityCosts>
+  <DurabilityQuality build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="float" name="m_data" />
+  </DurabilityQuality>
+  <Emotes build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_EmoteSlashCommand" />
+    <field type="int" name="m_AnimID" />
+    <field type="int" name="m_EmoteFlags" />
+    <field type="int" name="m_EmoteSpecProc" />
+    <field type="int" name="m_EmoteSpecProcParam" />
+    <field type="int" name="m_EventSoundID" />
+    <field type="int" name="m_SpellVisualKitID" />
+  </Emotes>
+  <EmotesTextData build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_text_lang" />
+  </EmotesTextData>
+  <EmotesText build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_name" />
+    <field type="int" name="m_emoteID" />
+    <field type="int" name="m_emoteText_1" />
+    <field type="int" name="m_emoteText_2" />
+    <field type="int" name="m_emoteText_3" />
+    <field type="int" name="m_emoteText_4" />
+    <field type="int" name="m_emoteText_5" />
+    <field type="int" name="m_emoteText_6" />
+    <field type="int" name="m_emoteText_7" />
+    <field type="int" name="m_emoteText_8" />
+    <field type="int" name="m_emoteText_9" />
+    <field type="int" name="m_emoteText_10" />
+    <field type="int" name="m_emoteText_11" />
+    <field type="int" name="m_emoteText_12" />
+    <field type="int" name="m_emoteText_13" />
+    <field type="int" name="m_emoteText_14" />
+    <field type="int" name="m_emoteText_15" />
+    <field type="int" name="field18" />
+  </EmotesText>
+  <EmotesTextSound build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_emotesTextID" />
+    <field type="int" name="m_raceID" />
+    <field type="int" name="m_sexID" />
+    <field type="int" name="m_soundID" />
+  </EmotesTextSound>
+  <EnvironmentalDamage build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_EnumID" />
+    <field type="int" name="m_VisualkitID" />
+  </EnvironmentalDamage>
+  <Exhaustion build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_xp" />
+    <field type="float" name="m_factor" />
+    <field type="float" name="m_outdoorHours" />
+    <field type="float" name="m_innHours" />
+    <field type="string" name="m_name_lang" />
+    <field type="float" name="m_threshold" />
+    <field type="string" name="m_combatLogText" />
+  </Exhaustion>
+  <FactionGroup build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_maskID" />
+    <field type="string" name="m_internalName" />
+    <field type="string" name="m_name_lang" />
+  </FactionGroup>
+  <Faction build="0">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_reputationIndex" />
+    <field type="int" name="m_reputationRaceMask_1" />
+    <field type="int" name="m_reputationRaceMask_2" />
+    <field type="int" name="m_reputationRaceMask_3" />
+    <field type="int" name="m_reputationRaceMask_4" />
+    <field type="int" name="m_reputationClassMask_1" />
+    <field type="int" name="m_reputationClassMask_2" />
+    <field type="int" name="m_reputationClassMask_3" />
+    <field type="int" name="m_reputationClassMask_4" />
+    <field type="int" name="m_reputationBase_1" />
+    <field type="int" name="m_reputationBase_2" />
+    <field type="int" name="m_reputationBase_3" />
+    <field type="int" name="m_reputationBase_4" />
+    <field type="int" name="m_reputationFlags_1" />
+    <field type="int" name="m_reputationFlags_2" />
+    <field type="int" name="m_reputationFlags_3" />
+    <field type="int" name="m_reputationFlags_4" />
+    <field type="int" name="m_parentFactionID" />
+    <field type="float" name="m_parentFactionMod_1" />
+    <field type="float" name="m_parentFactionMod_2" />
+    <field type="int" name="m_parentFactionCap_1" />
+    <field type="int" name="m_parentFactionCap_2" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_description_lang" />
+    <field type="int" name="m_expansion" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_friendshipRepID" />
+  </Faction>
+  <FileData build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+    <field type="string" name="field2" />
+  </FileData>
+</DBFilesClient>

@@ -1,0 +1,9 @@
+This is a simple form that converts opcodes as server sees them to/from various values used by WoW client.
+Don't expect it to magically give you all the opcodes.
+
+Fields explanation:
+Opcode (hex/decimal) - opcode as server sends and receives it.
+Special (hex) - value used in NetClient__ProcessSpecialOpcodes / NetClient__JAMClientDispatch.
+Auth (dec) - value used in NetClient__HandleAuthOpcodes / NetClient__JAMClientConnectionDispatch.
+Offset (dec) - offset of the handler inside ClientConnection object.
+Converted (dec) - offset of the handler inside Handlers array of ClientConnection object.
