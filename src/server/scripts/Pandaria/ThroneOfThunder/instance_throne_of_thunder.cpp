@@ -47,12 +47,22 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 jinRokhTheBreakerGuid;
             uint64 moguFountainsGuids[4];
             uint64 moguStatuesGuids[4];
+            uint64 kazraJinGuid;
+            uint64 sudTheSandCrawlerGuid;
+            uint64 forostKingMalakkGuid;
+            uint64 highPriestressMarLiGuid;
+            uint64 garaJalGuid;
 
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
 
                 jinRokhTheBreakerGuid   = 0;
+                kazraJinGuid            = 0;
+                sudTheSandCrawlerGuid   = 0;
+                forostKingMalakkGuid    = 0;
+                highPriestressMarLiGuid = 0;
+                garaJalGuid = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -67,6 +77,9 @@ class instance_throne_of_thunder : public InstanceMapScript
                 {
                     case NPC_JIN_ROKH_THE_BREAKER:
                         jinRokhTheBreakerGuid = creature->GetGUID();
+                        break;
+                    case NPC_GARA_JAL_SOUL:
+                        garaJalGuid = creature->GetGUID();
                         break;
                     case NPC_STATUE:
                     {
@@ -87,6 +100,18 @@ class instance_throne_of_thunder : public InstanceMapScript
                             moguStatuesGuids[3] = creature->GetGUID();
                         break;
                     }
+                    case NPC_KAZRA_JIN:
+                        kazraJinGuid = creature->GetGUID();
+                        break;
+                    case NPC_SUL_THE_SANDCRAWLER:
+                        sudTheSandCrawlerGuid = creature->GetGUID();
+                        break;
+                    case NPC_FROST_KING_MALAKK:
+                        forostKingMalakkGuid = creature->GetGUID();
+                        break;
+                    case NPC_HIGH_PRIESTRESS_MAR_LI:
+                        highPriestressMarLiGuid = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -147,6 +172,9 @@ class instance_throne_of_thunder : public InstanceMapScript
                 {
                     case NPC_JIN_ROKH_THE_BREAKER:
                         return jinRokhTheBreakerGuid;
+                    case NPC_GARA_JAL_SOUL:
+                        return garaJalGuid;
+                        break;
                     case GOB_MOGU_FOUNTAIN_NE:
                         return moguFountainsGuids[0];
                     case GOB_MOGU_FOUNTAIN_NW:
@@ -166,6 +194,18 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case DATA_STATUE_3:
                         return moguStatuesGuids[3];
+                        break;
+                    case NPC_KAZRA_JIN:
+                        return kazraJinGuid;
+                        break;
+                    case NPC_SUL_THE_SANDCRAWLER:
+                        return sudTheSandCrawlerGuid;
+                        break;
+                    case NPC_FROST_KING_MALAKK:
+                        return forostKingMalakkGuid;
+                        break;
+                    case NPC_HIGH_PRIESTRESS_MAR_LI:
+                        return highPriestressMarLiGuid;
                         break;
                     default:
                         break;
