@@ -53,6 +53,27 @@ if(SCRIPTS)
   include(Pandaria/CMakeLists.txt)
 endif()
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${scripts_STAT_SRCS}")
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+)
+
 message(STATUS "SCRIPT PREPARATION COMPLETE")
 message("")
 
@@ -157,6 +178,7 @@ include_directories(
 )
 
 add_library(scripts STATIC ${scripts_STAT_SRCS})
+set_property(TARGET scripts PROPERTY FOLDER "server")
 
 add_dependencies(scripts revision.h)
 

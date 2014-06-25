@@ -28,3 +28,4 @@ include_directories(
 )
 
 add_library(zlib STATIC ${zlib_STAT_SRCS})
+set_property(TARGET zlib PROPERTY FOLDER "dep")

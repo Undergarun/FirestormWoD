@@ -50,6 +50,27 @@ set(shared_STAT_SRCS
   Debugging/Errors.h
 )
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${shared_STAT_SRCS}")
+
+set(shared_STAT_SRCS
+  ${shared_STAT_SRCS}
+)
+
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/SFMT
@@ -74,6 +95,7 @@ include_directories(
 )
 
 add_library(shared STATIC ${shared_STAT_SRCS})
+set_property(TARGET shared PROPERTY FOLDER "server")
 
 target_link_libraries(shared
   ${ACE_LIBRARY}
