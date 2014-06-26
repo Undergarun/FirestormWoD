@@ -156,6 +156,9 @@ class CreatureAI : public UnitAI
         // Called when a creature regen one of his power
         virtual void RegeneratePower(Powers power, int32& value) {}
 
+        // Called when a creature has one of his power set
+        virtual void SetPower(Powers power, int32 value) {}
+
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 

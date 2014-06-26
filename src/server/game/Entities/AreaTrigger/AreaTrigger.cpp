@@ -33,6 +33,7 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), m_caster(NULL), m
     m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
 
     m_valuesCount = AREATRIGGER_END;
+    m_createdTime = 0;
 }
 
 AreaTrigger::~AreaTrigger()
@@ -92,6 +93,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
     if (!GetMap()->AddToMap(this))
         return false;
+
+    m_createdTime = getMSTime();
 
     return true;
 }

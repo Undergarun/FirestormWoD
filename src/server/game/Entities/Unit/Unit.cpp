@@ -2241,35 +2241,55 @@ void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &heal
     // Need remove expired auras after
     bool existExpired = false;
 
+    DamageInfo dmgInfo = DamageInfo(this, victim, healAmount, healSpell, healSpell->GetSchoolMask(), HEAL);
+
     // absorb without mana cost
     AuraEffectList const& vHealAbsorb = victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
     for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && RemainingHeal > 0; ++i)
     {
-        if (!((*i)->GetMiscValue() & healSpell->SchoolMask))
+        AuraEffectPtr absorbAurEff = *i;
+        AuraPtr aura = absorbAurEff->GetBase();
+
+        // Check if aura was removed during iteration - we don't need to work on such auras
+        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID());
+        if (!aurApp)
+            continue;
+        if (!(absorbAurEff->GetMiscValue() & healSpell->SchoolMask))
             continue;
 
         // Max Amount can be absorbed by this aura
         int32 currentAbsorb = (*i)->GetAmount();
+        // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+        if (currentAbsorb < 0)
+            currentAbsorb = 0;
 
-        // Found empty aura (impossible but..)
-        if (currentAbsorb <= 0)
-        {
-            existExpired = true;
+        uint32 tempAbsorb = uint32(currentAbsorb);
+
+        bool defaultPrevented = false;
+
+        absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb, defaultPrevented);
+        currentAbsorb = tempAbsorb;
+
+        if (defaultPrevented)
             continue;
+
+        // absorb must be smaller than the damage itself
+        currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
+
+        dmgInfo.AbsorbDamage(currentAbsorb);
+
+        tempAbsorb = currentAbsorb;
+        aura->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb);
+
+        // Check if our aura is using amount to count damage
+        if (absorbAurEff->GetAmount() >= 0)
+        {
+            // Reduce shield amount
+            absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
+            // Aura cannot absorb anything more - remove it
+            if (absorbAurEff->GetAmount() <= 0)
+                existExpired = true;
         }
-
-        // currentAbsorb - damage can be absorbed by shield
-        // If need absorb less damage
-        if (RemainingHeal < currentAbsorb)
-            currentAbsorb = RemainingHeal;
-
-        RemainingHeal -= currentAbsorb;
-
-        // Reduce shield amount
-        (*i)->SetAmount((*i)->GetAmount() - currentAbsorb);
-        // Need remove it later
-        if ((*i)->GetAmount() <= 0)
-            existExpired = true;
     }
 
     // Remove all expired absorb auras
@@ -2289,8 +2309,8 @@ void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &heal
         }
     }
 
-    absorb = RemainingHeal > 0 ? (healAmount - RemainingHeal) : healAmount;
-    healAmount = RemainingHeal;
+    absorb = dmgInfo.GetAbsorb();
+    healAmount -= absorb;
 }
 
 void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool extra)
@@ -16616,7 +16636,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
         if (ToPet() && ToPet()->IsWarlockPet())
             return 0;
 
-        switch (this->GetEntry())
+        switch (GetEntry())
         {
             case 26125:
             case 59915:
@@ -16625,6 +16645,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
             case 60051:
             case 60999:
             case 62442:
+            case 67977:
                 return 0;
             default:
                 break;
@@ -16682,6 +16703,9 @@ void Unit::SetPower(Powers power, int32 val, bool regen)
     int32 maxPower = int32(GetMaxPower(power));
     if (maxPower < val)
         val = maxPower;
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->SetPower(power, val);
 
     m_powers[powerIndex] = val;
     uint32 regen_diff = getMSTime() - m_lastRegenTime[powerIndex];

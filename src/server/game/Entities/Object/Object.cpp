@@ -416,13 +416,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        data->WriteBit(((AreaTrigger*)this)->GetVisualRadius() != 0.0f);
+        data->WriteBit(atr->GetVisualRadius() != 0.0f);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
-        data->WriteBit(((AreaTrigger*)this)->IsAreaTriggerBox());
+        data->WriteBit(atr->IsAreaTriggerBox());
         data->WriteBit(false);
         data->WriteBit(false);   // unk, always true on retail sniff
         data->WriteBit(false);
@@ -524,22 +524,25 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        if (((AreaTrigger*)this)->IsAreaTriggerBox())
+        if (atr->IsAreaTriggerBox())
         {
-            *data << float(20.0f);
-            *data << float(5.0f);
-            *data << float(25.0f);
-            *data << float(25.0f);
-            *data << float(5.0f);
-            *data << float(20.0f);
+            G3D::Vector3 extents(20.f, 25.f, 5.f);
+            G3D::Vector3 extentsTarget(20.f, 25.f, 5.f);
+
+            *data << float(extentsTarget.x);
+            *data << float(extents.z);
+            *data << float(extentsTarget.y);
+            *data << float(extents.y);
+            *data << float(extentsTarget.z);
+            *data << float(extents.x);
         }
 
-        *data << uint32(8);                                         // ObjectType AreaTrigger
+        *data << uint32(GetMSTimeDiffToNow(atr->GetCreatedTime()));
 
         if (((AreaTrigger*)this)->GetVisualRadius() != 0.0f)
         {
-            *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
-            *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+            *data << float(atr->GetVisualRadius());    // scale X/Y
+            *data << float(atr->GetVisualRadius());    // scale Y/X
         }
     }
 

@@ -31,6 +31,7 @@ DoorData const doorData[] =
     { GOB_COUNCIL_ENTRANCE_DOOR_LEFT,       DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_ROOM,     BOUNDARY_W      },
     { GOB_COUNCIL_ENTRANCE_DOOR_RIGHT,      DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_ROOM,     BOUNDARY_W      },
     { GOB_COUNCIL_EXIT_DOOR,                DATA_CONCIL_OF_ELDERS,      DOOR_TYPE_PASSAGE,  BOUNDARY_E      },
+    { GOB_TORTOS_EXIT_DOOR,                 DATA_TORTOS,                DOOR_TYPE_PASSAGE,  BOUNDARY_E      },
     { 0,                                    0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE   }  // END
 };
 

@@ -30466,12 +30466,12 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
         uint8 bits[8] = { 3, 5, 4, 6, 7, 1, 0, 2 };
         data.WriteBitInOrder(playerGuid, bits);
 
-        data.WriteBits(1, 2);
+        data.WriteBits(1, 2); // Force type, still one yet
 
         data << float(source.GetPositionZ());
-        data << uint32(0);                  // Unk, sniffed value, not always the same
+        data << uint32(0);                  // Transport ID
         data.WriteByteSeq(playerGuid[5]);
-        data << uint32(1024);               // Unk, sniffed value, not always the same
+        data << uint32(1024);               // ID
         data.WriteByteSeq(playerGuid[0]);
         data << float(source.GetPositionY());
         data.WriteByteSeq(playerGuid[7]);
@@ -30482,7 +30482,7 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
         data.WriteByteSeq(playerGuid[4]);
         data << float(source.GetPositionX());
         data.WriteByteSeq(playerGuid[3]);
-        data << uint32(268441055);          // Unk, sniffed value, not always the same
+        data << uint32(268441055);          // MovementSequenceID
 
         GetSession()->SendPacket(&data);
 
@@ -30495,8 +30495,8 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
 
         WorldPacket data(SMSG_UNAPPLY_MOVEMENT_FORCE, 2 * 4 + 1 + 8);
 
-        data << uint32(1024);               // Unk, sniffed value, not always the same
-        data << uint32(268441055);          // Unk, sniffed value, not always the same
+        data << uint32(1024);               // ID
+        data << uint32(268441055);          // MovementSequenceID
 
         uint8 bits[8] = { 6, 5, 7, 0, 4, 3, 1, 2 };
         data.WriteBitInOrder(playerGuid, bits);

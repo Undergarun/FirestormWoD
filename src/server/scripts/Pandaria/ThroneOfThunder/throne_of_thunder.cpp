@@ -91,7 +91,6 @@ enum eSpells
     SPELL_DARK_WINDS_SMALL              = 139499,
     SPELL_DARK_WINDS_LARGE              = 140781,
     SPELL_DARK_WINDS_LONG               = 139535,
-    SPELL_DARK_WINDS_FORCE_WEATHER      = 139485,
 
     // Drakkari Frost Warden
     SPELL_FROST_BULWARK                 = 138668,
@@ -131,7 +130,15 @@ enum eSpells
     // Zandalari Prelate
     SPELL_SEAL_OF_THE_LOA               = 139212,
     SPELL_MARK_OF_THE_LOA               = 139213,
-    SPELL_JUDGEMENT_OF_THE_LOA          = 139223
+    SPELL_JUDGEMENT_OF_THE_LOA          = 139223,
+
+    // Waterspout
+    SPELL_WATERSPOUT                    = 140809,
+    SPELL_WATERSPOUT_TRIGGERED          = 140814,
+
+    // Greater Cave Bat
+    SPELL_SLASHING_TALONS               = 136753,
+    SPELL_SONIC_SCREECH                 = 136751
 };
 
 enum eEvents
@@ -204,7 +211,14 @@ enum eEvents
     EVENT_ZANDALARI_WARCRY,
 
     // Zandalari Prelate
-    EVENT_JUDGEMENT_OF_THE_LOA
+    EVENT_JUDGEMENT_OF_THE_LOA,
+
+    // Waterspout
+    EVENT_WATERSPOUT,
+
+    // Greater Cave Bat
+    EVENT_SLASHING_TALONS,
+    EVENT_SONIC_SCREECH
 };
 
 enum eEquipIds
@@ -1020,17 +1034,10 @@ class mob_dark_winds : public CreatureScript
                     if (inSquare)
                     {
                         plr->SendApplyMovementForce(true, darkWindSourcePos, force);
-
-                        if (!plr->HasAura(SPELL_DARK_WINDS_FORCE_WEATHER))
-                            plr->CastSpell(plr, SPELL_DARK_WINDS_FORCE_WEATHER, true);
+                        plr->CastSpell(plr, SPELL_DARK_WINDS_FORCE_WEATHER, true);
                     }
                     else
-                    {
                         plr->SendApplyMovementForce(false, darkWindSourcePos, force);
-
-                        if (plr->HasAura(SPELL_DARK_WINDS_FORCE_WEATHER))
-                            plr->RemoveAura(SPELL_DARK_WINDS_FORCE_WEATHER);
-                    }
                 }
             }
 
@@ -1678,6 +1685,142 @@ class mob_zandalari_prelate : public CreatureScript
         }
 };
 
+// Waterspout - 70147
+class mob_waterspout : public CreatureScript
+{
+    public:
+        mob_waterspout() : CreatureScript("mob_waterspout") { }
+
+        struct mob_waterspoutAI : public ScriptedAI
+        {
+            mob_waterspoutAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->CastSpell(me, SPELL_WATERSPOUT, true);
+
+                events.ScheduleEvent(EVENT_WATERSPOUT, 1000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_WATERSPOUT:
+                        me->CastSpell(me, SPELL_WATERSPOUT_TRIGGERED, true);
+                        events.ScheduleEvent(EVENT_WATERSPOUT, 1000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_waterspoutAI(creature);
+        }
+};
+
+// Vampiric Cave Bat - 69352
+class mob_vampiric_cave_bat : public CreatureScript
+{
+    public:
+        mob_vampiric_cave_bat() : CreatureScript("mob_vampiric_cave_bat") { }
+
+        struct mob_vampiric_cave_batAI : public ScriptedAI
+        {
+            mob_vampiric_cave_batAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->CastSpell(me, SPELL_DRAIN_THE_WEAK, true);
+                me->ReenableEvadeMode();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_vampiric_cave_batAI(creature);
+        }
+};
+
+// Greater Cave Bat - 69351
+class mob_greater_cave_bat : public CreatureScript
+{
+    public:
+        mob_greater_cave_bat() : CreatureScript("mob_greater_cave_bat") { }
+
+        struct mob_greater_cave_batAI : public ScriptedAI
+        {
+            mob_greater_cave_batAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_SLASHING_TALONS, 8000);
+                events.ScheduleEvent(EVENT_SONIC_SCREECH, 3000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_SLASHING_TALONS:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_SLASHING_TALONS, true);
+                        events.ScheduleEvent(EVENT_SLASHING_TALONS, 8000);
+                        break;
+                    case EVENT_SONIC_SCREECH:
+                        me->CastSpell(me, SPELL_SONIC_SCREECH, false);
+                        events.ScheduleEvent(EVENT_SONIC_SCREECH, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_greater_cave_batAI(creature);
+        }
+};
+
 // Water Bolt - 139231
 class spell_water_bolt : public SpellScriptLoader
 {
@@ -1956,6 +2099,117 @@ class spell_judgement_of_the_loa : public SpellScriptLoader
         }
 };
 
+// Waterspout (triggered) - 140814
+class spell_waterspout : public SpellScriptLoader
+{
+    public:
+        spell_waterspout() : SpellScriptLoader("spell_waterspout") { }
+
+        class spell_waterspout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_waterspout_SpellScript);
+
+            SpellCastResult CheckEnnemies()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    Unit* target = caster->SelectNearbyTarget(NULL, 2.0f);
+                    if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                        return SPELL_FAILED_NO_VALID_TARGETS;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_waterspout_SpellScript::CheckEnnemies);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_waterspout_SpellScript();
+        }
+};
+
+// Drain the Weak - 135103
+class spell_drain_the_weak : public SpellScriptLoader
+{
+    public:
+        spell_drain_the_weak() : SpellScriptLoader("spell_drain_the_weak") { }
+
+        class spell_drain_the_weak_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_drain_the_weak_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* caster = GetTarget();
+
+                if (!caster || !eventInfo.GetActor() || !caster->ToCreature())
+                    return;
+
+                if (caster != eventInfo.GetActor())
+                    return;
+
+                if (caster->ToCreature()->HasSpellCooldown(SPELL_DRAIN_THE_WEAK_TRIGGERED))
+                    return;
+
+                if (Unit* target = caster->getVictim())
+                {
+                    if (target->GetHealth() >= 350000)
+                        return;
+
+                    caster->CastSpell(target, SPELL_DRAIN_THE_WEAK_TRIGGERED, true);
+                    caster->ToCreature()->_AddCreatureSpellCooldown(SPELL_DRAIN_THE_WEAK_TRIGGERED, time(NULL) + 2);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_drain_the_weak_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_drain_the_weak_AuraScript();
+        }
+};
+
+// Drain the Weak (damage) - 135101
+class spell_drain_the_weak_damage : public SpellScriptLoader
+{
+    public:
+        spell_drain_the_weak_damage() : SpellScriptLoader("spell_drain_the_weak_damage") { }
+
+        class spell_drain_the_weak_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_drain_the_weak_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 bp = GetHitDamage() * 50;
+                    caster->CastCustomSpell(caster, SPELL_DRAIN_THE_WEAK_HEAL, &bp, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_drain_the_weak_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_drain_the_weak_damage_SpellScript();
+        }
+};
+
 void AddSC_throne_of_thunder()
 {
     new mob_zandalari_water_binder();
@@ -1980,6 +2234,9 @@ void AddSC_throne_of_thunder()
     new mob_zandalari_prophet();
     new mob_zandalari_warlord();
     new mob_zandalari_prelate();
+    new mob_waterspout();
+    new mob_vampiric_cave_bat();
+    new mob_greater_cave_bat();
     new spell_storm_weapon();
     new spell_water_bolt();
     new spell_focused_lightning_aoe();
@@ -1988,4 +2245,7 @@ void AddSC_throne_of_thunder()
     new spell_eruption();
     new spell_fiery_core();
     new spell_judgement_of_the_loa();
+    new spell_waterspout();
+    new spell_drain_the_weak();
+    new spell_drain_the_weak_damage();
 }
