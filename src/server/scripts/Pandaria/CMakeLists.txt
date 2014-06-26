@@ -112,6 +112,7 @@ set(scripts_STAT_SRCS
   Pandaria/ThroneOfThunder/throne_of_thunder.h
   Pandaria/ThroneOfThunder/throne_of_thunder.cpp
   Pandaria/ThroneOfThunder/boss_jin_rokh_the_breaker.cpp
+  Pandaria/ThroneOfThunder/boss_council_of_elders.cpp
   Pandaria/ThroneOfThunder/boss_horridon.cpp
   Pandaria/ThroneOfThunder/boss_tortos.cpp
 

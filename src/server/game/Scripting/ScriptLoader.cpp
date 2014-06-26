@@ -771,6 +771,7 @@ void AddSC_boss_sha_of_fear();
 void AddSC_instance_throne_of_thunder();            // Throne of Thunder
 void AddSC_throne_of_thunder();
 void AddSC_boss_jin_rokh_the_breaker();
+void AddSC_boss_council_of_elders();
 void AddSC_boss_horridon();
 void AddSC_boss_tortos();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
@@ -1614,6 +1615,7 @@ void AddPandarieScripts()
     AddSC_instance_throne_of_thunder();             // Throne of Thunder
     AddSC_throne_of_thunder();
     AddSC_boss_jin_rokh_the_breaker();
+    AddSC_boss_council_of_elders();
     AddSC_boss_horridon();
     AddSC_boss_tortos();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar

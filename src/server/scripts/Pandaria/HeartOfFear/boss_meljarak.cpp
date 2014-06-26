@@ -315,7 +315,8 @@ public:
             Talk(SAY_INTRO);
             introDone = true;
 
-            EnterCombat(who);
+            if (!inCombat)
+                EnterCombat(who);
         }
 
         void DamageTaken(Unit* attacker, uint32& damage)
@@ -335,7 +336,8 @@ public:
                     return;
                 }
 
-                EnterCombat(attacker);
+                if (!inCombat)
+                    EnterCombat(attacker);
             }
         }
 
