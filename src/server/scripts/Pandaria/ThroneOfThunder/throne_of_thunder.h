@@ -120,6 +120,8 @@ enum eCreatures
     NPC_FROST_KING_MALAKK           = 69131,
     NPC_HIGH_PRIESTRESS_MAR_LI      = 69132,
     NPC_GARA_JAL_SOUL               = 69182,
+    NPC_LIVING_SAND                 = 69153,
+    NPC_BLESSED_LOA_SPIRIT          = 69480,
 
     NPC_TORTOS                      = 67977,
 

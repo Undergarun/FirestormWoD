@@ -50,11 +50,19 @@ enum eSpells
     SPELL_SAND_BOLT                      = 136189,
     SPELL_QUICKSAND                      = 136521,
     SPELL_SAND_PERIODIC_DMG              = 136860,
-    SPELL_SAND_VISUAL                    = 136861,
+    SPELL_SAND_VISUAL                    = 136851,
     SPELL_ENSNARED                       = 136878,
     SPELL_ENTRAPPED                      = 136857,
     SPELL_SANDSTORM                      = 136894,
-    SPELL_SANDSTORM_DUMMY                = 136895
+    SPELL_SANDSTORM_DUMMY                = 136895,
+    SPELL_FORTIFIED                      = 136864,
+    // High Priestress Mar'Li
+    SPELL_WRATH_OF_THE_LOA_BLESSED       = 137344,
+    SPELL_WRATH_OF_THE_LOA_SHADOW        = 137347,
+    SPELL_BLESSED_LOA_SPIRIT_SUMMON      = 137200,
+    SPELL_SHADOWED_LOA_SPIRIT_SUMMONED   = 137351,
+    SPELL_SHADOWED_GIFT                  = 137407,
+    SPELL_MARKED_SOUL                    = 137359
 };
 
 enum eEvents
@@ -71,7 +79,13 @@ enum eEvents
     EVENT_FROSTBITE                              = 10,
     EVENT_SAND_BOLT                              = 11,
     EVENT_QUICKSAND                              = 12,
-    EVENT_SANDSTORM                              = 13
+    EVENT_SANDSTORM                              = 13,
+    EVENT_WRATH_OF_THE_LOA_BLESSED               = 14,
+    EVENT_WRATH_OF_THE_LOA_SHADOW                = 15,
+    EVENT_BLESSED_LOA_SPIRIT_SUMMON              = 16,
+    EVENT_HEAL_WEAKER_TROLL                      = 17,
+    EVENT_SHADOWED_LOA_SPIRIT_SUMMON              = 18,
+    EVENT_OS_PLAYER                              = 19
 };
 
 enum eSays
@@ -87,7 +101,9 @@ enum eActions
     ACTION_SCHEDULE_POSSESSION_HIGH_PRIESTRESS     = 5,
     ACTION_SCHEDULE_POSSESSION_SUL_THE_SANDCRAWLER = 6,
     ACTION_SCHEDULE_FROSTBITE                      = 7,
-    ACTION_SCHEDULE_SANDSTROM                      = 8
+    ACTION_SCHEDULE_SANDSTROM                      = 8,
+    ACTION_SANDSTORM                               = 9,
+    ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW        = 10
 };
 
 enum ePhases
@@ -109,21 +125,11 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
 
     instance->SetBossState(DATA_CONCIL_OF_ELDERS, IN_PROGRESS);
 
-    Creature* kazraJin = instance->instance->GetCreature(instance->GetData64(NPC_KAZRA_JIN));
-    if (kazraJin)
-        kazraJin->SetInCombatWithZone();
+    uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
 
-    Creature* sulTheSandCrawler = instance->instance->GetCreature(instance->GetData64(NPC_SUL_THE_SANDCRAWLER));
-    if (sulTheSandCrawler)
-        sulTheSandCrawler->SetInCombatWithZone();
-
-    Creature* highPriestress = instance->instance->GetCreature(instance->GetData64(NPC_HIGH_PRIESTRESS_MAR_LI));
-    if (highPriestress)
-        highPriestress->SetInCombatWithZone();
-    
-    Creature* malakk = instance->instance->GetCreature(instance->GetData64(NPC_FROST_KING_MALAKK));
-    if (malakk)
-        malakk->SetInCombatWithZone();
+    for (uint32 entry : mobEntries)
+        if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+            boss->SetInCombatWithZone();
 
     if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
         if (garaJalSoul->GetAI())
@@ -202,6 +208,9 @@ class npc_gara_jal_s_soul : public CreatureScript
                         if (Creature* priestress = pInstance->instance->GetCreature(pInstance->GetData64(NPC_HIGH_PRIESTRESS_MAR_LI)))
                         {
                             me->AddAura(SPELL_POSSESSED, priestress);
+
+                            if (priestress->GetAI())
+                                priestress->AI()->DoAction(ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW);
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER:
@@ -809,15 +818,19 @@ class boss_sul_the_sandcrawler : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
                                 me->CastSpell(target, SPELL_QUICKSAND, true);
-                                me->SummonCreature(69153, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                                target->AddAura(SPELL_GENERIC_STUN, target);
+                                me->SummonCreature(NPC_LIVING_SAND, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             }
                         events.ScheduleEvent(EVENT_QUICKSAND, 10000);
                             break;
                         case EVENT_SANDSTORM:
                             if (me->HasAura(SPELL_POSSESSED))
                             {
-                                me->AddAura(SPELL_SANDSTORM, me);
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                    me->CastSpell(target, SPELL_SANDSTORM, true);
+
                                 me->AddAura(SPELL_SANDSTORM_DUMMY, me);
+                                events.ScheduleEvent(EVENT_SANDSTORM, 25000);
                             }
                             break;
                     default:
@@ -889,9 +902,21 @@ class boss_high_priestress_mar_li : public CreatureScript
             {
             }
 
+            void DoAction(int32 const action)
+            {
+                if (IsHeroic())
+                    return;
+
+                if (action == ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW)
+                    events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_SHADOW, 3000);
+            }
+
             void EnterCombat(Unit* who)
             {
                 StartFight(pInstance, me, who);
+
+                events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_BLESSED, 10000);
+                events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 10000);
             }
 
             void JustDied(Unit* killer)
@@ -982,6 +1007,26 @@ class boss_high_priestress_mar_li : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
+                    case EVENT_WRATH_OF_THE_LOA_BLESSED:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_WRATH_OF_THE_LOA_BLESSED, true);
+                        events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_BLESSED, 10000);
+                        break;
+                    case EVENT_WRATH_OF_THE_LOA_SHADOW:
+                        if (me->HasAura(SPELL_POSSESSED))
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_WRATH_OF_THE_LOA_SHADOW, true);
+                            events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_SHADOW, 10000);
+                        }
+                        break;
+                    case EVENT_BLESSED_LOA_SPIRIT_SUMMON:
+                        me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, false);
+                        break;
+                    case EVENT_SHADOWED_LOA_SPIRIT_SUMMON:
+                        if (me->HasAura(SPELL_POSSESSED))
+                            me->CastSpell(me, SPELL_SHADOWED_LOA_SPIRIT_SUMMONED, false);
+                        break;
                     default:
                         break;
                 }
@@ -1327,19 +1372,13 @@ class spell_ensnared : public SpellScriptLoader
 
         class spell_ensnared_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_overload_kazra_jin_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->AddAura(SPELL_GENERIC_STUN, caster);
-            }
+            PrepareAuraScript(spell_ensnared_AuraScript);
 
             void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (AuraPtr ensnared = aurEff->GetBase())
                 {
-                    if (uint8 stack = frostBite->GetStackAmount())
+                    if (uint8 stack = ensnared->GetStackAmount())
                     {
                         if (Unit* caster = GetCaster())
                         {
@@ -1356,13 +1395,58 @@ class spell_ensnared : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_overload_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_ensnared_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_ensnared_AuraScript();
+        }
+};
+
+// Ensnared - 136878
+class spell_sandstorm : public SpellScriptLoader
+{
+    public:
+        spell_sandstorm() : SpellScriptLoader("spell_sandstorm") { }
+
+        class spell_sandstorm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sandstorm_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetTarget())
+                    {
+                        std::list<Creature*> creatureList;
+                        GetCreatureListWithEntryInGrid(creatureList, caster, NPC_LIVING_SAND, 200.0f);
+
+                        for (auto livingSand : creatureList)
+                        {
+                            if (livingSand->GetAI())
+                            {
+                                if (livingSand->HasAura(SPELL_SAND_VISUAL))
+                                    livingSand->AI()->DoAction(ACTION_SANDSTORM);
+                                else
+                                    livingSand->CastSpell(livingSand, SPELL_FORTIFIED, false);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_sandstorm_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sandstorm_AuraScript();
         }
 };
 
@@ -1374,17 +1458,19 @@ class mob_living_sand : public CreatureScript
 
         struct mob_living_sandAI : public ScriptedAI
         {
-            mob_living_sandAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_living_sandAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
 
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddAura(SPELL_SAND_VISUAL, me);
+                me->setFaction(7);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
-                me->AddAura(SPELL_SAND_VISUAL, me);
-
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 7.0f);
 
@@ -1397,7 +1483,17 @@ class mob_living_sand : public CreatureScript
 
             void DoAction(int32 const action)
             {
+                if (action == ACTION_SANDSTORM)
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveAura(SPELL_SAND_VISUAL);
+                    me->setFaction(14);
+                }
+            }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                me->SummonCreature(NPC_LIVING_SAND, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             }
         };
 
@@ -1405,6 +1501,197 @@ class mob_living_sand : public CreatureScript
         {
             return new mob_living_sandAI(creature);
         }
+};
+
+// Blessed Loa Spirit - 69480
+class mob_blessed_loa_spirit : public CreatureScript
+{
+    public:
+        mob_blessed_loa_spirit() : CreatureScript("mob_blessed_loa_spirit") { }
+
+        struct mob_blessed_loa_spiritAI : public ScriptedAI
+        {
+            mob_blessed_loa_spiritAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+
+            EventMap events;
+            InstanceScript* instance;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_HEAL_WEAKER_TROLL, 20000);
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
+            }
+
+            void DoAction(int32 const action)
+            {
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_HEAL_WEAKER_TROLL:
+                        {
+                            uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
+                            uint32 minHealth = 0;
+                            Creature* minBoss = NULL;
+
+                            for (uint32 entry : mobEntries)
+                            {
+                                if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+                                {
+                                    if (entry == NPC_KAZRA_JIN)
+                                        minHealth = boss->GetMaxHealth();
+
+                                    if (minHealth > boss->GetHealth())
+                                    {
+                                        minHealth = boss->GetHealth();
+                                        minBoss = boss;
+                                    }
+                                }
+                            }
+
+                            me->GetMotionMaster()->MoveChase(minBoss, 1.0f, 1.0f);
+                            minBoss->ModifyHealth(minBoss->GetHealth() * 5 / 100);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_blessed_loa_spiritAI(creature);
+        }
+};
+
+// Shadowed Loa Spirit - 69548
+class mob_shadowed_lua_spirit : public CreatureScript
+{
+public:
+    mob_shadowed_lua_spirit() : CreatureScript("mob_shadowed_lua_spirit") { }
+
+    struct mob_shadowed_lua_spiritAI : public ScriptedAI
+    {
+        mob_shadowed_lua_spiritAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        uint32 despawnTimer;
+        uint64 targetGuid;
+        InstanceScript* instance;
+
+        void Reset()
+        {
+            events.Reset();
+            despawnTimer = 0;
+            targetGuid   = 0;
+
+            events.ScheduleEvent(EVENT_OS_PLAYER, 20000);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void IsSummonedBy(Unit* /*summoner*/)
+        {
+        }
+
+        void DoAction(int32 const action)
+        {
+        }
+
+        void SetGUID(uint64 guid, int32 /*index*/)
+        {
+            targetGuid = guid;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            events.Update(diff);
+            if (Player* player = Player::GetPlayer(*me, targetGuid))
+            {
+                if (despawnTimer <= diff)
+                {
+
+                    if (player->HasAura(SPELL_MARKED_SOUL))
+                        player->RemoveAura(SPELL_MARKED_SOUL);
+
+                    me->CastSpell(player, SPELL_SHADOWED_GIFT, false);
+                }
+                else
+                    despawnTimer -= diff;
+
+                if (player->GetDistance(me) <= 6.0f)
+                    me->CastSpell(player, SPELL_SHADOWED_GIFT, false);
+            }
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_HEAL_WEAKER_TROLL:
+                    {
+                        uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
+                        uint32 minHealth = 0;
+                        Creature* minBoss = NULL;
+
+                        for (uint32 entry : mobEntries)
+                        {
+                            if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+                            {
+                                if (entry == NPC_KAZRA_JIN)
+                                    minHealth = boss->GetMaxHealth();
+
+                                if (minHealth > boss->GetHealth())
+                                {
+                                    minHealth = boss->GetHealth();
+                                    minBoss = boss;
+                                }
+                            }
+                        }
+
+                        me->GetMotionMaster()->MoveChase(minBoss, 1.0f, 1.0f);
+                        minBoss->ModifyHealth(minBoss->GetHealth() * 5 / 100);
+                    }
+                    break;
+                case EVENT_OS_PLAYER:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    {
+                        me->AddAura(SPELL_MARKED_SOUL, target);
+                        SetGUID(target->GetGUID(), 0);
+                        despawnTimer = 20000;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_shadowed_lua_spiritAI(creature);
+    }
 };
 
 void AddSC_boss_council_of_elders()
@@ -1423,5 +1710,8 @@ void AddSC_boss_council_of_elders()
     new spell_frosbite_malakk_aura();
     new spell_overload_kazra_jin();
     new spell_ensnared();
+    new spell_sandstorm();
     new mob_living_sand();
+    new mob_blessed_loa_spirit();
+    new mob_shadowed_lua_spirit();
 }
