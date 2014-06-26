@@ -33,6 +33,8 @@ enum eSpells
     SPELL_RECKLESS_CHARGE_MOVEMENT       = 137131,
     SPELL_RECKLESS_CHARGE_DAMAGE         = 137133,
     SPELL_RECKLESS_CHARGE_KNOCK_BACK     = 137122,
+    SPELL_OVERLOAD                       = 137149,
+    SPELL_GENERIC_STUN                   = 135781,
     // Gara'Jal's Soul
     SPELL_LINGERING_PRESENCE             = 136467,
     SPELL_POSSESSED                      = 136442,
@@ -43,7 +45,16 @@ enum eSpells
     SPELL_BITING_COLD_AURA               = 136992,
     SPELL_FROSTBITE                      = 136990,
     SPELL_FROSTBITE_PERIODIC             = 136922,
-    SPELL_
+    SPELL_FROSTBITE_AURA                 = 137575,
+    // Sun
+    SPELL_SAND_BOLT                      = 136189,
+    SPELL_QUICKSAND                      = 136521,
+    SPELL_SAND_PERIODIC_DMG              = 136860,
+    SPELL_SAND_VISUAL                    = 136861,
+    SPELL_ENSNARED                       = 136878,
+    SPELL_ENTRAPPED                      = 136857,
+    SPELL_SANDSTORM                      = 136894,
+    SPELL_SANDSTORM_DUMMY                = 136895
 };
 
 enum eEvents
@@ -57,7 +68,10 @@ enum eEvents
     EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS     = 7,
     EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER = 8,
     EVENT_BITING_COLD                            = 9,
-    EVENT_FROSTBITE                              = 10
+    EVENT_FROSTBITE                              = 10,
+    EVENT_SAND_BOLT                              = 11,
+    EVENT_QUICKSAND                              = 12,
+    EVENT_SANDSTORM                              = 13
 };
 
 enum eSays
@@ -72,7 +86,8 @@ enum eActions
     ACTION_SCHEDULE_POSSESSION_KAZRA_JIN           = 4,
     ACTION_SCHEDULE_POSSESSION_HIGH_PRIESTRESS     = 5,
     ACTION_SCHEDULE_POSSESSION_SUL_THE_SANDCRAWLER = 6,
-    ACTION_SCHEDULE_FROSTBITE                      = 7
+    ACTION_SCHEDULE_FROSTBITE                      = 7,
+    ACTION_SCHEDULE_SANDSTROM                      = 8
 };
 
 enum ePhases
@@ -193,6 +208,9 @@ class npc_gara_jal_s_soul : public CreatureScript
                         if (Creature* sul = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
                         {
                             me->AddAura(SPELL_POSSESSED, sul);
+
+                            if (sul->GetAI())
+                                sul->AI()->DoAction(ACTION_SCHEDULE_SANDSTROM);
                         }
                         break;
                     default:
@@ -378,7 +396,10 @@ class boss_king_malakk : public CreatureScript
                     case EVENT_FROSTBITE:
                         if (me->HasAura(SPELL_POSSESSED))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            {
+                                me->AddAura(SPELL_FROSTBITE_AURA, target);
                                 me->CastSpell(target, SPELL_FROSTBITE, true);
+                            }
                         break;
                     default:
                         break;
@@ -413,6 +434,7 @@ class boss_kazra_jin : public CreatureScript
             bool touchedTarget;
             bool firstPossessSwitched;
             bool secondPossessSwitched;
+            uint32 coefficient;
 
             void Reset()
             {
@@ -425,7 +447,8 @@ class boss_kazra_jin : public CreatureScript
                 firstPossessSwitched  = false;
                 secondPossessSwitched = false;
 
-                playerGuid = 0;
+                coefficient = 0;
+                playerGuid  = 0;
                 _Reset();
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
@@ -468,7 +491,7 @@ class boss_kazra_jin : public CreatureScript
                     playerGuid = guid;
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage)
             {
                 if (!firstPossessSwitched)
                 {
@@ -505,6 +528,12 @@ class boss_kazra_jin : public CreatureScript
                         }
                     }
                 }
+
+                if (me->HasAura(SPELL_OVERLOAD))
+                {
+                    me->DealDamage(attacker, damage / 100 * 40);
+                    me->SendSpellNonMeleeDamageLog(attacker, SPELL_OVERLOAD, damage / 100 * 40, SPELL_SCHOOL_MASK_NATURE, 0, 0, false, 0, false);
+                }
             }
 
             void RegeneratePower(Powers power, int32& value)
@@ -512,13 +541,27 @@ class boss_kazra_jin : public CreatureScript
                 if (power != POWER_ENERGY)
                     return;
 
-                if (!me->isInCombat())
-                {
-                    value = 0;
-                    return;
-                }
+                value = 0;
 
-                value = 6;
+                if (me->HasAura(SPELL_POSSESSED))
+                    value = 2; // Generates 1 point per minute
+
+                if (me->HasAura(SPELL_LINGERING_PRESENCE))
+                    value = 2 + coefficient;
+            }
+
+            uint32 GetData(uint32 index)
+            {
+                if (index == DATA_LINGERING_PRESENCE_COEF)
+                    return coefficient;
+
+                return 0;
+            }
+
+            void SetData(uint32 value, uint32 index)
+            {
+                if (index == DATA_LINGERING_PRESENCE_COEF)
+                    value = coefficient;
             }
 
             void UpdateAI(const uint32 diff)
@@ -531,6 +574,9 @@ class boss_kazra_jin : public CreatureScript
                     return;
                 }
 
+                if (me->HasAura(SPELL_OVERLOAD))
+                    me->SendMeleeAttackStop(me->getVictim());
+
                 if (me->HasAura(SPELL_RECKLESS_CHARGE_ROLLING))
                 {
                     if (!touchedTarget)
@@ -538,7 +584,7 @@ class boss_kazra_jin : public CreatureScript
                         events.ScheduleEvent(EVENT_RECKLESS_CHARGE_AREATRIGGER, 500);
                         if (Player* target = Player::GetPlayer(*me, playerGuid))
                         {
-                            if (me->GetDistance(target) <= 1.0f)
+                            if (me->GetDistance(target) <= 2.5f)
                             {
                                 if (target->GetGUID() == playerGuid)
                                 {
@@ -548,6 +594,9 @@ class boss_kazra_jin : public CreatureScript
                                     playerGuid = 0;
                                     me->SetReactState(REACT_AGGRESSIVE);
                                     touchedTarget = true;
+
+                                    if (me->HasAura(SPELL_POSSESSED))
+                                        me->AddAura(SPELL_OVERLOAD, me);
                                 }
                             }
                         }
@@ -616,6 +665,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
             InstanceScript* pInstance;
             bool firstPossessSwitched;
             bool secondPossessSwitched;
+            uint32 coefficient;
 
             void Reset()
             {
@@ -624,6 +674,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
 
+                coefficient = 0;
                 _Reset();
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
@@ -655,6 +706,9 @@ class boss_sul_the_sandcrawler : public CreatureScript
             void EnterCombat(Unit* who)
             {
                 StartFight(pInstance, me, who);
+
+                events.ScheduleEvent(EVENT_SAND_BOLT, 10000);
+                events.ScheduleEvent(EVENT_QUICKSAND, 35000);
             }
 
             void JustDied(Unit* killer)
@@ -700,13 +754,33 @@ class boss_sul_the_sandcrawler : public CreatureScript
                 if (power != POWER_ENERGY)
                     return;
 
-                if (!me->isInCombat())
-                {
-                    value = 0;
-                    return;
-                }
+                value = 0;
 
-                value = 6;
+                if (me->HasAura(SPELL_POSSESSED))
+                    value = 2; // Generates 1 point per minute
+
+                if (me->HasAura(SPELL_LINGERING_PRESENCE))
+                    value = 2 + coefficient;
+            }
+
+            uint32 GetData(uint32 index)
+            {
+                if (index == DATA_LINGERING_PRESENCE_COEF)
+                    return coefficient;
+
+                return 0;
+            }
+
+            void SetData(uint32 value, uint32 index)
+            {
+                if (index == DATA_LINGERING_PRESENCE_COEF)
+                    value = coefficient;
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_SCHEDULE_SANDSTROM)
+                    events.ScheduleEvent(EVENT_SANDSTORM, 5000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -726,6 +800,26 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
+                    case EVENT_SAND_BOLT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_SAND_BOLT, true);
+                        events.ScheduleEvent(EVENT_SAND_BOLT, 10000);
+                        break;
+                        case EVENT_QUICKSAND:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            {
+                                me->CastSpell(target, SPELL_QUICKSAND, true);
+                                me->SummonCreature(69153, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                            }
+                        events.ScheduleEvent(EVENT_QUICKSAND, 10000);
+                            break;
+                        case EVENT_SANDSTORM:
+                            if (me->HasAura(SPELL_POSSESSED))
+                            {
+                                me->AddAura(SPELL_SANDSTORM, me);
+                                me->AddAura(SPELL_SANDSTORM_DUMMY, me);
+                            }
+                            break;
                     default:
                         break;
                 }
@@ -757,6 +851,7 @@ class boss_high_priestress_mar_li : public CreatureScript
             InstanceScript* pInstance;
             bool firstPossessSwitched;
             bool secondPossessSwitched;
+            uint32 coefficient;
 
             void Reset()
             {
@@ -765,6 +860,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                 firstPossessSwitched  = false;
                 secondPossessSwitched = false;
 
+                coefficient = 0;
                 _Reset();
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
@@ -846,13 +942,27 @@ class boss_high_priestress_mar_li : public CreatureScript
                 if (power != POWER_ENERGY)
                     return;
 
-                if (!me->isInCombat())
-                {
-                    value = 0;
-                    return;
-                }
+                value = 0;
 
-                value = 6;
+                if (me->HasAura(SPELL_POSSESSED))
+                    value = 2; // Generates 1 point per minute
+
+                if (me->HasAura(SPELL_LINGERING_PRESENCE))
+                    value = 2 + coefficient;
+            }
+
+            uint32 GetData(uint32 index)
+            {
+                if (index == DATA_LINGERING_PRESENCE_COEF)
+                    return coefficient;
+
+                return 0;
+            }
+
+            void SetData(uint32 value, uint32 index)
+            {
+                if (index == DATA_LINGERING_PRESENCE_COEF)
+                    value = coefficient;
             }
 
             void UpdateAI(const uint32 diff)
@@ -1174,6 +1284,129 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
         }
 };
 
+// Overload (aura) - 137149
+class spell_overload_kazra_jin : public SpellScriptLoader
+{
+    public:
+        spell_overload_kazra_jin() : SpellScriptLoader("spell_overload_kazra_jin") { }
+
+        class spell_overload_kazra_jin_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_overload_kazra_jin_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->AddAura(SPELL_GENERIC_STUN, caster);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->RemoveAura(SPELL_GENERIC_STUN);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_overload_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_overload_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_overload_kazra_jin_AuraScript();
+        }
+};
+
+// Ensnared - 136878
+class spell_ensnared : public SpellScriptLoader
+{
+    public:
+        spell_ensnared() : SpellScriptLoader("spell_ensnared") { }
+
+        class spell_ensnared_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_overload_kazra_jin_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->AddAura(SPELL_GENERIC_STUN, caster);
+            }
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (AuraPtr ensnared = aurEff->GetBase())
+                {
+                    if (uint8 stack = frostBite->GetStackAmount())
+                    {
+                        if (Unit* caster = GetCaster())
+                        {
+                            std::list<Player*> playerList;
+                            caster->GetPlayerListInGrid(playerList, 7.0f);
+
+                            for (auto player: playerList)
+                                if (stack == 5)
+                                    caster->AddAura(SPELL_ENTRAPPED, player);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_overload_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ensnared_AuraScript();
+        }
+};
+
+// Living Sand - 69153
+class mob_living_sand : public CreatureScript
+{
+    public:
+        mob_living_sand() : CreatureScript("mob_living_sand") { }
+
+        struct mob_living_sandAI : public ScriptedAI
+        {
+            mob_living_sandAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                me->AddAura(SPELL_SAND_VISUAL, me);
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 7.0f);
+
+                for (auto player: playerList)
+                {
+                    me->AddAura(SPELL_SAND_PERIODIC_DMG, player);
+                    me->AddAura(SPELL_ENSNARED, player);
+                }
+            }
+
+            void DoAction(int32 const action)
+            {
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_living_sandAI(creature);
+        }
+};
+
 void AddSC_boss_council_of_elders()
 {
     new npc_gara_jal_s_soul();
@@ -1188,4 +1421,7 @@ void AddSC_boss_council_of_elders()
     new spell_biting_cold_malakk();
     new spell_frosbite_malakk();
     new spell_frosbite_malakk_aura();
+    new spell_overload_kazra_jin();
+    new spell_ensnared();
+    new mob_living_sand();
 }

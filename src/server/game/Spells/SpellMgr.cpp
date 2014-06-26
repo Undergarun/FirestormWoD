@@ -3424,11 +3424,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 136990:
+            case 137575: // Frostbite (aura)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 136917:
+            case 136990: // Frostbite
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 136917: // Biting Cold
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
