@@ -2076,7 +2076,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
                     }
-                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
                         // Should have only one aura of this type at the same time
                         AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
@@ -2088,12 +2088,12 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         }
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471) && !HasAura(137586))
+                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
                         CastSpell(victim, 121473, true);
                         resetAttackTimer(BASE_ATTACK);
                     }
-                    else if (HasAura(137586) && HasAura(121471))
+                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
                         CastSpell(victim, 140308, true); // Shadow Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
@@ -2119,7 +2119,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
                     }
-                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
                         // Should have only one aura of this type at the same time
                         AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
@@ -2131,12 +2131,12 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         }
                     }
                     // Shadow Blades - Off Hand
-                    else if (HasAura(121471) && !HasAura(137586))
+                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
                         CastSpell(victim, 121474, true);
                         resetAttackTimer(OFF_ATTACK);
                     }
-                    else if (HasAura(137586) && HasAura(121471))
+                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
                         CastSpell(victim, 140309, true); // Shadow Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
