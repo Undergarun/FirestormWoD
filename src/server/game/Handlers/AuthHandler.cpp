@@ -32,11 +32,18 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     if (hasAccountData)
     {
-        packet.WriteBits(0, 21);
+        packet.WriteBits(/*1*/0, 21);                ///< Character template count
         packet.WriteBit(0);
         packet.WriteBits(realmClassCount, 23);
         packet.WriteBit(0);
         packet.WriteBit(0);
+
+        //if (1)
+        //{
+        //    packet.WriteBits(1, 23);
+        //    packet.WriteBits(std::string("name").length(), 7);
+        //    packet.WriteBits(std::string("description").length(), 10);
+        //}
 
         packet.WriteBits(0, 21);
         packet.WriteBit(0);
@@ -137,6 +144,21 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
         packet << uint32(0);
         packet << uint32(0);
+
+        //if (1)
+        //{
+        //    packet << uint32(4); ///< Template set id
+
+        //    if (1)
+        //    {
+        //        packet << uint8(RACE_BLOODELF);
+        //        packet << uint8(CLASS_HUNTER);
+        //    }
+
+        //    packet.WriteString(std::string("description"));
+        //    packet.WriteString(std::string("name"));
+        //}
+
 
         packet << uint8(Expansion());
         packet << uint8(Expansion());
