@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "Utilities/ByteConverter.h"
 
+
 //! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
 //! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
 struct ObjectGuid
