@@ -1141,7 +1141,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
             coneAngle = M_PI / 3.33f;
             break;
         case TARGET_UNIT_CONE_ENEMY_104:
-            coneAngle = M_PI / 1.75f;
+            coneAngle = M_PI / 1.73f;
             break;
         case TARGET_UNIT_CONE_ENEMY_110:
             coneAngle = M_PI / 1.64f;
@@ -1163,6 +1163,9 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
             break;
         case 118106:
             coneAngle = M_PI/6;
+            break;
+        case 136740:// Double swipe (back)
+            coneAngle += M_PI;
             break;
         default:
             break;

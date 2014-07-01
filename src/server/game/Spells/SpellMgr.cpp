@@ -3427,30 +3427,45 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
-            case 137575: // Frostbite (aura)
+            case 139834:// Cinders (summon)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                break;
+            case 140620:// Fungi Spores
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 140621:// Fungi Spores (damage)
+            case 140619:// Crystal Barbs
+            case 140598:// Fungal Explosion (damage)
+            case 139850:// Acid Rain (damage)
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
+            case 137575:// Frostbite (aura)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 136990: // Frostbite
+            case 136990:// Frostbite
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 136917: // Biting Cold
+            case 136917:// Biting Cold
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 136467: // Lingering Presence
+            case 136467:// Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
-            case 137117: // Reckless Charge (Rolling)
+            case 137117:// Reckless Charge (Rolling)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 137131: // Reckless Charge
+            case 137131:// Reckless Charge
+            case 139866:// Torrent of Ice
+            case 140138:// Nether Tear
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
-            case 137133: // Reckless Charge
+            case 137133:// Reckless Charge
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); // 2 yards
