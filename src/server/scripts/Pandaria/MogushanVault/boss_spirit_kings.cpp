@@ -318,6 +318,14 @@ class boss_spirit_kings_controler : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                // Restoring player faction
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                for (Player* player : playerList)
+                    player->RestoreFaction();
+
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
             }
@@ -436,6 +444,14 @@ class boss_spirit_kings_controler : public CreatureScript
                             {
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                                // Restoring player faction
+                                std::list<Player*> playerList;
+                                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                                for (Player* player : playerList)
+                                    player->RestoreFaction();
+
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
 
@@ -527,6 +543,14 @@ class boss_spirit_kings_controler : public CreatureScript
                         {
                             pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                            // Restoring player faction
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 200.0f);
+
+                            for (Player* player : playerList)
+                                player->RestoreFaction();
+
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
                         }
@@ -847,10 +871,6 @@ class boss_spirit_kings : public CreatureScript
                     default:
                         break;
                 }
-            }
-
-            void JustDied(Unit* killer)
-            {
             }
 
             void JustSummoned(Creature* summon)
