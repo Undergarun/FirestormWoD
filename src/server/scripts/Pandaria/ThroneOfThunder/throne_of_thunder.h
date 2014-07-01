@@ -53,7 +53,9 @@ enum eData
     DATA_STATUE_0               = 14,
     DATA_STATUE_1               = 15,
     DATA_STATUE_2               = 16,
-    DATA_STATUE_3               = 17
+    DATA_STATUE_3               = 17,
+
+    DATA_ANCIENT_MOGU_BELL      = 18
 };
 
 enum eCreatures
@@ -81,6 +83,13 @@ enum eCreatures
     NPC_WATERSPOUT                  = 70147,
     NPC_VAMPIRIC_CAVE_BAT           = 69352,
     NPC_GREATER_CAVE_BAT            = 69351,
+    NPC_MYSTERIOUS_MUSHROOM         = 70545,
+    NPC_SHALE_STALKER               = 70587,
+    NPC_FUNGAL_GROWTH               = 70153,
+    NPC_MIST_LURKER                 = 70594,
+    NPC_CAVERN_BURROWER             = 70589,
+    NPC_ETERNAL_GUARDIAN            = 70586,
+    NPC_SLG_GENERIC_MOP             = 63420,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
@@ -133,7 +142,22 @@ enum eCreatures
     NPC_WHIRL_TURTLE                = 67966,
     NPC_HUMMING_CRYSTAL             = 69639,
 
-    NPC_MEGAERA                     = 70212,
+    // Megaera
+    NPC_MEGAERA                     = 68065,
+    NPC_FLAMING_HEAD                = 70212,
+    NPC_BACK_FLAMING_HEAD           = 70229,
+    NPC_FROZEN_HEAD                 = 70235,
+    NPC_BACK_FROZEN_HEAD            = 70250,
+    NPC_VENOMOUS_HEAD               = 70247,
+    NPC_BACK_VENOMOUS_HEAD          = 70251,
+    NPC_ARCANE_HEAD                 = 70248,
+    NPC_BACK_ARCANE_HEAD            = 70252,
+    NPC_FRONT_HEAD_SPAWNER          = 70175,
+    NPC_BACK_HEAD_SPAWNER           = 68136,
+    NPC_CINDERS                     = 70432,
+    NPC_ACID_RAIN                   = 70435,
+    NPC_ICY_GROUND                  = 70446,
+    NPC_NETHER_WYRM                 = 70507,
 
     NPC_JI_KUN                      = 69712,
 
@@ -180,7 +204,14 @@ enum eGameObjects
     GOB_COUNCIL_EXIT_DOOR           = 218657,
 
     GOB_TORTOS_EXIT_DOOR            = 218980,
-    GOB_TORTOS_DEATH_COLLISION      = 218987
+    GOB_TORTOS_DEATH_COLLISION      = 218987,
+
+    GOB_ANCIENT_MOGU_BELL           = 218723,
+
+    GOB_MEGAERA_CHEST_10_NORMAL     = 218805,
+    GOB_MEGAERA_CHEST_25_NORMAL     = 218806,
+    GOB_MEGAERA_CHEST_10_HEROIC     = 218807,
+    GOB_MEGAERA_CHEST_25_HEROIC     = 218808
 };
 
 enum eAchievementData
@@ -197,6 +228,11 @@ enum eSharedSpells
     SPELL_DRAIN_THE_WEAK            = 135103,
     SPELL_DRAIN_THE_WEAK_TRIGGERED  = 135101,
     SPELL_DRAIN_THE_WEAK_HEAL       = 135102
+};
+
+enum eSharedActions
+{
+    ACTION_MEGAERA_SPAWN
 };
 
 #endif // THRONE_OF_THUNDER_H_
