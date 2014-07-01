@@ -78,6 +78,9 @@ enum eCreatures
     NPC_ZANDALARI_PROPHET           = 70557,
     NPC_ZANDALARI_WARLORD           = 69911,
     NPC_ZANDALARI_PRELATE           = 69927,
+    NPC_WATERSPOUT                  = 70147,
+    NPC_VAMPIRIC_CAVE_BAT           = 69352,
+    NPC_GREATER_CAVE_BAT            = 69351,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
@@ -120,8 +123,15 @@ enum eCreatures
     NPC_FROST_KING_MALAKK           = 69131,
     NPC_HIGH_PRIESTRESS_MAR_LI      = 69132,
     NPC_GARA_JAL_SOUL               = 69182,
+    NPC_LIVING_SAND                 = 69153,
+    NPC_BLESSED_LOA_SPIRIT          = 69480,
 
+    // Tortos
     NPC_TORTOS                      = 67977,
+    NPC_ROCKFALL                    = 68219,
+    NPC_VAMPIRIC_CAVE_BAT_SUMMON    = 68497,
+    NPC_WHIRL_TURTLE                = 67966,
+    NPC_HUMMING_CRYSTAL             = 69639,
 
     NPC_MEGAERA                     = 70212,
 
@@ -167,7 +177,10 @@ enum eGameObjects
     GOB_HORRIDON_EXIT_DOOR          = 218666,
     GOB_COUNCIL_ENTRANCE_DOOR_LEFT  = 218655,
     GOB_COUNCIL_ENTRANCE_DOOR_RIGHT = 218656,
-    GOB_COUNCIL_EXIT_DOOR           = 218657
+    GOB_COUNCIL_EXIT_DOOR           = 218657,
+
+    GOB_TORTOS_EXIT_DOOR            = 218980,
+    GOB_TORTOS_DEATH_COLLISION      = 218987
 };
 
 enum eAchievementData
@@ -176,8 +189,14 @@ enum eAchievementData
 
 enum eSharedSpells
 {
-    SPELL_ENRAGE    = 47008,
-    SPELL_SELF_ROOT = 125467
+    SPELL_ENRAGE                    = 47008,
+    SPELL_SELF_ROOT                 = 125467,
+    SPELL_DARK_WINDS_FORCE_WEATHER  = 139485,
+
+    // Vampiric Cave Bat
+    SPELL_DRAIN_THE_WEAK            = 135103,
+    SPELL_DRAIN_THE_WEAK_TRIGGERED  = 135101,
+    SPELL_DRAIN_THE_WEAK_HEAL       = 135102
 };
 
 #endif // THRONE_OF_THUNDER_H_

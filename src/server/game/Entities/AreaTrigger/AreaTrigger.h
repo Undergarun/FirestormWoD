@@ -45,6 +45,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void BindToCaster();
         void UnbindFromCaster();
 
+        uint32 GetCreatedTime() const { return m_createdTime; }
+
         float GetVisualRadius() const { return m_visualRadius; }
         void SetVisualRadius(float radius) { m_visualRadius = radius; }
 
@@ -54,5 +56,6 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         int32 _duration;
         Unit* m_caster;
         float m_visualRadius;
+        uint32 m_createdTime;
 };
 #endif

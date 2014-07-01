@@ -1313,7 +1313,8 @@ class mob_zandalari_dinomancer : public CreatureScript
                             }
 
                             // Make the orb clickable !
-                            orb->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, GO_DYNFLAG_LO_ACTIVATE);
+                            if (orb)
+                                orb->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, GO_DYNFLAG_LO_ACTIVATE);
                         }
                         break;
                     }
