@@ -6908,6 +6908,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         bp += bloodbath->GetAmount();
 
                     CastCustomSpell(victim, 113344, &bp, NULL, NULL, true);
+                    CastSpell(victim, 147531, true); // Snare effect
 
                     // Should not be removed
                     return false;
@@ -8089,69 +8090,54 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     return true;
                 }
-            }
-            // Seal of Command
-            if (dummySpell->Id == 105361 &&  effIndex == 0)
-            {
-                triggered_spell_id = 118215;
-                break;
-            }
-            // Seal of Righteousness
-            if (dummySpell->Id == 20154)
-            {
-                triggered_spell_id = 101423;
-                break;
-            }
-            // Light's Beacon - Beacon of Light
-            if (dummySpell->Id == 53651)
-            {
-                // Get target of beacon of light
-                if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
+                case 105361:// Seal of Command
+                    if (effIndex != 0)
+                        break;
+                    triggered_spell_id = 118215;
+                    break;
+                case 20154: // Seal of Righteousness
+                    triggered_spell_id = 101423;
+                    break;
+                case 53651: // Beacon of Light
                 {
-                    // do not proc when target of beacon of light is healed
-                    if (!victim || beaconTarget->GetGUID() == GetGUID())
-                        return false;
-
-                    // check if it was heal by paladin which casted this beacon of light
-                    if (beaconTarget->GetAura(53563, victim->GetGUID()))
+                    if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
                     {
-                        if (beaconTarget->IsWithinLOSInMap(victim))
+                        // do not proc when target of beacon of light is self
+                        if (!victim || GetGUID() == beaconTarget->GetGUID())
+                            return false;
+
+                        // check if it was heal by paladin which casted this beacon of light
+                        if (beaconTarget->GetAura(53563, victim->GetGUID()))
                         {
-                            int32 percent = 0;
-                            switch (procSpell->Id)
+                            if (beaconTarget->IsWithinLOSInMap(victim))
                             {
-                                case 82327: // Holy Radiance
-                                case 119952:// Light's Hammer
-                                case 114871:// Holy Prism
-                                case 85222: // Light of Dawn
-                                    percent = 15; // 15% heal from these spells
-                                    break;
-                                case 635:   // Holy Light
-                                    percent = triggerAmount * 2; // 100% heal from Holy Light
-                                    break;
-                                default:
-                                    percent = triggerAmount; // 50% heal from all other heals
-                                    break;
+                                int32 percent = 0;
+                                switch (procSpell->Id)
+                                {
+                                    case 82327: // Holy Radiance
+                                    case 119952:// Light's Hammer
+                                    case 114871:// Holy Prism
+                                    case 85222: // Light of Dawn
+                                        percent = 15; // 15% heal from these spells
+                                        break;
+                                    case 635:   // Holy Light
+                                        percent = triggerAmount * 2; // 100% heal from Holy Light
+                                        break;
+                                    default:
+                                        percent = triggerAmount; // 50% heal from all other heals
+                                        break;
+                                }
+
+                                basepoints0 = CalculatePct(damage, percent);
+                                victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
+                                return true;
                             }
-                            basepoints0 = CalculatePct(damage, percent);
-                            victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
-                            return true;
                         }
                     }
+
+                    return false;
                 }
-                return false;
-            }
-            // Judgements of the Wise
-            if (dummySpell->SpellIconID == 3017)
-            {
-                target = this;
-                triggered_spell_id = 31930;
-                break;
-            }
-            switch (dummySpell->Id)
-            {
-                // Holy Power (Redemption Armor set)
-                case 28789:
+                case 28789: // Holy Power (Redemption Armor set)
                 {
                     if (!victim)
                         return false;
@@ -8179,18 +8165,17 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         default:
                             return false;
                     }
+
                     break;
                 }
-                // Glyph of Divinity
-                case 54939:
+                case 54939: // Glyph of Divinity
                 {
                     target = this;
                     triggered_spell_id = 54986;
                     basepoints0 = triggerAmount;
                     break;
                 }
-                // Seal of Truth (damage calc on apply aura)
-                case 31801:
+                case 31801: // Seal of Truth (damage calc on apply aura)
                 {
                     if (effIndex != 0)                       // effect 2 used by seal unleashing code
                         return false;
@@ -8202,8 +8187,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                // Paladin Tier 6 Trinket (Ashtongue Talisman of Zeal)
-                case 40470:
+                case 40470: // Paladin Tier 6 Trinket (Ashtongue Talisman of Zeal)
                 {
                     if (!procSpell)
                         return false;
@@ -8230,8 +8214,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                // Item - Paladin T8 Holy 2P Bonus
-                case 64890:
+                case 64890: // Item - Paladin T8 Holy 2P Bonus
                 {
                     triggered_spell_id = 64891;
                     basepoints0 = triggerAmount * damage / 300;
@@ -8253,13 +8236,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 71433;  // default main hand attack
                     // roll if offhand
                     if (Player const* player = ToPlayer())
-                        if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
-                            triggered_spell_id = 71434;
+                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
+                        triggered_spell_id = 71434;
                     target = victim;
                     break;
                 }
-                // Item - Icecrown 25 Normal Dagger Proc
-                case 71880:
+                case 71880: // Item - Icecrown 25 Normal Dagger Proc
                 {
                     switch (getPowerType())
                     {
@@ -8280,8 +8262,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     }
                     break;
                 }
-                // Item - Icecrown 25 Heroic Dagger Proc
-                case 71892:
+                case 71892: // Item - Icecrown 25 Heroic Dagger Proc
                 {
                     switch (getPowerType())
                     {
@@ -8303,6 +8284,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     break;
                 }
             }
+
+            // Judgements of the Wise
+            if (dummySpell->SpellIconID == 3017)
+            {
+                target = this;
+                triggered_spell_id = 31930;
+                break;
+            }
+
             break;
         }
         case SPELLFAMILY_SHAMAN:
@@ -8775,6 +8765,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     return false;
 
                 CastCustomSpell(victim, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
+
+                // Item - Shaman Enhancement PvP 4P Bonus
+                if (HasAura(131554))
+                    CastSpell(victim, 147732, true);
+
                 return true;
             }
             break;
@@ -10367,6 +10362,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
+        case 144865:// Item - Druid T16 Feral 2P bonus
+            if (procSpell->Id != 16864 && procSpell->Id != 135700)
+                return false;
+            break;
         case 145003:// Item - Shaman T16 Elemental 4P Bonus
         {
             if (!roll_chance_i(20))
@@ -12701,11 +12700,10 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         {
             // Revealing Strike for direct damage abilities
             if (spellProto->AttributesEx & SPELL_ATTR1_REQ_COMBO_POINTS1 && damagetype != DOT)
+            {
                 if (AuraEffectPtr aurEff = victim->GetAuraEffect(84617, 2, GetGUID()))
-                {
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
-                    victim->RemoveAura(aurEff->GetBase());
-                }
+            }
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -12915,6 +12913,10 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             AddPct(TakenTotalMod, u_mult);
         }
     }
+
+    // Glyph of Inner Sanctum with Inner Fire
+    if (HasAura(14771) && HasAura(588))
+        AddPct(TakenTotalMod, -6);
 
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
 

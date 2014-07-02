@@ -2434,8 +2434,10 @@ class spell_dru_natures_cure : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
+                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+
                         // Create dispel mask by dispel type
-                        for (int8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
                             uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
                             uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
@@ -2444,14 +2446,23 @@ class spell_dru_natures_cure : public SpellScriptLoader
                             if (GetSpellInfo()->Id == 88423)
                                 dispelMask = ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_POISON));
 
-                            DispelChargesList dispelList;
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList);
-
-                            if (dispelList.empty())
-                                return SPELL_FAILED_NOTHING_TO_DISPEL;
-
-                            return SPELL_CAST_OK;
+                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
                         }
+
+                        bool empty = true;
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        {
+                            if (dispelList[i].empty())
+                                continue;
+
+                            empty = false;
+                            break;
+                        }
+
+                        if (empty)
+                            return SPELL_FAILED_NOTHING_TO_DISPEL;
+
+                        return SPELL_CAST_OK;
                     }
                 }
 

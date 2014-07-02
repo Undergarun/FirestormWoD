@@ -1000,39 +1000,45 @@ class spell_pri_surge_of_light : public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585, Heal - 2050, Flash Heal - 2061, Binding Heal - 32546 and Greater Heal - 2060 (Surge of Darkness)
 // From Darkness, Comes Light - 109186
 class spell_pri_from_darkness_comes_light : public SpellScriptLoader
 {
     public:
         spell_pri_from_darkness_comes_light() : SpellScriptLoader("spell_pri_from_darkness_comes_light") { }
 
-        class spell_pri_from_darkness_comes_light_SpellScript : public SpellScript
+        class spell_pri_from_darkness_comes_light_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_pri_from_darkness_comes_light_SpellScript);
+            PrepareAuraScript(spell_pri_from_darkness_comes_light_AuraScript);
 
-            void HandleOnHit()
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& procInfo)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                PreventDefaultAction();
+
+                if (!procInfo.GetHealInfo() || !procInfo.GetHealInfo()->GetHeal() || !procInfo.GetActor())
+                    return;
+
+                if (Player* player = procInfo.GetActor()->ToPlayer())
                 {
-                    if (_player->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA) &&
-                        _player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
+                    if (player->GetSpecializationId(player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        return;
+
+                    if (Unit* target = procInfo.GetActionTarget())
                     {
                         if (roll_chance_i(15))
-                            _player->CastSpell(_player, PRIEST_SURGE_OF_LIGHT, true);
+                            player->CastSpell(player, PRIEST_SURGE_OF_LIGHT, true);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_from_darkness_comes_light_SpellScript::HandleOnHit);
+                OnEffectProc += AuraEffectProcFn(spell_pri_from_darkness_comes_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_pri_from_darkness_comes_light_SpellScript();
+            return new spell_pri_from_darkness_comes_light_AuraScript();
         }
 };
 
@@ -1598,24 +1604,35 @@ class spell_pri_purify : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
+                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+
                         // Create dispel mask by dispel type
-                        for (int8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
                             uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                            uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                            uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
 
                             // Purity can dispell Magic.
                             if (GetSpellInfo()->Id == 527)
-                                dispelMask = ((1<<DISPEL_MAGIC));
+                                dispelMask = ((1 << DISPEL_MAGIC));
 
-                            /*DispelChargesList dispelList;
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList);
-                            
-                            if (dispelList.empty())
-                                return SPELL_FAILED_NOTHING_TO_DISPEL;*/
-
-                            return SPELL_CAST_OK;
+                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
                         }
+
+                        bool empty = true;
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        {
+                            if (dispelList[i].empty())
+                                continue;
+
+                            empty = false;
+                            break;
+                        }
+
+                        if (empty)
+                            return SPELL_FAILED_NOTHING_TO_DISPEL;
+
+                        return SPELL_CAST_OK;
                     }
                 }
 

@@ -1272,7 +1272,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, time(NULL) + 24);
+                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, time(NULL) + 60);
                             }
                     break;
                 }
@@ -2378,16 +2378,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                     addhealth *= 1 + bonus;
                 }
             }
-        }
-        // 77485 - Mastery : Echo of Light
-        if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
-        {
-            float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
-            int32 bp = (Mastery * addhealth) / 6;
-
-            bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
-
-            m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
         }
         // Chakra : Serenity - 81208
         if (caster && addhealth && caster->HasAura(81208) && m_spellInfo->Effects[0].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) // Single heal target
@@ -4732,6 +4722,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
         addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
 
     m_healing += addhealth;
+    m_healing = unitTarget->SpellHealingBonusTaken(m_caster, m_spellInfo, m_healing, HEAL);
 }
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
@@ -5726,10 +5717,6 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (m_spellInfo->Id == 62078)
         if (m_caster->m_movedPlayer->GetComboTarget() != unitTarget->GetGUID())
             return;
-
-    // Shadow Blades allow player to earn one more combo point
-    if (m_caster->HasAura(121471))
-        ++damage;
 
     m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
@@ -7290,6 +7277,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
+
+    // Glyph of SpellSteal
+    if (m_caster->HasAura(115713))
+        m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
 }
 
 void Spell::EffectKillCreditPersonal(SpellEffIndex effIndex)

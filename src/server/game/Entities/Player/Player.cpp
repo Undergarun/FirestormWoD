@@ -7221,6 +7221,7 @@ void Player::UpdateRating(CombatRating cr)
         SetFloatValue(UNIT_MOD_CAST_HASTE, haste);
         SetFloatValue(UNIT_MOD_HASTE, haste);
         UpdateManaRegen();
+        UpdateEnergyRegen();
     }
 
     // Custom MoP Script
@@ -22899,6 +22900,16 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
     // Kindred Spirits
     if (HasAura(56315))
         pet->RemoveAura(56315);
+
+    // Soul Link
+    if (Unit* owner = pet->GetOwner())
+    {
+        if (owner->ToPlayer() && owner->ToPlayer()->HasSpell(108415))
+        {
+            owner->RemoveAura(108446);
+            pet->RemoveAura(108446);
+        }
+    }
 }
 
 void Player::StopCastingCharm()
@@ -30426,6 +30437,19 @@ bool Player::HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category)
     if (consumedCharges == 0)
         return true;
 
+    uint32 count = 0;
+    Unit::AuraEffectList const& mModCharge = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
+    for (Unit::AuraEffectList::const_iterator i = mModCharge.begin(); i != mModCharge.end(); ++i)
+    {
+        if ((*i)->GetSpellInfo()->SpellFamilyFlags & sSpellMgr->GetSpellInfo(spellId)->SpellFamilyFlags)
+            ++count;
+    }
+
+    // If spell is not modified, we should assume
+    // that spell doesn't use charges yet
+    if (!count)
+        return true;
+
     // If MaxCharges is 0 and mod is 0 (e.g. Charge without Double Time), we
     // should assume that spell has 1 charge only
     int32 const mod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_CHARGES, category.Id);
@@ -30557,7 +30581,7 @@ void Player::SendRefreshSpellMods()
                     {
                         float val = 1;
                         for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                            if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
                                 val += (*itr)->value/100;
 
                         if (mod->value)
@@ -30571,7 +30595,7 @@ void Player::SendRefreshSpellMods()
 
                     int32 val = 0;
                     for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                        if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                        if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
                             val += (*itr)->value;
 
                     val += float(mod->value);

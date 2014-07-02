@@ -159,11 +159,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 case 6552:   // Pummel
                 case 18498:  // Glyph of Gag Order
                     return DIMINISHING_SILENCE;
+                case 12323:  // Piercing Howl
+                    return DIMINISHING_LIMITONLY;
+                default:
+                    break;
             }
 
-            // Piercing Howl - limit duration to 6s in PvP
-            if (spellproto->Id == 12323)
-                return DIMINISHING_LIMITONLY;
             // Hamstring - limit duration to 10s in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x2)
                 return DIMINISHING_LIMITONLY;
@@ -560,6 +561,8 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
                     return 8 * IN_MILLISECONDS;
                 case 116706:// Disable (root) - limit to 4 seconds in PvP
                     return 4 * IN_MILLISECONDS;
+                default:
+                    break;
             }
 
             break;
@@ -3424,6 +3427,17 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 53651: // Beacon of Light (dummy)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(48); // 60 yards
+                spellInfo->ProcFlags = 0x8A20;
+                break;
+            case 53563: // Beacon of Light
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[0].Amplitude = 1500;
+                break;
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
@@ -3681,7 +3695,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 139485:// Dark Winds
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
-            case 134735:// Battle Fatigue : Harcoded Basepoint for Season 13
+            case 134735:// Battle Fatigue : Hardcoded Basepoint for Season 13
                 spellInfo->Effects[0].BasePoints = -30;
                 spellInfo->Effects[1].BasePoints = -30;
                 break;
@@ -4061,9 +4075,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 80240: // Havoc
                 spellInfo->ProcCharges = 3;
-                break;
-            case 129020:// Avatar
-                spellInfo->AttributesEx &= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
                 break;
             case 121129:// Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
@@ -4632,9 +4643,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 16914: // Hurricane
                 spellInfo->OverrideSpellList.push_back(106996); // Replace Hurricane by Astral Storm
                 break;
-            case 755:   // Health Funnel
-                spellInfo->OverrideSpellList.push_back(108415); // Replace Health Funnel by Soul Link
-                break;
             case 85673: // Word of Glory
                 spellInfo->OverrideSpellList.push_back(114163); // Replace World of glory by Eternal Flame
                 break;
@@ -4828,16 +4836,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
             case 3411:  // Intervene
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->Effects[0].TargetB = 0;
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_ADD_CASTER_HIT_TRIGGER;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->Effects[1].TargetB = 0;
                 spellInfo->OverrideSpellList.push_back(114029); // Add Safeguard to override spell list of Intervene
+                break;
+            case 114029:// Safeguard
+                spellInfo->Effects[2].BasePoints = 100;
                 break;
             case 1784:  // Stealth
                 spellInfo->OverrideSpellList.push_back(115191); // Add Stealth (talent) to override spell list of Stealth
@@ -4997,6 +5002,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 113853:// Blazing Speed aurastate
             case 114028:// Mass Spell Reflection
             case 145151:// Dream of Cenarius (Balance)
+            case 122510:// Ultimatum
+            case 34784: // Intervene (triggered)
                 spellInfo->ProcCharges = 1;
                 break;
             case 110600:// Ice Trap (Symbiosis)

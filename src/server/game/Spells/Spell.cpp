@@ -1601,9 +1601,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                     if (unitTargets.size() < 3)
                         break;
 
-                    if (m_caster->ToPlayer()->HasSpellCooldown(46968))
-                        m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
-
+                    m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
                     break;
                 // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
                 case 107270:
@@ -3257,23 +3255,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             if (m_spellAura->GetEffect(i))
                                 if (m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
                                     periodicDamage = true;
-
-                        // Fix Pandemic
-                        if (periodicDamage && refresh && m_originalCaster->HasAura(131973))
-                        {
-                            int32 newDuration = (duration + m_spellAura->GetDuration()) <= (int32(m_spellAura->GetMaxDuration() * 1.5f)) ?
-                                duration + m_spellAura->GetDuration() : int32(m_spellAura->GetMaxDuration() * 1.5f);
-                            int32 newMaxDuration = (duration + m_spellAura->GetMaxDuration()) <= (int32(m_spellAura->GetMaxDuration() * 1.5f)) ?
-                                duration + m_spellAura->GetMaxDuration() : int32(m_spellAura->GetMaxDuration() * 1.5f);
-
-                            m_spellAura->SetMaxDuration(newMaxDuration);
-                            m_spellAura->SetDuration(newDuration);
-                        }
-                        else
-                        {
-                            m_spellAura->SetMaxDuration(duration);
-                            m_spellAura->SetDuration(duration);
-                        }
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())
@@ -7770,6 +7751,19 @@ SpellCastResult Spell::CheckPower()
         SpellCastResult failReason = CheckRuneCost(m_spellInfo->RuneCostID);
         if (failReason != SPELL_CAST_OK)
             return failReason;
+    }
+
+    switch (m_spellInfo->Id)
+    {
+        case 104225:// Curse of Elements
+        case 109468:// Curse of Enfeeblement
+        {
+            if (m_caster->ToPlayer() && m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
+                return SPELL_CAST_OK;
+            break;
+        }
+        default:
+            break;
     }
 
     // Check power amount
