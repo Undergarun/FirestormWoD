@@ -1828,7 +1828,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         // Teleport players
         for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
         {
-            if (maxPlayersToTeleport >= playersTeleported)
+            if (playersTeleported >= maxPlayersToTeleport)
                 break;
 
             TeleportPlayer(*it, false);
