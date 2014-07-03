@@ -80,6 +80,12 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsReturning(false);
     }
 
+    // Hack fix for Soul link, we need to buff pet and player if player has a talent
+    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->HasSpell(108415))
+    {
+        CastSpell(m_owner, 108446, true);
+        m_owner->CastSpell(this, 108446, true);
+    }
 }
 
 void Pet::RemoveFromWorld()
@@ -90,13 +96,6 @@ void Pet::RemoveFromWorld()
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
-    }
-
-    // Hack fix for Soul link, we need to buff pet and player if player has a talent
-    if (m_owner->ToPlayer() && m_owner->ToPlayer()->HasSpell(108415))
-    {
-        m_owner->CastSpell(m_owner, 108446, true);
-        m_owner->CastSpell(this, 108446, true);
     }
 }
 

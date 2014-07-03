@@ -2021,18 +2021,25 @@ struct SpellEffectScalingEntry
 #define MAX_EFFECT_MASK 4294967295
 
 // SpellAuraOptions.dbc
-// @author Selenium: 5.4 valid
 struct SpellAuraOptionsEntry
 {
     uint32    Id;                                           // 0       m_ID
-    uint32    StackAmount;                                  // 1       m_cumulativeAura
-    uint32    procChance;                                   // 2       m_procChance
-    uint32    procCharges;                                  // 3       m_procCharges
-    uint32    procFlags;                                    // 4       m_procTypeMask
-    //uint32    Unk_1;                                      // 5
-    //uint32    Unk_2;                                      // 6       Flag
-    //uint32    Unk_3;                                      // 7
-    //uint32    Unk_4;                                      // 8
+    uint32    SpellId;                                      // 1       m_SpellId
+    //uint32    Unk_1;                                      // 2
+    uint32    StackAmount;                                  // 3       m_cumulativeAura
+    uint32    procChance;                                   // 4       m_procChance
+    uint32    procCharges;                                  // 5       m_procCharges
+    uint32    procFlags;                                    // 6       m_procTypeMask
+    uint32    InternalCooldown;                             // 7       m_internalCooldown
+    uint32    ProcsPerMinuteEntry;                          // 8       m_procsPerMinuteEntry
+};
+
+// SpellProcsPerMinute.dbc
+struct SpellProcsPerMinuteEntry
+{
+    uint32 Id;                                              // 0        m_ID
+    float ProcsPerMinute;                                   // 1        m_procsPerMinute
+    //bool unk;                                             // 2
 };
 
 // SpellAuraRestrictions.dbc/

@@ -1053,6 +1053,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_CHECK_PARTY:
         case TARGET_CHECK_RAID:
         case TARGET_CHECK_RAID_CLASS:
+        case TARGET_CHECK_ALLY_OR_RAID:
             range = m_spellInfo->GetMaxRange(true, m_caster, this);
             break;
         case TARGET_CHECK_ENTRY:
@@ -1835,6 +1836,70 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
     // Script hook can remove object target and we would wrongly land here
     else if (Item* item = m_targets.GetItemTarget())
         AddItemTarget(item, 1 << effIndex);
+
+    switch (targetType.GetTarget())
+    {
+        case TARGET_UNIT_ALLY_OR_RAID: // Raids buffs
+        {
+            if (!target || !target->ToUnit() || !m_caster->ToPlayer())
+                break;
+
+            bool sameRaid = false;
+            if (Player* player = target->ToPlayer())
+            {
+                if (player->IsInSameGroupWith(m_caster->ToPlayer()) || player->IsInSameRaidWith(m_caster->ToPlayer()))
+                    sameRaid = true;
+            }
+            else if (Unit* owner = target->ToUnit()->GetOwner())
+            {
+                if (Player* plrOwner = owner->ToPlayer())
+                {
+                    if (plrOwner->IsInSameGroupWith(m_caster->ToPlayer()) || plrOwner->IsInSameRaidWith(m_caster->ToPlayer()))
+                        sameRaid = true;
+                }
+            }
+
+            if (sameRaid)
+            {
+                CleanupTargetList();
+
+                Position const* center = m_caster;
+                std::list<WorldObject*> targets;
+                float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+
+                SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
+
+                std::list<Unit*> unitTargets;
+                // for compatibility with older code - add only unit and go targets
+                // TODO: remove this
+                if (!targets.empty())
+                {
+                    for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    {
+                        if ((*itr))
+                        {
+                            if (Unit* unitTarget = (*itr)->ToUnit())
+                                unitTargets.push_back(unitTarget);
+                        }
+                    }
+                }
+
+                if (!unitTargets.empty())
+                {
+                    // Other special target selection goes here
+                    if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+                        JadeCore::Containers::RandomResizeList(unitTargets, maxTargets);
+
+                    for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
+                        AddUnitTarget(*itr, 1 << effIndex, false);
+                }
+            }
+
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask)
@@ -7481,6 +7546,10 @@ SpellCastResult Spell::CheckCasterAuras() const
 
     bool usableInStun = m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED;
 
+    // Life Cocoon is usable while stunned with Glyph of life cocoon
+    if (m_spellInfo->Id == 116849 && m_caster->HasAura(124989))
+        usableInStun = true;
+
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
@@ -9464,6 +9533,13 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
                 if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
                 if (!_referer->IsInRaidWith(unitTarget) && !_referer->IsInPartyWith(unitTarget))
+                    return false;
+                break;
+            case TARGET_CHECK_ALLY_OR_RAID:
+                if (unitTarget->isTotem())
+                    return false;
+                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo) &&
+                    !_referer->IsInRaidWith(unitTarget) && !_referer->IsInPartyWith(unitTarget))
                     return false;
                 break;
             default:

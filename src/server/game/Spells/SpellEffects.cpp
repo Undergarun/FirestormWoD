@@ -3578,9 +3578,6 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     // Before dispel
     switch (m_spellInfo->Id)
     {
-        case 88423: // Nature's Cure
-            dispelMask = ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_POISON));
-            break;
         case 115450:// Detox
         {
             if (effIndex > 1)
@@ -3594,7 +3591,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             break;
     }
 
-    // Mass Dispel Inivisiblity removal
+    // Mass Dispel invisibility removal
     if (m_spellInfo->Id == 32592)
     {
         DispelChargesList inv_dispel_list;
@@ -3605,7 +3602,6 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             if (AuraPtr aur = itr->first)
                 aur->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-        
     }
 
     DispelChargesList dispel_list;

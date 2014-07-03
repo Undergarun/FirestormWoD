@@ -963,9 +963,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     // Rage from Damage made (only from direct weapon damage)
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE
-        && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
+        && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)) && cleanDamage->mitigated_damage > 0)
     {
-        uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000 * 8.125f);
+        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 8.125f;
 
         switch (cleanDamage->attackType)
         {
@@ -979,7 +979,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    if (damagetype != NODAMAGE && (damage || (cleanDamage && cleanDamage->absorbed_damage) ))
+    if (damagetype != NODAMAGE && (damage || (cleanDamage && cleanDamage->absorbed_damage)))
     {
         if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
         {
@@ -1002,9 +1002,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         // Rage from absorbed damage
         if (cleanDamage && cleanDamage->absorbed_damage && victim->getPowerType() == POWER_RAGE)
-        {
             victim->RewardRage(cleanDamage->absorbed_damage, false);
-        }
 
         return 0;
     }
@@ -1110,7 +1108,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         // Rage from damage received
         if (this != victim && victim->getPowerType() == POWER_RAGE)
         {
-            uint32 rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
+            float rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
             victim->RewardRage(rage_damage, false);
         }
 
@@ -4253,7 +4251,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         if (!aurApp)
         {
-            printf("CRASH ALERT : Unit::RemoveAurasByType no AurApp pointer for Aura Id %u\n", aura->GetId());
+            sLog->OutPandashan("CRASH ALERT : Unit::RemoveAurasByType no AurApp pointer for Aura Id %u\n", aura->GetId());
             ++iter;
             continue;
         }
@@ -6162,16 +6160,28 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    if (ToPlayer()->HasSpellCooldown(dummySpell->Id))
-                        return false;
+                    if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
+                    {
+                        if (Item* mainItem = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                        {
+                            if (GetStat(STAT_AGILITY) > GetStat(STAT_STRENGTH))
+                                CastSpell(this, 118334, true, mainItem);
+                            else
+                                CastSpell(this, 118335, true, mainItem);
+                        }
+                    }
+                    else if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
+                    {
+                        if (Item* offItem = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                        {
+                            if (GetStat(STAT_AGILITY) > GetStat(STAT_STRENGTH))
+                                CastSpell(this, 118334, true, offItem);
+                            else
+                                CastSpell(this, 118335, true, offItem);
+                        }
+                    }
 
-                    if (GetStat(STAT_AGILITY) > GetStat(STAT_STRENGTH))
-                        CastSpell(this, 118334, true);
-                    else
-                        CastSpell(this, 118335, true);
-
-                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + 60);
-                    return false;
+                    break;
                 }
                 case 142536:// Spirit of Conquest
                 {
@@ -7032,7 +7042,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = this;
                     triggered_spell_id = 34936;
                     ToPlayer()->AddSpellCooldown(108563, 0, time(NULL) + 8);
-                    return true;
+                    break;
                 }
                 case 114790:// Soulburn : Seed of Corruption
                 {
@@ -8805,7 +8815,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     {
                         int32 procDmg = damage / 2;
 
-                        if (procSpell->Effects[0].Effect == SPELL_EFFECT_WEAPON_PERCENT_DAMAGE)
+                        // Soul Reaper must be casted correctly
+                        if (procSpell->Effects[0].Effect == SPELL_EFFECT_WEAPON_PERCENT_DAMAGE && procSpell->Id != 114866)
                         {
                             pPet->SendSpellNonMeleeDamageLog(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
                             pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
@@ -8815,6 +8826,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                         break;
                     }
+                    // Outbreak must be casted correctly too
+                    else if (pPet && (pPet->getVictim() || getVictim()) && procSpell && procSpell->Id == 77575)
+                        pPet->CastSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, true);
                     else
                         return false;
 
@@ -10298,6 +10312,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 20271)
                 return false;
 
+            // Holy Insight with Selfless Healer grants the player with Holy power
+            if (HasAura(112859))
+                EnergizeBySpell(this, procSpell->Id, 1, POWER_HOLY_POWER);
+
             break;
         }
         case 144593://Item - Paladin T16 Retribution 4P Bonus
@@ -10328,9 +10346,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         }
         case 85043: // Grand Crusader
         {
-            if (!procSpell)
-                return false;
-
             if (GetTypeId() != TYPEID_PLAYER)
                 return false;
 
@@ -18815,17 +18830,21 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     if (spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
-    if (spellProcEvent && spellProcEvent->ppmRate != 0)
+    float procsPerMinute = spellProto->ProcsPerMinute;
+    if (procsPerMinute != 0.f && spellProcEvent && spellProcEvent->ppmRate != 0.f)
+        procsPerMinute = spellProcEvent->ppmRate;
+
+    if (procsPerMinute != 0.f)
     {
         if (!isVictim)
         {
             uint32 WeaponSpeed = GetAttackTime(attType);
-            chance = GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate, spellProto);
+            chance = GetPPMProcChance(WeaponSpeed, procsPerMinute, spellProto);
         }
         else
         {
             uint32 WeaponSpeed = victim->GetAttackTime(attType);
-            chance = victim->GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate, spellProto);
+            chance = victim->GetPPMProcChance(WeaponSpeed, procsPerMinute, spellProto);
         }
     }
     // Apply chance modifer aura
@@ -21883,7 +21902,7 @@ void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 }
 
 // baseRage means damage taken when attacker = false
-void Unit::RewardRage(uint32 baseRage, bool attacker)
+void Unit::RewardRage(float baseRage, bool attacker)
 {
     float addRage = baseRage;
 
@@ -21891,11 +21910,6 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
     {
         // talent who gave more rage on attack
         addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
-
-        // Sentinel - Protection Warrior Mastery
-        if (AuraEffectPtr aurEff = GetAuraEffect(29144, 1))
-            if (getVictim() && (!getVictim()->getVictim() || (getVictim()->getVictim() && this != getVictim()->getVictim())))
-                addRage *= float((aurEff->GetAmount() + 100.0f) / 100.0f);
     }
     else
     {
@@ -21913,7 +21927,7 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
         }
     }
 
-    ModifyPower(POWER_RAGE, uint32(addRage * 3));
+    ModifyPower(POWER_RAGE, uint32(addRage * 10));
 }
 
 void Unit::StopAttackFaction(uint32 faction_id)

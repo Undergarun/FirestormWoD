@@ -1530,7 +1530,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
         }
-        else if (isPet() && GetEntry() != ENTRY_WATER_ELEMENTAL) // demons benefit from warlocks shadow or fire damage
+        else if (isPet() && GetEntry() != ENTRY_WATER_ELEMENTAL || IsTreant()) // demons benefit from warlocks shadow or fire damage
         {
             int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
             SetBonusDamage(spd);

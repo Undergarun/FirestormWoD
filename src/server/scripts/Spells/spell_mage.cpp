@@ -54,7 +54,6 @@ enum MageSpells
     SPELL_MAGE_CONJURE_REFRESHMENT_R7            = 92727,
     SPELL_MAGE_CONJURE_REFRESHMENT_R8            = 116130,
     SPELL_MAGE_MANA_GEM_ENERGIZE                 = 10052,
-    SPELL_MAGE_ARCANE_BRILLIANCE                 = 1459,
     SPELL_MAGE_INFERNO_BLAST                     = 108853,
     SPELL_MAGE_INFERNO_BLAST_IMPACT              = 118280,
     SPELL_MAGE_IGNITE                            = 12654,
@@ -1206,42 +1205,6 @@ class spell_mage_inferno_blast : public SpellScriptLoader
         }
 };
 
-// Arcane Brillance - 1459
-class spell_mage_arcane_brilliance : public SpellScriptLoader
-{
-    public:
-        spell_mage_arcane_brilliance() : SpellScriptLoader("spell_mage_arcane_brilliance") { }
-
-        class spell_mage_arcane_brilliance_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_arcane_brilliance_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->AddAura(SPELL_MAGE_ARCANE_BRILLIANCE, _player);
-
-                    std::list<Unit*> memberList;
-                    _player->GetPartyMembers(memberList);
-
-                    for (auto itr : memberList)
-                        _player->AddAura(SPELL_MAGE_ARCANE_BRILLIANCE, itr);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mage_arcane_brilliance_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_arcane_brilliance_SpellScript();
-        }
-};
-
 // Replenish Mana - 5405
 class spell_mage_replenish_mana : public SpellScriptLoader
 {
@@ -1628,7 +1591,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_frostjaw();
     new spell_mage_combustion();
     new spell_mage_inferno_blast();
-    new spell_mage_arcane_brilliance();
     new spell_mage_replenish_mana();
     new spell_mage_evocation();
     new spell_mage_conjure_refreshment();

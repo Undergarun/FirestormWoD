@@ -3256,19 +3256,15 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
 
-        bool interrupted = false;
-        // call functions which may have additional effects after chainging state of unit
+        // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
             {
+                // Stop spells on prepare or casting state
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
-                {
-                    // Stop spells on prepare or casting state
                     target->InterruptSpell(CurrentSpellTypes(i), false);
-                    interrupted = true;
-                }
             }
         }
 

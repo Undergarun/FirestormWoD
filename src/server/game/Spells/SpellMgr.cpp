@@ -3427,6 +3427,17 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 118334:// Dancing Steel (agility)
+            case 118335:// Dancing Steel (strength)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
+                break;
+            case 113828:// Healing Touch (treant)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 142421:// Swiftmend (treant)
+                spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_ANY;
+                break;
             case 53651: // Beacon of Light (dummy)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
@@ -3648,9 +3659,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 128997:// Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 127830:// Spirit Beast Blessing (Mastery Rating)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AREA_AURA_RAID;
                 break;
             case 32546: // Binding Heal
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
@@ -4707,23 +4715,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 53257: // Cobra Strikes
                 spellInfo->Effects[0].BasePoints = 0;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
-                break;
-            case 21562: // Power Word : Fortitude
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                break;
-            case 1126:  // Mark of the Wild
-            case 19740: // Blessing of Might
-            case 20217: // Blessing of Kings
-            case 24907: // Moonkin Aura
-            case 109773:// Dark Intent
-            case 116781:// Legacy of the White Tiger
-            case 1459:  // Arcane Illumination
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
-                break;
-            case 61316: // Dalaran Illumination
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
                 break;
             case 11958: // Cold Snap
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;

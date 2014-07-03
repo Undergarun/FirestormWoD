@@ -29111,11 +29111,11 @@ void Player::ActivateSpec(uint8 spec)
 
     SendActionButtons(1);
 
-    Powers pw = getPowerType();
-    if (pw != POWER_MANA)
-        SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
-
-    SetPower(pw, 0);
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    {
+        SetPower(Powers(i), 0);
+        SetMaxPower(Powers(i), GetCreatePowers(Powers(i)));
+    }
 }
 
 void Player::ResetTimeSync()

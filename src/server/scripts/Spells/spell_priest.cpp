@@ -120,7 +120,6 @@ enum PriestSpells
     PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
-    PRIEST_SPELL_POWER_WORD_FORTITUDE               = 21562,
     PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
     PRIEST_SPELL_HOLY_NOVA                          = 132157,
     PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455,
@@ -436,46 +435,6 @@ class spell_pri_inner_focus_immunity : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_inner_focus_immunity_SpellScript();
-        }
-};
-
-// Power Word : Fortitude - 21562
-class spell_pri_power_word_fortitude : public SpellScriptLoader
-{
-    public:
-        spell_pri_power_word_fortitude() : SpellScriptLoader("spell_pri_power_word_fortitude") { }
-
-        class spell_pri_power_word_fortitude_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_power_word_fortitude_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->IsInRaidWith(caster))
-                        {
-                            std::list<Unit*> playerList;
-                            caster->GetPartyMembers(playerList);
-
-                            for (auto itr : playerList)
-                                caster->AddAura(PRIEST_SPELL_POWER_WORD_FORTITUDE, itr);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_power_word_fortitude_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_power_word_fortitude_SpellScript();
         }
 };
 
@@ -2744,7 +2703,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_nova();
     new spell_pri_glyph_of_holy_nova();
     new spell_pri_inner_focus_immunity();
-    new spell_pri_power_word_fortitude();
     new spell_pri_spectral_guise_charges();
     new spell_pri_psyfiend_hit_me_driver();
     new spell_pri_void_tendrils();

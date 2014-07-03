@@ -3158,7 +3158,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                     {
                         int32 damage = aurEff->GetAmount() * 8;
                         // backfire damage and silence
-                        caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                        caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, &damage, NULL, true);
                     }
                 }
             }
