@@ -965,7 +965,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE
         && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)) && cleanDamage->mitigated_damage > 0)
     {
-        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 8.125f;
+        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
 
         switch (cleanDamage->attackType)
         {
@@ -22548,7 +22548,7 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
 void Unit::ApplySoulSwapDOT(Unit* target)
 {
     for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
-        AddAura((*iter), target);
+        CastSpell(target, (*iter), true);
 
     _SoulSwapDOTList.clear();
 }

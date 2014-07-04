@@ -2141,9 +2141,9 @@ class spell_warl_soul_swap_soulburn : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         // Apply instantly corruption, unstable affliction and agony on the target
-                        caster->AddAura(WARLOCK_CORRUPTION, target);
-                        caster->AddAura(WARLOCK_UNSTABLE_AFFLICTION, target);
-                        caster->AddAura(WARLOCK_AGONY, target);
+                        caster->CastSpell(target, WARLOCK_CORRUPTION, true);
+                        caster->CastSpell(target, WARLOCK_UNSTABLE_AFFLICTION, true);
+                        caster->CastSpell(target, WARLOCK_AGONY, true);
                         caster->RemoveAura(WARLOCK_SOULBURN_AURA);
                     }
                 }
@@ -3211,13 +3211,18 @@ class spell_warl_pandemic : public SpellScriptLoader
                         if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
                         {
                             int32 newDuration;
-                            int32 maxDuration = aura->GetMaxDuration();
-                            int32 newMaxDuration = aura->GetMaxDuration() * 1.5f;
+                            int32 maxDuration = sSpellMgr->GetSpellInfo(aura->GetId())->GetMaxDuration();
+                            int32 newMaxDuration = maxDuration * 1.5f;
                             if (duration == 0)
                                 newDuration = maxDuration;
                             else
                                 newDuration = duration + maxDuration < newMaxDuration ? duration + maxDuration : newMaxDuration;
                             aura->SetDuration(newDuration);
+
+                            if (newDuration > maxDuration)
+                                aura->SetMaxDuration(newDuration);
+
+                            duration = 0;
                         }
                     }
                 }
