@@ -3444,16 +3444,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
-            case 137117: // Reckless Charge (Rolling)
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                break;
             case 137131: // Reckless Charge
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 137133: // Reckless Charge
-                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); // 2 yards
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
                 break;
             case 138652:// Eruption
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
