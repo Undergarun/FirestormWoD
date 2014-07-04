@@ -450,7 +450,11 @@ class boss_horridon : public CreatureScript
                         actualDoorDestroyed = true;
                         door->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         me->CastSpell(me, SPELL_HEADACHE, true);
-                        events.ScheduleEvent(EVENT_NEXT_DOOR, 40000);
+
+                        if (actualDoor == DOOR_AMANI)
+                            events.ScheduleEvent(EVENT_NEXT_DOOR, 20000);
+                        else
+                            events.ScheduleEvent(EVENT_NEXT_DOOR, 40000);
                         break;
                     }
                     default:
@@ -545,7 +549,9 @@ class boss_horridon : public CreatureScript
                         actualDoorDestroyed = false;
                         ++actualDoor;
                         events.ScheduleEvent(EVENT_SPAWN_WAVE, 1000);
-                        events.ScheduleEvent(EVENT_SPAWN_DINOMANCER, 60000);
+
+                        if (actualDoor < DOOR_ZANDALARI)
+                            events.ScheduleEvent(EVENT_SPAWN_DINOMANCER, 60000);
                         break;
                     }
                     case EVENT_SPAWN_WAVE:
@@ -564,6 +570,12 @@ class boss_horridon : public CreatureScript
                                     if (Creature* skirmisher = me->SummonCreature(NPC_FARRAKI_SKIRMICHER, farrakiSkirmisherPosition[urand(0, 2)]))
                                         skirmisher->AI()->AttackStart(target);
 
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* stonegazer = me->SummonCreature(NPC_SUL_LITHUZ_STONEGAZER, sullithuzStonegazerPosition[urand(0, 1)]))
+                                            stonegazer->AI()->AttackStart(target);
+                                    }
+
                                     if (GameObject* farrakiDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_FARRAKI_TRIBAL_DOOR)))
                                         farrakiDoor->Use(me);
 
@@ -576,6 +588,12 @@ class boss_horridon : public CreatureScript
                                         bloodlord->AI()->AttackStart(target);
                                     if (Creature* bloodlord = me->SummonCreature(NPC_GURUBASHI_BLOODLORD, gurubashiBloodlordPosition[urand(0, 2)]))
                                         bloodlord->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* bloodlord = me->SummonCreature(NPC_GURUBASHI_BLOODLORD, gurubashiBloodlordPosition[urand(0, 2)]))
+                                            bloodlord->AI()->AttackStart(target);
+                                    }
 
                                     if (GameObject* gurubashiDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_GURUBASHI_TRIBAL_DOOR)))
                                         gurubashiDoor->Use(me);
@@ -590,6 +608,12 @@ class boss_horridon : public CreatureScript
                                     if (Creature* champion = me->SummonCreature(NPC_RISEN_DRAKKARI_CHAMPION, drakkariChampionPosition[urand(0, 1)]))
                                         champion->AI()->AttackStart(target);
 
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* champion = me->SummonCreature(NPC_RISEN_DRAKKARI_CHAMPION, drakkariChampionPosition[urand(0, 1)]))
+                                            champion->AI()->AttackStart(target);
+                                    }
+
                                     if (GameObject* drakkariDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_DRAKKARI_TRIBAL_DOOR)))
                                         drakkariDoor->Use(me);
 
@@ -602,6 +626,12 @@ class boss_horridon : public CreatureScript
                                         flameCaster->AI()->AttackStart(target);
                                     if (Creature* protector = me->SummonCreature(NPC_AMANI_SHI_PROTECTOR, amaniProtectorPosition))
                                         protector->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* flameCaster = me->SummonCreature(NPC_AMANI_SHI_FLAME_CASTER, amaniFlameCasterPosition[urand(0, 1)]))
+                                            flameCaster->AI()->AttackStart(target);
+                                    }
 
                                     if (GameObject* amaniDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_AMANI_TRIBAL_DOOR)))
                                         amaniDoor->Use(me);
