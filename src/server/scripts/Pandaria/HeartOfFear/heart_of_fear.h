@@ -45,6 +45,9 @@ enum eSpells
     SPELL_WIND_STEP_TP          = 123175,   // Teleport. Triggers SPELL_WIND_STEP_DUMMY.
     SPELL_OVERWHELMING_ASS      = 123474,
 
+    // --- Grand Empress Shek'zeer ---
+    SPELL_CONVERT_SERVANT       = 123713,   // Player converted into Servant of the empress. Also used in instance_heart_of_fear.cpp for IsWipe()
+
     // Trashes
     SPELL_ARTERIAL_SPIRIT       = 123422,
     SPELL_GOUGE_THROAT          = 123434,
@@ -86,6 +89,13 @@ enum eSpells
     SPELL_CORROSIVE_AURA        = 122348,
     SPELL_AMBER_EMANATION       = 125426,
     SPELL_AMBER_INFUSION        = 125432,
+    SPELL_BAND_OF_VALOR         = 125422,
+    SPELL_TOXIC_HIVEBOMB        = 125865,
+    SPELL_TOXIC_SPEW            = 125871,
+    SPELL_DISPATCH              = 125877,
+    SPELL_SONIC_BLADE           = 125888,
+    SPELL_CRY_HAVOC             = 125907,
+    SPELL_FRENZIED_ASSAULT      = 125900,
 
     // Generic enrage spell
     SPELL_BERSERK               = 26662,
@@ -94,10 +104,13 @@ enum eSpells
 enum eActions
 {
     // Ta'yak
-    ACTION_TAYAK_TALK_TRASH     = 6,
+    ACTION_TAYAK_TALK_TRASH     = 1,
 
     // Garalon
-    ACTION_GARALON_VISIBLE      = 9,
+    ACTION_GARALON_VISIBLE      = 8,
+
+    // Shek'zeer
+    ACTION_SHEKZEER_COMBAT      = 9,
 
     // Trash
     ACTION_AMBER_VOLLEY         = 10,
@@ -135,6 +148,9 @@ enum eCreatures
     NPC_COAGULATED_AMBER2           = 63594,
     NPC_SRATHIK_AMBERCALLER         = 64917,
     NPC_SRATHIK_POOLTENDER          = 63570,
+    NPC_ZARTHIK_AUGURER             = 64454,
+    NPC_SETTHIK_WINDBLADE_TRASH     = 64453,
+    NPC_KORTHIK_WARSINGER           = 64458,
 };
 
 enum eGameObjects
@@ -158,11 +174,15 @@ enum eGameObjects
     // Garalon Doors
     GOB_DOOR_TO_MELJARAK            = 214634,
     GOB_GARALON_WALLS               = 212695,
+
+    // Shek'zeer Gameobjects
+    GOB_EMPRESS_CHAMBER             = 213277,
+    GOB_MANTID_QUEEN_CEIL           = 213276,
 };
 
 enum eWeapons
 {
-    // --- Bosses ---
+    // --- Bosses (also used by some trash) ---
     EQUIP_ZORLOK                    = 85947,
     EQUIP_TAYAK_MELJARAK            = 85401,
     EQUIP_UNSOK                     = 86983,
@@ -221,6 +241,12 @@ enum eEvents
     EVENT_AMBER_SPEW,
     EVENT_SLAM,
     EVENT_AMBER_INFUSION,
+    EVENT_TOXIC_HIVEBOMB,
+    EVENT_TOXIC_SPEW,
+    EVENT_DISPATCH,
+    EVENT_SONIC_BLADE,
+    EVENT_CRY_HAVOC,
+    EVENT_FRENZIED_ASSAULT,
 };
 
 #define DISPLAYID_INVISIBLE 11686

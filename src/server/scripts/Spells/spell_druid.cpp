@@ -68,7 +68,6 @@ enum DruidSpells
     SPELL_DRUID_FORM_CAT_INCREASE_SPEED     = 113636,
     SPELL_DRUID_GLYPH_OF_REGROWTH           = 116218,
     SPELL_DRUID_REGROWTH                    = 8936,
-    SPELL_DRUID_MARK_OF_THE_WILD            = 1126,
     SPELL_DRUID_OMEN_OF_CLARITY             = 113043,
     SPELL_DRUID_CLEARCASTING                = 16870,
     SPELL_DRUID_LIFEBLOOM                   = 33763,
@@ -2380,44 +2379,6 @@ class spell_dru_omen_of_clarity : public SpellScriptLoader
         }
 };
 
-// Mark of the Wild - 1126
-class spell_dru_mark_of_the_wild : public SpellScriptLoader
-{
-    public:
-        spell_dru_mark_of_the_wild() : SpellScriptLoader("spell_dru_mark_of_the_wild") { }
-
-        class spell_dru_mark_of_the_wild_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_mark_of_the_wild_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* caster = GetCaster();
-                if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    caster->AddAura(SPELL_DRUID_MARK_OF_THE_WILD, caster);
-
-                    std::list<Unit*> memberList;
-                    Player* plr = caster->ToPlayer();
-                    plr->GetPartyMembers(memberList);
-
-                    for (auto itr : memberList)
-                        caster->AddAura(SPELL_DRUID_MARK_OF_THE_WILD, (itr));
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dru_mark_of_the_wild_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_mark_of_the_wild_SpellScript();
-        }
-};
-
 // Nature's Cure - 88423 and Remove Corruption - 2782
 class spell_dru_natures_cure : public SpellScriptLoader
 {
@@ -2434,8 +2395,10 @@ class spell_dru_natures_cure : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
+                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+
                         // Create dispel mask by dispel type
-                        for (int8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
                             uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
                             uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
@@ -2444,14 +2407,23 @@ class spell_dru_natures_cure : public SpellScriptLoader
                             if (GetSpellInfo()->Id == 88423)
                                 dispelMask = ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_POISON));
 
-                            DispelChargesList dispelList;
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList);
-
-                            if (dispelList.empty())
-                                return SPELL_FAILED_NOTHING_TO_DISPEL;
-
-                            return SPELL_CAST_OK;
+                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
                         }
+
+                        bool empty = true;
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        {
+                            if (dispelList[i].empty())
+                                continue;
+
+                            empty = false;
+                            break;
+                        }
+
+                        if (empty)
+                            return SPELL_FAILED_NOTHING_TO_DISPEL;
+
+                        return SPELL_CAST_OK;
                     }
                 }
 
@@ -4208,7 +4180,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_killer_instinct();
     new spell_dru_lifebloom_refresh();
     new spell_dru_omen_of_clarity();
-    new spell_dru_mark_of_the_wild();
     new spell_dru_natures_cure();
     new spell_dru_glyph_of_regrowth();
     new spell_dru_cat_form();

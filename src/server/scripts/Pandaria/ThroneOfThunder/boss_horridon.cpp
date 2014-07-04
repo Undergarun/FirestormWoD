@@ -28,6 +28,8 @@ enum eSpells
 {
     // Horridon
     SPELL_TRIPLE_PUNCTURE           = 136767,
+    SPELL_DOUBLE_SWIPE_FRONT        = 136739,
+    SPELL_DOUBLE_SWIPE_BACK         = 136740,
     SPELL_DOUBLE_SWIPE              = 136741,
     SPELL_CHARGE                    = 136769,
     SPELL_RAMPAGE                   = 136821,
@@ -272,6 +274,25 @@ class DirehornValidateCheck
         }
 };
 
+class DoubleSwipeCheck
+{
+    public:
+        DoubleSwipeCheck(Unit* caster, bool front = false) : _caster(caster), _front(front) { }
+        bool operator()(Unit* unit) const
+        {
+            return _front ? !_caster->isInFront(unit, 1.81f) : !_caster->isInBack(unit, 1.81f);
+        }
+
+        bool operator()(WorldObject* object) const
+        {
+            return _front ? !_caster->isInFront(object, 1.81f) : !_caster->isInBack(object, 1.81f);
+        }
+
+    private:
+        Unit* _caster;
+        bool _front;
+};
+
 // Horridon - 68476
 class boss_horridon : public CreatureScript
 {
@@ -429,7 +450,11 @@ class boss_horridon : public CreatureScript
                         actualDoorDestroyed = true;
                         door->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         me->CastSpell(me, SPELL_HEADACHE, true);
-                        events.ScheduleEvent(EVENT_NEXT_DOOR, 40000);
+
+                        if (actualDoor == DOOR_AMANI)
+                            events.ScheduleEvent(EVENT_NEXT_DOOR, 20000);
+                        else
+                            events.ScheduleEvent(EVENT_NEXT_DOOR, 40000);
                         break;
                     }
                     default:
@@ -523,8 +548,10 @@ class boss_horridon : public CreatureScript
                         DespawnTriggerForDoor();
                         actualDoorDestroyed = false;
                         ++actualDoor;
-                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 2000);
-                        events.ScheduleEvent(EVENT_SPAWN_DINOMANCER, 60000);
+                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 1000);
+
+                        if (actualDoor < DOOR_ZANDALARI)
+                            events.ScheduleEvent(EVENT_SPAWN_DINOMANCER, 60000);
                         break;
                     }
                     case EVENT_SPAWN_WAVE:
@@ -543,6 +570,12 @@ class boss_horridon : public CreatureScript
                                     if (Creature* skirmisher = me->SummonCreature(NPC_FARRAKI_SKIRMICHER, farrakiSkirmisherPosition[urand(0, 2)]))
                                         skirmisher->AI()->AttackStart(target);
 
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* stonegazer = me->SummonCreature(NPC_SUL_LITHUZ_STONEGAZER, sullithuzStonegazerPosition[urand(0, 1)]))
+                                            stonegazer->AI()->AttackStart(target);
+                                    }
+
                                     if (GameObject* farrakiDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_FARRAKI_TRIBAL_DOOR)))
                                         farrakiDoor->Use(me);
 
@@ -553,6 +586,14 @@ class boss_horridon : public CreatureScript
                                 {
                                     if (Creature* bloodlord = me->SummonCreature(NPC_GURUBASHI_BLOODLORD, gurubashiBloodlordPosition[urand(0, 2)]))
                                         bloodlord->AI()->AttackStart(target);
+                                    if (Creature* bloodlord = me->SummonCreature(NPC_GURUBASHI_BLOODLORD, gurubashiBloodlordPosition[urand(0, 2)]))
+                                        bloodlord->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* bloodlord = me->SummonCreature(NPC_GURUBASHI_BLOODLORD, gurubashiBloodlordPosition[urand(0, 2)]))
+                                            bloodlord->AI()->AttackStart(target);
+                                    }
 
                                     if (GameObject* gurubashiDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_GURUBASHI_TRIBAL_DOOR)))
                                         gurubashiDoor->Use(me);
@@ -567,6 +608,12 @@ class boss_horridon : public CreatureScript
                                     if (Creature* champion = me->SummonCreature(NPC_RISEN_DRAKKARI_CHAMPION, drakkariChampionPosition[urand(0, 1)]))
                                         champion->AI()->AttackStart(target);
 
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* champion = me->SummonCreature(NPC_RISEN_DRAKKARI_CHAMPION, drakkariChampionPosition[urand(0, 1)]))
+                                            champion->AI()->AttackStart(target);
+                                    }
+
                                     if (GameObject* drakkariDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_DRAKKARI_TRIBAL_DOOR)))
                                         drakkariDoor->Use(me);
 
@@ -579,6 +626,12 @@ class boss_horridon : public CreatureScript
                                         flameCaster->AI()->AttackStart(target);
                                     if (Creature* protector = me->SummonCreature(NPC_AMANI_SHI_PROTECTOR, amaniProtectorPosition))
                                         protector->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* flameCaster = me->SummonCreature(NPC_AMANI_SHI_FLAME_CASTER, amaniFlameCasterPosition[urand(0, 1)]))
+                                            flameCaster->AI()->AttackStart(target);
+                                    }
 
                                     if (GameObject* amaniDoor = GameObject::GetGameObject(*me, pInstance->GetData64(GOB_AMANI_TRIBAL_DOOR)))
                                         amaniDoor->Use(me);
@@ -595,6 +648,8 @@ class boss_horridon : public CreatureScript
                                     {
                                         Position pos;
                                         target->GetPosition(&pos);
+                                        jalak->SetSpeed(MOVE_RUN, 5.0f);
+                                        jalak->SetSpeed(MOVE_WALK, 5.0f);
                                         jalak->GetMotionMaster()->MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, 20.0f, 20.0f, 10.0f, MOVE_JALAK_JUMP);
                                         jalak->AI()->SetGUID(target->GetGUID(), 0);
                                     }
@@ -605,7 +660,7 @@ class boss_horridon : public CreatureScript
                             }
                         }
 
-                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 20000);
+                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 15000);
                         break;
                     }
                     case EVENT_SPAWN_MORE_WAVE:
@@ -623,14 +678,35 @@ class boss_horridon : public CreatureScript
                                 case DOOR_FARRAKI:
                                     if (Creature* wastewalker = me->SummonCreature(NPC_FARRAKI_WASTEWALKER, pos))
                                         wastewalker->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* wastewalker = me->SummonCreature(NPC_FARRAKI_WASTEWALKER, pos))
+                                            wastewalker->AI()->AttackStart(target);
+                                    }
+
                                     break;
                                 case DOOR_GURUBASHI:
                                     if (Creature* venomPriest = me->SummonCreature(NPC_GURUBASHI_VENOM_PRIEST, pos))
                                         venomPriest->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* venomPriest = me->SummonCreature(NPC_GURUBASHI_VENOM_PRIEST, pos))
+                                            venomPriest->AI()->AttackStart(target);
+                                    }
+
                                     break;
                                 case DOOR_DRAKKARI:
                                     if (Creature* frozenWarlord = me->SummonCreature(NPC_DRAKKARI_FROZEN_WARLORD, pos))
                                         frozenWarlord->AI()->AttackStart(target);
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* frozenWarlord = me->SummonCreature(NPC_DRAKKARI_FROZEN_WARLORD, pos))
+                                            frozenWarlord->AI()->AttackStart(target);
+                                    }
+
                                     break;
                                 case DOOR_AMANI:
                                 {
@@ -644,6 +720,21 @@ class boss_horridon : public CreatureScript
                                             shaman->AI()->AttackStart(target);
                                         }
                                     }
+
+                                    if (Is25ManRaid())
+                                    {
+                                        if (Creature* warbear = me->SummonCreature(NPC_AMANI_WARBEAR, pos))
+                                        {
+                                            warbear->AI()->AttackStart(target);
+
+                                            if (Creature* shaman = me->SummonCreature(NPC_AMANI_SHI_BEAST_SHAMAN, pos))
+                                            {
+                                                warbear->AI()->SetGUID(shaman->GetGUID(), 0);
+                                                shaman->AI()->AttackStart(target);
+                                            }
+                                        }
+                                    }
+
                                     break;
                                 }
                                 default:
@@ -872,11 +963,15 @@ class boss_war_god_jalak : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
                 introDone = false;
+                initialSpeed[0] = 1.0f;
+                initialSpeed[1] = 1.14286f;
             }
 
             EventMap events;
             InstanceScript* pInstance;
             bool introDone;
+
+            float initialSpeed[2];
 
             uint64 targetGuid;
             uint32 secondTalkTimer;
@@ -924,6 +1019,9 @@ class boss_war_god_jalak : public CreatureScript
                 {
                     if (Unit* target = Unit::GetUnit(*me, targetGuid))
                         AttackStart(target);
+
+                    me->SetSpeed(MOVE_WALK, initialSpeed[0]);
+                    me->SetSpeed(MOVE_RUN, initialSpeed[1]);
                 }
             }
 
@@ -2153,6 +2251,40 @@ class spell_dire_call : public SpellScriptLoader
         }
 };
 
+// Double Swipe - 136739 / 136740
+class spell_double_swipe : public SpellScriptLoader
+{
+    public:
+        spell_double_swipe() : SpellScriptLoader("spell_double_swipe") { }
+
+        class spell_double_swipe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_double_swipe_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                // Targets must be activated
+                if (GetSpellInfo()->Id == SPELL_DOUBLE_SWIPE_FRONT)
+                    targets.remove_if(DoubleSwipeCheck(GetCaster(), true));
+                else if (GetSpellInfo()->Id == SPELL_DOUBLE_SWIPE_BACK)
+                    targets.remove_if(DoubleSwipeCheck(GetCaster()));
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_double_swipe_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_double_swipe_SpellScript();
+        }
+};
+
 // Wrought Iron Door - 218667
 class go_horridon_intro_door : public GameObjectScript
 {
@@ -2201,5 +2333,6 @@ void AddSC_boss_horridon()
     new spell_control_of_horridon();
     new spell_headache();
     new spell_dire_call();
+    new spell_double_swipe();
     new go_horridon_intro_door();
 }

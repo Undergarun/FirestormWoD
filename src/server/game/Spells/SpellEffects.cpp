@@ -1272,7 +1272,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, time(NULL) + 24);
+                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, time(NULL) + 60);
                             }
                     break;
                 }
@@ -2379,16 +2379,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 }
             }
         }
-        // 77485 - Mastery : Echo of Light
-        if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
-        {
-            float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
-            int32 bp = (Mastery * addhealth) / 6;
-
-            bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
-
-            m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
-        }
         // Chakra : Serenity - 81208
         if (caster && addhealth && caster->HasAura(81208) && m_spellInfo->Effects[0].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) // Single heal target
             if (AuraPtr renew = unitTarget->GetAura(139, caster->GetGUID()))
@@ -2801,6 +2791,10 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
+        case 6572:  // Revenge
+            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                return;
+            break;
         case 9512:                                          // Restore Energy
             level_diff = m_caster->getLevel() - 40;
             level_multiplier = 2;
@@ -3588,9 +3582,6 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     // Before dispel
     switch (m_spellInfo->Id)
     {
-        case 88423: // Nature's Cure
-            dispelMask = ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_POISON));
-            break;
         case 115450:// Detox
         {
             if (effIndex > 1)
@@ -3604,7 +3595,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             break;
     }
 
-    // Mass Dispel Inivisiblity removal
+    // Mass Dispel invisibility removal
     if (m_spellInfo->Id == 32592)
     {
         DispelChargesList inv_dispel_list;
@@ -3615,7 +3606,6 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             if (AuraPtr aur = itr->first)
                 aur->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-        
     }
 
     DispelChargesList dispel_list;
@@ -4732,6 +4722,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
         addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
 
     m_healing += addhealth;
+    m_healing = unitTarget->SpellHealingBonusTaken(m_caster, m_spellInfo, m_healing, HEAL);
 }
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
@@ -5726,10 +5717,6 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (m_spellInfo->Id == 62078)
         if (m_caster->m_movedPlayer->GetComboTarget() != unitTarget->GetGUID())
             return;
-
-    // Shadow Blades allow player to earn one more combo point
-    if (m_caster->HasAura(121471))
-        ++damage;
 
     m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
@@ -7290,6 +7277,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
+
+    // Glyph of SpellSteal
+    if (m_caster->HasAura(115713))
+        m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
 }
 
 void Spell::EffectKillCreditPersonal(SpellEffIndex effIndex)

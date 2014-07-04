@@ -60,6 +60,7 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 jinRokhTheBreakerGuid;
             uint64 moguFountainsGuids[4];
             uint64 moguStatuesGuids[4];
+
             uint64 kazraJinGuid;
             uint64 sudTheSandCrawlerGuid;
             uint64 forostKingMalakkGuid;
@@ -71,20 +72,28 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 tribalDoorsGuid[4];
             uint64 warGodJalakGuid;
 
+            uint8 ancientMoguBellActivate;
+            uint64 megaeraGuid;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
                 LoadDoorData(doorData);
 
                 jinRokhTheBreakerGuid   = 0;
+
                 kazraJinGuid            = 0;
                 sudTheSandCrawlerGuid   = 0;
                 forostKingMalakkGuid    = 0;
                 highPriestressMarLiGuid = 0;
-                garaJalGuid = 0;
+                garaJalGuid             = 0;
+
                 horridonGuid            = 0;
                 horridonGateGuid        = 0;
                 warGodJalakGuid         = 0;
+
+                ancientMoguBellActivate = 0;
+                megaeraGuid             = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -139,6 +148,9 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case NPC_HIGH_PRIESTRESS_MAR_LI:
                         highPriestressMarLiGuid = creature->GetGUID();
+                        break;
+                    case NPC_MEGAERA:
+                        megaeraGuid = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -195,21 +207,34 @@ class instance_throne_of_thunder : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                /*switch (type)
+                switch (type)
                 {
+                    case DATA_ANCIENT_MOGU_BELL:
+                    {
+                        ancientMoguBellActivate += data;
+
+                        if (ancientMoguBellActivate >= 3)
+                        {
+                            if (Creature* megaera = instance->GetCreature(megaeraGuid))
+                                megaera->AI()->DoAction(ACTION_MEGAERA_SPAWN);
+                        }
+
+                        break;
+                    }
                     default:
                         break;
-                }*/
+                }
             }
 
             uint32 GetData(uint32 type)
             {
-                return 0;
-                /*switch (type)
+                switch (type)
                 {
+                    case DATA_ANCIENT_MOGU_BELL:
+                        return ancientMoguBellActivate;
                     default:
                         return 0;
-                }*/
+                }
             }
 
             uint64 GetData64(uint32 type)
@@ -220,7 +245,6 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return jinRokhTheBreakerGuid;
                     case NPC_GARA_JAL_SOUL:
                         return garaJalGuid;
-                        break;
                     case NPC_HORRIDON:
                         return horridonGuid;
                     case NPC_WAR_GOD_JALAK:
@@ -251,19 +275,16 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return moguStatuesGuids[2];
                     case DATA_STATUE_3:
                         return moguStatuesGuids[3];
-                        break;
                     case NPC_KAZRA_JIN:
                         return kazraJinGuid;
-                        break;
                     case NPC_SUL_THE_SANDCRAWLER:
                         return sudTheSandCrawlerGuid;
-                        break;
                     case NPC_FROST_KING_MALAKK:
                         return forostKingMalakkGuid;
-                        break;
                     case NPC_HIGH_PRIESTRESS_MAR_LI:
                         return highPriestressMarLiGuid;
-                        break;
+                    case NPC_MEGAERA:
+                        return megaeraGuid;
                     default:
                         break;
                 }

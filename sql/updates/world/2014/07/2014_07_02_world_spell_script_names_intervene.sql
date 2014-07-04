@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (3411, 'spell_warr_intervene');
