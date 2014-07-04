@@ -1863,35 +1863,43 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
             {
                 CleanupTargetList();
 
-                Position const* center = m_caster;
-                std::list<WorldObject*> targets;
-                float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
-
-                SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
-
-                std::list<Unit*> unitTargets;
-                // for compatibility with older code - add only unit and go targets
-                // TODO: remove this
-                if (!targets.empty())
+                for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    // not call for empty effect.
+                    // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
+                    if (!m_spellInfo->Effects[i].IsEffect())
+                        continue;
+
+                    Position const* center = m_caster;
+                    std::list<WorldObject*> targets;
+                    float radius = m_spellInfo->Effects[i].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+
+                    SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[i].ImplicitTargetConditions);
+
+                    std::list<Unit*> unitTargets;
+                    // for compatibility with older code - add only unit and go targets
+                    // TODO: remove this
+                    if (!targets.empty())
                     {
-                        if ((*itr))
+                        for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                         {
-                            if (Unit* unitTarget = (*itr)->ToUnit())
-                                unitTargets.push_back(unitTarget);
+                            if ((*itr))
+                            {
+                                if (Unit* unitTarget = (*itr)->ToUnit())
+                                    unitTargets.push_back(unitTarget);
+                            }
                         }
                     }
-                }
 
-                if (!unitTargets.empty())
-                {
-                    // Other special target selection goes here
-                    if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                        JadeCore::Containers::RandomResizeList(unitTargets, maxTargets);
+                    if (!unitTargets.empty())
+                    {
+                        // Other special target selection goes here
+                        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+                            JadeCore::Containers::RandomResizeList(unitTargets, maxTargets);
 
-                    for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
-                        AddUnitTarget(*itr, 1 << effIndex, false);
+                        for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
+                            AddUnitTarget(*itr, 1 << i, false);
+                    }
                 }
             }
 
