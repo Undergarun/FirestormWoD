@@ -4481,6 +4481,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123255:// Dissonance Field
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_DUMMY; // Cancel triggering 123596 (knock back)
                 break;
+            case 124845:// Calamity
+                spellInfo->Effects[0].BasePoints = 50;
+                spellInfo->Effects[1].BasePoints = 50;
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;

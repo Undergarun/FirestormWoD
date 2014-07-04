@@ -33,9 +33,9 @@ INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, 
 SET @REF_MELJARAK_HEROIC = 81397;
 DELETE FROM reference_loot_template WHERE entry = @REF_MELJARAK_HEROIC;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_MELJARAK_HEROIC, 89255, 0, 1, 1, 1, 1), /* Gauntlets of the Shadowy Protector */ 
+(@REF_MELJARAK_HEROIC, 89255, 0, 1, 1, 1, 1), /* Gauntlets of the Shadowy Protector */
 (@REF_MELJARAK_HEROIC, 89257, 0, 1, 1, 1, 1), /* Gauntlets of the Shadowy Vanquisher */
-(@REF_MELJARAK_HEROIC, 89256, 0, 1, 1, 1, 1), /* Gauntlets of the Shadowy Conqueror */ 
+(@REF_MELJARAK_HEROIC, 89256, 0, 1, 1, 1, 1), /* Gauntlets of the Shadowy Conqueror */
 (@REF_MELJARAK_HEROIC, 86978, 0, 1, 1, 1, 1), /* Wingslasher Pauldrons */
 (@REF_MELJARAK_HEROIC, 86977, 0, 1, 1, 1, 1), /* Clutches of Dying Hope */
 (@REF_MELJARAK_HEROIC, 86975, 0, 1, 1, 1, 1); /* Robes of Torn Nightmares */
