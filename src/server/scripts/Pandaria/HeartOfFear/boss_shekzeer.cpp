@@ -299,11 +299,11 @@ class boss_shekzeer : public CreatureScript
                 me->SetInCombatWith(attacker);
                 AttackStart(attacker);
 
-                //events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
-                //events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
+                events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
-                //events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
-                //events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 540000);
+                events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
+                events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 540000);
                 events.ScheduleEvent(EVENT_CLOSE_CHAMBER, 5000);
                 events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
             }
@@ -339,7 +339,11 @@ class boss_shekzeer : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EYES_OF_THE_EMPRESS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VISIONS_OF_DEMISE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMASSING_DARKNESS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT_SERVANT);
                 }
+
+                fightInProgress = false;
+
                 _JustDied();
             }
 
@@ -377,8 +381,11 @@ class boss_shekzeer : public CreatureScript
                 summons.DespawnAll();
                 // Reset variables
                 phase = 0;
-                fightInProgress = false;
-                loaded = false;
+                fightInProgress  = false;
+                isWipe           = false;
+                introDone        = false;
+                aggroTalkDone    = false;
+                hasRequiredPower = false;
                 // Reset behaviour
                 me->RemoveAllAuras();
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
@@ -395,7 +402,7 @@ class boss_shekzeer : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMASSING_DARKNESS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EYES_OF_THE_EMPRESS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VISIONS_OF_DEMISE);
-
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT_SERVANT);
                 }
                 _EnterEvadeMode();
             }
@@ -428,10 +435,10 @@ class boss_shekzeer : public CreatureScript
                     events.CancelEvent(EVENT_CHANGE_PHASE);
 
                     // Scheduling phase 3 events. NB : Eyes of empress remains in phase 3.
-                    // events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 6000);
-                    // events.ScheduleEvent(EVENT_CALAMITY, 10000);
-                    // events.ScheduleEvent(EVENT_SHA_ENERGY, 15000);
-                    // events.ScheduleEvent(EVENT_AMASSING_DARKNESS, 22000);
+                    events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 6000);
+                    events.ScheduleEvent(EVENT_CALAMITY, 10000);
+                    events.ScheduleEvent(EVENT_SHA_ENERGY, 15000);
+                    events.ScheduleEvent(EVENT_AMASSING_DARKNESS, 22000);
 
                     // Breaking the chrysalid
                     if (GameObject* chrysalid = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_EMPRESS_CHAMBER)))
@@ -586,10 +593,10 @@ class boss_shekzeer : public CreatureScript
                             Talk(SAY_ADVANCE);
 
                             // Scheduling phase 1 events
-                            //events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
-                            //events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000));
-                            //events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
-                            //events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
+                            events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
+                            events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
+                            events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                             events.ScheduleEvent(EVENT_CLOSE_CHAMBER, 5000);
                             events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
                         }
