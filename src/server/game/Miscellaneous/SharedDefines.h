@@ -1898,7 +1898,7 @@ enum Targets
     TARGET_UNIT_CONE_ENEMY_104         = 104,
     TARGET_UNIT_UNK_105                = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER         = 106,
-    TARGET_DEST_EXTRA_TARGETS          = 107, // not enough info - only generic spells avalible
+    TARGET_DEST_EXTRA_TARGETS          = 107, // not enough info - only generic spells available
     TARGET_GAMEOBJECT_CONE             = 108,
     TARGET_109                         = 109, // spell 89008
     TARGET_UNIT_CONE_ENEMY_110         = 110, // 1 spell
@@ -1909,7 +1909,7 @@ enum Targets
     TARGET_UNK_115                     = 115,
     TARGET_UNK_116                     = 116,
     TARGET_UNK_117                     = 117,
-    TARGET_UNK_118                     = 118,
+    TARGET_UNIT_ALLY_OR_RAID           = 118,
     TARGET_UNK_119                     = 119,
     TARGET_UNK_120                     = 120,
     TARGET_UNK_121                     = 121,

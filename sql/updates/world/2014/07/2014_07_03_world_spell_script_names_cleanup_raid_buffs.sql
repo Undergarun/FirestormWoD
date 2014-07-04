@@ -1,0 +1,1 @@
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_dru_mark_of_the_wild', 'spell_mage_arcane_brilliance', 'spell_pri_power_word_fortitude');

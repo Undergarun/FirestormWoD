@@ -117,6 +117,7 @@ enum SpellTargetCheckTypes
     TARGET_CHECK_RAID,
     TARGET_CHECK_RAID_CLASS,
     TARGET_CHECK_PASSENGER,
+    TARGET_CHECK_ALLY_OR_RAID
 };
 
 enum SpellTargetDirectionTypes
@@ -366,6 +367,8 @@ public:
     SpellRangeEntry const* RangeEntry;
     float  Speed;
     uint32 StackAmount;
+    uint32 InternalCooldown;
+    float ProcsPerMinute;
     uint32 Totem[2];
     int32  Reagent[MAX_SPELL_REAGENTS];
     uint32 ReagentCount[MAX_SPELL_REAGENTS];
