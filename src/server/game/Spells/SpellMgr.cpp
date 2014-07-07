@@ -3491,15 +3491,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137117: // Reckless Charge (Rolling)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
-            case 137131:// Reckless Charge
             case 139866:// Torrent of Ice
             case 140138:// Nether Tear
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                break;
-            case 137133:// Reckless Charge
-                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); // 2 yards
                 break;
             case 138652:// Eruption
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
