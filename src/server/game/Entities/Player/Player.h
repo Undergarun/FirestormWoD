@@ -2288,6 +2288,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
+        void UpdateEnergyRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
 

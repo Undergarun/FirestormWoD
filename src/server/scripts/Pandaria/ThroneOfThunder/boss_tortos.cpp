@@ -226,6 +226,7 @@ class boss_tortos : public CreatureScript
                 {
                     case ACTION_SPAWN_WHIRL_TURTLE:
                     {
+                        me->MonsterTextEmote("Tortos lets out a booming call, attracting nearby turtles.", 0, true);
                         for (uint8 i = 0; i < 3; ++i)
                         {
                             if (Creature* turtle = me->SummonCreature(NPC_WHIRL_TURTLE, whirlTurtleSpawnPos.m_positionX, whirlTurtleSpawnPos.m_positionY, whirlTurtleSpawnPos.m_positionZ))
@@ -293,6 +294,7 @@ class boss_tortos : public CreatureScript
                         events.ScheduleEvent(EVENT_SNAPPING_BITE, 8000);
                         break;
                     case EVENT_FURIOUS_STONE_BREATH:
+                        me->MonsterTextEmote("Tortos prepares to unleash a |cFFFF0000|Hspell:133939|h[Souffle de pierre furieux]|h|r !", 0, true);
                         me->CastSpell(me, SPELL_FURIOUS_STONE_BREATH, false);
                         break;
                     case EVENT_CHECK_MELEE:

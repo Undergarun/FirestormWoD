@@ -2355,6 +2355,9 @@ class spell_item_pot_of_fire : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
+                
+                if (!target || !caster)
+                    return;
 
                 if (Creature* creature = target->ToCreature())
                 {

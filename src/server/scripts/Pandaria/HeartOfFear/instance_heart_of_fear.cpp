@@ -70,6 +70,10 @@ class instance_heart_of_fear : public InstanceMapScript
             uint64 unsokEntranceDoorGuid;
             uint64 shekzeerEntranceDoorGuid;
 
+            // Shek'zeer Gameobjects
+            uint64 empressChamberGuid;
+            uint64 mandidQueenCeilGuid;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
@@ -169,6 +173,12 @@ class instance_heart_of_fear : public InstanceMapScript
                         go->SetGoState(GO_STATE_READY);
                         shekzeerEntranceDoorGuid = go->GetGUID();
                         break;
+                    case GOB_EMPRESS_CHAMBER:
+                        empressChamberGuid = go->GetGUID();
+                        break;
+                    case GOB_MANTID_QUEEN_CEIL:
+                        mandidQueenCeilGuid = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -221,6 +231,10 @@ class instance_heart_of_fear : public InstanceMapScript
                         return unsokEntranceDoorGuid;
                     case GOB_HEARTOFFEAR_DOOR_ENTRANCE:
                         return shekzeerEntranceDoorGuid;
+                    case GOB_EMPRESS_CHAMBER:
+                        return empressChamberGuid;
+                    case GOB_MANTID_QUEEN_CEIL:
+                        return mandidQueenCeilGuid;
                     default:
                         break;
                 }
@@ -235,6 +249,9 @@ class instance_heart_of_fear : public InstanceMapScript
                 if (PlayerList.isEmpty())
                     return true;
 
+                std::list<Player*> servantList;
+                servantList.clear();
+
                 for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
                 {
                     Player* player = Itr->getSource();
@@ -242,9 +259,17 @@ class instance_heart_of_fear : public InstanceMapScript
                     if (!player)
                         continue;
 
-                    if (player->isAlive() && !player->isGameMaster())
+                    if (player->isAlive() && !player->isGameMaster() && !player->HasAura(SPELL_CONVERT_SERVANT))
                         return false;
+                    else if (player->HasAura(SPELL_CONVERT_SERVANT))
+                        servantList.push_back(player);
                 }
+
+                // Killing the servant players
+                if (!servantList.empty())
+                    if (Creature* shekzeer = instance->GetCreature(GetData64(NPC_SHEKZEER)))
+                        for (Player* servant : servantList)
+                            shekzeer->Kill(servant);
 
                 return true;
             }

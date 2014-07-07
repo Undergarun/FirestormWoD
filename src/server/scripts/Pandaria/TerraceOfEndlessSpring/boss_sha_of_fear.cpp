@@ -350,10 +350,14 @@ class boss_sha_of_fear : public CreatureScript
                     case ACTION_ACTIVATE_SHRINE_1:
                     {
                         if (shrine1)
-                            DoAction(ACTION_ACTIVATE_SHRINE_1 + urand(1, 2));
-
-                        if (shrine1 && shrine2 && shrine3)
-                            break;
+                        {
+                            if (!shrine2)
+                                DoAction(ACTION_ACTIVATE_SHRINE_2);
+                            else if (!shrine3)
+                                DoAction(ACTION_ACTIVATE_SHRINE_3);
+                            else
+                                break;
+                        }
 
                         shrine1 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[0].GetPositionX(), shrinesPos[0].GetPositionY(), shrinesPos[0].GetPositionZ());
@@ -364,14 +368,13 @@ class boss_sha_of_fear : public CreatureScript
                     {
                         if (shrine2)
                         {
-                            if (urand(0, 1))
+                            if (!shrine1)
                                 DoAction(ACTION_ACTIVATE_SHRINE_1);
-                            else
+                            else if (!shrine3)
                                 DoAction(ACTION_ACTIVATE_SHRINE_3);
+                            else
+                                break;
                         }
-
-                        if (shrine1 && shrine2 && shrine3)
-                            break;
 
                         shrine2 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[1].GetPositionX(), shrinesPos[1].GetPositionY(), shrinesPos[1].GetPositionZ());
@@ -381,10 +384,14 @@ class boss_sha_of_fear : public CreatureScript
                     case ACTION_ACTIVATE_SHRINE_3:
                     {
                         if (shrine3)
-                            DoAction(ACTION_ACTIVATE_SHRINE_1 + urand(0, 1));
-
-                        if (shrine1 && shrine2 && shrine3)
-                            break;
+                        {
+                            if (!shrine1)
+                                DoAction(ACTION_ACTIVATE_SHRINE_1);
+                            else if (!shrine2)
+                                DoAction(ACTION_ACTIVATE_SHRINE_2);
+                            else
+                                break;
+                        }
 
                         shrine3 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[2].GetPositionX(), shrinesPos[2].GetPositionY(), shrinesPos[2].GetPositionZ());

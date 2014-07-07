@@ -774,6 +774,7 @@ void AddSC_boss_jin_rokh_the_breaker();
 void AddSC_boss_council_of_elders();
 void AddSC_boss_horridon();
 void AddSC_boss_tortos();
+void AddSC_boss_megaera();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -1618,6 +1619,7 @@ void AddPandarieScripts()
     AddSC_boss_council_of_elders();
     AddSC_boss_horridon();
     AddSC_boss_tortos();
+    AddSC_boss_megaera();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();

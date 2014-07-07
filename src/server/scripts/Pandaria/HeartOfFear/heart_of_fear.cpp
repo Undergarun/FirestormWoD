@@ -1911,6 +1911,288 @@ public:
     }
 };
 
+void ShekZeerTrashBuff(Creature* me)
+{
+    uint32 addEntries[3] = {NPC_SETTHIK_WINDBLADE_TRASH, NPC_KORTHIK_WARSINGER, NPC_ZARTHIK_AUGURER};
+
+    bool buff = false;
+    uint8 stacks = 0;
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        std::list<Creature*> addList;
+        GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 8.0f);
+
+        // Retaining only alive mobs who aren't me
+        for (Creature* mob : addList)
+        {
+            if (mob->isAlive() && mob != me)
+            {
+                if (!buff)
+                    buff = true;
+                ++stacks;
+            }
+        }
+    }
+
+    // If buff should be applied, we have to check that we have the right number of stacks
+    if (buff)
+    {
+        AuraPtr aura = me->AddAura(SPELL_BAND_OF_VALOR, me);
+
+        if (aura->GetStackAmount() != stacks)
+            aura->SetStackAmount(stacks);
+    }
+
+    // Remove aura if applied and there's no add around
+    if (!buff && me->HasAura(SPELL_BAND_OF_VALOR))
+        me->RemoveAura(SPELL_BAND_OF_VALOR);
+}
+
+// Returns true if no trash remain before Shek'zeer, else returns false
+bool ShekZeerCheckTrash(Creature* me)
+{
+    if (!GetClosestCreatureWithEntry(me, NPC_ZARTHIK_AUGURER, 200.0f))
+        if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_WINDBLADE_TRASH, 200.0f))
+            if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_WARSINGER, 200.0f))
+                return true;
+
+    return false;
+}
+
+// 64454 - Zar'thik Augurer
+class mob_zarthik_augurer : public CreatureScript
+{
+public:
+    mob_zarthik_augurer() : CreatureScript("mob_zarthik_augurer") { }
+
+    struct mob_zarthik_augurerAI : public ScriptedAI
+    {
+        mob_zarthik_augurerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_TOXIC_HIVEBOMB, urand(2000, 4000));
+            events.ScheduleEvent(EVENT_TOXIC_SPEW,     urand(15000, 20000));
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (ShekZeerCheckTrash(me))
+                if (pInstance)
+                    if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
+                        Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            // Buff
+            ShekZeerTrashBuff(me);
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TOXIC_HIVEBOMB:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_TOXIC_HIVEBOMB, true);
+                        events.ScheduleEvent(EVENT_TOXIC_HIVEBOMB, urand(2000, 4000));
+                        break;
+                    }
+                    case EVENT_TOXIC_SPEW:
+                    {
+                        DoCast(SPELL_TOXIC_SPEW);
+                        events.ScheduleEvent(EVENT_TOXIC_SPEW, urand(15000, 20000));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_zarthik_augurerAI(creature);
+    }
+};
+
+// 64453 - Set'thik Windblade
+class mob_setthik_windblade : public CreatureScript
+{
+public:
+    mob_setthik_windblade() : CreatureScript("mob_setthik_windblade") { }
+
+    struct mob_setthik_windbladeAI : public ScriptedAI
+    {
+        mob_setthik_windbladeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+            events.Reset();
+
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_5);
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_DISPATCH, 7000);
+            events.ScheduleEvent(EVENT_SONIC_BLADE, 15000);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (ShekZeerCheckTrash(me))
+                if (pInstance)
+                    if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
+                        Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            // Buff
+            ShekZeerTrashBuff(me);
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DISPATCH:
+                    {
+                        me->CastSpell(me, SPELL_DISPATCH, true);
+                        events.ScheduleEvent(EVENT_DISPATCH, 30000);
+                        break;
+                    }
+                    case EVENT_SONIC_BLADE:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_SONIC_BLADE, true);
+                        events.ScheduleEvent(EVENT_SONIC_BLADE, 30000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_setthik_windbladeAI(creature);
+    }
+};
+
+// 64458 - Kor'thik Warsinger
+class mob_korthik_warsinger : public CreatureScript
+{
+public:
+    mob_korthik_warsinger() : CreatureScript("mob_korthik_warsinger") { }
+
+    struct mob_korthik_warsingerAI : ScriptedAI
+    {
+        mob_korthik_warsingerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+            events.Reset();
+            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_CRY_HAVOC, 6000);
+            events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, 12000);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (ShekZeerCheckTrash(me))
+                if (pInstance)
+                    if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
+                        Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            // Buff
+            ShekZeerTrashBuff(me);
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CRY_HAVOC:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_CRY_HAVOC, true);
+                        events.ScheduleEvent(EVENT_CRY_HAVOC, urand(15000, 20000));
+                        break;
+                    }
+                    case EVENT_FRENZIED_ASSAULT:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_FRENZIED_ASSAULT, true);
+                        events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, 30000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_korthik_warsingerAI(creature);
+    }
+};
+
 // 123421 - Vital Strikes
 class spell_vital_strikes : public SpellScriptLoader
 {
@@ -1976,5 +2258,8 @@ void AddSC_heart_of_fear()
     new mob_amber_searsting();          // 63569 - Amber Searsting
     new mob_amberridden_mushan();       // 63568 - Amber-Ridden Mushan
     new mob_srathik_pooltender();       // 63570 - Sra'thik Pool-Tender
+    new mob_setthik_windblade();        // 64453 - Set'thik Windblade
+    new mob_zarthik_augurer();          // 64454 - Zar'thik Augurer
+    new mob_korthik_warsinger();        // 64458 - Kor'thik Warsinger
     new spell_vital_strikes();          // 123421 - Vital Strikes
 }

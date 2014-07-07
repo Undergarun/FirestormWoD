@@ -79,7 +79,7 @@ enum eSpells
     SPELL_TORMENT                       = 139550,
 
     // Soul-Fed Construct
-    SPELL_CRUSH_ARMOR                   = 33661,
+    SPELL_SOUL_FED_CRUSH_ARMOR          = 33661,
     SPELL_SPIRITFIRE_BEAM               = 139895,
 
     // Stormbringer Draz'Kil
@@ -138,7 +138,38 @@ enum eSpells
 
     // Greater Cave Bat
     SPELL_SLASHING_TALONS               = 136753,
-    SPELL_SONIC_SCREECH                 = 136751
+    SPELL_SONIC_SCREECH                 = 136751,
+
+    // Mysterious Mushroom
+    SPELL_SIZE_95_120                   = 123978,
+    SPELL_FUNGAL_EXPLOSION              = 140596,
+    SPELL_FUNGAL_EXPLOSION_DAMAGE       = 140598,
+
+    // Shale Stalker
+    SPELL_SHALE_SHARDS                  = 140616,
+
+    // Fungal Growth
+    SPELL_GROW                          = 140626,
+    SPELL_FUNGI_SPORES                  = 140620,
+
+    // Mist Lurker
+    SPELL_CHOCKING_MISTS                = 140682,
+    SPELL_CORROSIVE_BREATH              = 140684,
+
+    // Cavern Burrower
+    SPELL_SONIC_CALL                    = 140600,
+    SPELL_CRYSTAL_BARBS                 = 140619,
+    SPELL_CAVERN_CRUSH_ARMOR            = 140618,
+    SPELL_COSMETIC_ALPHA_STATE          = 80808,
+    SPELL_SUBMERGE                      = 140586,
+
+    // Eternal Guardian
+    SPELL_ETERNAL_PRISON                = 140629,
+    SPELL_LIGHTNING_NOVA                = 140628,
+    SPELL_SIPHON_LIFE                   = 140630,
+    SPELL_ETERNAL_GUARDIAN_SPAWN        = 140577,
+    SPELL_ACTIVATE_BELL                 = 140627,
+    SPELL_BELL_SHAKE                    = 139179
 };
 
 enum eEvents
@@ -218,7 +249,30 @@ enum eEvents
 
     // Greater Cave Bat
     EVENT_SLASHING_TALONS,
-    EVENT_SONIC_SCREECH
+    EVENT_SONIC_SCREECH,
+
+    // Mysterious Mushroom
+    EVENT_CHECK_PLAYER,
+
+    // Shale Stalker
+    EVENT_SHALE_SHARDS,
+
+    // Fungal Growth
+    EVENT_GROW,
+    EVENT_FUNGI_SPORES,
+
+    // Mist Lurker
+    EVENT_CHOCKING_MISTS,
+    EVENT_CORRISIVE_BREATH,
+
+    // Cavern Burrower
+    EVENT_SONIC_CALL,
+    EVENT_CRYSTAL_BARBS,
+
+    // Eternal Guardian
+    EVENT_ETERNAL_PRISON,
+    EVENT_LIGHTNING_NOVA,
+    EVENT_SIPHON_LIFE
 };
 
 enum eEquipIds
@@ -871,7 +925,7 @@ class mob_soul_fed_construct : public CreatureScript
                 {
                     case EVENT_CRUSH_ARMOR:
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, SPELL_CRUSH_ARMOR, true);
+                            me->CastSpell(target, SPELL_SOUL_FED_CRUSH_ARMOR, true);
                         events.ScheduleEvent(EVENT_CRUSH_ARMOR, 10000);
                         break;
                     case EVENT_SPIRITFIRE_BEAM:
@@ -1695,6 +1749,8 @@ class mob_waterspout : public CreatureScript
         {
             mob_waterspoutAI(Creature* creature) : ScriptedAI(creature) { }
 
+            EventMap events;
+
             void Reset()
             {
                 events.Reset();
@@ -1818,6 +1874,369 @@ class mob_greater_cave_bat : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_greater_cave_batAI(creature);
+        }
+};
+
+// Mysterious Mushroom - 70545
+class mob_mysterious_mushroom : public CreatureScript
+{
+    public:
+        mob_mysterious_mushroom() : CreatureScript("mob_mysterious_mushroom") { }
+
+        struct mob_mysterious_mushroomAI : public ScriptedAI
+        {
+            mob_mysterious_mushroomAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->CastSpell(me, SPELL_SIZE_95_120, true);
+                me->CastSpell(me, SPELL_FUNGAL_EXPLOSION, true);
+
+                events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CHECK_PLAYER:
+                        if (Unit* target = me->SelectNearestPlayerNotGM(4.f))
+                        {
+                            me->CastSpell(me, SPELL_FUNGAL_EXPLOSION_DAMAGE, true);
+                            me->DespawnOrUnsummon();
+                            return;
+                        }
+                        events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_mysterious_mushroomAI(creature);
+        }
+};
+
+// Shale Stalker - 70587
+class mob_shale_stalker : public CreatureScript
+{
+    public:
+        mob_shale_stalker() : CreatureScript("mob_shale_stalker") { }
+
+        struct mob_shale_stalkerAI : public ScriptedAI
+        {
+            mob_shale_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_SHALE_SHARDS, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_SHALE_SHARDS:
+                        me->CastSpell(me, SPELL_SHALE_SHARDS, true);
+                        events.ScheduleEvent(EVENT_SHALE_SHARDS, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_shale_stalkerAI(creature);
+        }
+};
+
+// Fungal Growth - 70153
+class mob_fungal_growth : public CreatureScript
+{
+    public:
+        mob_fungal_growth() : CreatureScript("mob_fungal_growth") { }
+
+        struct mob_fungal_growthAI : public ScriptedAI
+        {
+            mob_fungal_growthAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_GROW, 1000);
+                events.ScheduleEvent(EVENT_FUNGI_SPORES, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_GROW:
+                        me->CastSpell(me, SPELL_GROW, false);
+                        events.ScheduleEvent(EVENT_GROW, 6000);
+                        break;
+                    case EVENT_FUNGI_SPORES:
+                        me->CastSpell(me, SPELL_FUNGI_SPORES, false);
+                        events.ScheduleEvent(EVENT_FUNGI_SPORES, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_fungal_growthAI(creature);
+        }
+};
+
+// Mist Lurker - 70594
+class mob_mist_lurker : public CreatureScript
+{
+    public:
+        mob_mist_lurker() : CreatureScript("mob_mist_lurker") { }
+
+        struct mob_mist_lurkerAI : public ScriptedAI
+        {
+            mob_mist_lurkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_CHOCKING_MISTS, 4000);
+                events.ScheduleEvent(EVENT_CORRISIVE_BREATH, 8000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CHOCKING_MISTS:
+                        me->CastSpell(me, SPELL_CHOCKING_MISTS, false);
+                        events.ScheduleEvent(EVENT_CHOCKING_MISTS, 10000);
+                        break;
+                    case EVENT_CORRISIVE_BREATH:
+                        me->CastSpell(me, SPELL_CORROSIVE_BREATH, false);
+                        events.ScheduleEvent(EVENT_CORRISIVE_BREATH, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_mist_lurkerAI(creature);
+        }
+};
+
+// Cavern Burrower - 70589
+class mob_cavern_burrower : public CreatureScript
+{
+    public:
+        mob_cavern_burrower() : CreatureScript("mob_cavern_burrower") { }
+
+        struct mob_cavern_burrowerAI : public ScriptedAI
+        {
+            mob_cavern_burrowerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+
+                me->CastSpell(me, SPELL_COSMETIC_ALPHA_STATE, true);
+                me->CastSpell(me, SPELL_SUBMERGE, true);
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                me->RemoveAura(SPELL_COSMETIC_ALPHA_STATE);
+                me->RemoveAura(SPELL_SUBMERGE);
+
+                events.ScheduleEvent(EVENT_CRYSTAL_BARBS, 2000);
+                events.ScheduleEvent(EVENT_SONIC_CALL, 4000);
+                events.ScheduleEvent(EVENT_CRUSH_ARMOR, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CRYSTAL_BARBS:
+                        me->CastSpell(me, SPELL_CRYSTAL_BARBS, false);
+                        events.ScheduleEvent(EVENT_CRYSTAL_BARBS, 15000);
+                        break;
+                    case EVENT_SONIC_CALL:
+                        me->CastSpell(me, SPELL_SONIC_CALL, false);
+                        events.ScheduleEvent(EVENT_SONIC_CALL, 20000);
+                        break;
+                    case EVENT_CRUSH_ARMOR:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_CAVERN_CRUSH_ARMOR, false);
+                        events.ScheduleEvent(EVENT_CRUSH_ARMOR, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_cavern_burrowerAI(creature);
+        }
+};
+
+// Eternal Guardian - 70586
+class mob_eternal_guardian : public CreatureScript
+{
+    public:
+        mob_eternal_guardian() : CreatureScript("mob_eternal_guardian") { }
+
+        struct mob_eternal_guardianAI : public ScriptedAI
+        {
+            mob_eternal_guardianAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+
+                me->CastSpell(me, SPELL_ETERNAL_GUARDIAN_SPAWN, true);
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_ETERNAL_PRISON, 4000);
+                events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 6000);
+                events.ScheduleEvent(EVENT_SIPHON_LIFE, 8000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_ETERNAL_PRISON:
+                        me->CastSpell(me, SPELL_ETERNAL_PRISON, false);
+                        events.ScheduleEvent(EVENT_ETERNAL_PRISON, 10000);
+                        break;
+                    case EVENT_LIGHTNING_NOVA:
+                        me->CastSpell(me, SPELL_LIGHTNING_NOVA, false);
+                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 15000);
+                        break;
+                    case EVENT_SIPHON_LIFE:
+                        me->CastSpell(me, SPELL_SIPHON_LIFE, false);
+                        events.ScheduleEvent(EVENT_SIPHON_LIFE, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_eternal_guardianAI(creature);
         }
 };
 
@@ -2210,6 +2629,158 @@ class spell_drain_the_weak_damage : public SpellScriptLoader
         }
 };
 
+class SonicCallTargetSelector
+{
+    public:
+        bool operator()(Unit* unit) const
+        {
+            return unit->GetEntry() != NPC_CAVERN_BURROWER;
+        }
+
+        bool operator()(WorldObject* object) const
+        {
+            return !object->ToUnit() || object->ToUnit()->GetEntry() != NPC_CAVERN_BURROWER;
+        }
+};
+
+// Sonic Call - 140600
+class spell_sonic_call : public SpellScriptLoader
+{
+    public:
+        spell_sonic_call() : SpellScriptLoader("spell_sonic_call") { }
+
+        class spell_sonic_call_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sonic_call_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(SonicCallTargetSelector());
+            }
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!GetHitUnit() || !caster->getVictim())
+                        return;
+
+                    if (Creature* borrower = GetHitUnit()->ToCreature())
+                        borrower->AI()->AttackStart(caster->getVictim());
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sonic_call_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnHit += SpellHitFn(spell_sonic_call_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sonic_call_SpellScript();
+        }
+};
+
+class SiphonLifeTargetSelector
+{
+    public:
+        SiphonLifeTargetSelector(Unit* caster) : _caster(caster) { }
+
+        bool operator()(Unit* unit) const
+        {
+            return unit->GetDistance(_caster) <= 15.0f;
+        }
+
+        bool operator()(WorldObject* object) const
+        {
+            return object->GetDistance(_caster) <= 15.0f;
+        }
+
+    private:
+        Unit* _caster;
+};
+
+// Siphon Life - 140630
+class spell_siphon_life : public SpellScriptLoader
+{
+    public:
+        spell_siphon_life() : SpellScriptLoader("spell_siphon_life") { }
+
+        class spell_siphon_life_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_siphon_life_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(SiphonLifeTargetSelector(GetCaster()));
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siphon_life_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_siphon_life_SpellScript();
+        }
+};
+
+// Ancient Mogu Bell - 218723
+class go_ancient_mogu_bell : public GameObjectScript
+{
+    public:
+        go_ancient_mogu_bell() : GameObjectScript("go_ancient_mogu_bell") { }
+
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        {
+            InstanceScript* pInstance = go->GetInstanceScript();
+            if (!pInstance)
+                return false;
+
+            /*if (pInstance->GetBossState(DATA_TORTOS) != DONE)
+                return false;*/
+
+            if (go->GetGoState() == GO_STATE_ACTIVE)
+                return false;
+
+            pInstance->SetData(DATA_ANCIENT_MOGU_BELL, 1);
+            go->SetGoState(GO_STATE_ACTIVE);
+
+            if (Creature* bunny = GetClosestCreatureWithEntry(go, NPC_SLG_GENERIC_MOP, 10.0f))
+            {
+                bunny->CastSpell(bunny, SPELL_ACTIVATE_BELL, true);
+
+                switch (pInstance->GetData(DATA_ANCIENT_MOGU_BELL))
+                {
+                    case 1:
+                        bunny->CastSpell(bunny, SPELL_BELL_SHAKE, true);
+                        bunny->MonsterTextEmote("The cavern trembles violently!", 0, true);
+                        break;
+                    case 2:
+                        bunny->MonsterTextEmote("An ancient beast stir within the mists!", 0, true);
+                        break;
+                    case 3:
+                        bunny->MonsterTextEmote("|cFFF00000Megaera|r rises from the mists!", 0, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return true;
+        }
+};
+
 void AddSC_throne_of_thunder()
 {
     new mob_zandalari_water_binder();
@@ -2237,6 +2808,12 @@ void AddSC_throne_of_thunder()
     new mob_waterspout();
     new mob_vampiric_cave_bat();
     new mob_greater_cave_bat();
+    new mob_mysterious_mushroom();
+    new mob_shale_stalker();
+    new mob_fungal_growth();
+    new mob_mist_lurker();
+    new mob_cavern_burrower();
+    new mob_eternal_guardian();
     new spell_storm_weapon();
     new spell_water_bolt();
     new spell_focused_lightning_aoe();
@@ -2248,4 +2825,7 @@ void AddSC_throne_of_thunder()
     new spell_waterspout();
     new spell_drain_the_weak();
     new spell_drain_the_weak_damage();
+    new spell_sonic_call();
+    new spell_siphon_life();
+    new go_ancient_mogu_bell();
 }

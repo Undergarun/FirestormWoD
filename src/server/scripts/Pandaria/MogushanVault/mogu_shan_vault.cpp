@@ -739,6 +739,7 @@ class npc_lorewalker_cho : public CreatureScript
             npc_lorewalker_choAI(Creature* creature) : npc_escortAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
+                SetMaxPlayerDistance(200.0f);
             }
 
             bool hasSaidIntro;

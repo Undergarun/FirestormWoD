@@ -80,6 +80,12 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsReturning(false);
     }
 
+    // Hack fix for Soul link, we need to buff pet and player if player has a talent
+    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->HasSpell(108415))
+    {
+        CastSpell(m_owner, 108446, true);
+        m_owner->CastSpell(this, 108446, true);
+    }
 }
 
 void Pet::RemoveFromWorld()
@@ -1128,6 +1134,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
                     SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+                    SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
                     break;
                 }
                 case ENTRY_WATER_ELEMENTAL:

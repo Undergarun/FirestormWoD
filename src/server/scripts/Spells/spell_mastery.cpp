@@ -38,7 +38,52 @@ enum MasterySpells
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
     SPELL_MAGE_MASTERY_ICICLES          = 76613,
     SPELL_MAGE_ICICLE_DAMAGE            = 148022,
-    SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023
+    SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
+    SPELL_PRIEST_ECHO_OF_LIGHT          = 77489
+};
+
+// Mastery: Echo of Light - 77485
+class spell_mastery_echo_of_light : public SpellScriptLoader
+{
+    public:
+        spell_mastery_echo_of_light() : SpellScriptLoader("spell_mastery_echo_of_light") { }
+
+        class spell_mastery_echo_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_echo_of_light_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                if (!eventInfo.GetHealInfo() || !eventInfo.GetHealInfo()->GetHeal())
+                    return;
+
+                Unit* unitTarget = eventInfo.GetActionTarget();
+                Player* plr = GetCaster()->ToPlayer();
+                if (!unitTarget || !plr)
+                    return;
+
+                float Mastery = plr->GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
+                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 6;
+
+                bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
+                plr->CastCustomSpell(unitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &bp, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mastery_echo_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_echo_of_light_AuraScript();
+        }
 };
 
 const int IcicleAuras[5] = { 148012, 148013, 148014, 148015, 148016 };
@@ -576,6 +621,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
 
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_echo_of_light();
     new spell_mastery_icicles();
     new spell_mastery_icicles_trigger();
     new spell_mastery_icicles_periodic();
