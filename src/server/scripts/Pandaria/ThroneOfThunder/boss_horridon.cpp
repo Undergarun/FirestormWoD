@@ -131,7 +131,8 @@ enum eActions
     ACTION_HORRIDON_CHARGE_DOOR,
     ACTION_DISMOUNT_SHAMAN,
     ACTION_JALAK_DIED,
-    ACTION_JALAK_START_INTRO
+    ACTION_JALAK_START_INTRO,
+    ACTION_SPAWN_JALAK
 };
 
 enum eDoors
@@ -316,6 +317,7 @@ class boss_horridon : public CreatureScript
             float initialSpeed[2];
 
             bool actualDoorDestroyed;
+            bool jalakSpawned;
             uint8 actualDoor;
             uint32 chargeTimer;
             uint32 direhornPhase;
@@ -325,6 +327,7 @@ class boss_horridon : public CreatureScript
                 me->ReenableEvadeMode();
 
                 actualDoorDestroyed = false;
+                jalakSpawned        = false;
                 actualDoor          = DOOR_NONE;
                 chargeTimer         = 0;
                 direhornPhase       = 2;
@@ -414,6 +417,18 @@ class boss_horridon : public CreatureScript
                 }
             }
 
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (jalakSpawned)
+                    return;
+
+                if (me->HealthBelowPctDamaged(30, damage))
+                {
+                    jalakSpawned = true;
+                    DoAction(ACTION_SPAWN_JALAK);
+                }
+            }
+
             void MovementInform(uint32 type, uint32 id)
             {
                 switch (id)
@@ -452,7 +467,10 @@ class boss_horridon : public CreatureScript
                         me->CastSpell(me, SPELL_HEADACHE, true);
 
                         if (actualDoor == DOOR_AMANI)
-                            events.ScheduleEvent(EVENT_NEXT_DOOR, 20000);
+                        {
+                            jalakSpawned = true;
+                            DoAction(ACTION_SPAWN_JALAK);
+                        }
                         else
                             events.ScheduleEvent(EVENT_NEXT_DOOR, 40000);
                         break;
@@ -482,6 +500,23 @@ class boss_horridon : public CreatureScript
                         break;
                     case ACTION_JALAK_DIED:
                         me->CastSpell(me, SPELL_RAMPAGE, true);
+                        break;
+                    case ACTION_SPAWN_JALAK:
+                        if (!pInstance)
+                            break;
+
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f))
+                        {
+                            if (Creature* jalak = Creature::GetCreature(*me, pInstance->GetData64(NPC_WAR_GOD_JALAK)))
+                            {
+                                Position pos;
+                                target->GetPosition(&pos);
+                                jalak->SetSpeed(MOVE_RUN, 5.0f);
+                                jalak->SetSpeed(MOVE_WALK, 5.0f);
+                                jalak->GetMotionMaster()->MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, 20.0f, 20.0f, 10.0f, MOVE_JALAK_JUMP);
+                                jalak->AI()->SetGUID(target->GetGUID(), 0);
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -548,10 +583,13 @@ class boss_horridon : public CreatureScript
                         DespawnTriggerForDoor();
                         actualDoorDestroyed = false;
                         ++actualDoor;
-                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 1000);
 
                         if (actualDoor < DOOR_ZANDALARI)
                             events.ScheduleEvent(EVENT_SPAWN_DINOMANCER, 60000);
+                        else
+                            break;
+
+                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 1000);
                         break;
                     }
                     case EVENT_SPAWN_WAVE:
@@ -639,28 +677,12 @@ class boss_horridon : public CreatureScript
                                     events.ScheduleEvent(EVENT_SPAWN_MORE_WAVE, 5000);
                                     break;
                                 }
-                                case DOOR_ZANDALARI:
-                                {
-                                    if (!pInstance)
-                                        break;
-
-                                    if (Creature* jalak = Creature::GetCreature(*me, pInstance->GetData64(NPC_WAR_GOD_JALAK)))
-                                    {
-                                        Position pos;
-                                        target->GetPosition(&pos);
-                                        jalak->SetSpeed(MOVE_RUN, 5.0f);
-                                        jalak->SetSpeed(MOVE_WALK, 5.0f);
-                                        jalak->GetMotionMaster()->MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, 20.0f, 20.0f, 10.0f, MOVE_JALAK_JUMP);
-                                        jalak->AI()->SetGUID(target->GetGUID(), 0);
-                                    }
-                                    break;
-                                }
                                 default:
                                     break;
                             }
                         }
 
-                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 15000);
+                        events.ScheduleEvent(EVENT_SPAWN_WAVE, 20000);
                         break;
                     }
                     case EVENT_SPAWN_MORE_WAVE:
