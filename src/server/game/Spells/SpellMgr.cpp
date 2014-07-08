@@ -3488,6 +3488,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137133: // Reckless Charge
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
             case 137117: // Reckless Charge (Rolling)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
