@@ -162,7 +162,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         if (player->getLevel() < 85)
             return false;
 
-    if (!entry->IsDungeon() || (entry->IsDungeon() && entry->Expansion() < 4))
+    if (!entry->IsDungeon())
         return true;
 
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
