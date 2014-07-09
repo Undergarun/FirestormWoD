@@ -100,7 +100,7 @@ class boss_lei_shi : public CreatureScript
             boss_lei_shiAI(Creature* creature) : BossAI(creature, DATA_LEI_SHI)
             {
                 pInstance = creature->GetInstanceScript();
-                leiShiFreed = false;
+                leiShiFreed = pInstance ? pInstance->GetBossState(DATA_LEI_SHI) == DONE : false;
             }
 
             InstanceScript* pInstance;
