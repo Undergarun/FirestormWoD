@@ -27303,7 +27303,7 @@ void Player::learnDefaultSpells()
 {
     // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
-    for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
+    for (PlayerCreateInfoSpells::const_iterator itr = info->customSpells.begin(); itr != info->customSpells.end(); ++itr)
     {
         uint32 tspell = *itr;
         sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
