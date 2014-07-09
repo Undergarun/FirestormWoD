@@ -793,6 +793,7 @@ class boss_horridon : public CreatureScript
                                                                     zandalariDinomancerJumpPos[actualDoor - 1].GetPositionY(),
                                                                     zandalariDinomancerJumpPos[actualDoor - 1].GetPositionZ(),
                                                                     20.0f, 20.0f, 10.0f, MOVE_DINOMANCER_JUMP);
+                            dinomancer->AI()->SetData(0, 1);
                         }
 
                         break;
@@ -1356,6 +1357,7 @@ class mob_zandalari_dinomancer : public CreatureScript
             EventMap events;
             InstanceScript* pInstance;
             bool transformed;
+            bool canEnterCombat;
 
             void Reset()
             {
@@ -1364,7 +1366,8 @@ class mob_zandalari_dinomancer : public CreatureScript
                 me->RemoveAura(SPELL_DINO_FORM);
                 me->ReenableEvadeMode();
 
-                transformed = false;
+                transformed     = false;
+                canEnterCombat  = false;
 
                 events.Reset();
             }
@@ -1381,6 +1384,11 @@ class mob_zandalari_dinomancer : public CreatureScript
                     if (Player* target = me->SelectNearestPlayerNotGM(50.0f))
                         AttackStart(target);
                 }
+            }
+
+            void SetData(uint32 id, uint32 value)
+            {
+                canEnterCombat = value != 0;
             }
 
             void DamageTaken(Unit* attacker, uint32& damage)
@@ -1447,6 +1455,12 @@ class mob_zandalari_dinomancer : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+                if (!canEnterCombat)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;

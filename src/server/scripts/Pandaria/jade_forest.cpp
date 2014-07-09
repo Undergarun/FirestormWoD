@@ -2693,7 +2693,7 @@ class npc_fei : public CreatureScript
                 player->KilledMonsterCredit(57243);
 
                 if (Creature* questTaker = GetClosestCreatureWithEntry(creature, 57242, 200.0f, true))
-                    player->TeleportTo(870, questTaker->GetPositionX() + 1.4f, questTaker->GetPositionY() + 1.5f, questTaker->GetPositionZ(), 0.0f, NULL);
+                    player->TeleportTo(870, questTaker->GetPositionX() + 1.4f, questTaker->GetPositionY() + 1.5f, questTaker->GetPositionZ(), 0.0f, 0);
             }
 
             return true;
