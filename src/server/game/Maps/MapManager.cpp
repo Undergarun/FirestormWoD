@@ -222,9 +222,9 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     }
     
     Group* group = player->GetGroup();
-    if (entry->IsRaid())
+    if (entry->IsRaid() && entry->Expansion() >= 4)
     {
-        // can only enter in a raid group
+        // can only enter in a raid group except for raids before Mists of Pandaria
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
