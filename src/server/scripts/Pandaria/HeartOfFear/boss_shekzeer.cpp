@@ -237,6 +237,7 @@ class boss_shekzeer : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
             uint8 phase;
+            uint8 cryCount;
             bool fightInProgress;
             bool isWipe;
             bool loaded;
@@ -249,7 +250,8 @@ class boss_shekzeer : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
-                phase = 0;
+                phase    = 0;
+                cryCount = 0;
                 fightInProgress  = false;
                 isWipe           = false;
                 introDone        = false;
@@ -315,7 +317,7 @@ class boss_shekzeer : public CreatureScript
                 AttackStart(attacker);
 
                 events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
-                events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000));
+                // events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000)); // Deactivated for test purpose
                 events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
                 events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 480000); // 15 min in HM, 8 min in NM
@@ -346,6 +348,7 @@ class boss_shekzeer : public CreatureScript
                     sha->AI()->DoAction(ACTION_WITHDRAW);
 
                 phase = 0;
+                cryCount = 0;
                 if (pInstance)
                 {
                     pInstance->SetBossState(DATA_SHEKZEER, DONE);
@@ -355,6 +358,8 @@ class boss_shekzeer : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VISIONS_OF_DEMISE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMASSING_DARKNESS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT_SERVANT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STICKY_RESIN);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STICKY_RESIN_VISUAL);
                 }
 
                 fightInProgress = false;
@@ -396,6 +401,7 @@ class boss_shekzeer : public CreatureScript
                 summons.DespawnAll();
                 // Reset variables
                 phase = 0;
+                cryCount = 0;
                 fightInProgress  = false;
                 introDone        = false;
                 aggroTalkDone    = false;
@@ -585,6 +591,7 @@ class boss_shekzeer : public CreatureScript
                         // Phase 2 activated
                         events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
                         phase = 2;
+                        cryCount = 0;
                         break;
                     }
                     // Combat position
@@ -738,36 +745,29 @@ class boss_shekzeer : public CreatureScript
                                 std::list<Player*>::iterator itr, next;
                                 itr = playerList.begin();
                                 Player* target = 0;
-                                bool canFind = true;
 
-                                while (!target && canFind)
+                                // Removing tanks, DPS & hunters
+                                for (itr = playerList.begin(); itr != playerList.end(); itr = next)
                                 {
                                     next = itr;
                                     ++next;
 
-                                    // Target must not be a Tank, a melee DPS or a hunter
                                     if ((*itr)->GetRoleForGroup() == ROLES_TANK ||
                                         (*itr)->GetRoleForGroup() == ROLES_DPS  ||
                                         (*itr)->getClass() == CLASS_HUNTER)
-                                    {
                                         playerList.remove(*itr);
-                                        if (playerList.empty())
-                                            canFind = false;
-                                    }
-                                    else if (urand(0, 1))
-                                        target = *itr;
-
-                                    itr = next;
-                                    if (itr == playerList.end())
-                                        itr = playerList.begin();
                                 }
 
-                                if (!target)
+                                if (!playerList.size())
                                     break;
 
-                                DoCast(target, SPELL_CRY_OF_TERROR);
+                                JadeCore::RandomResizeList(playerList, 1);
+
+                                me->AddAura(SPELL_CRY_OF_TERROR, playerList.front());
                                 Talk(SAY_SPELL_CRY);
                             }
+                            if (++cryCount < 4)
+                                events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                             break;
                         }
                         // --- Phase 2 events ---
@@ -785,32 +785,7 @@ class boss_shekzeer : public CreatureScript
                         }
                         case EVENT_VISIONS_OF_DEMISE:
                         {
-                            uint8 maxTarget = Is25ManRaid() ? 5 : 2;
-                            std::list<Player*> playerList;
-
-                            GetPlayerListInGrid(playerList, me, 200.0f);
-
-                            if (playerList.size() > maxTarget)
-                            {
-                                std::list<Player*>::iterator itr, next;
-                                itr = playerList.begin();
-
-                                // Reducing playerlist until it matches the number of targets
-                                while (playerList.size() > maxTarget)
-                                {
-                                    next = itr;
-                                    ++next;
-
-                                    if (urand(0, 1))
-                                        playerList.remove(*itr);
-
-                                    itr = next;
-                                }
-                            }
-
-                            for (Player* player : playerList)
-                                me->CastSpell(player, SPELL_VISIONS_OF_DEMISE, true);
-
+                            DoCast(SPELL_VISIONS_OF_DEMISE);
                             events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, urand(15000, 20000));
                             break;
                         }
@@ -1747,6 +1722,7 @@ class spell_amassing_darkness : public SpellScriptLoader
                     std::list<Player*> extendList;
                     GetPlayerListInGrid(playerList, caster, 200.0f);
 
+                    // Keeping only non affected players
                     for (Player* player : playerList)
                     {
                         // Cast damage spell on player who are "marked" with amassing darkness aura
@@ -1759,17 +1735,8 @@ class spell_amassing_darkness : public SpellScriptLoader
 
                     if (!extendList.empty())
                     {
-                        bool searching = true;
-                        std::list<Player*>::iterator itr = extendList.begin();
-
-                        while (searching)
-                        {
-                            if (urand(0, 1))
-                            {
-                                caster->CastSpell(*itr, SPELL_AMASSING_DARKNESS, true);
-                                searching = false;
-                            }
-                        }
+                        JadeCore::RandomResizeList(extendList, 1);
+                        caster->CastSpell(extendList.front(), SPELL_AMASSING_DARKNESS, true);
                     }
                 }
             }
@@ -1814,6 +1781,57 @@ class spell_calamity : public SpellScriptLoader
         }
 };
 
+// 124862 - Visions of Demise
+class spell_visions_of_demise : public SpellScriptLoader
+{
+    public:
+        spell_visions_of_demise() : SpellScriptLoader("spell_visions_of_demise") { }
+
+        class spell_visions_of_demise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_visions_of_demise_SpellScript);
+
+            void SelectTargets(std::list<WorldObject*> &targets)
+            {
+                // Starting form
+                targets.clear();
+
+                if (Unit* caster = GetCaster())
+                {
+                    // Crash purpose, shouldn't happen
+                    if (!caster->GetInstanceScript())
+                        return;
+
+                    // Retreiving players in action radius
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 200.0f);
+
+                    if (playerList.size())
+                    {
+                        // Resizing the list to the wanted length
+                        uint8 maxTarget = caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2;
+                        if (playerList.size() >= maxTarget)
+                            JadeCore::RandomResizeList(playerList, maxTarget);
+
+                        // Adding the players in the targets list
+                        for (Player* plr : playerList)
+                            targets.push_back(plr);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_visions_of_demise_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_visions_of_demise_SpellScript();
+        }
+};
+
 void AddSC_boss_shekzeer()
 {
     new boss_shekzeer();                // 62837 - Shek'zeer
@@ -1829,4 +1847,5 @@ void AddSC_boss_shekzeer()
     new spell_cry_of_terror();          // 123792 - Cry of terror
     new spell_amassing_darkness();      // 124843 - Amassing Darkness
     new spell_calamity();               // 124845 - Calamity
+    new spell_visions_of_demise();      // 124862 - Visions of Demise
 }
