@@ -4532,6 +4532,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 125451:// Ultimate Corruption
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;

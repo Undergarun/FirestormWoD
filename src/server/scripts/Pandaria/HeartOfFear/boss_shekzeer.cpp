@@ -267,6 +267,7 @@ class boss_shekzeer : public CreatureScript
                 isInChamber = true;
             }
 
+            // Returns true if all trash are done, else returns false
             bool CheckTrash()
             {
                 if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_WARSINGER, 200.0f))
@@ -641,7 +642,11 @@ class boss_shekzeer : public CreatureScript
                         return;
                     }
                     else if (!pInstance->IsWipe() && isWipe)
+                    {
                         isWipe = false;
+                        if (isInChamber)
+                            DoAction(ACTION_COMBAT);
+                    }
                 }
 
                 if (!loaded)
