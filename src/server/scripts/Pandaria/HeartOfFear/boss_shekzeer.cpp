@@ -317,7 +317,7 @@ class boss_shekzeer : public CreatureScript
                 AttackStart(attacker);
 
                 events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
-                // events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000)); // Deactivated for test purpose
+                events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000)); // Deactivated for test purpose
                 events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
                 events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 480000); // 15 min in HM, 8 min in NM
