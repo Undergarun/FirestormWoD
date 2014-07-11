@@ -183,6 +183,8 @@ class boss_tsulong : public CreatureScript
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 phase = PHASE_NONE;
                 events.SetPhase(PHASE_NONE);
 
@@ -349,10 +351,16 @@ class boss_tsulong : public CreatureScript
             void EndOfFight()
             {
                 Talk(VO_TES_SERPENT_DEATH);
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                pInstance->SetBossState(DATA_TSULONG, DONE);
+                if (pInstance)
+                {
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->SetBossState(DATA_TSULONG, DONE);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
+                }
                 me->ReenableEvadeMode();
                 me->ReenableHealthRegen();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->CombatStop();
                 EnterEvadeMode();
 
