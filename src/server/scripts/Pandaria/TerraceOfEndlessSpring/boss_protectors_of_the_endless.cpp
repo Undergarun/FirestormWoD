@@ -311,12 +311,18 @@ class boss_ancient_regail : public CreatureScript
 			
 			void JustReachedHome()
             {
-                _JustReachedHome();
-
                 if (pInstance)
+                {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        return;
+
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                }
+
+                _JustReachedHome();
+                Reset();
             }
-			
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -331,7 +337,19 @@ class boss_ancient_regail : public CreatureScript
                             minionController->AI()->DoAction(ACTION_INIT_MINION_CONTROLLER);
                 }
             }
-			
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                    return;
+
+                if (pInstance->IsWipe())
+                    me->GetMotionMaster()->MoveTargetedHome();
+            }
+
 			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -602,12 +620,18 @@ class boss_ancient_asani : public CreatureScript
 			
 			void JustReachedHome()
             {
-                _JustReachedHome();
-
                 if (pInstance)
+                {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        return;
+
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                }
+
+                _JustReachedHome();
+                Reset();
             }
-			
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -617,6 +641,18 @@ class boss_ancient_asani : public CreatureScript
                     DoZoneInCombat();
                     Talk(TALK_ASANI_AGGRO);
                 }
+            }
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                    return;
+
+                if (pInstance->IsWipe())
+                    me->GetMotionMaster()->MoveTargetedHome();
             }
 			
 			void JustSummoned(Creature* summon)
@@ -884,12 +920,18 @@ class boss_protector_kaolan : public CreatureScript
 			
 			void JustReachedHome()
             {
-                _JustReachedHome();
-
                 if (pInstance)
+                {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        return;
+
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                }
+
+                _JustReachedHome();
+                Reset();
             }
-			
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -899,7 +941,19 @@ class boss_protector_kaolan : public CreatureScript
                     DoZoneInCombat();
                 }
             }
-			
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                    return;
+
+                if (pInstance->IsWipe())
+                    me->GetMotionMaster()->MoveTargetedHome();
+            }
+
 			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -1083,11 +1137,14 @@ class boss_protector_kaolan : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_TOUCH_OF_SHA:
+                    {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, -SPELL_TOUCH_OF_SHA))
                             me->CastSpell(target, SPELL_TOUCH_OF_SHA, false);
                         events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
                         break;
+                    }
                     case EVENT_DEFILED_GROUND:
+                    {
                         if (!firstSpecialEnabled)
                             break;
 
@@ -1095,7 +1152,9 @@ class boss_protector_kaolan : public CreatureScript
                             me->CastSpell(target, SPELL_DEFILED_GROUND_SUMMON, true);
                         events.ScheduleEvent(EVENT_DEFILED_GROUND, 15500);
                         break;
+                    }
                     case EVENT_EXPEL_CORRUPTION:
+                    {
                         if (!secondSpecialEnabled)
                             break;
 
@@ -1103,6 +1162,7 @@ class boss_protector_kaolan : public CreatureScript
                         me->CastSpell(me, SPELL_EXPEL_CORRUPTION_SUMMON, false);
                         events.ScheduleEvent(EVENT_EXPEL_CORRUPTION, 38500);
                         break;
+                    }
                     default:
                         break;
 				}
