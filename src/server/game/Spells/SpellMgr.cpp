@@ -3427,6 +3427,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 137967:// Twisted Fate
+                spellInfo->Effects[0].TargetA =  TARGET_UNIT_TARGET_ANY;
+                break;
+            case 137641:// Soul Fragment
+                spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
+                break;
+            case 137650:// Shadowed Soul
+                spellInfo->Effects[0].BasePoints = 3;
+                spellInfo->Effects[1].BasePoints = 3;
+                break;
             case 118334:// Dancing Steel (agility)
             case 118335:// Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;

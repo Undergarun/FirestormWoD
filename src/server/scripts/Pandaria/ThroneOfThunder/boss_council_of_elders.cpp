@@ -63,7 +63,21 @@ enum eSpells
     SPELL_SHADOWED_LOA_SPIRIT_SUMMONED   = 137351,
     SPELL_SHADOWED_GIFT                  = 137407,
     SPELL_MARKED_SOUL                    = 137359,
-    SPELL_DARK_POWER                     = 136507
+    SPELL_DARK_POWER                     = 136507,
+    // Heroic Mode
+    SPELL_SOUL_FRAGMENT                  = 137641,
+    SPELL_SOUL_FRAGMENT_SWITCH           = 137643,
+    SPELL_DISCHARGE                      = 137166,
+    SPELL_BODY_HEAT                      = 137084,
+    SPELL_CHILLED_TO_THE_BONE            = 137085,
+    SPELL_TREACHEROUS_GROUND             = 137614,
+    SPELL_TREACHEROUS_GROUND_RESIZE      = 137629,
+    SPELL_TWISTED_FATE_PRINCIPAL         = 137891,
+    SPELL_TWISTED_FATE_SECOND_PRINCIPAL  = 137962,
+    SPELL_TWISTED_FATE_FIRST_MORPH       = 137950,
+    SPELL_TWISTED_FATE_SECOND_MORPH      = 137965,
+    SPELL_TWISTED_FATE_LINK_VISUAL       = 137967,
+    SPELL_TWISTED_FATE_PERIODIC          = 137986
 };
 
 enum eEvents
@@ -87,7 +101,10 @@ enum eEvents
     EVENT_HEAL_WEAKER_TROLL                      = 17,
     EVENT_SHADOWED_LOA_SPIRIT_SUMMON             = 18,
     EVENT_OS_PLAYER                              = 19,
-    EVENT_DARK_POWER                             = 20
+    EVENT_DARK_POWER                             = 20,
+    EVENT_SOUL_FRAGMENT                          = 21,
+    EVENT_TWISTED_FATE                           = 22,
+    EVENT_TWISTED_FATE_SECOND                    = 23
 };
 
 enum eSays
@@ -103,7 +120,9 @@ enum eActions
     ACTION_SCHEDULE_SANDSTROM                      = 5,
     ACTION_SANDSTORM                               = 6,
     ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW        = 7,
-    ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN          = 8
+    ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN          = 8,
+    ACTION_SOUL_FRAGMENT                           = 9,
+    ACTION_TREACHEROUS_GROUND                      = 10
 };
 
 enum eDatas
@@ -160,9 +179,11 @@ class npc_gara_jal_s_soul : public CreatureScript
 
             EventMap events;
             InstanceScript* pInstance;
+            uint32 targetFaction;
 
             void Reset()
             {
+                targetFaction = 0;
                 events.Reset();
             }
 
@@ -210,6 +231,9 @@ class npc_gara_jal_s_soul : public CreatureScript
                             entry = 0;
 
                 }
+
+                else if (action == ACTION_SOUL_FRAGMENT)
+                    events.ScheduleEvent(EVENT_SOUL_FRAGMENT, 1000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -239,7 +263,10 @@ class npc_gara_jal_s_soul : public CreatureScript
                             me->AddAura(SPELL_POSSESSED, priestress);
 
                             if (priestress->GetAI())
+                            {
                                 priestress->AI()->DoAction(ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW);
+                                priestress->AI()->DoAction(ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN);
+                            }
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER:
@@ -251,6 +278,21 @@ class npc_gara_jal_s_soul : public CreatureScript
                                 sul->AI()->DoAction(ACTION_SCHEDULE_SANDSTROM);
                         }
                         break;
+                    case EVENT_SOUL_FRAGMENT:
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 200.0f);
+
+                        if (!playerList.empty())
+                        {
+                            JadeCore::RandomResizeList(playerList, 1);
+
+                            targetFaction = playerList.front()->getFaction();
+                            playerList.front()->setFaction(35);
+                            playerList.front()->CastSpell(playerList.front(), SPELL_SOUL_FRAGMENT, false);
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -282,6 +324,7 @@ class boss_king_malakk : public CreatureScript
             bool secondPossessSwitched;
             uint32 coefficient;
             uint32 counter;
+            uint32 targetFaction;
 
             void Reset()
             {
@@ -293,8 +336,9 @@ class boss_king_malakk : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
                 }
 
-                coefficient = 0;
-                counter     = 0;
+                coefficient   = 0;
+                counter       = 0;
+                targetFaction = 0;
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
                 _Reset();
@@ -395,7 +439,10 @@ class boss_king_malakk : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
 
                             firstPossessSwitched = true;
                         }
@@ -418,7 +465,10 @@ class boss_king_malakk : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
 
                             secondPossessSwitched = true;
                         }
@@ -675,7 +725,10 @@ class boss_kazra_jin : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
 
                             firstPossessSwitched = true;
                         }
@@ -694,7 +747,10 @@ class boss_kazra_jin : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
 
                             secondPossessSwitched = true;
                         }
@@ -703,8 +759,19 @@ class boss_kazra_jin : public CreatureScript
 
                 if (me->HasAura(SPELL_OVERLOAD))
                 {
-                    me->DealDamage(attacker, damage / 100 * 40);
+                    me->DealDamage(attacker, damage / 100 * 50);
                     me->SendSpellNonMeleeDamageLog(attacker, SPELL_OVERLOAD, damage / 100 * 40, SPELL_SCHOOL_MASK_NATURE, 0, 0, false, 0, false);
+                }
+                else if (me->HasAura(SPELL_DISCHARGE))
+                {
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, me, 200.0f);
+
+                    for (auto player : playerList)
+                    {
+                        me->DealDamage(player, damage / 100 * 10);
+                        me->SendSpellNonMeleeDamageLog(player, SPELL_DISCHARGE, damage / 100 * 10, SPELL_SCHOOL_MASK_NATURE, 0, 0, false, 0, false);
+                    }
                 }
             }
 
@@ -811,7 +878,12 @@ class boss_kazra_jin : public CreatureScript
                                         creature->DespawnOrUnsummon();
 
                                     if (me->HasAura(SPELL_POSSESSED))
-                                        me->AddAura(SPELL_OVERLOAD, me);
+                                    {
+                                        if (!IsHeroic())
+                                            me->AddAura(SPELL_OVERLOAD, me);
+                                        else
+                                            me->AddAura(SPELL_DISCHARGE, me);
+                                    }
                                 }
                             }
                         }
@@ -851,13 +923,13 @@ class boss_kazra_jin : public CreatureScript
                             recklessTargetGuid = target->GetGUID();
 
                         me->SetReactState(REACT_PASSIVE);
-                        me->CastSpell(me, SPELL_RECKLESS_CHARGE_ROLLING, false);
+                        me->CastSpell(me, SPELL_RECKLESS_CHARGE_ROLLING, true);
                         touchedTarget = false;
                         events.ScheduleEvent(EVENT_RECKLESS_CHARGE, 10000);
                     }
                         break;
                     case EVENT_RECKLESS_CHARGE_AREATRIGGER:
-                            me->CastSpell(me, SPELL_RECKLESS_CHARGE_AREATRIGGER, true);
+                            me->CastSpell(me, SPELL_RECKLESS_CHARGE_AREATRIGGER, false);
                             me->SummonCreature(69453, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                             hasSpawned = false;
                         break;
@@ -873,7 +945,7 @@ class boss_kazra_jin : public CreatureScript
 
                             for (Player* player : playerList)
                             {
-                                creature->CastSpell(player, SPELL_RECKLESS_CHARGE_DAMAGE, true);
+                                creature->CastSpell(player, SPELL_RECKLESS_CHARGE_DAMAGE, false);
                             }
                         }
 
@@ -1030,7 +1102,10 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
 
                             firstPossessSwitched = true;
                         }
@@ -1046,6 +1121,14 @@ class boss_sul_the_sandcrawler : public CreatureScript
                             me->SetPower(POWER_ENERGY, 0, false);
                             me->RemoveAura(SPELL_POSSESSED);
                             me->CastSpell(me, SPELL_LINGERING_PRESENCE, true);
+
+                            if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                                if (garaJalSoul->GetAI())
+                                {
+                                    garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
+
                             secondPossessSwitched = true;
                         }
                     }
@@ -1173,6 +1256,123 @@ class boss_sul_the_sandcrawler : public CreatureScript
         }
 };
 
+// Twisted Fate (first) - 69740
+class mob_first_twisted_fate : public CreatureScript
+{
+    public:
+        mob_first_twisted_fate() : CreatureScript("mob_first_twisted_fate") { }
+
+        struct mob_first_twisted_fateAI : public ScriptedAI
+        {
+            mob_first_twisted_fateAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+
+            bool visualLinked;
+            uint16 linkTimer;
+            uint16 distanceMax;
+            uint64 summonerGuid;
+            InstanceScript* instance;
+
+            void Reset()
+            {
+                distanceMax  = 0;
+                linkTimer    = 0;
+                summonerGuid = 0;
+                visualLinked = false;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                summonerGuid = summoner->GetGUID();
+                me->AddAura(SPELL_TWISTED_FATE_PERIODIC, me);
+                linkTimer = 1500;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (linkTimer <= diff)
+                {
+                    if (!visualLinked)
+                    {
+                        if (Creature* twistedFate = GetClosestCreatureWithEntry(me, NPC_SECOND_TWISTED_FATE, 200.0f))
+                        {
+                            me->GetMotionMaster()->MoveChase(twistedFate, 1.0f, 1.0f);
+                            visualLinked = true;
+                        }
+                    }
+                }
+                else
+                   linkTimer -= diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_first_twisted_fateAI(creature);
+        }
+};
+
+// Twisted Fate (second) - 69746
+class mob_second_twisted_fate : public CreatureScript
+{
+    public:
+        mob_second_twisted_fate() : CreatureScript("mob_second_twisted_fate") { }
+
+        struct mob_second_twisted_fateAI : public ScriptedAI
+        {
+            mob_second_twisted_fateAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+
+            bool visualLinked;
+            uint64 summonerGuid;
+            uint16 linkTimer;
+            uint16 distanceMax;
+            InstanceScript* instance;
+
+            void Reset()
+            {
+                linkTimer      = 0;
+                summonerGuid   = 0;
+                distanceMax    = 0;
+                visualLinked = false;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                summonerGuid = summoner->GetGUID();
+                me->AddAura(SPELL_TWISTED_FATE_PERIODIC, me);
+                linkTimer = 1500;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (linkTimer <= diff)
+                {
+                    if (!visualLinked)
+                    {
+                        if (Creature* twistedFate = GetClosestCreatureWithEntry(me, NPC_FIRST_TWISTED_FATE, 200.0f))
+                        {
+                            me->CastSpell(twistedFate, SPELL_TWISTED_FATE_LINK_VISUAL, false);
+                            me->GetMotionMaster()->MoveChase(twistedFate, 1.0f, 1.0f);
+                            visualLinked = true;
+                        }
+                    }
+                }
+                else
+                   linkTimer -= diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_second_twisted_fateAI(creature);
+        }
+};
+
 // High Priestess Mar'li - 69132
 class boss_high_priestress_mar_li : public CreatureScript
 {
@@ -1231,11 +1431,18 @@ class boss_high_priestress_mar_li : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                if (IsHeroic())
-                    return;
-
                 if (action == ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW || action == ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN)
                 {
+                    if (IsHeroic())
+                    {
+                        events.Reset();
+
+                        events.ScheduleEvent(EVENT_TWISTED_FATE, 2000);
+                        events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_SHADOW, 3000);
+                        events.ScheduleEvent(EVENT_TWISTED_FATE_SECOND, 5000);
+                        return;
+                    }
+
                     events.Reset();
                     events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_SHADOW, 3000);
                     events.ScheduleEvent(EVENT_SHADOWED_LOA_SPIRIT_SUMMON, 5000);
@@ -1255,6 +1462,12 @@ class boss_high_priestress_mar_li : public CreatureScript
                 me->RemoveAllAuras();
                 _EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
+
+                std::list<Creature*> livingSandList;
+                GetCreatureListWithEntryInGrid(livingSandList, me, NPC_LIVING_SAND, 200.0f);
+
+                for (Creature* livingSand : livingSandList)
+                    livingSand->DespawnOrUnsummon();
 
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
@@ -1286,7 +1499,11 @@ class boss_high_priestress_mar_li : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
+
 
                             firstPossessSwitched = true;
                         }
@@ -1309,7 +1526,11 @@ class boss_high_priestress_mar_li : public CreatureScript
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                                 if (garaJalSoul->GetAI())
+                                {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+                                    garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
+                                }
+
 
                             secondPossessSwitched = true;
                         }
@@ -1441,6 +1662,27 @@ class boss_high_priestress_mar_li : public CreatureScript
                             events.ScheduleEvent(EVENT_DARK_POWER, 10000);
                         }
                         break;
+                    case EVENT_TWISTED_FATE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST))
+                            me->CastSpell(me, SPELL_TWISTED_FATE_PRINCIPAL, true);
+                        break;
+                    case EVENT_TWISTED_FATE_SECOND:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST))
+                        {
+                            me->CastSpell(me, SPELL_TWISTED_FATE_SECOND_PRINCIPAL, false);
+
+                            if (Creature* twistedFirst = GetClosestCreatureWithEntry(me, NPC_FIRST_TWISTED_FATE, 200.0f))
+                            {
+                                if (Creature* twistedSecond = GetClosestCreatureWithEntry(me, NPC_SECOND_TWISTED_FATE, 200.0f))
+                                {
+                                    float distance = twistedFirst->GetDistance(twistedSecond);
+
+                                    CAST_AI(mob_first_twisted_fate::mob_first_twisted_fateAI, twistedFirst->AI())->distanceMax = distance;
+                                    CAST_AI(mob_second_twisted_fate::mob_second_twisted_fateAI, twistedSecond->AI())->distanceMax = distance;
+                                }
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1453,6 +1695,256 @@ class boss_high_priestress_mar_li : public CreatureScript
         {
             return new boss_high_priestress_mar_liAI(creature);
         }
+};
+
+// Living Sand - 69153
+class mob_living_sand : public CreatureScript
+{
+    public:
+        mob_living_sand() : CreatureScript("mob_living_sand") { }
+
+        struct mob_living_sandAI : public ScriptedAI
+        {
+            mob_living_sandAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddAura(SPELL_SAND_VISUAL, me);
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFullHealth();
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 7.0f);
+
+                for (auto player: playerList)
+                {
+                    me->AddAura(SPELL_SAND_PERIODIC_DMG, player);
+                    me->AddAura(SPELL_ENSNARED, player);
+                }
+            }
+
+            void IsSummonedBy(Unit* attacker)
+            {
+                std::list<Creature*> livingSangList;
+                GetCreatureListWithEntryInGrid(livingSangList, me, NPC_LIVING_SAND, 4.5f);
+
+                for (Creature* livingSand : livingSangList)
+                {
+                    if (livingSand->HasAura(SPELL_TREACHEROUS_GROUND_RESIZE))
+                    {
+                        livingSand->DespawnOrUnsummon();
+                        me->AddAura(SPELL_TREACHEROUS_GROUND, me);
+                    }
+                }
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_SANDSTORM)
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveAura(SPELL_SAND_VISUAL);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                }
+                else if (action == ACTION_TREACHEROUS_GROUND)
+                {
+                    std::list<Creature*> livingSangList;
+                    GetCreatureListWithEntryInGrid(livingSangList, me, NPC_LIVING_SAND, 4.5f);
+
+                    for (Creature* livingSand : livingSangList)
+                    {
+                        if (livingSand != me)
+                        {
+                            livingSand->DespawnOrUnsummon();
+                            me->AddAura(SPELL_TREACHEROUS_GROUND_RESIZE, me);
+                        }
+                    }
+                }
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+            {
+                if (damage > me->GetHealth())
+                {
+                    damage = 0;
+                    Reset();
+                }
+            }
+
+            void UpdateAI(uint32 const diff){}
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_living_sandAI(creature);
+        }
+};
+
+// Blessed Loa Spirit - 69480
+class mob_blessed_loa_spirit : public CreatureScript
+{
+    public:
+        mob_blessed_loa_spirit() : CreatureScript("mob_blessed_loa_spirit") { }
+
+        struct mob_blessed_loa_spiritAI : public ScriptedAI
+        {
+            mob_blessed_loa_spiritAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+
+            EventMap events;
+            InstanceScript* instance;
+            uint32 bossEntry;
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_HEAL_WEAKER_TROLL, 20000);
+                me->SetReactState(REACT_PASSIVE);
+                bossEntry = 0;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                if (bossEntry)
+                {
+                    if (Creature* boss = instance->instance->GetCreature(instance->GetData64(bossEntry)))
+                    {
+                        if (me->GetDistance(boss) <= 2.0f)
+                        {
+                            boss->ModifyHealth(boss->GetHealth() * 5 / 100);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_HEAL_WEAKER_TROLL:
+                        {
+                            uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
+                            uint32 minHealth = 0;
+                            Creature* minBoss = NULL;
+
+                            for (uint32 entry : mobEntries)
+                            {
+                                if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+                                {
+                                    if (entry == NPC_KAZRA_JIN)
+                                    {
+                                        minHealth = boss->GetMaxHealth();
+                                        minBoss = boss;
+                                    }
+
+                                    if (minHealth > boss->GetHealth())
+                                    {
+                                        minHealth = boss->GetHealth();
+                                        minBoss = boss;
+                                    }
+                                }
+                            }
+
+                            me->GetMotionMaster()->MoveChase(minBoss, 1.0f, 1.0f);
+                            if (minBoss || bossEntry)
+                                bossEntry = minBoss->GetEntry();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_blessed_loa_spiritAI(creature);
+        }
+};
+
+// Shadowed Loa Spirit - 69548
+class mob_shadowed_lua_spirit : public CreatureScript
+{
+    public:
+        mob_shadowed_lua_spirit() : CreatureScript("mob_shadowed_lua_spirit") { }
+
+        struct mob_shadowed_lua_spiritAI : public ScriptedAI
+        {
+            mob_shadowed_lua_spiritAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+
+            EventMap events;
+            uint32 despawnTimer;
+            uint64 targetGuid;
+            InstanceScript* instance;
+
+            void Reset()
+            {
+                events.Reset();
+                despawnTimer = 0;
+                targetGuid   = 0;
+
+                events.ScheduleEvent(EVENT_OS_PLAYER, 20000);
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void SetGUID(uint64 guid, int32 /*index*/)
+            {
+                targetGuid = guid;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+                if (Player* player = Player::GetPlayer(*me, targetGuid))
+                {
+                    if (despawnTimer <= diff)
+                    {
+
+                        if (player->HasAura(SPELL_MARKED_SOUL))
+                            player->RemoveAura(SPELL_MARKED_SOUL);
+
+                        me->CastSpell(player, SPELL_SHADOWED_GIFT, false);
+                    }
+                    else
+                        despawnTimer -= diff;
+
+                    if (player->GetDistance(me) <= 6.0f)
+                    {
+                        me->CastSpell(player, SPELL_SHADOWED_GIFT, false);
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_OS_PLAYER:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            me->AddAura(SPELL_MARKED_SOUL, target);
+                            SetGUID(target->GetGUID(), 0);
+                            despawnTimer = 20000;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_shadowed_lua_spiritAI(creature);
+    }
 };
 
 // Reckless Charge (rolling) - 137117
@@ -1478,7 +1970,7 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
                             caster->AttackStop();
 
                             if (caster->GetDistance(target) >= 3.5f)
-                                caster->CastSpell(target, SPELL_RECKLESS_CHARGE_MOVEMENT, true);
+                                caster->CastSpell(target, SPELL_RECKLESS_CHARGE_MOVEMENT, false);
 
                             if (Player* player = target->ToPlayer())
                             {
@@ -1728,6 +2220,8 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frosbite_malakk_aura_AuraScript);
 
+            InstanceScript* pInstance;
+
             void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (AuraPtr frostBite = aurEff->GetBase())
@@ -1739,15 +2233,59 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                             std::list<Player*> playerList;
                             target->GetPlayerListInGrid(playerList, 4.0f);
                             uint8 size = playerList.size();
-                            uint8 amount = std::max(1, (stack - (2 * size)));
+
+                            if (pInstance = target->GetInstanceScript())
+                            {
+                                if (!pInstance->instance->IsHeroic())
+                                {
+                                    uint8 amount = std::max(1, (stack - (2 * size)));
+                                    return;
+                                }
+
+                                for (auto player : playerList)
+                                {
+                                    if (player->HasAura(SPELL_BODY_HEAT))
+                                        uint8 amount = std::max(1, (stack - (2 * size)));
+                                }
+                            }
                         }
                     }
                 }
             }
 
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    std::list<Player*> playerList;
+                    target->GetPlayerListInGrid(playerList, 4.0f);
+
+                    if (pInstance = target->GetInstanceScript())
+                    {
+                        if (pInstance->instance->IsHeroic())
+                        {
+                            for (auto player : playerList)
+                            {
+                                if (!player->HasAura(SPELL_FROSTBITE_AURA) && !player->HasAura(SPELL_BODY_HEAT) && !player->HasAura(SPELL_CHILLED_TO_THE_BONE))
+                                    player->AddAura(SPELL_BODY_HEAT, player);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (!target->HasAura(SPELL_BODY_HEAT))
+                        target->AddAura(SPELL_CHILLED_TO_THE_BONE, target);
+            }
+
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_frosbite_malakk_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_frosbite_malakk_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+                OnEffectApply += AuraEffectApplyFn(spell_frosbite_malakk_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_frosbite_malakk_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1757,15 +2295,15 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
         }
 };
 
-// Overload (aura) - 137149
-class spell_overload_kazra_jin : public SpellScriptLoader
+// Overload (aura) - 137149 / Discharge - 137166
+class spell_overload_discharge_kazra_jin : public SpellScriptLoader
 {
     public:
-        spell_overload_kazra_jin() : SpellScriptLoader("spell_overload_kazra_jin") { }
+        spell_overload_discharge_kazra_jin() : SpellScriptLoader("spell_overload_discharge_kazra_jin") { }
 
-        class spell_overload_kazra_jin_AuraScript : public AuraScript
+        class spell_overload_discharge_kazra_jin_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_overload_kazra_jin_AuraScript);
+            PrepareAuraScript(spell_overload_discharge_kazra_jin_AuraScript);
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1781,14 +2319,14 @@ class spell_overload_kazra_jin : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_overload_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_overload_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_overload_discharge_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_overload_discharge_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_overload_kazra_jin_AuraScript();
+            return new spell_overload_discharge_kazra_jin_AuraScript();
         }
 };
 
@@ -1911,218 +2449,208 @@ class spell_dark_power : public SpellScriptLoader
         }
 };
 
-// Living Sand - 69153
-class mob_living_sand : public CreatureScript
+// Soul Fragment - 137641
+class spell_soul_fragment : public SpellScriptLoader
 {
     public:
-        mob_living_sand() : CreatureScript("mob_living_sand") { }
+        spell_soul_fragment() : SpellScriptLoader("spell_soul_fragment") { }
 
-        struct mob_living_sandAI : public ScriptedAI
+        class spell_soul_fragment_AuraScript : public AuraScript
         {
-            mob_living_sandAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            PrepareAuraScript(spell_soul_fragment_AuraScript);
 
-            void Reset()
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->AddAura(SPELL_SAND_VISUAL, me);
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFullHealth();
-
-                std::list<Player*> playerList;
-                GetPlayerListInGrid(playerList, me, 7.0f);
-
-                for (auto player: playerList)
-                {
-                    me->AddAura(SPELL_SAND_PERIODIC_DMG, player);
-                    me->AddAura(SPELL_ENSNARED, player);
-                }
-            }
-
-            void DoAction(int32 const action)
-            {
-                if (action == ACTION_SANDSTORM)
-                {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->RemoveAura(SPELL_SAND_VISUAL);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage)
-            {
-                if (damage > me->GetHealth())
-                {
-                    damage = 0;
-                    Reset();
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_living_sandAI(creature);
-        }
-};
-
-// Blessed Loa Spirit - 69480
-class mob_blessed_loa_spirit : public CreatureScript
-{
-    public:
-        mob_blessed_loa_spirit() : CreatureScript("mob_blessed_loa_spirit") { }
-
-        struct mob_blessed_loa_spiritAI : public ScriptedAI
-        {
-            mob_blessed_loa_spiritAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            EventMap events;
             InstanceScript* instance;
-            uint32 bossEntry;
 
-            void Reset()
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                events.Reset();
-
-                events.ScheduleEvent(EVENT_HEAL_WEAKER_TROLL, 20000);
-                me->SetReactState(REACT_PASSIVE);
-                bossEntry = 0;
+                if (Unit* caster = GetCaster())
+                {
+                    if (instance = caster->GetInstanceScript())
+                        if (Creature* garaJal = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            if (garaJal->GetAI())
+                                caster->setFaction(CAST_AI(npc_gara_jal_s_soul::npc_gara_jal_s_soulAI, garaJal->AI())->targetFaction);
+                }
             }
 
-            void UpdateAI(const uint32 diff)
+            void Register()
             {
-                events.Update(diff);
-
-                if (bossEntry)
-                {
-                    if (Creature* boss = instance->instance->GetCreature(instance->GetData64(bossEntry)))
-                    {
-                        if (me->GetDistance(boss) <= 2.0f)
-                        {
-                            boss->ModifyHealth(boss->GetHealth() * 5 / 100);
-                            me->DespawnOrUnsummon();
-                        }
-                    }
-                }
-
-                switch (events.ExecuteEvent())
-                {
-                    case EVENT_HEAL_WEAKER_TROLL:
-                        {
-                            uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
-                            uint32 minHealth = 0;
-                            Creature* minBoss = NULL;
-
-                            for (uint32 entry : mobEntries)
-                            {
-                                if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
-                                {
-                                    if (entry == NPC_KAZRA_JIN)
-                                        minHealth = boss->GetMaxHealth();
-
-                                    if (minHealth > boss->GetHealth())
-                                    {
-                                        minHealth = boss->GetHealth();
-                                        minBoss = boss;
-                                    }
-                                }
-                            }
-
-                            me->GetMotionMaster()->MoveChase(minBoss, 1.0f, 1.0f);
-                            bossEntry = minBoss->GetEntry();
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                AfterEffectRemove += AuraEffectRemoveFn(spell_soul_fragment_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        AuraScript* GetAuraScript() const
         {
-            return new mob_blessed_loa_spiritAI(creature);
+            return new spell_soul_fragment_AuraScript();
         }
 };
 
-// Shadowed Loa Spirit - 69548
-class mob_shadowed_lua_spirit : public CreatureScript
+// Soul Fragment (switch) - 137643
+class spell_soul_fragment_switch : public SpellScriptLoader
 {
-public:
-    mob_shadowed_lua_spirit() : CreatureScript("mob_shadowed_lua_spirit") { }
+    public:
+        spell_soul_fragment_switch() :  SpellScriptLoader("spell_soul_fragment_switch") { }
 
-    struct mob_shadowed_lua_spiritAI : public ScriptedAI
-    {
-        mob_shadowed_lua_spiritAI(Creature* creature) : ScriptedAI(creature)
+        class spell_soul_fragment_switch_SpellScript : public SpellScript
         {
-            instance = creature->GetInstanceScript();
-        }
+            PrepareSpellScript(spell_soul_fragment_switch_SpellScript);
 
-        EventMap events;
-        uint32 despawnTimer;
-        uint64 targetGuid;
-        InstanceScript* instance;
-
-        void Reset()
-        {
-            events.Reset();
-            despawnTimer = 0;
-            targetGuid   = 0;
-
-            events.ScheduleEvent(EVENT_OS_PLAYER, 20000);
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void SetGUID(uint64 guid, int32 /*index*/)
-        {
-            targetGuid = guid;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            events.Update(diff);
-            if (Player* player = Player::GetPlayer(*me, targetGuid))
+            void HandleDummy(SpellEffIndex effIndex)
             {
-                if (despawnTimer <= diff)
+                if (Unit* caster = GetCaster())
                 {
-
-                    if (player->HasAura(SPELL_MARKED_SOUL))
-                        player->RemoveAura(SPELL_MARKED_SOUL);
-
-                    me->CastSpell(player, SPELL_SHADOWED_GIFT, false);
-                }
-                else
-                    despawnTimer -= diff;
-
-                if (player->GetDistance(me) <= 6.0f)
-                {
-                    me->CastSpell(player, SPELL_SHADOWED_GIFT, false);
-                    me->DespawnOrUnsummon();
-                }
-            }
-
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_OS_PLAYER:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Unit* target = GetExplTargetUnit())
                     {
-                        me->AddAura(SPELL_MARKED_SOUL, target);
-                        SetGUID(target->GetGUID(), 0);
-                        despawnTimer = 20000;
+                        if (target->ToPlayer())
+                        {
+                            if (caster->ToPlayer())
+                            {
+                                caster->RemoveAura(SPELL_SOUL_FRAGMENT);
+                                caster->CastSpell(target, SPELL_SOUL_FRAGMENT, false);
+                                caster->CastSpell(target, SPELL_SOUL_FRAGMENT_SWITCH, false);
+                            }
+                        }
                     }
-                    break;
-                default:
-                    break;
+                }
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_shadowed_lua_spiritAI(creature);
-    }
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_soul_fragment_switch_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_soul_fragment_switch_SpellScript();
+        }
+};
+
+// Twisted Fate (first)- 137943
+class spell_first_twisted_fate : public SpellScriptLoader
+{
+    public:
+        spell_first_twisted_fate() :  SpellScriptLoader("spell_first_twisted_fate") { }
+
+        class spell_first_twisted_fate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_first_twisted_fate_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                uint64 targetGuid = 0;
+
+                if (Unit* caster = GetCaster())
+                    if (Creature* twistedFate = caster->ToCreature())
+                    {
+                        targetGuid = CAST_AI(mob_first_twisted_fate::mob_first_twisted_fateAI, twistedFate->AI())->summonerGuid;
+
+                        if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
+                            twistedFate->CastSpell(target, SPELL_TWISTED_FATE_FIRST_MORPH, false);
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_first_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_first_twisted_fate_SpellScript();
+        }
+};
+
+// Twisted Fate (second) - 137964
+class spell_second_twisted_fate : public SpellScriptLoader
+{
+    public:
+        spell_second_twisted_fate() :  SpellScriptLoader("spell_second_twisted_fate") { }
+
+        class spell_second_twisted_fate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_second_twisted_fate_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                uint64 targetGuid = 0;
+
+                if (Unit* caster = GetCaster())
+                    if (Creature* twistedFate = caster->ToCreature())
+                    {
+                        targetGuid = CAST_AI(mob_second_twisted_fate::mob_second_twisted_fateAI, twistedFate->AI())->summonerGuid;
+
+                        if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
+                            twistedFate->CastSpell(target, SPELL_TWISTED_FATE_SECOND_MORPH, false);
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_second_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_second_twisted_fate_SpellScript();
+        }
+};
+
+// Twisted Fate (damage) - 137972
+class spell_twisted_fate_damage : public SpellScriptLoader
+{
+    public:
+        spell_twisted_fate_damage() :  SpellScriptLoader("spell_twisted_fate_damage") { }
+
+        class spell_twisted_fate_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_twisted_fate_damage_SpellScript);
+
+            void DealDamage()
+            {
+                Unit* caster = GetCaster();
+                uint16 distance = 0;
+                float distanceMax = 0;
+
+                if (!caster)
+                    return;
+
+                if (Creature* twistedFate = caster->ToCreature())
+                {
+                    if (twistedFate->GetEntry() == NPC_FIRST_TWISTED_FATE)
+                    {
+                        if (Creature* creature = GetClosestCreatureWithEntry(twistedFate, NPC_SECOND_TWISTED_FATE, 200.0f))
+                        {
+                            distance = creature->GetDistance(twistedFate);
+                            distanceMax = CAST_AI(mob_first_twisted_fate::mob_first_twisted_fateAI, twistedFate->AI())->distanceMax;
+                        }
+                    }
+
+                    else if (twistedFate->GetEntry() == NPC_SECOND_TWISTED_FATE)
+                    {
+                        if (Creature* creature = GetClosestCreatureWithEntry(twistedFate, NPC_FIRST_TWISTED_FATE, 200.0f))
+                        {
+                            distance = creature->GetDistance(twistedFate);
+                            distanceMax = CAST_AI(mob_second_twisted_fate::mob_second_twisted_fateAI, twistedFate->AI())->distanceMax;
+                        }
+                    }
+
+                    if (distance >= 0.0f && distance <= distanceMax)
+                        SetHitDamage(100000.0f + int32(250000.0f * (distance / distanceMax)));
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_twisted_fate_damage_SpellScript::DealDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_twisted_fate_damage_SpellScript();
+        }
 };
 
 void AddSC_boss_council_of_elders()
@@ -2132,6 +2660,11 @@ void AddSC_boss_council_of_elders()
     new boss_kazra_jin();
     new boss_sul_the_sandcrawler();
     new boss_high_priestress_mar_li();
+    new mob_living_sand();
+    new mob_blessed_loa_spirit();
+    new mob_shadowed_lua_spirit();
+    new mob_first_twisted_fate();
+    new mob_second_twisted_fate();
     new spell_reckless_charge_rolling();
     new spell_reckless_charge_movement();
     new spell_frigid_assault();
@@ -2139,11 +2672,13 @@ void AddSC_boss_council_of_elders()
     new spell_biting_cold_malakk();
     new spell_frosbite_malakk();
     new spell_frosbite_malakk_aura();
-    new spell_overload_kazra_jin();
+    new spell_overload_discharge_kazra_jin();
     new spell_ensnared();
     new spell_sandstorm();
     new spell_dark_power();
-    new mob_living_sand();
-    new mob_blessed_loa_spirit();
-    new mob_shadowed_lua_spirit();
+    new spell_soul_fragment();
+    new spell_soul_fragment_switch();
+    new spell_first_twisted_fate();
+    new spell_second_twisted_fate();
+    new spell_twisted_fate_damage();
 }
