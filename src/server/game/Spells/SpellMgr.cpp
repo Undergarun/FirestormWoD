@@ -3498,6 +3498,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137133: // Reckless Charge
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
             case 137117: // Reckless Charge (Rolling)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
@@ -4522,12 +4523,27 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
+            case 123713:// Servant of the Empress
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             case 123255:// Dissonance Field
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_DUMMY; // Cancel triggering 123596 (knock back)
                 break;
+            case 126121:// Corrupted Dissonance Field
+                spellInfo->Effects[3].Effect = SPELL_EFFECT_DUMMY; // Same as previous spell (123255);
             case 124845:// Calamity
                 spellInfo->Effects[0].BasePoints = 50;
                 spellInfo->Effects[1].BasePoints = 50;
+                break;
+            case 126125:// Corrupt Dissonance Field
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_TARGET_ALLY;
+                break;
+            case 123638:// Heart of fear
+                spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 125451:// Ultimate Corruption
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;

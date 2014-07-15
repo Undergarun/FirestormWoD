@@ -76,7 +76,7 @@ enum eTsulongSpells
 
 enum eTsulongTimers
 {
-    TIMER_FIRST_WAYPOINT  = 5000, // 5 secs for test, live : 120 000
+    TIMER_FIRST_WAYPOINT  =  5000, // 5 secs for test, live : 120 000
     TIMER_SHADOW_BREATH   = 25000,
     TIMER_NIGHTMARES      = 11600,
     TIMER_DARK_OF_NIGHT   = 30000,
@@ -86,7 +86,7 @@ enum eTsulongTimers
     TIMER_TERRORIZE       = 13500,
     TIMER_FRIGHT          =  6000,
     TIMER_UNSTABLE_SHA    = 18000,
-    TIMER_BOLT            = 2000,
+    TIMER_BOLT            =  2000,
 };
 
 enum eTsulongPhase
@@ -135,6 +135,7 @@ enum eTsulongTexts
     VO_TES_SERPENT_SPELL_NIGGHTMARE = 7
 };
 
+// 62442 - Tsulong
 class boss_tsulong : public CreatureScript
 {
     public:
@@ -182,6 +183,8 @@ class boss_tsulong : public CreatureScript
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 phase = PHASE_NONE;
                 events.SetPhase(PHASE_NONE);
 
@@ -348,10 +351,16 @@ class boss_tsulong : public CreatureScript
             void EndOfFight()
             {
                 Talk(VO_TES_SERPENT_DEATH);
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                pInstance->SetBossState(DATA_TSULONG, DONE);
+                if (pInstance)
+                {
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->SetBossState(DATA_TSULONG, DONE);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
+                }
                 me->ReenableEvadeMode();
                 me->ReenableHealthRegen();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->CombatStop();
                 EnterEvadeMode();
 
@@ -567,7 +576,7 @@ class boss_tsulong : public CreatureScript
                             me->GetRandomNearPosition(pos, 45.0f);
                             if (Creature* embodiedTerror = me->SummonCreature(EMBODIED_TERROR, pos))
                                 embodiedTerror->GetMotionMaster()->MovePoint(1, -1010.239f, -3043.97f, 12.82f);
-                            events.ScheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR-25000, 0, PHASE_DAY);
+                            events.ScheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR, 0, PHASE_DAY);
                             break;
                         case EVENT_UNSTABLE_SHA:
                         {
@@ -582,7 +591,7 @@ class boss_tsulong : public CreatureScript
                                 for (uint32 i = 0; i < (dummysRands.size() < 3 ? dummysRands.size() : 3); i++)
                                     me->CastSpell(dummysRands[i], SPELL_SUMMON_UNSTABLE_SHA, false);
                             }
-                            events.ScheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA-10000, 0, PHASE_DAY);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA, 0, PHASE_DAY);
                             break;
                         }
                         default:
@@ -608,6 +617,7 @@ class boss_tsulong : public CreatureScript
         }
 };
 
+// 62849 - Sunbeam
 class npc_sunbeam : public CreatureScript
 {
     public:
@@ -663,6 +673,7 @@ class npc_sunbeam : public CreatureScript
         }
 };
 
+// 63446 - The Dark of Night
 class npc_dark_of_night : public CreatureScript
 {
     public:
@@ -744,6 +755,7 @@ class npc_dark_of_night : public CreatureScript
         }
 };
 
+// 62979 - Embodied Terror
 class npc_embodied_terror : public CreatureScript
 {
     public:
@@ -803,6 +815,7 @@ class npc_embodied_terror : public CreatureScript
         }
 };
 
+// 62977 - Fright Spawn
 class npc_tiny_terror : public CreatureScript
 {
     public:
@@ -848,6 +861,7 @@ class npc_tiny_terror : public CreatureScript
         }
 };
 
+// 62919 - Unstable Sha
 class npc_unstable_sha : public CreatureScript
 {
     public:
@@ -920,7 +934,7 @@ class npc_unstable_sha : public CreatureScript
                     if (plrRands.size())
                     {
                         me->CastSpell(plrRands[0], SPELL_BOLT, false);
-                        me->DealDamage(me, 0.15*me->GetMaxHealth());
+                        me->DealDamage(me, 0.15 * me->GetMaxHealth());
                     }
                     boltTimer = TIMER_BOLT;
                 }
@@ -935,7 +949,7 @@ class npc_unstable_sha : public CreatureScript
         }
 };
 
-// 125843, jam spell ?
+// 125843, jam spell ? - Dread Shadows
 class spell_dread_shadows_damage : public SpellScriptLoader
 {
     public:
@@ -976,7 +990,7 @@ class DreadShadowsTargetCheck
         }
 };
 
-// 122768
+// 122768 - Dread Shadows
 class spell_dread_shadows_malus : public SpellScriptLoader
 {
     public:
@@ -1005,7 +1019,7 @@ class spell_dread_shadows_malus : public SpellScriptLoader
         }
 };
 
-// 122789
+// 122789 - Sunbeam
 class spell_sunbeam : public SpellScriptLoader
 {
     public:
@@ -1084,7 +1098,7 @@ class spell_sunbeam : public SpellScriptLoader
         }
 };
 
-// 122855
+// 122855 - Sun Breath
 class spell_sun_breath : public SpellScriptLoader
 {
     public:
@@ -1117,7 +1131,7 @@ class spell_sun_breath : public SpellScriptLoader
         }
 };
 
-// 123018 
+// 123018 - Terrorize
 class spell_terrorize_player : public SpellScriptLoader
 {
     public:
@@ -1147,7 +1161,7 @@ class spell_terrorize_player : public SpellScriptLoader
             return new spell_terrorize_player_SpellScript();
         }
 };
-// 123697
+// 123697 - Instability
 class spell_instability : public SpellScriptLoader
 {
     public:
@@ -1182,16 +1196,16 @@ class spell_instability : public SpellScriptLoader
 
 void AddSC_boss_tsulong()
 {
-    new boss_tsulong();
-    new npc_sunbeam();
-    new npc_dark_of_night();
-    new npc_embodied_terror();
-    new npc_tiny_terror();
-    new npc_unstable_sha();
-    new spell_dread_shadows_damage();
-    new spell_dread_shadows_malus();
-    new spell_sunbeam();
-    new spell_sun_breath();
-    new spell_terrorize_player();
-    new spell_instability();
+    new boss_tsulong();                 // 62442
+    new npc_sunbeam();                  // 62849
+    new npc_dark_of_night();            // 63346
+    new npc_embodied_terror();          // 62969
+    new npc_tiny_terror();              // 62977
+    new npc_unstable_sha();             // 62919
+    new spell_dread_shadows_damage();   // 125843
+    new spell_dread_shadows_malus();    // 122768
+    new spell_sunbeam();                // 122789
+    new spell_sun_breath();             // 122855
+    new spell_terrorize_player();       // 123018
+    new spell_instability();            // 123697
 }

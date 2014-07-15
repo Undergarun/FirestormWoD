@@ -406,6 +406,7 @@ public:
                 instance->SetBossState(DATA_GARALON, DONE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_AURA); // Remove Pheromones.
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PUNGENCY);
             }
 
             fightInProgress = false;

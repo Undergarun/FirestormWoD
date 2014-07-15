@@ -54,6 +54,7 @@ enum eShekzeedAdds
     NPC_SHA_OF_FEAR                 = 63942,
     NPC_STICKY_RESIN                = 63730,
     NPC_AMBER_TRAP                  = 64351,
+    NPC_HEART_OF_FEAR               = 63445,
 };
 
 enum eShekzeerSpells
@@ -64,6 +65,7 @@ enum eShekzeerSpells
     SPELL_ADVANCE                   = 125304,
     SPELL_END_ADVANCE               = 125306,
     SPELL_SUMMON_DISSONANCE         = 124856,
+    SPELL_CORRUPT_FIELD             = 126125, // Heroic mode only
     SPELL_SHA_AURA_DISSONANCE       = 125296,
     SPELL_SHA_DISSONANCE            = 123819,
     SPELL_CRY_OF_TERROR             = 123788,
@@ -77,6 +79,8 @@ enum eShekzeerSpells
     SPELL_CALAMITY                  = 124845,
     SPELL_AMASSING_DARKNESS         = 124842,
     SPELL_AMASSING_DMG              = 124844,
+    SPELL_HOF_CHANNELING            = 123845,
+    SPELL_HOF_SUMMON                = 123846, // Heroic mode only
 
     // --- Set'thik Windblade ---
     SPELL_FIXATE                    = 125390,
@@ -112,6 +116,11 @@ enum eShekzeerSpells
     // --- Sha of fear ---
     SPELL_SHA_OF_FEAR               = 124905,
     SPELL_ULTIMATE_CORRUPTION       = 125451,
+
+    // --- Heart of Fear - Heroic mode ---
+    SPELL_HOF_VISUAL                = 123840,
+    SPELL_HOF_DMG                   = 125638,
+    SPELL_HOF_RAY                   = 130680,
 };
 
 enum eShekzeerEvents
@@ -120,6 +129,7 @@ enum eShekzeerEvents
     EVENT_CHANGE_PHASE = 1, // Switching to phase 1 when in phase 2 after 150 secs
     EVENT_POWER_DECREASE,   // In phase 1, power decrease by 1 every second
     EVENT_DISSONANCE_FIELDS,
+    EVENT_CORRUPT_FIELD,    // Heroic mode only
     EVENT_CRY_OF_TERROR,
     EVENT_EYES_OF_THE_EMPRESS,
     EVENT_DREAD_SCREECH,
@@ -130,6 +140,7 @@ enum eShekzeerEvents
     EVENT_AMASSING_DARKNESS,
     EVENT_LOAD_PHASE,
     EVENT_CLOSE_CHAMBER,
+    EVENT_SUMMON_HOF,       // Heroic mode only
     EVENT_BERSERK,          // 9 min in normal mode, 15 in heroic
 
     // Set'thik Windblade
@@ -151,6 +162,10 @@ enum eShekzeerEvents
     
     // Sha of Fear
     EVENT_LEAVING,
+
+    // Heart of fear
+    EVENT_HOF_ATTACK,
+    EVENT_HOF_DESTROY,
 };
 
 enum eShekzeerActions
@@ -222,6 +237,7 @@ class boss_shekzeer : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
             uint8 phase;
+            uint8 cryCount;
             bool fightInProgress;
             bool isWipe;
             bool loaded;
@@ -234,7 +250,8 @@ class boss_shekzeer : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
-                phase = 0;
+                phase    = 0;
+                cryCount = 0;
                 fightInProgress  = false;
                 isWipe           = false;
                 introDone        = false;
@@ -250,6 +267,7 @@ class boss_shekzeer : public CreatureScript
                 isInChamber = true;
             }
 
+            // Returns true if all trash are done, else returns false
             bool CheckTrash()
             {
                 if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_WARSINGER, 200.0f))
@@ -300,10 +318,10 @@ class boss_shekzeer : public CreatureScript
                 AttackStart(attacker);
 
                 events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
-                events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000)); // Deactivated for test purpose
                 events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
                 events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
-                events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 540000);
+                events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 480000); // 15 min in HM, 8 min in NM
                 events.ScheduleEvent(EVENT_CLOSE_CHAMBER, 5000);
                 events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
             }
@@ -331,6 +349,7 @@ class boss_shekzeer : public CreatureScript
                     sha->AI()->DoAction(ACTION_WITHDRAW);
 
                 phase = 0;
+                cryCount = 0;
                 if (pInstance)
                 {
                     pInstance->SetBossState(DATA_SHEKZEER, DONE);
@@ -340,6 +359,8 @@ class boss_shekzeer : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VISIONS_OF_DEMISE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMASSING_DARKNESS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT_SERVANT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STICKY_RESIN);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STICKY_RESIN_VISUAL);
                 }
 
                 fightInProgress = false;
@@ -381,8 +402,8 @@ class boss_shekzeer : public CreatureScript
                 summons.DespawnAll();
                 // Reset variables
                 phase = 0;
+                cryCount = 0;
                 fightInProgress  = false;
-                isWipe           = false;
                 introDone        = false;
                 aggroTalkDone    = false;
                 hasRequiredPower = false;
@@ -438,7 +459,9 @@ class boss_shekzeer : public CreatureScript
                     events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 6000);
                     events.ScheduleEvent(EVENT_CALAMITY, 10000);
                     events.ScheduleEvent(EVENT_SHA_ENERGY, 15000);
-                    events.ScheduleEvent(EVENT_AMASSING_DARKNESS, 22000);
+                    events.ScheduleEvent(EVENT_AMASSING_DARKNESS, 2000);
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_SUMMON_HOF, urand(10000, 15000));
 
                     // Breaking the chrysalid
                     if (GameObject* chrysalid = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_EMPRESS_CHAMBER)))
@@ -569,6 +592,7 @@ class boss_shekzeer : public CreatureScript
                         // Phase 2 activated
                         events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
                         phase = 2;
+                        cryCount = 0;
                         break;
                     }
                     // Combat position
@@ -617,8 +641,12 @@ class boss_shekzeer : public CreatureScript
                         isWipe = true;
                         return;
                     }
-                    else if (isWipe)
+                    else if (!pInstance->IsWipe() && isWipe)
+                    {
                         isWipe = false;
+                        if (isInChamber)
+                            DoAction(ACTION_COMBAT);
+                    }
                 }
 
                 if (!loaded)
@@ -684,14 +712,31 @@ class boss_shekzeer : public CreatureScript
                         }
                         case EVENT_DISSONANCE_FIELDS:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            // We can only summon Dissonance Fields if no other field remains
+                            if (!GetClosestCreatureWithEntry(me, NPC_DISSONANCE_FIELD, 200.0f))
                             {
-                                me->CastSpell(target, SPELL_SUMMON_DISSONANCE, true);
-                                me->CastSpell(target, SPELL_SUMMON_DISSONANCE, true);
-                                DoCast(me, SPELL_SHA_AURA_DISSONANCE);
-                                DoCast(me, SPELL_SHA_DISSONANCE);
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                {
+                                    me->CastSpell(target, SPELL_SUMMON_DISSONANCE, true);
+                                    me->CastSpell(target, SPELL_SUMMON_DISSONANCE, true);
+                                    DoCast(me, SPELL_SHA_AURA_DISSONANCE);
+                                    DoCast(me, SPELL_SHA_DISSONANCE);
+                                }
+                                events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
+                                if (IsHeroic())
+                                    events.ScheduleEvent(EVENT_CORRUPT_FIELD, urand(10000, 20000));
                             }
-                            events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
+                            else
+                                events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 1000);
+                            break;
+                        }
+                        // Heroic mode
+                        case EVENT_CORRUPT_FIELD:
+                        {
+                            std::list<Creature*> fieldList;
+                            GetCreatureListWithEntryInGrid(fieldList, me, NPC_DISSONANCE_FIELD, 200.0f);
+                            JadeCore::RandomResizeList(fieldList, 1);
+                            DoCast(fieldList.front(), SPELL_CORRUPT_FIELD);
                             break;
                         }
                         case EVENT_CRY_OF_TERROR:
@@ -705,36 +750,29 @@ class boss_shekzeer : public CreatureScript
                                 std::list<Player*>::iterator itr, next;
                                 itr = playerList.begin();
                                 Player* target = 0;
-                                bool canFind = true;
 
-                                while (!target && canFind)
+                                // Removing tanks, DPS & hunters
+                                for (itr = playerList.begin(); itr != playerList.end(); itr = next)
                                 {
                                     next = itr;
                                     ++next;
 
-                                    // Target must not be a Tank, a melee DPS or a hunter
                                     if ((*itr)->GetRoleForGroup() == ROLES_TANK ||
                                         (*itr)->GetRoleForGroup() == ROLES_DPS  ||
                                         (*itr)->getClass() == CLASS_HUNTER)
-                                    {
                                         playerList.remove(*itr);
-                                        if (playerList.empty())
-                                            canFind = false;
-                                    }
-                                    else if (urand(0, 1))
-                                        target = *itr;
-
-                                    itr = next;
-                                    if (itr == playerList.end())
-                                        itr = playerList.begin();
                                 }
 
-                                if (!target)
+                                if (!playerList.size())
                                     break;
 
-                                DoCast(target, SPELL_CRY_OF_TERROR);
+                                JadeCore::RandomResizeList(playerList, 1);
+
+                                me->AddAura(SPELL_CRY_OF_TERROR, playerList.front());
                                 Talk(SAY_SPELL_CRY);
                             }
+                            if (++cryCount < 4)
+                                events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                             break;
                         }
                         // --- Phase 2 events ---
@@ -752,32 +790,7 @@ class boss_shekzeer : public CreatureScript
                         }
                         case EVENT_VISIONS_OF_DEMISE:
                         {
-                            uint8 maxTarget = Is25ManRaid() ? 5 : 2;
-                            std::list<Player*> playerList;
-
-                            GetPlayerListInGrid(playerList, me, 200.0f);
-
-                            if (playerList.size() > maxTarget)
-                            {
-                                std::list<Player*>::iterator itr, next;
-                                itr = playerList.begin();
-
-                                // Reducing playerlist until it matches the number of targets
-                                while (playerList.size() > maxTarget)
-                                {
-                                    next = itr;
-                                    ++next;
-
-                                    if (urand(0, 1))
-                                        playerList.remove(*itr);
-
-                                    itr = next;
-                                }
-                            }
-
-                            for (Player* player : playerList)
-                                me->CastSpell(player, SPELL_VISIONS_OF_DEMISE, true);
-
+                            DoCast(SPELL_VISIONS_OF_DEMISE);
                             events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, urand(15000, 20000));
                             break;
                         }
@@ -790,6 +803,19 @@ class boss_shekzeer : public CreatureScript
                         case EVENT_AMASSING_DARKNESS:
                         {
                             DoCast(SPELL_AMASSING_DARKNESS);
+                            break;
+                        }
+                        // Heroic mode only
+                        case EVENT_SUMMON_HOF:
+                        {
+                            // We can only have one HOF at a time
+                            if (!GetClosestCreatureWithEntry(me, NPC_HEART_OF_FEAR, 100.0f))
+                            {
+                                DoCast(SPELL_HOF_SUMMON);
+                                events.ScheduleEvent(EVENT_SUMMON_HOF, urand(10000, 15000));
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_SUMMON_HOF, 5000);
                             break;
                         }
                         case EVENT_BERSERK:
@@ -1300,6 +1326,7 @@ class mob_dissonance_field : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
                 events.ScheduleEvent(EVENT_CHECK_CAST, 1000);
+                me->DisableHealthRegen();
 
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 200.0f);
@@ -1399,7 +1426,7 @@ class mob_sha_of_fear : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32 &damage)
             {
-                damage =  0;
+                damage = 0;
             }
 
             void DoAction(const int32 action)
@@ -1411,7 +1438,6 @@ class mob_sha_of_fear : public CreatureScript
                     {
                         me->SetDisplayId(me->GetNativeDisplayId());
                         DoCast(SPELL_SHA_OF_FEAR);
-                        Talk(SAY_LAST_PHASE);
                         break;
                     }
                     // Entering in phase 2 : disappearing
@@ -1425,6 +1451,7 @@ class mob_sha_of_fear : public CreatureScript
                     {
                         if (Creature* shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
                             me->CastSpell(shekzeer, SPELL_ULTIMATE_CORRUPTION, true);
+                        Talk(SAY_LAST_PHASE);
                         break;
                     }
                     // Shek'zeer defeated, fleeing away
@@ -1453,7 +1480,7 @@ class mob_sha_of_fear : public CreatureScript
                         me->SetDisableGravity(true);
                         me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
 
-                        me->GetMotionMaster()->MoveTakeoff(2, highPos);
+                        me->GetMotionMaster()->MovePoint(2, highPos);
                         break;
                     }
                     // Flying to the roof and breaking the ceiling
@@ -1502,6 +1529,73 @@ class mob_sha_of_fear : public CreatureScript
         }
 };
 
+// 63445 - Heart of fear
+class mob_heart_of_fear : public CreatureScript
+{
+public:
+    mob_heart_of_fear() : CreatureScript("mob_heart_of_fear") { }
+
+    struct mob_heart_of_fearAI : public ScriptedAI
+    {
+        mob_heart_of_fearAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+            if (!me->HasAura(SPELL_HOF_VISUAL))
+                me->AddAura(SPELL_HOF_VISUAL, me);
+
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+            events.ScheduleEvent(EVENT_HOF_ATTACK, 3000);
+            events.ScheduleEvent(EVENT_HOF_DESTROY, urand(10000, 20000));
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_HOF_ATTACK:
+                    {
+                        std::list<Player*> playerList;
+                        GetPlayerListInGrid(playerList, me, 200.0f);
+                        JadeCore::RandomResizeList(playerList, 1);
+
+                        if (!playerList.empty())
+                            me->CastSpell(playerList.front(), SPELL_HOF_DMG, true);
+
+                        events.ScheduleEvent(EVENT_HOF_ATTACK, urand(2000, 3000));
+                        break;
+                    }
+                    case EVENT_HOF_DESTROY:
+                    {
+                        events.Reset();
+                        me->DespawnOrUnsummon(1000);
+                        me->RemoveAura(SPELL_HOF_VISUAL);
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_heart_of_fearAI(creature);
+    }
+};
+
 // 123707 - Eyes of the empress
 class spell_eyes_of_the_empress : public SpellScriptLoader
 {
@@ -1521,9 +1615,10 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
                     {
                         if (Unit* caster = GetCaster())
                         {
-                            target->CastSpell(target, SPELL_SERVANT_OF_THE_EMPRESS, false);
-                            if (Creature* shekzeer = target->GetInstanceScript()->instance->GetCreature(target->GetInstanceScript()->GetData64(NPC_SHEKZEER)))
-                                shekzeer->AI()->Talk(SAY_SPELL_SERVANT);
+                            caster->CastSpell(target, SPELL_SERVANT_OF_THE_EMPRESS, false);
+                            target->CastSpell(caster, SPELL_CONVERT_SERVANT, false);
+                            if (caster->GetEntry() == NPC_SHEKZEER)
+                                caster->ToCreature()->AI()->Talk(SAY_SPELL_SERVANT);
                         }
                     }
                 }
@@ -1539,6 +1634,35 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
         {
             return new spell_eyes_of_the_empress_SpellScript();
         }
+};
+
+// 123713 - Servant of the Empress
+class spell_servant_of_the_empress : public SpellScriptLoader
+{
+public:
+    spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
+
+    class spell_servant_of_the_empress_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_servant_of_the_empress_SpellScript);
+
+        void Charm(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(caster, SPELL_SERVANT_OF_THE_EMPRESS, false);
+        }
+
+        void Register()
+        {
+            OnEffectLaunch += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_servant_of_the_empress_SpellScript();
+    }
 };
 
 // 123792 - Cry of Terror
@@ -1604,6 +1728,7 @@ class spell_amassing_darkness : public SpellScriptLoader
                     std::list<Player*> extendList;
                     GetPlayerListInGrid(playerList, caster, 200.0f);
 
+                    // Keeping only non affected players
                     for (Player* player : playerList)
                     {
                         // Cast damage spell on player who are "marked" with amassing darkness aura
@@ -1616,17 +1741,8 @@ class spell_amassing_darkness : public SpellScriptLoader
 
                     if (!extendList.empty())
                     {
-                        bool searching = true;
-                        std::list<Player*>::iterator itr = extendList.begin();
-
-                        while (searching)
-                        {
-                            if (urand(0, 1))
-                            {
-                                caster->CastSpell(*itr, SPELL_AMASSING_DARKNESS, true);
-                                searching = false;
-                            }
-                        }
+                        JadeCore::RandomResizeList(extendList, 1);
+                        caster->CastSpell(extendList.front(), SPELL_AMASSING_DARKNESS, true);
                     }
                 }
             }
@@ -1640,34 +1756,6 @@ class spell_amassing_darkness : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_amassing_darkness_SpellScript();
-        }
-};
-
-// 123723 - Servant of the Empress
-class spell_servant_of_the_empress : public SpellScriptLoader
-{
-    public:
-        spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
-
-        class spell_servant_of_the_empress_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_servant_of_the_empress_SpellScript);
-
-            void Transform(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_CONVERT_SERVANT, false);
-            }
-
-            void Register()
-            {
-                OnEffectHit += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Transform, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_servant_of_the_empress_SpellScript();
         }
 };
 
@@ -1699,6 +1787,57 @@ class spell_calamity : public SpellScriptLoader
         }
 };
 
+// 124862 - Visions of Demise
+class spell_visions_of_demise : public SpellScriptLoader
+{
+    public:
+        spell_visions_of_demise() : SpellScriptLoader("spell_visions_of_demise") { }
+
+        class spell_visions_of_demise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_visions_of_demise_SpellScript);
+
+            void SelectTargets(std::list<WorldObject*> &targets)
+            {
+                // Starting form
+                targets.clear();
+
+                if (Unit* caster = GetCaster())
+                {
+                    // Crash purpose, shouldn't happen
+                    if (!caster->GetInstanceScript())
+                        return;
+
+                    // Retreiving players in action radius
+                    std::list<Player*> playerList;
+                    GetPlayerListInGrid(playerList, caster, 200.0f);
+
+                    if (playerList.size())
+                    {
+                        // Resizing the list to the wanted length
+                        uint8 maxTarget = caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2;
+                        if (playerList.size() >= maxTarget)
+                            JadeCore::RandomResizeList(playerList, maxTarget);
+
+                        // Adding the players in the targets list
+                        for (Player* plr : playerList)
+                            targets.push_back(plr);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_visions_of_demise_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_visions_of_demise_SpellScript();
+        }
+};
+
 void AddSC_boss_shekzeer()
 {
     new boss_shekzeer();                // 62837 - Shek'zeer
@@ -1708,9 +1847,11 @@ void AddSC_boss_shekzeer()
     new mob_amber_trap();               // 64351 - Amber trap
     new mob_dissonance_field();         // 62847 - Dissonance Field
     new mob_sha_of_fear();              // 63942 - Sha of Fear
+    new mob_heart_of_fear();            // 63445 - Heart of fear
     new spell_eyes_of_the_empress();    // 123707 - Eyes of the empress
+    new spell_servant_of_the_empress(); // 123713 - Servant of the empress
     new spell_cry_of_terror();          // 123792 - Cry of terror
-    new spell_servant_of_the_empress(); // 123723 - Servant of the empress
     new spell_amassing_darkness();      // 124843 - Amassing Darkness
     new spell_calamity();               // 124845 - Calamity
+    new spell_visions_of_demise();      // 124862 - Visions of Demise
 }
