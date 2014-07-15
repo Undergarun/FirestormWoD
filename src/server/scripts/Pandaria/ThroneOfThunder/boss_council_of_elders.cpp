@@ -74,10 +74,9 @@ enum eSpells
     SPELL_TREACHEROUS_GROUND_RESIZE      = 137629,
     SPELL_TWISTED_FATE_PRINCIPAL         = 137891,
     SPELL_TWISTED_FATE_SECOND_PRINCIPAL  = 137962,
-    SPELL_TWISTED_FATE_FIRST_MORPH       = 137950,
-    SPELL_TWISTED_FATE_SECOND_MORPH      = 137965,
     SPELL_TWISTED_FATE_LINK_VISUAL       = 137967,
-    SPELL_TWISTED_FATE_PERIODIC          = 137986
+    SPELL_TWISTED_FATE_PERIODIC          = 137986,
+    SPELL_SHADOW_VISUAL                  = 32395
 };
 
 enum eEvents
@@ -164,6 +163,17 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
             garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
 }
 
+bool isAlonePossessed(Creature* me, InstanceScript* instance)
+{
+    uint32 bossEntries[4] = {NPC_FROST_KING_MALAKK, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_SUL_THE_SANDCRAWLER, NPC_KAZRA_JIN};
+    for (uint32 entry : bossEntries)
+        if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+            if (!boss->HasAura(SPELL_POSSESSED))
+                return false;
+
+    return true;
+}
+
 // Gara'Jal's Soul - 69182
 class npc_gara_jal_s_soul : public CreatureScript
 {
@@ -245,7 +255,8 @@ class npc_gara_jal_s_soul : public CreatureScript
                     case EVENT_LINGERING_PRESENCE_MALAKK:
                         if (Creature* malakk = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FROST_KING_MALAKK)))
                         {
-                            me->AddAura(SPELL_POSSESSED, malakk);
+                            if (isAlonePossessed)
+                                me->AddAura(SPELL_POSSESSED, malakk);
 
                             if (malakk->GetAI())
                                 malakk->AI()->DoAction(ACTION_SCHEDULE_FROSTBITE);
@@ -254,13 +265,15 @@ class npc_gara_jal_s_soul : public CreatureScript
                     case EVENT_LINGERING_PRESENCE_KAZRA_JIN:
                         if (Creature* kazraJin = pInstance->instance->GetCreature(pInstance->GetData64(NPC_KAZRA_JIN)))
                         {
-                            me->AddAura(SPELL_POSSESSED, kazraJin);
+                            if (isAlonePossessed)
+                                me->AddAura(SPELL_POSSESSED, kazraJin);
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS:
                         if (Creature* priestress = pInstance->instance->GetCreature(pInstance->GetData64(NPC_HIGH_PRIESTRESS_MAR_LI)))
                         {
-                            me->AddAura(SPELL_POSSESSED, priestress);
+                            if (isAlonePossessed)
+                                me->AddAura(SPELL_POSSESSED, priestress);
 
                             if (priestress->GetAI())
                             {
@@ -272,7 +285,8 @@ class npc_gara_jal_s_soul : public CreatureScript
                     case EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER:
                         if (Creature* sul = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
                         {
-                            me->AddAura(SPELL_POSSESSED, sul);
+                            if (isAlonePossessed)
+                                me->AddAura(SPELL_POSSESSED, sul);
 
                             if (sul->GetAI())
                                 sul->AI()->DoAction(ACTION_SCHEDULE_SANDSTROM);
@@ -930,7 +944,7 @@ class boss_kazra_jin : public CreatureScript
                         break;
                     case EVENT_RECKLESS_CHARGE_AREATRIGGER:
                             me->CastSpell(me, SPELL_RECKLESS_CHARGE_AREATRIGGER, false);
-                            me->SummonCreature(69453, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                            me->SummonCreature(NPC_RECKLESS_CHARGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                             hasSpawned = false;
                         break;
                     case EVENT_RECKLESS_CHARGE_AREATRIGGER_DMG:
@@ -1020,7 +1034,19 @@ class boss_sul_the_sandcrawler : public CreatureScript
                 std::list<Creature*> livingSandList;
                 GetCreatureListWithEntryInGrid(livingSandList, me, NPC_LIVING_SAND, 200.0f);
 
+                std::list<Creature*> firstTwistedFateList;
+                GetCreatureListWithEntryInGrid(firstTwistedFateList, me, NPC_FIRST_TWISTED_FATE, 200.0f);
+
+                std::list<Creature*> secondTwistedFateList;
+                GetCreatureListWithEntryInGrid(secondTwistedFateList, me, NPC_SECOND_TWISTED_FATE, 200.0f);
+
                 for (auto creature : livingSandList)
+                    creature->DespawnOrUnsummon();
+
+                for (auto creature : firstTwistedFateList)
+                    creature->DespawnOrUnsummon();
+
+                for (auto creature : secondTwistedFateList)
                     creature->DespawnOrUnsummon();
 
                 if (pInstance)
@@ -1281,6 +1307,8 @@ class mob_first_twisted_fate : public CreatureScript
                 linkTimer    = 0;
                 summonerGuid = 0;
                 visualLinked = false;
+                me->SetReactState(REACT_PASSIVE);
+                me->AddAura(SPELL_SHADOW_VISUAL , me);
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -1339,6 +1367,8 @@ class mob_second_twisted_fate : public CreatureScript
                 summonerGuid   = 0;
                 distanceMax    = 0;
                 visualLinked = false;
+                me->SetReactState(REACT_PASSIVE);
+                me->AddAura(SPELL_SHADOW_VISUAL , me);
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -1716,6 +1746,9 @@ class mob_living_sand : public CreatureScript
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFullHealth();
+
+                if (me->HasAura(SPELL_FORTIFIED))
+                    me->RemoveAura(SPELL_FORTIFIED);
 
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 7.0f);
@@ -2545,7 +2578,7 @@ class spell_first_twisted_fate : public SpellScriptLoader
                         targetGuid = CAST_AI(mob_first_twisted_fate::mob_first_twisted_fateAI, twistedFate->AI())->summonerGuid;
 
                         if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
-                            twistedFate->CastSpell(target, SPELL_TWISTED_FATE_FIRST_MORPH, false);
+                            twistedFate->SetDisplayId(target->GetDisplayId());
                     }
             }
 
@@ -2581,7 +2614,7 @@ class spell_second_twisted_fate : public SpellScriptLoader
                         targetGuid = CAST_AI(mob_second_twisted_fate::mob_second_twisted_fateAI, twistedFate->AI())->summonerGuid;
 
                         if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
-                            twistedFate->CastSpell(target, SPELL_TWISTED_FATE_SECOND_MORPH, false);
+                            twistedFate->SetDisplayId(target->GetDisplayId());
                     }
             }
 
