@@ -3441,6 +3441,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118335:// Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
                 break;
+            case 1329:  // Mutilate
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
             case 113828:// Healing Touch (treant)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
