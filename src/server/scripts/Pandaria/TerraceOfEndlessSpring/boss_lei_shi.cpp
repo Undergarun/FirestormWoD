@@ -131,6 +131,10 @@ class boss_lei_shi : public CreatureScript
                     return;
                 }
 
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_LEI_SHI) == DONE)
+                        FreeLeiShi();
+
                 if (leiShiFreed)
                     return;
 
@@ -284,14 +288,8 @@ class boss_lei_shi : public CreatureScript
                 if (me->HealthBelowPctDamaged(endCombatPct, damage))
                 {
                     damage = 0;
-                    me->setFaction(35);
-                    me->RemoveAllAreasTrigger();
-                    me->RemoveAllAuras();
-                    me->RestoreDisplayId();
-                    me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    FreeLeiShi();
 
-                    leiShiFreed = true;
                     Talk(TALK_DEFEATED);
 
                     if (pInstance)
@@ -331,6 +329,18 @@ class boss_lei_shi : public CreatureScript
                         if (Player* player = itr->getSource())
                             player->CombatStop();
                 }
+            }
+
+            void FreeLeiShi()
+            {
+                me->setFaction(35);
+                me->RemoveAllAreasTrigger();
+                me->RemoveAllAuras();
+                me->RestoreDisplayId();
+                me->SetFullHealth();
+                me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                leiShiFreed = true;
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -755,13 +765,9 @@ class spell_get_away_damage : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (Unit* target = GetHitUnit())
-                    {
                         if (target->isMoving() && target->isInFront(caster))
                             SetHitDamage(GetHitDamage() / 2);
-                    }
-                }
             }
 
             void Register()

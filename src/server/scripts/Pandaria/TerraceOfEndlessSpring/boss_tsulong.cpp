@@ -159,6 +159,7 @@ class boss_tsulong : public CreatureScript
             bool needToLeave;
             uint32 berserkTimer;
             uint32 leaveTimer;
+            uint32 nightTimer;
 
             void Reset()
             {
@@ -173,6 +174,7 @@ class boss_tsulong : public CreatureScript
                 needToLeave = false;
                 leaveTimer = 0;
                 berserkTimer = 60000 * 8;
+                nightTimer = 0;
 
                 me->SetDisableGravity(true);
                 me->SetCanFly(true);
@@ -362,6 +364,7 @@ class boss_tsulong : public CreatureScript
                 me->ReenableHealthRegen();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->CombatStop();
+                nightTimer = 1000;
                 EnterEvadeMode();
 
                 switch (me->GetMap()->GetSpawnMode())
@@ -433,6 +436,18 @@ class boss_tsulong : public CreatureScript
 
                 if (phase == PHASE_DAY || phase == PHASE_NIGHT)
                 {
+                    // Night effect - aura with 1.25 sec duration
+                    if (phase == PHASE_NIGHT)
+                    {
+                        if (nightTimer <= diff)
+                        {
+                            me->AddAura(SPELL_NIGHT_PHASE_EFFECT, me);
+                            nightTimer = 1000;
+                        }
+                        else
+                            nightTimer -= diff;
+                    }
+
                     if (berserkTimer <= diff)
                     {
                         DoCast(SPELL_BERSERK);
@@ -505,6 +520,8 @@ class boss_tsulong : public CreatureScript
                             if (me->GetMap()->IsHeroic())
                                 events.RescheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
                             events.RescheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
+                            me->AddAura(SPELL_NIGHT_PHASE_EFFECT, me);
+                            nightTimer = 1000;
                             break;
                         case EVENT_SPAWN_SUNBEAM:
                             Position pos;
