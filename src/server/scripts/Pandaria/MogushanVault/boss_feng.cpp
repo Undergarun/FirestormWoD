@@ -1032,7 +1032,8 @@ class mob_soul_fragment : public CreatureScript
                 {
                     // We send positive GUID to tell shield the soul has reached it, and the player should be killed
                     if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
-                        shield->AI()->DoAction(ACTION_SOUL_HOME);
+                        if (me->GetDistance(shield) < 1.0f)
+                            shield->AI()->DoAction(ACTION_SOUL_HOME);
 
                     me->DespawnOrUnsummon();
                 }

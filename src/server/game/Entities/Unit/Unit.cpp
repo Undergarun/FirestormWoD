@@ -9976,6 +9976,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 12294 && !roll_chance_i(50))
                 return false;
             break;
+        case 104428:// Elemental Force (DND)
+        {
+            if (!IsValidAttackTarget(victim))
+                return false;
+
+            break;
+        }
         // Item - Mage T13 2P Bonus (Haste)
         case 105788:
             if (!procSpell)
@@ -10616,7 +10623,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!procSpell)
                 return false;
 
-            if (procSpell->Id != 5374 && procSpell->Id != 27576)
+            if (procSpell->Id != 1329)
+                return false;
+
+            if (!roll_chance_i(30))
                 return false;
 
             break;
@@ -10974,6 +10984,21 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if (!roll_chance_i(40))
                 return false;
+
+            break;
+        }
+        case 3409:  // Crippling Poison
+        case 5760:  // Mind-numbling Poison
+        case 112961:// Leeching Poison
+        case 113952:// Paralytic Poison
+        {
+            // Shuriken Toss cannot trigger non lethal poison
+            if (procSpell)
+            {
+                if (procSpell->Id == 137584 || procSpell->Id == 137585 ||
+                    procSpell->Id == 140308 || procSpell->Id == 140309)
+                    return false;
+            }
 
             break;
         }
@@ -18772,6 +18797,9 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
             return true;
         else if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
+            return true;
+        // Hack fix Mutilate can Trigger Blindside
+        else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
             return true;
         else
             return false;
