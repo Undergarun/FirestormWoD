@@ -24938,7 +24938,18 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         // no cooldown after applying spell mods
         if (rec == 0 && catrec == 0)
+        {
+            // TODO: is charge regen time affected by any mods?
+            SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
+            if (categories && categories->ChargesCategory != 0)
+            {
+                SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+                if (category && category->ChargeRegenTime != 0)
+                    spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
+            }
+
             return;
+        }
 
         catrecTime = catrec ? curTime+catrec/IN_MILLISECONDS : 0;
         recTime    = rec ? curTime+rec/IN_MILLISECONDS : catrecTime;
@@ -24978,10 +24989,10 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 
     // TODO: is charge regen time affected by any mods?
-    auto const categories = spellInfo->GetSpellCategories();
+    SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
     if (categories && categories->ChargesCategory != 0)
     {
-        auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+        SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
         if (category && category->ChargeRegenTime != 0)
             spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
     }
@@ -30437,18 +30448,22 @@ bool Player::HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category)
     if (consumedCharges == 0)
         return true;
 
-    uint32 count = 0;
-    Unit::AuraEffectList const& mModCharge = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
-    for (Unit::AuraEffectList::const_iterator i = mModCharge.begin(); i != mModCharge.end(); ++i)
+    // Hack fix for Force of Nature bug, TODO, find a better way to check this
+    if (spellId != 33831 && spellId != 102693 && spellId != 102703 && spellId != 102706)
     {
-        if ((*i)->GetSpellInfo()->SpellFamilyFlags & sSpellMgr->GetSpellInfo(spellId)->SpellFamilyFlags)
-            ++count;
-    }
+        uint32 count = 0;
+        Unit::AuraEffectList const& mModCharge = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
+        for (Unit::AuraEffectList::const_iterator i = mModCharge.begin(); i != mModCharge.end(); ++i)
+        {
+            if ((*i)->GetSpellInfo()->SpellFamilyFlags & sSpellMgr->GetSpellInfo(spellId)->SpellFamilyFlags)
+                ++count;
+        }
 
-    // If spell is not modified, we should assume
-    // that spell doesn't use charges yet
-    if (!count)
-        return true;
+        // If spell is not modified, we should assume
+        // that spell doesn't use charges yet
+        if (!count)
+            return true;
+    }
 
     // If MaxCharges is 0 and mod is 0 (e.g. Charge without Double Time), we
     // should assume that spell has 1 charge only

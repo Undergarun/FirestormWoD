@@ -1133,7 +1133,7 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 damage = int32(GetHitDamage() * 0.30f / 6); // 30% / number_of_ticks
+                        int32 damage = int32(GetHitDamage() * 2.4f / 6); // 30% / number_of_ticks
                         caster->CastCustomSpell(target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &damage, NULL, NULL, true);
                     }
                 }

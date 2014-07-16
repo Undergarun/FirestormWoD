@@ -705,7 +705,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() != TYPEID_PLAYER)
                             break;
 
-                        if (m_caster->ToPlayer()->GetComboTarget() == unitTarget->GetGUID())
+                        if (m_caster->ToPlayer()->GetSelectedUnit() == unitTarget)
                             m_caster->ToPlayer()->AddComboPoints(unitTarget, 1);
 
                         // Fan of Knives - Vile Poisons
