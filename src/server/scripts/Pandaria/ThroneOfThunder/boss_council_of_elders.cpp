@@ -138,13 +138,13 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
     if (!instance)
         return;
 
-    if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
+    /*if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
     {
         if (me->GetAI())
             me->AI()->EnterEvadeMode();
 
         return;
-    }
+    }*/
 
     if (instance->GetBossState(DATA_CONCIL_OF_ELDERS) == IN_PROGRESS)
         return; // Prevent recursive calls
@@ -163,7 +163,7 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
             garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
 }
 
-bool isAlonePossessed(Creature* me, InstanceScript* instance)
+bool isAlonePossessed(InstanceScript* instance)
 {
     uint32 bossEntries[4] = {NPC_FROST_KING_MALAKK, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_SUL_THE_SANDCRAWLER, NPC_KAZRA_JIN};
     for (uint32 entry : bossEntries)
@@ -255,7 +255,7 @@ class npc_gara_jal_s_soul : public CreatureScript
                     case EVENT_LINGERING_PRESENCE_MALAKK:
                         if (Creature* malakk = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FROST_KING_MALAKK)))
                         {
-                            if (isAlonePossessed)
+                            if (isAlonePossessed(malakk->GetInstanceScript()))
                                 me->AddAura(SPELL_POSSESSED, malakk);
 
                             if (malakk->GetAI())
@@ -265,14 +265,14 @@ class npc_gara_jal_s_soul : public CreatureScript
                     case EVENT_LINGERING_PRESENCE_KAZRA_JIN:
                         if (Creature* kazraJin = pInstance->instance->GetCreature(pInstance->GetData64(NPC_KAZRA_JIN)))
                         {
-                            if (isAlonePossessed)
+                            if (isAlonePossessed(kazraJin->GetInstanceScript()))
                                 me->AddAura(SPELL_POSSESSED, kazraJin);
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS:
                         if (Creature* priestress = pInstance->instance->GetCreature(pInstance->GetData64(NPC_HIGH_PRIESTRESS_MAR_LI)))
                         {
-                            if (isAlonePossessed)
+                            if (isAlonePossessed(priestress->GetInstanceScript()))
                                 me->AddAura(SPELL_POSSESSED, priestress);
 
                             if (priestress->GetAI())
@@ -285,7 +285,7 @@ class npc_gara_jal_s_soul : public CreatureScript
                     case EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER:
                         if (Creature* sul = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
                         {
-                            if (isAlonePossessed)
+                            if (isAlonePossessed(sul->GetInstanceScript()))
                                 me->AddAura(SPELL_POSSESSED, sul);
 
                             if (sul->GetAI())
@@ -327,7 +327,7 @@ class boss_king_malakk : public CreatureScript
 
         struct boss_king_malakkAI : public BossAI
         {
-            boss_king_malakkAI(Creature* creature) : BossAI(creature, DATA_JIN_ROKH_THE_BREAKER)
+            boss_king_malakkAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -608,7 +608,7 @@ class boss_kazra_jin : public CreatureScript
 
         struct boss_kazra_jinAI : public BossAI
         {
-            boss_kazra_jinAI(Creature* creature) : BossAI(creature, DATA_JIN_ROKH_THE_BREAKER)
+            boss_kazra_jinAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -997,7 +997,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
         struct boss_sul_the_sandcrawlerAI : public BossAI
         {
-            boss_sul_the_sandcrawlerAI(Creature* creature) : BossAI(creature, DATA_JIN_ROKH_THE_BREAKER)
+            boss_sul_the_sandcrawlerAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -1411,7 +1411,7 @@ class boss_high_priestress_mar_li : public CreatureScript
 
         struct boss_high_priestress_mar_liAI : public BossAI
         {
-            boss_high_priestress_mar_liAI(Creature* creature) : BossAI(creature, DATA_JIN_ROKH_THE_BREAKER)
+            boss_high_priestress_mar_liAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -1877,7 +1877,7 @@ class mob_blessed_loa_spirit : public CreatureScript
                                         minBoss = boss;
                                     }
 
-                                    if (minHealth > boss->GetHealth())
+                                    if (minHealth > boss->GetHealth() && boss->isAlive())
                                     {
                                         minHealth = boss->GetHealth();
                                         minBoss = boss;
@@ -1886,8 +1886,10 @@ class mob_blessed_loa_spirit : public CreatureScript
                             }
 
                             me->GetMotionMaster()->MoveChase(minBoss, 1.0f, 1.0f);
-                            if (minBoss || bossEntry)
-                                bossEntry = minBoss->GetEntry();
+
+                            if (minBoss)
+                                if (bossEntry != minBoss->GetEntry())
+                                    bossEntry = minBoss->GetEntry();
                         }
                         break;
                     default:
