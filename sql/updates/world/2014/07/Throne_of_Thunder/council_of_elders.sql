@@ -150,6 +150,11 @@ UPDATE `creature_template` SET
 `ScriptName` = 'mob_second_twisted_fate' 
 WHERE `entry` = 69746;
 
+UPDATE `creature_template` SET
+`modelid1` = 11686,
+`modelid2` = 0
+WHERE `entry` = 69453;
+
 -- Scriptnames
 
 DELETE FROM spell_script_names WHERE spell_id IN (137131, 137117, 136904, 136467, 136917, 136990, 136922, 137149, 136878, 136895, 136507, 137643, 137641, 137166, 137943, 137964, 137972);
