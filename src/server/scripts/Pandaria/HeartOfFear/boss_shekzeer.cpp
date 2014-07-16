@@ -267,6 +267,7 @@ class boss_shekzeer : public CreatureScript
                 isInChamber = true;
             }
 
+            // Returns true if all trash are done, else returns false
             bool CheckTrash()
             {
                 if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_WARSINGER, 200.0f))
@@ -317,7 +318,7 @@ class boss_shekzeer : public CreatureScript
                 AttackStart(attacker);
 
                 events.ScheduleEvent(EVENT_DREAD_SCREECH, 6000);
-                // events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000)); // Deactivated for test purpose
+                events.ScheduleEvent(EVENT_EYES_OF_THE_EMPRESS, urand(10000, 15000)); // Deactivated for test purpose
                 events.ScheduleEvent(EVENT_DISSONANCE_FIELDS, 30000);
                 events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 480000); // 15 min in HM, 8 min in NM
@@ -641,7 +642,11 @@ class boss_shekzeer : public CreatureScript
                         return;
                     }
                     else if (!pInstance->IsWipe() && isWipe)
+                    {
                         isWipe = false;
+                        if (isInChamber)
+                            DoAction(ACTION_COMBAT);
+                    }
                 }
 
                 if (!loaded)
@@ -1321,6 +1326,7 @@ class mob_dissonance_field : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
                 events.ScheduleEvent(EVENT_CHECK_CAST, 1000);
+                me->DisableHealthRegen();
 
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 200.0f);

@@ -134,6 +134,9 @@ enum eCreatures
     NPC_GARA_JAL_SOUL               = 69182,
     NPC_LIVING_SAND                 = 69153,
     NPC_BLESSED_LOA_SPIRIT          = 69480,
+    NPC_FIRST_TWISTED_FATE          = 69740,
+    NPC_SECOND_TWISTED_FATE         = 69746,
+    NPC_RECKLESS_CHARGE             = 69453,
 
     // Tortos
     NPC_TORTOS                      = 67977,
