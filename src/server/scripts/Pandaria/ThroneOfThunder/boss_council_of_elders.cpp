@@ -46,7 +46,7 @@ enum eSpells
     SPELL_RECKLESS_CHARGE_KNOCK_BACK     = 137122,
     SPELL_OVERLOAD                       = 137149,
     SPELL_GENERIC_STUN                   = 135781,
-    // Sun
+    // Sul
     SPELL_SAND_BOLT                      = 136189,
     SPELL_QUICKSAND                      = 136521,
     SPELL_SAND_PERIODIC_DMG              = 136860,
@@ -103,7 +103,8 @@ enum eEvents
     EVENT_DARK_POWER                             = 20,
     EVENT_SOUL_FRAGMENT                          = 21,
     EVENT_TWISTED_FATE                           = 22,
-    EVENT_TWISTED_FATE_SECOND                    = 23
+    EVENT_TWISTED_FATE_SECOND                    = 23,
+    EVENT_ENSNARED                               = 24
 };
 
 enum eSays
@@ -138,13 +139,13 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
     if (!instance)
         return;
 
-    if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
+    /*if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
     {
         if (me->GetAI())
             me->AI()->EnterEvadeMode();
 
         return;
-    }
+    }*/
 
     if (instance->GetBossState(DATA_CONCIL_OF_ELDERS) == IN_PROGRESS)
         return; // Prevent recursive calls
@@ -168,7 +169,7 @@ bool isAlonePossessed(InstanceScript* instance)
     uint32 bossEntries[4] = {NPC_FROST_KING_MALAKK, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_SUL_THE_SANDCRAWLER, NPC_KAZRA_JIN};
     for (uint32 entry : bossEntries)
         if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
-            if (!boss->HasAura(SPELL_POSSESSED))
+            if (boss->HasAura(SPELL_POSSESSED))
                 return false;
 
     return true;
@@ -1107,6 +1108,8 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
                 me->SetFullHealth();
                 me->RemoveAllAuras();
+                events.Reset();
+                summons.DespawnAll();
                 _EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
 
@@ -1245,7 +1248,6 @@ class boss_sul_the_sandcrawler : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
                             me->CastSpell(target, SPELL_QUICKSAND, true);
-                            target->AddAura(SPELL_GENERIC_STUN, target);
                             me->SummonCreature(NPC_LIVING_SAND, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                         }
                         events.ScheduleEvent(EVENT_QUICKSAND, 34000);
@@ -1739,6 +1741,8 @@ class mob_living_sand : public CreatureScript
             {
             }
 
+            EventMap events;
+
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1746,6 +1750,7 @@ class mob_living_sand : public CreatureScript
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFullHealth();
+                events.Reset();
 
                 if (me->HasAura(SPELL_FORTIFIED))
                     me->RemoveAura(SPELL_FORTIFIED);
@@ -1755,8 +1760,10 @@ class mob_living_sand : public CreatureScript
 
                 for (auto player: playerList)
                 {
-                    me->AddAura(SPELL_SAND_PERIODIC_DMG, player);
-                    me->AddAura(SPELL_ENSNARED, player);
+                    if (!player->HasAura(SPELL_SAND_PERIODIC_DMG))
+                        me->AddAura(SPELL_SAND_PERIODIC_DMG, player);
+
+                    player->AddAura(SPELL_ENSNARED, player);
                 }
             }
 
@@ -1773,6 +1780,8 @@ class mob_living_sand : public CreatureScript
                         me->AddAura(SPELL_TREACHEROUS_GROUND, me);
                     }
                 }
+
+                events.ScheduleEvent(EVENT_ENSNARED, 1000);
             }
 
             void DoAction(int32 const action)
@@ -1808,7 +1817,29 @@ class mob_living_sand : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff){}
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_ENSNARED:
+                        if (me->HasAura(SPELL_SAND_VISUAL))
+                        {
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 7.0f);
+
+                            for (Player* player : playerList)
+                                if (!player->HasAura(SPELL_ENTRAPPED))
+                                    player->AddAura(SPELL_ENSNARED, player);
+                        }
+
+                        events.ScheduleEvent(EVENT_ENSNARED, 1000);
+                        break;
+                    default:
+                        break;
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1885,11 +1916,11 @@ class mob_blessed_loa_spirit : public CreatureScript
                                 }
                             }
 
-                            me->GetMotionMaster()->MoveChase(minBoss, 1.0f, 1.0f);
-
                             if (minBoss)
                                 if (bossEntry != minBoss->GetEntry())
                                     bossEntry = minBoss->GetEntry();
+
+                            me->GetMotionMaster()->MoveChase(minBoss, 0.7f, 0.7f);
                         }
                         break;
                     default:
@@ -2388,7 +2419,10 @@ class spell_ensnared : public SpellScriptLoader
 
                             for (auto player: playerList)
                                 if (stack == 5)
-                                    caster->AddAura(SPELL_ENTRAPPED, player);
+                                {
+                                    player->RemoveAura(SPELL_ENSNARED);
+                                    player->AddAura(SPELL_ENTRAPPED, player);
+                                }
                         }
                     }
                 }
@@ -2396,7 +2430,7 @@ class spell_ensnared : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_ensnared_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_ensnared_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
