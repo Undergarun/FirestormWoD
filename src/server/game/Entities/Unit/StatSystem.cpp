@@ -485,13 +485,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     float attackPowerModifier = hasVengeance ? 11.0f : 14.0f;
     float dualWieldModifier = dualWield ? 0.898882275f : 1.0f;
-    float vengeanceModifier = hasVengeance ? 0.4f : 1.0f;
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / attackPowerModifier);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / attackPowerModifier);
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier * vengeanceModifier;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier * vengeanceModifier;
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier;
 
     if (IsInFeralForm())
     {
@@ -1025,6 +1024,15 @@ void Player::UpdateAllRunesRegen()
             SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regen);
         }
     }
+
+    float pct = 0.f;
+    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
+        if ((*i)->GetMiscValue() == POWER_RUNES)
+            pct += (*i)->GetAmount();
+
+    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
+    SetFloatValue(UNIT_MOD_HASTE_REGEN, haste);
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1394,20 +1402,6 @@ void Guardian::UpdateMaxHealth()
     float multiplicator;
     switch (GetEntry())
     {
-        case ENTRY_IMP:
-            multiplicator = 8.4f;
-            break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_FELGUARD:
-            multiplicator = 11.0f;
-            break;
-        case ENTRY_SUCCUBUS:
-            multiplicator = 9.1f;
-            break;
-        case ENTRY_FELHUNTER:
-            multiplicator = 14.46f;
-            break;
-        case ENTRY_GHOUL:
         case ENTRY_GARGOYLE:
             multiplicator = 15.0f;
             break;
@@ -1443,6 +1437,7 @@ void Guardian::UpdateMaxHealth()
             break;
         case ENTRY_VOIDWALKER:
         case ENTRY_FELGUARD:
+        case ENTRY_GHOUL:
             value = owner->CountPctFromMaxHealth(50);
             break;
         case ENTRY_WRATHGUARD:

@@ -2470,6 +2470,7 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
         void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
+        void _ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();

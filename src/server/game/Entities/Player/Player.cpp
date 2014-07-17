@@ -2078,6 +2078,9 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     }
                     else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         // Should have only one aura of this type at the same time
                         AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
                         for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
@@ -2090,11 +2093,17 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     // Shadow Blade - Main Hand
                     else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 121473, true);
                         resetAttackTimer(BASE_ATTACK);
                     }
                     else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 140308, true); // Shadow Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
@@ -2121,6 +2130,9 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     }
                     else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         // Should have only one aura of this type at the same time
                         AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
                         for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
@@ -2133,11 +2145,17 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     // Shadow Blades - Off Hand
                     else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 121474, true);
                         resetAttackTimer(OFF_ATTACK);
                     }
                     else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 140309, true); // Shadow Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
@@ -7222,6 +7240,7 @@ void Player::UpdateRating(CombatRating cr)
         SetFloatValue(UNIT_MOD_HASTE, haste);
         UpdateManaRegen();
         UpdateEnergyRegen();
+        UpdateAllRunesRegen();
     }
 
     // Custom MoP Script
@@ -9823,6 +9842,8 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
     for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
         _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
 
+    _ApplyWeaponDependentAuraSpellModifier(item, attackType, apply);
+
     UpdateMeleeHitChances();
     UpdateRangedHitChances();
 }
@@ -9886,6 +9907,86 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
         HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()), apply);
         if (unitModType == TOTAL_VALUE)
             ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
+    }
+}
+
+void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply)
+{
+    // don't apply mod if item is broken or cannot be used
+    if (item->IsBroken() || !CanUseAttackType(attackType))
+        return;
+
+    switch (getClass())
+    {
+        case CLASS_DEATH_KNIGHT:
+        {
+            switch (GetSpecializationId(GetActiveSpec()))
+            {
+                case SPEC_DK_FROST:
+                    if (getLevel() < 74)
+                        break;
+
+                    if (apply)
+                    {
+                        if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                        {
+                            CastSpell(this, 81333, true);
+                            RemoveAura(66192);
+                        }
+                        else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
+                        {
+                            if (attackType == BASE_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
+                                attackType == OFF_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            {
+                                CastSpell(this, 66192, true);
+                                RemoveAura(81333);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                            RemoveAura(81333);
+                        else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
+                        {
+                            if (attackType == BASE_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
+                                attackType == OFF_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                                RemoveAura(66192);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        case CLASS_WARRIOR:
+        {
+            switch (GetSpecializationId(GetActiveSpec()))
+            {
+                case SPEC_WARRIOR_ARMS:
+                {
+                    if (apply)
+                    {
+                        if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                            CastSpell(this, 12712, true);
+                        else
+                            RemoveAura(12712);
+                    }
+                    else
+                        RemoveAura(12712);
+
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -9988,6 +10089,7 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 }
+
 void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
 {
     if (!target || !target->isAlive() || target == this)
@@ -27738,7 +27840,7 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
     float hastePct = 0.0f;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
+    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
         if ((*i)->GetMiscValue() == POWER_RUNES && RuneType((*i)->GetMiscValueB()) == runeType)
             cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
 

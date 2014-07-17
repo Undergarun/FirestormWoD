@@ -10844,12 +10844,28 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             break;
         }
         // Finish movies that add combo
-        case 14189: // Seal Fate (Netherblade set)
-        case 14157: // Ruthlessness
+        case 14189: // Seal Fate (Nether blade set)
+        case 139546:// Ruthlessness
         {
             if (!victim || victim == this)
                 return false;
-            // Need add combopoint AFTER finish movie (or they dropped in finish phase)
+
+            if (Player* plr = ToPlayer())
+            {
+                if (uint8 cp = plr->GetComboPoints())
+                {
+                    if (!procSpell)
+                        return false;
+
+                    if (!procSpell->NeedsComboPoints())
+                        return false;
+
+                    if (!roll_chance_i(cp * 20))
+                        return false;
+                }
+            }
+
+            // Need add combo point AFTER finish movie (or they dropped in finish phase)
             break;
         }
         // Item - Druid T10 Balance 2P Bonus
@@ -14127,8 +14143,27 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (ToPlayer() && ToPlayer()->IsTwoHandUsed())
             AddPct(DoneTotalMod, 25);
 
+    bool weaponAttack = false;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (!spellProto)
+            break;
+
+        switch (spellProto->Effects[i].Effect)
+        {
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                weaponAttack = true;
+                break;
+            default:
+                break;
+        }
+    }
+
     // Some spells don't benefit from pct done mods
-    if (spellProto)
+    if (spellProto && !weaponAttack)
     {
         if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         {
@@ -18859,7 +18894,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
     float procsPerMinute = spellProto->ProcsPerMinute;
-    if (procsPerMinute != 0.f && spellProcEvent && spellProcEvent->ppmRate != 0.f)
+    if (procsPerMinute == 0.f && spellProcEvent && spellProcEvent->ppmRate != 0.f)
         procsPerMinute = spellProcEvent->ppmRate;
 
     if (procsPerMinute != 0.f)
