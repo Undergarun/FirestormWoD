@@ -749,6 +749,12 @@ class boss_ancient_asani : public CreatureScript
                             if (regail)
                                 regail->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
 
+                            if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_COUNCILS_VORTEX))
+                                wall->SetGoState(GO_STATE_READY);
+
+                            if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_COUNCILS_VORTEX))
+                                vortex->SetGoState(GO_STATE_READY);
+
                             break;
                         }
                         default:

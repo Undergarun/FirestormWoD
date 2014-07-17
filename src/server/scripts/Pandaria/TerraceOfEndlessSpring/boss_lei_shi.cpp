@@ -300,6 +300,12 @@ class boss_lei_shi : public CreatureScript
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARY_FOG_STACKS);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SPRAY);
                         pInstance->SetBossState(DATA_LEI_SHI, DONE);
+
+                        if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_LEI_SHI))
+                            wall->SetGoState(GO_STATE_READY);
+
+                        if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_LEI_SHIS_VORTEX))
+                            vortex->SetGoState(GO_STATE_READY);
                     }
 
                     switch (me->GetMap()->GetSpawnMode())
