@@ -134,22 +134,22 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                     case GOB_COUNCILS_VORTEX:
                         councilsVortexGuid = go->GetGUID();
                         if (GetBossState(DATA_PROTECTORS) == DONE)
-                            go->SetGoState(GO_STATE_READY);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GOB_WALL_OF_COUNCILS_VORTEX:
                         wallOfCouncilsVortexGuid = go->GetGUID();
                         if (GetBossState(DATA_PROTECTORS) == DONE)
-                            go->SetGoState(GO_STATE_READY);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GOB_WALL_OF_LEI_SHI:
                         wallOfLeiShisVortexGuid = go->GetGUID();
                         if (GetBossState(DATA_TSULONG) == DONE)
-                            go->SetGoState(GO_STATE_READY);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GOB_LEI_SHIS_VORTEX:
                         leiShisVortexGuid = go->GetGUID();
                         if (GetBossState(DATA_TSULONG) == DONE)
-                            go->SetGoState(GO_STATE_READY);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     default:
                         break;

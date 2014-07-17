@@ -33,7 +33,7 @@ enum eTsulongEvents
     EVENT_SPAWN_SUNBEAM,
     EVENT_SHADOW_BREATH,
     EVENT_NIGHTMARES,
-    EVENT_DARK_OF_NIGHT,
+    EVENT_DARK_OF_NIGHT,    //Heroic
     EVENT_UP_ENERGY,
     EVENT_SUN_BREATH,
     EVENT_SPAWN_EMBODIED_TERROR,
@@ -51,6 +51,7 @@ enum eTsulongSpells
     SPELL_SHADOW_BREATH        = 122752,
     SPELL_NIGHTMARES           = 122770,
     SPELL_SPAWN_DARK_OF_NIGHT  = 123739,
+    SPELL_TRIGGER_LIGHT_OF_DAY = 123816,
     SPELL_DAY_PHASE            = 122453,
     SPELL_SUN_BREATH           = 122855,
     SPELL_BATHED_IN_LIGHT      = 122858,
@@ -60,6 +61,10 @@ enum eTsulongSpells
     // The dark of the night
     SPELL_BUMP_DARK_OF_NIGHT   = 130013,
     SPELL_VISUAL_DARK_OF_NIGHT = 123740,
+
+    // The light of the day
+    SPELL_BUFF_LIGHT_OF_DAY    = 123716,
+
 
     // The embodied terror
     SPELL_TERRORIZE_PLAYER     = 123011,
@@ -441,7 +446,10 @@ class boss_tsulong : public CreatureScript
                     {
                         if (nightTimer <= diff)
                         {
-                            me->AddAura(SPELL_NIGHT_PHASE_EFFECT, me);
+                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                me->AddAura(SPELL_NIGHT_PHASE_EFFECT, itr->getSource());
+                            // me->AddAura(SPELL_NIGHT_PHASE_EFFECT, me);
                             nightTimer = 1000;
                         }
                         else
@@ -509,6 +517,8 @@ class boss_tsulong : public CreatureScript
                             me->SetDisplayId(DISPLAY_TSULON_NIGHT);
                             me->RemoveAurasDueToSpell(SPELL_DAY_PHASE);
                             me->RemoveAurasDueToSpell(SPELL_TERRORIZE_TSULONG);
+                            if (IsHeroic())
+                                me->RemoveAurasDueToSpell(SPELL_TRIGGER_LIGHT_OF_DAY);
                             me->ClearUnitState(UNIT_STATE_ROOT);
                             me->setFaction(14);
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -583,6 +593,8 @@ class boss_tsulong : public CreatureScript
                             events.RescheduleEvent(EVENT_SUN_BREATH, TIMER_SUN_BREATH, 0, PHASE_DAY);
                             events.RescheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR, 0, PHASE_DAY);
                             events.RescheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA, 0, PHASE_DAY);
+                            if (IsHeroic())
+                                me->CastSpell(me, SPELL_TRIGGER_LIGHT_OF_DAY, false);
                             break;
                         case EVENT_SUN_BREATH:
                             me->CastSpell(me, SPELL_SUN_BREATH, false);
@@ -769,6 +781,36 @@ class npc_dark_of_night : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_dark_of_nightAI(creature);
+        }
+};
+
+// 63337 - Light of the day
+class npc_ligth_of_day : public CreatureScript
+{
+    public:
+        npc_ligth_of_day() : CreatureScript("npc_light_of_day") { }
+
+        struct npc_light_of_dayAI : public ScriptedAI
+        {
+            npc_light_of_dayAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            void OnSpellClick(Unit* clicker)
+            {
+                if (clicker->GetTypeId() != TYPEID_PLAYER || clicker->HasAura(SPELL_SUN_BREATH))
+                    return;
+                else
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_light_of_dayAI(creature);
         }
 };
 
@@ -1127,12 +1169,17 @@ class spell_sun_breath : public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                // spell still have valid caster ! 
-                Map::PlayerList const& players = GetCaster()->GetMap()->GetPlayers();
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // spell still have valid caster !
+                Map::PlayerList const& players = caster->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (itr->getSource()->GetDistance(GetCaster()) < 30.0f && itr->getSource()->isInFront(GetCaster(), M_PI/3))
-                        GetCaster()->AddAura(SPELL_BATHED_IN_LIGHT, itr->getSource());
+                    Player* plr = itr->getSource();
+                    if (plr->GetDistance(caster) < 30.0f && plr->isInFront(caster, M_PI/3) && !plr->HasAura(SPELL_BUFF_LIGHT_OF_DAY))
+                        caster->AddAura(SPELL_BATHED_IN_LIGHT, itr->getSource());
                 }
             }
 
@@ -1211,11 +1258,41 @@ class spell_instability : public SpellScriptLoader
         }
 };
 
+// 123716 - Light of the day
+class spell_light_of_the_day : public SpellScriptLoader
+{
+    public:
+        spell_light_of_the_day() : SpellScriptLoader("spell_light_of_the_day") { }
+
+        class spell_light_of_the_day_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_light_of_the_day_AuraScript);
+
+            void Check(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (target->HasAura(SPELL_SUN_BREATH))
+                        target->RemoveAura(SPELL_BUFF_LIGHT_OF_DAY);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_light_of_the_day_AuraScript::Check, EFFECT_1, SPELL_AURA_MOD_HEALING_DONE_PERCENT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_light_of_the_day_AuraScript();
+        }
+};
+
 void AddSC_boss_tsulong()
 {
     new boss_tsulong();                 // 62442
     new npc_sunbeam();                  // 62849
     new npc_dark_of_night();            // 63346
+    new npc_ligth_of_day();             // 63337
     new npc_embodied_terror();          // 62969
     new npc_tiny_terror();              // 62977
     new npc_unstable_sha();             // 62919
@@ -1225,4 +1302,5 @@ void AddSC_boss_tsulong()
     new spell_sun_breath();             // 122855
     new spell_terrorize_player();       // 123018
     new spell_instability();            // 123697
+    new spell_light_of_the_day();       // 123716
 }
