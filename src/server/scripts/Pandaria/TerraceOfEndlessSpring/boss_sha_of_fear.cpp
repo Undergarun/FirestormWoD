@@ -949,6 +949,7 @@ class mob_terror_spawn : public CreatureScript
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->AddUnitState(UNIT_STATE_CANNOT_TURN);
 
                 me->CastSpell(me, SPELL_DARK_BULWARK, true);
 
@@ -1466,6 +1467,9 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
                         if (Unit* target = itr->ToUnit())
                         {
                             target->CastSpell(target, shrineTeleport, true);
+
+                            if (Pet* pet = target->ToPlayer()->GetPet())
+                                pet->CastSpell(pet, shrineTeleport, false);
 
                             if (!activationDone)
                                 caster->AI()->DoAction(ACTION_ACTIVATE_SHRINE_1 + shrine);
