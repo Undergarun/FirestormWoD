@@ -3427,6 +3427,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 136521: // QuickSand
+            case 136878: // QuickSand
+                spellInfo->Effects[0].TriggerSpell = 0;
+                break;
             case 137967:// Twisted Fate
                 spellInfo->Effects[0].TargetA =  TARGET_UNIT_TARGET_ANY;
                 break;
