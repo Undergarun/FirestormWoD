@@ -139,13 +139,13 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
     if (!instance)
         return;
 
-    /*if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
+    if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
     {
         if (me->GetAI())
             me->AI()->EnterEvadeMode();
 
         return;
-    }*/
+    }
 
     if (instance->GetBossState(DATA_CONCIL_OF_ELDERS) == IN_PROGRESS)
         return; // Prevent recursive calls
