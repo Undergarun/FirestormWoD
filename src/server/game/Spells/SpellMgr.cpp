@@ -514,7 +514,7 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
         {
             // Piercing Howl
             if (spellproto->Id == 12323)
-                return 6 * IN_MILLISECONDS;
+                return 8 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_HUNTER:
@@ -3434,8 +3434,17 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137967:// Twisted Fate
                 spellInfo->Effects[0].TargetA =  TARGET_UNIT_TARGET_ANY;
                 break;
+            case 51128: // Killing Machine
+                spellInfo->ProcChance = 0;
+                break;
             case 137641:// Soul Fragment
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
+                break;
+            case 14161: // Ruthlessness
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 139546;
+                spellInfo->ProcFlags = 0x00015550;
+                spellInfo->ProcChance = 100;
                 break;
             case 137650:// Shadowed Soul
                 spellInfo->Effects[0].BasePoints = 3;
@@ -4864,7 +4873,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
             case 3411:  // Intervene
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); // Add Safeguard to override spell list of Intervene
@@ -4988,7 +4997,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 90259: // Glyph of Frost Pillar (Root Aura)
+            case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
                 break;

@@ -896,7 +896,7 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
-        if (proto->InventoryType == INVTYPE_WEAPON &&
+        if ((proto->InventoryType == INVTYPE_WEAPON || proto->InventoryType == INVTYPE_2HWEAPON) &&
             (spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONMAINHAND) ||
              spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONOFFHAND)))
             return true;

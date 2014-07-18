@@ -239,7 +239,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectGiveCurrency,                             //166 SPELL_EFFECT_GIVE_CURRENCY
     &Spell::EffectNULL,                                     //167 SPELL_EFFECT_167
     &Spell::EffectNULL,                                     //168 SPELL_EFFECT_168
-    &Spell::EffectNULL,                                     //169 SPELL_EFFECT_DESTROY_ITEM
+    &Spell::EffectDestroyItem,                              //169 SPELL_EFFECT_DESTROY_ITEM
     &Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
     &Spell::EffectNULL,                                     //171 SPELL_EFFECT_171
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
@@ -652,11 +652,22 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                             {
                                 float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                                damage += int32(ap * combo * 0.16f);
+
+                                switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
+                                {
+                                    case SPEC_ROGUE_ASSASSINATION:
+                                    case SPEC_ROGUE_COMBAT:
+                                        damage += int32(ap * combo * 0.18f);
+                                        break;
+                                    case SPEC_ROGUE_SUBTLETY:
+                                    default:
+                                        damage += int32(ap * combo * 0.223f);
+                                        break;
+                                }
 
                                 // Eviscerate and Envenom Bonus Damage (item set effect)
-                                if (m_caster->HasAura(37169))
-                                    damage += combo*40;
+                                if (AuraEffectPtr eviscerateBonus = m_caster->GetAuraEffect(37169, EFFECT_0))
+                                    AddPct(damage, eviscerateBonus->GetAmount());
                             }
                         }
 
@@ -704,9 +715,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     {
                         if (m_caster->GetTypeId() != TYPEID_PLAYER)
                             break;
-
-                        if (m_caster->ToPlayer()->GetSelectedUnit() == unitTarget)
-                            m_caster->ToPlayer()->AddComboPoints(unitTarget, 1);
 
                         // Fan of Knives - Vile Poisons
                         if (AuraEffectPtr aur = m_caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, 857, 2))
@@ -5713,10 +5721,22 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (damage <= 0)
         return;
 
-    // Swipe (cat) : Awards 1 combo points if it strikes your current combo target
-    if (m_spellInfo->Id == 62078)
-        if (m_caster->m_movedPlayer->GetComboTarget() != unitTarget->GetGUID())
-            return;
+    switch (m_spellInfo->Id)
+    {
+        case 51723: // Fan of Knives
+            if (!m_caster->ToPlayer())
+                break;
+
+            if (m_caster->ToPlayer()->GetSelectedUnit() != unitTarget)
+                return;
+            break;
+        case 62078: // Swipe (cat)
+            if (m_caster->m_movedPlayer->GetComboTarget() != unitTarget->GetGUID())
+                return;
+            break;
+        default:
+            break;
+    }
 
     m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
@@ -7721,6 +7741,21 @@ void Spell::EffectGiveCurrency(SpellEffIndex effIndex)
         return;
 
     unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage);
+}
+
+void Spell::EffectDestroyItem(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* player = unitTarget->ToPlayer();
+    uint32 itemId = m_spellInfo->Effects[effIndex].ItemType;
+
+    if (Item* item = player->GetItemByEntry(itemId))
+        player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
 void Spell::EffectCastButtons(SpellEffIndex effIndex)

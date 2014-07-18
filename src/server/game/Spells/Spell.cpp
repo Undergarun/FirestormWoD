@@ -6990,7 +6990,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
                         m_caster->RemoveMovementImpairingAuras();
                     // Intervene and Safeguard can be casted in root effects, so we need to remove movement impairing auras before check cast result
-                    if (m_spellInfo->Id == 3411 || m_spellInfo->Id == 114029)
+                    if (m_spellInfo->Id == 34784 || m_spellInfo->Id == 114029)
                         m_caster->RemoveMovementImpairingAuras();
                 }
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
