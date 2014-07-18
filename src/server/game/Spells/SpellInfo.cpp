@@ -3211,7 +3211,7 @@ bool SpellInfo::_IsNeedDelay() const
     switch (Id)
     {
         case 379:   // Earth Shield (Shaman)
-        case 14157: // Ruthlessness (Rogue)
+        case 14161: // Ruthlessness (Rogue)
         case 33110: // Prayer of Mending (Priest)
         case 48503: // Living Seed (Druid)
         case 52752: // Ancestral Awakening (Shaman)
@@ -3439,22 +3439,23 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
     return scale;
 }
 
-bool SpellInfo::IsReducingCastTime() const
+float SpellInfo::GetCastTimeReduction() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbing
         case 50274: // Spore Cloud
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
         case 90315: // Tailspin
         case 109466:// Curse of Enfeeblement
         case 109468:// Curse of Enfeeblement (Soulburn)
         case 116198:// Enfeeblement Aura (Metamorphosis)
-            return true;
+            return 5.f;
+        case 5760:  // Mind-Numbing
+        case 58604: // Lava Breath
+        case 73975: // Necrotic Strike
+            return 2.f;
     }
 
-    return false;
+    return 1.f;
 }
 
 bool SpellInfo::CanTriggerBladeFlurry() const
@@ -3916,6 +3917,7 @@ bool SpellInfo::IsAffectedByResilience() const
         case 49016: // Unholy Frenzy
         case 87023: // Cauterize
         case 110914:// Dark Bargain (DoT)
+        case 113344:// Bloodbath (DoT)
         case 124280:// Touch of Karma (DoT)
             return false;
         default:

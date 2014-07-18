@@ -576,7 +576,7 @@ public:
     bool IsBreakingCamouflageAfterHit() const;
     bool IsBreakingStealth(Unit* m_caster = NULL) const;
     bool IsPeriodicHeal() const;
-    bool IsReducingCastTime() const;
+    float GetCastTimeReduction() const;
     bool CanTriggerBladeFlurry() const;
     bool IsCustomCharged(SpellInfo const* procSpell, Unit* caster = NULL) const;
     bool IsCustomCastCanceled(Unit* caster) const;

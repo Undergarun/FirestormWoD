@@ -4071,6 +4071,19 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
         return;
 
     Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    switch (m_spellInfo->Id)
+    {
+        case 114868:// Soul Reaper - Haste
+            // Don't increase speed if caster doesn't have glyph
+            if (!target->HasAura(146645))
+                return;
+            break;
+        default:
+            break;
+    }
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
@@ -5350,8 +5363,8 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
 
     float value = float(GetAmount());
 
-    if (target->GetTypeId() == TYPEID_PLAYER && m_spellInfo->IsReducingCastTime())
-        value /= 5.0f;
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        value /= m_spellInfo->GetCastTimeReduction();
 
     target->ApplyCastTimePercentMod(value, apply);
 }
@@ -8512,14 +8525,13 @@ void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (!target)
         return;
 
     // Asphyxiate
     if (m_spellInfo->Id == 108194)
     {
-        int32 newZ = 10;
+        int32 newZ = 5;
         target->SetControlled(apply, UNIT_STATE_STUNNED);
 
         if (apply)

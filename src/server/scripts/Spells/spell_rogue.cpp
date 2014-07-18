@@ -90,7 +90,9 @@ enum RogueSpells
     ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
     ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
-    ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806
+    ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806,
+    ROGUE_SPELL_KIDNEY_SHOT                     = 408,
+    ROGUE_SPELL_REVEALING_STRIKE                = 84617
 };
 
 // Killing Spree - 51690
@@ -597,6 +599,44 @@ class spell_rog_nerve_strike : public SpellScriptLoader
     public:
         spell_rog_nerve_strike() : SpellScriptLoader("spell_rog_nerve_strike") { }
 
+        class spell_rog_combat_readiness_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_combat_readiness_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (GetSpellInfo()->Id != ROGUE_SPELL_KIDNEY_SHOT)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, caster->GetGUID()))
+                        {
+                            if (AuraPtr kidney = target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, caster->GetGUID()))
+                            {
+                                int32 duration = kidney->GetMaxDuration();
+                                AddPct(duration, 35);
+                                kidney->SetMaxDuration(duration);
+                                kidney->RefreshDuration(true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_combat_readiness_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_combat_readiness_SpellScript();
+        }
+
         class spell_rog_combat_readiness_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_rog_combat_readiness_AuraScript);
@@ -788,12 +828,9 @@ class spell_rog_restless_blades : public SpellScriptLoader
 
             int32 comboPoints;
 
-            bool Validate()
+            bool Load()
             {
                 comboPoints = 0;
-
-                if (!sSpellMgr->GetSpellInfo(121411) || !sSpellMgr->GetSpellInfo(1943) || !sSpellMgr->GetSpellInfo(2098))
-                    return false;
                 return true;
             }
 
@@ -822,9 +859,6 @@ class spell_rog_restless_blades : public SpellScriptLoader
 
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, comboPoints * 2000);
-
-                            if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
 
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                                 _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);

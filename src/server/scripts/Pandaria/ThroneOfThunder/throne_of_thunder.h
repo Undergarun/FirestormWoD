@@ -137,6 +137,7 @@ enum eCreatures
     NPC_FIRST_TWISTED_FATE          = 69740,
     NPC_SECOND_TWISTED_FATE         = 69746,
     NPC_RECKLESS_CHARGE             = 69453,
+    NPC_GARA_JAL                    = 69135,
 
     // Tortos
     NPC_TORTOS                      = 67977,
@@ -167,6 +168,7 @@ enum eCreatures
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
 
     NPC_PRIMORDIUS                  = 69017,
+    NPC_LIVING_FLUID                = 69069,
 
     NPC_DARK_ANIMUS                 = 69427,
 
