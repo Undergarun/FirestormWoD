@@ -168,6 +168,7 @@ enum eCreatures
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
 
     NPC_PRIMORDIUS                  = 69017,
+    NPC_LIVING_FLUID                = 69069,
 
     NPC_DARK_ANIMUS                 = 69427,
 
