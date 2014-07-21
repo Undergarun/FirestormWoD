@@ -860,6 +860,8 @@ class mob_return_to_the_terrace : public CreatureScript
                     {
                         itr->CastSpell(itr, SPELL_FEARLESS, true);
                         itr->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                        if (Pet* pet = itr->GetPet())
+                            pet->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
                     }
                 }
             }

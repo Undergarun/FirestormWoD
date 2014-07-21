@@ -2200,14 +2200,15 @@ class mob_mogu_warden : public CreatureScript
 
         struct mob_mogu_wardenAI : public ScriptedAI
         {
-            mob_mogu_wardenAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_mogu_wardenAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
+            bool isElegonGuardian;
 
             void Reset()
             {
+                isElegonGuardian = me->GetPositionZ() < 360.0f;
+
                 events.Reset();
                 if (me->GetEntry() != NPC_MOGUSHAN_ARCANIST)
                 {
@@ -2219,14 +2220,26 @@ class mob_mogu_warden : public CreatureScript
             
             void JustDied(Unit* killer)
             {
-                Creature* warden1  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN,        300.0f, true);
-                Creature* warden2  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN_2,      300.0f, true);
-                Creature* arcanist = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ARCANIST,      300.0f, true);
-                Creature* keeper   = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ENGINE_KEEPER, 300.0f, true);
+                // In front of Elegon, we must check all the other trash before making Cho moves
+                if (isElegonGuardian)
+                {
+                    Creature* warden1  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN,        200.0f);
+                    Creature* warden2  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN_2,      200.0f);
+                    Creature* arcanist = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ARCANIST,      200.0f);
+                    Creature* keeper   = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_ENGINE_KEEPER, 200.0f);
 
-                if (!warden1 && !warden2 && !arcanist && !keeper)
-                    if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 300.0f, true))
-                        cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                    if (!warden1 && !warden2 && !arcanist && !keeper)
+                        if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 300.0f, true))
+                            cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                }
+                // In the stairs to Elegon's room, we just need to check the other warden
+                else
+                {
+                    Creature* otherWarden = GetClosestCreatureWithEntry(me, me->GetEntry() == NPC_MOGUSHAN_WARDEN ? NPC_MOGUSHAN_WARDEN_2 : NPC_MOGUSHAN_WARDEN, 50.0f);
+                    if (!otherWarden)
+                        if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 70.0f))
+                            cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                }
             }
 
             void UpdateAI(const uint32 diff)

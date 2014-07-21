@@ -1818,6 +1818,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
             {
+                if (!caster)
+                    break;
+
                 switch (GetId())
                 {
                     // Vampiric Blood
@@ -2134,6 +2137,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             break;
         case SPELLFAMILY_DRUID:
         {
+            if (!caster)
+                break;
+
             switch (GetSpellInfo()->Id)
             {
                 // Tree of Life

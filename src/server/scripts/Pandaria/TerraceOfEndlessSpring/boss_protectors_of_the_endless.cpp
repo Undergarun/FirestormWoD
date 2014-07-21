@@ -432,6 +432,7 @@ class boss_ancient_regail : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -739,6 +740,7 @@ class boss_ancient_asani : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -748,6 +750,12 @@ class boss_ancient_asani : public CreatureScript
                                 kaolan->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
                                 regail->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
+
+                            if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_COUNCILS_VORTEX))
+                                wall->SetGoState(GO_STATE_READY);
+
+                            if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_COUNCILS_VORTEX))
+                                vortex->SetGoState(GO_STATE_READY);
 
                             break;
                         }
@@ -1045,6 +1053,7 @@ class boss_protector_kaolan : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -1455,7 +1464,7 @@ class mob_minion_of_fear_controller : public CreatureScript
                         me->GetPosition(&pos);
 
                         me->SummonCreature(NPC_MINION_OF_FEAR, pos);
-                        events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 12000);
+                        events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 15000);
                         break;
                     }
                     default:
