@@ -124,6 +124,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         case CMSG_MOVE_START_TURN_LEFT:
         case CMSG_MOVE_START_TURN_RIGHT:
         case CMSG_MOVE_START_BACKWARD:
+        case CMSG_MOVE_START_STRAFE_LEFT:
+        case CMSG_MOVE_START_STRAFE_RIGHT:
 
         case CMSG_MOVE_JUMP:
 
@@ -132,6 +134,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 
         case CMSG_MOVE_STOP:
         case CMSG_MOVE_STOP_TURN:
+        case CMSG_MOVE_STOP_STRAFE:
             return MovementGlobalSequence;
 
         case SMSG_MOVE_UPDATE:

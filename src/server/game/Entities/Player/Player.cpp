@@ -26121,7 +26121,6 @@ void Player::SendAurasForTarget(Unit* target)
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SendMovementHover(true);
 
-    bool powerData = false;
     ObjectGuid targetGuid = target->GetGUID();
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
@@ -26137,24 +26136,9 @@ void Player::SendAurasForTarget(Unit* target)
 
     WorldPacket data(SMSG_AURA_UPDATE);
     data.WriteBit(true); // full update bit
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBits(auraCount, 24); // aura counter
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(powerData); // has power data, don't care about it ?
-
-    if (powerData)
-    {
-        //packet.StartBitStream(guid2, 7, 0, 6);
-        //powerCounter = packet.ReadBits(21);
-        //packet.StartBitStream(guid2, 3, 1, 2, 4, 5);
-    }
-
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(targetGuid[5]);
+    data.FlushBits();
+    data.appendPackGUID(targetGuid);
+    data << uint32(auraCount);
 
     if (auraCount)
     {
@@ -26164,39 +26148,9 @@ void Player::SendAurasForTarget(Unit* target)
             if (!auraApp || !auraApp->GetBase())
                 continue;
 
-            auraApp->BuildBitsUpdatePacket(data, false);
-        }
-
-        for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-        {
-            AuraApplication* auraApp = itr->second;
-            if (!auraApp || !auraApp->GetBase())
-                continue;
-
             auraApp->BuildBytesUpdatePacket(data, false);
         }
     }
-
-    if (powerData)
-    {
-        //packet.ReadXORBytes(guid2, 7, 4, 5, 1, 6);
-
-        //for (var i = 0; i < powerCounter; ++i)
-        //{
-            //packet.ReadInt32("Power Value", i);
-            //packet.ReadEnum<PowerType>("Power Type", TypeCode.UInt32, i);
-        //}
-
-        //packet.ReadInt32("Attack power");
-        //packet.ReadInt32("Spell power");
-        //packet.ReadXORBytes(guid2, 3);
-        //packet.ReadInt32("Current Health");
-        //packet.ReadXORBytes(guid2, 0, 2);
-        //packet.WriteGuid("PowerUnitGUID", guid2);
-    }
-
-    uint8 orderGuid[8] = {0, 4, 3, 7, 5, 6, 2, 1};
-    data.WriteBytesSeq(targetGuid, orderGuid);
 
     GetSession()->SendPacket(&data);
 }

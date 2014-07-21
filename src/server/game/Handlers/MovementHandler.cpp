@@ -648,7 +648,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
         switch (l_Element)
         {
             case MSEGuid:
-                p_Data >> l_MoverGuid;
+                p_Data.readPackGUID(l_MoverGuid);
                 break;
 
             case MSEMovementFlags:
@@ -681,7 +681,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
 
             case MSETransportGuid:
                 if (l_HasTransportData)
-                    p_Data >> l_TransportGuid;
+                    p_Data.readPackGUID(l_TransportGuid);
                 break;
 
             case MSETransportPositionX:
@@ -779,7 +779,10 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
 
             case MSEUnkCounterLoop:
                 for (uint32 l_I = 0; l_I < l_UnkLoopCounter; ++l_I)
-                    p_Data.read_skip<uint32>();
+                {
+                    uint64 l_UnkGuid;
+                    p_Data.readPackGUID(l_UnkGuid);
+                }
                 break;
 
             case MSEHasSpline:

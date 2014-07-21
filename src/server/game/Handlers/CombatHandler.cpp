@@ -28,13 +28,9 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
+    uint64 guid;
 
-    uint8 bitsOrder[8] = { 7, 6, 4, 3, 5, 0, 2, 1 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 6, 3, 2, 5, 4, 7, 1, 0 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
+    recvData.readPackGUID(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
@@ -79,10 +75,10 @@ void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
 void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 {
     uint32 sheathed;
-    bool unk;
+    bool l_Animate;
 
     recvData >> sheathed;
-    unk = recvData.ReadBit();
+    l_Animate = recvData.ReadBit();
 
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
 
