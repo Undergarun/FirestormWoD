@@ -169,6 +169,7 @@ enum eCreatures
 
     NPC_PRIMORDIUS                  = 69017,
     NPC_LIVING_FLUID                = 69069,
+    NPC_VICIOUS_HORROR              = 69070,
 
     NPC_DARK_ANIMUS                 = 69427,
 

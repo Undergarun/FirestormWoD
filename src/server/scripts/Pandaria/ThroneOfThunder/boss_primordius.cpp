@@ -27,12 +27,14 @@
 
 enum eSpells
 {
-    SPELL_PRIMORDIAL_STRIKE         = 136037
+    SPELL_PRIMORDIAL_STRIKE         = 136037,
+    SPELL_MALFORMED_BLOOD           = 136050
 };
 
 enum eEvents
 {
-    EVENT_PRIMORDIAL_STRIKE         = 1
+    EVENT_PRIMORDIAL_STRIKE         = 1,
+    EVENT_MALFORMED_BLOOD           = 2
 };
 
 enum eActions
@@ -101,6 +103,7 @@ public:
             events.Reset();
 
             events.ScheduleEvent(EVENT_PRIMORDIAL_STRIKE, 2000);
+            events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 7000);
         }
 
         void JustDied(Unit* killer)
@@ -122,7 +125,7 @@ public:
         {
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* /*victim*/)
         {
             Talk(urand(5, 6));
         }
@@ -158,6 +161,11 @@ public:
                         me->CastSpell(target, SPELL_PRIMORDIAL_STRIKE, false);
                     events.ScheduleEvent(EVENT_PRIMORDIAL_STRIKE, 20000);
                     break;
+                case EVENT_MALFORMED_BLOOD:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        target->AddAura(SPELL_MALFORMED_BLOOD, target);
+                    events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 20000);
+                    break;
                 default:
                     break;
             }
@@ -172,7 +180,38 @@ public:
     }
 };
 
+// Congeal Blood - 136051
+class spell_congeal_blood : public SpellScriptLoader
+{
+public:
+    spell_congeal_blood() : SpellScriptLoader("spell_congeal_blood") { }
+
+    class spell_congeal_blood_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_congeal_blood_SpellScript);
+
+        void HandleBeforeHit()
+        {
+            if (Unit* target = GetExplTargetUnit())
+                if (Creature* creature = target->ToCreature())
+                    if (creature->GetEntry() != NPC_VICIOUS_HORROR || creature->GetEntry() != NPC_LIVING_FLUID)
+                        SetHitDamage(0);
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_congeal_blood_SpellScript::HandleBeforeHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_congeal_blood_SpellScript();
+    }
+};
+
 void AddSC_boss_primordius()
 {
     new boss_primordius();
+    new spell_congeal_blood();
 }
