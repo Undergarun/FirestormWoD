@@ -3427,6 +3427,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 136050: // Malformed Blood
+                spellInfo->Effects[1].BasePoints *= 2.85f;
+                break;
             case 136521: // QuickSand
             case 136878: // QuickSand
                 spellInfo->Effects[0].TriggerSpell = 0;
