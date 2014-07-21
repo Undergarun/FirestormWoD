@@ -2427,7 +2427,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
         }
     }
 
-    *p_Data << uint64(l_CharacterGuid);                     ///< Character GUID
+    p_Data->appendPackGUID(l_CharacterGuid);                ///< Character GUID
     *p_Data << uint8(l_CharacterOrder);                     ///< List order
     *p_Data << uint8(l_CharacterRace);                      ///< Race
     *p_Data << uint8(l_CharacterClass);                     ///< Class
@@ -2443,7 +2443,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     *p_Data << float(l_CharacterPositionX);                 ///< X
     *p_Data << float(l_CharacterPositionY);                 ///< Y
     *p_Data << float(l_CharacterPositionZ);                 ///< Z
-    *p_Data << uint64(l_CharacterGuildGuid);                ///< Character guild GUID
+    p_Data->appendPackGUID(l_CharacterGuildGuid);           ///< Character guild GUID
     *p_Data << uint32(l_CharacterFlags);                    ///< Character flags
     *p_Data << uint32(l_CharacterCustomizationFlags);       ///< Character customization flags
     *p_Data << uint32(0);                                   ///< Character Boost
@@ -13695,7 +13695,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
                 }
             }
             m_items[slot] = pItem;
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), pItem->GetGUID());
+            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
             pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, GetGUID());
             pItem->SetUInt64Value(ITEM_FIELD_OWNER, GetGUID());
 
@@ -14056,7 +14056,7 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     }
 
     m_items[slot] = pItem;
-    SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), pItem->GetGUID());
+    SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
     pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, GetGUID());
     pItem->SetUInt64Value(ITEM_FIELD_OWNER, GetGUID());
     pItem->SetSlot(slot);
@@ -14123,7 +14123,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
             }
 
             m_items[slot] = NULL;
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
+            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
 
             if (slot < EQUIPMENT_SLOT_END)
                 SetVisibleItemSlot(slot, NULL);
@@ -14219,7 +14219,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
+            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
 
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
@@ -15171,7 +15171,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (eslot * 2), pItem->GetGUID());
+        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (eslot * 4), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, proto->SellPrice * pItem->GetCount());
         else
@@ -15208,7 +15208,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         m_items[slot] = NULL;
 
         uint32 eslot = slot - BUYBACK_SLOT_START;
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
+        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
 
@@ -19301,7 +19301,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // cleanup inventory related item value fields (its will be filled correctly in _LoadInventory)
     for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
     {
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
+        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
         SetVisibleItemSlot(slot, NULL);
 
         delete m_items[slot];

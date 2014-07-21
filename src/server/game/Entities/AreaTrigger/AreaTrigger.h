@@ -48,8 +48,11 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         float GetVisualRadius() const { return m_visualRadius; }
         void SetVisualRadius(float radius) { m_visualRadius = radius; }
 
+        uint32 GetCreationTimeMS() const { return m_CreationTimeMS; }
+
     protected:
         int32 _duration;
+        uint32 m_CreationTimeMS;
         Unit* m_caster;
         float m_visualRadius;
 };

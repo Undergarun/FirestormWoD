@@ -99,6 +99,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     if (!GetMap()->AddToMap(this))
         return false;
 
+    m_CreationTimeMS = getMSTime();
+
     return true;
 }
 

@@ -307,7 +307,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
 void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 {
     uint32 l_CharacterNameLenght    = 0;
-    uint32 l_UnkOptValue            = 0;
+    uint32 l_TemplateSetID          = 0;
 
     uint8 l_CharacterRace       = 0;
     uint8 l_CharacterClass      = 0;
@@ -321,12 +321,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     std::string l_CharacterName;
 
-    bool l_HaveUnkBit = false;
+    bool l_HaveTemplateSetID = false;
 
     //////////////////////////////////////////////////////////////////////////
 
     l_CharacterNameLenght   = p_RecvData.ReadBits(6);
-    l_HaveUnkBit            = p_RecvData.ReadBit();
+    l_HaveTemplateSetID     = p_RecvData.ReadBit();
 
     p_RecvData >> l_CharacterRace;                                          ///< uint8
     p_RecvData >> l_CharacterClass;                                         ///< uint8
@@ -340,8 +340,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     l_CharacterName = p_RecvData.ReadString(l_CharacterNameLenght);
 
-    if (l_HaveUnkBit)
-        p_RecvData >> l_UnkOptValue;
+    if (l_HaveTemplateSetID)
+        p_RecvData >> l_TemplateSetID;
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -847,31 +847,9 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
 void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
-    ObjectGuid charGuid;
-    bool unkBit = false;
+    uint64 charGuid;
 
-    charGuid[3] = recvData.ReadBit();
-    charGuid[5] = recvData.ReadBit();
-
-    unkBit = recvData.ReadBit();
-
-    charGuid[6] = recvData.ReadBit();
-    charGuid[4] = recvData.ReadBit();
-    charGuid[2] = recvData.ReadBit();
-    charGuid[7] = recvData.ReadBit();
-    charGuid[1] = recvData.ReadBit();
-    charGuid[0] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(charGuid[7]);
-    recvData.ReadByteSeq(charGuid[5]);
-    recvData.ReadByteSeq(charGuid[0]);
-    recvData.ReadByteSeq(charGuid[1]);
-    recvData.ReadByteSeq(charGuid[2]);
-    recvData.ReadByteSeq(charGuid[4]);
-    recvData.ReadByteSeq(charGuid[6]);
-    recvData.ReadByteSeq(charGuid[3]);
+    recvData.readPackGUID(charGuid);
 
     // can't delete loaded character
     if (ObjectAccessor::FindPlayer(charGuid))
@@ -950,7 +928,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
 
     float l_FarClip = 0.0f;
 
-    p_RecvData >> l_PlayerGuid;                                             ///< uint64
+    p_RecvData.readPackGUID(l_PlayerGuid);                                  ///< uint64
     p_RecvData >> l_FarClip;                                                ///< float
 
     //////////////////////////////////////////////////////////////////////////

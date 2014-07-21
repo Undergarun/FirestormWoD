@@ -2365,56 +2365,48 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     m_Player->SetPendingBind(0, 0);
 }
 
-void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
+void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
 {
-    uint32 type, count;
-    recvPacket >> type;
+    uint32 l_Type   = 0;
+    uint32 l_Count  = 0;
 
-    count = recvPacket.ReadBits(21);
+    p_RecvPacket >> l_Type;
+    p_RecvPacket >> l_Count;
 
-    ObjectGuid* guids = new ObjectGuid[count];
+    uint64 * l_Guids = new uint64[l_Count];
 
-    uint8 order[8] = { 3, 4, 7, 2, 5, 1, 6, 0 };
-    for (uint32 i = 0; i < count; ++i)
-        recvPacket.ReadBitInOrder(guids[i], order);
-
-    uint32 entry;
-    recvPacket.FlushBits();
-    for (uint32 i = 0; i < count; ++i)
+    for (uint32 l_I = 0; l_I < l_Count; ++l_I)
     {
-        recvPacket.ReadByteSeq(guids[i][6]);
-        recvPacket.ReadByteSeq(guids[i][1]);
-        recvPacket.ReadByteSeq(guids[i][2]);
-        recvPacket >> entry;
-        recvPacket.ReadByteSeq(guids[i][4]);
-        recvPacket.ReadByteSeq(guids[i][5]);
-        recvPacket.ReadByteSeq(guids[i][7]);
-        recvPacket.ReadByteSeq(guids[i][0]);
-        recvPacket.ReadByteSeq(guids[i][3]);
+        uint32 l_Entry;
 
-        switch (type)
+        p_RecvPacket.readPackGUID(l_Guids[l_I]);
+        p_RecvPacket >> l_Entry;
+
+        switch (l_Type)
         {
             case DB2_REPLY_ITEM:
-                SendItemDb2Reply(entry);
+                SendItemDb2Reply(l_Entry);
                 break;
+
             case DB2_REPLY_SPARSE:
-                SendItemSparseDb2Reply(entry);
+                SendItemSparseDb2Reply(l_Entry);
                 break;
+
+            case DB2_REPLY_BROADCAST_TEXT:
+                SendBroadcastTextDb2Reply(l_Entry);
+                break;
+
             // TODO
             case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:
             case DB2_REPLY_SCENE_SCRIPT:
                 break;
-            case DB2_REPLY_BROADCAST_TEXT:
-                SendBroadcastTextDb2Reply(entry);
-                break;
+
             default:
-                recvPacket.rfinish();
-                delete[] guids;
-                return;
+                break;
         }
     }
 
-    delete[] guids;
+    delete[] l_Guids;
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)

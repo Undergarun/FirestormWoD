@@ -636,7 +636,7 @@ void WorldSession::LogoutPlayer(bool Save)
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
             {
                 eslot = j - BUYBACK_SLOT_START;
-                m_Player->SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (eslot * 2), 0);
+                m_Player->SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (eslot * 4), 0);
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }

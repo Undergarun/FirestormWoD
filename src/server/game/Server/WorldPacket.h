@@ -23,59 +23,6 @@
 #include "Opcodes.h"
 #include "ByteBuffer.h"
 
-
-struct Guid
-{
-    public:
-
-        bool IsValid()
-        {
-            return (GetHi() >> 58) & 0x3F;
-        }
-
-        uint64 GetHi()
-        {
-            #if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
-                return m_Data[1];
-            #else
-                return m_Data[0];
-            #endif
-        }
-        uint64 GetLow()
-        {
-            #if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
-                return m_Data[0];
-            #else
-                return m_Data[1];
-            #endif
-        }
-
-        void Make(uint8 p_Type, uint32 p_RealmID, uint32 p_Entry, uint64 p_ID = 0)
-        {
-            #if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
-                m_Data[1] = (p_Type << 58) | (p_RealmID << 32) | (p_Entry << 6);
-                m_Data[0] = p_ID;
-            #else
-                m_Data[1] = p_ID;
-                m_Data[0] = (p_Type << 58) | (p_RealmID << 32) | (p_Entry << 6);
-            #endif
-        }
-
-        bool operator==(const Guid & p_Other)
-        {
-            return m_Data[0] == p_Other.m_Data[0] && m_Data[1] == p_Other.m_Data[1];
-        }
-        bool operator!=(const Guid & p_Other)
-        {
-            return m_Data[0] != p_Other.m_Data[0] || m_Data[1] != p_Other.m_Data[1];
-        }
-
-    private:
-        uint64 m_Data[2];
-
-};
-
-
 struct z_stream_s;
 
 class WorldPacket : public ByteBuffer

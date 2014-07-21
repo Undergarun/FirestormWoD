@@ -212,7 +212,29 @@ class Object
             if (!m_uint32Values)
                 return uint64(0);
 
-            return *((uint64*)&(m_uint32Values[index]));
+            if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM         || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER                    || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY 
+                                                   || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID  || index == UNIT_FIELD_CHANNEL_OBJECT))
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
+                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+            else
+                return *((uint64*)&(m_uint32Values[index]));
         }
 
         float GetFloatValue(uint16 index) const

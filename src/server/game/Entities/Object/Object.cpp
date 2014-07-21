@@ -390,8 +390,11 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
             bool l_HasTransportInformations = l_Unit->m_movementInfo.t_guid != 0;
             bool l_HasFallData              = l_Unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || l_Unit->m_movementInfo.fallTime != 0;
+            bool l_HasMovementSpline        = false;
+            bool l_HeightChangeFailed       = false;
+            bool l_RemoteTimeValid          = false;
 
-            *p_Data << uint64(l_Unit->GetGUID());                           ///< Mover GUID
+            p_Data->append(l_Unit->GetPackGUID());                          ///< Mover GUID
             *p_Data << uint32(getMSTime());                                 ///< Movement Time
             *p_Data << float(l_Unit->GetPositionX());                       ///< Mover position X
             *p_Data << float(l_Unit->GetPositionY());                       ///< Mover position Y
@@ -409,15 +412,15 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             p_Data->WriteBits(l_ExtraMovementFlags, 15);                    ///< Extra movement flags
             p_Data->WriteBit(l_HasTransportInformations);                   ///< Has transport informations
             p_Data->WriteBit(l_HasFallData);                                ///< Has fall data
-            p_Data->WriteBit(0);                                            ///< Unk
-            p_Data->WriteBit(0);                                            ///< Unk
-            p_Data->WriteBit(0);                                            ///< Unk
+            p_Data->WriteBit(l_HasMovementSpline);                          ///< Has Movement Spline
+            p_Data->WriteBit(l_HeightChangeFailed);                         ///< Height Change Failed
+            p_Data->WriteBit(l_RemoteTimeValid);                            ///< Remote Time Valid
 
             p_Data->FlushBits();
 
             if (l_HasTransportInformations)
             {
-                *p_Data << uint64(l_Unit->m_movementInfo.t_guid);           ///< Transport Guid
+                p_Data->appendPackGUID(l_Unit->m_movementInfo.t_guid);      ///< Transport Guid
                 *p_Data << float(l_Unit->GetTransOffsetX());                ///< Transport X offset
                 *p_Data << float(l_Unit->GetTransOffsetY());                ///< Transport Y offset
                 *p_Data << float(l_Unit->GetTransOffsetZ());                ///< Transport Z offset
@@ -588,7 +591,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_GO_TRANSPORT_POSITION)
     {
-        *p_Data << uint64(l_WorldObject->m_movementInfo.t_guid);            ///< Transport Guid
+        p_Data->appendPackGUID(l_WorldObject->m_movementInfo.t_guid);       ///< Transport Guid
         *p_Data << float(l_WorldObject->GetTransOffsetX());                 ///< Transport X offset
         *p_Data << float(l_WorldObject->GetTransOffsetY());                 ///< Transport Y offset
         *p_Data << float(l_WorldObject->GetTransOffsetZ());                 ///< Transport Z offset
@@ -621,7 +624,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     }
 
     if (p_Flags & UPDATEFLAG_HAS_TARGET)
-        *p_Data << uint64(l_Unit->getVictim()->GetGUID());                  ///< Target victim guid
+        p_Data->appendPackGUID(l_Unit->getVictim()->GetGUID());             ///< Target victim guid
 
     if (p_Flags & UPDATEFLAG_TRANSPORT)
         *p_Data << uint32(getMSTime());                                     ///< Transport time
@@ -644,112 +647,121 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_AREATRIGGER)
     {
-        bool l_Byte24 = false;
-        bool l_Byte2C = false;
-        bool l_Byte34 = false;
-        bool l_Byte3C = false;
-        bool l_Byte44 = false;
-        bool l_Byte6C = false;
-        bool l_Byte98 = false;
-        bool l_ByteB4 = false;
-        bool l_HasInterpolatedMovement = false;
+        bool l_AbsoluteOrientation      = false;
+        bool l_DynamicShape             = false;
+        bool l_Attached                 = false;
+        bool l_FaceMovementDir          = false;
+        bool l_FollowsTerrain           = false;
+        bool l_HasTargetRollPitchYaw    = false;
+        bool l_HasScaleCurveID          = false;
+        bool l_HasMorphCurveID          = false;
+        bool l_HasFacingCurveID         = false;
+        bool l_HasMoveCurveID           = false;
+        bool l_HasVisualRadius          = l_AreaTrigger->GetVisualRadius() != 1;
+        bool l_HasAreaTriggerBox        = false;
+        bool l_HasAreaTriggerPolygon    = false;
+        bool l_HasAreaTriggerCylinder   = false;
+        bool l_HasAreaTriggerSpline     = false;
 
-        *p_Data << uint32(8);                                               ///< ObjectType AreaTrigger
-        *p_Data << float(0);                                                ///< Unk
-        *p_Data << float(0);                                                ///< Unk
-        *p_Data << float(0);                                                ///< Unk
+        uint32 l_ElapsedMS = GetMSTimeDiffToNow(l_AreaTrigger->GetCreationTimeMS());
 
-        p_Data->WriteBit(0);                                                ///< Unk
-        p_Data->WriteBit(0);                                                ///< Unk
-        p_Data->WriteBit(0);                                                ///< Unk
-        p_Data->WriteBit(0);                                                ///< Unk
-        p_Data->WriteBit(0);                                                ///< Unk
-        p_Data->WriteBit(l_Byte24);                                         ///< Unk
-        p_Data->WriteBit(l_Byte2C);                                         ///< Unk
-        p_Data->WriteBit(l_Byte34);                                         ///< Unk
-        p_Data->WriteBit(l_Byte3C);                                         ///< Unk
-        p_Data->WriteBit(l_Byte44);                                         ///< Unk
-        p_Data->WriteBit(l_AreaTrigger->GetVisualRadius() != 1);            ///< Has visual radius
-        p_Data->WriteBit(l_Byte6C);                                         ///< Unk
-        p_Data->WriteBit(l_Byte98);                                         ///< Unk
-        p_Data->WriteBit(l_ByteB4);                                         ///< Unk
-        p_Data->WriteBit(l_HasInterpolatedMovement);                        ///< Has interpolated movement
+        *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed MS
+        *p_Data << float(0);                                                        ///< Roll Pitch Yaw X
+        *p_Data << float(0);                                                        ///< Roll Pitch Yaw Y
+        *p_Data << float(0);                                                        ///< Roll Pitch Yaw Z
+
+        p_Data->WriteBit(l_AbsoluteOrientation);                                    ///< Absolute Orientation
+        p_Data->WriteBit(l_DynamicShape);                                           ///< Dynamic Shape
+        p_Data->WriteBit(l_Attached);                                               ///< Attached
+        p_Data->WriteBit(l_FaceMovementDir);                                        ///< Face Movement Dir
+        p_Data->WriteBit(l_FollowsTerrain);                                         ///< Follows Terrain
+        p_Data->WriteBit(l_HasTargetRollPitchYaw);                                  ///< HasTargetRollPitchYaw
+        p_Data->WriteBit(l_HasScaleCurveID);                                        ///< Has Scale Curve ID
+        p_Data->WriteBit(l_HasMorphCurveID);                                        ///< Has Morph Curve ID
+        p_Data->WriteBit(l_HasFacingCurveID);                                       ///< Has Facing Curve ID
+        p_Data->WriteBit(l_HasMoveCurveID);                                         ///< Has Move Curve ID
+        p_Data->WriteBit(l_HasVisualRadius);                                        ///< Has visual radius
+        p_Data->WriteBit(l_HasAreaTriggerBox);                                      ///< Has AreaTrigger Box
+        p_Data->WriteBit(l_HasAreaTriggerPolygon);                                  ///< Has AreaTrigger Polygon
+        p_Data->WriteBit(l_HasAreaTriggerCylinder);                                 ///< Has AreaTrigger Cylinder
+        p_Data->WriteBit(l_HasAreaTriggerSpline);                                   ///< Has interpolated movement
         p_Data->FlushBits();
 
-        if (l_Byte24)
+        if (l_HasTargetRollPitchYaw)
         {
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
+            *p_Data << float(0);                                            ///< Target Roll Pitch Yaw X
+            *p_Data << float(0);                                            ///< Target Roll Pitch Yaw Y
+            *p_Data << float(0);                                            ///< Target Roll Pitch Yaw Z
         }
 
-        if (l_Byte2C)
-            *p_Data << uint32(0);                                           ///< Unk
+        if (l_HasScaleCurveID)
+            *p_Data << uint32(0);                                           ///< Scale Curve ID
 
-        if (l_Byte34)
-            *p_Data << uint32(0);                                           ///< Unk
+        if (l_HasMorphCurveID)
+            *p_Data << uint32(0);                                           ///< Morph Curve ID
 
-        if (l_Byte3C)
-            *p_Data << uint32(0);                                           ///< Unk
+        if (l_HasFacingCurveID)
+            *p_Data << uint32(0);                                           ///< Facing Curve ID
 
-        if (l_Byte44)
-            *p_Data << uint32(0);                                           ///< Unk
+        if (l_HasMoveCurveID)
+            *p_Data << uint32(0);                                           ///< Move Curve ID
 
         if (l_AreaTrigger->GetVisualRadius() != 1)
         {
-            *p_Data << float(l_AreaTrigger->GetVisualRadius());             ///< X axis scale
-            *p_Data << float(l_AreaTrigger->GetVisualRadius());             ///< Y axis scale
+            *p_Data << float(l_AreaTrigger->GetVisualRadius());             ///< Radius
+            *p_Data << float(l_AreaTrigger->GetVisualRadius());             ///< Radius Target
         }
 
-        if (l_Byte6C)
+        if (l_HasAreaTriggerBox)
         {
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
+            *p_Data << float(0);                                            ///< Extents X
+            *p_Data << float(0);                                            ///< Extents Y
+            *p_Data << float(0);                                            ///< Extents Z
+            *p_Data << float(0);                                            ///< Extents Target X
+            *p_Data << float(0);                                            ///< Extents Target Y
+            *p_Data << float(0);                                            ///< Extents Target Z
         }
 
-        if (l_Byte98)
+        if (l_HasAreaTriggerPolygon)
         {
-            uint32 l_UnkCount1 = 0;
-            uint32 l_UnkCount2 = 0;
+            uint32 l_VerticesCount = 0;
+            uint32 l_VerticesTargetCount = 0;
 
-            *p_Data << uint32(l_UnkCount1);                                 ///< Unk count
-            *p_Data << uint32(l_UnkCount2);                                 ///< Unk count
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
+            *p_Data << uint32(l_VerticesCount);                             ///< Vertices Count
+            *p_Data << uint32(l_VerticesTargetCount);                       ///< Vertices Target Count
+            *p_Data << float(0);                                            ///< Height
+            *p_Data << float(0);                                            ///< Height Target
 
-            for (uint32 l_I = 0; l_I < l_UnkCount1; l_I++)
+            for (uint32 l_I = 0; l_I < l_VerticesCount; l_I++)
             {
-                *p_Data << float(0);                                        ///< Unk
-                *p_Data << float(0);                                        ///< Unk
+                *p_Data << float(0);                                        ///< X
+                *p_Data << float(0);                                        ///< Y
             }
 
-            for (uint32 l_I = 0; l_I < l_UnkCount2; l_I++)
+            for (uint32 l_I = 0; l_I < l_VerticesTargetCount; l_I++)
             {
-                *p_Data << float(0);                                        ///< Unk
-                *p_Data << float(0);                                        ///< Unk
+                *p_Data << float(0);                                        ///< X
+                *p_Data << float(0);                                        ///< Y
             }
         }
 
-        if (l_ByteB4)
+        if (l_HasAreaTriggerCylinder)
         {
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
+            *p_Data << float(0);                                            ///< Extents X
+            *p_Data << float(0);                                            ///< Extents Y
+            *p_Data << float(0);                                            ///< Extents Z
+            *p_Data << float(0);                                            ///< Extents Target X
+            *p_Data << float(0);                                            ///< Extents Target Y
+            *p_Data << float(0);                                            ///< Extents Target Z
         }
 
-        if (l_HasInterpolatedMovement)
+        if (l_HasAreaTriggerSpline)
         {
             uint32 l_PathNodeCount = 0;
 
-            *p_Data << uint32(0);                                           ///< Unk
-            *p_Data << uint32(0);                                           ///< Unk
+            *p_Data << uint32(0);                                           ///< Time To Target
+            *p_Data << uint32(0);                                           ///< Elapsed Time For Movement
+            *p_Data << uint32(l_PathNodeCount);                             ///< Path node count
 
             for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
             {
@@ -1023,7 +1035,29 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
 void Object::SetUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (*((uint64*)&(m_uint32Values[index])) != value)
+
+    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
+        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
+        goto Append128Guid;
+    else if (*((uint64*)&(m_uint32Values[index])) != value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
@@ -1036,12 +1070,71 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
             m_objectUpdated = true;
         }
     }
+
+    return;
+
+Append128Guid:
+    Guid128 l_Value = Guid64To128(value);
+    bool l_Changed = false;
+
+    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
+        _changedFields[index] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
+        _changedFields[index + 1] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
+        _changedFields[index + 2] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
+        _changedFields[index + 3] = true;
+        l_Changed = true;
+    }
+
+    if (l_Changed && m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
 }
 
 bool Object::AddUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (value && !*((uint64*)&(m_uint32Values[index])))
+
+    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
+        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
+        goto Append128Guid;
+    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
+        goto Append128Guid;
+    else if (value && !*((uint64*)&(m_uint32Values[index])))
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
@@ -1058,17 +1151,101 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
     }
 
     return false;
+
+Append128Guid:
+    Guid128 l_Value = Guid64To128(value);
+    bool l_Changed = false;
+
+    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
+        _changedFields[index] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
+        _changedFields[index + 1] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
+        _changedFields[index + 2] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
+        _changedFields[index + 3] = true;
+        l_Changed = true;
+    }
+
+    if (l_Changed && m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+
+    return true;
 }
 
 bool Object::RemoveUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-    if (value && *((uint64*)&(m_uint32Values[index])) == value)
+
+    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
+        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
+        goto Remove128Guid;
+    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
+        goto Remove128Guid;
+    else if (value && *((uint64*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
         _changedFields[index] = true;
         _changedFields[index + 1] = true;
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+
+        return true;
+    }
+
+    return false;
+
+Remove128Guid:
+    uint64 l_StoredValue = Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+
+    if (value && l_StoredValue == value)
+    {
+        m_uint32Values[index] = 0;
+        m_uint32Values[index + 1] = 0;
+        m_uint32Values[index + 2] = 0;
+        m_uint32Values[index + 3] = 0;
+        _changedFields[index] = true;
+        _changedFields[index + 1] = true;
+        _changedFields[index + 2] = true;
+        _changedFields[index + 3] = true;
 
         if (m_inWorld && !m_objectUpdated)
         {

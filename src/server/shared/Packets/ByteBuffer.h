@@ -23,7 +23,7 @@
 #include "Debugging/Errors.h"
 #include "Log.h"
 #include "Utilities/ByteConverter.h"
-
+#include "Guid.h"
 
 //! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
 //! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
@@ -148,6 +148,103 @@ class ByteBufferSourceException : public ByteBufferException
 
 class ByteBuffer
 {
+    public:
+
+        void readPackGUID(uint64& guid)
+        {
+            if (rpos() + 1 > size())
+                throw ByteBufferPositionException(false, _rpos, 1, size());
+
+            uint8 l_GuidMaskLow = read<uint8>();
+            uint8 l_GuidMaskHi = read<uint8>();
+
+            uint64 l_GuidLow = 0;
+            uint64 l_GuidHi = 0;
+
+            uint8 l_BitIT = 0;
+            uint8 l_MaskIT = 0;
+
+            do
+            {
+                if ((1 << l_MaskIT) & l_GuidMaskLow)
+                {
+                    uint8 l_CurrentByte = read<uint8>();
+
+                    l_GuidLow |= (uint64(l_CurrentByte) << l_BitIT);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+
+            l_BitIT = 0;
+            l_MaskIT = 0;
+
+            do
+            {
+                if ((1 << l_MaskIT) & l_GuidMaskHi)
+                {
+                    uint8 l_CurrentByte = read<uint8>();
+
+                    l_GuidHi |= (uint64(l_CurrentByte) << l_BitIT);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+
+            Guid128 l_128Guid = Guid128(l_GuidLow, l_GuidHi);
+
+            guid = Guid128To64(l_128Guid);
+        }
+
+        void appendPackGUID(uint64 guid)
+        {
+            Guid128 l_128Guid = Guid64To128(guid);
+
+            uint32 l_StartWPos = wpos();
+
+            append<uint8>(0);
+            append<uint8>(0);
+
+            uint64 l_GuidLow = l_128Guid.GetLow();
+            uint64 l_GuidHi = l_128Guid.GetHi();
+
+            uint8 l_BitIT = 0;
+            uint8 l_MaskIT = 0;
+
+            do
+            {
+                uint8 l_CurrentByte = (l_GuidLow >> l_BitIT) & 0xFF;
+
+                if (l_CurrentByte)
+                {
+                    _storage[l_StartWPos + 0] |= 1 << l_MaskIT;
+                    append<uint8>(l_CurrentByte);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+
+            l_BitIT = 0;
+            l_MaskIT = 0;
+
+            do
+            {
+                uint8 l_CurrentByte = (l_GuidHi >> l_BitIT) & 0xFF;
+
+                if (l_CurrentByte)
+                {
+                    _storage[l_StartWPos + 1] |= 1 << l_MaskIT;
+                    append<uint8>(l_CurrentByte);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+        }
+
     public:
         const static size_t DEFAULT_SIZE = 0x1000;
 
@@ -553,30 +650,6 @@ class ByteBuffer
             _rbitpos = 8;
         }
 
-        void readPackGUID(uint64& guid)
-        {
-            if (rpos() + 1 > size())
-                throw ByteBufferPositionException(false, _rpos, 1, size());
-
-            guid = 0;
-
-            uint8 guidmark = 0;
-            (*this) >> guidmark;
-
-            for (int i = 0; i < 8; ++i)
-            {
-                if (guidmark & (uint8(1) << i))
-                {
-                    if (rpos() + 1 > size())
-                        throw ByteBufferPositionException(false, _rpos, 1, size());
-
-                    uint8 bit;
-                    (*this) >> bit;
-                    guid |= (uint64(bit) << (i * 8));
-                }
-            }
-        }
-
         std::string ReadString(uint32 length)
         {
             if (!length)
@@ -655,25 +728,6 @@ class ByteBuffer
             packed |= ((int)(y / 0.25f) & 0x7FF) << 11;
             packed |= ((int)(z / 0.25f) & 0x3FF) << 22;
             *this << packed;
-        }
-
-        void appendPackGUID(uint64 guid)
-        {
-            uint8 packGUID[8+1];
-            packGUID[0] = 0;
-            size_t size = 1;
-            for (uint8 i = 0;guid != 0;++i)
-            {
-                if (guid & 0xFF)
-                {
-                    packGUID[0] |= uint8(1 << i);
-                    packGUID[size] =  uint8(guid & 0xFF);
-                    ++size;
-                }
-
-                guid >>= 8;
-            }
-            append(packGUID, size);
         }
 
         void put(size_t pos, const uint8 *src, size_t cnt)
