@@ -63,6 +63,9 @@ enum Opcodes
         SMSG_NEW_WORLD                              = 0x0000,   ///<
         SMSG_LOGIN_SET_TIME_SPEED                   = 0x0000,   ///<
 
+        /// Query
+        SMSG_CREATURE_QUERY_RESPONSE                = 0x1E65,   ///< 6.0.1 18556
+
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x0000,   ///<
 
@@ -361,6 +364,7 @@ enum Opcodes
     /// Cache
     //////////////////////////////////////////////////////////////////////////
     CMSG_REQUEST_HOTFIX                         = 0x006A,   ///< 6.0.1 18566
+    CMSG_CREATURE_QUERY                         = 0x0367,   ///< 6.0.1 18566
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -609,7 +613,6 @@ enum Opcodes
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
     CMSG_CONTACT_LIST                                 = 0x0000,
     CMSG_CORPSE_MAP_POSITION_QUERY                    = 0x0000,
-    CMSG_CREATURE_QUERY                               = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x0000,
     CMSG_DEL_FRIEND                                   = 0x0000,
@@ -1187,7 +1190,6 @@ enum Opcodes
     SMSG_CORPSE_NOT_IN_INSTANCE                       = 0x0000,
     SMSG_CORPSE_RECLAIM_DELAY                         = 0x0000,
     SMSG_CORPSE_TRANSPORT_QUERY                       = 0x0000,
-    SMSG_CREATURE_QUERY_RESPONSE                      = 0x0000,
     SMSG_CRITERIA_DELETED                             = 0x0000,
     SMSG_CRITERIA_UPDATE                              = 0x0000,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0x0000,
