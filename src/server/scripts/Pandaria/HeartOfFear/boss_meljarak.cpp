@@ -207,13 +207,7 @@ Position PosZarthikBattleMender[3] =
     {-2079.33f, 449.28f, 503.57f, 3.141593f}
 };
 
-std::list<Creature*> GetAddList(uint32 entry, Creature* source, float dist)
-{
-    std::list<Creature*> addList;
-    GetCreatureListWithEntryInGrid(addList, source, entry, dist);
-    return addList;
-}
-
+// return true if can put Adds in combat
 bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
 {
     if (!pInstance)
@@ -234,7 +228,7 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
         return false;
     }
 
-    // Set boss in combat
+    // Set boss in combat if function has been called by an add
     pInstance->SetBossState(DATA_MELJARAK, IN_PROGRESS);
     if (launcher->GetEntry() != NPC_MELJARAK)
     {
@@ -246,7 +240,8 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
     uint32 addEntries[3] = {NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER};
     for (uint32 entry : addEntries)
     {
-        std::list<Creature*> addList = GetAddList(entry, launcher, 30.0f);
+        std::list<Creature*> addList;
+        GetCreatureListWithEntryInGrid(addList, launcher, entry, 30.0f);
         for (Creature* add : addList)
             add->SetInCombatWithZone();
     }
@@ -285,7 +280,7 @@ public:
             std::list<Creature*> poolList;
             GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
             for (Creature* pool : poolList)
-                    pool->DespawnOrUnsummon();
+                pool->DespawnOrUnsummon();
 
             introDone = false;
             windBombScheduled = false;
@@ -343,11 +338,13 @@ public:
 
         void EnterCombat(Unit* attacker)
         {
-            if (attacker->GetTypeId() != TYPEID_PLAYER)
+            if (attacker->GetTypeId() != TYPEID_PLAYER || !instance || inCombat)
                 return;
 
             if (!StartPack(instance, me, attacker) && instance->GetBossState(DATA_MELJARAK) != IN_PROGRESS)
                 return;
+
+            inCombat = true;
 
             Talk(SAY_AGGRO);
 
