@@ -1,0 +1,18 @@
+var email = "test@test
+var password = "test"
+
+if (email != null && password != null)
+{
+	var salt = new byte[0].GenerateRandomKey(0x20).ToHexString();
+	var srp = new SRP6a(salt);
+
+	srp.CalculateX(email, password.ToUpper(), false);
+
+	var account = new Account
+	{
+		Email            = email,
+		PasswordVerifier = srp.V.ToHexString(),
+		Salt             = salt,
+		Expansion        = 4
+	};
+}
