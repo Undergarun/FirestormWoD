@@ -689,7 +689,7 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& p_RecvData)
 {
     uint64 l_NewTargetGuid;
 
-    p_RecvData >> l_NewTargetGuid;
+    p_RecvData.readPackGUID(l_NewTargetGuid);
 
     m_Player->SetSelection(l_NewTargetGuid);
 }
