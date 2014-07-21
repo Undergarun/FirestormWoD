@@ -250,6 +250,9 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 
         data.FlushBits();
 
+        if (ci->Name.size())
+            data << Name;                                   // Name
+
         data << uint32(ci->type_flags);                     // flags
         data << uint32(ci->type_flags2);                    // unknown meaning
         data << uint32(ci->type);                           // CreatureType.dbc
@@ -276,9 +279,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 
         if (ci->IconName.size())
             data << ci->IconName;                           // Icon Name
-
-        if (ci->Name.size())
-            data << Name;                                   // Name
 
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS && itemCount > 0; ++i)
         {
