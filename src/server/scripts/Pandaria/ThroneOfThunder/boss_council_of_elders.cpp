@@ -156,7 +156,9 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
 
     uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
 
-    for (uint32 entry : mobEntries)
+    for (int i = 0; i < 4; i++)
+    {
+        uint32 entry = mobEntries[i];
         if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
         {
             boss->SetInCombatWithZone();
@@ -183,6 +185,7 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
                     break;
             }
         }
+    }
 
     if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
         if (garaJalSoul->GetAI())
@@ -197,10 +200,13 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
 bool isAlonePossessed(InstanceScript* instance)
 {
     uint32 bossEntries[4] = {NPC_FROST_KING_MALAKK, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_SUL_THE_SANDCRAWLER, NPC_KAZRA_JIN};
-    for (uint32 entry : bossEntries)
+    for (int i = 0; i < 4; i++)
+    {
+        uint32 entry = bossEntries[i];
         if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
             if (boss->HasAura(SPELL_POSSESSED))
                 return false;
+    }
 
     return true;
 }
@@ -232,7 +238,7 @@ class npc_gara_jal_s_soul : public CreatureScript
             {
                 if (action == ACTION_SCHEDULE_POSSESSION)
                 {
-                    uint8 i = urand(0, 3);
+                    uint32 i = urand(0, 3);
 
                     while (entries[i] == possessed[i])
                         i = urand(0, 3);
@@ -240,16 +246,16 @@ class npc_gara_jal_s_soul : public CreatureScript
                     switch (entries[i])
                     {
                         case NPC_KAZRA_JIN:
-                        events.ScheduleEvent(EVENT_LINGERING_PRESENCE_KAZRA_JIN, 1000);
+                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_KAZRA_JIN, 1000);
                             break;
                         case NPC_FROST_KING_MALAKK:
-                        events.ScheduleEvent(EVENT_LINGERING_PRESENCE_MALAKK, 1000);
+                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_MALAKK, 1000);
                             break;
                         case NPC_HIGH_PRIESTRESS_MAR_LI:
-                        events.ScheduleEvent(EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS, 1000);
+                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS, 1000);
                             break;
                         case NPC_SUL_THE_SANDCRAWLER:
-                        events.ScheduleEvent(EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER, 1000);
+                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER, 1000);
                             break;
                         default:
                             break;
@@ -258,21 +264,18 @@ class npc_gara_jal_s_soul : public CreatureScript
                     possessed[i] = entries[i];
 
                     bool full = true;
-                    uint8 u = 0;
-
-                    while (full && u < 4)
+                    for (int i = 0; i < 4; i++)
                     {
-                        if (possessed[u] == 0)
+                        if (possessed[i] == 0)
                             full = false;
-                        u++;
                     }
 
                     if (full)
-                        for (uint32 entry : possessed)
-                            entry = 0;
-
+                    {
+                        for (int i = 0; i < 4; i++)
+                            possessed[i] = 0;
+                    }
                 }
-
                 else if (action == ACTION_SOUL_FRAGMENT)
                     events.ScheduleEvent(EVENT_SOUL_FRAGMENT, 1000);
             }
@@ -2050,8 +2053,9 @@ class mob_blessed_loa_spirit : public CreatureScript
                             uint32 minHealth = 0;
                             Creature* minBoss = NULL;
 
-                            for (uint32 entry : mobEntries)
+                            for (int i = 0; i < 4; i++)
                             {
+                                entry = mobEntries[i];
                                 if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
                                 {
                                     if (entry == NPC_KAZRA_JIN)
@@ -2727,7 +2731,6 @@ class spell_soul_fragment_switch : public SpellScriptLoader
                             {
                                 caster->RemoveAura(SPELL_SOUL_FRAGMENT);
                                 caster->CastSpell(target, SPELL_SOUL_FRAGMENT, false);
-                                caster->CastSpell(target, SPELL_SOUL_FRAGMENT_SWITCH, false);
                             }
                         }
                     }
