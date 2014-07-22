@@ -2055,7 +2055,7 @@ class mob_blessed_loa_spirit : public CreatureScript
 
                             for (int i = 0; i < 4; i++)
                             {
-                                entry = mobEntries[i];
+                                uint32 entry = mobEntries[i];
                                 if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
                                 {
                                     if (entry == NPC_KAZRA_JIN)
