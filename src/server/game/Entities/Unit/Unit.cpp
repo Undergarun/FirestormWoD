@@ -16673,33 +16673,14 @@ void Unit::SetPower(Powers power, int32 val, bool regen)
 
     if (IsInWorld() && GetTypeId() == TYPEID_PLAYER && (!regen || regen_diff > 2000))
     {
-        WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
-        ObjectGuid guid = GetGUID();
-
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[1]);
-
         int powerCounter = 1;
-        data.WriteBits(powerCounter, 21);
 
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[5]);
+        WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
+        data.appendPackGUID(GetGUID());
+        data << uint32(powerCounter);
 
         data << int32(val);
         data << uint8(power);
-
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
 
         SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
@@ -22375,34 +22356,15 @@ void Unit::SetEclipsePower(int32 power, bool send)
 
     if (send)
     {
+        int powerCounter = 1;
+
         WorldPacket data(SMSG_POWER_UPDATE);
 
-        ObjectGuid guid = GetGUID();
-
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[1]);
-
-        int powerCounter = 1;
-        data.WriteBits(powerCounter, 21);
-
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[5]);
+        data.appendPackGUID(GetGUID());
+        data << uint32(powerCounter);
 
         data << int32(_eclipsePower);
         data << uint8(POWER_ECLIPSE);
-
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
 
         SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }

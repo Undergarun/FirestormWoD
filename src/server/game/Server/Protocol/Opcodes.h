@@ -76,7 +76,8 @@ enum Opcodes
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x18FA,   ///< 6.0.1 18566
-        SMSG_DESTROY_OBJECT                         = 0x0000,   ///<
+        SMSG_DESTROY_OBJECT                         = 0x104E,   ///< 6.0.1 18566
+        SMSG_POWER_UPDATE                           = 0x0754,   ///< 6.0.1 18566
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   ///< 6.0.1 18566
@@ -260,10 +261,10 @@ enum Opcodes
         SMSG_SPELL_COOLDOWN                             = 0x0000,
         SMSG_SPELL_DAMAGE_SHIELD                        = 0x0000,
         SMSG_SPELL_DELAYED                              = 0x0000,
-        SMSG_SPELL_GO                                   = 0x0000,
+        SMSG_SPELL_GO                                   = 0x05F6,   ///< 6.0.1 18566
         SMSG_SPELL_MULTISTRIKE_EFFECT                   = 0x0000,
         SMSG_SPELL_OR_DAMAGE_IMMUNE                     = 0x0000,
-        SMSG_SPELL_START                                = 0x0000,
+        SMSG_SPELL_START                                = 0x17D6,   ///< 6.0.1 18566
         SMSG_SPELL_UPDATE_CHAIN_TARGETS                 = 0x0000,
 
         /// Logging
@@ -1545,7 +1546,6 @@ enum Opcodes
     SMSG_PLAY_SPELL_VISUAL_KIT                        = 0x0000,
     SMSG_PLAY_TIME_WARNING                            = 0x0000,
     SMSG_PONG                                         = 0x0000,
-    SMSG_POWER_UPDATE                                 = 0x0000,
     SMSG_PRE_RESURRECT                                = 0x0000,
     SMSG_PRINT_NOTIFICATION                           = 0x0000,
     SMSG_PROCRESIST                                   = 0x0000,

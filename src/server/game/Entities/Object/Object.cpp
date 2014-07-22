@@ -312,7 +312,7 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 
     WorldPacket l_Data(SMSG_DESTROY_OBJECT, 8 + 1);
 
-    l_Data << uint64(GetGUID());
+    l_Data.appendPackGUID(GetGUID());
 
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
