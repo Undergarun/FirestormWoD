@@ -78,6 +78,8 @@ enum eCreatures
     NPC_SHA_GLOBE                   = 65691,
     NPC_WATERSPOUT                  = 63823,
     NPC_DREAD_SPAWN                 = 61003,
+    NPC_TRAVEL_TO_DREAD_EXPANSE     = 61735,
+    NPC_RETURN_FROM_DREAD_EXPANSE   = 61746,
 
     // Thrashs
     NPC_APPARITION_OF_FEAR          = 64368,

@@ -53,6 +53,8 @@ enum eShaOfFearSpells
     SPELL_DREAD_THRASH_AURA         = 132007,
     SPELL_DREAD_THRASH_EXTRA_ATT    = 132000,
     SPELL_IMPLACABLE_STRIKE         = 120672,
+    SPELL_WATERSPOUT_CHANNELING     = 120519,
+    SPELL_WATERSPOUT_DAMAGE         = 120521,
     SPELL_NAKED_AND_AFRAID          = 120669,
     SPELL_HUDDLE_IN_TERROR          = 120629,
     SPELL_SUBMERGE_TRANSFORM        = 120455,
@@ -177,7 +179,8 @@ Position returnPos[2] =
     { -978.451f,  -2706.773f, 37.737f, 4.134f }
 };
 
-Position heroicPos = { -1848.261f, -3916.670f, -279.502f, 0.990f };
+Position heroicPos = { -1848.261f, -3916.670f, -279.502f, 0.794f };
+Position heroicSha = { -1631.609f, -3696.202f, -279.502f, 4.000f };
 
 // 60999 - Sha of fear
 class boss_sha_of_fear : public CreatureScript
@@ -237,13 +240,6 @@ class boss_sha_of_fear : public CreatureScript
 
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
-                events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
-                events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
-                events.ScheduleEvent(EVENT_FIRST_TERRORS, 30000);
-                events.ScheduleEvent(EVENT_OMINOUS_CACKLE, 25500);
-                events.ScheduleEvent(EVENT_ENRAGE, 900000);
-
                 attacksCounter  = 0;
                 thrashsCounter  = 0;
                 terrorCounter   = 0;
@@ -252,13 +248,23 @@ class boss_sha_of_fear : public CreatureScript
                 shrine2         = false;
                 shrine3         = false;
                 isInSecondPhase = false;
-                healthPctForSecondPhase = 50;
+                healthPctForSecondPhase = 67;
  
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_EXPANSE_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEI_SHIS_HOPE);
+                    /*
+                    if (IsHeroic())
+                    {
+                        // Removing Lei Shi's hope's aura if we're not on a new try
+                        if (pInstance->GetBossState(DATA_SHA_OF_FEAR) != FAIL)
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEI_SHIS_HOPE);
+                        // Else, we ensure each players of the raid has the buff Lei Shi's hope
+                        else
+                            pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
+                    }
+                    */
  
                     if (pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION))
                         me->AddAura(SPELL_RITUAL_OF_PURIFICATION, me);
@@ -273,7 +279,8 @@ class boss_sha_of_fear : public CreatureScript
                 _JustReachedHome();
  
                 if (pInstance)
-                    pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
+                    if (pInstance->IsWipe())
+                        pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
             }
 
             void EnterCombat(Unit* attacker)
@@ -290,6 +297,13 @@ class boss_sha_of_fear : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     DoZoneInCombat();
                     Talk(TALK_AGGRO);
+
+                    events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
+                    events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
+                    events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                    events.ScheduleEvent(EVENT_FIRST_TERRORS, 30000);
+                    events.ScheduleEvent(EVENT_OMINOUS_CACKLE, 25500);
+                    events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 }
             }
 
@@ -299,11 +313,17 @@ class boss_sha_of_fear : public CreatureScript
                 summons.DespawnAll();
 
                 me->GetMotionMaster()->MoveTargetedHome();
+                me->SetPower(POWER_ENERGY, 0);
                 me->RemoveAllAuras();
                 me->SetFullHealth();
+
                 if (pInstance)
-                    if (pInstance->IsWipe())
-                        pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
+                {
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                }
+
 
                 _EnterEvadeMode();
             }
@@ -322,6 +342,10 @@ class boss_sha_of_fear : public CreatureScript
                     summons.DespawnAll();
                     pInstance->SetBossState(DATA_SHA_OF_FEAR, DONE);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                    me->SetPower(POWER_ENERGY, 0);
                     _JustDied();
                 }
             }
@@ -442,10 +466,10 @@ class boss_sha_of_fear : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (!IsHeroic())
-                    return;
+                //if (!IsHeroic())
+                return;
 
-                // Heroic
+                // Heroic - Phase 2
                 if (me->HealthBelowPctDamaged(healthPctForSecondPhase, damage))
                 {
                     events.Reset();
@@ -460,6 +484,9 @@ class boss_sha_of_fear : public CreatureScript
 
                     if (Player* champion = GetChampionOfLight(me))
                         champion->CastSpell(champion, SPELL_CHAMPION_OF_LIGHT_HEROIC, true);
+
+                    // Summoning NPC for travelling
+                    me->SummonCreature(NPC_TRAVEL_TO_DREAD_EXPANSE, heroicPos);
 
                     events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 10000);
                     events.ScheduleEvent(EVENT_WATERSPOUT, 12000);
@@ -647,6 +674,7 @@ class boss_sha_of_fear : public CreatureScript
                         if (!IsHeroic())
                             break;
 
+                        DoCast(me, SPELL_WATERSPOUT_CHANNELING, true);
                         events.ScheduleEvent(EVENT_WATERSPOUT, 10000);
                         break;
                     }
@@ -787,6 +815,8 @@ class mob_pure_light_terrace : public CreatureScript
                                         {
                                             sha->AddThreat(champion, 1000000.0f);
                                             sha->AI()->AttackStart(champion);
+                                            if (pInstance->GetBossState(DATA_SHA_OF_FEAR) == FAIL || pInstance->GetBossState(DATA_SHA_OF_FEAR) == NOT_STARTED)
+                                                sha->AI()->EnterCombat(champion);
                                         }
                                     }
                                 }
@@ -1270,6 +1300,47 @@ class mob_dread_spawn : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_dread_spawnAI(creature);
+        }
+};
+
+// 61735 - Travel to Dread Expanse
+class mob_travel_to_dread_expanse : public CreatureScript
+{
+    public:
+        mob_travel_to_dread_expanse() : CreatureScript("mob_travel_to_dread_expanse") { }
+
+        struct mob_travel_to_dread_expanseAI : public ScriptedAI
+        {
+            mob_travel_to_dread_expanseAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            InstanceScript* pInstance;
+
+            void Reset()
+            {
+                // Teleporting players
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                {
+                    Position pos;
+                    me->GetNearPosition(pos, frand(5.0f, 10.0f), M_PI * 2 / 3);
+
+                    itr->getSource()->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), me->GetOrientation());
+                }
+
+                // Teleporting Sha
+                if (Creature* Sha = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHA_OF_FEAR)))
+                    Sha->NearTeleportTo(heroicSha.GetPositionX(), heroicSha.GetPositionY(), heroicSha.GetPositionZ(), heroicSha.GetOrientation());
+
+                me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_travel_to_dread_expanseAI(creature);
         }
 };
 
@@ -1774,6 +1845,47 @@ class spell_emerge : public SpellScriptLoader
         }
 };
 
+// 120519 - Waterspout
+class spell_sha_waterspout : public SpellScriptLoader
+{
+    public:
+        spell_sha_waterspout() : SpellScriptLoader("spell_sha_waterspout") { }
+
+        class spell_sha_waterspout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_waterspout_SpellScript);
+
+            void Damage()
+            {
+                Unit* caster = GetCaster();
+
+                if (!caster)
+                    return;
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, caster, 500.0f);
+
+                JadeCore::RandomResizeList(playerList, caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2);
+
+                if (playerList.empty())
+                    return;
+
+                for (Player* target : playerList)
+                    caster->CastSpell(target, SPELL_WATERSPOUT_DAMAGE, false);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_waterspout_SpellScript::Damage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_waterspout_SpellScript();
+        }
+};
+
 void AddSC_boss_sha_of_fear()
 {
     new boss_sha_of_fear();             // 60999
@@ -1783,6 +1895,7 @@ void AddSC_boss_sha_of_fear()
     new mob_shrine_guardian();          // 61038 - 61042 - 61046
     new mob_sha_globe();                // 65691
     new mob_dread_spawn();              // 61003
+    new mob_travel_to_dread_expanse();  // 61735
     new spell_breath_of_fear();         // 119414 - 125786
     new spell_conjure_terror_spawn();   // 119108
     new spell_penetrating_bolt();       // 129075
@@ -1794,4 +1907,5 @@ void AddSC_boss_sha_of_fear()
     new spell_death_blossom_damage();   // 119887
     new spell_submerge();               // 120455
     new spell_emerge();                 // 120458
+    new spell_sha_waterspout();         // 120519
 }
