@@ -377,6 +377,11 @@ enum Opcodes
     CMSG_ATTACKSWING                            = 0x1347,   ///< 6.0.1 18566
 
     //////////////////////////////////////////////////////////////////////////
+    /// Spell
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_CAST_SPELL                             = 0x0326,   ///< 6.0.1 18566
+
+    //////////////////////////////////////////////////////////////////////////
     /// Cache
     //////////////////////////////////////////////////////////////////////////
     CMSG_REQUEST_HOTFIX                         = 0x006A,   ///< 6.0.1 18566
@@ -589,7 +594,6 @@ enum Opcodes
     CMSG_CANCEL_QUEUED_SPELL                          = 0x0000,
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x0000,
     CMSG_CANCEL_TRADE                                 = 0x0000,
-    CMSG_CAST_SPELL                                   = 0x0000 + 3,
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0x0000,
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0x0000,
     CMSG_CHANNEL_ANNOUNCEMENTS                        = 0x0000,

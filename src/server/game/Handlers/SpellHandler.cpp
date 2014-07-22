@@ -506,185 +506,139 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
 }
 
-void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 {
-    uint32 spellId, glyphIndex = 0;
-    uint8  castCount = 0;
-    uint8 unkStringLength = 0;
-    float speed = 0.00f, elevation = 0.00f;
-    std::string unkString;
+    std::string l_SrcTargetName;
 
-    ObjectGuid itemTarget, Guid2, Guid3, targetGuid;
+    uint64 l_TargetItemGUID = 0;
+    uint64 l_SourceTargetGUID = 0;
+    uint64 l_DestinationTargetGUID = 0;
+    uint64 l_TargetGUID = 0;
+    uint64 l_UnkGUID = 0;
 
-    bool hasTargetFlags = !(recvPacket.ReadBit());
-    bool hasCountCast = !(recvPacket.ReadBit());
-    bool hasUnk1 = !(recvPacket.ReadBit());
-    bool hasSpellId = !(recvPacket.ReadBit());
-    uint8 archeologyCounter = recvPacket.ReadBits(2);
-    bool hasGuid0 = !(recvPacket.ReadBit());
-    bool hasElevation = !(recvPacket.ReadBit());
-    bool hasTargetGuid = !(recvPacket.ReadBit());
-    bool hasGuid3 = recvPacket.ReadBit();
-    bool hasSpeed = !(recvPacket.ReadBit());
-    bool hasUnkString = !(recvPacket.ReadBit());
-    bool hasGuid2 = recvPacket.ReadBit();
-    bool hasMovement = recvPacket.ReadBit();
-    bool hasUnk4 = !(recvPacket.ReadBit());
+    float l_MissibleTrajectorySpeed = 0.00f;
+    float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint32 targetFlags = 0;
+    uint8   * l_SpellWeightType     = nullptr;
+    uint32  * l_SpellWeightID       = nullptr;
+    uint32  * l_SpellWeightQuantity = nullptr;
 
-    uint8* archeologyType = NULL;
-    uint32* entry = NULL;
-    uint32* usedCount = NULL;
-    if (archeologyCounter > 0)
+    uint32 l_SpellID            = 0;
+    uint32 l_Misc               = 0;
+    uint32 l_TargetFlags        = 0;
+    uint32 l_NameLenght         = 0;
+    uint32 l_SpellWeightCount   = 0;
+
+    float l_UnkFloat = 0;
+
+    uint8 l_CastCount = 0;
+    uint8 l_SendCastFlag = 0;
+
+    bool l_HasSourceTarget      = false;
+    bool l_HasDestinationTarget = false;
+    bool l_HasUnkFloat          = false;
+    bool l_HasMovementInfos     = false;
+
+    WorldLocation l_SourceTargetPosition;
+    WorldLocation l_DestinationTargetPosition;
+
+    p_RecvPacket >> l_CastCount;
+    p_RecvPacket >> l_SpellID;
+    p_RecvPacket >> l_Misc;
+
+    l_TargetFlags           = p_RecvPacket.ReadBits(20);
+    l_HasSourceTarget       = p_RecvPacket.ReadBit();
+    l_HasDestinationTarget  = p_RecvPacket.ReadBit();
+    l_HasUnkFloat           = p_RecvPacket.ReadBit();
+    l_NameLenght            = p_RecvPacket.ReadBits(7);
+    p_RecvPacket.readPackGUID(l_TargetGUID);
+    p_RecvPacket.readPackGUID(l_TargetItemGUID);
+
+    if (l_HasSourceTarget)
     {
-        archeologyType = new uint8[archeologyCounter];
-        
-        entry = new uint32[archeologyCounter];
-        usedCount = new uint32[archeologyCounter];
+        p_RecvPacket.readPackGUID(l_SourceTargetGUID);
+        p_RecvPacket >> l_SourceTargetPosition.m_positionX;
+        p_RecvPacket >> l_SourceTargetPosition.m_positionY;
+        p_RecvPacket >> l_SourceTargetPosition.m_positionZ;
     }
 
-    for (int i = 0; i < archeologyCounter; ++i)
+    if (l_HasDestinationTarget)
     {
-        archeologyType[i] = recvPacket.ReadBits(2);
+        p_RecvPacket.readPackGUID(l_DestinationTargetGUID);
+        p_RecvPacket >> l_DestinationTargetPosition.m_positionX;
+        p_RecvPacket >> l_DestinationTargetPosition.m_positionY;
+        p_RecvPacket >> l_DestinationTargetPosition.m_positionZ;
     }
 
-    if (hasMovement)
+    if (l_HasUnkFloat)
+        p_RecvPacket >> l_UnkFloat;
+
+    l_SrcTargetName = p_RecvPacket.ReadString(l_NameLenght);
+
+    p_RecvPacket >> l_MissibleTrajectoryPitch;
+    p_RecvPacket >> l_MissibleTrajectorySpeed;
+
+    p_RecvPacket.readPackGUID(l_UnkGUID);
+
+    l_SendCastFlag      = p_RecvPacket.ReadBits(5);
+    l_HasMovementInfos  = p_RecvPacket.ReadBit();
+    l_SpellWeightCount  = p_RecvPacket.ReadBits(2);
+
+    if (l_HasMovementInfos)
+        HandleMovementOpcodes(p_RecvPacket);
+
+    if (l_SpellWeightCount)
     {
-        // Kebab client side
-    }
+        l_SpellWeightType       = new uint8[l_SpellWeightCount];
+        l_SpellWeightID         = new uint32[l_SpellWeightCount];
+        l_SpellWeightQuantity   = new uint32[l_SpellWeightCount];
 
-    if (hasTargetFlags)
-        targetFlags = recvPacket.ReadBits(20);
-
-    uint8 bitsOrder[8] = { 2, 1, 3, 6, 5, 4, 7, 0 };
-    recvPacket.ReadBitInOrder(itemTarget, bitsOrder);
-
-    if (hasGuid3)
-    {
-        uint8 bitsOrder2[8] = { 3, 6, 1, 0, 4, 5, 7, 2 };
-        recvPacket.ReadBitInOrder(Guid3, bitsOrder2);
-    }
-
-    if (hasGuid2)
-    {
-        uint8 bitsOrder3[8] = { 6, 3, 5, 2, 0, 4, 1, 7 };
-        recvPacket.ReadBitInOrder(Guid2, bitsOrder3);
-    }
-
-    uint8 bitsOrder4[8] = { 5, 0, 2, 3, 1, 4, 6, 7 };
-    recvPacket.ReadBitInOrder(targetGuid, bitsOrder4);
-
-    if (hasUnkString)
-        unkStringLength = recvPacket.ReadBits(7);
-
-    if (hasUnk4)
-        recvPacket.ReadBits(5);
-
-    recvPacket.FlushBits();
-
-    for (int i = 0; i < archeologyCounter; i++)
-    {
-        switch (archeologyType[i])
+        for (uint32 l_I = 0; l_I < l_SpellWeightCount; ++l_I)
         {
-            case 2: // Keystones
-                recvPacket >> usedCount[i];    // Item count
-                recvPacket >> entry[i];        // Item id
-                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], false);
-                break;
-            case 0: // Fragments
-                recvPacket >> usedCount[i];    // Currency count
-                recvPacket >> entry[i];        // Currency id
-                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], true);
-                break;
-            default:
-                break;
+            l_SpellWeightType[l_I] = p_RecvPacket.ReadBits(2);
+            p_RecvPacket >> l_SpellWeightID[l_I];
+            p_RecvPacket >> l_SpellWeightQuantity[l_I];
         }
     }
 
-    if (hasMovement)
+    //////////////////////////////////////////////////////////////////////////
+
+    if (l_SpellWeightCount)
     {
-        // Kebab client side
+        for (int l_I = 0; l_I < l_SpellWeightCount; l_I++)
+        {
+            switch (l_SpellWeightType[l_I])
+            {
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
+                case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        delete[] l_SpellWeightType;
+        delete[] l_SpellWeightID;
+        delete[] l_SpellWeightQuantity;
     }
 
-    if (hasSpellId)
-        recvPacket >> spellId;
-
-    WorldLocation srcPos;
-    if (hasGuid2)
-    {
-        recvPacket.ReadByteSeq(Guid2[7]);
-        recvPacket >> srcPos.m_positionX;
-        recvPacket.ReadByteSeq(Guid2[6]);
-        recvPacket.ReadByteSeq(Guid2[0]);
-        recvPacket >> srcPos.m_positionY;
-        recvPacket.ReadByteSeq(Guid2[1]);
-        recvPacket.ReadByteSeq(Guid2[4]);
-        recvPacket >> srcPos.m_positionZ;
-        recvPacket.ReadByteSeq(Guid2[3]);
-        recvPacket.ReadByteSeq(Guid2[2]);
-        recvPacket.ReadByteSeq(Guid2[5]);
-    }
-
-    WorldLocation destPos;
-    if (hasGuid3)
-    {
-        recvPacket.ReadByteSeq(Guid3[5]);
-        recvPacket.ReadByteSeq(Guid3[4]);
-        recvPacket.ReadByteSeq(Guid3[3]);
-        recvPacket.ReadByteSeq(Guid3[1]);
-        recvPacket >> destPos.m_positionZ;
-        recvPacket >> destPos.m_positionY;
-        recvPacket.ReadByteSeq(Guid3[2]);
-        recvPacket.ReadByteSeq(Guid3[6]);
-        recvPacket.ReadByteSeq(Guid3[7]);
-        recvPacket >> destPos.m_positionX;
-        recvPacket.ReadByteSeq(Guid3[0]);
-    }
-
-    uint8 byteOrder[8] = { 7, 2, 6, 0, 4, 5, 1, 3 };
-    recvPacket.ReadBytesSeq(targetGuid, byteOrder);
-
-    uint8 byteOrder2[8] = { 1, 0, 2, 3, 5, 6, 7, 4 };
-    recvPacket.ReadBytesSeq(itemTarget, byteOrder2);
-
-    if (hasCountCast)
-        recvPacket >> castCount;
-
-    if (hasSpeed)
-        recvPacket >> speed;
-
-    if (hasUnkString)
-        unkString = recvPacket.ReadString(unkStringLength);
-
-    if (hasUnk1)
-        recvPacket >> glyphIndex; // not sure about this ...
-
-    if (hasElevation)
-        recvPacket >> elevation;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got cast spell packet, castCount: %u, spellId: %u, targetFlags: %u, data length = %u", castCount, spellId, targetFlags, (uint32)recvPacket.size());
-
-    if (archeologyType != NULL)
-        delete[] archeologyType;
-    if (entry != NULL)
-        delete[] entry;
-    if (usedCount != NULL)
-        delete[] usedCount;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got cast spell packet, castCount: %u, spellId: %u, targetFlags: %u, data length = %u", l_CastCount, l_SpellID, l_TargetFlags, (uint32)p_RecvPacket.size());
 
     // ignore for remote control state (for player case)
     Unit* mover = m_Player->m_mover;
     if (mover != m_Player && mover->GetTypeId() == TYPEID_PLAYER)
     {
-        recvPacket.rfinish(); // prevent spam at ignore packet
+        p_RecvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown spell id %u", spellId);
-        recvPacket.rfinish(); // prevent spam at ignore packet
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown spell id %u", l_SpellID);
+        p_RecvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
@@ -699,7 +653,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 if (overrideSpellInfo)
                 {
                     spellInfo = overrideSpellInfo;
-                    spellId = itr;
+                    l_SpellID = itr;
                 }
                 break;
             }
@@ -714,18 +668,18 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     if (spellInfo->IsPassive())
     {
-        recvPacket.rfinish(); // prevent spam at ignore packet 
+        p_RecvPacket.rfinish(); // prevent spam at ignore packet 
         return; 
     }
 
     Unit* caster = mover;
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId)) 
+    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(l_SpellID)) 
     {
         // If the vehicle creature does not have the spell but it allows the passenger to cast own spells 
         // change caster to player and let him cast
         if (!m_Player->IsOnVehicle(caster) || spellInfo->CheckVehicle(m_Player) != SPELL_CAST_OK) 
         {
-            recvPacket.rfinish(); // prevent spam at ignore packet
+            p_RecvPacket.rfinish(); // prevent spam at ignore packet
             return;
         }
 
@@ -733,15 +687,15 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     if (caster->GetTypeId() == TYPEID_PLAYER && 
-        !caster->ToPlayer()->HasActiveSpell(spellId) &&
-         spellId != 101603 && // Hack for Throw Totem, Echo of Baine 
-         spellId != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(targetGuid)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+        !caster->ToPlayer()->HasActiveSpell(l_SpellID) &&
+         l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine 
+         l_SpellID != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(l_TargetGUID)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
     {
         // not have spell in spellbook 
         // cheater? kick? ban?
         if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
         {
-            recvPacket.rfinish(); // prevent spam at ignore packet
+            p_RecvPacket.rfinish(); // prevent spam at ignore packet
             return;
         } 
     }
@@ -760,7 +714,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
                 {
                     spellInfo = newInfo;
-                    spellId = newInfo->Id;
+                    l_SpellID = newInfo->Id;
                 }
                 break;
             }
@@ -772,14 +726,14 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if (spellInfo->IsAutoRepeatRangedSpell() && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
         && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
     {
-        recvPacket.rfinish();
+        p_RecvPacket.rfinish();
         return;
     }
 
     // can't use our own spells when we're in possession of another unit,
     if (m_Player->isPossessing())
     {
-        recvPacket.rfinish(); // prevent spam at ignore packet
+        p_RecvPacket.rfinish(); // prevent spam at ignore packet
         return;
     }
 
@@ -801,9 +755,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // TODO : TARGET_FLAG_TRADE_ITEM, TARGET_FLAG_SOURCE_LOCATION, TARGET_FLAG_DEST_LOCATION, TARGET_FLAG_UNIT_MINIPET, TARGET_FLAG_CORPSE_ENEMY, TARGET_FLAG_CORPSE_ALLY
 
-    targets.Initialize(targetFlags, targetGuid, itemTarget, Guid3, destPos, Guid2, srcPos);
-    targets.SetElevation(elevation);
-    targets.SetSpeed(speed);
+    targets.Initialize(l_TargetFlags, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
+    targets.SetElevation(l_MissibleTrajectoryPitch);
+    targets.SetSpeed(l_MissibleTrajectorySpeed);
     targets.Update(mover);
 
     // auto-selection buff level base at target level (in spellInfo)
@@ -824,7 +778,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Aimed Shot - 19434 and Aimed Shot (for Master Marksman) - 82928
@@ -834,7 +788,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Alter Time - 108978 and Alter Time (overrided) - 127140
@@ -844,7 +798,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Fix Dark Soul for Destruction warlocks
@@ -854,7 +808,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Consecration - 116467 and Consecration - 26573
@@ -864,7 +818,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Cascade (shadow) - 127632 and Cascade - 121135
@@ -874,7 +828,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Zen Pilgrimage - 126892 and Zen Pilgrimage : Return - 126895
@@ -884,7 +838,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Soul Swap - 86121 and Soul Swap : Exhale - 86213
@@ -894,7 +848,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
             m_Player->RemoveAura(86211);
         }
     }
@@ -905,7 +859,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Mage Bomb - 125430 and Frost Bomb - 112948
@@ -915,7 +869,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Mage Bomb - 125430 and  Nether Tempest - 114923
@@ -925,7 +879,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Evocation - 12051 and  Rune of Power - 116011
@@ -935,7 +889,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (newSpellInfo)
         {
             spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
+            l_SpellID = newSpellInfo->Id;
         }
     }
     // Frostbolt - 116 and Frostbolt - 126201 (heal for water elemental)
@@ -947,7 +901,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             if (newSpellInfo)
             {
                 spellInfo = newSpellInfo;
-                spellId = newSpellInfo->Id;
+                l_SpellID = newSpellInfo->Id;
             }
         }
     }
@@ -955,7 +909,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // Surging Mist is instantly casted if player is channeling Soothing Mist
     else if (spellInfo->Id == 116694 && m_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && m_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
     {
-        recvPacket.rfinish();
+        p_RecvPacket.rfinish();
         m_Player->CastSpell(targets.GetUnitTarget(), 116995, true);
         m_Player->EnergizeBySpell(m_Player, 116995, 1, POWER_CHI);
         int32 powerCost = spellInfo->CalcPowerCost(m_Player, spellInfo->GetSchoolMask(), m_Player->GetSpellPowerEntryBySpell(spellInfo));
@@ -966,7 +920,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // Enveloping Mist is instantly casted if player is channeling Soothing Mist
     else if (spellInfo->Id == 124682 && m_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && m_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
     {
-        recvPacket.rfinish();
+        p_RecvPacket.rfinish();
         m_Player->CastSpell(targets.GetUnitTarget(), 132120, true);
         int32 powerCost = spellInfo->CalcPowerCost(m_Player, spellInfo->GetSchoolMask(), m_Player->GetSpellPowerEntryBySpell(spellInfo));
         m_Player->ModifyPower(POWER_CHI, -powerCost);
@@ -974,8 +928,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
-    spell->m_cast_count = castCount;                       // set count of casts
-    spell->m_glyphIndex = glyphIndex;
+    spell->m_cast_count = l_CastCount;                       // set count of casts
+    spell->m_glyphIndex = l_Misc;
     spell->prepare(&targets);
 }
 

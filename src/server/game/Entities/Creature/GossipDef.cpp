@@ -173,13 +173,12 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 
     data.appendPackGUID(objectGUID);
 
-    data << uint32(0);
-
     if (titleTextId == DEFAULT_GOSSIP_MESSAGE && !_gossipMenu.GetMenuId())
         data << uint32(DEFAULT_GREETINGS_GOSSIP);           // default greeting ID
     else
         data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
-                              // Friendship faction
+
+    data << uint32(0);                                      // Friendship faction
     data << uint32(titleTextId);
     data << uint32(_gossipMenu.GetMenuItems().size());
     data << uint32(_questMenu.GetMenuItemCount());

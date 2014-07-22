@@ -428,6 +428,11 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_ATTACKSWING,                                     STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAttackSwingOpcode          );
 
     //////////////////////////////////////////////////////////////////////////
+    /// Spell
+    //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_CAST_SPELL,                                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleCastSpellOpcode            );
+
+    //////////////////////////////////////////////////////////////////////////
     /// Cache
     //////////////////////////////////////////////////////////////////////////
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_HOTFIX,                                  STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleRequestHotfix              );
@@ -590,7 +595,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TRADE,                            STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTradeOpcode);
-    //DEFINE_OPCODE_HANDLER(CMSG_CAST_SPELL,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCastSpellOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE,      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChangeSeatsOnControlledVehicle);
     //DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_ANNOUNCEMENTS,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelAnnouncements      );
