@@ -238,10 +238,10 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
 
     // Set adds in combat
     uint32 addEntries[3] = {NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER};
-    for (uint32 entry : addEntries)
+    for (uint8 i = 0; i < 4; ++i)
     {
         std::list<Creature*> addList;
-        GetCreatureListWithEntryInGrid(addList, launcher, entry, 30.0f);
+        GetCreatureListWithEntryInGrid(addList, launcher, addEntries[i], 30.0f);
         for (Creature* add : addList)
             add->SetInCombatWithZone();
     }
