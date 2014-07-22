@@ -199,14 +199,14 @@ namespace Movement
 
         WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
 
-        l_Data << uint64(l_MoverGUID);
-        l_Data << float(l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first()).x);               ///< Spline start X
-        l_Data << float(l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first()).y);               ///< Spline start Y
-        l_Data << float(l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first()).z);               ///< Spline start Z
-        l_Data << uint32(getMSTime());                                                              ///< Move Ticks
-        l_Data << float(0.0f);                                                                      ///< unk float
-        l_Data << float(0.0f);                                                                      ///< unk float
-        l_Data << float(0.0f);                                                                      ///< unk float
+        l_Data.appendPackGUID(l_MoverGUID);
+        l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
+        l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
+        l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
+        l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
+        l_Data << float(l_MoveSpline.CurrentDestination().x);                                       ///< unk float
+        l_Data << float(l_MoveSpline.CurrentDestination().y);                                       ///< unk float
+        l_Data << float(l_MoveSpline.CurrentDestination().z);                                       ///< unk float
         l_Data << uint32(l_Splineflags & ~MoveSplineFlag::Mask_No_Monster_Move);                    ///< Spline raw flags
         l_Data << uint8(l_Splineflags.getAnimationId());                                            ///< Animation ID
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Animation Time
@@ -217,7 +217,7 @@ namespace Movement
         l_Data << uint32(l_UncompressedWayPointCount);                                              ///< Uncompressed waypoint count
         l_Data << uint8(0);                                                                         ///< unk
         l_Data << uint8(0);                                                                         ///< unk
-        l_Data << uint64(l_TransportGUID);                                                          ///< Transport guid
+        l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
         l_Data << uint32(l_CompressedWayPointCount);                                                ///< Compressed waypoint count
 
@@ -256,15 +256,19 @@ namespace Movement
         }
 
         l_Data.WriteBits(l_FinalFacingMode, 2);
-        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);                         ///< Has unk spline
         l_Data.FlushBits();
 
         if (l_FinalFacingMode == MonsterMoveFacingAngle)
             l_Data << l_MoveSpline.facing.angle; 
         else if (l_FinalFacingMode == MonsterMoveFacingTarget)
-            l_Data << uint64(l_MoveSpline.facing.target);
+            l_Data.appendPackGUID(l_MoveSpline.facing.target);
         else if (l_FinalFacingMode == MonsterMoveFacingSpot)
             l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;
+
+        l_Data.WriteBit(0);
+        l_Data.WriteBits(0, 2);
+        l_Data.FlushBits();
 
         m_Unit.SendMessageToSet(&l_Data, true);
     }
@@ -298,14 +302,14 @@ namespace Movement
 
         WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
 
-        l_Data << uint64(l_MoverGUID);
-        l_Data << float(l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first()).x);               ///< Spline start X
-        l_Data << float(l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first()).y);               ///< Spline start Y
-        l_Data << float(l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first()).z);               ///< Spline start Z
-        l_Data << uint32(getMSTime());                                                              ///< Move Ticks
-        l_Data << float(0.0f);                                                                      ///< unk float
-        l_Data << float(0.0f);                                                                      ///< unk float
-        l_Data << float(0.0f);                                                                      ///< unk float
+        l_Data.appendPackGUID(l_MoverGUID);
+        l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
+        l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
+        l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
+        l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
+        l_Data << float(l_MoveSpline.CurrentDestination().x);                                       ///< unk float
+        l_Data << float(l_MoveSpline.CurrentDestination().y);                                       ///< unk float
+        l_Data << float(l_MoveSpline.CurrentDestination().z);                                       ///< unk float
         l_Data << uint32(0);                                                                        ///< Spline raw flags
         l_Data << uint8(0);                                                                         ///< Animation ID
         l_Data << int32(0);                                                                         ///< Animation Time
@@ -316,15 +320,19 @@ namespace Movement
         l_Data << uint32(0);                                                                        ///< Uncompressed waypoint count
         l_Data << uint8(0);                                                                         ///< unk
         l_Data << uint8(0);                                                                         ///< unk
-        l_Data << uint64(l_TransportGUID);                                                          ///< Transport guid
+        l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
         l_Data << uint32(0);                                                                        ///< Compressed waypoint count
 
-        l_Data.WriteBits(l_FinalFacingMode, 2);
+        l_Data.WriteBits(0, 2);
         l_Data.WriteBit(0);
         l_Data.FlushBits();
 
-        m_Unit.SendMessageToSet(&l_Data, true);
+        l_Data.WriteBit(0);
+        l_Data.WriteBits(0, 2);
+        l_Data.FlushBits();
+
+        //m_Unit.SendMessageToSet(&l_Data, true);
     }
 
     MoveSplineInit::MoveSplineInit(Unit& m) : m_Unit(m)

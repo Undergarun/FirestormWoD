@@ -546,7 +546,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                     *p_Data << float(l_Spline->facing.angle);               ///< Final facing angle
 
                 if (l_FinalFacingMove == 2)
-                    *p_Data << uint64(l_Spline->facing.target);             ///< Final facing target object
+                    p_Data->appendPackGUID(l_Spline->facing.target);        ///< Final facing target object
 
                 if (l_FinalFacingMove == 1)
                 {

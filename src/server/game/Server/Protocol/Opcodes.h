@@ -218,7 +218,7 @@ enum Opcodes
     /// Jam Client Move
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamMove
-        SMSG_MONSTER_MOVE                           = 0x0000,   ///<
+        SMSG_MONSTER_MOVE                           = 0x03F5,   ///< 6.0.1 18566
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
