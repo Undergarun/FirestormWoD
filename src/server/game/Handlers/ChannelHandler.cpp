@@ -32,12 +32,10 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
     recvPacket >> channelId;
 
     recvPacket.ReadBit(); // If channel's length is odd ? Not used ...
-    channelLength |= recvPacket.ReadBits(7);
-
-    passLength = recvPacket.ReadBits(7);
     recvPacket.ReadBit(); // If pass's length is odd ? Not used ...
 
-    recvPacket.FlushBits();
+    channelLength = recvPacket.ReadBits(7);
+    passLength = recvPacket.ReadBits(7);
 
     channelName = recvPacket.ReadString(channelLength);
     pass = recvPacket.ReadString(passLength);

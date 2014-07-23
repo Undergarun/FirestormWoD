@@ -267,12 +267,14 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
             ObjectMgr::GetLocaleString(localeData->IconName, locale, iconText);
 
     WorldPacket data(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);  // guess size
-    data << uint32(poi->flags);
+    data.WriteBits(poi->flags, 14);
+    data.WriteBits(iconText.length(), 6);
+    data.FlushBits();
     data << float(poi->x);
     data << float(poi->y);
     data << uint32(poi->icon);
     data << uint32(poi->data);
-    data << iconText;
+    data.WriteString(iconText);
 
     _session->SendPacket(&data);
 }

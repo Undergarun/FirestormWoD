@@ -55,7 +55,7 @@ enum Opcodes
     #pragma region JamDispatch
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   ///< 6.0.1 18566
-        SMSG_CACHE_VERSION                          = 0x0000,   ///<
+        SMSG_CACHE_VERSION                          = 0x10EA,   ///< 6.0.1 18566
         SMSG_ADDON_INFO                             = 0x0EE2,   ///< 6.0.1 18566
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x0000,   ///<
         SMSG_SET_TIME_ZONE_INFORMATION              = 0x0547,   ///< 6.0.1 18566
@@ -70,9 +70,13 @@ enum Opcodes
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x1269,   ///< 6.0.1 18566
+        SMSG_SET_PROFICIENCY                        = 0x1ACE,   ///< 6.0.1 18566
+        SMSG_INIT_WORLD_STATES                      = 0x12ED,   ///< 6.0.1 18566
+        SMSG_UPDATE_WORLD_STATE                     = 0x1D61,   ///< 6.0.1 18566
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x02CE,   ///< 6.0.1 18566
+        SMSG_GOSSIP_POI                             = 0x1D48,   ///< 6.0.1 18566
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x18FA,   ///< 6.0.1 18566
@@ -81,11 +85,17 @@ enum Opcodes
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   ///< 6.0.1 18566
-        SMSG_CREATE_CHAR                            = 0x0000,   ///<
+        SMSG_CREATE_CHAR                            = 0x0447,   ///< 6.0.1 18566
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0000,   ///<
         SMSG_TUTORIAL_FLAGS                         = 0x0E2A,   ///< 6.0.1 18566
+
+        /// Combat
+        SMSG_ATTACKER_STATE_UPDATE                  = 0x1D57,   ///< 6.0.1 18566
+        SMSG_ATTACK_START                           = 0x1097,   ///< 6.0.1 18566
+        SMSG_ATTACK_STOP                            = 0x18ED,   ///< 6.0.1 18566
+        SMSG_AI_REACTION                            = 0x1F46,   ///< 6.0.1 18566
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -205,11 +215,11 @@ enum Opcodes
         SMSG_CHAT_IGNORED_ACCOUNT_MUTED             = 0x0000,
         SMSG_CHAT_DOWN                              = 0x0000,
         SMSG_CHAT_AUTO_RESPONDED                    = 0x0000,
-        SMSG_CHAT                                   = 0x0000,
+        SMSG_CHAT                                   = 0x00D2,   ///< 6.0.1 18566
 
         /// Channel
-        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0000,   ///<
-        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x0000,   ///<
+        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0073,   ///< 6.0.1 18566
+        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x0077,   ///< 6.0.1 18566
         SMSG_CHANNEL_NOTIFY                         = 0x0000,
         SMSG_CHANNEL_LIST                           = 0x0000,   ///<
     #pragma endregion
@@ -374,13 +384,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ATTACKSTOP                             = 0x020E,   ///< 6.0.1 18566
-    CMSG_ATTACKSWING                            = 0x1347,   ///< 6.0.1 18566
+    CMSG_ATTACKSTOP                             = 0x1347,   ///< 6.0.1 18566
+    CMSG_ATTACKSWING                            = 0x020E,   ///< 6.0.1 18566
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
     CMSG_CAST_SPELL                             = 0x0326,   ///< 6.0.1 18566
+    CMSG_CANCEL_CAST                            = 0x0968,   ///< 6.0.1 18566
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
@@ -421,17 +432,19 @@ enum Opcodes
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0001,   ///<
     CMSG_CHAT_MESSAGE_PARTY                     = 0x0002,   ///<
-    CMSG_CHAT_MESSAGE_YELL                      = 0x0003,   ///<
+    CMSG_CHAT_MESSAGE_YELL                      = 0x17D6,   ///< 6.0.1 18566
     CMSG_CHAT_MESSAGE_SAY                       = 0x16D2,   ///< 6.0.1 18566
-    CMSG_CHAT_MESSAGE_OFFICER                   = 0x0005,   ///<
-    CMSG_CHAT_MESSAGE_EMOTE                     = 0x0006,   ///<
-    CMSG_CHAT_MESSAGE_AFK                       = 0x0007,   ///<
-    CMSG_CHAT_MESSAGE_DND                       = 0x0008,   ///<
-    CMSG_CHAT_MESSAGE_GUILD                     = 0x0009,   ///<
+    CMSG_CHAT_MESSAGE_OFFICER                   = 0x18C5,   ///< 6.0.1 18566
+    CMSG_CHAT_MESSAGE_EMOTE                     = 0x05F6,   ///< 6.0.1 18566
+    CMSG_CHAT_MESSAGE_AFK                       = 0x09A3,   ///< 6.0.1 18566
+    CMSG_CHAT_MESSAGE_DND                       = 0x18E4,   ///< 6.0.1 18566
+    CMSG_CHAT_MESSAGE_GUILD                     = 0x0FD2,   ///< 6.0.1 18566
     CMSG_CHAT_MESSAGE_RAID                      = 0x000A,   ///<
-    CMSG_CHAT_MESSAGE_WHISPER                   = 0x000B,   ///<
+    CMSG_CHAT_MESSAGE_WHISPER                   = 0x098B,   ///< 6.0.1 18566
     CMSG_CHAT_MESSAGE_CHANNEL                   = 0x000C,   ///<
 
+    CMSG_JOIN_CHANNEL                           = 0x0066,   ///< 6.0.1 18566
+     
     //////////////////////////////////////////////////////////////////////////
     /// Movement
     //////////////////////////////////////////////////////////////////////////
@@ -588,7 +601,6 @@ enum Opcodes
     CMSG_CALENDAR_UPDATE_EVENT                        = 0x0000,
     CMSG_CANCEL_AURA                                  = 0x0000,
     CMSG_CANCEL_AUTO_REPEAT_SPELL                     = 0x0000,
-    CMSG_CANCEL_CAST                                  = 0x0000,
     CMSG_CANCEL_CHANNELLING                           = 0x0000,
     CMSG_CANCEL_GROWTH_AURA                           = 0x0000,
     CMSG_CANCEL_MOUNT_AURA                            = 0x0000,
@@ -751,7 +763,6 @@ enum Opcodes
     CMSG_ITEM_REFUND                                  = 0x0000,
     CMSG_ITEM_REFUND_INFO                             = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
-    CMSG_JOIN_CHANNEL                                 = 0x0000,
     CMSG_KEEP_ALIVE                                   = 0x0000,
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x0000,
     CMSG_LEARN_TALENTS                                = 0x0000,
@@ -1032,7 +1043,6 @@ enum Opcodes
     SMSG_ADD_RUNE_POWER                               = 0x0000,
     SMSG_AE_LOOT_TARGETS                              = 0x0000,
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x0000,
-    SMSG_AI_REACTION                                  = 0x0000,
     SMSG_ALL_ACHIEVEMENT_DATA                         = 0x0000,
     SMSG_APPLY_MOVEMENT_FORCE                         = 0x0000,
     SMSG_AREA_SPIRIT_HEALER_TIME                      = 0x0000,
@@ -1053,9 +1063,6 @@ enum Opcodes
     SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0x0000,
     SMSG_ARENA_TEAM_ROSTER                            = 0x0000,
     SMSG_ARENA_TEAM_STATS                             = 0x0000,
-    SMSG_ATTACKER_STATE_UPDATE                        = 0x0000,
-    SMSG_ATTACK_START                                 = 0x0000,
-    SMSG_ATTACK_STOP                                  = 0x0000,
     SMSG_ATTACK_SWING_ERROR                           = 0x0000,
     SMSG_ATTACK_SWING_BAD_FACING                      = 0x0000,
     SMSG_ATTACK_SWING_CANT_ATTACK                     = 0x0000,
@@ -1311,7 +1318,6 @@ enum Opcodes
     SMSG_GM_TICKET_STATUS_UPDATE                      = 0x0000,
     SMSG_GM_UNSQUELCH                                 = 0x0000,
     SMSG_GOD_MODE                                     = 0x0000,
-    SMSG_GOSSIP_POI                                   = 0x0000,
     SMSG_GROUP_ACTION_THROTTLED                       = 0x0000,
     SMSG_GROUP_CANCEL                                 = 0x0000,
     SMSG_GROUP_DECLINE                                = 0x0000,
@@ -1328,7 +1334,6 @@ enum Opcodes
     SMSG_INITIALIZE_FACTIONS                          = 0x0000,
     SMSG_INITIAL_SETUP                                = 0x0000,
     SMSG_INIT_CURRENCY                                = 0x0000,
-    SMSG_INIT_WORLD_STATES                            = 0x0000,
     SMSG_INSPECT                                      = 0x0000,
     SMSG_INSPECT_RATED_BG_STATS                       = 0x0000,
     SMSG_INSPECT_HONOR_STATS                          = 0x0000,
@@ -1643,7 +1648,6 @@ enum Opcodes
     SMSG_SET_PHASE_SHIFT                              = 0x0000,
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0x0000,
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x0000,
-    SMSG_SET_PROFICIENCY                              = 0x0000,
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
@@ -1736,7 +1740,6 @@ enum Opcodes
     SMSG_UPDATE_LAST_INSTANCE                         = 0x0000,
     SMSG_UPDATE_SERVER_PLAYER_POSITION                = 0x0000,
     SMSG_UPDATE_TALENT_DATA                           = 0x0000,
-    SMSG_UPDATE_WORLD_STATE                           = 0x0000,
     SMSG_VOICE_SESSION_FULL                           = 0x0000,
     SMSG_VOICE_SET_TALKER_MUTED                       = 0x0000,
     SMSG_VOID_ITEM_SWAP_RESPONSE                      = 0x0000,

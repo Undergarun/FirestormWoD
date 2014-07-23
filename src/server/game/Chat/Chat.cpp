@@ -673,6 +673,10 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     else if (session)
         speakerGuid = session->GetPlayer()->GetGUID();
 
+    ObjectGuid speakerGuildGuid = 0;
+    if (speakerPlayer && speakerPlayer->GetGuild())
+        speakerGuildGuid = speakerPlayer->GetGuild()->GetGUID();
+
     ObjectGuid groupGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGroup())
         groupGuid = speakerPlayer->GetGroup()->GetGUID();
@@ -702,127 +706,40 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     }
 
     ObjectGuid targetGuid = target_guid;
-    ObjectGuid guildGuid = 0;
-    if (speakerPlayer && speakerPlayer->GetGuild())
-        guildGuid = speakerPlayer->GetGuild()->GetGUID();
 
     bool bit5264 = false;
     bool sendRealmId = true;
 
     data->Initialize(SMSG_CHAT, 100);                   // guess size
-
-    data->WriteBit(false);                                      // Unk bit 5269
-    data->WriteBit(message ? 0 : 1);                            // hasText
-    data->WriteBit(!achievementId);                             // Has achievement
-    data->WriteBit(speakerPlayer == NULL);                      // has sender
-    data->WriteBit(speakerPlayer != NULL);                      // has sender GUID - FAKE GUID
-
-    uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
-    data->WriteBitInOrder(speakerGuid, bitsOrder);
-
-    data->WriteBit(groupGuid != 0);                          // has group GUID - FAKE GUID
-
-    uint8 bitsOrder2[8] = { 6, 0, 4, 1, 2, 3, 7, 5 };
-    data->WriteBitInOrder(groupGuid, bitsOrder2);
-
-    data->WriteBit(addonPrefix ? 0 : 1);                        // has prefix
-    data->WriteBit(false);                                      // Unk bit 5268
-    data->WriteBit(!sendRealmId);                               // sendRealmId
-    data->WriteBit(!bit5264);                                   // (inversed) unk bit 5264
-
-    if (speakerPlayer != NULL)
-        data->WriteBits(speakerNameLength, 11);
-
-    data->WriteBit(targetGuid);                                 // has receiver GUID - FAKE GUID
-
-    uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
-    data->WriteBitInOrder(targetGuid, bitsOrder3);
-
-    if (prefixeLength)
-        data->WriteBits(prefixeLength, 5);
-
-    data->WriteBit(!targetGuid);                                // has receiver
-
-    bool hasChatTag = false;
-    if (speakerPlayer)
-        hasChatTag = speakerPlayer->GetChatTag();
-
-    data->WriteBit(!hasChatTag);                                // (inversed) has chat tag
-
-    if (messageLength)
-        data->WriteBits(messageLength, 12);
-
-    data->WriteBit(!language);                                  // has lang
-
-    // Must be inversed
-    if (hasChatTag)
-        data->WriteBits(speakerPlayer->GetChatTag(), 9);
-
-    data->WriteBit(guildGuid);                                  // has guild GUID - FAKE GUID
-
-    if (targetGuid)
-        data->WriteBits(targetLength, 11);
-
-    uint8 bitsOrder4[8] = { 0, 2, 1, 4, 6, 7, 5, 3 };
-    data->WriteBitInOrder(guildGuid, bitsOrder4);
-
-    bool hasChannel = type == CHAT_MSG_CHANNEL;
-    data->WriteBit(!hasChannel);                                // has channel
-
-    if (hasChannel)
-        data->WriteBits(channelLength, 7);
-
-    if (channelLength && hasChannel)
-    {
-        data->FlushBits();
-        data->append(channelName, channelLength);
-    }
-
-    if (speakerNameLength && speakerPlayer)
-    {
-        data->FlushBits();
-        data->append(speakerPlayer->GetName(), speakerNameLength);
-    }
-
-    uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
-    data->WriteBytesSeq(groupGuid, byteOrder);
-
-    uint8 byteOrder1[8] = { 0, 4, 1, 3, 5, 7, 2, 6 };
-    data->WriteBytesSeq(targetGuid, byteOrder1);
-
     *data << uint8(type);
+    *data << uint8(language);
+    data->appendPackGUID(speakerGuid);
+    data->appendPackGUID(speakerGuildGuid);
+    data->appendPackGUID(targetGuid);
+    *data << uint32(realmID);
+    *data << uint32(realmID);
+    data->appendPackGUID(groupGuid);
+    *data << uint32(achievementId);
+    *data << float(0);
 
-    uint8 byteOrder2[8] = { 7, 6, 5, 4, 0, 2, 1, 3 };
-    data->WriteBytesSeq(speakerGuid, byteOrder2);
+    data->WriteBits(speakerNameLength, 11);
+    data->WriteBits(targetLength, 11);
+    data->WriteBits(addonPrefix ? strlen(addonPrefix) : 0, 5);
+    data->WriteBits(channelName ? strlen(channelName) : 0, 7);
+    data->WriteBits(message ? strlen(message) : 0, 12);
+    data->WriteBits(speakerPlayer ? speakerPlayer->GetChatTag() : 0, 10);
+    data->WriteBit(false);  ///< hide chat log
+    data->WriteBit(false);  ///< Faker sender name
+    data->FlushBits();
 
-    if (prefixeLength)
-        data->append(addonPrefix, prefixeLength);
-
-    if (sendRealmId)
-        *data << uint32(realmID);                               // realmd id / flags
-
-    uint8 byteOrder3[8] = { 1, 0, 3, 7, 6, 5, 2, 4 };
-    data->WriteBytesSeq(guildGuid, byteOrder3);
-
-    if (targetLength)
-        data->append(targetName.c_str(), targetLength);
-
-    if (achievementId)
-        *data << uint32(achievementId);
-
-    if (language)
-    {
-        if ((type != CHAT_MSG_CHANNEL && type != CHAT_MSG_WHISPER) || language == LANG_ADDON)
-            *data << uint8(language);
-        else
-            *data << uint8(LANG_UNIVERSAL);
-    }
-
-    if (messageLength)
-        data->append(message, messageLength);
-
-    if (bit5264)
-        *data << uint32(0);                                         // unk uint32
+    if (speaker)
+        data->WriteString(speaker->GetName());
+    else if (session)
+        data->WriteString(session->GetPlayer()->GetName());
+    data->WriteString(targetName);
+    data->WriteString(addonPrefix ? addonPrefix : "");
+    data->WriteString(channelName ? channelName : "");
+    data->WriteString(message ? message : "");
 }
 
 Player* ChatHandler::getSelectedPlayer()

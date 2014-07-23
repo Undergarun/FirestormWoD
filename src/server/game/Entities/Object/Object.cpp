@@ -2549,95 +2549,28 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     bool bit5264 = false;
 
     data->Initialize(SMSG_CHAT, 200);
-    data->WriteBit(0);                                          // Unk bit 5269
-    data->WriteBit(messageLength ? 0 : 1);
-    data->WriteBit(!bit5256);                                   // !Unk bit 5256
-    data->WriteBit(0);                                          // !has sender
-    data->WriteBit(1);                                          // has sender GUID
-
-    uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
-    data->WriteBitInOrder(senderGuid, bitsOrder);
-
-    data->WriteBit(0);                                          // has group GUID
-
-    uint8 bitsOrder2[8] = { 6, 0, 4, 1, 2, 3, 7, 5 };
-    data->WriteBitInOrder(groupGuid, bitsOrder2);
-
-    data->WriteBit(1);                                          // !has prefix
-    data->WriteBit(0);                                          // Unk bit 5268
-    data->WriteBit(!unkBit);                                    // !unk bit
-    data->WriteBit(!bit5264);                                   // !unk bit 5264
+    *data << uint8(msgtype);
+    *data << uint8(language);
+    data->appendPackGUID(senderGuid);
+    data->appendPackGUID(0);
+    data->appendPackGUID(targetGuid);
+    *data << uint32(realmID);
+    *data << uint32(realmID);
+    data->appendPackGUID(groupGuid);
+    *data << uint32(0);
+    *data << float(0);
 
     data->WriteBits(speakerNameLength, 11);
+    data->WriteBits(0, 11);
+    data->WriteBits(0, 5);
+    data->WriteBits(0, 7);
+    data->WriteBits(text ? strlen(text) : 0, 12);
+    data->WriteBits(0, 10);
+    data->WriteBit(false);  ///< hide chat log
+    data->WriteBit(false);  ///< Faker sender name
+    data->FlushBits();
 
-    data->WriteBit(receiverGuid ? 1 : 0);                       // has receiver GUID
-
-    uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
-    data->WriteBitInOrder(receiverGuid, bitsOrder3);
-
-    // Never happens for creature
-    if (prefixeLength)
-        data->WriteBits(prefixeLength, 5);
-
-    data->WriteBit(receiverGuid ? 0 : 1);                       // !has receiver
-    data->WriteBit(0);                                          // !has chat tag
-
-    if (messageLength)
-        data->WriteBits(messageLength, 12);
-
-    data->WriteBit(0);                                          // !hasLanguage
-    data->WriteBits(0, 9);                                      // chat Tag, empty for creatures
-    data->WriteBit(0);                                          // has guild GUID
-
-    if (receiverLength)
-        data->WriteBits(receiverLength, 11);
-
-    uint8 bitsOrder4[8] = { 0, 2, 1, 4, 6, 7, 5, 3 };
-    data->WriteBitInOrder(guildGuid, bitsOrder4);
-
-    data->WriteBit(1);                                          // !has channel
-    data->WriteBits(channelLength, 7);
-
-    if (channelLength)
-        data->WriteString(channel);
-
-    if (speakerNameLength)
-        data->WriteString(name);
-
-    uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
-    data->WriteBytesSeq(groupGuid, byteOrder);
-
-    uint8 byteOrder1[8] = { 0, 4, 1, 3, 5, 7, 2, 6 };
-    data->WriteBytesSeq(receiverGuid, byteOrder1);
-
-    *data << uint8(msgtype);
-
-    uint8 byteOrder2[8] = { 7, 6, 5, 4, 0, 2, 1, 3 };
-    data->WriteBytesSeq(senderGuid, byteOrder2);
-
-    // Never happens for creatures
-    if (prefixeLength)
-        data->WriteString("");
-
-    if (unkBit)
-        *data << uint32(0);                                         // unk uint32
-
-    uint8 byteOrder3[8] = { 1, 0, 3, 7, 6, 5, 2, 4 };
-    data->WriteBytesSeq(guildGuid, byteOrder3);
-
-    if (receiverLength)
-        data->WriteString("");
-
-    if (bit5256)
-        *data << uint32(0);                                         // unk uint32
-
-    *data << uint8(language);
-
-    if (messageLength)
-        data->WriteString(text);
-
-    if (bit5264)
-        *data << uint32(0);                                         // unk uint32
+    data->WriteString(text ? text : 0);
 }
 
 void Unit::BuildHeartBeatMsg(WorldPacket* data) const

@@ -2593,42 +2593,11 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACK_START, 8 + 8);
 
-    ObjectGuid attackerGuid = GetGUID();
-    ObjectGuid victimGuid = victim->GetGUID();
+    uint64 attackerGuid = GetGUID();
+    uint64 victimGuid = victim->GetGUID();
 
-    data.WriteBit(victimGuid[6]);
-    data.WriteBit(victimGuid[1]);
-    data.WriteBit(attackerGuid[7]);
-    data.WriteBit(attackerGuid[5]);
-    data.WriteBit(victimGuid[2]);
-    data.WriteBit(attackerGuid[2]);
-    data.WriteBit(attackerGuid[1]);
-    data.WriteBit(victimGuid[0]);
-    data.WriteBit(attackerGuid[4]);
-    data.WriteBit(attackerGuid[0]);
-    data.WriteBit(victimGuid[4]);
-    data.WriteBit(victimGuid[7]);
-    data.WriteBit(victimGuid[5]);
-    data.WriteBit(attackerGuid[3]);
-    data.WriteBit(victimGuid[3]);
-    data.WriteBit(attackerGuid[6]);
-
-    data.WriteByteSeq(attackerGuid[6]);
-    data.WriteByteSeq(attackerGuid[2]);
-    data.WriteByteSeq(attackerGuid[0]);
-    data.WriteByteSeq(victimGuid[5]);
-    data.WriteByteSeq(victimGuid[6]);
-    data.WriteByteSeq(victimGuid[0]);
-    data.WriteByteSeq(victimGuid[1]);
-    data.WriteByteSeq(attackerGuid[7]);
-    data.WriteByteSeq(attackerGuid[4]);
-    data.WriteByteSeq(victimGuid[7]);
-    data.WriteByteSeq(attackerGuid[3]);
-    data.WriteByteSeq(victimGuid[3]);
-    data.WriteByteSeq(victimGuid[2]);
-    data.WriteByteSeq(victimGuid[4]);
-    data.WriteByteSeq(attackerGuid[1]);
-    data.WriteByteSeq(attackerGuid[5]);
+    data.appendPackGUID(attackerGuid);
+    data.appendPackGUID(victimGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -2637,45 +2606,13 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid victimGUID = victim ? victim->GetGUID() : 0;
-    ObjectGuid attackerGUID = GetGUID();
+    uint64 victimGUID = victim ? victim->GetGUID() : 0;
+    uint64 attackerGUID = GetGUID();
 
-    data.WriteBit(victimGUID[0]);
-    data.WriteBit(attackerGUID[4]);
-    data.WriteBit(victimGUID[1]);
-    data.WriteBit(attackerGUID[7]);
-    data.WriteBit(victimGUID[6]);
-    data.WriteBit(victimGUID[3]);
-
-    data.WriteBit(0);                   // Unk bit - updating rotation ?
-
-    data.WriteBit(victimGUID[5]);
-    data.WriteBit(attackerGUID[1]);
-    data.WriteBit(attackerGUID[0]);
-    data.WriteBit(victimGUID[7]);
-    data.WriteBit(attackerGUID[6]);
-    data.WriteBit(victimGUID[4]);
-    data.WriteBit(victimGUID[2]);
-    data.WriteBit(attackerGUID[3]);
-    data.WriteBit(attackerGUID[2]);
-    data.WriteBit(attackerGUID[5]);
-
-    data.WriteByteSeq(attackerGUID[2]);
-    data.WriteByteSeq(attackerGUID[7]);
-    data.WriteByteSeq(victimGUID[0]);
-    data.WriteByteSeq(attackerGUID[5]);
-    data.WriteByteSeq(victimGUID[5]);
-    data.WriteByteSeq(attackerGUID[3]);
-    data.WriteByteSeq(victimGUID[7]);
-    data.WriteByteSeq(victimGUID[1]);
-    data.WriteByteSeq(victimGUID[3]);
-    data.WriteByteSeq(attackerGUID[0]);
-    data.WriteByteSeq(victimGUID[4]);
-    data.WriteByteSeq(victimGUID[6]);
-    data.WriteByteSeq(attackerGUID[1]);
-    data.WriteByteSeq(attackerGUID[6]);
-    data.WriteByteSeq(victimGUID[2]);
-    data.WriteByteSeq(attackerGUID[4]);
+    data.appendPackGUID(attackerGUID);
+    data.appendPackGUID(victimGUID);
+    data.WriteBit(victim ? victim->isDead() : false);
+    data.FlushBits();
 
     SendMessageToSet(&data, true);
 }
@@ -5763,66 +5700,74 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     uint32 count = 1;
     size_t maxsize = 4 + 5 + 5 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 * 12;
-    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
-    data << uint32(damageInfo->HitInfo);
-    data.append(damageInfo->attacker->GetPackGUID());
-    data.append(damageInfo->target->GetPackGUID());
-    data << uint32(damageInfo->damage);                     // Full damage
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
-    data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
-    data << uint8(count);                                   // Sub damage count
+
+    ByteBuffer l_Buffer;
+    l_Buffer << uint32(damageInfo->HitInfo);
+    l_Buffer.append(damageInfo->attacker->GetPackGUID());
+    l_Buffer.append(damageInfo->target->GetPackGUID());
+    l_Buffer << uint32(damageInfo->damage);                     // Full damage
+    l_Buffer << uint32(overkill < 0 ? 0 : overkill);            // Overkill
+    l_Buffer << uint8(count);                                   // Sub damage count
 
     for (uint32 i = 0; i < count; ++i)
     {
-        data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
-        data << float(damageInfo->damage);                  // sub damage
-        data << uint32(damageInfo->damage);                 // Sub Damage
+        l_Buffer << uint32(damageInfo->damageSchoolMask);       // School of sub damage
+        l_Buffer << float(damageInfo->damage);                  // sub damage
+        l_Buffer << uint32(damageInfo->damage);                 // Sub Damage
     }
 
     if (damageInfo->HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
     {
         for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->absorb);             // Absorb
+            l_Buffer << uint32(damageInfo->absorb);             // Absorb
     }
 
     if (damageInfo->HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
     {
         for (uint32 i = 0; i < count; ++i)
-            data << uint32(damageInfo->resist);             // Resist
+            l_Buffer << uint32(damageInfo->resist);             // Resist
     }
 
-    data << uint8(damageInfo->TargetState);
-    data << uint32(0);  // Unknown attackerstate
-    data << uint32(0);  // Melee spellid
+    l_Buffer << uint8(damageInfo->TargetState);
+    l_Buffer << uint32(0);  // Unknown attackerstate
+    l_Buffer << uint32(0);  // Melee spellid
 
     if (damageInfo->HitInfo & HITINFO_BLOCK)
-        data << uint32(damageInfo->blocked_amount);
+        l_Buffer << uint32(damageInfo->blocked_amount);
 
     if (damageInfo->HitInfo & HITINFO_RAGE_GAIN)
-        data << uint32(0);
+        l_Buffer << uint32(0);
 
     //! Probably used for debugging purposes, as it is not known to appear on retail servers
     if (damageInfo->HitInfo & HITINFO_UNK1)
     {
-        data << uint32(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
+        l_Buffer << uint32(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
+        l_Buffer << float(0);
         for (uint8 i = 0; i < 2; ++i)
         {
-            data << float(0);
-            data << float(0);
+            l_Buffer << float(0);
+            l_Buffer << float(0);
         }
-        data << uint32(0);
+        l_Buffer << uint32(0);
     }
 
     if (damageInfo->HitInfo & 0x3000)
-        data << float(0);
+        l_Buffer << float(0);
+
+
+    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
+    data.WriteBit(false);
+    data.FlushBits();
+    data << uint32(l_Buffer.size());
+    data.append(l_Buffer);
 
     SendMessageToSet(&data, true);
 }

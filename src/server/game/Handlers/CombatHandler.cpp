@@ -95,44 +95,13 @@ void WorldSession::SendAttackStop(Unit const* enemy)
 {
     WorldPacket data(SMSG_ATTACK_STOP);
 
-    ObjectGuid victimGUID = enemy ? enemy->GetGUID() : 0;
-    ObjectGuid attackerGUID = GetPlayer()->GetGUID();
+    uint64 attackerGUID = GetPlayer()->GetGUID();
+    uint64 victimGUID = enemy ? enemy->GetGUID() : 0;
 
-    data.WriteBit(victimGUID[0]);
-    data.WriteBit(attackerGUID[4]);
-    data.WriteBit(victimGUID[1]);
-    data.WriteBit(attackerGUID[7]);
-    data.WriteBit(victimGUID[6]);
-    data.WriteBit(victimGUID[3]);
+    data.appendPackGUID(attackerGUID);
+    data.appendPackGUID(victimGUID);
+    data.WriteBit(enemy ? enemy->isDead() : false);
+    data.FlushBits();
 
-    data.WriteBit(0);                   // Unk bit - updating rotation ?
-
-    data.WriteBit(victimGUID[5]);
-    data.WriteBit(attackerGUID[1]);
-    data.WriteBit(attackerGUID[0]);
-    data.WriteBit(victimGUID[7]);
-    data.WriteBit(attackerGUID[6]);
-    data.WriteBit(victimGUID[4]);
-    data.WriteBit(victimGUID[2]);
-    data.WriteBit(attackerGUID[3]);
-    data.WriteBit(attackerGUID[2]);
-    data.WriteBit(attackerGUID[5]);
-
-    data.WriteByteSeq(attackerGUID[2]);
-    data.WriteByteSeq(attackerGUID[7]);
-    data.WriteByteSeq(victimGUID[0]);
-    data.WriteByteSeq(attackerGUID[5]);
-    data.WriteByteSeq(victimGUID[5]);
-    data.WriteByteSeq(attackerGUID[3]);
-    data.WriteByteSeq(victimGUID[7]);
-    data.WriteByteSeq(victimGUID[1]);
-    data.WriteByteSeq(victimGUID[3]);
-    data.WriteByteSeq(attackerGUID[0]);
-    data.WriteByteSeq(victimGUID[4]);
-    data.WriteByteSeq(victimGUID[6]);
-    data.WriteByteSeq(attackerGUID[1]);
-    data.WriteByteSeq(attackerGUID[6]);
-    data.WriteByteSeq(victimGUID[2]);
-    data.WriteByteSeq(attackerGUID[4]);
     SendPacket(&data);
 }
