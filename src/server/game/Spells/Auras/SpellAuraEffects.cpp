@@ -2039,21 +2039,25 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 48629;
             spellId3 = 106840;
             spellId4 = 113636;
+            target->RemoveAura(115034);
             break;
         case FORM_TRAVEL:
             spellId = 5419;
+            target->RemoveAura(115034);
 
-            if (target->HasAura(114338) && !target->HasAura(131113))
+            if (target->HasAura(114338) && !target->HasAura(131113) && apply)
                 spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
+            target->RemoveAura(115034);
             break;
         case FORM_BEAR:
             spellId = 1178;
             spellId2 = 21178;
             spellId3 = 106829;
             spellId4 = 106899;
+            target->RemoveAura(115034);
             break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
@@ -2067,14 +2071,17 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_MOONKIN:
             spellId = 24905;
             spellId2 = 24907;
+            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT:
             spellId = 33948;
             spellId2 = 34764;
+            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT_EPIC:
             spellId  = 40122;
             spellId2 = 40121;
+            target->RemoveAura(115034);
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
