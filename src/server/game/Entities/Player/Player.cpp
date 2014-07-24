@@ -9961,30 +9961,6 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
 
             break;
         }
-        case CLASS_WARRIOR:
-        {
-            switch (GetSpecializationId(GetActiveSpec()))
-            {
-                case SPEC_WARRIOR_ARMS:
-                {
-                    if (apply)
-                    {
-                        if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
-                            CastSpell(this, 12712, true);
-                        else
-                            RemoveAura(12712);
-                    }
-                    else
-                        RemoveAura(12712);
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            break;
-        }
         default:
             break;
     }
