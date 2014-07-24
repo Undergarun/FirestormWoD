@@ -387,10 +387,10 @@ public:
 
             // Removing wind bombs, amber prisons and whirling blades NPC
             uint32 addEntries[3] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE};
-            for (uint32 entry : addEntries)
+            for (uint8 i = 0; i < 3; ++i)
             {
                 std::list<Creature*> addList;
-                GetCreatureListWithEntryInGrid(addList, me, entry, 300.0f);
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
 
                 for (Creature* add : addList)
                     add->DespawnOrUnsummon();
@@ -890,11 +890,13 @@ public:
 
         void EnterCombat(Unit* attacker)
         {
-            if (attacker->GetTypeId() != TYPEID_PLAYER)
+            if (attacker->GetTypeId() != TYPEID_PLAYER || inCombat)
                 return;
 
             if (!StartPack(pInstance, me, attacker))
                 return;
+
+            inCombat = true;
 
             me->SetInCombatWith(attacker);
             AttackStart(attacker);
@@ -978,14 +980,16 @@ public:
 
         void EnterCombat(Unit* attacker)
         {
-            if (attacker->GetTypeId() != TYPEID_PLAYER)
+            if (attacker->GetTypeId() != TYPEID_PLAYER || inCombat)
                 return;
-
-            me->SetInCombatWith(attacker);
-            AttackStart(attacker);
 
             if (!StartPack(instance, me, attacker))
                 return;
+
+            inCombat = true;
+
+            me->SetInCombatWith(attacker);
+            AttackStart(attacker);
 
             events.ScheduleEvent(EVENT_AMBER_PRISON, urand(13000, 47000));
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
@@ -1096,11 +1100,13 @@ public:
 
         void EnterCombat(Unit* attacker)
         {
-            if (attacker->GetTypeId() != TYPEID_PLAYER)
+            if (attacker->GetTypeId() != TYPEID_PLAYER || inCombat)
                 return;
 
             if (!StartPack(instance, me, attacker))
                 return;
+
+            inCombat = true;
 
             me->SetInCombatWith(attacker);
             AttackStart(attacker);
