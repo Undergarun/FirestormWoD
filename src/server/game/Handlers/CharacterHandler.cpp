@@ -1012,7 +1012,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
-    SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
+    SendAccountDataTimes(pCurrChar->GetGUID());
 
     bool l_EuropaTicketSystemEnabled            = true;
     bool l_PlayTimeAlert                        = false;
@@ -1106,6 +1106,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         }
 
         l_Data.WriteBits(l_Lines.size(), 4);
+        l_Data.FlushBits();
 
         for (size_t l_I = 0; l_I < l_Lines.size(); l_I++)
         {

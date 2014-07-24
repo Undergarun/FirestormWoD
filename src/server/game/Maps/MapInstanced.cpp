@@ -207,7 +207,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     GetDownscaledMapDifficultyData(GetId(), difficulty);
 
     if (GetId() != 249)
-        if (entry->maxPlayers == 40)
+        if (entry->MaxPlayers == 40)
             difficulty = MAN40_DIFFICULTY;
 
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");

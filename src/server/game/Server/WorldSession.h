@@ -345,7 +345,7 @@ class WorldSession
         // Account Data
         AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t tm, std::string data);
-        void SendAccountDataTimes(uint32 mask);
+        void SendAccountDataTimes(uint64 p_Guid);
         void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 

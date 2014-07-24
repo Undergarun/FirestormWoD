@@ -2933,7 +2933,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->map_type == MAP_RAID || diff == HEROIC_DIFFICULTY)
+            if (entry->instanceType == MAP_RAID || diff == HEROIC_DIFFICULTY)
             {
                 ++itr;
                 continue;

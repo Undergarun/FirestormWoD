@@ -1252,7 +1252,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     {
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
-            if (oEntry->ItemId[j] <= 0 || oEntry->ItemDisplayId[j] <= 0)
+            if (oEntry->ItemId[j] <= 0)
                 continue;
 
             uint32 itemId = oEntry->ItemId[j];
@@ -3760,37 +3760,18 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
     }
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
+void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float group_rate)
 {
     WorldPacket data(SMSG_LOG_XP_GAIN);
 
     ObjectGuid victimGuid = victim ? victim->GetGUID() : 0;
-
-    data.WriteBit(0);                                       // unk bit28, send 0
-    data.WriteBit(victimGuid[3]);
-    data.WriteBit(victimGuid[0]);
-    data.WriteBit(1);                                       // unk bit, send 1
-    data.WriteBit(victimGuid[1]);
-    data.WriteBit(victimGuid[4]);
-    data.WriteBit(victimGuid[5]);
-    data.WriteBit(victimGuid[7]);
-    data.WriteBit(victimGuid[2]);
-    data.WriteBit(victim ? 0 : 1);                          // has victim
-    data.WriteBit(victimGuid[6]);
-
-    data.WriteByteSeq(victimGuid[5]);
-    data.WriteByteSeq(victimGuid[3]);
-
-    if (victim)
-        data << uint32(GivenXP);
-
+    data.appendPackGUID(victimGuid);
+    data << uint32(GivenXP);
+    data << uint8(victim ? 0 : 1);                  ///< 00-kill_xp type, 01-non_kill_xp type
     data << uint32(GivenXP + BonusXP);
-
-    data.WriteByteSeq(victimGuid[4]);
-    data.WriteByteSeq(victimGuid[1]);
-    data.WriteByteSeq(victimGuid[6]);
-
-    data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
+    data << float(group_rate);                      ///< Group bonus
+    data.WriteBit(recruitAFriend);
+    data.FlushBits();                               ///< Refer A Friend
 
     GetSession()->SendPacket(&data);
 }
@@ -16333,7 +16314,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
     menu->ClearMenus();
 
     menu->GetGossipMenu().SetMenuId(menuId);
-
+    
     GossipMenuItemsMapBounds menuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
 
     // if default menuId and no menu options exist for this, use options from default options
@@ -22563,7 +22544,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->map_type == MAP_RAID || diff == HEROIC_DIFFICULTY)
+            if (entry->instanceType == MAP_RAID || diff == HEROIC_DIFFICULTY)
             {
                 ++itr;
                 continue;
@@ -25650,7 +25631,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
-        SendMoveRoot(2);
+        SendMoveRoot(0);
 
     SendCooldownAtLogin();
     SendAurasForTarget(this);
@@ -29465,42 +29446,19 @@ bool Player::SetHover(bool enable)
 
 void Player::SendMovementSetCanFly(bool apply)
 {
-    ObjectGuid guid = GetGUID();
     WorldPacket data;
+
     if (apply)
     {
         data.Initialize(SMSG_MOVE_SET_CAN_FLY, 1 + 8 + 4);
-
-        uint8 bitOrder[8] = {0, 1, 6, 5, 7, 2, 3, 4};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data << uint32(0);          //! movement counter
-
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[6]);
+        data.appendPackGUID(GetGUID());
+        data << uint32(0);
     }
     else
     {
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 1 + 8 + 4);
-
-        uint8 bitOrder[8] = {2, 1, 5, 0, 3, 4, 6, 7};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[6]);
-        data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[0]);
+        data.appendPackGUID(GetGUID());
+        data << uint32(0);
         
     }
     SendDirectMessage(&data);
@@ -29589,43 +29547,20 @@ void Player::SendMovementSetHover(bool apply)
 
 void Player::SendMovementSetWaterWalking(bool apply)
 {
-    ObjectGuid guid = GetGUID();
-
     if (apply)
     {
         WorldPacket data(SMSG_MOVE_WATER_WALK, 12);
-    
-        uint8 bitOrder[8] = { 3, 2, 6, 1, 0, 7, 4, 5 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
+        data.appendPackGUID(GetGUID());
         data << uint32(0);  // Movement counter
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[7]);
 
         SendDirectMessage(&data);
     }
     else
     {
         WorldPacket data(SMSG_MOVE_LAND_WALK, 12);
-    
-        uint8 bitOrder[8] = { 4, 0, 7, 3, 1, 6, 2, 5 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[4]);
+   
+        data.appendPackGUID(GetGUID());
         data << uint32(0);  // Movement counter
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[1]);
 
         SendDirectMessage(&data);
     }
@@ -29633,42 +29568,19 @@ void Player::SendMovementSetWaterWalking(bool apply)
 
 void Player::SendMovementSetFeatherFall(bool apply)
 {
-    ObjectGuid guid = GetGUID();
     WorldPacket data;
 
     if (apply)
     {
         data.Initialize(SMSG_MOVE_FEATHER_FALL, 12);
-    
-        uint8 bitOrder[8] = { 6, 7, 3, 1, 2, 0, 5, 4 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[2]);
+        data.appendPackGUID(GetGUID());
         data << uint32(0);  // Movement counter
-        data.WriteByteSeq(guid[4]);
     }
     else
     {
         data.Initialize(SMSG_MOVE_NORMAL_FALL, 12);
-    
-        uint8 bitOrder[8] = { 0, 1, 7, 2, 4, 3, 5, 6 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[0]);
+        data.appendPackGUID(GetGUID());
         data << uint32(0);  // Movement counter
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
     }
 
     SendDirectMessage(&data);

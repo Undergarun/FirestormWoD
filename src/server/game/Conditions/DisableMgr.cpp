@@ -125,7 +125,7 @@ void LoadDisables()
                     continue;
                 }
                 bool isFlagInvalid = false;
-                switch (mapEntry->map_type)
+                switch (mapEntry->instanceType)
                 {
                     case MAP_COMMON:
                         if (flags)
@@ -187,7 +187,7 @@ void LoadDisables()
                     sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->map_type)
+                switch (mapEntry->instanceType)
                 {
                     case MAP_COMMON:
                         if (flags & VMAP_DISABLE_AREAFLAG)
@@ -334,7 +334,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                             return disabledModes & RAID_STATUSFLAG_25MAN_HEROIC;
                     }
                 }
-                else if (mapEntry->map_type == MAP_COMMON)
+                else if (mapEntry->instanceType == MAP_COMMON)
                     return true;
             }
             return false;

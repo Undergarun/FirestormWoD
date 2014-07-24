@@ -1246,25 +1246,14 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+destSize);
     ObjectGuid playerGuid = m_Player ? m_Player->GetGUID() : 0;
 
-    data << uint32(size);                                   // decompressed length
+    data.appendPackGUID(playerGuid);
     data << uint32(adata->Time);                            // unix time
     data << uint32(destSize);                               // compressed length
-    data.append(dest);                                      // compressed data
-
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[0]);
     data.WriteBits(type, 3);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[6]);
+    data.FlushBits();
+    data.append(dest);                                      // compressed data
+    data << uint32(size);                                   // decompressed length
 
-    uint8 byteOrder[8] = { 4, 2, 7, 5, 3, 1, 6, 0 };
-    data.WriteBytesSeq(playerGuid, byteOrder);
-
-    
     SendPacket(&data);
 }
 

@@ -662,6 +662,7 @@ struct AreaTableEntry
     //int32 worldStateId;                                   // 27 worldStateId
     //uint32 unk25;                                         // 28
     //uint32 unk26;                                         // 29
+    //uint32 unk27;                                         // 30
 
     // helpers
     bool IsSanctuary() const
@@ -716,6 +717,7 @@ struct AreaTriggerEntry
     //uint32                                                // 13
     //uint32                                                // 14
     //uint32                                                // 15
+    //uint32                                                // 16
 };
 
 struct ArmorLocationEntry
@@ -783,13 +785,8 @@ struct CharStartOutfitEntry
     //uint32 Id;                                            // 0
     uint32 RaceClassGender;                                 // 1 (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
     int32 ItemId[MAX_OUTFIT_ITEMS];                         // 2-13
-    int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                  // 14-25 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 26-37 not required at server side
-    //uint32 Unknown1;                                      // 38, unique values (index-like with gaps ordered in other way as ids)
-    //uint32 Unknown2;                                      // 39
-    //uint32 Unknown3;                                      // 40
-    //uint32 Unknown4;                                      // 41
-    //uint32 Unknown5;                                      // 42
+    //uint32 Unknown1;                                      // 14, unique values (index-like with gaps ordered in other way as ids)
+    //uint32 Unknown2;                                      // 15
 };
 
 struct CharTitlesEntry
@@ -815,7 +812,7 @@ struct ChrClassesEntry
 {
     uint32  ClassID;                                        // 0
     uint32  powerType;                                      // 1        m_DisplayPower
-                                                            // 2        m_petNameToken
+    //char*                                                 // 2        m_petNameToken
     char* name;                                             // 3        m_name_lang
     //char*       nameFemale;                               // 4        m_name_female_lang
     //char*       nameNeutralGender;                        // 5        m_name_male_lang
@@ -830,6 +827,7 @@ struct ChrClassesEntry
     //uint32                                                // 15       Only death knight
     //uint32                                                // 16       All Zeros
     //uint32                                                // 17
+    //uint32                                                // 18
 };
 
 struct ChrRacesEntry
@@ -1649,8 +1647,7 @@ struct LockEntry
 struct PhaseEntry
 {
     uint32    ID;                                           // 0
-    char*     Name;                                         // 1
-    uint32    flag;                                         // 2
+    uint32    flag;                                         // 1
 };
 
 // @author Selenium: 5.4 valid
@@ -1665,45 +1662,47 @@ struct MailTemplateEntry
 struct MapEntry
 {
     uint32      MapID;                                      // 0
-    //char*     internalname;                               // 1        unused
-    uint32      map_type;                                   // 2
+    //char*     direcotry;                                  // 1        unused
+    uint32      instanceType;                               // 2
     //uint32    flags;                                      // 3
-    //uint32    isPvp;                                      // 4        0 / 1 / 2 / 3 transport only
-    char*       name;                                       // 5        m_MapName_lang
-    uint32      linked_zone;                                // 6        m_areaTableID
-    //char*     hordeIntro;                                 // 7        m_MapDescription0_lang
-    //char*     allianceIntro;                              // 8        m_MapDescription1_lang
-    uint32      multimap_id;                                // 9        m_LoadingScreenID (LoadingScreens.dbc)
-    //float     BattlefieldMapIconScale;                    // 10       m_minimapIconScale
-    int32       entrance_map;                               // 11       m_corpseMapID map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
-    float       entrance_x;                                 // 12       m_corpseX entrance x coordinate in ghost mode  (in most cases = normal entrance)
-    float       entrance_y;                                 // 13       m_corpseY entrance y coordinate in ghost mode  (in most cases = normal entrance)
-    //uint32    timeOfDayOverride;                          // 14       m_timeOfDayOverride
-    uint32      addon;                                      // 15       m_expansionID
-    uint32      unk_time;                                   // 16       m_raidOffset
-    uint32      maxPlayers;                                 // 17       m_maxPlayers
-    int32       rootPhaseMap;                               // 18       mapid, related to phasing
+    //uint32    MapType;                                    // 5        0 / 1 / 2 / 3 transport only
+    char*       MapNameLang;                                // 6        m_MapName_lang
+    uint32      AreaTableID;                                // 7        m_areaTableID
+    //char*     MapDescription0Lang;                        // 8        m_MapDescription0_lang
+    //char*     MapDescription1Lang;                        // 9        m_MapDescription1_lang
+    uint32      LoadingScreenID;                            // 10       m_LoadingScreenID (LoadingScreens.dbc)
+    //float     MinimapIconScale;                           // 11       m_minimapIconScale
+    int32       CorpseMapID;                                // 12       m_corpseMapID map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    float       CorpseX;                                    // 13       m_corpseX entrance x coordinate in ghost mode  (in most cases = normal entrance)
+    float       CorpseY;                                    // 14       m_corpseY entrance y coordinate in ghost mode  (in most cases = normal entrance)
+    //uint32    TimeOfDayOverride;                          // 15       m_timeOfDayOverride
+    uint32      ExpansionID;                                // 16       m_expansionID
+    uint32      RaidOffset;                                 // 17       m_raidOffset
+    uint32      MaxPlayers;                                 // 18       m_maxPlayers
+    int32       ParentMapID;                                // 19       mapid, related to phasing
+    //int32     CosmeticParentMapID;                        // 20       mapid, related to cosmetic
+    //uint32    TimeOffset;                                 // 21       
 
     // Helpers
-    uint32 Expansion() const { return addon; }
+    uint32 Expansion() const { return ExpansionID; }
 
-    bool IsDungeon()                const { return map_type == MAP_INSTANCE || map_type == MAP_RAID; }
-    bool IsNonRaidDungeon()         const { return map_type == MAP_INSTANCE; }
-    bool Instanceable()             const { return map_type == MAP_INSTANCE || map_type == MAP_RAID || map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA || map_type == MAP_SCENARIO; }
-    bool IsRaid()                   const { return map_type == MAP_RAID; }
-    bool IsBattleground()           const { return map_type == MAP_BATTLEGROUND; }
-    bool IsBattleArena()            const { return map_type == MAP_ARENA; }
-    bool IsScenario()               const { return map_type == MAP_SCENARIO; }
-    bool IsBattlegroundOrArena()    const { return map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
-    bool IsWorldMap()               const { return map_type == MAP_COMMON; }
+    bool IsDungeon()                const { return instanceType == MAP_INSTANCE || instanceType == MAP_RAID; }
+    bool IsNonRaidDungeon()         const { return instanceType == MAP_INSTANCE; }
+    bool Instanceable()             const { return instanceType == MAP_INSTANCE || instanceType == MAP_RAID || instanceType == MAP_BATTLEGROUND || instanceType == MAP_ARENA || instanceType == MAP_SCENARIO; }
+    bool IsRaid()                   const { return instanceType == MAP_RAID; }
+    bool IsBattleground()           const { return instanceType == MAP_BATTLEGROUND; }
+    bool IsBattleArena()            const { return instanceType == MAP_ARENA; }
+    bool IsScenario()               const { return instanceType == MAP_SCENARIO; }
+    bool IsBattlegroundOrArena()    const { return instanceType == MAP_BATTLEGROUND || instanceType == MAP_ARENA; }
+    bool IsWorldMap()               const { return instanceType == MAP_COMMON; }
 
     bool GetEntrancePos(int32 &mapid, float &x, float &y) const
     {
-        if (entrance_map < 0)
+        if (CorpseMapID < 0)
             return false;
-        mapid = entrance_map;
-        x = entrance_x;
-        y = entrance_y;
+        mapid = CorpseMapID;
+        x = CorpseX;
+        y = CorpseY;
         return true;
     }
 
@@ -2102,23 +2101,22 @@ struct SpellEntry
     uint32    runeCostID;                                   // 5       m_runeCostID
     //uint32  spellMissileID;                               // 6       m_spellMissileID not used
     //uint32  spellDescriptionVariableID;                   // 7       m_spellDescriptionVariableID, 3.2.0
-    //float unk_f1;                                         // 8
-    uint32 SpellScalingId;                                  // 9        SpellScaling.dbc
-    uint32 SpellAuraOptionsId;                              // 10       SpellAuraOptions.dbc
-    uint32 SpellAuraRestrictionsId;                         // 11       SpellAuraRestrictions.dbc
-    uint32 SpellCastingRequirementsId;                      // 12       SpellCastingRequirements.dbc
-    uint32 SpellCategoriesId;                               // 13       SpellCategories.dbc
-    uint32 SpellClassOptionsId;                             // 14       SpellClassOptions.dbc
-    uint32 SpellCooldownsId;                                // 15       SpellCooldowns.dbc
-    uint32 SpellEquippedItemsId;                            // 16       SpellEquippedItems.dbc
-    uint32 SpellInterruptsId;                               // 17       SpellInterrupts.dbc
-    uint32 SpellLevelsId;                                   // 18       SpellLevels.dbc
-    uint32 SpellReagentsId;                                 // 19       SpellReagents.dbc
-    uint32 SpellShapeshiftId;                               // 20       SpellShapeshift.dbc
-    uint32 SpellTargetRestrictionsId;                       // 21       SpellTargetRestrictions.dbc
-    uint32 SpellTotemsId;                                   // 22       SpellTotems.dbc
-    uint32 ResearchProject;                                 // 23       ResearchProject.dbc
-    uint32 SpellMiscId;                                     // 24       SpellMisc.dbc
+    uint32 SpellScalingId;                                  // 8        SpellScaling.dbc
+    uint32 SpellAuraOptionsId;                              // 9       SpellAuraOptions.dbc
+    uint32 SpellAuraRestrictionsId;                         // 10       SpellAuraRestrictions.dbc
+    uint32 SpellCastingRequirementsId;                      // 11       SpellCastingRequirements.dbc
+    uint32 SpellCategoriesId;                               // 12       SpellCategories.dbc
+    uint32 SpellClassOptionsId;                             // 13       SpellClassOptions.dbc
+    uint32 SpellCooldownsId;                                // 14       SpellCooldowns.dbc
+    uint32 SpellEquippedItemsId;                            // 15       SpellEquippedItems.dbc
+    uint32 SpellInterruptsId;                               // 16       SpellInterrupts.dbc
+    uint32 SpellLevelsId;                                   // 17       SpellLevels.dbc
+    uint32 SpellReagentsId;                                 // 18       SpellReagents.dbc
+    uint32 SpellShapeshiftId;                               // 19       SpellShapeshift.dbc
+    uint32 SpellTargetRestrictionsId;                       // 20       SpellTargetRestrictions.dbc
+    uint32 SpellTotemsId;                                   // 21       SpellTotems.dbc
+    uint32 ResearchProject;                                 // 22       ResearchProject.dbc
+    uint32 SpellMiscId;                                     // 23       SpellMisc.dbc
 
     // struct access functions
     SpellEffectEntry const* GetSpellEffect(uint32 eff, uint32 difficulty) const;

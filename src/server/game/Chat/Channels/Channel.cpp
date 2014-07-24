@@ -851,7 +851,7 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
     p_Data->FlushBits();
     *p_Data << uint8(GetFlags());               ///< Channel Flags
     *p_Data << uint32(GetChannelId());          ///< Channel ID
-    *p_Data << uint32(0);                       ///< Unk
+    *p_Data << uint64(0);                       ///< Unk
     p_Data->WriteString(GetName());             ///< Channel Name
     p_Data->WriteString(l_UnkString);           ///< Unk string
 }

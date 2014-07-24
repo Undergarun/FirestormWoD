@@ -1843,9 +1843,8 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
         plr->SetLastPlayedEmote(anim_id);
 
     WorldPacket data(SMSG_EMOTE);
-
+    data.appendPackGUID(GetGUID());
     data << uint32(anim_id);
-    data << uint64(GetGUID());
 
     SendMessageToSet(&data, true);
 }
@@ -5423,96 +5422,27 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
     WorldPacket data(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 73);  // we guess size (73 is from sniffs without debug flag)
 
+    int32 overkill = log->damage - log->target->GetHealth();
+
     // target is sended twice
     ObjectGuid target = log->target->GetGUID();
     ObjectGuid caster = log->attacker->GetGUID();
 
-    data << uint32(log->damage);                            // damage amount
-    data << uint32(log->resist);
-    data << uint32(log->HitInfo);
-    data << uint32(log->blocked);
+    data.appendPackGUID(target);
+    data.appendPackGUID(caster);
     data << uint32(log->SpellID);
-    int32 overkill = log->damage - log->target->GetHealth();
+    data << uint32(log->damage);                            // damage amount
     data << uint32(overkill > 0 ? overkill : 0);            // overkill
-    data << uint32(log->absorb);
     data << uint8(log->schoolMask);                         // damage school
+    data << uint32(log->absorb);
+    data << uint32(log->resist);
+    data << uint32(log->blocked);
 
-    data.WriteBit(0);                                       // debug flag for extend datas
-
-    data.WriteBit(caster[1]);
-    data.WriteBit(caster[7]);
-    data.WriteBit(target[1]);
-
-    // log->physicalLog or log->unused ?
-    data.WriteBit(0);                                       // unk flag, send 0 (ReadBit() != 0)
-
-    data.WriteBit(target[5]);
-    data.WriteBit(target[0]);
-    data.WriteBit(target[3]);
-    data.WriteBit(target[6]);
-    data.WriteBit(target[2]);
-    data.WriteBit(caster[6]);
-    data.WriteBit(caster[5]);
-    data.WriteBit(caster[4]);
-
-    data.WriteBit(1);                                       // hasCasterGuid = true
-
-    data.WriteBit(target[1]);
-    data.WriteBit(target[5]);
-    data.WriteBit(target[7]);
-    data.WriteBit(target[4]);
-    data.WriteBit(target[6]);
-    data.WriteBit(target[3]);
-    data.WriteBits(1, 21);                                  // counter
-    data.WriteBit(target[2]);
-    data.WriteBit(target[0]);
-    data.WriteBit(target[7]);
-    data.WriteBit(caster[3]);
-    data.WriteBit(target[4]);
-    data.WriteBit(caster[0]);
-    data.WriteBit(caster[2]);
-
-    // log->physicalLog or log->unused ?
-    data.WriteBit(0);                                       // unk flag, send 0 (ReadBit() != 0)
-
-    data.WriteByteSeq(caster[7]);
-    data.WriteByteSeq(target[3]);
-
-    data << uint32(log->attacker->GetTotalAttackPowerValue(BASE_ATTACK));
-
-    data.WriteByteSeq(target[5]);
-    data.WriteByteSeq(target[1]);
-    data.WriteByteSeq(target[7]);
-
-    data << uint32(log->attacker->GetPower(POWER_MANA));
-    data << uint32(0);                                      // second power, not used
-
-    data.WriteByteSeq(target[4]);
-    data.WriteByteSeq(target[0]);
-
-    data << uint32(log->attacker->GetHealth());
-
-    data.WriteByteSeq(target[6]);
-
-    data << uint32(log->attacker->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
-
-    data.WriteByteSeq(target[2]);
-
-    data.WriteByteSeq(target[2]);
-    data.WriteByteSeq(target[1]);
-    data.WriteByteSeq(caster[1]);
-    data.WriteByteSeq(target[4]);
-    data.WriteByteSeq(target[7]);
-    data.WriteByteSeq(caster[6]);
-    data.WriteByteSeq(target[5]);
-    data.WriteByteSeq(caster[2]);
-    data.WriteByteSeq(caster[3]);
-    data.WriteByteSeq(target[6]);
-    data.WriteByteSeq(caster[0]);
-    data.WriteByteSeq(caster[4]);
-    data.WriteByteSeq(caster[5]);
-    data.WriteByteSeq(target[3]);
-    data.WriteByteSeq(target[0]);
+    data.WriteBit(false);               ///< Is periodic
+    data.WriteBits(log->HitInfo, 9);    ///< Flags
+    data.WriteBit(false);               ///< Has debug info
+    data.WriteBit(false);               ///< Has JamSpellCastLogData
+    data.FlushBits();
 
     SendMessageToSet(&data, true);
 }
@@ -15361,144 +15291,65 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_WALK:
             {
                 data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 1 + 8 + 4 + 4);
-    
-                uint8 bitOrder[8] = {3, 0, 1, 5, 2, 7, 6, 4};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[3]);
+                data.appendPackGUID(guid);
                 data << uint32(0);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[6]);
                 data << float(GetSpeed(mtype));
-                data.WriteByteSeq(guid[4]);
                 break;
             }
             case MOVE_RUN:
             {
                 data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4);
-    
-                uint8 bitOrder[8] = {6, 5, 0, 1, 2, 4, 3, 7};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[3]);
-                data << float(GetSpeed(mtype));
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[6]);
+                data.appendPackGUID(guid);
                 data << uint32(0);
+                data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_RUN_BACK:
             {
                 data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4);
-
-                data << float(GetSpeed(mtype));
+                data.appendPackGUID(guid);
                 data << uint32(0);
-
-                uint8 bitOrder[8] = {6, 3, 1, 4, 0, 5, 2, 7};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                uint8 byteOrder[8] = {5, 3, 1, 7, 0, 6, 4, 2};
-                data.WriteBytesSeq(guid, byteOrder);
+                data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_SWIM:
             {
                 data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
-
-                uint8 bitOrder[8] = { 0, 5, 2, 6, 7, 4, 1, 3 };
-                data.WriteBitInOrder(guid, bitOrder);
-    
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[3]);
+                data.appendPackGUID(guid);
                 data << uint32(0);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[7]);
                 data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_SWIM_BACK:
             {
                 data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4);
-    
-                uint8 bitOrder[8] = {0, 6, 5, 2, 1, 7, 4, 3};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[6]);
+                data.appendPackGUID(guid);
                 data << uint32(0);
-                data.WriteByteSeq(guid[5]);
                 data << float(GetSpeed(mtype));
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[4]);
                 break;
             }
             case MOVE_TURN_RATE:
             {
                 data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4);
-
-                data << float(GetSpeed(mtype));
+                data.appendPackGUID(guid);
                 data << uint32(0);
-
-                uint8 bitOrder[8] = {2, 3, 5, 6, 4, 1, 7, 0};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                uint8 byteOrder[8] = {0, 1, 4, 2, 6, 7, 3, 5};
-                data.WriteBytesSeq(guid, byteOrder);
+                data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_FLIGHT:
             {
                 data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4);
-    
-                uint8 bitOrder[8] = {1, 5, 4, 0, 6, 3, 2, 7};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[2]);
+                data.appendPackGUID(guid);
                 data << uint32(0);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[4]);
                 data << float(GetSpeed(mtype));
                 break;
             }
             case MOVE_FLIGHT_BACK:
             {
                 data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4);
-    
-                uint8 bitOrder[8] = {1, 5, 7, 6, 0, 2, 4, 3};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[1]);
-                data << float(GetSpeed(mtype));
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[0]);
-
+                data.appendPackGUID(guid);
                 data << uint32(0);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[5]);
+                data << float(GetSpeed(mtype));
 
                 break;
             }
@@ -19246,36 +19097,20 @@ void Unit::SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, 
 
 void Unit::SendMoveRoot(uint32 value)
 {
-    ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
     
-    uint8 bitOrder[8] = {2, 7, 0, 6, 5, 3, 1, 4};
-    data.WriteBitInOrder(guid, bitOrder);
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
+    data.appendPackGUID(GetGUID());
     data << uint32(value);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
 
     SendMessageToSet(&data, true);
 }
 
 void Unit::SendMoveUnroot(uint32 value)
 {
-    ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
-    data << uint32(value);
-    
-    uint8 bitOrder[8] = { 2, 7, 1, 3, 5, 6, 4, 0 };
-    data.WriteBitInOrder(guid, bitOrder);
 
-    uint8 byteOrder[8] = { 4, 2, 1, 6, 5, 7, 0, 3 };
-    data.WriteBytesSeq(guid, byteOrder);
+    data.appendPackGUID(GetGUID());
+    data << uint32(value);
 
     SendMessageToSet(&data, true);
 }

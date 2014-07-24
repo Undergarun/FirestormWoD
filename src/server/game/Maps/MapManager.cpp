@@ -188,7 +188,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (player->isGameMaster())
         return true;
 
-    char const* mapName = entry->name;
+    char const* mapName = entry->MapNameLang;
 
     if (!player->isAlive())
     {

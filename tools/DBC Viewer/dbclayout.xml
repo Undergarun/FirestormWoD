@@ -461,54 +461,6 @@
     <field type="int" name="m_ItemID_22" />
     <field type="int" name="m_ItemID_23" />
     <field type="int" name="m_ItemID_24" />
-    <field type="int" name="m_DisplayItemID_1" />
-    <field type="int" name="m_DisplayItemID_2" />
-    <field type="int" name="m_DisplayItemID_3" />
-    <field type="int" name="m_DisplayItemID_4" />
-    <field type="int" name="m_DisplayItemID_5" />
-    <field type="int" name="m_DisplayItemID_6" />
-    <field type="int" name="m_DisplayItemID_7" />
-    <field type="int" name="m_DisplayItemID_8" />
-    <field type="int" name="m_DisplayItemID_9" />
-    <field type="int" name="m_DisplayItemID_10" />
-    <field type="int" name="m_DisplayItemID_11" />
-    <field type="int" name="m_DisplayItemID_12" />
-    <field type="int" name="m_DisplayItemID_13" />
-    <field type="int" name="m_DisplayItemID_14" />
-    <field type="int" name="m_DisplayItemID_15" />
-    <field type="int" name="m_DisplayItemID_16" />
-    <field type="int" name="m_DisplayItemID_17" />
-    <field type="int" name="m_DisplayItemID_18" />
-    <field type="int" name="m_DisplayItemID_19" />
-    <field type="int" name="m_DisplayItemID_20" />
-    <field type="int" name="m_DisplayItemID_21" />
-    <field type="int" name="m_DisplayItemID_22" />
-    <field type="int" name="m_DisplayItemID_23" />
-    <field type="int" name="m_DisplayItemID_24" />
-    <field type="int" name="m_InventoryType_1" />
-    <field type="int" name="m_InventoryType_2" />
-    <field type="int" name="m_InventoryType_3" />
-    <field type="int" name="m_InventoryType_4" />
-    <field type="int" name="m_InventoryType_5" />
-    <field type="int" name="m_InventoryType_6" />
-    <field type="int" name="m_InventoryType_7" />
-    <field type="int" name="m_InventoryType_8" />
-    <field type="int" name="m_InventoryType_9" />
-    <field type="int" name="m_InventoryType_10" />
-    <field type="int" name="m_InventoryType_11" />
-    <field type="int" name="m_InventoryType_12" />
-    <field type="int" name="m_InventoryType_13" />
-    <field type="int" name="m_InventoryType_14" />
-    <field type="int" name="m_InventoryType_15" />
-    <field type="int" name="m_InventoryType_16" />
-    <field type="int" name="m_InventoryType_17" />
-    <field type="int" name="m_InventoryType_18" />
-    <field type="int" name="m_InventoryType_19" />
-    <field type="int" name="m_InventoryType_20" />
-    <field type="int" name="m_InventoryType_21" />
-    <field type="int" name="m_InventoryType_22" />
-    <field type="int" name="m_InventoryType_23" />
-    <field type="int" name="m_InventoryType_24" />
     <field type="int" name="m_petDisplayID" />
     <field type="int" name="m_petFamilyID" />
   </CharStartOutfit>
@@ -1243,4 +1195,37 @@
     <field type="string" name="field1" />
     <field type="string" name="field2" />
   </FileData>
+  <Map build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="Directory" />
+    <field type="int" name="InstanceType" />
+    <field type="int" name="Flags" />
+    <field type="int" name="MapType" />
+    <field type="string" name="MapNameLang" />
+    <field type="int" name="AreaTableID" />
+    <field type="string" name="MapDescription0Lang" />
+    <field type="string" name="MapDescription1Lang" />
+    <field type="int" name="LoadingScreenID" />
+    <field type="float" name="MinimapIconScale" />
+    <field type="int" name="CorpseMapID" />
+    <field type="float" name="Corpse0" />
+    <field type="float" name="Corpse1" />
+    <field type="int" name="TimeOfDayOverride" />
+    <field type="int" name="ExpansionID" />
+    <field type="int" name="RaidOffset" />
+    <field type="int" name="MaxPlayers" />
+    <field type="int" name="ParentMapID" />
+    <field type="int" name="CosmeticParentMapID" />
+    <field type="int" name="TimeOffset" />
+  </Map>
+  <Phase build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </Phase>
 </DBFilesClient>

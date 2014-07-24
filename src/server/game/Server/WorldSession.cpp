@@ -681,7 +681,8 @@ void WorldSession::LogoutPlayer(bool Save)
 
         //! Send the 'logout complete' packet to the client
         //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
-        WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
+        WorldPacket data(SMSG_LOGOUT_COMPLETE, 16);
+        data.appendPackGUID(0);
         SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
@@ -850,12 +851,12 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     m_accountData[type].Data = data;
 }
 
-void WorldSession::SendAccountDataTimes(uint32 p_Mask)
+void WorldSession::SendAccountDataTimes(uint64 p_Guid)
 {
     WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
 
+    l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(time(NULL));                                           ///< Server time
-    l_Data << uint32(p_Mask);                                               ///< type mask
 
     for (uint32 l_I = 0; l_I < NUM_ACCOUNT_DATA_TYPES; ++l_I)
         l_Data << uint32(GetAccountData(AccountDataType(l_I))->Time);       ///< also unix time
