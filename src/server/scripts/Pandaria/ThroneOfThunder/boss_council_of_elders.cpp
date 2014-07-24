@@ -831,6 +831,9 @@ class boss_kazra_jin : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
+                if (attacker == me)
+                    return;
+
                 if (!firstPossessSwitched)
                 {
                     if (me->HasAura(SPELL_POSSESSED))
