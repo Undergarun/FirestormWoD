@@ -277,7 +277,8 @@ class npc_gara_jal_s_soul : public CreatureScript
                     }
                 }
                 else if (action == ACTION_SOUL_FRAGMENT)
-                    events.ScheduleEvent(EVENT_SOUL_FRAGMENT, 1000);
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_SOUL_FRAGMENT, 1000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1825,7 +1826,10 @@ class boss_high_priestress_mar_li : public CreatureScript
                         }
                         break;
                     case EVENT_BLESSED_LOA_SPIRIT_SUMMON:
-                        me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, false);
+                        {
+                            if (GetClosestCreatureWithEntry(me, NPC_BLESSED_LOA_SPIRIT, 200.0f))
+                                me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, false);
+                        }
                         events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 35000);
                         break;
                     case EVENT_SHADOWED_LOA_SPIRIT_SUMMON:
@@ -1994,6 +1998,8 @@ class mob_living_sand : public CreatureScript
                     default:
                         break;
                 }
+
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -2150,13 +2156,23 @@ class mob_shadowed_lua_spirit : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_OS_PLAYER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
-                            me->AddAura(SPELL_MARKED_SOUL, target);
-                            SetGUID(target->GetGUID(), 0);
-                            despawnTimer = 20000;
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 200.0f);
+
+                            if(playerList.empty())
+                                break;
+
+                            JadeCore::RandomResizeList(playerList, 1);
+
+                            if (Player* target = playerList.front())
+                            {
+                                me->AddAura(SPELL_MARKED_SOUL, target);
+                                SetGUID(target->GetGUID(), 0);
+                                despawnTimer = 20000;
+                            }
+                            break;
                         }
-                        break;
                     default:
                         break;
                 }
@@ -2216,9 +2232,27 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                if (!GetCaster() || !GetTarget())
+                    return;
+
                 if (Creature* caster = GetCaster()->ToCreature())
+                {
                     if (caster->GetEntry() == NPC_KAZRA_JIN && caster->GetAI())
+                    {
                         caster->SetReactState(REACT_AGGRESSIVE);
+
+                        if (Player* target = GetTarget()->ToPlayer())
+                            caster->CastSpell(target, SPELL_RECKLESS_CHARGE_KNOCK_BACK, false);
+                        else
+                        {
+                            std::list<Creature*> creatureList;
+                            GetCreatureListWithEntryInGrid(creatureList, caster, NPC_RECKLESS_CHARGE, 200.0f);
+
+                            for (Creature* creature : creatureList)
+                                creature->DespawnOrUnsummon();
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -2362,7 +2396,7 @@ class spell_lingering_presence : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_lingering_presence_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_lingering_presence_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 

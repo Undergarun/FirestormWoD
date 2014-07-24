@@ -3427,6 +3427,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 137200:// Blessed Loa Spirit
+                spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
+                break;
             case 136050: // Malformed Blood
                 spellInfo->Effects[1].BasePoints *= 2.85f;
                 break;
@@ -3512,7 +3516,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
             case 137131: // Reckless Charge
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             case 137133: // Reckless Charge
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
