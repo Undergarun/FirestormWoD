@@ -1873,6 +1873,10 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
         stmt->setInt32(0, GetGUIDLow());
         _storeGoldCallback = CharacterDatabase.AsyncQuery(stmt);
 
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_TITLE);
+        stmt->setInt32(0, GetGUIDLow());
+        _storeTitleCallback = CharacterDatabase.AsyncQuery(stmt);
+
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_LEVEL);
         stmt->setInt32(0, GetGUIDLow());
         _storeLevelCallback = CharacterDatabase.AsyncQuery(stmt);
@@ -1902,6 +1906,14 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
             _storeGoldCallback.get(result);
             HandleStoreGoldCallback(result);
             _storeGoldCallback.cancel();
+            m_storeCallbackCounter++;
+        }
+
+        if (_storeTitleCallback.ready())
+        {
+            _storeTitleCallback.get(result);
+            HandleStoreTitleCallback(result);
+            _storeTitleCallback.cancel();
             m_storeCallbackCounter++;
         }
 
@@ -1935,7 +1947,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
         }
 
         // All store callback are check, we can save to db player
-        if (m_storeCallbackCounter == 3)
+        if (m_storeCallbackCounter == 4)
         {
             SaveToDB();
             m_storeCallbackCounter++;
@@ -30161,6 +30173,31 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
 
         if (goldCount)
             GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));             // Translate me
+    }
+}
+
+void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
+{
+    // Load titles
+    if (p_Result)
+    {
+        do
+        {
+            Field* l_TitleField = p_Result->Fetch();
+            uint32 l_Title = l_TitleField[0].GetUInt32();
+            uint32 l_Transaction = l_TitleField[1].GetUInt32();
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_GOLD);
+            stmt->setInt32(0, l_Transaction);
+            CharacterDatabase.Execute(stmt);
+
+            CharTitlesEntry const* l_TitleInfo = sCharTitlesStore.LookupEntry(l_Title);
+            if (!l_TitleInfo)
+                continue;
+
+            SetTitle(l_TitleInfo);
+        }
+        while (p_Result->NextRow());
     }
 }
 

@@ -3023,6 +3023,7 @@ class Player : public Unit, public GridObject<Player>
         void HandleStoreItemCallback(PreparedQueryResult result);
         void HandleStoreLevelCallback(PreparedQueryResult result);
         void HandleStoreGoldCallback(PreparedQueryResult result);
+        void HandleStoreTitleCallback(PreparedQueryResult result);
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
@@ -3432,6 +3433,7 @@ class Player : public Unit, public GridObject<Player>
 
         // Store callback
         PreparedQueryResultFuture _storeGoldCallback;
+        PreparedQueryResultFuture _storeTitleCallback;
         PreparedQueryResultFuture _storeItemCallback;
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
