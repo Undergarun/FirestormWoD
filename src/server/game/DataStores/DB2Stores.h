@@ -25,19 +25,49 @@
 
 #include <list>
 
-extern DB2Storage <ItemEntry> sItemStore;
-extern DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore;
-extern DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore;
-extern DB2Storage <ItemSparseEntry> sItemSparseStore;
-extern DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore;
-extern DB2Storage <SpellReagentsEntry> sSpellReagentsStore;
-extern DB2Storage <ItemUpgradeEntry> sItemUpgradeStore;
-extern DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore;
-extern DB2Storage<SceneScriptEntry> sSceneScriptStore;
-extern DB2Storage<SceneScriptPackageEntry> sSceneScriptPackageStore;
+extern DB2Storage <ItemEntry>                       sItemStore;
+extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
+extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
+extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
+extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
+extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
+extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
+extern DB2Storage <BattlePetSpeciesEntry>           sBattlePetSpeciesStore;
+extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
+extern DB2Storage <ItemUpgradeEntry>                sItemUpgradeStore;
+extern DB2Storage <RulesetItemUpgradeEntry>         sRulesetItemUpgradeStore;
+extern DB2Storage <SceneScriptEntry>                sSceneScriptStore;
+extern DB2Storage <SceneScriptPackageEntry>         sSceneScriptPackageStore;
+extern DB2Storage <TaxiPathNodeEntry>               sTaxiPathNodeStore;
+extern DB2Storage <SpellRuneCostEntry>              sSpellRuneCostStore;
+extern DB2Storage <SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore;
+extern DB2Storage <SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore;
+extern DB2Storage <AreaPOIEntry>                    sAreaPOIStore;
+extern DB2Storage <HolidaysEntry>                   sHolidaysStore;
+extern DB2Storage <OverrideSpellDataEntry>          sOverrideSpellDataStore;
+extern DB2Storage <SpellMiscEntry>                  sSpellMiscStore;
+extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
+extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
+extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
+SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
+
+extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 
 void LoadDB2Stores(const std::string& dataPath);
+
+struct TaxiPathNodePtr
+{
+    TaxiPathNodePtr() : i_ptr(NULL) {}
+    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) {}
+    TaxiPathNodeEntry const* i_ptr;
+    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
+};
+
+typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
+
+extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
 
 #endif

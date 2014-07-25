@@ -217,7 +217,7 @@ class Object
             else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM         || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER                    || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY 
                                                    || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID  || index == UNIT_FIELD_CHANNEL_OBJECT))
                 return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
+            else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || index == PLAYER_FIELD_WOW_ACCOUNT || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
                 return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
             else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
                 return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));

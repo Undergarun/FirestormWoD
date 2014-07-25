@@ -236,7 +236,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     uint8 spawnMode;
 
     if (bracketEntry)
-        spawnMode = bracketEntry->difficulty;
+        spawnMode = REGULAR_DIFFICULTY; // bracketEntry->difficulty;
     else
         spawnMode = REGULAR_DIFFICULTY;
 

@@ -393,8 +393,10 @@ void ObjectMgr::LoadCreatureTemplates()
     QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, difficulty_entry_4, difficulty_entry_5, difficulty_entry_6, "
     //                                                 7                  8                    9                  10                11                     12
                                              "difficulty_entry_7, difficulty_entry_8, difficulty_entry_9, difficulty_entry_10, difficulty_entry_11, difficulty_entry_12, "
-    //                                                  13                  14              15                   16           17          18       19          20
-                                             "difficulty_entry_13, difficulty_entry_14, difficulty_entry_15, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
+    //                                                  13                  14              15                       16                    17                   18                    19                  20
+                                             "difficulty_entry_13, difficulty_entry_14, difficulty_entry_15, difficulty_entry_16, difficulty_entry_17, difficulty_entry_18, difficulty_entry_19, difficulty_entry_20, " 
+                                             
+                                             "KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           21      22      23       24           25           26        27     28      29        30        31         32         33        34         35
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction_A, faction_H, npcflag, npcflag2, speed_walk, speed_run, "
     //                                             36      37    38     39     40        41           42            43              44               45            46         47          48
@@ -2452,14 +2454,24 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Armor = FillItemArmor(sparse->ItemLevel, db2Data->Class, db2Data->SubClass, sparse->Quality, sparse->InventoryType);
         itemTemplate.Delay = sparse->Delay;
         itemTemplate.RangedModRange = sparse->RangedModRange;
-        for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+
+        std::vector<uint32> & l_EffectsIndex = sItemEffectsByItemID[itemId];
+
+        ASSERT(l_EffectsIndex.size() < MAX_ITEM_PROTO_SPELLS);
+
+        for (uint32 l_I = 0; l_I < l_EffectsIndex.size(); ++l_I)
         {
-            itemTemplate.Spells[i].SpellId = sparse->SpellId[i];
-            itemTemplate.Spells[i].SpellTrigger = sparse->SpellTrigger[i];
-            itemTemplate.Spells[i].SpellCharges = sparse->SpellCharges[i];
-            itemTemplate.Spells[i].SpellCooldown = sparse->SpellCooldown[i];
-            itemTemplate.Spells[i].SpellCategory = sparse->SpellCategory[i];
-            itemTemplate.Spells[i].SpellCategoryCooldown = sparse->SpellCategoryCooldown[i];
+            const ItemEffectEntry * l_Entry = sItemEffectStore.LookupEntry(l_EffectsIndex[l_I]);
+
+            if (!l_Entry)
+                continue;
+
+            itemTemplate.Spells[l_I].SpellId                  = l_Entry->SpellID;
+            itemTemplate.Spells[l_I].SpellTrigger             = l_Entry->SpellTrigger;
+            itemTemplate.Spells[l_I].SpellCharges             = l_Entry->SpellCharge;
+            itemTemplate.Spells[l_I].SpellCooldown            = l_Entry->SpellCooldown;
+            itemTemplate.Spells[l_I].SpellCategory            = l_Entry->SpellCategory;
+            itemTemplate.Spells[l_I].SpellCategoryCooldown    = l_Entry->SpellCategoryCooldown;
         }
 
         itemTemplate.SpellPPMRate = 0.0f;
@@ -2483,7 +2495,7 @@ void ObjectMgr::LoadItemTemplates()
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         {
             itemTemplate.Socket[i].Color = sparse->Color[i];
-            itemTemplate.Socket[i].Content = sparse->Content[i];
+            itemTemplate.Socket[i].Content = 0;//sparse->Content[i];
         }
 
         itemTemplate.socketBonus = sparse->SocketBonus;

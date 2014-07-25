@@ -23,16 +23,35 @@
 
 #include <map>
 
-DB2Storage <ItemEntry> sItemStore(Itemfmt);
-DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
-DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage <ItemSparseEntry> sItemSparseStore (ItemSparsefmt);
-DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
-DB2Storage <SpellReagentsEntry> sSpellReagentsStore(SpellReagentsEntryfmt);
-DB2Storage <ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradeEntryfmt);
-DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
-DB2Storage<SceneScriptEntry> sSceneScriptStore(SceneScriptEntryfmt);
-DB2Storage<SceneScriptPackageEntry> sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
+DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
+DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyCostfmt);
+DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DB2Storage <ItemSparseEntry>                sItemSparseStore (ItemSparsefmt);
+DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
+DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
+DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
+DB2Storage <BattlePetSpeciesEntry>          sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
+DB2Storage <SpellReagentsEntry>             sSpellReagentsStore(SpellReagentsEntryfmt);
+DB2Storage <ItemUpgradeEntry>               sItemUpgradeStore(ItemUpgradeEntryfmt);
+DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
+DB2Storage <SceneScriptEntry>               sSceneScriptStore(SceneScriptEntryfmt);
+DB2Storage <SceneScriptPackageEntry>        sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
+DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
+DB2Storage <SpellRuneCostEntry>             sSpellRuneCostStore(SpellRuneCostfmt);
+DB2Storage <SpellCastingRequirementsEntry>  sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
+DB2Storage <SpellAuraRestrictionsEntry>     sSpellAuraRestrictionsStore(SpellAuraRestrictionsEntryfmt);
+DB2Storage <AreaPOIEntry>                   sAreaPOIStore(AreaPOIEntryfmt);
+DB2Storage <HolidaysEntry>                  sHolidaysStore(Holidaysfmt);
+DB2Storage <OverrideSpellDataEntry>         sOverrideSpellDataStore(OverrideSpellDatafmt);
+DB2Storage <SpellMiscEntry>                 sSpellMiscStore(SpellMiscEntryfmt);
+DB2Storage <SpellPowerEntry>                sSpellPowerStore(SpellPowerEntryfmt);
+DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfmt);
+DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
+
+// DBC used only for initialization sTaxiPathNodeStore at startup.
+TaxiPathNodesByPath sTaxiPathNodesByPath;
+SpellTotemMap sSpellTotemMap;
+std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 
 typedef std::list<std::string> StoreProblemList1;
 
@@ -80,22 +99,98 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
     }
 }
 
+SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem)
+{
+    SpellTotemMap::const_iterator itr = sSpellTotemMap.find(spellId);
+    if (itr == sSpellTotemMap.end())
+        return NULL;
+
+    return itr->second.totems[totem];
+}
+
 void LoadDB2Stores(const std::string& dataPath)
 {
     std::string db2Path = dataPath + "dbc/";
 
     StoreProblemList1 bad_db2_files;
 
-    LoadDB2(bad_db2_files, sBattlePetSpeciesStore, db2Path, "BattlePetSpecies.db2");                                        // 17399
-    LoadDB2(bad_db2_files, sItemStore, db2Path, "Item.db2");                                                                // 17399
-    LoadDB2(bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");                                        // 17399
-    LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");                                                   // 17399
-    LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");                                        // 17399
-    LoadDB2(bad_db2_files, sSpellReagentsStore, db2Path, "SpellReagents.db2");                                              // 17399
-    LoadDB2(bad_db2_files, sItemUpgradeStore, db2Path, "ItemUpgrade.db2");                                                  // 17399
-    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore, db2Path, "RulesetItemUpgrade.db2");                                    // 17399
-    LoadDB2(bad_db2_files, sSceneScriptStore, db2Path, "SceneScript.db2");                                                  // 17399
-    LoadDB2(bad_db2_files, sSceneScriptPackageStore, db2Path, "SceneScriptPackage.db2");                                    // 17399
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");              
+    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");                          
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");              
+    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");                  
+    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");                 
+    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");                  
+    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");          
+    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");              
+    LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");                 
+    LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");                   
+    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");            
+    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");                   
+    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");            
+    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");                  
+    LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2");                 
+    LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2");
+    LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore,     db2Path, "SpellAuraRestrictions.db2");         
+    LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");                                              
+    LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");                                             
+    LoadDB2(bad_db2_files, sOverrideSpellDataStore,         db2Path, "OverrideSpellData.db2");
+    LoadDB2(bad_db2_files, sSpellMiscStore,                 db2Path, "SpellMisc.db2"); 
+    LoadDB2(bad_db2_files, sSpellPowerStore,                db2Path, "SpellPower.db2");
+    LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2"); 
+    LoadDB2(bad_db2_files, sSpellClassOptionsStore,         db2Path, "SpellClassOptions.db2");
+
+    for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
+    {
+        if (const ItemModifiedAppearanceEntry * l_ModifiedAppearanceEntry = sItemModifiedAppearanceStore.LookupEntry(l_Y))
+        {
+            if (l_ModifiedAppearanceEntry->ItemID != 0 && l_ModifiedAppearanceEntry->Index == 0)
+            {
+                const ItemAppearanceEntry * l_AppearanceEntry = sItemAppearanceStore.LookupEntry(l_ModifiedAppearanceEntry->AppearanceID);
+
+                uint32 l_DisplayID = 0;
+
+                if (l_AppearanceEntry)
+                    l_DisplayID = l_AppearanceEntry->DisplayID;
+
+                ItemEntry * l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID));
+
+                if (l_Entry)
+                    l_Entry->DisplayId = l_DisplayID;
+            }
+        }
+    }
+
+    for (uint32 l_I = 1; l_I < sItemEffectStore.GetNumRows(); ++l_I)
+    {
+        if (ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(l_I))
+        {
+            sItemEffectsByItemID[l_Entry->ItemID].push_back(l_I);
+        }
+    }
+
+
+    uint32 pathCount = sTaxiPathStore.GetNumRows();
+
+    // Calculate path nodes count
+    std::vector<uint32> pathLength;
+    pathLength.resize(pathCount);                           // 0 and some other indexes not used
+    for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
+    if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
+    {
+        if (pathLength[entry->path] < entry->index + 1)
+            pathLength[entry->path] = entry->index + 1;
+    }
+
+    // Set path length
+    sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
+    for (uint32 l_I = 1; l_I < sTaxiPathNodesByPath.size(); ++l_I)
+        sTaxiPathNodesByPath[l_I].resize(pathLength[l_I]);
+
+    // fill data
+    for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
+        if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
+            sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
+
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)

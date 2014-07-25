@@ -348,6 +348,8 @@ enum AreaFlags
 enum Difficulty
 {
     NONE_DIFFICULTY              = 0,                       // entry
+
+
     REGULAR_DIFFICULTY           = 1,                       // difficulty_entry_1
     HEROIC_DIFFICULTY            = 2,                       // difficulty_entry_2
     MAN10_DIFFICULTY             = 3,                       // difficulty_entry_3
@@ -361,14 +363,19 @@ enum Difficulty
     SCENARIO_HEROIC_DIFFICULTY   = 11,                      // difficulty_entry_11
     SCENARIO_DIFFICULTY          = 12,                      // difficulty_entry_12
                                                             // difficulty_entry_13
-    DYNAMIC_DIFFICULTY           = 14                       // difficulty_entry_14
+    DYNAMIC_DIFFICULTY           = 14,                      // difficulty_entry_14
+                                                            // difficulty_entry_15
+                                                            // difficulty_entry_16
+                                                            // difficulty_entry_17
+    EVENT_0_DIFFICULTY           = 18,                      // difficulty_entry_18
+    EVENT_1_DIFFICULTY           = 19,                      // difficulty_entry_19
 };
 
 #define RAID_DIFFICULTY_MASK_25MAN 1                        // since 25man difficulties are 1 and 3, we can check them like that
 
 #define MAX_DUNGEON_DIFFICULTY     HEROIC_DIFFICULTY+1
 #define MAX_RAID_DIFFICULTY        MAN40_DIFFICULTY+1
-#define MAX_DIFFICULTY             DYNAMIC_DIFFICULTY+1     // difficulty_entry_15
+#define MAX_DIFFICULTY             EVENT_1_DIFFICULTY+1     // difficulty_entry_20
 
 enum SpawnMask
 {

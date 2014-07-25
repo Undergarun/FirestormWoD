@@ -18,9 +18,12 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
-const char Itemfmt[] = "niiiiiii";
+const char Itemfmt[] = "niiiiiiii";
 const char ItemCurrencyCostfmt[] = "xn";
-const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii"; // done @author : Izidor
+const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii"; // done @author : Izidor
+const char ItemEffectFmt[] = "niiiiiiii";
+const char ItemModifiedAppearanceFmt[] = "niiii";
+const char ItemAppearanceFmt[] = "nii";
 const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxxx";
 const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";
 const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiixx";
@@ -28,5 +31,16 @@ const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RulesetItemUpgradeEntryfmt[] = "niii";
 const char SceneScriptEntryfmt[] = "nssii";
 const char SceneScriptPackageEntryfmt[] = "ns";
+const char TaxiPathNodeEntryfmt[] = "diiifffiiii";
+const char SpellRuneCostfmt[] = "niiiii";
+const char SpellCastingRequirementsEntryfmt[] = "dixxixi";
+const char SpellAuraRestrictionsEntryfmt[] = "diiiiiixx";
+const char AreaPOIEntryfmt[] = "nxxxiixffxxixxx";
+const char Holidaysfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxisix";
+const char OverrideSpellDatafmt[] = "niiiiiiiiiixx";
+const char SpellMiscEntryfmt[] = "nixiiiiiiiiiiiiiiiifiiiii";
+const char SpellPowerEntryfmt[] = "nixiixxxxxffxx";
+const char SpellTotemsEntryfmt[] = "niiii";
+const char SpellClassOptionsEntryfmt[] = "dxiiiii";
 
 #endif
