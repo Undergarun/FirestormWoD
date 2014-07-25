@@ -1830,7 +1830,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                         break;
                     case EVENT_BLESSED_LOA_SPIRIT_SUMMON:
                         {
-                            if (GetClosestCreatureWithEntry(me, NPC_BLESSED_LOA_SPIRIT, 200.0f))
+                            if (!GetClosestCreatureWithEntry(me, NPC_BLESSED_LOA_SPIRIT, 200.0f))
                                 me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, false);
                         }
                         events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 35000);
