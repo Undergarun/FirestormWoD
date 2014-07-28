@@ -3431,15 +3431,30 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
-            case 136050: // Malformed Blood
+            case 136050:// Malformed Blood
                 spellInfo->Effects[1].BasePoints *= 2.85f;
                 break;
-            case 136521: // QuickSand
-            case 136878: // QuickSand
+            case 136521:// QuickSand
+            case 136878:// QuickSand
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
             case 137967:// Twisted Fate
                 spellInfo->Effects[0].TargetA =  TARGET_UNIT_TARGET_ANY;
+                break;
+            case 134447:// Submerge
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
+                break;
+            case 134398:// Slime Trail (aura)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3s
+                break;
+            case 134531:// Web Thread
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 139498:// Web Spray
+                spellInfo->Effects[1].TriggerSpell = 0;
+                break;
+            case 138359:// Jump to Boss Platform
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
             case 51128: // Killing Machine
                 spellInfo->ProcChance = 0;
