@@ -173,6 +173,18 @@ Position const chestPos = { 6467.56f, 4483.96f, 182.452f, 2.502f };
 uint32 const headsEntries[4]        = { NPC_FLAMING_HEAD,       NPC_FROZEN_HEAD,        NPC_VENOMOUS_HEAD,      NPC_ARCANE_HEAD         };
 uint32 const backHeadsEntries[4]    = { NPC_BACK_FLAMING_HEAD,  NPC_BACK_FROZEN_HEAD,   NPC_BACK_VENOMOUS_HEAD, NPC_BACK_ARCANE_HEAD    };
 
+static void BindPlayersToInstance(Creature* creature)
+{
+    Map* map = creature->GetMap();
+
+    if (map && map->IsDungeon() && map->IsRaidOrHeroicDungeon())
+    {
+        Map::PlayerList const &PlList = map->GetPlayers();
+        if (!PlList.isEmpty() && PlList.begin()->getSource())
+            ((InstanceMap*)map)->PermBindAllPlayers(PlList.begin()->getSource());
+    }
+};
+
 // Megaera - 68065
 class boss_megaera : public CreatureScript
 {
@@ -267,6 +279,8 @@ class boss_megaera : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DIFFUSION_AURA);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICY_GROUND_DMG_SNARE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IGNITE_FLESH_AURA);
+
+                    BindPlayersToInstance(me);
                 }
 
                 if (Creature* genericMoP = me->FindNearestCreature(NPC_SLG_GENERIC_MOP, 120.0f))

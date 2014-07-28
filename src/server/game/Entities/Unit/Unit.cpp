@@ -290,8 +290,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_IsInKillingProcess = false;
     m_VisibilityUpdScheduled = false;
 
-    m_SendTransportMoveTimer = 0;
-
     for (int i = 0; i < MAX_POWERS; ++i)
         m_lastRegenTime[i] = getMSTime();
 
@@ -469,26 +467,6 @@ void Unit::Update(uint32 p_time, uint32 entry /*= 0*/)
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, HealthBelowPct(35));
         ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, HealthAbovePct(75));
     }
-
-    /*if (m_SendTransportMoveTimer != 0)
-    {
-        if (m_SendTransportMoveTimer <= p_time)
-        {
-            if (GetTransGUID())
-            {
-                Movement::MoveSplineInit init(*this);
-                init.DisableTransportPathTransformations();
-                init.MoveTo(m_movementInfo.t_pos.m_positionX, m_movementInfo.t_pos.m_positionY, m_movementInfo.t_pos.m_positionZ);
-                init.SetFacing(0.0f);
-                init.SetTransportEnter();
-                init.Launch();
-            }
-            
-            m_SendTransportMoveTimer = 0;
-        }
-        else
-            m_SendTransportMoveTimer -= p_time;
-    }*/
 
     UpdateSplineMovement(p_time);
     i_motionMaster.UpdateMotion(p_time);
@@ -21480,10 +21458,6 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         m_vehicle = NULL;
         return;
     }
-
-    // Hack to force refresh of SMSG_TRANSPORT_MONSTER_MOVE
-    // It's needed in somes cases to have correct client-side animation
-    m_SendTransportMoveTimer = 1000;
 }
 
 void Unit::ChangeSeat(int8 seatId, bool next)

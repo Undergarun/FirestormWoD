@@ -156,8 +156,6 @@ enum eCreatures
     NPC_BACK_VENOMOUS_HEAD          = 70251,
     NPC_ARCANE_HEAD                 = 70248,
     NPC_BACK_ARCANE_HEAD            = 70252,
-    NPC_FRONT_HEAD_SPAWNER          = 70175,
-    NPC_BACK_HEAD_SPAWNER           = 68136,
     NPC_CINDERS                     = 70432,
     NPC_ACID_RAIN                   = 70435,
     NPC_ICY_GROUND                  = 70446,

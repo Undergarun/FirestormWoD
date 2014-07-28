@@ -2872,10 +2872,25 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // remove pet on map change
             if (pet)
                 UnsummonPetTemporaryIfAny();
-				
+
             // remove stealth on map change
             if (HasAuraType(SPELL_AURA_MOD_STEALTH))
+            {
                 RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+
+                switch (getClass())
+                {
+                    case CLASS_ROGUE:
+                        RemoveSpellCooldown(1784);
+                        RemoveSpellCooldown(115191);
+                        break;
+                    case CLASS_DRUID:
+                        RemoveSpellCooldown(5215);
+                        break;
+                    default:
+                        break;
+                }
+            }
             // remove all dyn objects and AreaTrigger
             RemoveAllDynObjects();
             RemoveAllAreasTrigger();
