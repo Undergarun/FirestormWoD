@@ -28,6 +28,7 @@
 #include "ObjectAccessor.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "Vehicle.h"
 
 // Only for large/long winds
 Position const darkWindPos[2] =
@@ -169,7 +170,27 @@ enum eSpells
     SPELL_SIPHON_LIFE                   = 140630,
     SPELL_ETERNAL_GUARDIAN_SPAWN        = 140577,
     SPELL_ACTIVATE_BELL                 = 140627,
-    SPELL_BELL_SHAKE                    = 139179
+    SPELL_BELL_SHAKE                    = 139179,
+
+    // Bore Worm
+    SPELL_WORM_SUBMERGE                 = 134447,
+    SPELL_SHIFTING_DOOM                 = 134452,
+
+    // Bow Fly Swarm
+    SPELL_LUCIFERASE                    = 134470,
+
+    // Gastropod
+    SPELL_ABRASIVE_RADULA               = 134414,
+    SPELL_SNAIL_SHELL                   = 134434,
+    SPELL_FIXATED                       = 140306,
+    SPELL_DEVOURED                      = 134415,
+    SPELL_SLIME_TRAIL_AREATRIGGER       = 134397,
+    SPELL_SLIME_TRAIL_AURA              = 134398,
+
+    // Web and Corpse Spider
+    SPELL_CORPSE_SPIDER_WEB_SPAWN       = 134483,
+    SPELL_CORPSE_SPIDER_SPAWN           = 134481,
+    SPELL_WEB_SPRAY                     = 139498
 };
 
 enum eEvents
@@ -272,7 +293,26 @@ enum eEvents
     // Eternal Guardian
     EVENT_ETERNAL_PRISON,
     EVENT_LIGHTNING_NOVA,
-    EVENT_SIPHON_LIFE
+    EVENT_SIPHON_LIFE,
+
+    // Bore Worm
+    EVENT_SHIFTING_DOOM,
+
+    // Bow Fly Swarm
+    EVENT_LUCIFERASE,
+
+    // Gastropod
+    EVENT_FIXATED,
+    EVENT_SLIME_TRAIL,
+
+    // Web and Corpse Spider
+    EVENT_WEB_SPRAY
+};
+
+enum eActions
+{
+    ACTION_SPIDER_ENGAGED,
+    ACTION_SWITCH_FIXATED
 };
 
 enum eEquipIds
@@ -2240,6 +2280,465 @@ class mob_eternal_guardian : public CreatureScript
         }
 };
 
+// Bore Worm - 68221
+class mob_bore_worm : public CreatureScript
+{
+    public:
+        mob_bore_worm() : CreatureScript("mob_bore_worm") { }
+
+        struct mob_bore_wormAI : public ScriptedAI
+        {
+            mob_bore_wormAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+
+                me->CastSpell(me, SPELL_WORM_SUBMERGE, true);
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                me->RemoveAura(SPELL_WORM_SUBMERGE);
+                me->CastSpell(me, SPELL_SHIFTING_DOOM, true);
+                events.ScheduleEvent(EVENT_SHIFTING_DOOM, 1000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_SHIFTING_DOOM:
+                        me->CastSpell(me, SPELL_SHIFTING_DOOM, true);
+                        events.ScheduleEvent(EVENT_SHIFTING_DOOM, 1000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_bore_wormAI(creature);
+        }
+};
+
+// Bow Fly Swarm - 68222
+class mob_bow_fly_swarm : public CreatureScript
+{
+    public:
+        mob_bow_fly_swarm() : CreatureScript("mob_bow_fly_swarm") { }
+
+        struct mob_bow_fly_swarmAI : public ScriptedAI
+        {
+            mob_bow_fly_swarmAI(Creature* creature) : ScriptedAI(creature)
+            {
+                spawnTimer = 2000;
+            }
+
+            EventMap events;
+            uint64 bowFlyGuids[8];
+
+            uint32 spawnTimer;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->ReenableEvadeMode();
+
+                Position pos;
+                me->GetPosition(&pos);
+
+                for (int8 i = 0; i < 8; ++i)
+                {
+                    bowFlyGuids[i] = 0;
+
+                    if (Creature* bowFly = me->SummonCreature(NPC_BLOW_FLY, pos))
+                        bowFlyGuids[i] = bowFly->GetGUID();
+                }
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                events.ScheduleEvent(EVENT_LUCIFERASE, 3000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                for (uint8 i = 0; i < 8; ++i)
+                {
+                    if (Creature* bowFly = Creature::GetCreature(*me, bowFlyGuids[i]))
+                        bowFly->DespawnOrUnsummon();
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (spawnTimer)
+                {
+                    if (spawnTimer <= diff)
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                        {
+                            if (Creature* bowFly = Creature::GetCreature(*me, bowFlyGuids[i]))
+                            {
+                                bowFly->EnterVehicle(me, i);
+                                bowFly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                                bowFly->SetReactState(REACT_PASSIVE);
+                            }
+                        }
+
+                        spawnTimer = 0;
+                    }
+                    else
+                        spawnTimer -= diff;
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_LUCIFERASE:
+                        me->CastSpell(me, SPELL_LUCIFERASE, false);
+                        events.ScheduleEvent(EVENT_LUCIFERASE, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_bow_fly_swarmAI(creature);
+        }
+};
+
+// Gastropod - 68220
+class mob_gastropod : public CreatureScript
+{
+    public:
+        mob_gastropod() : CreatureScript("mob_gastropod") { }
+
+        struct mob_gastropodAI : public ScriptedAI
+        {
+            mob_gastropodAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap m_Events;
+            uint64 m_FixatedTarget;
+
+            void Reset()
+            {
+                m_Events.Reset();
+
+                me->ReenableEvadeMode();
+
+                m_FixatedTarget = 0;
+
+                me->SetSpeed(MOVE_WALK, 0.5f);
+                me->SetSpeed(MOVE_RUN, 0.5f);
+
+                me->CastSpell(me, SPELL_SNAIL_SHELL, true);
+                me->CastSpell(me, SPELL_ABRASIVE_RADULA, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                me->RemoveAura(SPELL_SNAIL_SHELL);
+                me->CastSpell(p_Attacker, SPELL_FIXATED, true);
+
+                Position l_Pos;
+                p_Attacker->GetPosition(&l_Pos);
+                me->GetMotionMaster()->MovePoint(0, l_Pos);
+                m_FixatedTarget = p_Attacker->GetGUID();
+
+                m_Events.ScheduleEvent(EVENT_FIXATED, 1000);
+                m_Events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                m_Events.ScheduleEvent(EVENT_SLIME_TRAIL, 2000);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case ACTION_SWITCH_FIXATED:
+                    {
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            me->CastSpell(l_Target, SPELL_FIXATED, true);
+                            me->GetMotionMaster()->Clear();
+                            m_FixatedTarget = l_Target->GetGUID();
+
+                            Position l_Pos;
+                            l_Target->GetPosition(&l_Pos);
+                            me->GetMotionMaster()->MovePoint(0, l_Pos);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_FIXATED:
+                    {
+                        if (Unit* l_Target = Unit::GetUnit(*me, m_FixatedTarget))
+                        {
+                            me->GetMotionMaster()->Clear();
+
+                            Position l_Pos;
+                            l_Target->GetPosition(&l_Pos);
+                            me->GetMotionMaster()->MovePoint(0, l_Pos);
+                        }
+                        m_Events.ScheduleEvent(EVENT_FIXATED, 1000);
+                        break;
+                    }
+                    case EVENT_CHECK_PLAYER:
+                    {
+                        std::list<Player*> l_Targets;
+                        Position l_Pos;
+
+                        me->GetPosition(&l_Pos);
+                        me->GetPlayerListInGrid(l_Targets, 0.f);
+
+                        for (Player* l_Player : l_Targets)
+                        {
+                            if (!l_Player->isInFront(me))
+                                continue;
+
+                            if (l_Player->HasAura(SPELL_DEVOURED))
+                                continue;
+
+                            Position l_PlayerPos;
+                            l_Player->GetPosition(&l_PlayerPos);
+
+                            if (l_Pos.m_positionX >= l_PlayerPos.m_positionX - 5.f &&
+                                l_Pos.m_positionX <= l_PlayerPos.m_positionX + 5.f &&
+                                l_Pos.m_positionY >= l_PlayerPos.m_positionY - 5.f &&
+                                l_Pos.m_positionY <= l_PlayerPos.m_positionY + 5.f)
+                            {
+                                me->CastSpell(l_Player, SPELL_DEVOURED, true);
+                                break;
+                            }
+                        }
+
+                        m_Events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                        break;
+                    }
+                    case EVENT_SLIME_TRAIL:
+                    {
+                        me->CastSpell(me, SPELL_SLIME_TRAIL_AREATRIGGER, true);
+
+                        std::list<AreaTrigger*> l_SlimeTrails;
+                        me->GetAreaTriggerList(l_SlimeTrails, SPELL_SLIME_TRAIL_AREATRIGGER);
+                        for (AreaTrigger* l_AreaTrigger : l_SlimeTrails)
+                        {
+                            std::list<Player*> l_Targets;
+                            l_AreaTrigger->GetPlayerListInGrid(l_Targets, 2.5f);
+
+                            for (Player* l_Plr : l_Targets)
+                                me->CastSpell(l_Plr, SPELL_SLIME_TRAIL_AURA, true);
+                        }
+
+                        m_Events.ScheduleEvent(EVENT_SLIME_TRAIL, 2000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_gastropodAI(creature);
+        }
+};
+
+// Web - 68249
+class mob_web : public CreatureScript
+{
+    public:
+        mob_web() : CreatureScript("mob_web") { }
+
+        struct mob_webAI : public ScriptedAI
+        {
+            mob_webAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            uint32 m_VehicleTimer;
+            uint64 m_CorpseSpiderGuid;
+
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetReactState(REACT_PASSIVE);
+
+                me->CastSpell(me, SPELL_CORPSE_SPIDER_WEB_SPAWN, true);
+
+                m_Events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+
+                m_VehicleTimer = 2000;
+                m_CorpseSpiderGuid = 0;
+
+                Position l_Pos;
+                me->GetPosition(&l_Pos);
+
+                if (Creature* l_Spider = me->SummonCreature(NPC_CORPSE_SPIDER, l_Pos))
+                    m_CorpseSpiderGuid = l_Spider->GetGUID();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (m_VehicleTimer)
+                {
+                    if (m_VehicleTimer <= diff)
+                    {
+                        m_VehicleTimer = 0;
+
+                        if (Creature* l_Spider = Creature::GetCreature(*me, m_CorpseSpiderGuid))
+                            l_Spider->EnterVehicle(me, 0);
+                    }
+                    else
+                        m_VehicleTimer -= diff;
+                }
+
+                m_Events.Update(diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_CHECK_PLAYER:
+                    {
+                        std::list<Player*> l_Players;
+                        me->GetPlayerListInGrid(l_Players, 4.0f);
+
+                        if (!l_Players.empty() && me->GetVehicleKit())
+                        {
+                            Unit* l_Target = l_Players.front();
+
+                            if (Unit* l_Spider = me->GetVehicleKit()->GetPassenger(0))
+                            {
+                                me->RemoveAura(SPELL_CORPSE_SPIDER_WEB_SPAWN);
+                                l_Spider->EnterVehicle(me, 1);
+                                l_Spider->ToCreature()->AI()->DoAction(ACTION_SPIDER_ENGAGED);
+                                break;
+                            }
+                        }
+
+                        m_Events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_webAI(creature);
+        }
+};
+
+// Corpse Spider - 68248
+class mob_corpse_spider : public CreatureScript
+{
+    public:
+        mob_corpse_spider() : CreatureScript("mob_corpse_spider") { }
+
+        struct mob_corpse_spiderAI : public ScriptedAI
+        {
+            mob_corpse_spiderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+
+                me->CastSpell(me, SPELL_CORPSE_SPIDER_SPAWN, true);
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_WEB_SPRAY, 5000);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                if (p_Action == ACTION_SPIDER_ENGAGED && me->HasAura(SPELL_CORPSE_SPIDER_SPAWN))
+                    me->RemoveAura(SPELL_CORPSE_SPIDER_SPAWN);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_WEB_SPRAY:
+                        me->CastSpell(me, SPELL_WEB_SPRAY, false);
+                        m_Events.ScheduleEvent(EVENT_WEB_SPRAY, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_corpse_spiderAI(creature);
+        }
+};
+
 // Water Bolt - 139231
 class spell_water_bolt : public SpellScriptLoader
 {
@@ -2735,6 +3234,99 @@ class spell_siphon_life : public SpellScriptLoader
         }
 };
 
+// Luciferase - 134470
+class spell_luciferase : public SpellScriptLoader
+{
+    public:
+        spell_luciferase() : SpellScriptLoader("spell_luciferase") { }
+
+        class spell_luciferase_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_luciferase_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, GetSpellInfo()->Effects[0].TriggerSpell, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_luciferase_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_luciferase_SpellScript();
+        }
+};
+
+// Fixated - 140306
+class spell_fixated : public SpellScriptLoader
+{
+    public:
+        spell_fixated() : SpellScriptLoader("spell_fixated") { }
+
+        class spell_fixated_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_fixated_AuraScript);
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Creature* l_Gastropod = GetCaster()->ToCreature())
+                    l_Gastropod->AI()->DoAction(ACTION_SWITCH_FIXATED);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_fixated_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_fixated_AuraScript();
+        }
+};
+
+// Devoured - 134415
+class spell_devoured : public SpellScriptLoader
+{
+    public:
+        spell_devoured() : SpellScriptLoader("spell_devoured") { }
+
+        class spell_devoured_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_devoured_AuraScript);
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (Unit* caster = GetCaster())
+                        caster->Kill(target, false, GetSpellInfo());
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_devoured_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_devoured_AuraScript();
+        }
+};
+
 // Ancient Mogu Bell - 218723
 class go_ancient_mogu_bell : public GameObjectScript
 {
@@ -2814,6 +3406,11 @@ void AddSC_throne_of_thunder()
     new mob_mist_lurker();
     new mob_cavern_burrower();
     new mob_eternal_guardian();
+    new mob_bore_worm();
+    new mob_bow_fly_swarm();
+    new mob_gastropod();
+    new mob_web();
+    new mob_corpse_spider();
     new spell_storm_weapon();
     new spell_water_bolt();
     new spell_focused_lightning_aoe();
@@ -2827,5 +3424,8 @@ void AddSC_throne_of_thunder()
     new spell_drain_the_weak_damage();
     new spell_sonic_call();
     new spell_siphon_life();
+    new spell_luciferase();
+    new spell_fixated();
+    new spell_devoured();
     new go_ancient_mogu_bell();
 }

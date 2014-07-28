@@ -116,6 +116,7 @@ set(scripts_STAT_SRCS
   Pandaria/ThroneOfThunder/boss_horridon.cpp
   Pandaria/ThroneOfThunder/boss_tortos.cpp
   Pandaria/ThroneOfThunder/boss_megaera.cpp
+  Pandaria/ThroneOfThunder/boss_ji_kun.cpp
   Pandaria/ThroneOfThunder/boss_primordius.cpp
 
   Pandaria/townlong_steppes.cpp
