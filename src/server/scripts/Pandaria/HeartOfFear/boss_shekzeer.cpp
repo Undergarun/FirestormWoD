@@ -51,7 +51,7 @@ enum eShekzeedAdds
     NPC_SETTHIK_WINDBLADE           = 63589,
     NPC_KORTHIK_REAVER              = 63591,
     NPC_DISSONANCE_FIELD            = 62847,
-    NPC_SHA_OF_FEAR                 = 63942,
+    NPC_SHA_OF_FEAR_MOB             = 63942,
     NPC_STICKY_RESIN                = 63730,
     NPC_AMBER_TRAP                  = 64351,
     NPC_HEART_OF_FEAR               = 63445,
@@ -127,7 +127,6 @@ enum eShekzeerEvents
 {
     // Shek'zeer
     EVENT_CHANGE_PHASE = 1, // Switching to phase 1 when in phase 2 after 150 secs
-    EVENT_POWER_DECREASE,   // In phase 1, power decrease by 1 every second
     EVENT_DISSONANCE_FIELDS,
     EVENT_CORRUPT_FIELD,    // Heroic mode only
     EVENT_CRY_OF_TERROR,
@@ -142,6 +141,7 @@ enum eShekzeerEvents
     EVENT_CLOSE_CHAMBER,
     EVENT_SUMMON_HOF,       // Heroic mode only
     EVENT_BERSERK,          // 9 min in normal mode, 15 in heroic
+    EVENT_POWER,
 
     // Set'thik Windblade
     EVENT_ADD_DISPATCH,
@@ -236,6 +236,7 @@ class boss_shekzeer : public CreatureScript
 
             InstanceScript* pInstance;
             EventMap events;
+            uint32 powerTimer;
             uint8 phase;
             uint8 cryCount;
             bool fightInProgress;
@@ -250,8 +251,9 @@ class boss_shekzeer : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
-                phase    = 0;
-                cryCount = 0;
+                phase      = 0;
+                cryCount   = 0;
+                powerTimer = 0;
                 fightInProgress  = false;
                 isWipe           = false;
                 introDone        = false;
@@ -264,6 +266,8 @@ class boss_shekzeer : public CreatureScript
 
                 me->SetReactState(REACT_DEFENSIVE);
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
+                me->SetMaxPower(POWER_ENERGY, 150);
+                me->SetPower(POWER_ENERGY, me->GetMaxPower(POWER_ENERGY));
                 isInChamber = true;
             }
 
@@ -324,6 +328,7 @@ class boss_shekzeer : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 900000 : 480000); // 15 min in HM, 8 min in NM
                 events.ScheduleEvent(EVENT_CLOSE_CHAMBER, 5000);
                 events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
+                powerTimer = 1000;
             }
 
             void JustDied(Unit* /*killer*/)
@@ -345,7 +350,7 @@ class boss_shekzeer : public CreatureScript
                 }
 
                 // Sha ending
-                if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR, 200.0f))
+                if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR_MOB, 200.0f))
                     sha->AI()->DoAction(ACTION_WITHDRAW);
 
                 phase = 0;
@@ -382,7 +387,7 @@ class boss_shekzeer : public CreatureScript
                     {
                         me->SetReactState(REACT_DEFENSIVE);
                         // Sha becomes invisible
-                        if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR, 200.0f))
+                        if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR_MOB, 200.0f))
                             sha->SetDisplayId(DISPLAYID_INVISIBLE);
                     }
                 }
@@ -413,6 +418,7 @@ class boss_shekzeer : public CreatureScript
                 me->SetFullHealth();
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MoveTargetedHome();
+                me->SetPower(POWER_ENERGY, me->GetMaxPower(POWER_ENERGY));
                 if (pInstance)
                 {
                     if (isWipe)
@@ -454,6 +460,8 @@ class boss_shekzeer : public CreatureScript
                     events.CancelEvent(EVENT_DISSONANCE_FIELDS);
                     events.CancelEvent(EVENT_CRY_OF_TERROR);
                     events.CancelEvent(EVENT_CHANGE_PHASE);
+                    me->SetPower(POWER_ENERGY, me->GetMaxPower(POWER_ENERGY));
+                    powerTimer = 0;
 
                     // Scheduling phase 3 events. NB : Eyes of empress remains in phase 3.
                     events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 6000);
@@ -467,7 +475,7 @@ class boss_shekzeer : public CreatureScript
                     if (GameObject* chrysalid = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_EMPRESS_CHAMBER)))
                         chrysalid->SetGoState((GO_STATE_ACTIVE_ALTERNATIVE));
 
-                    if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR, 200.0f))
+                    if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR_MOB, 200.0f))
                         sha->AI()->DoAction(ACTION_LAST_PHASE);
 
                     phase = 3;
@@ -484,10 +492,12 @@ class boss_shekzeer : public CreatureScript
                     // Entering in phase 2
                     case ACTION_RETREAT:
                     {
+                        // Canceling events one by one to keep BERSERK event
                         events.CancelEvent(EVENT_DREAD_SCREECH);
                         events.CancelEvent(EVENT_DISSONANCE_FIELDS);
                         events.CancelEvent(EVENT_EYES_OF_THE_EMPRESS);
                         events.CancelEvent(EVENT_CRY_OF_TERROR);
+                        powerTimer = 0;
 
                         DoCast(SPELL_RETREAT);
                         me->SetReactState(REACT_PASSIVE);
@@ -521,7 +531,7 @@ class boss_shekzeer : public CreatureScript
                             return;
                         }
 
-                        if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR, 200.0f))
+                        if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR_MOB, 200.0f))
                             sha->AI()->DoAction(ACTION_COMBAT);
 
                         DoCast(SPELL_ADVANCE);
@@ -559,7 +569,7 @@ class boss_shekzeer : public CreatureScript
 
                         // Not visible anymore
                         me->SetDisplayId(DISPLAYID_INVISIBLE);
-                        if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR, 200.0f))
+                        if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR_MOB, 200.0f))
                         {
                             sha->RemoveAllAuras();
                             if(sha->GetDisplayId() == sha->GetNativeDisplayId())
@@ -623,6 +633,8 @@ class boss_shekzeer : public CreatureScript
                             events.ScheduleEvent(EVENT_CRY_OF_TERROR, 25000);
                             events.ScheduleEvent(EVENT_CLOSE_CHAMBER, 5000);
                             events.ScheduleEvent(EVENT_CHANGE_PHASE, TIME_PHASE_DELAY);
+                            powerTimer = 1000;
+                            me->SetPower(POWER_ENERGY, me->GetMaxPower(POWER_ENERGY));
                         }
                     }
                     default:
@@ -632,6 +644,7 @@ class boss_shekzeer : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                // Check wipe
                 if (pInstance)
                 {
                     if (pInstance->IsWipe() && !isWipe)
@@ -649,12 +662,30 @@ class boss_shekzeer : public CreatureScript
                     }
                 }
 
+                // Starting combat
                 if (!loaded)
                 {
                     if (CheckTrash())
                         DoAction(ACTION_COMBAT);
                     else
                         return;
+                }
+
+                // Power decrease in phase 1 - using timer instead of event to not be affected by UNIT_STATE_CASTING
+                if (powerTimer)
+                {
+                    if (phase == 1)
+                    {
+                        if (powerTimer < diff)
+                        {
+                            me->ModifyPower(POWER_ENERGY, -1);
+                            powerTimer = 1000;
+                        }
+                        else
+                            powerTimer -= diff;
+                    }
+                    else
+                        powerTimer = 0;
                 }
 
                 UpdateVictim();
@@ -678,7 +709,7 @@ class boss_shekzeer : public CreatureScript
                                         chrysalid->SetGoState(GO_STATE_ACTIVE);
 
                             if (phase == 2)
-                                if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR, 200.0f))
+                                if (Creature* sha = GetClosestCreatureWithEntry(me, NPC_SHA_OF_FEAR_MOB, 200.0f))
                                     sha->AI()->Talk(SAY_PREPARE_ADVANCE);
 
                             events.ScheduleEvent(EVENT_LOAD_PHASE, 5000);
@@ -735,8 +766,12 @@ class boss_shekzeer : public CreatureScript
                         {
                             std::list<Creature*> fieldList;
                             GetCreatureListWithEntryInGrid(fieldList, me, NPC_DISSONANCE_FIELD, 200.0f);
-                            JadeCore::RandomResizeList(fieldList, 1);
-                            DoCast(fieldList.front(), SPELL_CORRUPT_FIELD);
+
+                            if (!fieldList.empty())
+                            {
+                                JadeCore::RandomResizeList(fieldList, 1);
+                                DoCast(fieldList.front(), SPELL_CORRUPT_FIELD);
+                            }
                             break;
                         }
                         case EVENT_CRY_OF_TERROR:
