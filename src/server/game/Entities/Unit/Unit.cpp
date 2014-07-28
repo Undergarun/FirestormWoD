@@ -16701,6 +16701,11 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
             case 60999:
             case 62442:
             case 67977:
+            case 69131:
+            case 69134:
+            case 69078:
+            case 69132:
+            case 69017:
                 return 0;
             default:
                 break;
