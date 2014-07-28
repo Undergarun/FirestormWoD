@@ -1456,6 +1456,17 @@ void Player::RewardCurrencyAtKill(Unit* victim)
     if (!result)
         return;
 
+    // Player won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85) 
+    if ((Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS
+        || Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS
+        || Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS
+        || Curr->currencyId1 == CURRENCY_TYPE_VALOR_POINTS
+        || Curr->currencyId2 == CURRENCY_TYPE_VALOR_POINTS
+        || Curr->currencyId3 == CURRENCY_TYPE_VALOR_POINTS)
+        && victim->GetMap()->Expansion() != EXP_PANDARIA
+        && getLevel() > 85)
+        return;
+
     if (Curr->currencyId1 && Curr->currencyCount1)
     {
         if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
