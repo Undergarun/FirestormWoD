@@ -1894,11 +1894,11 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE);
     // 0 : OK, 1 : Error, 2 : Retry, 3 : Show '?'
-    data << uint8(0); // ok, realmId exist server-side
     data << realmID;
+    data << uint8(0); // ok, realmId exist server-side
+    data.WriteBits(realmName.size(), 8);
     data.WriteBits(realmName.size(), 8);
     data.WriteBit(1); // unk, if it's main realm ?
-    data.WriteBits(realmName.size(), 8);
     data.FlushBits();
     data.append(realmName.c_str(), realmName.size());
     data.append(realmName.c_str(), realmName.size());

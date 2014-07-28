@@ -38,48 +38,13 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
 
-    ObjectGuid pGuid = guid;
-
-    uint8 guidOrder[8] = { 5, 7, 3, 0, 4, 1, 6, 2 };
-    data.WriteBitInOrder(guid, guidOrder);
-
-    data.WriteByteSeq(pGuid[7]);
-    data.WriteByteSeq(pGuid[4]);
-    data.WriteByteSeq(pGuid[3]);
-
     data << uint8(!nameData ? 1 : 0);
+    data.appendPackGUID(guid);
 
     if (nameData)
     {
-        data << uint32(0);
-        data << uint8(nameData->m_race);
-        data << uint8(nameData->m_gender);
-        data << uint8(nameData->m_level);
-        data << uint8(nameData->m_class);
-        data << uint32(realmID);
-    }
-
-    data.WriteByteSeq(pGuid[1]);
-    data.WriteByteSeq(pGuid[5]);
-    data.WriteByteSeq(pGuid[0]);
-    data.WriteByteSeq(pGuid[6]);
-    data.WriteByteSeq(pGuid[2]);
-
-    if (nameData)
-    {
-        ObjectGuid unkGuid = 0;
-        ObjectGuid pGuid2 = pGuid;
-
-        data.WriteBit(pGuid2[6]);
-        data.WriteBit(unkGuid[7]);
+        data.WriteBit(false);   ///< Is deleted
         data.WriteBits(nameData->m_name.size(), 6);
-        data.WriteBit(pGuid2[1]);
-        data.WriteBit(pGuid2[7]);
-        data.WriteBit(pGuid2[2]);
-        data.WriteBit(unkGuid[4]);
-        data.WriteBit(pGuid2[4]);
-        data.WriteBit(pGuid2[0]);
-        data.WriteBit(unkGuid[1]);
 
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
         {
@@ -92,33 +57,13 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
                 data.WriteBits(0, 7);
         }
 
-        data.WriteBit(unkGuid[3]);
-        data.WriteBit(pGuid2[3]);
-        data.WriteBit(unkGuid[5]);
-        data.WriteBit(unkGuid[0]);
-        data.WriteBit(pGuid2[5]);
-        data.WriteBit(false); // unk
-        data.WriteBit(unkGuid[2]);
-        data.WriteBit(unkGuid[6]);
-
         data.FlushBits();
-        if (nameData->m_name.size())
-            data.append(nameData->m_name.c_str(), nameData->m_name.size());
-
-        data.WriteByteSeq(pGuid2[4]);
-        data.WriteByteSeq(unkGuid[3]);
-        data.WriteByteSeq(pGuid2[6]);
-        data.WriteByteSeq(unkGuid[2]);
-        data.WriteByteSeq(unkGuid[4]);
-        data.WriteByteSeq(pGuid2[5]);
-        data.WriteByteSeq(pGuid2[1]);
-        data.WriteByteSeq(pGuid2[7]);
 
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
         {
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                if (names->name[i].size())
-                    data.append(names->name[i].c_str(), names->name[i].size());
+            if (names->name[i].size())
+                data.append(names->name[i].c_str(), names->name[i].size());
         }
         else
         {
@@ -126,14 +71,17 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
                 data.WriteBits(0, 7);
         }
 
-        data.WriteByteSeq(pGuid2[3]);
-        data.WriteByteSeq(unkGuid[7]);
-        data.WriteByteSeq(unkGuid[1]);
-        data.WriteByteSeq(unkGuid[6]);
-        data.WriteByteSeq(pGuid2[0]);
-        data.WriteByteSeq(unkGuid[0]);
-        data.WriteByteSeq(pGuid2[2]);
-        data.WriteByteSeq(unkGuid[5]);
+        data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+        data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+        data.appendPackGUID(guid);
+
+        data << uint32(realmID);
+        data << uint8(nameData->m_race);
+        data << uint8(nameData->m_gender);
+        data << uint8(nameData->m_class);
+        data << uint8(nameData->m_level);
+
+        data.WriteString(nameData->m_name);
     }
 
     SendPacket(&data);
@@ -141,48 +89,18 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
-    /*
-        CMSG_NAME_QUERY 5.4.0 17371
-        7D -> 0 1 1 1 1 1 0 1
-        80 -> 1 0 0 0 0 0 0 0
-        10 // guid part
-        41 // guid part
-        05 // guid part
-        81 // guid part
-        1D // guid part
-        00 // guid part
-        27000103 // unk bit 1, realm id / flags ?
-    */
 
-    ObjectGuid guid;
+    uint64 guid;
 
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    bool hasUnkBit1 = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    bool hasUnkBit2 = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
+    recvData.readPackGUID(guid);
+    bool hasVirtualRealmAddress = recvData.ReadBit();
+    bool hasNativeRealmAddress = recvData.ReadBit();
 
-    recvData.FlushBits();
+    if (hasVirtualRealmAddress)
+        uint32 VirtualRealmAddress = recvData.read<uint32>();
 
-    uint8 order[8] = {0, 1, 3, 4, 6, 5, 2, 7};
-    recvData.ReadBytesSeq(guid, order);
-
-    if (hasUnkBit2)
-    {
-        uint32 unk = recvData.read<uint32>();
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_NAME_QUERY uint32 unk : %u\r\n", unk);
-    }
-
-    if (hasUnkBit1)
-    {
-        uint32 unk1 = recvData.read<uint32>();
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_NAME_QUERY uint32 unk1 (realm flags / id ?) : %u\r\n", unk1);
-    }
+    if (hasNativeRealmAddress)
+        uint32 NativeRealmAddress = recvData.read<uint32>();
 
     // This is disable by default to prevent lots of console spam
     // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);

@@ -19196,6 +19196,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS, fields[11].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
 
+    SetUInt64Value(PLAYER_FIELD_WOW_ACCOUNT, MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
 
     SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, fields[60].GetUInt8());

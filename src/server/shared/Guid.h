@@ -4,24 +4,25 @@
 
 enum HighGuid
 {
-    HIGHGUID_ITEM = 0x400,                        // blizz 4000
-    HIGHGUID_CONTAINER = 0x400,                        // blizz 4000
-    HIGHGUID_PLAYER = 0x018,                        // blizz 0018
-    HIGHGUID_GAMEOBJECT = 0xF11,                        // blizz F110
-    HIGHGUID_TRANSPORT = 0xF12,                        // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
-    HIGHGUID_UNIT = 0xF13,                        // blizz F130
-    HIGHGUID_PET = 0xF14,                        // blizz F140
-    HIGHGUID_VEHICLE = 0xF15,                        // blizz F550
-    HIGHGUID_DYNAMICOBJECT = 0xF10,                        // blizz F100
-    HIGHGUID_CORPSE = 0xF101,                       // blizz F100
-    HIGHGUID_AREATRIGGER = 0xF1B,                        // blizz F100
-    HIGHGUID_TYPE_BATTLEGROUND = 0x1F1,                        // new 4.x
-    HIGHGUID_MO_TRANSPORT = 0x1FC,                        // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
-    HIGHGUID_GROUP = 0x1F5,
-    HIGHGUID_GUILD = 0x1FF,                        // new 4.x
-    HIGHGUID_INSTANCE_SAVE = 0x104,                        // new 5.x
-    HIGHGUID_LOOT = 0xF19,                        // new 5.4.x
-    HIGHGUID_SCENEOBJECT = 0x18F
+    HIGHGUID_ITEM               = 0x400,                        // blizz 4000
+    HIGHGUID_CONTAINER          = 0x400,                        // blizz 4000
+    HIGHGUID_PLAYER             = 0x018,                        // blizz 0018
+    HIGHGUID_GAMEOBJECT         = 0xF11,                        // blizz F110
+    HIGHGUID_TRANSPORT          = 0xF12,                        // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
+    HIGHGUID_UNIT               = 0xF13,                        // blizz F130
+    HIGHGUID_PET                = 0xF14,                        // blizz F140
+    HIGHGUID_VEHICLE            = 0xF15,                        // blizz F550
+    HIGHGUID_DYNAMICOBJECT      = 0xF10,                        // blizz F100
+    HIGHGUID_CORPSE             = 0xF101,                       // blizz F100
+    HIGHGUID_AREATRIGGER        = 0xF1B,                        // blizz F100
+    HIGHGUID_TYPE_BATTLEGROUND  = 0x1F1,                        // new 4.x
+    HIGHGUID_MO_TRANSPORT       = 0x1FC,                        // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    HIGHGUID_GROUP              = 0x1F5,
+    HIGHGUID_GUILD              = 0x1FF,                        // new 4.x
+    HIGHGUID_INSTANCE_SAVE      = 0x104,                        // new 5.x
+    HIGHGUID_LOOT               = 0xF19,                        // new 5.4.x
+    HIGHGUID_SCENEOBJECT        = 0x18F,
+    HIGHGUID_BNET_ACCOUNT       = 0xE4E
 };
 
 #define IS_EMPTY_GUID(Guid)          (Guid == 0)
@@ -74,22 +75,23 @@ inline bool IsGuidHaveEnPart(uint64 guid)
 {
     switch (GUID_HIPART(guid))
     {
-    case HIGHGUID_ITEM:
-    case HIGHGUID_PLAYER:
-    case HIGHGUID_DYNAMICOBJECT:
-    case HIGHGUID_CORPSE:
-    case HIGHGUID_GROUP:
-    case HIGHGUID_GUILD:
-        return false;
-    case HIGHGUID_GAMEOBJECT:
-    case HIGHGUID_TRANSPORT:
-    case HIGHGUID_UNIT:
-    case HIGHGUID_PET:
-    case HIGHGUID_VEHICLE:
-    case HIGHGUID_MO_TRANSPORT:
-    case HIGHGUID_AREATRIGGER:
-    default:
-        return true;
+        case HIGHGUID_ITEM:
+        case HIGHGUID_PLAYER:
+        case HIGHGUID_DYNAMICOBJECT:
+        case HIGHGUID_CORPSE:
+        case HIGHGUID_GROUP:
+        case HIGHGUID_GUILD:
+            return false;
+
+        case HIGHGUID_GAMEOBJECT:
+        case HIGHGUID_TRANSPORT:
+        case HIGHGUID_UNIT:
+        case HIGHGUID_PET:
+        case HIGHGUID_VEHICLE:
+        case HIGHGUID_MO_TRANSPORT:
+        case HIGHGUID_AREATRIGGER:
+        default:
+            return true;
     }
 }
 
@@ -100,46 +102,47 @@ inline char const* GetLogNameForGuid(uint64 guid)
 {
     switch (GUID_HIPART(guid))
     {
-    case HIGHGUID_ITEM:         return "item";
-    case HIGHGUID_PLAYER:       return guid ? "player" : "none";
-    case HIGHGUID_GAMEOBJECT:   return "gameobject";
-    case HIGHGUID_TRANSPORT:    return "transport";
-    case HIGHGUID_UNIT:         return "creature";
-    case HIGHGUID_PET:          return "pet";
-    case HIGHGUID_VEHICLE:      return "vehicle";
-    case HIGHGUID_DYNAMICOBJECT:return "dynobject";
-    case HIGHGUID_CORPSE:       return "corpse";
-    case HIGHGUID_MO_TRANSPORT: return "mo_transport";
-    case HIGHGUID_GROUP:        return "group";
-    case HIGHGUID_GUILD:        return "guild";
-    case HIGHGUID_AREATRIGGER:  return "areatrigger";
-    default:
-        return "<unknown>";
+        case HIGHGUID_ITEM:         return "item";
+        case HIGHGUID_PLAYER:       return guid ? "player" : "none";
+        case HIGHGUID_GAMEOBJECT:   return "gameobject";
+        case HIGHGUID_TRANSPORT:    return "transport";
+        case HIGHGUID_UNIT:         return "creature";
+        case HIGHGUID_PET:          return "pet";
+        case HIGHGUID_VEHICLE:      return "vehicle";
+        case HIGHGUID_DYNAMICOBJECT:return "dynobject";
+        case HIGHGUID_CORPSE:       return "corpse";
+        case HIGHGUID_MO_TRANSPORT: return "mo_transport";
+        case HIGHGUID_GROUP:        return "group";
+        case HIGHGUID_GUILD:        return "guild";
+        case HIGHGUID_AREATRIGGER:  return "areatrigger";
+        default:
+            return "<unknown>";
     }
 }
 //////////////////////////////////////////////////////////////////////////
 
 enum Guid128Type
 {
-    GUID_TYPE_ITEM = 0x03, ///< 6.0.1 18556
-    GUID_TYPE_CONTAINER = 0x03, ///< 6.0.1 18556
-    GUID_TYPE_PLAYER = 0x02, ///< 6.0.1 18556
-    GUID_TYPE_GAMEOBJECT = 0x0A, ///< 6.0.1 18556
-    GUID_TYPE_TRANSPORT = 0x17, ///< Guessed
-    GUID_TYPE_UNIT = 0x07, ///< 6.0.1 18556
-    GUID_TYPE_PET = 0x08, ///< 6.0.1 18556
-    GUID_TYPE_VEHICLE = 0x09, ///< 6.0.1 18556
-    GUID_TYPE_DYNAMIC_OBJECT = 0x0B, ///< 6.0.1 18556
-    GUID_TYPE_CORPSE = 0x0D, ///< 6.0.1 18556
-    GUID_TYPE_AREATRIGGER = 0x0C, ///< 6.0.1 18556
-    GUID_TYPE_BATTLEGROUND = 0x06, ///< Guessed
-    GUID_TYPE_MO_TRANSPORT = 0x05, ///< 6.0.1 18556
-    GUID_TYPE_GROUP = 0x1A, ///< 6.0.1 18556
-    GUID_TYPE_GUILD = 0x1B, ///< 6.0.1 18556
-    GUID_TYPE_INSTANCE_SAVE = 0x01, ///< Guessed
-    GUID_TYPE_LOOT = 0x15, ///< Guessed
-    GUID_TYPE_SCENE_OBJECT = 0x16, ///< Guessed
-    GUID_TYPE_ACTOR = 0x13  ///< 6.0.1 18556
+    GUID_TYPE_ITEM              = 0x03, ///< 6.0.1 18612
+    GUID_TYPE_CONTAINER         = 0x03, ///< 6.0.1 18612
+    GUID_TYPE_PLAYER            = 0x02, ///< 6.0.1 18612
+    GUID_TYPE_GAMEOBJECT        = 0x0A, ///< 6.0.1 18612
+    GUID_TYPE_TRANSPORT         = 0x17, ///< Guessed
+    GUID_TYPE_UNIT              = 0x07, ///< 6.0.1 18612
+    GUID_TYPE_PET               = 0x08, ///< 6.0.1 18612
+    GUID_TYPE_VEHICLE           = 0x09, ///< 6.0.1 18612
+    GUID_TYPE_DYNAMIC_OBJECT    = 0x0B, ///< 6.0.1 18612
+    GUID_TYPE_CORPSE            = 0x0D, ///< 6.0.1 18612
+    GUID_TYPE_AREATRIGGER       = 0x0C, ///< 6.0.1 18612
+    GUID_TYPE_BATTLEGROUND      = 0x06, ///< Guessed
+    GUID_TYPE_MO_TRANSPORT      = 0x05, ///< 6.0.1 18612
+    GUID_TYPE_GROUP             = 0x1A, ///< 6.0.1 18612
+    GUID_TYPE_GUILD             = 0x1B, ///< 6.0.1 18612
+    GUID_TYPE_INSTANCE_SAVE     = 0x01, ///< Guessed
+    GUID_TYPE_LOOT              = 0x15, ///< Guessed
+    GUID_TYPE_SCENE_OBJECT      = 0x16, ///< Guessed
+    GUID_TYPE_ACTOR             = 0x13, ///< 6.0.1 18612
+    GUID_TYPE_BNET_ACC          = 0x1C  ///< 6.0.1 18612
 };
 
 struct Guid128

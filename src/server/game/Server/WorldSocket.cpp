@@ -180,7 +180,14 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
         sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
 
-    printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
+    switch (pct.GetOpcode())
+    {
+        case SMSG_MONSTER_MOVE:
+            break;
+
+        default:
+            printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
+    }
 
     sScriptMgr->OnPacketSend(this, *pkt);
 

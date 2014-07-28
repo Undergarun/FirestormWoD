@@ -29,6 +29,7 @@ Guid128 Guid64To128(const uint64 & p_64Guid)
         case HIGHGUID_INSTANCE_SAVE:      l_Type = GUID_TYPE_INSTANCE_SAVE;     break;
         case HIGHGUID_LOOT:               l_Type = GUID_TYPE_LOOT;              break;
         case HIGHGUID_SCENEOBJECT:        l_Type = GUID_TYPE_SCENE_OBJECT;      break;
+        case HIGHGUID_BNET_ACCOUNT:       l_Type = GUID_TYPE_BNET_ACC;          break;
     }
 
     return Guid128(l_Type, l_RealmID, l_Mid, l_Low);
@@ -59,6 +60,7 @@ uint64 Guid128To64(const Guid128 & p_128Guid)
         case GUID_TYPE_INSTANCE_SAVE:      l_Type = HIGHGUID_INSTANCE_SAVE;     break;
         case GUID_TYPE_LOOT:               l_Type = HIGHGUID_LOOT;              break;
         case GUID_TYPE_SCENE_OBJECT:       l_Type = HIGHGUID_SCENEOBJECT;       break;
+        case GUID_TYPE_BNET_ACC:           l_Type = HIGHGUID_BNET_ACCOUNT;      break;
     }
 
     return MAKE_NEW_GUID(l_Low, l_Mid, l_Type);
