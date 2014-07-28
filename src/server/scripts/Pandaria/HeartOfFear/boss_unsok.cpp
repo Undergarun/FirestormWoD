@@ -451,6 +451,8 @@ class boss_unsok : public CreatureScript
                             {
                                 Talk(TALK_RESHAPE2);
                                 me->CastSpell(target, SPELL_RESHAPE_LIFE, true);
+                                target->SetMaxPower(POWER_ALTERNATE_POWER, 100);
+                                target->SetPower(POWER_ALTERNATE_POWER, target->GetMaxPower(POWER_ALTERNATE_POWER));
                             }
                             if (!checkMutated)
                             {
@@ -971,16 +973,19 @@ class mob_amber_globule : public CreatureScript
                 std::list<Creature*> globuleList;
                 GetCreatureListWithEntryInGrid(globuleList, me, NPC_AMBER_GLOBULE, 1.5f);
 
-                for (Creature* globule : globuleList)
+                if (!globuleList.empty())
                 {
-                    if (globule != me)
+                    for (Creature* globule : globuleList)
                     {
-                        me->GetMotionMaster()->Clear();
-                        me->DespawnOrUnsummon();
+                        if (globule != me)
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->DespawnOrUnsummon();
 
-                        globule->GetMotionMaster()->Clear();
-                        me->RemoveAura(SPELL_AMBER_GLOBULE);
-                        globule->DespawnOrUnsummon(3000);
+                            globule->GetMotionMaster()->Clear();
+                            me->RemoveAura(SPELL_AMBER_GLOBULE);
+                            globule->DespawnOrUnsummon(3000);
+                        }
                     }
                 }
 

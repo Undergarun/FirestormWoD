@@ -240,7 +240,7 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
         std::list<Creature*> addList;
         GetCreatureListWithEntryInGrid(addList, launcher, addEntries[i], 30.0f);
         for (Creature* add : addList)
-            add->SetInCombatWithZone();
+            add->AI()->EnterCombat(attacker);
     }
 
     return true;

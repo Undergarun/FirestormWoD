@@ -90,6 +90,12 @@ enum eCreatures
     NPC_CAVERN_BURROWER             = 70589,
     NPC_ETERNAL_GUARDIAN            = 70586,
     NPC_SLG_GENERIC_MOP             = 63420,
+    NPC_BORE_WORM                   = 68221,
+    NPC_BOW_FLY_SWARM               = 68222,
+    NPC_BLOW_FLY                    = 70294,
+    NPC_GASTROPOD                   = 68220,
+    NPC_WEB                         = 68249,
+    NPC_CORPSE_SPIDER               = 68248,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
