@@ -34,6 +34,27 @@ set(authserver_SRCS
   ${sources_localdir}
 )
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${authserver_SRCS}")
+
+set(authserver_SRCS
+  ${authserver_SRCS}
+)
+
 if( WIN32 )
 set(authserver_SRCS
     ${authserver_SRCS}
@@ -68,6 +89,7 @@ add_executable(authserver
   ${authserver_SRCS}
 )
 
+set_property(TARGET authserver PROPERTY FOLDER "server")
 add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )

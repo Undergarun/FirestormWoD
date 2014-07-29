@@ -117,6 +117,7 @@ enum SpellTargetCheckTypes
     TARGET_CHECK_RAID,
     TARGET_CHECK_RAID_CLASS,
     TARGET_CHECK_PASSENGER,
+    TARGET_CHECK_ALLY_OR_RAID
 };
 
 enum SpellTargetDirectionTypes
@@ -188,12 +189,14 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
+    SPELL_ATTR0_CU_UNK800                        = 0x00000800,
     SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 0x00001000,
     SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 0x00002000,
     SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 0x00004000,
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
+    SPELL_ATTR0_CU_UNK40000                      = 0x00040000,
     SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER     = 0x00080000,  // Periodic auras with this flag keep old periodic timer when refreshing
     SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000, // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
     // @todo: 4.3.4 core
@@ -369,7 +372,7 @@ public:
     float  Speed;
     uint32 StackAmount;
     uint32 InternalCooldown;
-    uint32 ProcsPerMinute;
+    float ProcsPerMinute;
     uint32 Totem[2];
     int32  Reagent[MAX_SPELL_REAGENTS];
     uint32 ReagentCount[MAX_SPELL_REAGENTS];
@@ -401,6 +404,7 @@ public:
     uint32 SpellEquippedItemsId;
     uint32 SpellInterruptsId;
     uint32 SpellLevelsId;
+    uint32 SpellPowerId;
     uint32 SpellReagentsId;
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
@@ -516,6 +520,8 @@ public:
     inline bool HasAttribute(SpellAttr8 attribute) const { return AttributesEx8 & attribute; }
     inline bool HasAttribute(SpellAttr9 attribute) const { return AttributesEx9 & attribute; }
     inline bool HasAttribute(SpellAttr10 attribute) const { return AttributesEx10 & attribute; }
+    inline bool HasAttribute(SpellAttr11 attribute) const { return AttributesEx11 & attribute; }
+    inline bool HasAttribute(SpellAttr12 attribute) const { return AttributesEx12 & attribute; }
     inline bool HasCustomAttribute(SpellCustomAttributes customAttribute) const { return AttributesCu & customAttribute; }
 
     SpellCastResult CheckShapeshift(uint32 form) const;
@@ -584,9 +590,9 @@ public:
     bool IsBreakingCamouflageAfterHit() const;
     bool IsBreakingStealth(Unit* m_caster = NULL) const;
     bool IsPeriodicHeal() const;
-    bool IsReducingCastTime() const;
+    float GetCastTimeReduction() const;
     bool CanTriggerBladeFlurry() const;
-    bool IsCustomCharged(SpellInfo const* procSpell) const;
+    bool IsCustomCharged(SpellInfo const* procSpell, Unit* caster) const;
     bool IsCustomCastCanceled(Unit* caster) const;
     bool IsWrongPrecastSpell(SpellInfo const* m_preCastSpell) const;
     bool IsPoisonOrBleedSpell() const;

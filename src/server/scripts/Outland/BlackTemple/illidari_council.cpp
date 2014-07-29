@@ -916,7 +916,7 @@ public:
 
         void Register()
         {
-             AfterEffectAbsorb += AuraEffectAbsorbFn(spell_boss_lady_malande_shield_AuraScript::Trigger, EFFECT_0);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_boss_lady_malande_shield_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         }
     };
 

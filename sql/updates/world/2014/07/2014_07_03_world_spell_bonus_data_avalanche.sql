@@ -1,0 +1,1 @@
+INSERT INTO spell_bonus_data VALUE (74196, 0, 0, 0, 0, 'Avalanche - Weapon Enchantment');

@@ -100,7 +100,7 @@ class boss_lei_shi : public CreatureScript
             boss_lei_shiAI(Creature* creature) : BossAI(creature, DATA_LEI_SHI)
             {
                 pInstance = creature->GetInstanceScript();
-                leiShiFreed = false;
+                leiShiFreed = pInstance ? pInstance->GetBossState(DATA_LEI_SHI) == DONE : false;
             }
 
             InstanceScript* pInstance;
@@ -130,6 +130,13 @@ class boss_lei_shi : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     return;
                 }
+
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_LEI_SHI) == DONE)
+                        FreeLeiShi();
+
+                if (leiShiFreed)
+                    return;
 
                 _Reset();
  
@@ -190,24 +197,27 @@ class boss_lei_shi : public CreatureScript
                         itr->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
                     }
                 }
-
-                if (leiShiFreed)
-                    me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
             }
 
             void JustReachedHome()
             {
+                if (leiShiFreed)
+                    return;
+
                 _JustReachedHome();
  
-                if (pInstance)
+                if (pInstance && pInstance->GetBossState(DATA_LEI_SHI) != DONE)
                     pInstance->SetBossState(DATA_LEI_SHI, FAIL);
             }
 
             void EnterCombat(Unit* attacker)
             {
+                if (leiShiFreed)
+                    return;
+
                 if (pInstance)
                 {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) != DONE)
+                    if (pInstance->GetBossState(DATA_TSULONG) != DONE)
                     {
                         EnterEvadeMode();
                         return;
@@ -278,19 +288,8 @@ class boss_lei_shi : public CreatureScript
                 if (me->HealthBelowPctDamaged(endCombatPct, damage))
                 {
                     damage = 0;
-                    me->setFaction(35);
-                    me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->RestoreDisplayId();
-                    me->RemoveAura(SPELL_AFRAID);
-                    me->RemoveAura(SPELL_HIDE);
-                    me->RemoveAura(SPELL_HIDE_STACKS);
-                    me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
-                    me->RemoveAura(SPELL_SCARY_FOG_DOT);
-                    me->RemoveAura(SPELL_SCARY_FOG_STACKS);
-                    me->RemoveAllAreasTrigger();
+                    FreeLeiShi();
 
-                    leiShiFreed = true;
                     Talk(TALK_DEFEATED);
 
                     if (pInstance)
@@ -301,9 +300,13 @@ class boss_lei_shi : public CreatureScript
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARY_FOG_STACKS);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SPRAY);
                         pInstance->SetBossState(DATA_LEI_SHI, DONE);
-                    }
 
-                    pInstance->SetBossState(DATA_LEI_SHI, DONE);
+                        if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_LEI_SHI))
+                            wall->SetGoState(GO_STATE_READY);
+
+                        if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_LEI_SHIS_VORTEX))
+                            vortex->SetGoState(GO_STATE_READY);
+                    }
 
                     switch (me->GetMap()->GetSpawnMode())
                     {
@@ -332,6 +335,18 @@ class boss_lei_shi : public CreatureScript
                         if (Player* player = itr->getSource())
                             player->CombatStop();
                 }
+            }
+
+            void FreeLeiShi()
+            {
+                me->setFaction(35);
+                me->RemoveAllAreasTrigger();
+                me->RemoveAllAuras();
+                me->RestoreDisplayId();
+                me->SetFullHealth();
+                me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                leiShiFreed = true;
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -365,6 +380,9 @@ class boss_lei_shi : public CreatureScript
                 {
                     case ACTION_ANIMATED_PROTECTOR_DIED:
                     {
+                        if (!shielded)
+                            break;
+
                         me->RemoveAura(SPELL_PROTECT);
                         shielded = false;
                         protectScheduled = false;
@@ -576,6 +594,7 @@ class boss_lei_shi : public CreatureScript
                         hidden = true;
                         me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
                         me->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+                        me->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                         break;
                     }
                     case EVENT_BERSERK:
@@ -709,7 +728,7 @@ class mob_lei_shi_hidden : public CreatureScript
         }
 };
 
-// Get Away ! - 123461
+// Get Away! - 123461
 class spell_get_away : public SpellScriptLoader
 {
     public:
@@ -736,6 +755,36 @@ class spell_get_away : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_get_away_AuraScript();
+        }
+};
+
+// Get Away! - 123467
+class spell_get_away_damage : public SpellScriptLoader
+{
+    public:
+        spell_get_away_damage() : SpellScriptLoader("spell_get_away_damage") { }
+
+        class spell_get_away_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_get_away_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                        if (target->isMoving() && target->isInFront(caster))
+                            SetHitDamage(GetHitDamage() / 2);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_get_away_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_get_away_damage_SpellScript();
         }
 };
 
@@ -935,6 +984,7 @@ void AddSC_boss_lei_shi()
     new mob_animated_protector();
     new mob_lei_shi_hidden();
     new spell_get_away();
+    new spell_get_away_damage();
     new spell_hide();
     new spell_hide_stacks();
     new spell_scary_fog_dot();

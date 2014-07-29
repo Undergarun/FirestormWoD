@@ -38,31 +38,15 @@ enum eData
 
 enum eSpells
 {
-    // Imperial Vizier Zor'lok
-    SPELL_ATTENUATION           = 122440,
-    SPELL_CONVERT               = 122740,
-    SPELL_INHALE                = 122852,
-    SPELL_EXHALE                = 122761,
-    SPELL_PHEROMONES_OF_ZEAL    = 123812,
-    SPELL_PHEROMONES_CLOUD      = 123811,
-    SPELL_FORCE_AND_VERVE       = 122713,
-    SPELL_NOISE_CANCELLING      = 122706,
-    SPELL_MISSILE_NOISE_CANC    = 122707,
-    SPELL_SONG_OF_THE_EMPRESS   = 123791,
-    SPELL_SONIC_RING_VISUAL     = 122334,
-    SPELL_SONIC_RING_AURA       = 122336,
-    SPELL_INHALE_PHEROMONES     = 124018,
-    SPELL_REINFORCE             = 123833,
-    SPELL_BERSERK               = 120207,
-
-    // --- Blade Lord Ta'yak ---
+    // --- Blade Lord Ta'yak (spells shared with trash) ---
     SPELL_TEMPEST_SLASH         = 122842,
-    SPELL_TEMPEST_TARGET        = 122838,
-    SPELL_TEMPEST_GESTURE       = 122850,
-    SPELL_WIND_STEP_2           = 123175,
-    SPELL_OVERWHELMING_ASSAULT  = 123474,
-    SPELL_BLADE_TEMPEST         = 125310,
-    SPELL_STORM_UNLEASHED       = 123815,
+    SPELL_UNSEEN_STRIKE_TR      = 122949,   // Unattackable + Speed 200%. Triggers SPELL_UNSEEN_STRIKE_DMG after 5 secs, SPELL_UNSEEN_STRIKE_MKR on target, SPELL_UNSEEN_STRIKE_INV on self.
+    SPELL_UNSEEN_STRIKE_MKR     = 123017,   // Target marker visual aura.
+    SPELL_WIND_STEP_TP          = 123175,   // Teleport. Triggers SPELL_WIND_STEP_DUMMY.
+    SPELL_OVERWHELMING_ASS      = 123474,
+
+    // --- Grand Empress Shek'zeer ---
+    SPELL_CONVERT_SERVANT       = 123713,   // Player converted into Servant of the empress. Also used in instance_heart_of_fear.cpp for IsWipe()
 
     // Trashes
     SPELL_ARTERIAL_SPIRIT       = 123422,
@@ -85,115 +69,88 @@ enum eSpells
     SPELL_WINDBURST             = 123499,
     SPELL_SUMMON_ZEPHYR         = 124085,
     SPELL_SWIFT_STEP            = 125742,
-    SPELL_WIND_STEP             = 123180,
+    SPELL_ALMOST_UNSEEN_STRIKE  = 125810,
     SPELL_ZEALOUS_RUSH          = 123622,
     SPELL_UNDERWHELMING_ASSAULT = 125728,
     SPELL_GUST                  = 124072,
     SPELL_BURST                 = 125054,
+    SPELL_ZEPHYR                = 124087,
+    SPELL_CARAPACE              = 126928,
+    SPELL_SEPARATION_ANXIETY    = 126933,
+    SPELL_SWARMGUARDS_AEGIS     = 126926,
+    SPELL_AMBER_VOLLEY          = 126937,
+    SPELL_AMBER_VOLLEY_MISSILE  = 126941,
+    SPELL_GREVIOUS_WHIRL        = 126907,
+    SPELL_MORTAL_REND           = 126901,
+    SPELL_BURNING_STING         = 125490,
+    SPELL_SEARING_SLASH         = 125480,
+    SPELL_AMBER_SPEW            = 125069,
+    SPELL_SLAM                  = 125081,
+    SPELL_CORROSIVE_AURA        = 122348,
+    SPELL_AMBER_EMANATION       = 125426,
+    SPELL_AMBER_INFUSION        = 125432,
+    SPELL_BAND_OF_VALOR         = 125422,
+    SPELL_TOXIC_HIVEBOMB        = 125865,
+    SPELL_TOXIC_SPEW            = 125871,
+    SPELL_DISPATCH              = 125877,
+    SPELL_SONIC_BLADE           = 125888,
+    SPELL_CRY_HAVOC             = 125907,
+    SPELL_FRENZIED_ASSAULT      = 125900,
+
+    // Generic enrage spell
+    SPELL_BERSERK               = 26662,
 };
 
 enum eActions
 {
-    // --- Zorlok ---
-    // Zor'lok
-    ACTION_SUMMON_SONIC_RINGS   = 1,
-    ACTION_SONIC_CARD           = 2,
-    ACTION_SONIC_QUAD1          = 3,
-    ACTION_SONIC_QUAD2          = 4,
-    ACTION_INHALE_PHEROMONES    = 5,
-
     // Ta'yak
-    ACTION_TAYAK_TALK_TRASH     = 6,
+    ACTION_TAYAK_TALK_TRASH     = 1,
+
+    // Garalon
+    ACTION_GARALON_VISIBLE      = 8,
+
+    // Shek'zeer
+    ACTION_SHEKZEER_COMBAT      = 9,
+
+    // Trash
+    ACTION_AMBER_VOLLEY         = 10,
+    ACTION_REACH_HOME           = 11,
 };
 
 enum eCreatures
 {
+    // Boss
+    NPC_ZORLOK                      = 62980,
+    NPC_TAYAK                       = 62543,
+    NPC_GARALON                     = 62164,
+    NPC_MELJARAK                    = 62397,
+    NPC_UNSOK                       = 62511,
+    NPC_SHEKZEER                    = 62837,
+
     // Generic / Trash
-    NPC_SETTHIK_TEMPEST             = 64358,
-    NPC_KORTHIL_SLICER              = 63048,
-    NPC_KAZRIK                      = 64826,
-    NPC_SPEARED_KLAXXI              = 65521,
-    NPC_MANTID_SPEAR                = 65519,
-    NPC_SPEARED_KLAXXI_2            = 65524,
-    NPC_SETTHIK_SWIFTBLADE          = 63049,
     NPC_SRATHIK_SHIELD_MASTER       = 63032,
     NPC_ZARTHIK_SUPPLICANT          = 63853,
     NPC_SETTHIK_ZEPHYRIAN           = 63593,
-    NPC_BURNING_BRAZIER             = 65597,
-    NPC_WIND_LORD_MELJARAK          = 65501,
-    NPC_ZARTHIK_BATTLEMENDER        = 65498,
-    NPC_JADE_SERPENT_STATUE         = 60849,
     NPC_KORTHIK_SILENTWING          = 64355,
     NPC_ZARTHIK_SUPPLICANT_2        = 67177,
     NPC_SETTHIK_GALESLICER          = 64353,
-    NPC_XUEN                        = 63508,
     NPC_ENSLAVED_BONESMASHER        = 63030,
     NPC_ZARTHIK_SUPPLICANT_3        = 66181,
     NPC_SETTHIK_FANATIC             = 63031,
-    NPC_INSTRUCTOR_MALTIK           = 64340,
     NPC_INSTRUCTOR_KLITHAK          = 64338,
-    NPC_INSTRUCTOR_ZARIK            = 64341,
     NPC_INSTRUCTOR_TAKTHOK          = 64339,
+    NPC_INSTRUCTOR_MALTIK           = 64340,
+    NPC_INSTRUCTOR_ZARIK            = 64341,
     NPC_ZARTHIK_ZEALOT              = 63035,
     NPC_KORTHIK_SWARMER             = 64357,
     NPC_SETTHIK_GUSTWING            = 63592,
     NPC_COAGULATED_AMBER            = 63597,
-
-    // Zor'lok
-    NPC_ZORLOK                      = 62980,
-    NPC_STORM_SPIRIT                = 69680,
-    // Sonic Rings
-    NPC_SONIC_RING_FORWARD          = 62689,
-    NPC_SONIC_RING_30LEFT           = 62694,
-    NPC_SONIC_RING_30RIGHT          = 62696,
-    NPC_SONIC_RING_60LEFT           = 62716,
-    NPC_SONIC_RING_60RIGHT          = 62717,
-    NPC_SONIC_RING_120LEFT          = 62718,
-    NPC_SONIC_RING_120RIGHT         = 62719,
-    NPC_SONIC_RING_90LEFT           = 62726,
-    NPC_SONIC_RING_90RIGHT          = 62727,
-    NPC_SONIC_RING_150LEFT          = 62743,
-    NPC_SONIC_RING_150RIGHT         = 62744,
-    NPC_SONIC_RING_BACK             = 62746,
-
-    // Heroic Adds
-    NPC_ECHO_OF_ATTENUATION         = 65173,
-    NPC_ECHO_OF_FORCE_AND_VERVE     = 65174,
-
-    // Ta'yak
-    NPC_TAYAK                       = 62543,
-    NPC_TEMPEST_TARGET              = 62897,
-    NPC_TEMPEST_STALKER             = 64373, //62908,
-    NPC_GALE_WINDS_STALKER          = 63292,
-    NPC_STORM_UNLEASHED_EAST1       = 63301,
-    NPC_STORM_UNLEASHED_EAST2       = 63302,
-    NPC_STORM_UNLEASHED_EAST3       = 63303,
-    NPC_STORM_UNLEASHED_WEST1       = 63278,
-    NPC_STORM_UNLEASHED_WEST2       = 63299,
-    NPC_STORM_UNLEASHED_WEST3       = 63300,
-    NPC_STORM_PLAYER_VEHICLE        = 63567,
-
-    // Garalon
-    NPC_GARALON                     = 62164,
-    NPC_GARALON_LEG                 = 63053,
-    NPC_PHEROMONE_TRAIL             = 63021,
-
-    // Mel'jarak
-    NPC_MELJARAK                    = 62397,
-    NPC_SRATHIK_AMBER_TRAPPER       = 65499,
-    NPC_ZARTHIK_BATTLE_MENDER       = 65498,
-    NPC_KORTHIK_ELITE_BLADEMASTER   = 65500,
-
-    // Amber-Shaper Un'Sok
-    NPC_UNSOK                       = 62511,
-    NPC_LIVING_AMBER                = 62691,
-    NPC_MUTATED_CONSTRUCT           = 62701,
-    NPC_VOLATILE_AMBER_GLOBULE      = 73332,
-
-    // Grand Empress Shek'zeer
-    NPC_SHEKZEER                    = 62837,
-    NPC_SETTHIK_WINDBLADE           = 64453,
-    NPC_KORTHIK_REAVER              = 63591,
+    NPC_COAGULATED_AMBER2           = 63594,
+    NPC_SRATHIK_AMBERCALLER         = 64917,
+    NPC_SRATHIK_POOLTENDER          = 63570,
+    NPC_ZARTHIK_AUGURER             = 64454,
+    NPC_SETTHIK_WINDBLADE_TRASH     = 64453,
+    NPC_KORTHIK_WARSINGER           = 64458,
 };
 
 enum eGameObjects
@@ -209,53 +166,41 @@ enum eGameObjects
     GOB_ATRIUM_DOOR_EXIT            = 214491,
     GOB_SANCTUM_DOOR_ENTRANCE       = 214492,
     GOB_HEARTOFFEAR_DOOR_ENTRANCE   = 214493,
-};
 
-enum ePhases
-{
-    PHASE_ZORLOK1                   = 1,
-    PHASE_ZORLOK2                   = 4, // value '4' needed, DON'T CHANGE IT !!!
+    // Zor'lok Barriers
+    GOB_ARENA_WALLS                 = 212916,
+    GOB_FINAL_PHASE_WALLS           = 212943,
 
-    PHASE_TAYAK1                    = 2,
-    PHASE_TAYAK2                    = 3,
+    // Garalon Doors
+    GOB_DOOR_TO_MELJARAK            = 214634,
+    GOB_GARALON_WALLS               = 212695,
+
+    // Shek'zeer Gameobjects
+    GOB_EMPRESS_CHAMBER             = 213277,
+    GOB_MANTID_QUEEN_CEIL           = 213276,
 };
 
 enum eWeapons
 {
+    // --- Bosses (also used by some trash) ---
     EQUIP_ZORLOK                    = 85947,
-    EQUIP_TAYAK                     = 85401,
+    EQUIP_TAYAK_MELJARAK            = 85401,
+    EQUIP_UNSOK                     = 86983,
+
+    // --- Trashes ---
+    EQUIP_TRASH_1                   = 84677,
+    EQUIP_TRASH_2                   = 45926,
+    EQUIP_TRASH_3                   = 88684,
+    EQUIP_TRASH_4                   = 85401,
+    EQUIP_TRASH_5                   = 85576,
+    EQUIP_TRASH_6                   = 85399,
+    EQUIP_TRASH_7                   = 82849,
+    EQUIP_TRASH_8                   = 84676,
+    EQUIP_TRASH_9                   = 84769,
 };
 
 enum eEvents
 {
-    // --- Zorlok ---
-    // Zor'lok
-    EVENT_INHALE                    = 1,
-    EVENT_EXHALE                    = 2,
-    EVENT_BERSERK                   = 3,
-    EVENT_ATTENUATION               = 4,
-    EVENT_SUMMON_RINGS              = 5,
-    EVENT_SUMMON_RINGS1             = 6,
-    EVENT_SUMMON_RINGS2             = 7,
-    EVENT_PHEROMONES_CLOUD          = 8,
-    EVENT_FORCE_AND_VERVE           = 9,
-    EVENT_CAST_FANDV                = 10,
-    EVENT_CONVERT                   = 11,
-
-    // Ta'yak
-    // EVENT_TEMPEST_SLASH             = 15,
-    // EVENT_TAYAK_WIND_STEP           = 16,
-    // EVENT_UNSEEN_STRIKE             = 17,
-    EVENT_INTENSIFY                 = 18,
-    EVENT_TAYAK_OVERW_ASSAULT       = 19,
-    // EVENT_BLADE_TEMPEST             = 20,
-    // EVENT_STORM_UNLEASHED           = 21,
-    EVENT_TEMPEST_MOVE              = 22,
-
-    // Sonic Ring
-    EVENT_SONIC_CHECK_POSITION      = 50,
-    EVENT_SONIC_MOVE                = 51,
-
     // Trashes
     EVENT_ARTERIAL_SPIRIT,
     EVENT_GOUGE_THROAT,
@@ -278,21 +223,30 @@ enum eEvents
     EVENT_SUMMON_ZEPHYR,
     EVENT_SWIFT_STEP,
     EVENT_WIND_STEP,
-    EVENT_WIND_STEP_2,
     EVENT_OVERWHELMING_ASSAULT,
+    EVENT_TRASH_TEMPEST_SLASH,
+    EVENT_TRASH_UNSEEN_STRIKE,
     EVENT_ZEALOUS_RUSH,
     EVENT_UNDERWHELMING_ASSAULT,
+    EVENT_ALMOST_UNSEEN_STRIKE,
     EVENT_GUST,
     EVENT_BURST,
-};
-
-enum eTypes
-{
-    // Tayak
-    TYPE_STORM_POINT    = 1,
-    TYPE_PHASE_TAYAK    = 2,
-    TYPE_STORM_PHASE    = 3,
-
+    EVENT_CARAPACE,
+    EVENT_AMBER_VOLLEY,
+    EVENT_GREVIOUS_WHIRL,
+    EVENT_MORTAL_REND,
+    EVENT_ATRIUM_PATH,
+    EVENT_BURNING_STING,
+    EVENT_SEARING_SLASH,
+    EVENT_AMBER_SPEW,
+    EVENT_SLAM,
+    EVENT_AMBER_INFUSION,
+    EVENT_TOXIC_HIVEBOMB,
+    EVENT_TOXIC_SPEW,
+    EVENT_DISPATCH,
+    EVENT_SONIC_BLADE,
+    EVENT_CRY_HAVOC,
+    EVENT_FRENZIED_ASSAULT,
 };
 
 #define DISPLAYID_INVISIBLE 11686

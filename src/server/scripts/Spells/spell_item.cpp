@@ -2193,11 +2193,7 @@ class spell_alchemist_rejuvenation : public SpellScriptLoader
         }
 };
 
-enum AmberPrison
-{
-    SPELL_AMBER_PRISON     = 127266,
-};
-
+#define SPELL_AMBER_PRISON 127266
 
 class spell_item_amber_prison : public SpellScriptLoader
 {
@@ -2245,6 +2241,305 @@ class spell_item_amber_prison : public SpellScriptLoader
         }
 };
 
+class spell_item_first_aid : public SpellScriptLoader
+{
+    public:
+        spell_item_first_aid() : SpellScriptLoader("spell_item_first_aid") { }
+
+        class spell_item_first_aid_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_first_aid_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30148) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 58416)
+                            {
+                                player->KilledMonsterCredit(58417);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_first_aid_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_first_aid_SpellScript();
+        }
+};
+
+class spell_item_imputting_the_final_code : public SpellScriptLoader
+{
+    public:
+        spell_item_imputting_the_final_code() : SpellScriptLoader("spell_item_imputting_the_final_code") { }
+
+        class spell_item_imputting_the_final_code_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_imputting_the_final_code_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(10447) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(21039);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_imputting_the_final_code_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_imputting_the_final_code_SpellScript();
+        }
+};
+
+class spell_item_pot_of_fire : public SpellScriptLoader
+{
+    public:
+        spell_item_pot_of_fire() : SpellScriptLoader("spell_item_pot_of_fire") { }
+
+        class spell_item_pot_of_fire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_pot_of_fire_SpellScript);
+
+            void CorrectTarget(std::list<WorldObject*>& targets)
+            {
+                std::list<WorldObject*> tempTargets = targets;
+                for (auto itr : tempTargets)
+                {
+                    if (itr->GetEntry() != 61510)
+                        targets.remove(itr);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_pot_of_fire_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_pot_of_fire_SpellScript();
+        }
+
+        class spell_item_pot_of_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_pot_of_fire_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            {
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
+                
+                if (!target || !caster)
+                    return;
+
+                if (Creature* creature = target->ToCreature())
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        player->KilledMonsterCredit(61510);
+                        creature->DespawnOrUnsummon();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_pot_of_fire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_item_pot_of_fire_AuraScript();
+        }
+};
+
+class spell_item_dit_da_jow : public SpellScriptLoader
+{
+    public:
+        spell_item_dit_da_jow() : SpellScriptLoader("spell_item_dit_da_jow") { }
+
+        class spell_item_dit_da_jow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_dit_da_jow_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30460) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 59143)
+                            {
+                                player->KilledMonsterCredit(59143);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_item_dit_da_jow_SpellScript::HandleBeforeCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_dit_da_jow_SpellScript();
+        }
+};
+
+class spell_item_zuluhed_chains : public SpellScriptLoader
+{
+    public:
+        spell_item_zuluhed_chains() : SpellScriptLoader("spell_item_zuluhed_chains") { }
+
+        class spell_item_zuluhed_chains_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_zuluhed_chains_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(10866) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(22112);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_zuluhed_chains_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_zuluhed_chains_SpellScript();
+        }
+};
+
+class spell_item_yak_s_milk : public SpellScriptLoader
+{
+    public:
+        spell_item_yak_s_milk() : SpellScriptLoader("spell_item_yak_s_milk") { }
+
+        class spell_item_yak_s_milk_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_yak_s_milk_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30953) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 61570)
+                            {
+                                player->KilledMonsterCredit(61569);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_yak_s_milk_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_yak_s_milk_SpellScript();
+        }
+};
+
+class spell_item_throw_mantra : public SpellScriptLoader
+{
+    public:
+        spell_item_throw_mantra() : SpellScriptLoader("spell_item_throw_mantra") { }
+
+        class spell_item_throw_mantra_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_throw_mantra_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30066) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 58186 || creature->GetEntry() == 57400 || creature->GetEntry() == 57326)
+                            {
+                                player->KilledMonsterCredit(57705);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_throw_mantra_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_throw_mantra_SpellScript();
+        }
+};
 
 void AddSC_item_spell_scripts()
 {
@@ -2300,4 +2595,11 @@ void AddSC_item_spell_scripts()
     new spell_item_gen_alchemy_mop();
     new spell_alchemist_rejuvenation();
     new spell_item_amber_prison();
+    new spell_item_first_aid();
+    new spell_item_imputting_the_final_code();
+    new spell_item_pot_of_fire();
+    new spell_item_dit_da_jow();
+    new spell_item_zuluhed_chains();
+    new spell_item_yak_s_milk();
+    new spell_item_throw_mantra();
 }

@@ -81,9 +81,6 @@ enum eSpells
 
 enum eEvents
 {
-    // Controler
-    EVENT_CHECK_WIPE            = 1,
-
     // Quiang
     EVENT_FLANKING_MOGU         = 2,
     EVENT_MASSIVE_ATTACK        = 3,
@@ -294,6 +291,7 @@ class boss_spirit_kings_controler : public CreatureScript
             bool _introZianDone;
             bool _introSubetaiDone;
             bool _introMengDone;
+            EventMap events;
 
             uint8 vanquishedCount;
             uint8 nextSpirit;
@@ -301,6 +299,7 @@ class boss_spirit_kings_controler : public CreatureScript
             void Reset()
             {
                 _Reset();
+                events.Reset();
 
                 fightInProgress   = false;
                 _introZianDone    = false;
@@ -318,8 +317,15 @@ class boss_spirit_kings_controler : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
 
-                events.ScheduleEvent(EVENT_CHECK_WIPE, 2500);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                // Restoring player faction
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                for (Player* player : playerList)
+                    player->RestoreFaction();
+
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
             }
@@ -423,36 +429,56 @@ class boss_spirit_kings_controler : public CreatureScript
                     }
                     case ACTION_SPIRIT_KILLED:
                     {
+                        if (!fightInProgress)
+                            break;
+
                         nextSpirit = ++vanquishedCount;
 
                         if (nextSpirit >= 4)
                         {
                             _JustDied();
-                            pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
+                            fightInProgress = false;
 
-                            for (auto entry: spiritKingsEntry)
+                            if (pInstance)
                             {
-                                if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
+                                pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                                // Restoring player faction
+                                std::list<Player*> playerList;
+                                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                                for (Player* player : playerList)
+                                    player->RestoreFaction();
+
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
+
+                                for (auto entry: spiritKingsEntry)
                                 {
-                                    spirit->LowerPlayerDamageReq(spirit->GetMaxHealth());
-                                    spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                    spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    spirit->RemoveAura(SPELL_INACTIVE);
+                                    if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
+                                    {
+                                        spirit->LowerPlayerDamageReq(spirit->GetMaxHealth());
+                                        spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                        spirit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                        spirit->RemoveAura(SPELL_INACTIVE);
 
-                                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
 
-                                    if (Unit* killer = spirit->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                        killer->Kill(spirit);
+                                        if (Unit* killer = spirit->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                            killer->Kill(spirit);
+                                        else
+                                            me->Kill(spirit);
+                                    }
                                 }
-
-                                // Removing Undying Shadows
-                                std::list<Creature*> shadList;
-                                GetCreatureListWithEntryInGrid(shadList, me, NPC_UNDYING_SHADOW, 300.0f);
-
-                                for (auto shadow : shadList)
-                                    shadow->DespawnOrUnsummon();
                             }
+
+                            // Removing Undying Shadows
+                            std::list<Creature*> shadList;
+                            GetCreatureListWithEntryInGrid(shadList, me, NPC_UNDYING_SHADOW, 300.0f);
+
+                            for (auto shadow : shadList)
+                                shadow->DespawnOrUnsummon();
 
                             if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
                             {
@@ -462,6 +488,10 @@ class boss_spirit_kings_controler : public CreatureScript
                                     lorewalkerCho->AI()->DoAction(ACTION_RUN);
                                 }
                             }
+
+                            if (GameObject* wall = GetClosestGameObjectWithEntry(me, GOB_SPIRIT_KINGS_EXIT, 100.0f))
+                                if (wall->GetGoState() == GO_STATE_READY)
+                                    wall->SetGoState(GO_STATE_ACTIVE);
                         }
                         else
                         {
@@ -505,6 +535,49 @@ class boss_spirit_kings_controler : public CreatureScript
                                     break;
                             }
                         }
+                        break;
+                    }
+                    case ACTION_REACH_HOME:
+                    {
+                        if (pInstance)
+                        {
+                            pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                            // Restoring player faction
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 200.0f);
+
+                            for (Player* player : playerList)
+                                player->RestoreFaction();
+
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
+                        }
+
+                        // Reset each spirit
+                        for (uint8 i = 0; i < 4; ++i)
+                            if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritsOrder[i])))
+                                spirit->AI()->DoAction(ACTION_REACH_HOME);
+
+                        fightInProgress   = false;
+                        _introZianDone    = false;
+                        _introSubetaiDone = false;
+                        _introMengDone    = false;
+                        vanquishedCount   = 0;
+                        nextSpirit        = 0;
+
+                        for (uint8 i = 0; i < MAX_FLANKING_MOGU; ++i)
+                            flankingGuid[i] = 0;
+
+                        if (pInstance)
+                            if (Creature* Qiang = pInstance->instance->GetCreature(pInstance->GetData64(NPC_QIANG)))
+                                Qiang->AI()->DoAction(ACTION_FIRST_FIGHT);
+
+                        me->SetReactState(REACT_PASSIVE);
+
+                        summons.DespawnAll();
+                        events.Reset();
 
                         break;
                     }
@@ -531,59 +604,15 @@ class boss_spirit_kings_controler : public CreatureScript
                 if (!fightInProgress)
                     return;
 
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (pInstance)
                 {
-                    switch(eventId)
+                    if (pInstance->IsWipe())
                     {
-                        case EVENT_CHECK_WIPE:
-                        {
-                            if (pInstance->IsWipe())
-                            {
-                                pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
-                                // Reset each spirit
-                                for (uint8 i = 0; i < 4; ++i)
-                                {
-                                    if (Creature* spirit = pInstance->instance->GetCreature(pInstance->GetData64(spiritsOrder[i])))
-                                    {
-                                        spirit->RemoveAura(SPELL_INACTIVE_STUN);
-                                        spirit->ClearUnitState(UNIT_STATE_NOT_MOVE);
-                                        spirit->GetMotionMaster()->MoveTargetedHome();
-                                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, spirit);
-                                    }
-                                }
-
-                                fightInProgress   = false;
-                                _introZianDone    = false;
-                                _introSubetaiDone = false;
-                                _introMengDone    = false;
-                                vanquishedCount   = 0;
-                                nextSpirit        = 0;
-
-                                for (uint8 i = 0; i < MAX_FLANKING_MOGU; ++i)
-                                    flankingGuid[i] = 0;
-
-                                if (pInstance)
-                                    if (Creature* Qiang = pInstance->instance->GetCreature(pInstance->GetData64(NPC_QIANG)))
-                                        Qiang->AI()->DoAction(ACTION_FIRST_FIGHT);
-
-                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
-                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
-                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
-
-                                summons.DespawnAll();
-                            }
-                            else
-                                events.ScheduleEvent(EVENT_CHECK_WIPE, 2500);
-                            break;
-                        }
-                        default:
-                            break;
+                        DoAction(ACTION_REACH_HOME);
+                        return;
                     }
                 }
-
-                DoMeleeAttackIfReady();
+                // DoMeleeAttackIfReady();
             }
         };
 
@@ -633,6 +662,7 @@ class boss_spirit_kings : public CreatureScript
                 preEventDone      = false;
 
                 summons.DespawnAll();
+                events.Reset();
 
                 me->CastSpell(me, SPELL_INACTIVE, true);
                 me->CastSpell(me, SPELL_INACTIVE_STUN, true);
@@ -661,9 +691,6 @@ class boss_spirit_kings : public CreatureScript
 
             void JustReachedHome()
             {
-                if (pInstance)
-                    pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
-
                 if (me->GetEntry() != NPC_QIANG)
                 {
                     me->AddAura(SPELL_INACTIVE, me);
@@ -671,20 +698,11 @@ class boss_spirit_kings : public CreatureScript
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 }
-                shadowCount = 0;
-                maxShadowCount = 3;
-
-                vanquished        = false;
-                _introQiangDone   = false;
-                lowLife           = false;
-                preEventDone      = false;
-
-                summons.DespawnAll();
-
-                me->SetFullHealth();
-                if (!me->isAlive())
-                    me->Respawn(true);
-            }
+                else
+                    if (pInstance)
+                        if (pInstance->GetBossState(DATA_SPIRIT_KINGS) == FAIL)
+                            pInstance->SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
+             }
 
             Creature* GetControler()
             {
@@ -796,6 +814,33 @@ class boss_spirit_kings : public CreatureScript
                         me->setFaction(14);
                         break;
                     }
+                    case ACTION_REACH_HOME:
+                    {
+                        events.Reset();
+                        summons.DespawnAll();
+                        me->SetFullHealth();
+                        me->SetReactState(REACT_PASSIVE);
+
+                        vanquished      = false;
+                        _introQiangDone = false;
+                        lowLife         = false;
+                        preEventDone    = false;
+
+                        shadowCount     = 0;
+                        maxShadowCount  = 3;
+
+                        if (me->HasAura(SPELL_INACTIVE_STUN))
+                            me->RemoveAura(SPELL_INACTIVE_STUN);
+                        if (me->HasUnitState(UNIT_STATE_NOT_MOVE))
+                            me->ClearUnitState(UNIT_STATE_NOT_MOVE);
+
+                        if (pInstance)
+                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        me->SetFullHealth();
+                        break;
+                    }
                     case ACTION_CHECK_SPIRITKINGS:
                     {
                         if (Unit* mob_meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
@@ -826,10 +871,6 @@ class boss_spirit_kings : public CreatureScript
                     default:
                         break;
                 }
-            }
-
-            void JustDied(Unit* killer)
-            {
             }
 
             void JustSummoned(Creature* summon)
@@ -1083,11 +1124,45 @@ class boss_spirit_kings : public CreatureScript
                             // While in Cowardice personality, Zian is Feared.
                             if (shadowCount < maxShadowCount) // Max 3 undying shadow during the fight
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                std::list<Player*> playerList;
+                                GetPlayerListInGrid(playerList, me, 300.0f);
+                                std::list<Player*>::iterator itr, next;
+
+                                // Not applying on dead players or on players who already have an undying shadow
+                                for (itr = playerList.begin(); itr != playerList.end(); itr = next)
                                 {
-                                    me->CastSpell(target, SPELL_UNDYING_SHADOWS, false);
-                                    Talk(ZIAN_SPELL);
+                                    next = itr;
+                                    ++next;
+
+                                    if (!(*itr)->isAlive() || (*itr)->HasAura(SPELL_FIXATE))
+                                        playerList.remove(*itr);
                                 }
+
+                                // No player to cast on: reschedule event
+                                if (playerList.empty())
+                                {
+                                    events.ScheduleEvent(EVENT_UNDYING_SHADOWS, 10000);
+                                    break;
+                                }
+
+                                // Picking a random target
+                                bool searching = true;
+                                itr = playerList.begin();
+                                Unit* target = 0;
+                                while (searching)
+                                {
+                                    if (urand(0, 1))
+                                    {
+                                        target = *itr;
+                                        searching = false;
+                                    }
+                                    ++itr;
+                                    if (itr == playerList.end())
+                                        itr = playerList.begin();
+                                }
+
+                                me->CastSpell(target, SPELL_UNDYING_SHADOWS, false);
+                                Talk(ZIAN_SPELL);
                             }
 
                             events.ScheduleEvent(EVENT_UNDYING_SHADOWS, 45000);
@@ -1492,7 +1567,7 @@ class spell_maddening_shout : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_maddening_shout_AuraScript::OnAbsorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_maddening_shout_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectRemove += AuraEffectRemoveFn(spell_maddening_shout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };

@@ -250,6 +250,7 @@ bool IntroDone(InstanceScript* instance, Creature* me)
     return false;
 }
 
+//  60585 - Elder Regail
 class boss_ancient_regail : public CreatureScript
 {
     public:
@@ -310,12 +311,18 @@ class boss_ancient_regail : public CreatureScript
 			
 			void JustReachedHome()
             {
-                _JustReachedHome();
-
                 if (pInstance)
+                {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        return;
+
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                }
+
+                _JustReachedHome();
+                Reset();
             }
-			
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -330,7 +337,19 @@ class boss_ancient_regail : public CreatureScript
                             minionController->AI()->DoAction(ACTION_INIT_MINION_CONTROLLER);
                 }
             }
-			
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                    return;
+
+                if (pInstance->IsWipe())
+                    me->GetMotionMaster()->MoveTargetedHome();
+            }
+
 			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -413,6 +432,7 @@ class boss_ancient_regail : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -543,6 +563,7 @@ class boss_ancient_regail : public CreatureScript
         }
 };
 
+// 60586 - Elder Asani
 class boss_ancient_asani : public CreatureScript
 {
     public:
@@ -600,12 +621,18 @@ class boss_ancient_asani : public CreatureScript
 			
 			void JustReachedHome()
             {
-                _JustReachedHome();
-
                 if (pInstance)
+                {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        return;
+
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                }
+
+                _JustReachedHome();
+                Reset();
             }
-			
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -615,6 +642,18 @@ class boss_ancient_asani : public CreatureScript
                     DoZoneInCombat();
                     Talk(TALK_ASANI_AGGRO);
                 }
+            }
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                    return;
+
+                if (pInstance->IsWipe())
+                    me->GetMotionMaster()->MoveTargetedHome();
             }
 			
 			void JustSummoned(Creature* summon)
@@ -701,6 +740,7 @@ class boss_ancient_asani : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -710,6 +750,12 @@ class boss_ancient_asani : public CreatureScript
                                 kaolan->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
                                 regail->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
+
+                            if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_COUNCILS_VORTEX))
+                                wall->SetGoState(GO_STATE_READY);
+
+                            if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_COUNCILS_VORTEX))
+                                vortex->SetGoState(GO_STATE_READY);
 
                             break;
                         }
@@ -823,6 +869,7 @@ class boss_ancient_asani : public CreatureScript
         }
 };
 
+// 60583 - Protector Kaolan
 class boss_protector_kaolan : public CreatureScript
 {
     public:
@@ -881,12 +928,18 @@ class boss_protector_kaolan : public CreatureScript
 			
 			void JustReachedHome()
             {
-                _JustReachedHome();
-
                 if (pInstance)
+                {
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        return;
+
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                }
+
+                _JustReachedHome();
+                Reset();
             }
-			
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -896,7 +949,19 @@ class boss_protector_kaolan : public CreatureScript
                     DoZoneInCombat();
                 }
             }
-			
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                    return;
+
+                if (pInstance->IsWipe())
+                    me->GetMotionMaster()->MoveTargetedHome();
+            }
+
 			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -988,6 +1053,7 @@ class boss_protector_kaolan : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -1080,11 +1146,14 @@ class boss_protector_kaolan : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_TOUCH_OF_SHA:
+                    {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, -SPELL_TOUCH_OF_SHA))
                             me->CastSpell(target, SPELL_TOUCH_OF_SHA, false);
                         events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
                         break;
+                    }
                     case EVENT_DEFILED_GROUND:
+                    {
                         if (!firstSpecialEnabled)
                             break;
 
@@ -1092,7 +1161,9 @@ class boss_protector_kaolan : public CreatureScript
                             me->CastSpell(target, SPELL_DEFILED_GROUND_SUMMON, true);
                         events.ScheduleEvent(EVENT_DEFILED_GROUND, 15500);
                         break;
+                    }
                     case EVENT_EXPEL_CORRUPTION:
+                    {
                         if (!secondSpecialEnabled)
                             break;
 
@@ -1100,6 +1171,7 @@ class boss_protector_kaolan : public CreatureScript
                         me->CastSpell(me, SPELL_EXPEL_CORRUPTION_SUMMON, false);
                         events.ScheduleEvent(EVENT_EXPEL_CORRUPTION, 38500);
                         break;
+                    }
                     default:
                         break;
 				}
@@ -1392,7 +1464,7 @@ class mob_minion_of_fear_controller : public CreatureScript
                         me->GetPosition(&pos);
 
                         me->SummonCreature(NPC_MINION_OF_FEAR, pos);
-                        events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 12000);
+                        events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 15000);
                         break;
                     }
                     default:
@@ -1773,21 +1845,21 @@ class spell_cleansing_waters_regen : public SpellScriptLoader
 
 void AddSC_boss_protectors_of_the_endless()
 {
-    new boss_ancient_regail();
-    new boss_ancient_asani();
-    new boss_protector_kaolan();
-    new mob_defiled_ground();
-    new mob_coalesced_corruption();
-    new mob_cleansing_water();
-    new mob_corrupting_waters();
-    new mob_minion_of_fear();
-    new mob_minion_of_fear_controller();
-    new spell_defiled_ground_damage();
-    new spell_expelled_corruption();
-    new spell_lightning_storm_aura();
-    new spell_lightning_storm_damage();
-    new spell_lightning_prison();
-    new spell_corrupted_essence();
-    new spell_superior_corrupted_essence();
-    new spell_cleansing_waters_regen();
+    new boss_ancient_regail();              // 60585
+    new boss_ancient_asani();               // 60586
+    new boss_protector_kaolan();            // 60583
+    new mob_defiled_ground();               // 60906
+    new mob_coalesced_corruption();         // 60886
+    new mob_cleansing_water();              // 60646
+    new mob_corrupting_waters();            // 60621
+    new mob_minion_of_fear();               // 60885
+    new mob_minion_of_fear_controller();    // 60957
+    new spell_defiled_ground_damage();      // 117988
+    new spell_expelled_corruption();        // 117955
+    new spell_lightning_storm_aura();       // 118064, 118040, 118053, 118054, 118055, 118077
+    new spell_lightning_storm_damage();     // 118004, 118005, 118007, 118008
+    new spell_lightning_prison();           // 111850
+    new spell_corrupted_essence();          // 118191
+    new spell_superior_corrupted_essence(); // 117905
+    new spell_cleansing_waters_regen();     // 117283
 }

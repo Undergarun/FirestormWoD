@@ -2023,7 +2023,7 @@ class spell_terrastra_harden_skin : public SpellScriptLoader
             void Register()
             {
                 OnEffectRemove += AuraEffectApplyFn(spell_terrastra_harden_skin_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_terrastra_harden_skin_AuraScript::OnAbsorb, EFFECT_1);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_terrastra_harden_skin_AuraScript::OnAbsorb, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 

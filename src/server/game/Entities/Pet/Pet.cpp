@@ -80,6 +80,12 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsReturning(false);
     }
 
+    // Hack fix for Soul link, we need to buff pet and player if player has a talent
+    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->HasSpell(108415))
+    {
+        CastSpell(m_owner, 108446, true);
+        m_owner->CastSpell(this, 108446, true);
+    }
 }
 
 void Pet::RemoveFromWorld()
@@ -629,7 +635,7 @@ void Pet::Update(uint32 diff, uint32 entry)
     {
         case CORPSE:
         {
-            // Spirit Bond and Kindred Spirits
+            // Spirit Bond, Kindred Spirits and Blink Strikes
             if (Player* owner = GetOwner())
             {
                 if (!m_Stampeded)
@@ -639,6 +645,9 @@ void Pet::Update(uint32 diff, uint32 entry)
 
                     if (owner->HasAura(56315))
                         RemoveAura(56315);
+
+                    /*if (owner->HasSpell(130392))
+                        RemoveAura(130392);*/
                 }
             }
 
@@ -666,6 +675,10 @@ void Pet::Update(uint32 diff, uint32 entry)
             // Kindred Spirits
             if (owner->HasAura(56315) && !HasAura(56315) && !m_Stampeded)
                 CastSpell(this, 56315, true);
+
+            // Blink Strikes
+            /*if (owner->HasSpell(130392))
+                CastSpell(this, 130392, true);*/
 
             if (isControlled())
             {
@@ -728,10 +741,15 @@ void Pet::Update(uint32 diff, uint32 entry)
                     // Kindred Spirits
                     if (owner->HasAura(56315) && !m_Stampeded)
                         RemoveAura(56315);
+
+                    // Blink Strikes
+                    /*if (owner->HasSpell(130392))
+                        RemoveAura(130392);*/
                 }
             }
             break;
     }
+
     Creature::Update(diff, entry);
 }
 
@@ -1116,6 +1134,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
                     SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+                    SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
                     break;
                 }
                 case ENTRY_WATER_ELEMENTAL:

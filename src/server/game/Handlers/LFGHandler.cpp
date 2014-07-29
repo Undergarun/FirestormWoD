@@ -310,7 +310,11 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& recvData)
                     if (!qRew->RewardCurrencyId[i])
                         continue;
 
-                    data << uint32(qRew->RewardCurrencyCount[i]);
+                    uint32 precision = 1;
+                    if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(qRew->RewardCurrencyId[i]))
+                        precision = entry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+
+                    data << uint32(qRew->RewardCurrencyCount[i] * precision);
                     data << uint32(qRew->RewardCurrencyId[i]);
                 }
             }
@@ -414,6 +418,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SEARCH_LFG_LEAVE [" UI64FMTD "] dungeonId: %u", GetPlayer()->GetGUID(), dungeonId);
     //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
 }
+
 void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_GET_STATUS [" UI64FMTD "]", GetPlayer()->GetGUID());

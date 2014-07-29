@@ -1463,34 +1463,42 @@ class npc_sayge : public CreatureScript
                     break;
                 case GOSSIP_SENDER_MAIN + 1:
                     creature->CastSpell(player, SPELL_DMG, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 2:
                     creature->CastSpell(player, SPELL_RES, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 3:
                     creature->CastSpell(player, SPELL_ARM, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 4:
                     creature->CastSpell(player, SPELL_SPI, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 5:
                     creature->CastSpell(player, SPELL_INT, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 6:
                     creature->CastSpell(player, SPELL_STM, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 7:
                     creature->CastSpell(player, SPELL_STR, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
                 case GOSSIP_SENDER_MAIN + 8:
                     creature->CastSpell(player, SPELL_AGI, false);
+                    player->AddSpellCooldown(SPELL_DMG, 0, 7200 * IN_MILLISECONDS);
                     SendAction(player, creature, action);
                     break;
             }
@@ -1839,15 +1847,6 @@ class npc_mirror_image : public CreatureScript
             void InitializeAI()
             {
                 CasterAI::InitializeAI();
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
-                // Inherit Master's Threat List (not yet implemented)
-                owner->CastSpell((Unit*)NULL, 58838, true);
-                // here mirror image casts on summoner spell (not present in client dbc) 49866
-                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
-                // Clone Me!
-                owner->CastSpell(me, 45204, true);
             }
 
             void IsSummonedBy(Unit* owner)
@@ -1869,10 +1868,17 @@ class npc_mirror_image : public CreatureScript
                 me->SetHealth(owner->GetHealth());
                 me->SetReactState(REACT_DEFENSIVE);
 
-                for (int l_WeponAttackType = 0 ; l_WeponAttackType < MAX_ATTACK ; l_WeponAttackType++)
+                // Inherit Master's Threat List (not yet implemented)
+                owner->CastSpell(owner, 58838, true);
+                // here mirror image casts on summoner spell (not present in client dbc) 49866
+                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
+                // Clone Me!
+                owner->CastSpell(me, 45204, true);
+
+                for (int attackType = 0; attackType < MAX_ATTACK; attackType++)
                 {
-                    me->SetBaseWeaponDamage((WeaponAttackType)l_WeponAttackType, MAXDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)l_WeponAttackType, MAXDAMAGE));
-                    me->SetBaseWeaponDamage((WeaponAttackType)l_WeponAttackType, MINDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)l_WeponAttackType, MINDAMAGE));
+                    me->SetBaseWeaponDamage((WeaponAttackType)attackType, MAXDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)attackType, MAXDAMAGE));
+                    me->SetBaseWeaponDamage((WeaponAttackType)attackType, MINDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)attackType, MINDAMAGE));
                 }
 
                 me->UpdateAttackPowerAndDamage();
@@ -1937,8 +1943,9 @@ class npc_mirror_image : public CreatureScript
                         return;
 
                     Player* plrOwner = me->GetOwner()->ToPlayer();
-                    if (plrOwner->GetSelectedUnit())
-                        me->AI()->AttackStart(plrOwner->GetSelectedUnit());
+                    if (Unit* target = plrOwner->GetSelectedUnit())
+                        if (me->IsValidAttackTarget(target))
+                            me->AI()->AttackStart(plrOwner->GetSelectedUnit());
                     return;
                 }
 
@@ -3699,50 +3706,6 @@ class npc_guardian_of_ancient_kings : public CreatureScript
         }
 };
 
-/*######
-# npc_power_word_barrier
-######*/
-
-class npc_power_word_barrier : public CreatureScript
-{
-    public:
-        npc_power_word_barrier() : CreatureScript("npc_power_word_barrier") { }
-
-        struct npc_power_word_barrierAI : public ScriptedAI
-        {
-            uint32 frozenOrbTimer;
-
-            npc_power_word_barrierAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Unit* owner = creature->GetOwner();
-
-                if (owner)
-                {
-                    creature->CastSpell(creature, 115725, true); // Barrier visual
-                    creature->CastSpell(creature, 81781, true);  // Periodic Trigger Spell
-                }
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                Unit* owner = me->GetOwner();
-
-                if (!owner)
-                    return;
-
-                if (!me->HasAura(115725))
-                    me->CastSpell(me, 115725, true);
-                if (!me->HasAura(81781))
-                    me->CastSpell(me, 81781, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_power_word_barrierAI(creature);
-        }
-};
-
 const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
 const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
@@ -3765,6 +3728,7 @@ class npc_demonic_gateway_purple : public CreatureScript
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->CastSpell(me, 113931, true); // 0 Purple Charge
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
@@ -3855,6 +3819,7 @@ class npc_demonic_gateway_green : public CreatureScript
                 me->CastSpell(me, 113901, true); // Periodic add charges
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
@@ -4924,6 +4889,16 @@ class npc_spectral_guise : public CreatureScript
 ## npc_force_of_nature
 ######*/
 
+enum eForceOfNatureSpells
+{
+    SPELL_TREANT_TAUNT          = 130793,
+    SPELL_TREANT_ROOT           = 113770,
+    SPELL_TREANT_SWIFTMEND      = 142421,
+    SPELL_TREANT_HEAL           = 113828,
+    SPELL_TREANT_WRATH          = 113769,
+    SPELL_TREANT_EFFLORESCENCE  = 142424
+};
+
 class npc_force_of_nature : public CreatureScript
 {
     public:
@@ -4936,7 +4911,7 @@ class npc_force_of_nature : public CreatureScript
             void Reset()
             {
                 Unit* owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
-                Unit* target = owner ? owner->getVictim() : NULL;
+                Unit* target = owner ? (owner->getVictim() ? owner->getVictim() : (owner->ToPlayer() ? owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
 
                 if (!owner || !target)
                     return;
@@ -4949,30 +4924,65 @@ class npc_force_of_nature : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case ENTRY_TREANT_GUARDIAN:
-                        me->CastSpell(target, 130793, true); // Taunt
-                        AttackStart(target);
+                        if (me->IsValidAttackTarget(target))
+                        {
+                            me->CastSpell(target, SPELL_TREANT_TAUNT, false); // Taunt
+                            AttackStart(target);
+                        }
                         break;
                     case ENTRY_TREANT_FERAL:
                     case ENTRY_TREANT_BALANCE:
-                        me->CastSpell(target, 113770, true); // Root
-                        AttackStart(target);
+                        if (me->IsValidAttackTarget(target))
+                        {
+                            me->CastSpell(target, SPELL_TREANT_ROOT, false); // Root
+                            AttackStart(target);
+                        }
                         break;
                     case ENTRY_TREANT_RESTO:
-                        if (target->IsHostileTo(me->ToUnit()))
-                            me->CastSpell(owner, 18562, true); // Heal
-                        else
-                            me->CastSpell(target, 18562, true);
+                        if (me->IsValidAssistTarget(target))
+                            me->CastSpell(target, SPELL_TREANT_SWIFTMEND, false); // Heal
+                        break;
+                    default:
                         break;
                 }
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
+                switch (me->GetEntry())
+                {
+                    case ENTRY_TREANT_BALANCE:
+                    {
+                        if (!UpdateVictim())
+                            return;
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                            return;
+
+                        if (Unit* target = me->getVictim())
+                            me->CastSpell(target, SPELL_TREANT_WRATH, false);
+                        return;
+                    }
+                    case ENTRY_TREANT_RESTO:
+                    {
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                            return;
+
+                        if (Unit* target = me->SelectNearbyAlly(NULL, 30.0f))
+                            me->CastSpell(target, SPELL_TREANT_HEAL, false);
+                        return;
+                    }
+                    default:
+                    {
+                        if (!UpdateVictim())
+                            return;
+
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                            return;
+
+                        break;
+                    }
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -4981,6 +4991,37 @@ class npc_force_of_nature : public CreatureScript
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_force_of_natureAI(pCreature);
+        }
+};
+
+// Swiftmend - 142423
+class spell_special_swiftmend : public SpellScriptLoader
+{
+    public:
+        spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }
+
+        class spell_special_swiftmend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_special_swiftmend_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_TREANT_SWIFTMEND))
+                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_TREANT_EFFLORESCENCE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_special_swiftmend_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_special_swiftmend_AuraScript();
         }
 };
 
@@ -5237,6 +5278,37 @@ class npc_rogue_decoy : public CreatureScript
         }
 };
 
+/*######
+## npc_army_of_the_dead - 24207
+######*/
+
+const uint32 displayIds[6] = { 26079, 25286, 10971, 201, 28292, 27870 };
+
+class npc_army_of_the_dead : public CreatureScript
+{
+    public:
+        npc_army_of_the_dead() : CreatureScript("npc_army_of_the_dead") { }
+
+        struct npc_army_of_the_deadAI : public ScriptedAI
+        {
+            npc_army_of_the_deadAI(Creature* c) : ScriptedAI(c) { }
+
+            void IsSummonedBy(Unit* owner)
+            {
+                if (!owner)
+                    return;
+
+                if (owner->HasAura(58642))
+                    me->SetDisplayId(displayIds[urand(0, 5)]);
+            }
+        };
+
+        CreatureAI* GetAI(Creature *creature) const
+        {
+            return new npc_army_of_the_deadAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -5277,7 +5349,6 @@ void AddSC_npcs_special()
     new npc_demoralizing_banner();
     new npc_frozen_orb();
     new npc_guardian_of_ancient_kings();
-    new npc_power_word_barrier();
     new npc_demonic_gateway_purple();
     new npc_demonic_gateway_green();
     new npc_dire_beast();
@@ -5296,7 +5367,9 @@ void AddSC_npcs_special()
     new npc_psyfiend();
     new npc_spectral_guise();
     new npc_force_of_nature();
+    new spell_special_swiftmend();
     new npc_luo_meng();
     new npc_monk_spirit();
     new npc_rogue_decoy();
+    new npc_army_of_the_dead();
 }

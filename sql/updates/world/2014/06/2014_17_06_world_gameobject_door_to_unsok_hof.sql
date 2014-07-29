@@ -1,0 +1,1 @@
+UPDATE gameobject SET isActive = 0 WHERE id = 214492;

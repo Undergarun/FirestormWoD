@@ -822,37 +822,6 @@ public:
     }
 };
 
-// Grab Air Balloon - 95247
-class spell_grab_air_balloon: public SpellScriptLoader
-{
-public:
-    spell_grab_air_balloon() : SpellScriptLoader("spell_grab_air_balloon") { }
-
-    class spell_grab_air_balloon_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_grab_air_balloon_SpellScript);
-
-        void HandleScriptEffect(SpellEffIndex effIndex)
-        {
-            PreventHitAura();
-
-            if (Unit* caster = GetCaster())
-                if (Creature* balloon = caster->SummonCreature(55649, 915.55f, 4563.66f, 230.68f, 2.298090f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID()))
-                    caster->EnterVehicle(balloon, 0);
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(spell_grab_air_balloon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_grab_air_balloon_SpellScript();
-    }
-};
-
 class mob_shang_xi_air_balloon : public VehicleScript
 {
 public:
@@ -860,7 +829,7 @@ public:
 
     void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 seatId)
     {
-        if (seatId == 0)
+        if (seatId == 1)
             if (Player* player = passenger->ToPlayer())
                 player->KilledMonsterCredit(56378);
     }
@@ -886,7 +855,7 @@ public:
             case 19:
                 if (me->GetVehicleKit())
                 {
-                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(1))
                         if (Player* player = passenger->ToPlayer())
                         {
                             player->KilledMonsterCredit(55939);
@@ -909,8 +878,14 @@ public:
             {
                 if (IntroTimer <= diff)
                 {
-                    Start(false, true);
-                    IntroTimer = 0;
+                    if (me->GetVehicleKit())
+                    {
+                        if (Unit* passenger = me->GetVehicleKit()->GetPassenger(1))
+                        {
+                            Start(false, true);
+                            IntroTimer = 0;
+                        }
+                    }
                 }
                 else
                     IntroTimer -= diff;
@@ -1059,6 +1034,24 @@ public:
     }
 };
 
+class mob_shang_xi_second_air_balloon : public VehicleScript
+{
+public:
+    mob_shang_xi_second_air_balloon() : VehicleScript("mob_shang_xi_second_air_balloon") { }
+
+    void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 seatId)
+    {
+        if (seatId == -1)
+            if (Player* player = passenger->ToPlayer())
+            {
+                player->ExitVehicle();
+
+                if (Creature* balloon = player->SummonCreature(55649, 915.55f, 4563.66f, 230.68f, 2.298090f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID()))
+                    player->EnterVehicle(balloon, 1);
+            }
+    }
+};
+
 void AddSC_WanderingIsland_West()
 {
     new mob_master_shang_xi_temple();
@@ -1073,9 +1066,9 @@ void AddSC_WanderingIsland_West()
     new mob_master_shang_xi_after_zhao_escort();
     new mob_master_shang_xi_thousand_staff();
     new mob_master_shang_xi_thousand_staff_escort();
-    new spell_grab_air_balloon();
     new mob_shang_xi_air_balloon();
     new npc_ji_firepaw();
     new npc_ji_firepaw_escort();
     new gob_defaced_scroll_of_wisdom();
+    new mob_shang_xi_second_air_balloon();
 }

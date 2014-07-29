@@ -285,7 +285,7 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                         if (bp > 0)
                             _player->CastCustomSpell((*alliesList.begin()), SPELL_SHA_RESTORATIVE_MISTS, &bp, NULL, NULL, true);   // Restorative Mists
 
-                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 500);               // This prevent from multiple procs
+                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 1000);               // This prevent from multiple procs
                     }
                 }
             }
@@ -571,7 +571,7 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                     bp = int32(bp * 0.40f);
 
                     _player->CastCustomSpell(target, SPELL_SHA_ANCESTRAL_GUIDANCE, &bp, NULL, NULL, true);
-                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, 500);
+                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, 1000);
                 }
             }
 
@@ -644,7 +644,7 @@ class spell_sha_echo_of_the_elements : public SpellScriptLoader
                 if (!roll_chance_i(chance))
                     return;
 
-                _player->AddSpellCooldown(SPELL_SHA_ECHO_OF_THE_ELEMENTS, 0, 500); // This prevent from multiple procs
+                _player->AddSpellCooldown(SPELL_SHA_ECHO_OF_THE_ELEMENTS, 0, 2000); // This prevent from multiple procs
                 _player->CastSpell(target, procSpell->Id, true);
             }
 
@@ -1164,7 +1164,7 @@ class spell_sha_unleash_elements : public SpellScriptLoader
 };
 
 // Called by Lightning Bolt - 403 and Chain Lightning - 421
-// Lightning Bolt (Mastery) - 45284, Chain Lightning - 45297 and Lava Beam (Fire Ascendant) - 114074
+// Lightning Bolt (Mastery) - 45284, Chain Lightning (Mastery) - 45297 and Lava Beam (Fire Ascendant) - 114074
 // Rolling Thunder - 88764
 class spell_sha_rolling_thunder : public SpellScriptLoader
 {
@@ -1961,7 +1961,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                                             _player->RemoveSpellCooldown(SPELL_SHA_FLAME_SHOCK, true);
 
                                         _player->CastSpell(itr, SPELL_SHA_FLAME_SHOCK, true);
-                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, cooldownDelay);
+                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, cooldownDelay * IN_MILLISECONDS);
                                         hitTargets++;
                                     }
                                 }

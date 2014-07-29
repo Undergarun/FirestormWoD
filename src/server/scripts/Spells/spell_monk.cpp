@@ -129,7 +129,7 @@ enum MonkSpells
 };
 
 // Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
-// 137384 - Combo Breaker
+// 115636 - Mastery : Combo Breaker
 class spell_monk_combo_breaker : public SpellScriptLoader
 {
     public:
@@ -642,7 +642,7 @@ class spell_monk_muscle_memory : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && _player->getLevel() >= 20)
                             _player->AddAura(SPELL_MONK_MUSCLE_MEMORY_EFFECT,_player);
                     }
                 }
@@ -1085,6 +1085,23 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_transcendence_transfer_SpellScript);
 
+            SpellCastResult CheckSpiritRange()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->GetEntry() == 54569)
+                        {
+                            if ((*itr)->GetDistance(caster) > 40.0f)
+                                return SPELL_FAILED_DONT_REPORT;
+                        }
+                    }
+                }
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -1094,7 +1111,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
                         if ((*itr)->GetEntry() == 54569)
                         {
                             Creature* clone = (*itr)->ToCreature();
-                            if (clone && clone->AI() && clone->GetDistance(caster) <= 40.0f)
+                            if (clone && clone->AI())
                                 clone->AI()->DoAction(0);
                         }
                     }
@@ -1103,6 +1120,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckSpiritRange);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -1130,16 +1148,10 @@ class spell_monk_serpents_zeal : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
-                    return;
-
                 if (eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
                 if (!(eventInfo.GetDamageInfo()->GetDamage()))
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetAttackType() != BASE_ATTACK && eventInfo.GetDamageInfo()->GetAttackType() != OFF_ATTACK)
                     return;
 
                 int32 bp = eventInfo.GetDamageInfo()->GetDamage();
@@ -1238,7 +1250,7 @@ class spell_monk_dampen_harm : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_dampen_harm_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_dampen_harm_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_dampen_harm_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -1740,8 +1752,12 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (roll_chance_i(30))
                         caster->CastSpell(caster, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
+                    if (caster->HasAura(103985) || caster->HasAura(115069))
+                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -20, POWER_ENERGY);
+                }
             }
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
@@ -1761,7 +1777,7 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
                         if (!_player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP))
                         {
                             _player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
-                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8 * IN_MILLISECONDS);
+                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8000);
                         }
                     }
                 }
@@ -1821,7 +1837,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_touch_of_karma_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_touch_of_karma_AuraScript::OnAbsorb, EFFECT_1);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_touch_of_karma_AuraScript::OnAbsorb, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -2768,7 +2784,7 @@ class spell_monk_spear_hand_strike : public SpellScriptLoader
                         if (target->isInFront(_player))
                         {
                             _player->CastSpell(target, SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE, true);
-                            _player->AddSpellCooldown(116705, 0, 15 * IN_MILLISECONDS);
+                            _player->AddSpellCooldown(116705, 0, 15000);
                         }
                     }
                 }
@@ -3095,7 +3111,7 @@ class spell_monk_keg_smash : public SpellScriptLoader
                             _player->CastSpell(target, SPELL_MONK_WEAKENED_BLOWS, true);
                             _player->CastSpell(_player, SPELL_MONK_KEG_SMASH_ENERGIZE, true);
                             // Prevent to receive 2 CHI more than once time per cast
-                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, 500);
+                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, 1000);
                             _player->CastSpell(target, SPELL_MONK_DIZZYING_HAZE, true);
                         }
                     }
@@ -3485,7 +3501,7 @@ class spell_monk_blackout_kick : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3519,14 +3535,22 @@ class spell_monk_blackout_kick : public SpellScriptLoader
                         }
                         // Brewmaster : Training - you gain Shuffle, increasing parry chance and stagger amount by 20%
                         else if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
-                            caster->CastSpell(caster, SPELL_MONK_SHUFFLE, true);
+                        {
+                            if (AuraPtr shuffle = caster->GetAura(SPELL_MONK_SHUFFLE))
+                            {
+                                shuffle->SetMaxDuration(shuffle->GetMaxDuration() + 5000);
+                                shuffle->SetDuration(shuffle->GetDuration() + 5000);
+                            }
+                            else
+                                caster->CastSpell(caster, SPELL_MONK_SHUFFLE, true);
+                        }
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_blackout_kick_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_blackout_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -3648,28 +3672,33 @@ class spell_monk_touch_of_death : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (GetCaster() && GetExplTargetUnit())
+                if (Unit* caster = GetCaster())
                 {
-                    if (GetCaster()->HasAura(124490))
+                    if (Unit* target = GetExplTargetUnit())
                     {
-                        if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && GetExplTargetUnit()->ToCreature()->IsDungeonBoss())
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && (GetExplTargetUnit()->GetHealth() > GetCaster()->GetHealth()))
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && (GetExplTargetUnit()->GetHealthPct() > 10.0f))
-                            return SPELL_FAILED_BAD_TARGETS;
+                        if (caster->HasAura(124490))
+                        {
+                            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsDungeonBoss())
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && (target->GetHealth() > caster->GetHealth()))
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->GetTypeId() == TYPEID_PLAYER) &&
+                                (target->GetHealthPct() > 10.0f))
+                                return SPELL_FAILED_BAD_TARGETS;
+                        }
+                        else
+                        {
+                            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsDungeonBoss())
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer()))
+                                return SPELL_FAILED_BAD_TARGETS;
+                            else if (target->GetTypeId() == TYPEID_UNIT && (target->GetHealth() > caster->GetHealth()))
+                                return SPELL_FAILED_BAD_TARGETS;
+                        }
+                        return SPELL_CAST_OK;
                     }
-                    else
-                    {
-                        if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && GetExplTargetUnit()->ToCreature()->IsDungeonBoss())
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER)
-                            return SPELL_FAILED_BAD_TARGETS;
-                        else if (GetExplTargetUnit()->GetTypeId() == TYPEID_UNIT && (GetExplTargetUnit()->GetHealth() > GetCaster()->GetHealth()))
-                            return SPELL_FAILED_BAD_TARGETS;
-                    }
-                    return SPELL_CAST_OK;
                 }
+
                 return SPELL_FAILED_NO_VALID_TARGETS;
             }
 

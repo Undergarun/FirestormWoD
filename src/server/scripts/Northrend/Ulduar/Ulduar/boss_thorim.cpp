@@ -19,6 +19,8 @@
 #include "ScriptedCreature.h"
 #include "ulduar.h"
 #include <limits>
+#include "GridNotifiers.h"
+#include "SpellScript.h"
 
 enum Spells
 {

@@ -168,6 +168,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                                 targetMask = TARGET_FLAG_UNIT_ENEMY;
                                 break;
                             case TARGET_CHECK_ALLY:
+                            case TARGET_CHECK_ALLY_OR_RAID:
                                 targetMask = TARGET_FLAG_UNIT_ALLY;
                                 break;
                             case TARGET_CHECK_PARTY:
@@ -180,7 +181,6 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                                 targetMask = TARGET_FLAG_UNIT_PASSENGER;
                                 break;
                             case TARGET_CHECK_RAID_CLASS:
-                                // nobreak;
                             default:
                                 targetMask = TARGET_FLAG_UNIT;
                                 break;
@@ -330,7 +330,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 115
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 116
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 117
-    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 118
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY_OR_RAID, TARGET_DIR_NONE},    // 118 TARGET_UNIT_ALLY_OR_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 119
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 120
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 121
@@ -347,6 +347,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty)
 {
     SpellEffectEntry const* _effect = spellEntry->GetSpellEffect(effIndex, difficulty);
+    SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->Id : 0);
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
@@ -374,11 +375,9 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
     ImplicitTargetConditions = NULL;
-
-    SpellEffectScalingEntry const* effectScaling = _effect ? sSpellEffectScalingStore.LookupEntry(_effect->Id) : NULL;
-    ScalingMultiplier = effectScaling ? effectScaling->Multiplier : 0.0f;
-    DeltaScalingMultiplier = effectScaling ? effectScaling->RandomMultiplier : 0.0f;
-    ComboScalingMultiplier = effectScaling ? effectScaling->OtherMultiplier : 0.0f;
+    ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
+    DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
+    ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -634,17 +633,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
         // amount multiplication based on caster's level
         if (!_spellInfo->GetSpellScaling() && !basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
-                Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
-                Effect != SPELL_EFFECT_KNOCK_BACK &&
-                Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
-                Effect != SPELL_EFFECT_GAMEOBJECT_DAMAGE &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
-                ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
-                ApplyAuraName != SPELL_AURA_MOD_DECREASE_SPEED)
-                //there are many more: slow speed, -healing pct
-            value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
-            //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
+            Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
+            Effect != SPELL_EFFECT_KNOCK_BACK &&
+            Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
+            Effect != SPELL_EFFECT_GAMEOBJECT_DAMAGE &&
+            ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
+            ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
+            ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
+            ApplyAuraName != SPELL_AURA_MOD_DECREASE_SPEED)
+            //there are many more: slow speed, -healing pct
+                value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
 
         // Hack Fix Arcane Barrage triggered
         if (_spellInfo->Id == 50273)
@@ -1068,7 +1066,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
 
     CastTimeEntry = sSpellCastTimesStore.LookupEntry(castingTimeIndex);
     DurationEntry = sSpellDurationStore.LookupEntry(durationIndex);
-    //PowerType = spellEntry->powerType; WTF
     RangeEntry = sSpellRangeStore.LookupEntry(rangeIndex);
     Speed = _misc ? _misc->speed : 1.00f;
     for (uint8 i = 0; i < 2; ++i)
@@ -1370,7 +1367,7 @@ bool SpellInfo::IsPassiveStackableWithRanks() const
 
 bool SpellInfo::IsMultiSlotAura() const
 {
-    return (IsPassive() || Id == 55849 || Id == 40075 || Id == 44413) && Id != 76856; // Power Spark, Fel Flak Fire, Incanter's Absorption, hack fix for Unshackled Fury stacking with itself
+    return (IsPassive() || Id == 55849 || Id == 40075 || Id == 44413) && Id != 76856;
 }
 
 bool SpellInfo::IsDeathPersistent() const
@@ -2380,7 +2377,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             switch (Id)
             {
-                case 12292: // Death Wish
                 case 12880: // Enrage (Enrage)
                 case 57518: // Enrage (Wrecking Crew)
                     return SPELL_SPECIFIC_WARRIOR_ENRAGE;
@@ -2426,7 +2422,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 return SPELL_SPECIFIC_PRIEST_SANCTUM;
 
             // Priest chakras
-            if (HasAttribute(SPELL_ATTR9_AFFECTED_BY_SPELLSWAP) || Id == 81209)
+            if (Id == 81206 || Id == 81208 || Id == 81209)
                 return SPELL_SPECIFIC_CHAKRA;
 
             break;
@@ -3415,7 +3411,7 @@ bool SpellInfo::_IsNeedDelay() const
     switch (Id)
     {
         case 379:   // Earth Shield (Shaman)
-        case 14157: // Ruthlessness (Rogue)
+        case 14161: // Ruthlessness (Rogue)
         case 33110: // Prayer of Mending (Priest)
         case 48503: // Living Seed (Druid)
         case 52752: // Ancestral Awakening (Shaman)
@@ -3643,22 +3639,23 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
     return scale;
 }
 
-bool SpellInfo::IsReducingCastTime() const
+float SpellInfo::GetCastTimeReduction() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbing
         case 50274: // Spore Cloud
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
         case 90315: // Tailspin
         case 109466:// Curse of Enfeeblement
         case 109468:// Curse of Enfeeblement (Soulburn)
         case 116198:// Enfeeblement Aura (Metamorphosis)
-            return true;
+            return 5.f;
+        case 5760:  // Mind-Numbing
+        case 58604: // Lava Breath
+        case 73975: // Necrotic Strike
+            return 2.f;
     }
 
-    return false;
+    return 1.f;
 }
 
 bool SpellInfo::CanTriggerBladeFlurry() const
@@ -3687,48 +3684,8 @@ bool SpellInfo::CanTriggerBladeFlurry() const
     return false;
 }
 
-bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
+bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell, Unit* caster /*= NULL*/) const
 {
-    // Stealth aura and some custom rules ...
-    if (HasAura(SPELL_AURA_MOD_STEALTH))
-    {
-        if (procSpell)
-        {
-            if (procSpell->Id == 93435 ||   // Roar of Courage
-                procSpell->Id == 32182 ||   // Heroism
-                procSpell->Id == 2825 ||    // Bloodlust
-                procSpell->Id == 1725 ||    // Distract
-                procSpell->Id == 114198 ||  // Mocking Banner taunt
-                procSpell->Id == 130733 ||  // and Shadow Word: Insanity allowing Cast
-                procSpell->Id == 115191 ||  // Stealth
-                procSpell->Id == 115192 ||  // Subterfuge
-                procSpell->Id == 114842 ||  // Shadow Walk
-                procSpell->Id == 5171 ||    // Slice and Dice
-                procSpell->Id == 2983 ||    // Sprint
-                procSpell->Id == 6770 ||    // Sap
-                procSpell->Id == 137573 ||  // Burst of Speed
-                procSpell->Id == 98440 ||   // Relentless Strikes
-                procSpell->Id == 102288 ||  // Clone Caster
-                procSpell->Id == 57934 ||   // Tricks of the Trade
-                procSpell->Id == 73981 ||   // Redirect
-                procSpell->Id == 114018 ||  // Shroud of Concealment
-                procSpell->Id == 76577 ||   // Smoke Bomb
-                procSpell->Id == 73651 ||   // Conversion
-                procSpell->Id == 121471 ||  // Shadow Blades
-                procSpell->Id == 31224 ||   // Cloak of Shadows
-                procSpell->Id == 108215 ||  // Paralytic Poison
-                procSpell->Id == 3408 ||    // Crippling Poison
-                procSpell->Id == 5761 ||    // Mind-Numbling Poison
-                procSpell->Id == 8679 ||    // Wound Poison
-                procSpell->Id == 108211 ||  // Leeching Poison
-                procSpell->Id == 2823 ||    // Deadly Poison
-                procSpell->Id == 79134 ||   // Venomous Wounds
-                procSpell->Id == 108212 ||  // Burst of Speed
-                procSpell->Id == 12323)     // Piercing Howl
-                return true;
-        }
-    }
-
     switch (Id)
     {
         case 16246: // Clearcasting (Shaman)
@@ -3749,6 +3706,10 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell) const
         case 131116:// Raging Blow !
         case 134563:// Healing Elixirs
             return true;
+        case 115191:// Stealth (Subterfuge)
+            if (caster->HasAura(115192)) // Subterfuge buff - 3s
+                return true;
+            break;
     }
 
     return false;
@@ -3778,8 +3739,6 @@ bool SpellInfo::IsCustomCastCanceled(Unit* caster) const
             if (caster->HasAura(Id))
                 return true;
             break;
-        case 132365:// Vengeance (old)
-            return true;
     }
 
     return false;
@@ -3943,13 +3902,17 @@ bool SpellInfo::IsRequireAdditionalTargetCheck() const
 
 bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 {
-    if (m_caster && m_caster->HasAura(115192))
+    if (!m_caster)
         return false;
 
-    if (m_caster && m_caster->HasAura(108208) && HasAttribute(SPELL_ATTR0_ONLY_STEALTHED) && !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
-    {
-        m_caster->CastSpell(m_caster, 115192, true);
+    if (m_caster->HasAura(115192))
         return false;
+
+    // Hearthstone shoudn't call subterfuge effect
+    if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
+    {
+        m_caster->RemoveAura(115191);
+        return true;
     }
 
     switch (GetSpellSpecific())
@@ -3960,14 +3923,29 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
             return true;
     }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    bool callSubterfuge = true;
+    if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
+        !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
-            return true;
+        // Mounts shouldn't call subterfuge effect
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+            {
+                callSubterfuge = false;
+                break;
+            }
+        }
+
+        if (callSubterfuge)
+        {
+            m_caster->CastSpell(m_caster, 115192, true);
+            return false;
+        }
     }
 
-    //if ((!m_caster || !m_caster->HasAuraType(SPELL_AURA_335)) && IsPositive())
-    //    return false;
+    if (m_caster->HasAura(115191))
+        return false;
 
     switch(Id)
     {
@@ -4149,6 +4127,7 @@ bool SpellInfo::IsAffectedByResilience() const
         case 49016: // Unholy Frenzy
         case 87023: // Cauterize
         case 110914:// Dark Bargain (DoT)
+        case 113344:// Bloodbath (DoT)
         case 124280:// Touch of Karma (DoT)
             return false;
         default:

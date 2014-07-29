@@ -227,23 +227,24 @@ enum ItemVendorType
 
 enum BAG_FAMILY_MASK
 {
-    BAG_FAMILY_MASK_NONE                      = 0x00000000,
-    BAG_FAMILY_MASK_ARROWS                    = 0x00000001,
-    BAG_FAMILY_MASK_BULLETS                   = 0x00000002,
-    BAG_FAMILY_MASK_SOUL_SHARDS               = 0x00000004,
-    BAG_FAMILY_MASK_LEATHERWORKING_SUPP       = 0x00000008,
-    BAG_FAMILY_MASK_INSCRIPTION_SUPP          = 0x00000010,
-    BAG_FAMILY_MASK_HERBS                     = 0x00000020,
-    BAG_FAMILY_MASK_ENCHANTING_SUPP           = 0x00000040,
-    BAG_FAMILY_MASK_ENGINEERING_SUPP          = 0x00000080,
-    BAG_FAMILY_MASK_KEYS                      = 0x00000100,
-    BAG_FAMILY_MASK_GEMS                      = 0x00000200,
-    BAG_FAMILY_MASK_MINING_SUPP               = 0x00000400,
-    BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT       = 0x00000800,
-    BAG_FAMILY_MASK_VANITY_PETS               = 0x00001000,
-    BAG_FAMILY_MASK_CURRENCY_TOKENS           = 0x00002000,
-    BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000,
-    BAG_FAMILY_MASK_FISHING_SUPP              = 0x00008000,
+    BAG_FAMILY_MASK_NONE                    = 0x00000000,
+    BAG_FAMILY_MASK_ARROWS                  = 0x00000001,
+    BAG_FAMILY_MASK_BULLETS                 = 0x00000002,
+    BAG_FAMILY_MASK_SOUL_SHARDS             = 0x00000004,
+    BAG_FAMILY_MASK_LEATHERWORKING_SUPP     = 0x00000008,
+    BAG_FAMILY_MASK_INSCRIPTION_SUPP        = 0x00000010,
+    BAG_FAMILY_MASK_HERBS                   = 0x00000020,
+    BAG_FAMILY_MASK_ENCHANTING_SUPP         = 0x00000040,
+    BAG_FAMILY_MASK_ENGINEERING_SUPP        = 0x00000080,
+    BAG_FAMILY_MASK_KEYS                    = 0x00000100,
+    BAG_FAMILY_MASK_GEMS                    = 0x00000200,
+    BAG_FAMILY_MASK_MINING_SUPP             = 0x00000400,
+    BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT     = 0x00000800,
+    BAG_FAMILY_MASK_VANITY_PETS             = 0x00001000,
+    BAG_FAMILY_MASK_CURRENCY_TOKENS         = 0x00002000,
+    BAG_FAMILY_MASK_QUEST_ITEMS             = 0x00004000,
+    BAG_FAMILY_MASK_FISHING_SUPP            = 0x00008000,
+    BAG_FAMILY_MASK_COOKING_SUPP            = 0x00010000
 };
 
 enum SocketColor
@@ -320,13 +321,13 @@ enum ItemClass
 enum ItemSubclassConsumable
 {
     ITEM_SUBCLASS_CONSUMABLE                    = 0,
-    ITEM_SUBCLASS_FOOD_DRINK                    = 1,
-    ITEM_SUBCLASS_POTION                        = 2,
-    ITEM_SUBCLASS_ELIXIR                        = 3,
-    ITEM_SUBCLASS_FLASK                         = 4,
-    ITEM_SUBCLASS_BANDAGE                       = 5,
+    ITEM_SUBCLASS_POTION                        = 1,
+    ITEM_SUBCLASS_ELIXIR                        = 2,
+    ITEM_SUBCLASS_FLASK                         = 3,
+    ITEM_SUBCLASS_SCROLL                        = 4,
+    ITEM_SUBCLASS_FOOD_DRINK                    = 5,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT              = 6,
-    ITEM_SUBCLASS_SCROLL                        = 7,
+    ITEM_SUBCLASS_BANDAGE                       = 7,
     ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8
 };
 
@@ -404,7 +405,7 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_LEATHER                 = 2,
     ITEM_SUBCLASS_ARMOR_MAIL                    = 3,
     ITEM_SUBCLASS_ARMOR_PLATE                   = 4,
-    ITEM_SUBCLASS_ARMOR_BUCKLER                 = 5, // OBSOLETE
+    ITEM_SUBCLASS_ARMOR_COSMETIC                = 5, // New 5.4 (old : BUCKLER)
     ITEM_SUBCLASS_ARMOR_SHIELD                  = 6,
     ITEM_SUBCLASS_ARMOR_LIBRAM                  = 7,
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
@@ -776,10 +777,10 @@ struct ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return Class == ITEM_CLASS_WEAPON ||
+        return Class == ITEM_CLASS_WEAPON && (
                SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
                SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-               SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+               SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW);
     }
 
     uint32 GetSkill() const

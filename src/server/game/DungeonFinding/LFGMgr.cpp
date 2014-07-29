@@ -186,6 +186,7 @@ void LFGMgr::LoadRewards()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg dungeon rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
 void LFGMgr::LoadEntrancePositions()
 {
     uint32 oldMSTime = getMSTime();
@@ -1802,9 +1803,37 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
             RemoveFromQueue(*it);
 
+        uint8 maxPlayersToTeleport = 0;
+        uint8 playersTeleported = 0;
+
+        if (!grp->isRaidGroup())
+            maxPlayersToTeleport = 5;
+        else
+        {
+            switch (grp->GetRaidDifficulty())
+            {
+                case MAN10_DIFFICULTY:
+                case MAN10_HEROIC_DIFFICULTY:
+                    maxPlayersToTeleport = 10;
+                    break;
+                case MAN25_DIFFICULTY:
+                case MAN25_HEROIC_DIFFICULTY:
+                    maxPlayersToTeleport = 25;
+                case MAN40_DIFFICULTY:
+                    maxPlayersToTeleport = 40;
+                    break;
+            }
+        }
+
         // Teleport players
         for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
+        {
+            if (playersTeleported >= maxPlayersToTeleport)
+                break;
+
             TeleportPlayer(*it, false);
+            playersTeleported++;
+        }
 
         // Update group info
         grp->SendUpdate();

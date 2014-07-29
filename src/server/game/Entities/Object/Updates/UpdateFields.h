@@ -370,10 +370,11 @@ enum EAreaTriggerFields
 
 enum SceneObjectFields
 {
-    SCENE_SCRIPT_PACKAGE_ID                          = OBJECT_END + 0x0,
-    SCENE_RND_SEED_VAL                               = OBJECT_END + 0x1,
-    SCENE_CREATED_BY                                 = OBJECT_END + 0x2,
-    SCENE_END                                        = OBJECT_END + 0x4
+    SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID             = 8,
+    SCENEOBJECT_FIELD_RND_SEED_VAL                  = 9,
+    SCENEOBJECT_FIELD_CREATED_BY                    = 10,
+    SCENEOBJECT_FIELD_SCENE_TYPE                    = 12,
+    SCENEOBJECT_END                                 = 13
 };
 
 #define PLAYER_END_NOT_SELF PLAYER_FAKE_INEBRIATION

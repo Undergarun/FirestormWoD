@@ -560,7 +560,7 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
         case TYPEID_DYNAMICOBJECT:
             aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID));
             aura->GetDynobjOwner()->SetAura(aura);
-            aura->_InitEffects(effMask, caster, baseAmount);
+            aura->_InitEffects(effMask, caster, baseAmount, triggeredByAura);
             
             aura->LoadScripts();
             ASSERT(aura->GetDynobjOwner());
@@ -938,7 +938,6 @@ void Aura::Update(uint32 diff, Unit* caster)
                         continue;
 
                     Powers powerType = Powers(itr->PowerType);
-
                     if (int32 powerPerSecond = itr->CostPerSecond + int32(itr->CostPerSecondPercentage * caster->GetCreatePowers(powerType) / 100))
                     {
                         m_timeCla += 1000 - diff;
@@ -1316,6 +1315,7 @@ bool Aura::CanBeSentToClient() const
 
     if (HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)      ||
         HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)            ||
+        HasEffectType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING) ||
         HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)     ||
         HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)   ||
         HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT)         ||
@@ -1757,7 +1757,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Blind
                         if (caster && caster->HasAura(91299))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
+                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -1770,26 +1770,35 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, 0, 11327);
                         break;
                     }
+                    case 108212:// Burst of Speed
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                        break;
+                    }
                 }
                 break;
             }
             case SPELLFAMILY_SHAMAN:
-                // Maelstorm Weapon
-                if (GetId() == 53817)
+            {
+                switch (GetId())
                 {
-                    // Item - Shaman T13 Enhancement 2P Bonus
-                    if (target->HasAura(105866))
-                        target->CastSpell(target, 105869, true);
+                    case 53817: // Maelstrom Weapon
+                        // Item - Shaman T13 Enhancement 2P Bonus
+                        if (target->HasAura(105866))
+                            target->CastSpell(target, 105869, true);
+                        break;
+                    case 79206: // Spiritwalker's Grace
+                        // Item - Shaman T13 Restoration 4P Bonus (Spiritwalker's Grace)
+                        if (target->HasAura(105876))
+                            target->CastSpell(target, 105877, true);
+                        // Item - Shaman S12 Restoration 4P Bonus (Spiritwalker's Grace)
+                        if (target->HasAura(131557))
+                            target->CastSpell(target, 131558, true);
+                        break;
                 }
-                // Spiritwalker's Grace
-                else if (GetId() == 79206)
-                {
-                    // Item - Shaman T13 Restoration 4P Bonus (Spiritwalker's Grace)
-                    if (target->HasAura(105876))
-                        target->CastSpell(target, 105877, true);
-                }
-                
+
                 break;
+            }
             case SPELLFAMILY_WARRIOR:
                 // Heroic Fury
                 if (m_spellInfo->Id == 60970)
@@ -1821,6 +1830,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
             {
+                if (!caster)
+                    break;
+
                 switch (GetId())
                 {
                     // Vampiric Blood
@@ -1926,10 +1938,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Remove Stealth on Subterfuge remove
                     case 115192:
                     {
-                        StealthType type = StealthType(sSpellMgr->GetSpellInfo(1784)->Effects[1].MiscValue);
-                        target->m_stealth.DelFlag(type);
-                        target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
-                        target->UpdateObjectVisibility();
+                        target->RemoveAura(115191);
                         break;
                     }
                 }
@@ -2140,6 +2149,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             break;
         case SPELLFAMILY_DRUID:
         {
+            if (!caster)
+                break;
+
             switch (GetSpellInfo()->Id)
             {
                 // Tree of Life
@@ -2337,8 +2349,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (this == existingAura.get())
         return true;
 
-    // Dynobj auras always stack
-    if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    // Dynobj auras always stack - Same for Swiftmend
+    if (existingAura->GetType() == DYNOBJ_AURA_TYPE || existingAura->GetId() == 81262)
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();

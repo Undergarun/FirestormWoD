@@ -369,6 +369,7 @@ class Item : public Object
 
         bool CanBeTransmogrified() const;
         bool CanTransmogrify() const;
+        bool SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const;
         static bool CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }

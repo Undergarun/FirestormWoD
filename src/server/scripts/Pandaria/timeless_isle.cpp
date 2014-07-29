@@ -4,6 +4,7 @@
 #include "ScriptedEscortAI.h"
 #include "timeless_isle.h"
 
+// Anduin Wrynn - 73061
 class npc_prince_anduin : public CreatureScript
 {
     public:
@@ -54,6 +55,7 @@ class npc_prince_anduin : public CreatureScript
         };
 };
 
+// Kairoz - 72870
 class npc_kairoz : public CreatureScript
 {
     public:

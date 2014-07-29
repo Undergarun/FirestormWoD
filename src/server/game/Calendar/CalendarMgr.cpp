@@ -117,6 +117,7 @@ uint64 CalendarMgr::GetFreeEventId()
 {
     return ++_eventNum;
 }
+
 uint64 CalendarMgr::GetFreeInviteId()
 {
     return ++_inviteNum;

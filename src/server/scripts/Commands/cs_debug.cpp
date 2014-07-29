@@ -49,6 +49,7 @@ class debug_commandscript : public CommandScript
                 { "cinematic",      SEC_MODERATOR,      false, &HandleDebugPlayCinematicCommand,   "", NULL },
                 { "movie",          SEC_MODERATOR,      false, &HandleDebugPlayMovieCommand,       "", NULL },
                 { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
+                { "scene",          SEC_ADMINISTRATOR,  false, &HandleDebugPlaySceneCommand,       "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -104,7 +105,8 @@ class debug_commandscript : public CommandScript
                 { "packet",         SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,          "", NULL },
                 { "guildevent",     SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,      "", NULL },
                 { "log",            SEC_ADMINISTRATOR,  false, &HandleDebugLogCommand,             "", NULL },
-                { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,             "", NULL },
+                { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,            "", NULL },
+                { "boss",           SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,            "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -114,6 +116,168 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugBossCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+                return false;
+
+            char* l_String = p_Handler->extractQuotedArg((char*)p_Args);
+            if (!l_String)
+                return false;
+
+            char const* l_Text = l_String;//"||TInterface\\Icons\\trade_archaeology_whitehydrafigurine:20||tMegaera begins to ||cFFF00000||Hspell:139458||h[Rampage]||h||rÿ!";
+            char const* l_Name = "Megaera";
+            char const* l_Receiver = "Venomous head";
+
+            WorldPacket data;
+            uint64 l_Target = p_Handler->GetSession()->GetPlayer()->GetGUID();
+            uint32 l_TextLen = l_Text ? strlen(l_Text) : 0;
+            uint32 l_SpeakerNameLen = l_Name ? strlen(l_Name) + 1 : 0;
+            uint32 l_PrefixLen = 0;
+            uint32 l_ReceiverLen = strlen(l_Receiver);
+            uint32 l_ChannelLen = 0;
+            std::string l_Channel = ""; // no channel
+            uint8 l_ChatTag = 0x20;
+
+            ObjectGuid l_Sender = MAKE_NEW_GUID(322021, 0, HIGHGUID_UNIT);
+            ObjectGuid l_Group = 0;
+            ObjectGuid l_ReceiverGuid = l_Target;
+            ObjectGuid l_Guild = 0;
+
+            bool l_UnkBit = false;
+            bool l_UnkBit5256 = false;
+            bool l_UnkBit5264 = false;
+            bool l_UnkBit5269 = false;
+            bool l_UnkBit5268 = false;
+            bool l_HasPrefix = false;
+            bool l_HasLanguage = false;
+            bool l_HasSender = true;
+            bool l_HasText = l_TextLen != 0;
+            bool l_HasGroup = false;
+            bool l_HasReceiver = l_Target != 0;
+            bool l_HasChatTag = true;
+            bool l_HasGuild = false;
+            bool l_HasChannel = false;
+
+            data.Initialize(SMSG_MESSAGE_CHAT, 200);
+            data.WriteBit(l_UnkBit5269);
+            data.WriteBit(!l_HasText);
+            data.WriteBit(!l_UnkBit5256);
+            data.WriteBit(!l_HasSender);
+            data.WriteBit(l_HasSender);
+
+            uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
+            data.WriteBitInOrder(l_Sender, bitsOrder);
+
+            data.WriteBit(l_HasGroup);
+
+            uint8 bitsOrder2[8] = { 6, 0, 4, 1, 2, 3, 7, 5 };
+            data.WriteBitInOrder(l_Group, bitsOrder2);
+
+            data.WriteBit(!l_HasPrefix);
+            data.WriteBit(l_UnkBit5268);
+            data.WriteBit(!l_UnkBit);
+            data.WriteBit(!l_UnkBit5264);
+
+            data.WriteBits(l_SpeakerNameLen, 11);
+
+            data.WriteBit(l_HasReceiver);
+
+            uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
+            data.WriteBitInOrder(l_ReceiverGuid, bitsOrder3);
+
+            // Never happens for creature
+            if (l_PrefixLen)
+                data.WriteBits(l_PrefixLen, 5);
+
+            data.WriteBit(!l_HasReceiver);
+            data.WriteBit(!l_HasChatTag);
+
+            if (l_TextLen)
+                data.WriteBits(l_TextLen, 12);
+
+            data.WriteBit(!l_HasLanguage);
+            data.WriteBits(l_ChatTag, 9);
+            data.WriteBit(l_HasGuild);
+
+            if (l_HasReceiver)
+                data.WriteBits(l_ReceiverLen, 11);
+
+            uint8 bitsOrder4[8] = { 0, 2, 1, 4, 6, 7, 5, 3 };
+            data.WriteBitInOrder(l_Guild, bitsOrder4);
+
+            data.WriteBit(!l_HasChannel);
+            data.WriteBits(l_ChannelLen, 7);
+
+            if (l_HasChannel)
+                data.WriteString(l_Channel);
+
+            if (l_HasSender)
+                data.WriteString(l_Name);
+
+            uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
+            data.WriteBytesSeq(l_Group, byteOrder);
+
+            uint8 byteOrder1[8] = { 0, 4, 1, 3, 5, 7, 2, 6 };
+            data.WriteBytesSeq(l_ReceiverGuid, byteOrder1);
+
+            data << uint8(CHAT_MSG_RAID_BOSS_EMOTE);
+
+            uint8 byteOrder2[8] = { 7, 6, 5, 4, 0, 2, 1, 3 };
+            data.WriteBytesSeq(l_Sender, byteOrder2);
+
+            // Never happens for creatures
+            if (l_HasPrefix)
+                data.WriteString("");
+
+            if (l_UnkBit)
+                data << uint32(0);                                         // unk uint32
+
+            uint8 byteOrder3[8] = { 1, 0, 3, 7, 6, 5, 2, 4 };
+            data.WriteBytesSeq(l_Guild, byteOrder3);
+
+            if (l_HasReceiver)
+                data.WriteString(l_Receiver);
+
+            if (l_UnkBit5256)
+                data << uint32(0);                                         // unk uint32
+
+            if (l_HasLanguage)
+                data << uint8(LANG_UNIVERSAL);
+
+            if (l_HasText)
+                data.WriteString(l_Text);
+
+            if (l_UnkBit5264)
+                data << uint32(0);                                         // unk uint32
+
+            p_Handler->GetSession()->GetPlayer()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
+            return true;
+        }
+
+        static bool HandleDebugPlaySceneCommand(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 id = atoi((char*)args);
+
+            if (!sSceneScriptPackageStore.LookupEntry(id))
+            {
+                handler->PSendSysMessage("Scene %u doesnt exist !", id);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            handler->PSendSysMessage("Start playing scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
+            handler->GetSession()->GetPlayer()->PlayScene(id, handler->GetSession()->GetPlayer());
+            return true;
         }
 
         static bool HandleJoinRatedBg(ChatHandler* handler, char const* args)

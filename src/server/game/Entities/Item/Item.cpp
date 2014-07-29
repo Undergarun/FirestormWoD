@@ -215,6 +215,10 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPP))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_COOKING_CONTAINER:
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_COOKING_SUPP))
+                        return false;
+                    return true;
                 default:
                     return false;
             }
@@ -892,19 +896,11 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
-        if (proto->InventoryType == INVTYPE_WEAPON &&
+        if ((proto->InventoryType == INVTYPE_WEAPON || proto->InventoryType == INVTYPE_2HWEAPON) &&
             (spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONMAINHAND) ||
              spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONOFFHAND)))
-        {
-
-            // Single-Minded Fury
-            // TODO: needs to be fixed correct way
-            if (spellInfo->Id == 81099)
-                return false;
-
             return true;
-        }
-        else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->InventoryType)) == 0 && spellInfo->Id != 100130) // Hack Fix Wild Strikes
+        else if ((spellInfo->EquippedItemInventoryTypeMask & (1 << proto->InventoryType)) == 0)
             return false;                                   // inventory type not present in mask
     }
 
@@ -1274,9 +1270,6 @@ bool Item::CanBeTransmogrified() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats() && !HasSpells() && (proto->Quality < ITEM_QUALITY_RARE))
-        return false;
-
     return true;
 }
 
@@ -1303,10 +1296,54 @@ bool Item::CanTransmogrify() const
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
         return true;
 
-    if (!HasStats() && !HasSpells())
+    return true;
+}
+
+bool Item::SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const
+{
+    //   Source     Destination
+    if (!proto1 || !proto2)
         return false;
 
-    return true;
+    // Patch 5.2 - Throne of Thunder
+    // One-Handed
+    // One-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD))
+        return true;
+
+    // Two-Handed
+    // Two-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
+        return true;
+
+    // Ranged
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
+        return true;
+
+    // Polearm and Staff
+    // Staves and polearms can be transmogrified to each other.
+    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        proto1->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
+        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        proto2->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
+        return true;
+
+    return false;
 }
 
 bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier)
@@ -1331,8 +1368,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
         proto1->InventoryType == INVTYPE_AMMO ||
         proto1->InventoryType == INVTYPE_QUIVER || 
         proto1->InventoryType == INVTYPE_NON_EQUIP ||
-        proto1->InventoryType == INVTYPE_TABARD ||
-        proto1->InventoryType == INVTYPE_HOLDABLE)
+        proto1->InventoryType == INVTYPE_TABARD)
         return false;
 
     if (proto2->InventoryType == INVTYPE_BAG ||
@@ -1343,18 +1379,15 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
         proto2->InventoryType == INVTYPE_AMMO ||
         proto2->InventoryType == INVTYPE_QUIVER || 
         proto2->InventoryType == INVTYPE_NON_EQUIP ||
-        proto2->InventoryType == INVTYPE_TABARD ||
-        proto2->InventoryType == INVTYPE_HOLDABLE)
+        proto2->InventoryType == INVTYPE_TABARD)
         return false;
 
     if (proto1->Class != proto2->Class)
         return false;
 
-    if (proto1->SubClass != proto2->SubClass && !proto1->IsRangedWeapon() && !proto2->IsRangedWeapon())
+    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()) &&
+        (proto1->SubClass != proto2->SubClass && !transmogrifier->SubclassesCompatible(proto1, proto2)))
         return false;
-
-    if (proto1->IsRangedWeapon() && proto2->IsRangedWeapon())
-        return true;
 
     if (proto1->InventoryType != proto2->InventoryType)
     {
@@ -1373,7 +1406,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     }
 
     // Check armor types
-    if (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR)
+    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR))
     {
         uint32 skill1 = proto1->GetSkill();
         uint32 skill2 = proto2->GetSkill();
@@ -1656,12 +1689,10 @@ bool Item::IsStuffItem() const
         case INVTYPE_BODY:
         case INVTYPE_BAG:
         case INVTYPE_TABARD:
-        case INVTYPE_HOLDABLE:
         case INVTYPE_AMMO:
         case INVTYPE_THROWN:
         case INVTYPE_QUIVER:
         case INVTYPE_RELIC:
-        case INVTYPE_RANGEDRIGHT:
             return false;
         default:
             return true;
@@ -1688,7 +1719,7 @@ bool Item::CanUpgrade() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (!HasStats())
+    if (!HasStats() && proto->InventoryType != INVTYPE_TRINKET)
         return false;
 
     // PvP item can't be upgraded after Season 12

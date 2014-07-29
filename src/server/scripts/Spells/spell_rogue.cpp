@@ -77,7 +77,6 @@ enum RogueSpells
     ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
     ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
     ROGUE_SPELL_CHEATED_DEATH_MARKER            = 45181,
-    ROGUE_SPELL_ENERGETIC_RECOVERY_AURA         = 79152,
     ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR           = 56803,
     ROGUE_SPELL_WEAKENED_ARMOR                  = 113746,
     ROGUE_SPELL_DEADLY_BREW                     = 51626,
@@ -91,7 +90,9 @@ enum RogueSpells
     ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
     ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
-    ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806
+    ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806,
+    ROGUE_SPELL_KIDNEY_SHOT                     = 408,
+    ROGUE_SPELL_REVEALING_STRIKE                = 84617
 };
 
 // Killing Spree - 51690
@@ -408,7 +409,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_cheat_death_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_cheat_death_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_cheat_death_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -597,6 +598,44 @@ class spell_rog_nerve_strike : public SpellScriptLoader
 {
     public:
         spell_rog_nerve_strike() : SpellScriptLoader("spell_rog_nerve_strike") { }
+
+        class spell_rog_combat_readiness_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_combat_readiness_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (GetSpellInfo()->Id != ROGUE_SPELL_KIDNEY_SHOT)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, caster->GetGUID()))
+                        {
+                            if (AuraPtr kidney = target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, caster->GetGUID()))
+                            {
+                                int32 duration = kidney->GetMaxDuration();
+                                AddPct(duration, 35);
+                                kidney->SetMaxDuration(duration);
+                                kidney->RefreshDuration(true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_combat_readiness_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_combat_readiness_SpellScript();
+        }
 
         class spell_rog_combat_readiness_AuraScript : public AuraScript
         {
@@ -789,12 +828,9 @@ class spell_rog_restless_blades : public SpellScriptLoader
 
             int32 comboPoints;
 
-            bool Validate()
+            bool Load()
             {
                 comboPoints = 0;
-
-                if (!sSpellMgr->GetSpellInfo(121411) || !sSpellMgr->GetSpellInfo(1943) || !sSpellMgr->GetSpellInfo(2098))
-                    return false;
                 return true;
             }
 
@@ -813,45 +849,19 @@ class spell_rog_restless_blades : public SpellScriptLoader
                         if (comboPoints)
                         {
                             if (_player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_ADRENALINE_RUSH);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, 0, newCooldownDelay);
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_KILLING_SPREE);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_KILLING_SPREE, 0, newCooldownDelay);
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_REDIRECT))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_REDIRECT);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_REDIRECT, 0, newCooldownDelay);
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_SHADOW_BLADES);
-                                newCooldownDelay -= comboPoints * 2;
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, comboPoints * 2000);
 
-                                _player->AddSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, 0, newCooldownDelay);
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, (-1 * comboPoints * 2000));
-                            }
                             if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                            {
-                                uint32 newCooldownDelay = _player->GetSpellCooldownDelay(ROGUE_SPELL_SPRINT);
-                                newCooldownDelay -= comboPoints * 2;
-
-                                _player->AddSpellCooldown(ROGUE_SPELL_SPRINT, 0, newCooldownDelay);
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, (-1 * comboPoints * 2000));
-                            }
+                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
 
                             comboPoints = 0;
                         }
@@ -1157,7 +1167,7 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 damage = int32(GetHitDamage() * 0.30f / 6); // 30% / number_of_ticks
+                        int32 damage = int32(GetHitDamage() * 2.4f / 6); // 30% / number_of_ticks
                         caster->CastCustomSpell(target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &damage, NULL, NULL, true);
                     }
                 }

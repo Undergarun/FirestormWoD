@@ -60,7 +60,7 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 
             void Register()
             {
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_absorb0_hitlimit1_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_absorb0_hitlimit1_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -3084,7 +3084,7 @@ class spell_gen_tp_storm_orgri : public SpellScriptLoader
         }
 };
 
-// Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093
+// Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093 or 28880
 class spell_gen_gift_of_the_naaru : public SpellScriptLoader
 {
     public:
@@ -3489,6 +3489,59 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
         }
 };
 
+// Orb of Power - 121164 / 121175 / 121176 / 121177
+class spell_gen_orb_of_power : public SpellScriptLoader
+{
+    public:
+        spell_gen_orb_of_power() : SpellScriptLoader("spell_gen_orb_of_power") { }
+
+        class spell_gen_orb_of_power_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_orb_of_power_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (AuraEffectPtr damageDone = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    {
+                        // Max +200% damage done
+                        if (damageDone->GetAmount() + 10 >= 100)
+                            damageDone->ChangeAmount(100);
+                        else
+                            damageDone->ChangeAmount(damageDone->GetAmount() + 10);
+                    }
+                    if (AuraEffectPtr healing = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    {
+                        // Max -90% heal taken
+                        if (healing->GetAmount() -5 <= -90)
+                            healing->ChangeAmount(-90);
+                        else
+                            healing->ChangeAmount(healing->GetAmount() - 5);
+                    }
+                    if (AuraEffectPtr damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
+                    {
+                        // Max +500% damage taken
+                        if (damageTaken->GetAmount() + 30 >= 500)
+                            damageTaken->ChangeAmount(500);
+                        else
+                            damageTaken->ChangeAmount(damageTaken->GetAmount() + 30);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_orb_of_power_AuraScript::OnTick, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_orb_of_power_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3567,4 +3620,5 @@ void AddSC_generic_spell_scripts()
     new spell_mage_polymorph_cast_visual();
     new spell_gen_hardened_shell();
     new spell_gen_ds_flush_knockback();
+    new spell_gen_orb_of_power();
 }

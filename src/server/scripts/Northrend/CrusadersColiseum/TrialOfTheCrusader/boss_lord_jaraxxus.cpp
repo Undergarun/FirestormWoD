@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Containers.h"
+#include "SpellScript.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells

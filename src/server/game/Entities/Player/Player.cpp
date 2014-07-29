@@ -81,6 +81,7 @@
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
+#include "SceneObject.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -992,6 +993,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
+
+    m_LastPlayedScene = NULL;
 }
 
 Player::~Player()
@@ -1453,6 +1456,17 @@ void Player::RewardCurrencyAtKill(Unit* victim)
     if (!result)
         return;
 
+    // Players won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
+    if ((Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS
+        || Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS
+        || Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS
+        || Curr->currencyId1 == CURRENCY_TYPE_VALOR_POINTS
+        || Curr->currencyId2 == CURRENCY_TYPE_VALOR_POINTS
+        || Curr->currencyId3 == CURRENCY_TYPE_VALOR_POINTS)
+        && victim->GetMap()->Expansion() != EXP_PANDARIA
+        && getLevel() > 85)
+        return;
+
     if (Curr->currencyId1 && Curr->currencyCount1)
     {
         if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
@@ -1870,6 +1884,10 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
         stmt->setInt32(0, GetGUIDLow());
         _storeGoldCallback = CharacterDatabase.AsyncQuery(stmt);
 
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_TITLE);
+        stmt->setInt32(0, GetGUIDLow());
+        _storeTitleCallback = CharacterDatabase.AsyncQuery(stmt);
+
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_LEVEL);
         stmt->setInt32(0, GetGUIDLow());
         _storeLevelCallback = CharacterDatabase.AsyncQuery(stmt);
@@ -1899,6 +1917,14 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
             _storeGoldCallback.get(result);
             HandleStoreGoldCallback(result);
             _storeGoldCallback.cancel();
+            m_storeCallbackCounter++;
+        }
+
+        if (_storeTitleCallback.ready())
+        {
+            _storeTitleCallback.get(result);
+            HandleStoreTitleCallback(result);
+            _storeTitleCallback.cancel();
             m_storeCallbackCounter++;
         }
 
@@ -1932,7 +1958,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
         }
 
         // All store callback are check, we can save to db player
-        if (m_storeCallbackCounter == 3)
+        if (m_storeCallbackCounter == 4)
         {
             SaveToDB();
             m_storeCallbackCounter++;
@@ -2039,7 +2065,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
+                if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
@@ -2067,31 +2093,40 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
-                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
+                    // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
+                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, BASE_ATTACK);
                         resetAttackTimer(BASE_ATTACK);
                     }
-                    // Custom MoP Script - Wind Lash
-                    else if (HasAura(114051))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
-                        CastSpell(victim, 114089, true);
-                        resetAttackTimer(BASE_ATTACK);
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
+                        // Should have only one aura of this type at the same time
+                        AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
+                        for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
+                        {
+                            CastSpell(victim, (*i)->GetTriggerSpell(), true);
+                            resetAttackTimer(BASE_ATTACK);
+                            break;
+                        }
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471) && !HasAura(137586))
+                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 121473, true);
                         resetAttackTimer(BASE_ATTACK);
                     }
-                    else if (HasAura(137586) && !HasAura(121471))
+                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
-                        CastSpell(victim, 137584, true); // Shuriken Toss
-                        resetAttackTimer(BASE_ATTACK);
-                    }
-                    else if (HasAura(137586) && HasAura(121471))
-                    {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 140308, true); // Shadow Shuriken Toss
                         resetAttackTimer(BASE_ATTACK);
                     }
@@ -2100,7 +2135,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
 
             if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if (!IsWithinMeleeRange(victim) && !HasAura(114051) && !HasAura(137586))
+                if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     setAttackTimer(OFF_ATTACK, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -2110,31 +2145,40 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
-                    // do attack if player doesn't have Ascendance for Enhanced Shamans or Shadow Blades/Shuriken Toss for rogues
-                    if (!HasAura(114051) && !HasAura(121471) && !HasAura(137586))
+                    // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
+                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
                     }
-                    // Custom MoP Script - Wind Lash Off-Hand
-                    else if (HasAura(114051))
+                    else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
-                        CastSpell(victim, 114093, true);
-                        resetAttackTimer(OFF_ATTACK);
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
+                        // Should have only one aura of this type at the same time
+                        AuraEffectList const& mOverrideAutoAttacks = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL);
+                        for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
+                        {
+                            CastSpell(victim, (*i)->GetMiscValue(), true);
+                            resetAttackTimer(OFF_ATTACK);
+                            break;
+                        }
                     }
                     // Shadow Blades - Off Hand
-                    else if (HasAura(121471) && !HasAura(137586))
+                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 121474, true);
                         resetAttackTimer(OFF_ATTACK);
                     }
-                    else if (HasAura(137586) && !HasAura(121471))
+                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
-                        CastSpell(victim, 137585, true); // Shuriken Toss
-                        resetAttackTimer(OFF_ATTACK);
-                    }
-                    else if (HasAura(137586) && HasAura(121471))
-                    {
+                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+                            return;
+
                         CastSpell(victim, 140309, true); // Shadow Shuriken Toss
                         resetAttackTimer(OFF_ATTACK);
                     }
@@ -2839,10 +2883,25 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // remove pet on map change
             if (pet)
                 UnsummonPetTemporaryIfAny();
-				
+
             // remove stealth on map change
             if (HasAuraType(SPELL_AURA_MOD_STEALTH))
+            {
                 RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+
+                switch (getClass())
+                {
+                    case CLASS_ROGUE:
+                        RemoveSpellCooldown(1784);
+                        RemoveSpellCooldown(115191);
+                        break;
+                    case CLASS_DRUID:
+                        RemoveSpellCooldown(5215);
+                        break;
+                    default:
+                        break;
+                }
+            }
             // remove all dyn objects and AreaTrigger
             RemoveAllDynObjects();
             RemoveAllAreasTrigger();
@@ -4143,16 +4202,30 @@ void Player::InitSpellForLevel()
             learnSpell(spellId, false);
     }
 
-    // Aberration and Two Forms
+    // Aberration, Two Forms, Darkflight, Flayer, Viciousness
     if (getRace() == RACE_WORGEN)
     {
         learnSpell(68976, false);
         learnSpell(68996, false);
+        learnSpell(97709, false);
+        learnSpell(68992, false);
+        learnSpell(68978, false);
+        learnSpell(68975, false);
     }
     else
     {
-        removeSpell(68996, false, false);
-        removeSpell(68976, false, false);
+        if (HasSpell(68996))
+            removeSpell(68996, false, false);
+        if (HasSpell(68976))
+            removeSpell(68976, false, false);
+        if (HasSpell(97709))
+            removeSpell(97709, false, false);
+        if (HasSpell(68992))
+            removeSpell(68992, false, false);
+        if (HasSpell(68978))
+            removeSpell(68978, false, false);
+        if (HasSpell(68975))
+            removeSpell(68975, false, false);
     }
 
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
@@ -4173,16 +4246,6 @@ void Player::InitSpellForLevel()
             removeSpell(115913, false, false);
         if (HasSpell(90267) && getLevel() < 60)
             removeSpell(90267, false, false);
-    }
-
-    // Only for Worgens - Darkflight
-    if (getRace() != RACE_WORGEN)
-    {
-        if (HasSpell(68992))
-            removeSpell(68992, false, false);
-
-        if (HasSpell(97709))
-            removeSpell(97709, false, false); 
     }
 
     // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
@@ -4227,6 +4290,10 @@ void Player::RemoveSpecializationSpells()
         if (spell && !spell->SpecializationIdList.empty())
             spellToRemove.push_back(itr.first);
     }
+
+    spellToRemove.push_back(48517); // Lunar eclipse
+    spellToRemove.push_back(48518); // Solar eclipse
+    spellToRemove.push_back(107095); // Lunar eclipse (overrider)
 
     for (auto itr : spellToRemove)
         removeSpell(itr);
@@ -4483,6 +4550,7 @@ void Player::SendInitialSpells()
             continue;
 
         data << uint32(itr->first);
+
         data << uint32(itr->second.itemid);                 // cast item id
         data << uint16(sEntry->Category);                   // spell category
 
@@ -5703,6 +5771,9 @@ void Player::SetSpecializationId(uint8 spec, uint32 id)
 uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
     uint32 roleId = 0;
+
+    if (!specializationId)
+        specializationId = GetSpecializationId(GetActiveSpec());
 
     switch (specializationId)
     {
@@ -7200,6 +7271,8 @@ void Player::UpdateRating(CombatRating cr)
         SetFloatValue(UNIT_MOD_CAST_HASTE, haste);
         SetFloatValue(UNIT_MOD_HASTE, haste);
         UpdateManaRegen();
+        UpdateEnergyRegen();
+        UpdateAllRunesRegen();
     }
 
     // Custom MoP Script
@@ -8484,6 +8557,13 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
+
+    float honorMod = 1.0f;
+    Unit::AuraEffectList const& mModHonorGainPercent = GetAuraEffectsByType(SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT);
+    for (Unit::AuraEffectList::const_iterator i = mModHonorGainPercent.begin(); i != mModHonorGainPercent.end(); ++i)
+        honorMod += float(float((*i)->GetAmount()) / 100.0f);
+
+    honor_f *= honorMod;
 
     // Back to int now
     honor = std::max(int32(honor_f), 1);
@@ -9794,6 +9874,8 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
     for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
         _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
 
+    _ApplyWeaponDependentAuraSpellModifier(item, attackType, apply);
+
     UpdateMeleeHitChances();
     UpdateRangedHitChances();
 }
@@ -9860,6 +9942,62 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
     }
 }
 
+void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply)
+{
+    // don't apply mod if item is broken or cannot be used
+    if (item->IsBroken() || !CanUseAttackType(attackType))
+        return;
+
+    switch (getClass())
+    {
+        case CLASS_DEATH_KNIGHT:
+        {
+            switch (GetSpecializationId(GetActiveSpec()))
+            {
+                case SPEC_DK_FROST:
+                    if (getLevel() < 74)
+                        break;
+
+                    if (apply)
+                    {
+                        if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                        {
+                            CastSpell(this, 81333, true);
+                            RemoveAura(66192);
+                        }
+                        else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
+                        {
+                            if (attackType == BASE_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
+                                attackType == OFF_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            {
+                                CastSpell(this, 66192, true);
+                                RemoveAura(81333);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (item->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+                            RemoveAura(81333);
+                        else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
+                        {
+                            if (attackType == BASE_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
+                                attackType == OFF_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                                RemoveAura(66192);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
 {
     if (!item)
@@ -9884,6 +10022,10 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         // check if it is valid spell
         SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(spellData.SpellId);
         if (!spellproto)
+            continue;
+
+        // Item doesn't need to be equipped
+        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && spellproto->HasAura(SPELL_AURA_MOD_SKILL_VALUE))
             continue;
 
         ApplyEquipSpell(spellproto, item, apply, form_change);
@@ -9955,6 +10097,7 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 }
+
 void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
 {
     if (!target || !target->isAlive() || target == this)
@@ -10844,10 +10987,15 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 3968:
         case 4378:
         case 3703:
+        case 6296:
+        case 6732:
             NumberOfFields = 9;
             break;
         case 4384:
             NumberOfFields = 28;
+            break;
+        case 5449:
+            NumberOfFields = 30;
             break;
         case 4710:
             NumberOfFields = 26;
@@ -11427,6 +11575,28 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 5833:
             data << uint32(0x1958) << uint32(0x1);
             data << uint32(0x1959) << uint32(0x4);
+            break;
+        // Tol'Viron Arena
+        case 6296:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TV)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xE10) << uint32(0x0);           // 7 gold
+                data << uint32(0xE11) << uint32(0x0);           // 8 green
+                data << uint32(0xE1A) << uint32(0x0);           // 9 show
+            }
+            break;
+        // The Tiger's Peak
+        case 6732:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TTP)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xE10) << uint32(0x0);           // 7 gold
+                data << uint32(0xE11) << uint32(0x0);           // 8 green
+                data << uint32(0xE1A) << uint32(0x0);           // 9 show
+            }
             break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
@@ -13564,7 +13734,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (proto->Class == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->SubClass]) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
+    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_COSMETIC && proto->InventoryType != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
@@ -13970,9 +14140,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
             uint32 trigger = 0;
             if (IsTwoHandUsed())
-            {
                 trigger = 120275;
-            }
             else
             {
                 Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
@@ -14867,9 +15035,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
                 uint32 trigger = 0;
                 if (IsTwoHandUsed())
-                {
                     trigger = 120275;
-                }
                 else
                 {
                     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
@@ -15778,7 +15944,7 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
     {
         uint32 statType = proto->ItemStat[i].ItemStatType;
         float baseVal = proto->ItemStat[i].ItemStatValue;
-
+        
         // NewStat(iLvl) = Stat(oldiLvl) * 1.15 ^ ((iLvl - oldiLvl) / 15)
         float newVal = float(baseVal * pow(1.15f, float((nextItemLevel - itemLevel) / 15.0f)));
         float val = floor((newVal - baseVal) + 0.5f);
@@ -22829,6 +22995,16 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
     // Kindred Spirits
     if (HasAura(56315))
         pet->RemoveAura(56315);
+
+    // Soul Link
+    if (Unit* owner = pet->GetOwner())
+    {
+        if (owner->ToPlayer() && owner->ToPlayer()->HasSpell(108415))
+        {
+            owner->RemoveAura(108446);
+            pet->RemoveAura(108446);
+        }
+    }
 }
 
 void Player::StopCastingCharm()
@@ -22860,7 +23036,7 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
+void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
     uint32 messageLength = text.length();
     uint32 speakerNameLength = strlen(GetName());
@@ -22875,15 +23051,14 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     ObjectGuid guildGuid = 0;
 
     bool sendRealmID = false;
-    bool bit5256 = false;
     bool bit5264 = false;
 
     data->Initialize(SMSG_MESSAGE_CHAT, 100);
     data->WriteBit(0);                                          // Unk bit 5269
     data->WriteBit(messageLength ? 0 : 1);
-    data->WriteBit(!bit5256);                                   // !Unk bit 5256
-    data->WriteBit(0);                                          // has sender
-    data->WriteBit(1);                                          // has sender GUID
+    data->WriteBit(!false);                                     // !hasAchievement
+    data->WriteBit(!true);                                      // !hasSender
+    data->WriteBit(true);                                       // !hasSenderGUID - Fake
 
     uint8 bitsOrder[8] = { 2, 4, 0, 6, 1, 3, 5, 7 };
     data->WriteBitInOrder(senderUnkGuid, bitsOrder);
@@ -22900,7 +23075,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
 
     data->WriteBits(speakerNameLength, 11);
 
-    data->WriteBit(senderGuid ? 1 : 0);                       // has receiver GUID
+    data->WriteBit(senderGuid ? 1 : 0);                         // has receiver GUID
 
     uint8 bitsOrder3[8] = { 4, 0, 6, 7, 5, 1, 3, 2 };
     data->WriteBitInOrder(senderGuid, bitsOrder3);
@@ -22909,7 +23084,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
         data->WriteBits(prefixeLength, 5);
 
     data->WriteBit(1);                                          // has receiver
-    data->WriteBit(!(GetChatTag() > 0));                         // !hasChatTag
+    data->WriteBit(!(GetChatTag() > 0));                        // !hasChatTag
 
     if (messageLength)
         data->WriteBits(messageLength, 12);
@@ -22933,13 +23108,13 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     {
         data->WriteBits(channelLength, 7);
         data->FlushBits();
-        data->WriteString(channel);
+        data->append(channel.c_str(), channelLength);
     }
 
     if (speakerNameLength)
     {
         data->FlushBits();
-        data->WriteString(GetName());
+        data->append(GetName(), speakerNameLength);
     }
 
     uint8 byteOrder[8] = { 6, 7, 1, 2, 4, 3, 0, 5 };
@@ -22954,7 +23129,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     data->WriteBytesSeq(senderUnkGuid, byteOrder2);
 
     if (prefixeLength)
-        data->WriteString(addonPrefix);
+        data->append(addonPrefix, prefixeLength);
 
     if (sendRealmID)
         *data << uint32(realmID);
@@ -22965,8 +23140,8 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     if (receiverLength)
         data->WriteString("");
 
-    if (bit5256)
-        *data << uint32(0);                                         // unk uint32
+    if (false)
+        *data << uint32(0);                                         // AchievementId
 
     if ((msgtype != CHAT_MSG_CHANNEL && msgtype != CHAT_MSG_WHISPER) || language == LANG_ADDON)
         *data << uint8(language);
@@ -22974,7 +23149,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
         *data << uint8(LANG_UNIVERSAL);
 
     if (messageLength)
-        data->WriteString(text);
+        data->append(text.c_str(), messageLength);
 
     if (bit5264)
         *data << uint32(0);                                         // unk uint32
@@ -23769,6 +23944,17 @@ void Player::SetRestBonus (float rest_bonus_new)
         m_rest_bonus = rest_bonus_max;
     else
         m_rest_bonus = rest_bonus_new;
+
+    // Inner Peace
+    if (HasAura(107074))
+        m_rest_bonus *= 2;
+
+    float modifier = 1.0f;
+    AuraEffectList const& mIncreaseRest = GetAuraEffectsByType(SPELL_AURA_INCREASE_REST_BONUS_PERCENT);
+    for (AuraEffectList::const_iterator i = mIncreaseRest.begin(); i != mIncreaseRest.end(); ++i)
+        modifier += float((*i)->GetAmount() / 100);
+
+    m_rest_bonus *= modifier;
 
     // update data for client
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
@@ -24604,7 +24790,8 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             sLog->outError(LOG_FILTER_PLAYER, "Player %s tried to buy %u item id %u, causing overflow", GetName(), (uint32)count, pProto->ItemId);
             count = (uint8)maxCount;
         }
-        price = uint64(pProto->BuyPrice * count); //it should not exceed MAX_MONEY_AMOUNT
+
+        price = uint64(pProto->BuyPrice) * count; //it should not exceed MAX_MONEY_AMOUNT
 
         // reputation discount
         price = uint64(floor(price * GetReputationPriceDiscount(creature)));
@@ -24612,7 +24799,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         if (int64 priceMod = int64(GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES)))
             price -= CalculatePct(price, priceMod);
 
-        if (!HasEnoughMoney(uint64(price)))
+        if (!HasEnoughMoney(price))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item, 0);
             return false;
@@ -24848,10 +25035,21 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         // no cooldown after applying spell mods
         if (rec == 0 && catrec == 0)
+        {
+            // TODO: is charge regen time affected by any mods?
+            SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
+            if (categories && categories->ChargesCategory != 0)
+            {
+                SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+                if (category && category->ChargeRegenTime != 0)
+                    spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
+            }
+
             return;
+        }
 
         catrecTime = catrec ? catrec : 0;
-        recTime    = rec ? rec : catrecTime;
+        recTime = rec ? rec : catrecTime;
     }
 
     // New MoP skill cooldown
@@ -24888,10 +25086,10 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 
     // TODO: is charge regen time affected by any mods?
-    auto const categories = spellInfo->GetSpellCategories();
+    SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
     if (categories && categories->ChargesCategory != 0)
     {
-        auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+        SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
         if (category && category->ChargeRegenTime != 0)
             spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
     }
@@ -27639,7 +27837,7 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
     float hastePct = 0.0f;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
+    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
         if ((*i)->GetMiscValue() == POWER_RUNES && RuneType((*i)->GetMiscValueB()) == runeType)
             cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
 
@@ -28551,13 +28749,18 @@ void Player::SendEquipmentSetList()
             }
         }
 
-        data.append(itr->second.Name.c_str(), itr->second.Name.size());
+        if (itr->second.Name.size())
+            data.append(itr->second.Name.c_str(), itr->second.Name.size());
+
         data.WriteByteSeq(setGuid[5]);
         data.WriteByteSeq(setGuid[0]);
         data.WriteByteSeq(setGuid[3]);
         data.WriteByteSeq(setGuid[6]);
         data.WriteByteSeq(setGuid[1]);
-        data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
+        if (itr->second.IconName.size())
+            data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
+
         data.WriteByteSeq(setGuid[7]);
         data.WriteByteSeq(setGuid[4]);
         data.WriteByteSeq(setGuid[2]);
@@ -29018,11 +29221,11 @@ void Player::ActivateSpec(uint8 spec)
 
     SendActionButtons(1);
 
-    Powers pw = getPowerType();
-    if (pw != POWER_MANA)
-        SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
-
-    SetPower(pw, 0);
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    {
+        SetPower(Powers(i), 0);
+        SetMaxPower(Powers(i), GetCreatePowers(Powers(i)));
+    }
 }
 
 void Player::ResetTimeSync()
@@ -29982,6 +30185,31 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
     }
 }
 
+void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
+{
+    // Load titles
+    if (p_Result)
+    {
+        do
+        {
+            Field* l_TitleField = p_Result->Fetch();
+            uint32 l_Title = l_TitleField[0].GetUInt32();
+            uint32 l_Transaction = l_TitleField[1].GetUInt32();
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_TITLE);
+            stmt->setInt32(0, l_Transaction);
+            CharacterDatabase.Execute(stmt);
+
+            CharTitlesEntry const* l_TitleInfo = sCharTitlesStore.LookupEntry(l_Title);
+            if (!l_TitleInfo)
+                continue;
+
+            SetTitle(l_TitleInfo);
+        }
+        while (p_Result->NextRow());
+    }
+}
+
 void Player::HandleStoreItemCallback(PreparedQueryResult result)
 {
     PreparedStatement* stmt;
@@ -30344,6 +30572,23 @@ bool Player::HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category)
     if (consumedCharges == 0)
         return true;
 
+    // Hack fix for Force of Nature bug, TODO, find a better way to check this
+    if (spellId != 33831 && spellId != 102693 && spellId != 102703 && spellId != 102706)
+    {
+        uint32 count = 0;
+        Unit::AuraEffectList const& mModCharge = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
+        for (Unit::AuraEffectList::const_iterator i = mModCharge.begin(); i != mModCharge.end(); ++i)
+        {
+            if ((*i)->GetSpellInfo()->SpellFamilyFlags & sSpellMgr->GetSpellInfo(spellId)->SpellFamilyFlags)
+                ++count;
+        }
+
+        // If spell is not modified, we should assume
+        // that spell doesn't use charges yet
+        if (!count)
+            return true;
+    }
+
     // If MaxCharges is 0 and mod is 0 (e.g. Charge without Double Time), we
     // should assume that spell has 1 charge only
     int32 const mod = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_CHARGES, category.Id);
@@ -30384,12 +30629,12 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
         uint8 bits[8] = { 3, 5, 4, 6, 7, 1, 0, 2 };
         data.WriteBitInOrder(playerGuid, bits);
 
-        data.WriteBits(1, 2);
+        data.WriteBits(1, 2); // Force type, still one yet
 
         data << float(source.GetPositionZ());
-        data << uint32(0);                  // Unk, sniffed value, not always the same
+        data << uint32(0);                  // Transport ID
         data.WriteByteSeq(playerGuid[5]);
-        data << uint32(1024);               // Unk, sniffed value, not always the same
+        data << uint32(1024);               // ID
         data.WriteByteSeq(playerGuid[0]);
         data << float(source.GetPositionY());
         data.WriteByteSeq(playerGuid[7]);
@@ -30400,7 +30645,7 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
         data.WriteByteSeq(playerGuid[4]);
         data << float(source.GetPositionX());
         data.WriteByteSeq(playerGuid[3]);
-        data << uint32(268441055);          // Unk, sniffed value, not always the same
+        data << uint32(268441055);          // MovementSequenceID
 
         GetSession()->SendPacket(&data);
 
@@ -30413,8 +30658,8 @@ void Player::SendApplyMovementForce(bool apply, Position source, float force /*=
 
         WorldPacket data(SMSG_UNAPPLY_MOVEMENT_FORCE, 2 * 4 + 1 + 8);
 
-        data << uint32(1024);               // Unk, sniffed value, not always the same
-        data << uint32(268441055);          // Unk, sniffed value, not always the same
+        data << uint32(1024);               // ID
+        data << uint32(268441055);          // MovementSequenceID
 
         uint8 bits[8] = { 6, 5, 7, 0, 4, 3, 1, 2 };
         data.WriteBitInOrder(playerGuid, bits);
@@ -30475,7 +30720,7 @@ void Player::SendRefreshSpellMods()
                     {
                         float val = 1;
                         for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                            if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                            if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
                                 val += (*itr)->value/100;
 
                         if (mod->value)
@@ -30489,7 +30734,7 @@ void Player::SendRefreshSpellMods()
 
                     int32 val = 0;
                     for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                        if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                        if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
                             val += (*itr)->value;
 
                     val += float(mod->value);
@@ -30523,4 +30768,19 @@ void Player::SendRefreshSpellMods()
             SendDirectMessage(&data);
         }
     }
+}
+
+void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
+{
+    if (m_LastPlayedScene)
+    {
+        m_LastPlayedScene->DestroyForPlayer(this);
+        delete m_LastPlayedScene;
+        m_LastPlayedScene = NULL;
+    }
+
+    m_LastPlayedScene = SceneObject::CreateSceneObject(sceneId, spectator);
+
+    if (m_LastPlayedScene)
+        m_LastPlayedScene->SendUpdateToPlayer(this);
 }

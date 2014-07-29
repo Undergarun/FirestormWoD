@@ -18,6 +18,7 @@
  */
 
 #include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
@@ -52,6 +53,8 @@ enum eShaOfFearSpells
     SPELL_DREAD_THRASH_AURA         = 132007,
     SPELL_DREAD_THRASH_EXTRA_ATT    = 132000,
     SPELL_IMPLACABLE_STRIKE         = 120672,
+    SPELL_WATERSPOUT_CHANNELING     = 120519,
+    SPELL_WATERSPOUT_DAMAGE         = 120521,
     SPELL_NAKED_AND_AFRAID          = 120669,
     SPELL_HUDDLE_IN_TERROR          = 120629,
     SPELL_SUBMERGE_TRANSFORM        = 120455,
@@ -121,7 +124,8 @@ enum eShaOfFearActions
     ACTION_DESACTIVATE_SHRINE_1,
     ACTION_DESACTIVATE_SHRINE_2,
     ACTION_DESACTIVATE_SHRINE_3,
-    ACTION_TRANSFERT_OF_LIGHT
+    ACTION_TRANSFERT_OF_LIGHT,
+    ACTION_RETURNS_PLAYERS,
 };
 
 enum eShaOfFearSays
@@ -175,8 +179,10 @@ Position returnPos[2] =
     { -978.451f,  -2706.773f, 37.737f, 4.134f }
 };
 
-Position heroicPos = { -1848.261f, -3916.670f, -279.502f, 0.990f };
+Position heroicPos = { -1848.261f, -3916.670f, -279.502f, 0.794f };
+Position heroicSha = { -1631.609f, -3696.202f, -279.502f, 4.000f };
 
+// 60999 - Sha of fear
 class boss_sha_of_fear : public CreatureScript
 {
     public:
@@ -234,13 +240,6 @@ class boss_sha_of_fear : public CreatureScript
 
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
-                events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
-                events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
-                events.ScheduleEvent(EVENT_FIRST_TERRORS, 30000);
-                events.ScheduleEvent(EVENT_OMINOUS_CACKLE, 25500);
-                events.ScheduleEvent(EVENT_ENRAGE, 900000);
-
                 attacksCounter  = 0;
                 thrashsCounter  = 0;
                 terrorCounter   = 0;
@@ -249,13 +248,23 @@ class boss_sha_of_fear : public CreatureScript
                 shrine2         = false;
                 shrine3         = false;
                 isInSecondPhase = false;
-                healthPctForSecondPhase = 50;
+                healthPctForSecondPhase = 67;
  
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_EXPANSE_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEI_SHIS_HOPE);
+                    /*
+                    if (IsHeroic())
+                    {
+                        // Removing Lei Shi's hope's aura if we're not on a new try
+                        if (pInstance->GetBossState(DATA_SHA_OF_FEAR) != FAIL)
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEI_SHIS_HOPE);
+                        // Else, we ensure each players of the raid has the buff Lei Shi's hope
+                        else
+                            pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
+                    }
+                    */
  
                     if (pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION))
                         me->AddAura(SPELL_RITUAL_OF_PURIFICATION, me);
@@ -270,14 +279,15 @@ class boss_sha_of_fear : public CreatureScript
                 _JustReachedHome();
  
                 if (pInstance)
-                    pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
+                    if (pInstance->IsWipe())
+                        pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
             }
 
             void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
                 {
-                    if (pInstance->GetBossState(DATA_LEI_SHI) != DONE)
+                    if (!pInstance->CheckRequiredBosses(DATA_SHA_OF_FEAR))
                     {
                         EnterEvadeMode();
                         return;
@@ -287,16 +297,55 @@ class boss_sha_of_fear : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     DoZoneInCombat();
                     Talk(TALK_AGGRO);
+
+                    events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
+                    events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
+                    events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                    events.ScheduleEvent(EVENT_FIRST_TERRORS, 30000);
+                    events.ScheduleEvent(EVENT_OMINOUS_CACKLE, 25500);
+                    events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 }
+            }
+
+            void EnterEvadeMode()
+            {
+                events.Reset();
+                summons.DespawnAll();
+
+                me->GetMotionMaster()->MoveTargetedHome();
+                me->SetPower(POWER_ENERGY, 0);
+                me->RemoveAllAuras();
+                me->SetFullHealth();
+
+                if (pInstance)
+                {
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                }
+
+
+                _EnterEvadeMode();
             }
 
             void JustDied(Unit* killer)
             {
                 if (pInstance)
                 {
+                    // Before despawning Return to the terrace mobs, we get the players back.
+                    std::list<Creature*> returnMobList;
+                    GetCreatureListWithEntryInGrid(returnMobList, me, NPC_RETURN_TO_THE_TERRACE, 300.0f);
+
+                    for (Creature* returnMob : returnMobList)
+                        returnMob->AI()->DoAction(ACTION_RETURNS_PLAYERS);
+
                     summons.DespawnAll();
                     pInstance->SetBossState(DATA_SHA_OF_FEAR, DONE);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                    me->SetPower(POWER_ENERGY, 0);
                     _JustDied();
                 }
             }
@@ -349,7 +398,14 @@ class boss_sha_of_fear : public CreatureScript
                     case ACTION_ACTIVATE_SHRINE_1:
                     {
                         if (shrine1)
-                            DoAction(ACTION_ACTIVATE_SHRINE_1 + urand(1, 2));
+                        {
+                            if (!shrine2)
+                                DoAction(ACTION_ACTIVATE_SHRINE_2);
+                            else if (!shrine3)
+                                DoAction(ACTION_ACTIVATE_SHRINE_3);
+                            else
+                                break;
+                        }
 
                         shrine1 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[0].GetPositionX(), shrinesPos[0].GetPositionY(), shrinesPos[0].GetPositionZ());
@@ -360,10 +416,12 @@ class boss_sha_of_fear : public CreatureScript
                     {
                         if (shrine2)
                         {
-                            if (urand(0, 1))
+                            if (!shrine1)
                                 DoAction(ACTION_ACTIVATE_SHRINE_1);
-                            else
+                            else if (!shrine3)
                                 DoAction(ACTION_ACTIVATE_SHRINE_3);
+                            else
+                                break;
                         }
 
                         shrine2 = true;
@@ -374,7 +432,14 @@ class boss_sha_of_fear : public CreatureScript
                     case ACTION_ACTIVATE_SHRINE_3:
                     {
                         if (shrine3)
-                            DoAction(ACTION_ACTIVATE_SHRINE_1 + urand(0, 1));
+                        {
+                            if (!shrine1)
+                                DoAction(ACTION_ACTIVATE_SHRINE_1);
+                            else if (!shrine2)
+                                DoAction(ACTION_ACTIVATE_SHRINE_2);
+                            else
+                                break;
+                        }
 
                         shrine3 = true;
                         me->SummonCreature(NPC_YANG_GUOSHI + (urand(0, 2) * 4), shrinesPos[2].GetPositionX(), shrinesPos[2].GetPositionY(), shrinesPos[2].GetPositionZ());
@@ -401,10 +466,10 @@ class boss_sha_of_fear : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (!IsHeroic())
-                    return;
+                //if (!IsHeroic())
+                return;
 
-                // Heroic
+                // Heroic - Phase 2
                 if (me->HealthBelowPctDamaged(healthPctForSecondPhase, damage))
                 {
                     events.Reset();
@@ -419,6 +484,9 @@ class boss_sha_of_fear : public CreatureScript
 
                     if (Player* champion = GetChampionOfLight(me))
                         champion->CastSpell(champion, SPELL_CHAMPION_OF_LIGHT_HEROIC, true);
+
+                    // Summoning NPC for travelling
+                    me->SummonCreature(NPC_TRAVEL_TO_DREAD_EXPANSE, heroicPos);
 
                     events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 10000);
                     events.ScheduleEvent(EVENT_WATERSPOUT, 12000);
@@ -492,6 +560,18 @@ class boss_sha_of_fear : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        if (!me->IsInEvadeMode())
+                        {
+                            EnterEvadeMode();
+                            return;
+                        }
+                    }
+                }
+
                 if (!UpdateVictim())
                 {
                     if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
@@ -562,7 +642,7 @@ class boss_sha_of_fear : public CreatureScript
                     case EVENT_OMINOUS_CACKLE:
                     {
                         me->CastSpell(me, SPELL_OMINOUS_CACKLE_CAST, false);
-                        events.ScheduleEvent(EVENT_OMINOUS_CACKLE, 45500);
+                        events.ScheduleEvent(EVENT_OMINOUS_CACKLE, Is25ManRaid() ? 45000 : 90000);
                         break;
                     }
                     case EVENT_ENRAGE:
@@ -594,6 +674,7 @@ class boss_sha_of_fear : public CreatureScript
                         if (!IsHeroic())
                             break;
 
+                        DoCast(me, SPELL_WATERSPOUT_CHANNELING, true);
                         events.ScheduleEvent(EVENT_WATERSPOUT, 10000);
                         break;
                     }
@@ -719,6 +800,9 @@ class mob_pure_light_terrace : public CreatureScript
                         {
                             if (pInstance)
                             {
+                                if (!pInstance->CheckRequiredBosses(DATA_SHA_OF_FEAR))
+                                    return;
+
                                 if (!player->HasAura(SPELL_CHAMPION_OF_LIGHT))
                                 {
                                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
@@ -731,6 +815,8 @@ class mob_pure_light_terrace : public CreatureScript
                                         {
                                             sha->AddThreat(champion, 1000000.0f);
                                             sha->AI()->AttackStart(champion);
+                                            if (pInstance->GetBossState(DATA_SHA_OF_FEAR) == FAIL || pInstance->GetBossState(DATA_SHA_OF_FEAR) == NOT_STARTED)
+                                                sha->AI()->EnterCombat(champion);
                                         }
                                     }
                                 }
@@ -787,16 +873,26 @@ class mob_return_to_the_terrace : public CreatureScript
                 if (clicker->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                std::list<Player*> playersToRecall;
+                DoAction(ACTION_RETURNS_PLAYERS);
+            }
 
-                me->GetPlayerListInGrid(playersToRecall, 50.0f);
-
-                uint8 pos = urand(0, 1);
-
-                for (auto itr : playersToRecall)
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_RETURNS_PLAYERS)
                 {
-                    itr->CastSpell(itr, SPELL_FEARLESS, true);
-                    itr->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                    std::list<Player*> playersToRecall;
+
+                    me->GetPlayerListInGrid(playersToRecall, 50.0f);
+
+                    uint8 pos = urand(0, 1);
+
+                    for (auto itr : playersToRecall)
+                    {
+                        itr->CastSpell(itr, SPELL_FEARLESS, true);
+                        itr->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                        if (Pet* pet = itr->GetPet())
+                            pet->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                    }
                 }
             }
 
@@ -809,11 +905,11 @@ class mob_return_to_the_terrace : public CreatureScript
                     case EVENT_CHECK_GUARDIAN:
                     {
                         std::list<Creature*> guardianList;
-                        me->GetCreatureListWithEntryInGrid(guardianList, NPC_YANG_GUOSHI, 10.0f);
+                        me->GetCreatureListWithEntryInGrid(guardianList, NPC_YANG_GUOSHI, 30.0f);
                         if (guardianList.empty())
-                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_CHENG_KANG, 10.0f);
+                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_CHENG_KANG, 30.0f);
                         if (guardianList.empty())
-                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_JINLUN_KUN, 10.0f);
+                            me->GetCreatureListWithEntryInGrid(guardianList, NPC_JINLUN_KUN, 30.0f);
 
                         bool died = false;
                         if (guardianList.empty())
@@ -885,6 +981,7 @@ class mob_terror_spawn : public CreatureScript
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->AddUnitState(UNIT_STATE_CANNOT_TURN);
 
                 me->CastSpell(me, SPELL_DARK_BULWARK, true);
 
@@ -957,6 +1054,20 @@ class mob_shrine_guardian : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, me->GetFloatValue(UNIT_FIELD_MAXDAMAGE));
 
                 nextGlobePct = 95;
+
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISTRACT, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
 
             void EnterCombat(Unit* /*attacker*/)
@@ -1192,6 +1303,47 @@ class mob_dread_spawn : public CreatureScript
         }
 };
 
+// 61735 - Travel to Dread Expanse
+class mob_travel_to_dread_expanse : public CreatureScript
+{
+    public:
+        mob_travel_to_dread_expanse() : CreatureScript("mob_travel_to_dread_expanse") { }
+
+        struct mob_travel_to_dread_expanseAI : public ScriptedAI
+        {
+            mob_travel_to_dread_expanseAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            InstanceScript* pInstance;
+
+            void Reset()
+            {
+                // Teleporting players
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                {
+                    Position pos;
+                    me->GetNearPosition(pos, frand(5.0f, 10.0f), M_PI * 2 / 3);
+
+                    itr->getSource()->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), me->GetOrientation());
+                }
+
+                // Teleporting Sha
+                if (Creature* Sha = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHA_OF_FEAR)))
+                    Sha->NearTeleportTo(heroicSha.GetPositionX(), heroicSha.GetPositionY(), heroicSha.GetPositionZ(), heroicSha.GetOrientation());
+
+                me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_travel_to_dread_expanseAI(creature);
+        }
+};
+
 // Breath of Fear - 119414 / 125786
 class spell_breath_of_fear : public SpellScriptLoader
 {
@@ -1388,6 +1540,9 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
                         if (Unit* target = itr->ToUnit())
                         {
                             target->CastSpell(target, shrineTeleport, true);
+
+                            if (Pet* pet = target->ToPlayer()->GetPet())
+                                pet->CastSpell(pet, shrineTeleport, false);
 
                             if (!activationDone)
                                 caster->AI()->DoAction(ACTION_ACTIVATE_SHRINE_1 + shrine);
@@ -1690,24 +1845,67 @@ class spell_emerge : public SpellScriptLoader
         }
 };
 
+// 120519 - Waterspout
+class spell_sha_waterspout : public SpellScriptLoader
+{
+    public:
+        spell_sha_waterspout() : SpellScriptLoader("spell_sha_waterspout") { }
+
+        class spell_sha_waterspout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_waterspout_SpellScript);
+
+            void Damage()
+            {
+                Unit* caster = GetCaster();
+
+                if (!caster)
+                    return;
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, caster, 500.0f);
+
+                JadeCore::RandomResizeList(playerList, caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2);
+
+                if (playerList.empty())
+                    return;
+
+                for (Player* target : playerList)
+                    caster->CastSpell(target, SPELL_WATERSPOUT_DAMAGE, false);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_waterspout_SpellScript::Damage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_waterspout_SpellScript();
+        }
+};
+
 void AddSC_boss_sha_of_fear()
 {
-    new boss_sha_of_fear();
-    new mob_pure_light_terrace();
-    new mob_return_to_the_terrace();
-    new mob_terror_spawn();
-    new mob_shrine_guardian();
-    new mob_sha_globe();
-    new mob_dread_spawn();
-    new spell_breath_of_fear();
-    new spell_conjure_terror_spawn();
-    new spell_penetrating_bolt();
-    new spell_ominous_cackle_cast();
-    new spell_dread_spray();
-    new spell_dread_spray_stacks();
-    new spell_sha_globe_periodic();
-    new spell_death_blossom_periodic();
-    new spell_death_blossom_damage();
-    new spell_submerge();
-    new spell_emerge();
+    new boss_sha_of_fear();             // 60999
+    new mob_pure_light_terrace();       // 60788
+    new mob_return_to_the_terrace();    // 65736
+    new mob_terror_spawn();             // 61034
+    new mob_shrine_guardian();          // 61038 - 61042 - 61046
+    new mob_sha_globe();                // 65691
+    new mob_dread_spawn();              // 61003
+    new mob_travel_to_dread_expanse();  // 61735
+    new spell_breath_of_fear();         // 119414 - 125786
+    new spell_conjure_terror_spawn();   // 119108
+    new spell_penetrating_bolt();       // 129075
+    new spell_ominous_cackle_cast();    // 119593
+    new spell_dread_spray();            // 120047
+    new spell_dread_spray_stacks();     // 119983
+    new spell_sha_globe_periodic();     // 129189
+    new spell_death_blossom_periodic(); // 119888
+    new spell_death_blossom_damage();   // 119887
+    new spell_submerge();               // 120455
+    new spell_emerge();                 // 120458
+    new spell_sha_waterspout();         // 120519
 }

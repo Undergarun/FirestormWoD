@@ -361,7 +361,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     uint32 bitCounter2 = 0;
-    bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER) && ((AreaTrigger*)this)->GetVisualRadius() != 0.0f;
+    bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER);
     bool isSceneObject = false;
 
     data->WriteBit(hasAreaTriggerData);                         // isAreaTrigger
@@ -416,13 +416,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        data->WriteBit(true);   // scale
+        data->WriteBit(atr->GetVisualRadius() != 0.0f);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
         data->WriteBit(false);
-        data->WriteBit(false);
+        data->WriteBit(atr->IsAreaTriggerBox());
         data->WriteBit(false);
         data->WriteBit(false);   // unk, always true on retail sniff
         data->WriteBit(false);
@@ -524,9 +524,26 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (hasAreaTriggerData)
     {
-        *data << uint32(8);                                         // ObjectType AreaTrigger
-        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
-        *data << float(((AreaTrigger*)this)->GetVisualRadius());    // scale
+        if (atr->IsAreaTriggerBox())
+        {
+            G3D::Vector3 extents(20.f, 25.f, 5.f);
+            G3D::Vector3 extentsTarget(20.f, 25.f, 5.f);
+
+            *data << float(extentsTarget.x);
+            *data << float(extents.z);
+            *data << float(extentsTarget.y);
+            *data << float(extents.y);
+            *data << float(extentsTarget.z);
+            *data << float(extents.x);
+        }
+
+        *data << uint32(GetMSTimeDiffToNow(atr->GetCreatedTime()));
+
+        if (((AreaTrigger*)this)->GetVisualRadius() != 0.0f)
+        {
+            *data << float(atr->GetVisualRadius());    // scale X/Y
+            *data << float(atr->GetVisualRadius());    // scale Y/X
+        }
     }
 
     if ((flags & UPDATEFLAG_LIVING) && unit)
@@ -954,6 +971,9 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = AreaTriggerUpdateFieldFlags;
             if (((AreaTrigger*)this)->GetCasterGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
+            break;
+        case TYPEID_SCENEOBJECT:
+            flags = SceneObjectUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
             break;

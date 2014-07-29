@@ -207,9 +207,20 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         // In 10N, 10H or LFR, there are only 3 guardians
                         if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && turnOver)
                         {
-                            uint8 choice = urand(0, 3);
-                            uint8 i = 0;
+                            uint8 choice;
+                            Creature* guardian = 0;
+                            bool loop = true;
+                            do
+                            {
+                                choice = urand(0, 3);
+                                guardian = instance->GetCreature(stoneGuardGUIDs[choice]);
+                                // Jasper will always remain for loot purpose
+                                if (guardian && guardian->GetEntry() != NPC_JASPER)
+                                    loop = false;
 
+                            } while (loop);
+
+                            uint8 i = 0;
                             for (auto itr : stoneGuardGUIDs)
                             {
                                 if (i == choice)
@@ -244,6 +255,10 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         spiritKingsControlerGuid = creature->GetGUID();
                         break;
                     case NPC_ZIAN:
+                        // Will be false only if BossState = DONE or NOT_STARTED, as NOT_STARTED = 0, DONE = 0, and max value for BossState = 5
+                        if (GetBossState(DATA_SPIRIT_KINGS) % DONE != NOT_STARTED)
+                            SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
+                        // No break here!!!
                     case NPC_MENG:
                     case NPC_QIANG:
                     case NPC_SUBETAI:

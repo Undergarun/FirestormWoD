@@ -31,6 +31,8 @@ DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesEntryf
 DB2Storage <SpellReagentsEntry> sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage <ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradeEntryfmt);
 DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
+DB2Storage<SceneScriptEntry> sSceneScriptStore(SceneScriptEntryfmt);
+DB2Storage<SceneScriptPackageEntry> sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
 
 typedef std::list<std::string> StoreProblemList1;
 
@@ -84,14 +86,16 @@ void LoadDB2Stores(const std::string& dataPath)
 
     StoreProblemList1 bad_db2_files;
 
-    LoadDB2(bad_db2_files, sBattlePetSpeciesStore, db2Path, "BattlePetSpecies.db2");
-    LoadDB2(bad_db2_files, sItemStore, db2Path, "Item.db2");
-    LoadDB2(bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
-    LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
-    LoadDB2(bad_db2_files, sSpellReagentsStore, db2Path, "SpellReagents.db2");                                                 // 17399
-    LoadDB2(bad_db2_files, sItemUpgradeStore, db2Path, "ItemUpgrade.db2");
-    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore, db2Path, "RulesetItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStore, db2Path, "BattlePetSpecies.db2");                                        // 17399
+    LoadDB2(bad_db2_files, sItemStore, db2Path, "Item.db2");                                                                // 17399
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");                                        // 17399
+    LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");                                                   // 17399
+    LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");                                        // 17399
+    LoadDB2(bad_db2_files, sSpellReagentsStore, db2Path, "SpellReagents.db2");                                              // 17399
+    LoadDB2(bad_db2_files, sItemUpgradeStore, db2Path, "ItemUpgrade.db2");                                                  // 17399
+    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore, db2Path, "RulesetItemUpgrade.db2");                                    // 17399
+    LoadDB2(bad_db2_files, sSceneScriptStore, db2Path, "SceneScript.db2");                                                  // 17399
+    LoadDB2(bad_db2_files, sSceneScriptPackageStore, db2Path, "SceneScriptPackage.db2");                                    // 17399
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)

@@ -450,6 +450,8 @@ class WorldSession
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
+        void BuildCharacterRename(WorldPacket* pkt, ObjectGuid guid, uint8 result, std::string name);
+
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
@@ -997,7 +999,7 @@ class WorldSession
         void SendCalendarClearPendingAction();
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void SendCalendarCommandResult(CalendarError err, char const* param = NULL);
+        void SendCalendarCommandResult(CalendarError err, char const* param = "");
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);
@@ -1142,7 +1144,6 @@ class WorldSession
         time_t timeLastChannelKickCommand;
         time_t timeLastServerCommand;
         time_t timeLastArenaTeamCommand;
-        time_t timeLastCalendarInvCommand;
         time_t timeLastChangeSubGroupCommand;
         time_t timeLastSellItemOpcode;
 

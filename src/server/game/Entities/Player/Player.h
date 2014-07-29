@@ -64,6 +64,7 @@ class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
 class PhaseMgr;
+class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -507,8 +508,8 @@ enum PlayerFlags
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   3
-#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
+#define KNOWN_TITLES_SIZE   5
+#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -1918,7 +1919,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
         void SetSpecializationId(uint8 spec, uint32 id);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
-        uint32 GetRoleForGroup(uint32 specializationId);
+        uint32 GetRoleForGroup(uint32 specializationId = 0);
 
         bool ResetTalents(bool no_cost = false);
         uint32 GetNextResetTalentsCost() const;
@@ -2285,6 +2286,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
+        void UpdateEnergyRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
 
@@ -2466,6 +2468,7 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
         void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
+        void _ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
@@ -3018,6 +3021,7 @@ class Player : public Unit, public GridObject<Player>
         void HandleStoreItemCallback(PreparedQueryResult result);
         void HandleStoreLevelCallback(PreparedQueryResult result);
         void HandleStoreGoldCallback(PreparedQueryResult result);
+        void HandleStoreTitleCallback(PreparedQueryResult result);
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
@@ -3040,6 +3044,11 @@ class Player : public Unit, public GridObject<Player>
 
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
+
+        /*********************************************************/
+        /***                  SCENES SYSTEM                    ***/
+        /*********************************************************/
+        void PlayScene(uint32 sceneId, WorldObject* spectator);
 
     private:
         // Gamemaster whisper whitelist
@@ -3422,6 +3431,7 @@ class Player : public Unit, public GridObject<Player>
 
         // Store callback
         PreparedQueryResultFuture _storeGoldCallback;
+        PreparedQueryResultFuture _storeTitleCallback;
         PreparedQueryResultFuture _storeItemCallback;
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
@@ -3443,6 +3453,11 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonGames[MAX_PVP_SLOT];
         
         CUFProfiles m_cufProfiles;
+
+        /*********************************************************/
+        /***                  SCENES SYSTEM                    ***/
+        /*********************************************************/
+        SceneObject* m_LastPlayedScene;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

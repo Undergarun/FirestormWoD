@@ -259,6 +259,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         bool m_isRemoved:1;
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
         bool m_isUsingCharges:1;
+
     private:
         Unit::AuraApplicationList m_removedApplications;
 };

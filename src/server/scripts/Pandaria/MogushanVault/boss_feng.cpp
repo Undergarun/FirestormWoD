@@ -54,7 +54,7 @@ enum eSpells
     SPELL_ARCANE_VELOCITY               = 116364,
     SPELL_ARCANE_RESONANCE              = 116417,
 
-    // Spirit of the Shield ( Heroic )
+    // Spirit of the Shield (Heroic)
     SPELL_SHADOWBURN                    = 131792,
     SPELL_SIPHONING_SHIELD              = 118071,
     SPELL_CHAINS_OF_SHADOW              = 118783,
@@ -123,6 +123,7 @@ enum eEvents
     EVENT_SHIELD_DESTROY        = 16,
     EVENT_SOUL_WALK             = 17,
     EVENT_SOUL_GROW             = 18,
+    EVENT_SHIELD_BARRIER        = 19,
 };
 
 enum eFengPhases
@@ -167,6 +168,7 @@ enum eSoulActions
 {
     ACTION_SOUL_HOME    = 20,
     ACTION_SOUL_KILLED  = 21,
+    ACTION_SOUL_REMOVE  = 22,
 };
 
 #define SHIELD_ON_FENG 5
@@ -252,6 +254,7 @@ class boss_feng : public CreatureScript
                     pInstance->SetBossState(DATA_FENG, NOT_STARTED);
 
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                me->SetReactState(REACT_PASSIVE);
 
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLAMING_SPEAR);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NULLIFICATION_BARRIER_PLAYERS);
@@ -313,6 +316,10 @@ class boss_feng : public CreatureScript
 
             void JustReachedHome()
             {
+                summons.DespawnAll();
+                events.Reset();
+                SetEquipmentSlots(false, 0, 0, EQUIP_NO_CHANGE);
+                me->SetFullHealth();
                 _JustReachedHome();
             }
 
@@ -328,6 +335,9 @@ class boss_feng : public CreatureScript
                 pInstance->SetBossState(DATA_FENG, IN_PROGRESS);
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_SPIRIT_BOLTS, urand(25000, 35000));
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->SetInCombatWith(attacker);
+                AttackStart(attacker);
             }
 
             void MovementInform (uint32 type, uint32 id)
@@ -495,6 +505,13 @@ class boss_feng : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+                if (!pInstance->CheckRequiredBosses(DATA_FENG) || attacker->GetPositionX() < 4009.0f || attacker->GetPositionX() > 4076.0f)
+                {
+                    me->SetFullHealth();
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!pInstance)
                     return;
 
@@ -559,6 +576,16 @@ class boss_feng : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        me->SetFullHealth();
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        pInstance->SetBossState(DATA_FENG, FAIL);
+                    }
+                }
+
                 CheckPlatform();
 
                 if (isWaitingForPhase)
@@ -670,8 +697,8 @@ class boss_feng : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
+                if (me->GetReactState() == REACT_AGGRESSIVE)
+                    DoMeleeAttackIfReady();
             }
 
             private:
@@ -792,28 +819,41 @@ class mob_siphon_shield : public CreatureScript
                 me->AddAura(SPELL_SHIELD_DISPLAYED, me);
                 // Activate Visual
                 me->AddAura(SPELL_SHIELD_VISUAL, me);
+                me->CastSpell(me, SPELL_FIST_BARRIER, false);
+                events.ScheduleEvent(EVENT_SHIELD_BARRIER,   6000);
                 events.ScheduleEvent(EVENT_SHIELD_CASTSOULS, 2000);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC);
             }
 
             void DoAction(const int32 action)
             {
                 switch (action)
                 {
-                case ACTION_SOUL_HOME:
-                {
-                    if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
-                        feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
-                    soulsCount--;
-                    break;
-                }
-                case ACTION_SOUL_KILLED:
-                {
-                    soulsCount--;
-                    break;
-                }
-                default:
-                    break;
+                    case ACTION_SOUL_HOME:
+                    {
+                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                            feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
+                        soulsCount--;
+                        break;
+                    }
+                    case ACTION_SOUL_KILLED:
+                    {
+                        soulsCount--;
+                        break;
+                    }
+                    case ACTION_SOUL_REMOVE:
+                    {
+                        std::list<Creature*> soulList;
+                        GetCreatureListWithEntryInGrid(soulList, me, NPC_SOUL_FRAGMENT, 200.0f);
+
+                        for (auto soul : soulList)
+                            soul->DespawnOrUnsummon(1000);
+
+                        soulsCount = 0;
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -840,20 +880,18 @@ class mob_siphon_shield : public CreatureScript
                             uint8 maxTargets = Is25ManRaid() ? 10 : 5;
 
                             std::list<Player*>::iterator itr, next;
+                            itr = potenTargets.begin();
                             // Selecting targets
                             while (potenTargets.size() > maxTargets)
                             {
-                                for (itr = potenTargets.begin(); itr != potenTargets.end(); itr = next)
-                                {
-                                    next = itr;
-                                    ++next;
+                                next = itr;
 
-                                    if (potenTargets.size() > maxTargets && urand(0, 1)) // We can have enough targets during the for loop
-                                    {
-                                        potenTargets.remove(*itr);
-                                        break;
-                                    }
-                                }
+                                if (urand(0, 1))
+                                    potenTargets.remove(*itr);
+
+                                itr = ++next;
+                                if (itr == potenTargets.end())
+                                    itr = potenTargets.begin();
                             }
 
                             soulsCount = potenTargets.size();
@@ -919,6 +957,12 @@ class mob_siphon_shield : public CreatureScript
                             }
                             break;
                         }
+                        case EVENT_SHIELD_BARRIER:
+                        {
+                            me->AddAura(SPELL_FIST_BARRIER, me);
+                            events.ScheduleEvent(EVENT_SHIELD_BARRIER, 6000);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -946,18 +990,19 @@ class mob_soul_fragment : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            Player* bound;
             float scale;
 
             void Reset()
             {
                 // Set dark aspect
                 me->AddAura(SPELL_SOUL_DISPLAY, me);
-                bound = me->SelectNearestPlayer(0.0f);
+                if (Player* bound = me->SelectNearestPlayer(10.0f))
+                {
+                    // Display with display of player
+                    me->SetDisplayId(bound->GetDisplayId());
+                }
                 scale = 0.1f;
                 me->SetObjectScale(scale);
-                // Display with display of player
-                me->SetDisplayId(bound->GetDisplayId());
                 if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
                     shield->CastSpell(me, SPELL_SOUL_FRAGMENT, false);
                 me->AddAura(SPELL_FIST_BARRIER, me);
@@ -980,11 +1025,15 @@ class mob_soul_fragment : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
                 if (id == 1)
                 {
                     // We send positive GUID to tell shield the soul has reached it, and the player should be killed
                     if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
-                        shield->AI()->DoAction(ACTION_SOUL_HOME);
+                        if (me->GetDistance(shield) < 1.0f)
+                            shield->AI()->DoAction(ACTION_SOUL_HOME);
 
                     me->DespawnOrUnsummon();
                 }
@@ -1479,6 +1528,34 @@ class spell_spirit_bolt : public SpellScriptLoader
         }
 };
 
+// Nullification Barrier - for Shield action purpose
+class spell_nullification_barrier : public SpellScriptLoader
+{
+    public:
+        spell_nullification_barrier() : SpellScriptLoader("spell_nullification_barrier") { }
+
+        class spell_nullification_barrierSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_nullification_barrierSpellScript);
+
+            void RemoveSoulFragments()
+            {
+                if (Creature* shield = GetClosestCreatureWithEntry(GetCaster(), NPC_SIPHONING_SHIELD, 200.0f))
+                    shield->AI()->DoAction(ACTION_SOUL_REMOVE);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_nullification_barrierSpellScript::RemoveSoulFragments);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_nullification_barrierSpellScript();
+        }
+};
+
 // GameObject - 211628 - Shroud of reversal
 class go_inversion : public GameObjectScript
 {
@@ -1525,21 +1602,22 @@ class go_cancel : public GameObjectScript
 
 void AddSC_boss_feng()
 {
-    new boss_feng();
-    new mob_lightning_fist();
-    new mob_wild_spark();
-    new mob_siphon_shield();
-    new mob_soul_fragment();
-    new spell_mogu_epicenter();
-    new spell_mogu_wildfire_spark();
-    new spell_wildfire_spark();
-    new spell_wildfire_infusion_stacks();
-    new spell_mogu_wildfire_infusion();
-    new spell_draw_flame();
-    new spell_mogu_arcane_velocity();
-    new spell_mogu_arcane_resonance();
-    new spell_mogu_inversion();
-    new spell_spirit_bolt();
-    new go_inversion;
-    new go_cancel;
+    new boss_feng();                        // 60009
+    new mob_lightning_fist();               // 60241
+    new mob_wild_spark();                   // 60438
+    new mob_siphon_shield();                // 60627
+    new mob_soul_fragment();                // 60781
+    new spell_mogu_epicenter();             // 116040
+    new spell_mogu_wildfire_spark();        // 116583
+    new spell_wildfire_spark();             // 116784
+    new spell_wildfire_infusion_stacks();   // 116821
+    new spell_mogu_wildfire_infusion();     // 116816
+    new spell_draw_flame();                 // 116711
+    new spell_mogu_arcane_velocity();       // 116365
+    new spell_mogu_arcane_resonance();      // 116434
+    new spell_mogu_inversion();             // 118300 - 118302 - 118304 - 118305 - 118307 - 118308 - 132296 - 132297 - 132298
+    new spell_spirit_bolt();                // 118530
+    new spell_nullification_barrier();      // 115817
+    new go_inversion;                       // 211628
+    new go_cancel;                          // 211626
 }

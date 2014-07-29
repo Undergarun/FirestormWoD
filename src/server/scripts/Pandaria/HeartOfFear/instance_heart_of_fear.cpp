@@ -27,15 +27,16 @@ DoorData const doorData[] =
     {GOB_ANTECHAMBER_DOOR_ENTRANCE, 0,              DOOR_TYPE_ROOM,     BOUNDARY_S},
     {GOB_ANTECHAMBER_DOOR_EXIT,     0,              DOOR_TYPE_ROOM,     BOUNDARY_E},
     {GOB_ORATIUM_DOOR_ENTRANCE,     DATA_ZORLOK,    DOOR_TYPE_ROOM,     BOUNDARY_W},
-    {GOB_QUARTERS_DOOR_ENTRANCE,    DATA_ZORLOK,     DOOR_TYPE_PASSAGE,  BOUNDARY_S},
+    {GOB_QUARTERS_DOOR_ENTRANCE,    DATA_ZORLOK,    DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {GOB_QUARTERS_DOOR_EXIT,        DATA_TAYAK,     DOOR_TYPE_PASSAGE,  BOUNDARY_W},
     {GOB_STAIRWAYS_DOOR_EXIT,       0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
+    {GOB_DOOR_TO_MELJARAK,          DATA_GARALON,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GOB_BALCONY_DOOR_EXIT,         DATA_MELJARAK,  DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {GOB_ATRIUM_DOOR_ENTRANCE,      0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
     {GOB_ATRIUM_DOOR_EXIT,          0,              DOOR_TYPE_ROOM,     BOUNDARY_W},
     {GOB_SANCTUM_DOOR_ENTRANCE,     0,              DOOR_TYPE_ROOM,     BOUNDARY_E},
     {GOB_HEARTOFFEAR_DOOR_ENTRANCE, DATA_UNSOK,     DOOR_TYPE_PASSAGE,  BOUNDARY_E},
-    {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
+    {0,                             0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
 class instance_heart_of_fear : public InstanceMapScript
@@ -60,9 +61,6 @@ class instance_heart_of_fear : public InstanceMapScript
             uint64 unsokGuid;
             uint64 shekzeerGuid;
 
-            // Add GUIDs
-            uint64 stormSpiritGuid;
-
             // Special Doors GUIDs
             uint64 zorlokEntranceDoorGuid;
             uint64 tayakEntranceDoorGuid;
@@ -71,6 +69,10 @@ class instance_heart_of_fear : public InstanceMapScript
             uint64 meljarakExitDoorGuid;
             uint64 unsokEntranceDoorGuid;
             uint64 shekzeerEntranceDoorGuid;
+
+            // Shek'zeer Gameobjects
+            uint64 empressChamberGuid;
+            uint64 mandidQueenCeilGuid;
 
             void Initialize()
             {
@@ -99,9 +101,6 @@ class instance_heart_of_fear : public InstanceMapScript
                 {
                     case NPC_ZORLOK:
                         zorlokGuid = creature->GetGUID();
-                        break;
-                    case NPC_STORM_SPIRIT:
-                        stormSpiritGuid = creature->GetGUID();
                         break;
                     case NPC_TAYAK:
                         tayakGuid = creature->GetGUID();
@@ -149,19 +148,36 @@ class instance_heart_of_fear : public InstanceMapScript
                         break;
                     case GOB_STAIRWAYS_DOOR_EXIT:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         garalonEntranceDoorGuid = go->GetGUID();
+                        break;
+                    case GOB_DOOR_TO_MELJARAK:
+                        AddDoor(go, true);
+                        if (GetBossState(DATA_GARALON) == DONE)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        else
+                            go->SetGoState(GO_STATE_READY);
                         break;
                     case GOB_BALCONY_DOOR_EXIT:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         meljarakExitDoorGuid = go->GetGUID();
                         break;
                     case GOB_SANCTUM_DOOR_ENTRANCE:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         unsokEntranceDoorGuid = go->GetGUID();
                         break;
                     case GOB_HEARTOFFEAR_DOOR_ENTRANCE:
                         AddDoor(go, true);
+                        go->SetGoState(GO_STATE_READY);
                         shekzeerEntranceDoorGuid = go->GetGUID();
+                        break;
+                    case GOB_EMPRESS_CHAMBER:
+                        empressChamberGuid = go->GetGUID();
+                        break;
+                    case GOB_MANTID_QUEEN_CEIL:
+                        mandidQueenCeilGuid = go->GetGUID();
                         break;
                     default:
                         break;
@@ -190,8 +206,6 @@ class instance_heart_of_fear : public InstanceMapScript
                     // --- Creatures ---
                     case NPC_ZORLOK:
                         return zorlokGuid;
-                    case NPC_STORM_SPIRIT:
-                        return stormSpiritGuid;
                     case NPC_TAYAK:
                         return tayakGuid;
                     case NPC_GARALON:
@@ -217,6 +231,10 @@ class instance_heart_of_fear : public InstanceMapScript
                         return unsokEntranceDoorGuid;
                     case GOB_HEARTOFFEAR_DOOR_ENTRANCE:
                         return shekzeerEntranceDoorGuid;
+                    case GOB_EMPRESS_CHAMBER:
+                        return empressChamberGuid;
+                    case GOB_MANTID_QUEEN_CEIL:
+                        return mandidQueenCeilGuid;
                     default:
                         break;
                 }
@@ -231,7 +249,29 @@ class instance_heart_of_fear : public InstanceMapScript
                 if (PlayerList.isEmpty())
                     return true;
 
-                return false;
+                std::list<Player*> servantList;
+                servantList.clear();
+
+                for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+                {
+                    Player* player = Itr->getSource();
+
+                    if (!player)
+                        continue;
+
+                    if (player->isAlive() && !player->isGameMaster() && !player->HasAura(SPELL_CONVERT_SERVANT))
+                        return false;
+                    else if (player->HasAura(SPELL_CONVERT_SERVANT))
+                        servantList.push_back(player);
+                }
+
+                // Killing the servant players
+                if (!servantList.empty())
+                    if (Creature* shekzeer = instance->GetCreature(GetData64(NPC_SHEKZEER)))
+                        for (Player* servant : servantList)
+                            shekzeer->Kill(servant);
+
+                return true;
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const

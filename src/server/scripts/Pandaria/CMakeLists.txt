@@ -108,16 +108,35 @@ set(scripts_STAT_SRCS
   Pandaria/WanderingIsland/WanderingIsland_West.cpp
   Pandaria/WanderingIsland/WanderingIsland_South.cpp
 
+  Pandaria/ThroneOfThunder/instance_throne_of_thunder.cpp
+  Pandaria/ThroneOfThunder/throne_of_thunder.h
+  Pandaria/ThroneOfThunder/throne_of_thunder.cpp
+  Pandaria/ThroneOfThunder/boss_jin_rokh_the_breaker.cpp
+  Pandaria/ThroneOfThunder/boss_council_of_elders.cpp
+  Pandaria/ThroneOfThunder/boss_horridon.cpp
+  Pandaria/ThroneOfThunder/boss_tortos.cpp
+  Pandaria/ThroneOfThunder/boss_megaera.cpp
+  Pandaria/ThroneOfThunder/boss_ji_kun.cpp
+  Pandaria/ThroneOfThunder/boss_primordius.cpp
+
   Pandaria/townlong_steppes.cpp
+  Pandaria/townlong_steppes.h
   Pandaria/dread_wastes.cpp
+  Pandaria/dread_wastes.h
   Pandaria/valley_of_the_four_winds.cpp
+  Pandaria/valley_of_the_four_winds.h
   Pandaria/krasarang_wilds.cpp
+  Pandaria/krasarang_wilds.h
   Pandaria/kun_lai_summit.h
   Pandaria/kun_lai_summit.cpp
   Pandaria/jade_forest.cpp
+  Pandaria/jade_forest.h
   Pandaria/vale_of_eternal_blossoms.cpp
+  Pandaria/vale_of_eternal_blossoms.h
   Pandaria/timeless_isle.cpp
   Pandaria/timeless_isle.h
+  Pandaria/the_veiled_stair.cpp
+  Pandaria/the_veiled_stair.h
 )
 
 message("  -> Prepared: Pandaria")

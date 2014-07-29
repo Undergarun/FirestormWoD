@@ -968,6 +968,8 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
             case BATTLEGROUND_AB:  player->PlayerTalkClass->SendGossipMenu(7642, GetGUID()); break;
             case BATTLEGROUND_EY:
             case BATTLEGROUND_NA:
+            case BATTLEGROUND_TV:
+            case BATTLEGROUND_TTP:
             case BATTLEGROUND_BE:
             case BATTLEGROUND_AA:
             case BATTLEGROUND_RL:
@@ -1904,7 +1906,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         bool ok = false;
         for (auto itr : spellInfo->SpellPowers)
         {
-            if (itr->Cost > (uint32)GetPower(Powers(itr->PowerType)))
+            if (itr->Cost > uint32(GetPower(Powers(itr->PowerType))))
                 continue;
 
             ok = true;

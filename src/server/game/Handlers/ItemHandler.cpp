@@ -2066,7 +2066,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         return;
     }
 
-    int32 cost = 0;
+    float cost = 0;
     for (uint8 i = 0; i < count; ++i)
     {
         // slot of the transmogrified item
@@ -2149,10 +2149,17 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         }
     }
 
+    float costModifier = 1.0f;
+    Unit::AuraEffectList const& mModModifyPrice = player->GetAuraEffectsByType(SPELL_AURA_REDUCE_ITEM_MODIFY_COST);
+    for (Unit::AuraEffectList::const_iterator i = mModModifyPrice.begin(); i != mModModifyPrice.end(); ++i)
+        costModifier += float(float((*i)->GetAmount()) / 100.0f);
+
+    cost *= costModifier;
+
     // trusting the client, if it got here it has to have enough money
     // ... unless client was modified
     if (cost) // 0 cost if reverting look
-        player->ModifyMoney(-cost);
+        player->ModifyMoney(-int64(cost));
 }
 
 void WorldSession::SendReforgeResult(bool success)
