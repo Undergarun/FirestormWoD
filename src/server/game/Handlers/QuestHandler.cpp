@@ -35,14 +35,9 @@
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
 {
-    ObjectGuid guid;
+    uint64 guid;
 
-    uint8 bitOrder[8] = {3, 1, 2, 6, 4, 7, 0, 5};
-    recvData.FlushBits();
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    uint8 byteOrder[8] = {3, 0, 5, 2, 7, 6, 1, 4};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.readPackGUID(guid);
 
     uint32 questStatus = DIALOG_STATUS_NONE;
     uint32 defstatus = DIALOG_STATUS_NONE;
@@ -367,57 +362,49 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     m_Player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
+void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
 {
-    ObjectGuid guid;
-    uint32 questId;
-    bool unk1;
+    uint64 l_Guid;
+    uint32 l_QuestId;
+    bool l_RespondToGiver;
 
-    recvData >> questId;
+    p_RecvData.readPackGUID(l_Guid);
+    p_RecvData >> l_QuestId;
+    l_RespondToGiver = p_RecvData.ReadBit();
 
-    uint8 bitOrder[8] = { 3, 4, 1, 0, 6, 2, 7, 5 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    unk1 = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 6, 7, 4, 5, 3, 1, 0, 2 };
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, unk1 = %u", uint32(GUID_LOPART(guid)), questId, unk1);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, RespondToGiver = %u", uint32(GUID_LOPART(l_Guid)), l_QuestId, l_RespondToGiver);
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
-    Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
-    if (!object || (!object->hasQuest(questId) && !object->hasInvolvedQuest(questId)))
+    Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
+    if (!object || (!object->hasQuest(l_QuestId) && !object->hasInvolvedQuest(l_QuestId)))
     {
         m_Player->PlayerTalkClass->SendCloseGossip();
         return;
     }
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(l_QuestId))
     {
         // not sure here what should happen to quests with QUEST_FLAGS_AUTOCOMPLETE
         // if this breaks them, add && object->GetTypeId() == TYPEID_ITEM to this check
         // item-started quests never have that flag
-        if (m_Player->GetQuestStatus(questId) == QUEST_STATUS_NONE && !m_Player->CanTakeQuest(quest, true))
+        if (m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_NONE && !m_Player->CanTakeQuest(quest, true))
             return;
 
-        if ( m_Player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+        if ( m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_COMPLETE)
             m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, object->GetGUID(), true);
-        else if (m_Player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+        else if (m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_INCOMPLETE)
             m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), m_Player->CanCompleteQuest(quest->GetQuestId()), true);
         else
         {
             if (quest->IsAutoAccept())
             {
-                if (Creature* pQuestGiver = ObjectAccessor::GetCreature(*m_Player, guid))
+                if (Creature* pQuestGiver = ObjectAccessor::GetCreature(*m_Player, l_Guid))
                     if (pQuestGiver->IsAIEnabled)
                         sScriptMgr->OnQuestAccept(m_Player, pQuestGiver, quest);
 
                 m_Player->AddQuest(quest, object);
-                if (m_Player->CanCompleteQuest(questId))
-                    m_Player->CompleteQuest(questId);
+                if (m_Player->CanCompleteQuest(l_QuestId))
+                    m_Player->CompleteQuest(l_QuestId);
             }
             m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
         }
@@ -961,9 +948,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
     ByteBuffer buff;
     WorldPacket data(SMSG_QUEST_GIVER_STATUS_MULTIPLE);
-    data.WriteBits(count, 21);
-
-    uint8 bitOrder[8] = {6, 3, 4, 2, 5, 1, 7, 0};
+    data << uint32(count);
 
     for (Player::ClientGUIDs::const_iterator itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
     {
@@ -982,18 +967,8 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
             if (questStatus > 6)
                 questStatus = getDialogStatus(m_Player, questgiver, defstatus);
 
-            ObjectGuid guid = questgiver->GetGUID();
-
-            data.WriteBitInOrder(guid, bitOrder);
-            buff.WriteByteSeq(guid[7]);
-            buff.WriteByteSeq(guid[1]);
-            buff.WriteByteSeq(guid[2]);
-            buff << uint32(questStatus);
-            buff.WriteByteSeq(guid[3]);
-            buff.WriteByteSeq(guid[5]);
-            buff.WriteByteSeq(guid[4]);
-            buff.WriteByteSeq(guid[0]);
-            buff.WriteByteSeq(guid[6]);
+            data.appendPackGUID(questgiver->GetGUID());
+            data << uint32(questStatus);
         }
         else if (IS_GAMEOBJECT_GUID(*itr))
         {
@@ -1006,23 +981,10 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
             if (questStatus > 6)
                 questStatus = getDialogStatus(m_Player, questgiver, defstatus);
 
-            ObjectGuid guid = questgiver->GetGUID();
-
-            data.WriteBitInOrder(guid, bitOrder);
-            buff.WriteByteSeq(guid[7]);
-            buff.WriteByteSeq(guid[1]);
-            buff.WriteByteSeq(guid[2]);
-            buff << uint32(questStatus);
-            buff.WriteByteSeq(guid[3]);
-            buff.WriteByteSeq(guid[5]);
-            buff.WriteByteSeq(guid[4]);
-            buff.WriteByteSeq(guid[0]);
-            buff.WriteByteSeq(guid[6]);
+            data.appendPackGUID(questgiver->GetGUID());
+            data << uint32(questStatus);
         }
     }
-
-    data.FlushBits();
-    data.append(buff);
 
     SendPacket(&data);
 }

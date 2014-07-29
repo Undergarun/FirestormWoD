@@ -3892,7 +3892,15 @@ void Player::GiveLevel(uint8 level)
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS_PER_CLASS*4+MAX_STATS*4));
 
+    data << uint32(level);
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
+
+    data << uint32(int32(basemana) - int32(GetCreateMana()));
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
         data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
@@ -3914,13 +3922,6 @@ void Player::GiveLevel(uint8 level)
     }
 
     data << uint32(talent);                                 // Has talent
-    data << uint32(level);
-
-    data << uint32(int32(basemana)   - int32(GetCreateMana()));
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
 
     GetSession()->SendPacket(&data);
 
@@ -19196,7 +19197,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS, fields[11].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
 
-    SetUInt64Value(PLAYER_FIELD_WOW_ACCOUNT, MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+    SetUInt64Value(PLAYER_FIELD_WOW_ACCOUNT, MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
 
@@ -22789,7 +22790,8 @@ void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string
     *data << uint8(language);
     data->appendPackGUID(GetGUID());
     data->appendPackGUID(guildGuid);
-    data->appendPackGUID(0);
+    data->appendPackGUID(MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
+    data->appendPackGUID(GetGUID());
     *data << uint32(realmID);
     *data << uint32(realmID);
     data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);

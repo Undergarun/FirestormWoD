@@ -93,33 +93,14 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
     uint32 gossipListId;
     uint32 textId;
-    ObjectGuid guid;
+    uint64 guid;
     uint32 codeLen = 0;
     std::string code = "";
 
-    recvData >> gossipListId >> textId;
-
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
+    recvData.readPackGUID(guid);
+    recvData >> textId >> gossipListId;
     codeLen = recvData.ReadBits(8);
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[2]);
     code = recvData.ReadString(codeLen);
-    recvData.ReadByteSeq(guid[4]);
 
     Creature* unit = NULL;
     GameObject* go = NULL;

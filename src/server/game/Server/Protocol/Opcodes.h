@@ -78,6 +78,7 @@ enum Opcodes
         SMSG_EMOTE                                  = 0x086D,   ///< 6.0.1 18612
         SMSG_EXPLORATION_EXPERIENCE                 = 0x0288,   ///< 6.0.1 18612
         SMSG_LOG_XP_GAIN                            = 0x04E1,   ///< 6.0.1 18612
+        SMSG_LEVELUP_INFO                           = 0x1CE2,   ///< 6.0.1 18612
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x02CE,   ///< 6.0.1 18612
@@ -350,8 +351,8 @@ enum Opcodes
         SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0000,
 
         /// Quest giver
-        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x0000,
-        SMSG_QUEST_GIVER_STATUS                     = 0x0000,
+        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x024C,   ///< 6.0.1 18612
+        SMSG_QUEST_GIVER_STATUS                     = 0x1ADF,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0000,
         SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0000,
         SMSG_QUEST_GIVER_QUEST_FAILED               = 0x0000,
@@ -441,7 +442,15 @@ enum Opcodes
     CMSG_SET_SELECTION                          = 0x18EA,   ///< 6.0.1 18612
     CMSG_SETSHEATHED                            = 0x137E,   ///< 6.0.1 18612
     CMSG_GOSSIP_HELLO                           = 0x1194,   ///< 6.0.1 18612
+    CMSG_GOSSIP_SELECT_OPTION                   = 0x12DA,   ///< 6.0.1 18612
     CMSG_TOGGLE_PVP                             = 0x0807,   ///< 6.0.1 18612
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Quest
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_QUESTGIVER_STATUS_QUERY                = 0x1C8C,   ///< 6.0.1 18612
+    CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0E8C,   ///< 6.0.1 18612
+    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x1B6D,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
@@ -725,7 +734,6 @@ enum Opcodes
     CMSG_GM_NUKE                                      = 0x0000,
     CMSG_GM_REPORT_LAG                                = 0x0000,
     CMSG_GM_SET_SECURITY_GROUP                        = 0x0000,
-    CMSG_GOSSIP_SELECT_OPTION                         = 0x0000,
     CMSG_GRANT_LEVEL                                  = 0x0000,
     CMSG_GROUP_ASSISTANT_LEADER                       = 0x0000,
     CMSG_GROUP_ASSIGNMENT                             = 0x0000,
@@ -891,10 +899,7 @@ enum Opcodes
     CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0x0000,
     CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0x0000,
     CMSG_QUESTGIVER_HELLO                             = 0x0000,
-    CMSG_QUESTGIVER_QUERY_QUEST                       = 0x0000,
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0x0000,
-    CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY             = 0x0000,
-    CMSG_QUESTGIVER_STATUS_QUERY                      = 0x0000,
     CMSG_QUESTLOG_REMOVE_QUEST                        = 0x0000,
     CMSG_QUEST_CONFIRM_ACCEPT                         = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
@@ -1390,7 +1395,6 @@ enum Opcodes
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x0000,
     SMSG_KICK_REASON                                  = 0x0000,
     SMSG_LEARNED_DANCE_MOVES                          = 0x0000,
-    SMSG_LEVELUP_INFO                                 = 0x0000,
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x0000,
     SMSG_LFG_BOOT_PLAYER                              = 0x0000,
     SMSG_LFG_DISABLED                                 = 0x0000,

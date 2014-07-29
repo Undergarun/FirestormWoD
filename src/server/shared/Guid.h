@@ -22,7 +22,8 @@ enum HighGuid
     HIGHGUID_INSTANCE_SAVE      = 0x104,                        // new 5.x
     HIGHGUID_LOOT               = 0xF19,                        // new 5.4.x
     HIGHGUID_SCENEOBJECT        = 0x18F,
-    HIGHGUID_BNET_ACCOUNT       = 0xE4E
+    HIGHGUID_BNET_ACCOUNT       = 0xE4E,
+    HIGHGUID_WOW_ACCOUNT        = 0xD4E
 };
 
 #define IS_EMPTY_GUID(Guid)          (Guid == 0)
@@ -142,7 +143,8 @@ enum Guid128Type
     GUID_TYPE_LOOT              = 0x15, ///< Guessed
     GUID_TYPE_SCENE_OBJECT      = 0x16, ///< Guessed
     GUID_TYPE_ACTOR             = 0x13, ///< 6.0.1 18612
-    GUID_TYPE_BNET_ACC          = 0x1C  ///< 6.0.1 18612
+    GUID_TYPE_BNET_ACC          = 0x1D, ///< 6.0.1 18612
+    GUID_TYPE_WOW_ACC           = 0x1C  ///< 6.0.1 18612
 };
 
 struct Guid128

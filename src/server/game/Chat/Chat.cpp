@@ -715,6 +715,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     *data << uint8(language);
     data->appendPackGUID(speakerGuid);
     data->appendPackGUID(speakerGuildGuid);
+    data->appendPackGUID(0);
     data->appendPackGUID(targetGuid);
     *data << uint32(realmID);
     *data << uint32(realmID);

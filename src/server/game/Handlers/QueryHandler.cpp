@@ -71,7 +71,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
                 data.WriteBits(0, 7);
         }
 
-        data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+        data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
         data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
         data.appendPackGUID(guid);
 

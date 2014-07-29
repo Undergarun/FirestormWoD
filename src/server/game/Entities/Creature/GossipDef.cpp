@@ -422,19 +422,9 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, uint64 npcGUID) const
 {
-    ObjectGuid guid = npcGUID;
     WorldPacket data(SMSG_QUEST_GIVER_STATUS);
-    uint8 bitOrder[8] = {6, 5, 0, 1, 2, 4, 3, 7};
-    data.WriteBitInOrder(guid, bitOrder);
-    data.WriteByteSeq(guid[3]);
+    data.appendPackGUID(npcGUID);
     data << uint32(questStatus);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", GUID_LOPART(npcGUID), questStatus);
