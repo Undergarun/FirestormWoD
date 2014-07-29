@@ -449,7 +449,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     float comboDamage = PointsPerComboPoint;
     SpellEffectScalingEntry const* scaling = GetEffectScaling();
 
-    // base amount modification based on spell lvl vs caster lvl
+    // base amount modification based on spell level vs caster level
     if (scaling && scaling->Multiplier != 0.0f)
     {
         if (caster && !_spellInfo->IsCustomCalculated())
@@ -461,7 +461,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             uint32 gtScalingFormula = (_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100;
 
             if (!CanScale())
-                gtScalingFormula += _spellInfo->LevelBase ? _spellInfo->LevelBase - 1 : 0;
+                gtScalingFormula += _spellInfo->MaxScalingLevel ? _spellInfo->MaxScalingLevel - 1 : 0;
             else
                 gtScalingFormula += level - 1;
 
@@ -486,8 +486,18 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                     comboDamage = scaling->OtherMultiplier * multiplier;
             }
 
-            // Adjust some unknown calcuation of basepoints - needed for MoP trinkets !
-            if (bp && basePoints < *bp)
+            switch (_spellInfo->Id)
+            {
+                case 60443:
+                    return *bp;
+                case 90992:
+                    return *bp;
+                case 105697:
+                    return int32(basePoints);
+            }
+
+            // Adjust some unknown calculation of base points - needed for MoP trinkets !
+            if ((bp && *bp && basePoints < *bp) || !bp || !*bp || _spellInfo->Effects[_effIndex].ApplyAuraName == SPELL_AURA_MOD_RATING)
             {
                 if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
                 {
@@ -526,21 +536,18 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
                         if (ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemEntry))
                         {
-                            if (itemProto->ItemLevel > 463)
-                            {
-                                if (_spellInfo->Effects[1].IsEffect() && _spellInfo->Effects[1].ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
-                                    basePoints *= _spellInfo->DurationEntry->Duration[2] / _spellInfo->Effects[1].Amplitude;
+                            if (_spellInfo->Effects[1].IsEffect() && _spellInfo->Effects[1].ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
+                                basePoints *= _spellInfo->DurationEntry->Duration[2] / _spellInfo->Effects[1].Amplitude;
 
-                                // NewStat(iLvl) = Stat(oldiLvl) * 1.15 ^ ((iLvl - oldiLvl) / 15)
-                                // NewStat(itemProto->ItemLevel) = basePoints(463) * 1.15 ^ ((itemProto->ItemLevel - 463) / 15)
-                                float baseVal = basePoints;
-                                float itemLevel = itemProto->ItemLevel;
-                                float baseLevel = 463;
-                                float newVal = baseVal * pow(1.15f, float((itemLevel - baseLevel) / 15.0f));
-                                float val = floor(newVal + 0.5f);
+                            // NewStat(iLvl) = Stat(oldiLvl) * 1.15 ^ ((iLvl - oldiLvl) / 15)
+                            // NewStat(itemProto->ItemLevel) = basePoints(463) * 1.15 ^ ((itemProto->ItemLevel - 463) / 15)
+                            float baseVal = basePoints;
+                            float itemLevel = itemProto->ItemLevel;
+                            float baseLevel = 463;
+                            float newVal = baseVal * pow(1.15f, float((itemLevel - baseLevel) / 15.0f));
+                            float val = ceil(newVal + 0.5f);
 
-                                basePoints = val;
-                            }
+                            basePoints = val;
                         }
                     }
                 }
@@ -568,7 +575,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                                 float itemLevel = itemProto->ItemLevel;
                                 float baseLevel = 463;
                                 float newVal = baseVal * pow(1.15f, float((itemLevel - baseLevel) / 15.0f));
-                                float val = floor(newVal + 0.5f);
+                                float val = ceil(newVal + 0.5f);
 
                                 basePoints = val;
                             }
@@ -655,6 +662,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         float spdamage = sp * EffectSpellPowerBonus;
 
         value += apdamage + spdamage;
+
+        if (_spellInfo->IsPeriodic() && apdamage)
+            value /= _spellInfo->GetMaxTicks();
     }
 
     return int32(value);
@@ -955,10 +965,10 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
     CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
     ScalingClass = _scaling ? _scaling->ScalingClass : 0;
-    CoefBase = _scaling ? _scaling->CoefBase : 0;
-    CoefLevelBase = _scaling ? _scaling->CoefLevelBase : 0;
-    LevelBase = _scaling ? _scaling->LevelBase : 0;
-    ItemLevelBase = _scaling ? _scaling->ItemLevelBase : 0;
+    NerfFactor = _scaling ? _scaling->NerfFactor : 0;
+    NerfMaxLevel = _scaling ? _scaling->NerfMaxLevel : 0;
+    MaxScalingLevel = _scaling ? _scaling->MaxScalingLevel : 0;
+    ScalesFromItemLevel = _scaling ? _scaling->ScalesFromItemLevel : 0;
 
     SpellFromItems.clear();
 
@@ -3252,19 +3262,21 @@ bool SpellEffectInfo::CanScale() const
                 case SPELL_AURA_SCHOOL_HEAL_ABSORB:
                     return true;
                 default:
-                    return false;
+                    break;
             }
+
             break;
         }
-        case SPELL_EFFECT_ADD_COMBO_POINTS:
-        case SPELL_EFFECT_HEAL_MAX_HEALTH:
-        case SPELL_EFFECT_ENERGIZE:
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_POWER_DRAIN:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_HEAL:
         case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            return false;
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 SpellShapeshiftEntry const* SpellInfo::GetSpellShapeshift() const

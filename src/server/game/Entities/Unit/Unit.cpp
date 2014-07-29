@@ -12618,14 +12618,29 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             break;
     }
 
-    // Custom MoP Script
-    // Fix spellPower bonus for Holy Prism
-    if (spellProto && (spellProto->Id == 114871 || spellProto->Id == 114852) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_PALADIN)
+    if (spellProto)
     {
-        if (spellProto->Id == 114871)
-            DoneTotal = int32(0.962 * ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
-        else
-            DoneTotal = int32(1.428 * ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
+        switch (spellProto->Id)
+        {
+            case 20167:
+                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_PALADIN)
+                    break;
+                DoneTotal = int32(0.15f * ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
+                DoneTotal += int32(0.15f * ToPlayer()->GetTotalAttackPowerValue(BASE_ATTACK));
+                break;
+            case 114871:
+                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_PALADIN)
+                    break;
+                DoneTotal = int32(0.962f * ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
+                break;
+            case 114852:
+                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_PALADIN)
+                    break;
+                DoneTotal = int32(1.428f * ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
+                break;
+            default:
+                break;
+        }
     }
 
     float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
@@ -18543,10 +18558,10 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
     float procsPerMinute = spellProto->ProcsPerMinute;
-    if (spellProcEvent && spellProcEvent->ppmRate != 0)
+    if (procsPerMinute == 0.f && spellProcEvent && spellProcEvent->ppmRate != 0.f)
         procsPerMinute = spellProcEvent->ppmRate;
 
-    if (procsPerMinute != 0)
+    if (procsPerMinute != 0.f)
     {
         if (!isVictim)
         {

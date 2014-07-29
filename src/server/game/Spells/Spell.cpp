@@ -6031,11 +6031,11 @@ void Spell::TakePower()
         if (powerType == POWER_RUNES)
         {
             TakeRunePower(hit);
-            return;
+            continue;
         }
 
         if (!m_powerCost[POWER_TO_INDEX(powerType)])
-            return;
+            continue;
 
         // Check requiredAura for power which area restricted to this
         if (itr->RequiredAuraSpellId && !m_caster->HasAura(itr->RequiredAuraSpellId))
@@ -6045,11 +6045,14 @@ void Spell::TakePower()
         if (powerType == POWER_HEALTH)
         {
             m_caster->ModifyHealth(-(int32)m_powerCost[POWER_TO_INDEX(powerType)]);
-            return;
+            continue;
         }
 
         if (powerType >= MAX_POWERS)
-            return;
+        {
+            sLog->OutPandashan("Spel::TakePower -> Unknown power type [%u]", powerType);
+            continue;
+        }
 
         int32 pct = 20;
         if (powerType == POWER_RUNIC_POWER)

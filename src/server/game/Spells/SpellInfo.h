@@ -411,10 +411,10 @@ public:
     int32  CastTimeMax;
     int32  CastTimeMaxLevel;
     int32  ScalingClass;
-    float  CoefBase;
-    int32  CoefLevelBase;
-    uint32 LevelBase;
-    uint32 ItemLevelBase;
+    float  NerfFactor;
+    int32  NerfMaxLevel;
+    uint32 MaxScalingLevel;
+    uint32 ScalesFromItemLevel;
     std::list<uint32> SpellFromItems;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;

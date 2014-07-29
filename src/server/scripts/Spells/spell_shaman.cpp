@@ -1456,9 +1456,12 @@ class spell_sha_elemental_blast : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Player* caster = GetCaster()->ToPlayer())
                 {
-                    int32 randomEffect = irand(0, 2);
+                    int32 randomEffect = irand(0, 3);
+
+                    if (caster->GetSpecializationId(caster->GetActiveSpec()) != SPEC_SHAMAN_ENHANCEMENT)
+                        randomEffect = irand(0, 2);
 
                     caster->CastSpell(caster, SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, true);
 
@@ -1470,18 +1473,28 @@ class spell_sha_elemental_blast : public SpellScriptLoader
                             {
                                 aura->GetBase()->GetEffect(1)->ChangeAmount(0);
                                 aura->GetBase()->GetEffect(2)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(3)->ChangeAmount(0);
                                 break;
                             }
                             case 1:
                             {
                                 aura->GetBase()->GetEffect(0)->ChangeAmount(0);
                                 aura->GetBase()->GetEffect(2)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(3)->ChangeAmount(0);
                                 break;
                             }
                             case 2:
                             {
                                 aura->GetBase()->GetEffect(0)->ChangeAmount(0);
                                 aura->GetBase()->GetEffect(1)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(3)->ChangeAmount(0);
+                                break;
+                            }
+                            case 3:
+                            {
+                                aura->GetBase()->GetEffect(0)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(1)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(2)->ChangeAmount(0);
                                 break;
                             }
                             default:

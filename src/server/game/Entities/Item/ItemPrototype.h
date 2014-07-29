@@ -770,7 +770,7 @@ struct ItemTemplate
         return itemLevel >= 0 ? itemLevel : 1;
     }
 
-    bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
+    bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && (SubClass == ITEM_SUBCLASS_POTION || SubClass == ITEM_SUBCLASS_FOOD_DRINK); }
     bool IsVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }
 
