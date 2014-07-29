@@ -3431,6 +3431,20 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
+            case 136339:// Lightning Tether
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 136350:// Lightning Tether (periodic)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 136340:// Storm Cloud
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 136345:// Storm Cloud (periodic)
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                break;
             case 136050:// Malformed Blood
                 spellInfo->Effects[1].BasePoints *= 2.85f;
                 break;
