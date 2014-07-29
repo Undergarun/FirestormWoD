@@ -54,6 +54,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             // Sha of Fear
             uint64 shaOfFearGuid;
             uint64 pureLightTerraceGuid;
+            uint64 travelToDreadExpanseGuid;
 
             // Timers, old school style!
             uint32 tsulongEventTimer;
@@ -84,6 +85,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
 
                 shaOfFearGuid               = 0;
                 pureLightTerraceGuid        = 0;
+                travelToDreadExpanseGuid    = 0;
 
                 tsulongEventTimer           = 0;
 
@@ -121,6 +123,9 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         break;
                     case NPC_PURE_LIGHT_TERRACE:
                         pureLightTerraceGuid = creature->GetGUID();
+                        break;
+                    case NPC_TRAVEL_TO_DREAD_EXPANSE:
+                        travelToDreadExpanseGuid = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -255,6 +260,8 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         return shaOfFearGuid;
                     case NPC_PURE_LIGHT_TERRACE:
                         return pureLightTerraceGuid;
+                    case NPC_TRAVEL_TO_DREAD_EXPANSE:
+                        return travelToDreadExpanseGuid;
                     case GOB_COUNCILS_VORTEX:
                         return councilsVortexGuid;
                     case GOB_WALL_OF_COUNCILS_VORTEX:
