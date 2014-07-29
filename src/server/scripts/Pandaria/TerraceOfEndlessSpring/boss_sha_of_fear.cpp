@@ -50,6 +50,7 @@ enum eShaOfFearSpells
     SPELL_DREAD_EXPANSE_AURA        = 120289,
     SPELL_FADING_LIGHT              = 129378,
     SPELL_CHAMPION_OF_LIGHT_HEROIC  = 120268,
+    SPELL_TRANSFER_LIGHT            = 120285,
     SPELL_DREAD_THRASH_AURA         = 132007,
     SPELL_DREAD_THRASH_EXTRA_ATT    = 132000,
     SPELL_IMPLACABLE_STRIKE         = 120672,
@@ -110,7 +111,13 @@ enum eShaOfFearEvents
     EVENT_WATERSPOUT        = 15,
     EVENT_HUDDLE_IN_TERROR  = 16,
     EVENT_SUBMERGE          = 17,
-    EVENT_GATHERING_SPEED   = 18
+    EVENT_SPAWN_DREAD       = 18,
+    EVENT_EMERGE            = 19,
+    EVENT_GATHERING_SPEED   = 20,
+    EVENT_TO_DREAD_EXPANSE  = 21,
+    EVENT_CLEAR_AURA_PLAYER = 22,
+    EVENT_VISIBLE_EXPANSE   = 23,
+    EVENT_CHECK_CHAMPION    = 24,
 };
 
 enum eShaOfFearActions
@@ -126,17 +133,21 @@ enum eShaOfFearActions
     ACTION_DESACTIVATE_SHRINE_3,
     ACTION_TRANSFERT_OF_LIGHT,
     ACTION_RETURNS_PLAYERS,
+    ACTION_ACTIVATE_RETURN,
+    ACTION_ARRIVE_IN_DREAD_EXPANSE,
+    ACTION_TELEPORT_SHA,
+    ACTION_GET_PLAYERS_BACK,
 };
 
 enum eShaOfFearSays
 {
-    TALK_INTRO,
-    TALK_AGGRO,
-    TALK_BREATH_OF_FEAR,
-    TALK_SLAY,
-    TALK_HEROIC,
-    TALK_SUBMERGE,
-    TALK_HUDDLE
+    TALK_INTRO,             // Your lights will go out. The darkness will envelop you. And you will fear the shadows that move within it.
+    TALK_AGGRO,             // You will know fear!
+    TALK_BREATH_OF_FEAR,    // Fleeeee!
+    TALK_SLAY,              // Drown in terror.
+    TALK_HEROIC,            // You think it is so easy to vanquish your fears?
+    TALK_SUBMERGE,          // Dread rises! It seeks the light. It hungers.
+    TALK_HUDDLE             // Huddle in terror!
 };
 
 enum eEquipsId
@@ -179,8 +190,8 @@ Position returnPos[2] =
     { -978.451f,  -2706.773f, 37.737f, 4.134f }
 };
 
-Position heroicPos = { -1848.261f, -3916.670f, -279.502f, 0.794f };
-Position heroicSha = { -1631.609f, -3696.202f, -279.502f, 4.000f };
+Position heroicSha = { -1597.43f, -3815.56f, -279.50f, 3.141593f }; // Position for Sha in Heroic P2
+Position heroicPos = { -1722.40f, -3815.56f, -279.50f, 0.000000f }; // Base position for players in Heroic P2
 
 // 60999 - Sha of fear
 class boss_sha_of_fear : public CreatureScript
@@ -199,17 +210,17 @@ class boss_sha_of_fear : public CreatureScript
             EventMap events;
 
             uint8 attacksCounter;
-            uint8 thrashsCounter;
-
             uint8 terrorCounter;
             uint8 submergeCounter;
 
             bool shrine1;
             bool shrine2;
             bool shrine3;
+            bool isInSecondPhase;
+            bool submerged;
+            bool isInTeleport;
 
             uint8 healthPctForSecondPhase;
-            bool isInSecondPhase;
 
             void Reset()
             {
@@ -232,6 +243,8 @@ class boss_sha_of_fear : public CreatureScript
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->CastSpell(me, SPELL_ENERGY_TO_ZERO, true);
+                if (!me->IsVisible())
+                    me->SetVisible(true);
  
                 summons.DespawnAll();
 
@@ -241,20 +254,21 @@ class boss_sha_of_fear : public CreatureScript
                 events.Reset();
 
                 attacksCounter  = 0;
-                thrashsCounter  = 0;
                 terrorCounter   = 0;
                 submergeCounter = 0;
                 shrine1         = false;
                 shrine2         = false;
                 shrine3         = false;
                 isInSecondPhase = false;
+                submerged       = false;
+                isInTeleport    = false;
                 healthPctForSecondPhase = 67;
  
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_EXPANSE_AURA);
-                    /*
+
                     if (IsHeroic())
                     {
                         // Removing Lei Shi's hope's aura if we're not on a new try
@@ -264,7 +278,6 @@ class boss_sha_of_fear : public CreatureScript
                         else
                             pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
                     }
-                    */
  
                     if (pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION))
                         me->AddAura(SPELL_RITUAL_OF_PURIFICATION, me);
@@ -296,6 +309,7 @@ class boss_sha_of_fear : public CreatureScript
                     pInstance->SetBossState(DATA_SHA_OF_FEAR, IN_PROGRESS);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     DoZoneInCombat();
+                    me->SetReactState(REACT_AGGRESSIVE);
                     Talk(TALK_AGGRO);
 
                     events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
@@ -309,44 +323,102 @@ class boss_sha_of_fear : public CreatureScript
 
             void EnterEvadeMode()
             {
+                if (!pInstance)
+                    return;
+
+                if (!pInstance->IsWipe())
+                    return;
+
                 events.Reset();
                 summons.DespawnAll();
 
-                me->GetMotionMaster()->MoveTargetedHome();
                 me->SetPower(POWER_ENERGY, 0);
                 me->RemoveAllAuras();
                 me->SetFullHealth();
+                if (!me->IsVisible())
+                    me->SetVisible(true);
 
-                if (pInstance)
+
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+
+                shrine1 = false;
+                shrine2 = false;
+                shrine3 = false;
+
+                attacksCounter = 0;
+                terrorCounter  = 0;
+
+                if (isInSecondPhase)
                 {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                    Position homePos = me->GetHomePosition();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                    isInSecondPhase = false;
+                    submerged       = false;
+                    isInTeleport    = false;
+                    submergeCounter = 0;
+                    if (pInstance->GetBossState(DATA_SHA_OF_FEAR) != FAIL)
+                        pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
+                    me->NearTeleportTo(homePos.GetPositionX(), homePos.GetPositionY(), homePos.GetPositionZ(), homePos.GetOrientation());
                 }
-
+                else
+                    me->GetMotionMaster()->MoveTargetedHome();
 
                 _EnterEvadeMode();
             }
 
             void JustDied(Unit* killer)
             {
+                events.Reset();
                 if (pInstance)
                 {
-                    // Before despawning Return to the terrace mobs, we get the players back.
-                    std::list<Creature*> returnMobList;
-                    GetCreatureListWithEntryInGrid(returnMobList, me, NPC_RETURN_TO_THE_TERRACE, 300.0f);
+                    // Normal mode or Heroic mode P1
+                    if (!isInSecondPhase)
+                    {
+                        // In NM, before despawning Return to the terrace mobs, we get the players back.
+                        std::list<Creature*> returnMobList;
+                        GetCreatureListWithEntryInGrid(returnMobList, me, NPC_RETURN_TO_THE_TERRACE, 300.0f);
 
-                    for (Creature* returnMob : returnMobList)
-                        returnMob->AI()->DoAction(ACTION_RETURNS_PLAYERS);
+                        if (!returnMobList.empty())
+                            for (Creature* returnMob : returnMobList)
+                                returnMob->AI()->DoAction(ACTION_RETURNS_PLAYERS);
 
-                    summons.DespawnAll();
+                        summons.DespawnAll();
+
+                    }
+                    // Heroic mode - P2
+                    else
+                    {
+                        // Here, we must despawn all firs to avoid NPC for getting back are also despawned
+                        summons.DespawnAll();
+
+                        // In HM, we summon a Return to the terrace for the player to return to the normal world
+                        // Choosing a position for summoning near Sha and reachable for players
+                        Position summonPos;
+                        me->GetPosition(&summonPos);
+                        float x = summonPos.GetPositionX();
+                        float y = summonPos.GetPositionY() + 20.0f;
+
+                        x = x < -1847.0f ? -1847.0f : (x > -1597.0f ? -1597.0f : x);
+                        y = y < -3940.0f ? -3940.0f : (y > -3690.0f ? -3690.0f : y);
+                        summonPos.Relocate(x, y);
+
+                        me->SummonCreature(NPC_RETURN_TO_THE_TERRACE, summonPos);
+                    }
+
                     pInstance->SetBossState(DATA_SHA_OF_FEAR, DONE);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
+                    if (isInSecondPhase)
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEI_SHIS_HOPE);
+
                     me->SetPower(POWER_ENERGY, 0);
-                    _JustDied();
+                    pInstance->SaveToDB();
                 }
             }
 
@@ -457,8 +529,19 @@ class boss_sha_of_fear : public CreatureScript
                         break;
                     case ACTION_ACTIVATE_SHA_OF_FEAR:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetReactState(REACT_DEFENSIVE);
                         break;
+                    case ACTION_ARRIVE_IN_DREAD_EXPANSE:
+                    {
+                        // New abilities
+                        events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                        events.ScheduleEvent(EVENT_VISIBLE_EXPANSE, 1000);
+                        events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 32000);
+                        events.ScheduleEvent(EVENT_WATERSPOUT, 50000);
+                        events.ScheduleEvent(EVENT_HUDDLE_IN_TERROR, 44000);
+                        events.ScheduleEvent(EVENT_NAKED_AND_AFRAID, 20000);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -466,8 +549,8 @@ class boss_sha_of_fear : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                //if (!IsHeroic())
-                return;
+                if (!IsHeroic() || isInSecondPhase)
+                    return;
 
                 // Heroic - Phase 2
                 if (me->HealthBelowPctDamaged(healthPctForSecondPhase, damage))
@@ -477,22 +560,49 @@ class boss_sha_of_fear : public CreatureScript
 
                     isInSecondPhase = true;
                     Talk(TALK_HEROIC);
+                    me->MonsterTextEmote("The Sha of Fear retreats to the Dread Expanse", 0, true);
 
-                    pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
-                    pInstance->DoAddAuraOnPlayers(SPELL_DREAD_EXPANSE_AURA);
-                    pInstance->DoAddAuraOnPlayers(SPELL_FADING_LIGHT);
-
+                    // Champion of light now gets Pure Light
                     if (Player* champion = GetChampionOfLight(me))
                         champion->CastSpell(champion, SPELL_CHAMPION_OF_LIGHT_HEROIC, true);
 
-                    // Summoning NPC for travelling
-                    me->SummonCreature(NPC_TRAVEL_TO_DREAD_EXPANSE, heroicPos);
+                    if (pInstance)
+                    {
+                        // Removing auras from p1
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
 
-                    events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 10000);
-                    events.ScheduleEvent(EVENT_WATERSPOUT, 12000);
-                    events.ScheduleEvent(EVENT_HUDDLE_IN_TERROR, 15000);
-                    events.ScheduleEvent(EVENT_NAKED_AND_AFRAID, 20000);
-                    events.ScheduleEvent(EVENT_SUBMERGE, 40000);
+                        // Applying new auras
+                        pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
+                        pInstance->DoAddAuraOnPlayers(SPELL_DREAD_EXPANSE_AURA);
+                        pInstance->DoAddAuraOnPlayers(SPELL_FADING_LIGHT);
+                    }
+
+                    // Teleport part
+                    me->SetVisible(false);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    me->DeleteThreatList();
+                    me->getThreatManager().clearReferences();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+
+                    // Teleporting players
+                    Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    {
+                        float x = heroicPos.GetPositionX() + frand(-5.0f, 5.0f);
+                        float y = heroicPos.GetPositionY() + frand(-5.0f, 5.0f);
+
+                        itr->getSource()->NearTeleportTo(x, y, heroicPos.GetPositionZ(), heroicPos.GetOrientation());
+                        itr->getSource()->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
+                    }
+
+                    if (pInstance)
+                        if (Creature* travel = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TRAVEL_TO_DREAD_EXPANSE)))
+                            travel->AI()->DoAction(ACTION_TELEPORT_SHA);
+
+                    isInTeleport = true;
                 }
             }
 
@@ -500,36 +610,45 @@ class boss_sha_of_fear : public CreatureScript
             {
                 if (damageType == DIRECT_DAMAGE)
                 {
-                    if (attacksCounter >= 3 && !me->m_extraAttacks)
+                    if (!me->m_extraAttacks)
                     {
-                        me->CastSpell(me, SPELL_THRASH_EXTRA_ATTACKS, true);
-                        attacksCounter = 0;
-                    }
-                    else if (attacksCounter >= 2 && !me->m_extraAttacks)
-                    {
-                        me->CastSpell(me, SPELL_THRASH_AURA, true);
-                        ++thrashsCounter;
-                        ++attacksCounter;
-                    }
-                    else if (!me->m_extraAttacks)
-                    {
-                        me->RemoveAura(SPELL_THRASH_AURA);
-                        me->RemoveAura(SPELL_DREAD_THRASH_AURA);
-                        ++attacksCounter;
-                    }
+                        // Using Thrash in normal mode and in phase 1 of heroic mode
+                        if (!isInSecondPhase)
+                        {
+                            if (!attacksCounter && me->HasAura(SPELL_THRASH_AURA))
+                                me->RemoveAura(SPELL_THRASH_AURA);
 
-                    if (thrashsCounter >= 3 && IsHeroic())
-                    {
-                        me->RemoveAura(SPELL_THRASH_AURA);
-                        me->RemoveAura(SPELL_THRASH_EXTRA_ATTACKS);
-                        me->CastSpell(me, SPELL_DREAD_THRASH_EXTRA_ATT, true);
-                        thrashsCounter = 0;
-                    }
-                    else if (thrashsCounter >= 2 && IsHeroic())
-                    {
-                        me->RemoveAura(SPELL_THRASH_AURA);
-                        me->RemoveAura(SPELL_THRASH_EXTRA_ATTACKS);
-                        me->CastSpell(me, SPELL_DREAD_THRASH_AURA, true);
+                            if (attacksCounter >= 2)
+                            {
+                                if (attacksCounter >= 3)
+                                {
+                                    me->CastSpell(me, SPELL_THRASH_EXTRA_ATTACKS, true);
+                                    me->RemoveAura(SPELL_THRASH_AURA);
+                                    attacksCounter = 0;
+                                }
+                                else
+                                    me->CastSpell(me, SPELL_THRASH_AURA, false);
+                            }
+                        }
+                        // Using Dread Thrash in phase 2 of heroic mode
+                        else
+                        {
+                            if (!attacksCounter && me->HasAura(SPELL_DREAD_THRASH_AURA))
+                                    me->RemoveAura(SPELL_DREAD_THRASH_AURA);
+
+                            if (attacksCounter >= 3)
+                            {
+                                if (attacksCounter >= 4)
+                                {
+                                    me->CastSpell(me, SPELL_DREAD_THRASH_EXTRA_ATT, true);
+                                    me->RemoveAura(SPELL_DREAD_THRASH_AURA);
+                                    attacksCounter = 0;
+                                }
+                                else
+                                    me->CastSpell(me, SPELL_DREAD_THRASH_EXTRA_ATT, false);
+                            }
+                        }
+                        ++attacksCounter;
                     }
                 }
             }
@@ -574,11 +693,14 @@ class boss_sha_of_fear : public CreatureScript
 
                 if (!UpdateVictim())
                 {
-                    if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
-                        me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
+                    if (!isInSecondPhase)
+                    {
+                        if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
+                            me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
 
-                    if (me->isInCombat())
-                        EnterEvadeMode();
+                        if (me->isInCombat())
+                            EnterEvadeMode();
+                    }
 
                     return;
                 }
@@ -588,131 +710,204 @@ class boss_sha_of_fear : public CreatureScript
  
                 events.Update(diff);
  
-                switch (events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_CHECK_MELEE:
+                    switch (eventId)
                     {
-                        if (!me->IsWithinMeleeRange(me->getVictim(), 2.0f))
+                        case EVENT_CHECK_MELEE:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f))
-                                me->CastSpell(target, SPELL_REACHING_ATTACK, false);
+                            if (!me->IsWithinMeleeRange(me->getVictim(), 2.0f))
+                            {
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f))
+                                    me->CastSpell(target, SPELL_REACHING_ATTACK, false);
+                            }
+                            else
+                            {
+                                // Always attack champion of light
+                                if (Player* target = GetChampionOfLight(me))
+                                    if (me->getVictim() && me->getVictim()->GetGUID() != target->GetGUID())
+                                        AttackStart(target);
+                            }
+                            events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
+                            break;
                         }
-                        else
+                        case EVENT_EERIE_SKULL:
                         {
-                            // Always attack champion of light
-                            if (Player* target = GetChampionOfLight(me))
-                                if (me->getVictim() && me->getVictim()->GetGUID() != target->GetGUID())
-                                    AttackStart(target);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 60.0f))
+                                me->CastSpell(target, SPELL_EERIE_SKULL, false);
+                            events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
+                            break;
                         }
-                        events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
-                        break;
-                    }
-                    case EVENT_EERIE_SKULL:
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 60.0f))
-                            me->CastSpell(target, SPELL_EERIE_SKULL, false);
-                        events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
-                        break;
-                    }
-                    case EVENT_CHECK_ENERGY:
-                    {
-                        if (!pInstance)
+                        case EVENT_CHECK_ENERGY:
                         {
+                            if (!pInstance)
+                            {
+                                events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                                break;
+                            }
+
+                            if (me->GetPower(POWER_ENERGY) >= me->GetMaxPower(POWER_ENERGY))
+                            {
+                                // P2 Heroic Mode - Submerge - Placed in another event for legibility as it triggers 2 others events coded just after
+                                if (isInSecondPhase)
+                                    events.ScheduleEvent(EVENT_SUBMERGE, 100);
+                                // Normal mode or P1 Heroic mode - Breath of fear
+                                else
+                                {
+                                    if (Creature* pureLight = Creature::GetCreature(*me, pInstance->GetData64(NPC_PURE_LIGHT_TERRACE)))
+                                        me->CastSpell(pureLight, SPELL_BREATH_OF_FEAR, false);
+                                    Talk(TALK_BREATH_OF_FEAR);
+                                }
+                                me->SetPower(POWER_ENERGY, 0);
+                                me->SetInt32Value(UNIT_FIELD_POWER1, 0);
+                            }
+
                             events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
                             break;
                         }
-
-                        if (me->GetPower(POWER_ENERGY) >= me->GetMaxPower(POWER_ENERGY))
+                        case EVENT_FIRST_TERRORS:
                         {
-                            if (Creature* pureLight = Creature::GetCreature(*me, pInstance->GetData64(NPC_PURE_LIGHT_TERRACE)))
-                                me->CastSpell(pureLight, SPELL_BREATH_OF_FEAR, false);
-                            Talk(TALK_BREATH_OF_FEAR);
-                            me->SetPower(POWER_ENERGY, 0);
-                            me->SetInt32Value(UNIT_FIELD_POWER1, 0);
+                            me->CastSpell(me, SPELL_CONJURE_TERROR_SPAWN_TICK, true);
+                            break;
                         }
-
-                        events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
-                        break;
-                    }
-                    case EVENT_FIRST_TERRORS:
-                    {
-                        me->CastSpell(me, SPELL_CONJURE_TERROR_SPAWN_TICK, true);
-                        break;
-                    }
-                    case EVENT_OMINOUS_CACKLE:
-                    {
-                        me->CastSpell(me, SPELL_OMINOUS_CACKLE_CAST, false);
-                        events.ScheduleEvent(EVENT_OMINOUS_CACKLE, Is25ManRaid() ? 45000 : 90000);
-                        break;
-                    }
-                    case EVENT_ENRAGE:
-                    {
-                        me->CastSpell(me, SPELL_BERSERK, true);
-                        break;
-                    }
-                    case EVENT_IMPLACABLE_STRIKE:
-                    {
-                        if (!IsHeroic())
-                            break;
-
-                        me->CastSpell(me, SPELL_IMPLACABLE_STRIKE, false);
-                        events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 10000);
-                        break;
-                    }
-                    case EVENT_NAKED_AND_AFRAID:
-                    {
-                        if (!IsHeroic())
-                            break;
-
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
-                            me->CastSpell(target, SPELL_NAKED_AND_AFRAID, false);
-                        events.ScheduleEvent(EVENT_NAKED_AND_AFRAID, 30000);
-                        break;
-                    }
-                    case EVENT_WATERSPOUT:
-                    {
-                        if (!IsHeroic())
-                            break;
-
-                        DoCast(me, SPELL_WATERSPOUT_CHANNELING, true);
-                        events.ScheduleEvent(EVENT_WATERSPOUT, 10000);
-                        break;
-                    }
-                    case EVENT_HUDDLE_IN_TERROR:
-                    {
-                        if (!IsHeroic())
-                            break;
-
-                        Talk(TALK_HUDDLE);
-                        me->CastSpell(me, SPELL_HUDDLE_IN_TERROR, false);
-                        events.ScheduleEvent(EVENT_HUDDLE_IN_TERROR, 10000);
-                        break;
-                    }
-                    case EVENT_SUBMERGE:
-                    {
-                        if (!IsHeroic())
-                            break;
-
-                        Talk(TALK_SUBMERGE);
-                        ++submergeCounter;
-
-                        for (int i = 0; i < submergeCounter; ++i)
+                        case EVENT_OMINOUS_CACKLE:
                         {
-                            float rotation = frand(0, 2 * M_PI);
-                            float x = me->GetPositionX() + ((40.0f) * cos(rotation));
-                            float y = me->GetPositionY() + ((40.0f) * sin(rotation));
-
-                            me->SummonCreature(NPC_DREAD_SPAWN, x, y, me->GetPositionZ(), rotation);
+                            me->CastSpell(me, SPELL_OMINOUS_CACKLE_CAST, false);
+                            events.ScheduleEvent(EVENT_OMINOUS_CACKLE, Is25ManRaid() ? 45000 : 90000);
+                            break;
                         }
+                        case EVENT_ENRAGE:
+                        {
+                            me->CastSpell(me, SPELL_BERSERK, true);
+                            break;
+                        }
+                        // Heroic events - phase 2
+                        case EVENT_IMPLACABLE_STRIKE:
+                        {
+                            if (!IsHeroic())
+                                break;
 
-                        me->CastSpell(me, SPELL_SUBMERGE_TRANSFORM, false);
-                        events.ScheduleEvent(EVENT_SUBMERGE, 51500);
-                        break;
+                            me->CastSpell(me, SPELL_IMPLACABLE_STRIKE, false);
+                            events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 60000);
+                            break;
+                        }
+                        case EVENT_NAKED_AND_AFRAID:
+                        {
+                            if (!IsHeroic())
+                                break;
+
+                            if (Unit* target = me->getVictim())
+                                me->CastSpell(target, SPELL_NAKED_AND_AFRAID, false);
+                            events.ScheduleEvent(EVENT_NAKED_AND_AFRAID, 30000);
+                            break;
+                        }
+                        case EVENT_WATERSPOUT:
+                        {
+                            if (!IsHeroic())
+                                break;
+
+                            DoCast(me, SPELL_WATERSPOUT_CHANNELING, true);
+                            events.ScheduleEvent(EVENT_WATERSPOUT, 42000);
+                            break;
+                        }
+                        case EVENT_HUDDLE_IN_TERROR:
+                        {
+                            if (!IsHeroic())
+                                break;
+
+                            Talk(TALK_HUDDLE);
+                            //me->CastSpell(me, SPELL_HUDDLE_IN_TERROR, false);
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 300.0f);
+
+                            if (!playerList.empty())
+                            {
+                                if (playerList.size() > uint8(Is25ManRaid() ? 5 : 2))
+                                    JadeCore::RandomResizeList(playerList, Is25ManRaid() ? 5 : 2);
+
+                                for (Player* plr : playerList)
+                                    me->AddAura(SPELL_HUDDLE_IN_TERROR, plr);
+                            }
+
+                            events.ScheduleEvent(EVENT_HUDDLE_IN_TERROR, urand(45000, 55000));
+                            break;
+                        }
+                        // Sha disappears underwater
+                        case EVENT_SUBMERGE:
+                        {
+                            if (!IsHeroic())
+                                break;
+
+                            submerged = true;
+                            me->MonsterTextEmote("The Sha of Fear submerges beneath the Dread Expanse", 0, true);
+
+                            me->CastSpell(me, SPELL_SUBMERGE_TRANSFORM, true);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+
+                            events.ScheduleEvent(EVENT_SPAWN_DREAD, 2000);
+                            events.ScheduleEvent(EVENT_EMERGE, 6000);
+
+                            break;
+                        }
+                        // Sha summons Dread Spawns while underwater
+                        case EVENT_SPAWN_DREAD:
+                        {
+                            Talk(TALK_SUBMERGE);
+                            ++submergeCounter;
+
+                            for (int i = 0; i < submergeCounter; ++i)
+                            {
+                                float rotation = frand(0, 2 * M_PI);
+                                float x = me->GetPositionX() + ((40.0f) * cos(rotation));
+                                float y = me->GetPositionY() + ((40.0f) * sin(rotation));
+
+                                me->SummonCreature(NPC_DREAD_SPAWN, x, y, me->GetPositionZ(), rotation);
+                            }
+                            break;
+                        }
+                        // Sha comes out from water
+                        case EVENT_EMERGE:
+                        {
+                            Position pos;
+                            me->GetNearPosition(pos, frand(0.0f, 100.0f), 0.0f);
+                            me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), true);
+
+                            me->CastSpell(me, SPELL_EMERGE_DAMAGE, true);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                            break;
+                        }
+                        case EVENT_VISIBLE_EXPANSE:
+                        {
+                            me->SetVisible(true);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                            isInTeleport = false;
+
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 500.0f);
+
+                            for (Player* player : playerList)
+                                me->AddThreat(player, 0.0f);
+
+                            if (!playerList.empty())
+                            {
+                                JadeCore::RandomResizeList(playerList, 1);
+
+                                Player* victim  = playerList.front();
+                                AttackStart(victim);
+                                me->SetInCombatWith(victim);
+                            }
+
+                            if (pInstance)
+                                if (Creature* travel = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TRAVEL_TO_DREAD_EXPANSE)))
+                                    travel->AI()->SetData(0, 1);
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
-
                 DoMeleeAttackIfReady();
             }
         };
@@ -842,7 +1037,7 @@ class mob_pure_light_terrace : public CreatureScript
         }
 };
 
-// Return to the Terrace - 65736
+// Return to the Terrace - 65736 (All modes, to return from shrines to the main platform)
 class mob_return_to_the_terrace : public CreatureScript
 {
     public:
@@ -857,15 +1052,24 @@ class mob_return_to_the_terrace : public CreatureScript
 
             InstanceScript* pInstance;
             EventMap events;
+            bool inDreadExpanse;
 
             void Reset()
             {
+                inDreadExpanse = me->GetPositionY() < 0.0f;
                 events.Reset();
-                events.ScheduleEvent(EVENT_CHECK_GUARDIAN, 1000);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->RemoveFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
-                me->RemoveAura(SPELL_PURE_LIGHT_VISUAL);
+                if (Creature* Sha = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHA_OF_FEAR)))
+                {
+                    if (!inDreadExpanse)
+                    {
+                        events.ScheduleEvent(EVENT_CHECK_GUARDIAN, 1000);
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->RemoveFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
+                        me->RemoveAura(SPELL_PURE_LIGHT_VISUAL);
+                    }
+                    else
+                        DoAction(ACTION_ACTIVATE_RETURN);
+                }
             }
 
             void OnSpellClick(Unit* clicker)
@@ -873,31 +1077,68 @@ class mob_return_to_the_terrace : public CreatureScript
                 if (clicker->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                DoAction(ACTION_RETURNS_PLAYERS);
+                DoAction(inDreadExpanse ? ACTION_GET_PLAYERS_BACK : ACTION_RETURNS_PLAYERS);
             }
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_RETURNS_PLAYERS)
+                switch (action)
                 {
-                    std::list<Player*> playersToRecall;
-
-                    me->GetPlayerListInGrid(playersToRecall, 50.0f);
-
-                    uint8 pos = urand(0, 1);
-
-                    for (auto itr : playersToRecall)
+                    // Get players back from shrine
+                    case ACTION_RETURNS_PLAYERS:
                     {
-                        itr->CastSpell(itr, SPELL_FEARLESS, true);
-                        itr->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
-                        if (Pet* pet = itr->GetPet())
-                            pet->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                        std::list<Player*> playersToRecall;
+                        me->GetPlayerListInGrid(playersToRecall, 50.0f);
+
+                        if (!playersToRecall.empty())
+                        {
+                            uint8 pos = urand(0, 1);
+
+                            for (auto itr : playersToRecall)
+                            {
+                                itr->CastSpell(itr, SPELL_FEARLESS, true);
+                                itr->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                                if (Pet* pet = itr->GetPet())
+                                    pet->NearTeleportTo(returnPos[pos].GetPositionX(), returnPos[pos].GetPositionY(), returnPos[pos].GetPositionZ(), returnPos[pos].GetOrientation());
+                            }
+                        }
+                        break;
+                    }
+                    // Activate mob once mini-boss is dead
+                    case ACTION_ACTIVATE_RETURN:
+                    {
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
+                        me->CastSpell(me, SPELL_PURE_LIGHT_VISUAL, true);
+                        break;
+                    }
+                    // Get players back from Dread Expanse
+                    case ACTION_GET_PLAYERS_BACK:
+                    {
+                        Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                        if (Creature* terrace = pInstance->instance->GetCreature(pInstance->GetData64(NPC_PURE_LIGHT_TERRACE)))
+                        {
+                            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                            {
+                                // Choosing a position near terrace of pure light
+                                Position plrPosition;
+                                terrace->GetNearPosition(plrPosition, 10.0f, 0.0f);
+                                itr->getSource()->NearTeleportTo(plrPosition.GetPositionX(), plrPosition.GetPositionY(), plrPosition.GetPositionZ(), plrPosition.GetOrientation());
+                                if (Pet* pet = itr->getSource()->GetPet())
+                                    pet->NearTeleportTo(plrPosition.GetPositionX(), plrPosition.GetPositionY(), plrPosition.GetPositionZ(), plrPosition.GetOrientation());
+                            }
+                        }
+                        break;
                     }
                 }
             }
 
             void UpdateAI(const uint32 diff)
             {
+                if (inDreadExpanse)
+                    return;
+
                 events.Update(diff);
 
                 switch (events.ExecuteEvent())
@@ -928,10 +1169,7 @@ class mob_return_to_the_terrace : public CreatureScript
                         if (died)
                         {
                             events.ScheduleEvent(EVENT_CHECK_GUARDIAN, 1000);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
-                            me->CastSpell(me, SPELL_PURE_LIGHT_VISUAL, true);
+                            DoAction(ACTION_ACTIVATE_RETURN);
                             me->DespawnOrUnsummon(10000);
                         }
                         else
@@ -955,6 +1193,84 @@ class mob_return_to_the_terrace : public CreatureScript
         {
             return new mob_return_to_the_terraceAI(creature);
         }
+};
+
+// 61735 - Travel to Dread Expanse
+class mob_travel_to_dread_expanse : public CreatureScript
+{
+public:
+    mob_travel_to_dread_expanse() : CreatureScript("mob_travel_to_dread_expanse") { }
+
+    struct mob_travel_to_dread_expanseAI : public ScriptedAI
+    {
+        mob_travel_to_dread_expanseAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+        EventMap events;
+        bool teleportTriggered;
+
+        void Reset()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_TO_DREAD_EXPANSE, 100);
+            teleportTriggered = false;
+        }
+
+        void DoAction(int32 const action)
+        {
+            switch (action)
+            {
+                case ACTION_TELEPORT_SHA:
+                {
+                    if (events.Empty())
+                        events.ScheduleEvent(EVENT_TO_DREAD_EXPANSE, 100);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        void SetData(uint32 /*type*/, uint32 id)
+        {
+            if (id)
+                teleportTriggered = false;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (!pInstance || pInstance->IsWipe())
+                return;
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() != EVENT_TO_DREAD_EXPANSE || teleportTriggered)
+                return;
+
+            // Teleporting sha
+            if (Creature* Sha = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHA_OF_FEAR)))
+            {
+                if (Sha->GetPositionZ() > 0.0f)
+                {
+                    if (!CAST_AI(boss_sha_of_fear::boss_sha_of_fearAI, Sha->GetAI())->isInTeleport)
+                        return;
+
+                    Sha->NearTeleportTo(heroicSha.GetPositionX(), heroicSha.GetPositionY(), heroicSha.GetPositionZ(), heroicSha.GetOrientation());
+                    Sha->AI()->DoAction(ACTION_ARRIVE_IN_DREAD_EXPANSE);
+
+                    teleportTriggered = true;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_travel_to_dread_expanseAI(creature);
+    }
 };
 
 // Terror Spawn - 61034
@@ -1242,18 +1558,39 @@ class mob_dread_spawn : public CreatureScript
 
             InstanceScript* pInstance;
             EventMap events;
+            uint64 championGuid;
 
             void Reset()
             {
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_GATHERING_SPEED, 5000);
+                me->SetReactState(REACT_PASSIVE);
+                championGuid = 0;
+                ChaseChampionOfLight();
+                events.ScheduleEvent(EVENT_CHECK_CHAMPION, 1000);
             }
 
-            void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType damageType)
+            void ChaseChampionOfLight()
             {
-                if (damageType == DIRECT_DAMAGE)
-                    me->CastSpell(victim, SPELL_ETERNAL_DARKNESS, false);
+                if (championGuid)
+                {
+                    if (Player* plr = ObjectAccessor::GetPlayer(*me, championGuid))
+                        if (!plr->HasAura(SPELL_CHAMPION_OF_LIGHT_HEROIC))
+                            DoAction(ACTION_TRANSFERT_OF_LIGHT);
+                }
+                else
+                    DoAction(ACTION_TRANSFERT_OF_LIGHT);
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE)
+                    return;
+
+                if (id == 1)
+                    if (Player* plr = ObjectAccessor::GetPlayer(*me, championGuid))
+                        me->CastSpell(plr, SPELL_ETERNAL_DARKNESS, false);
             }
 
             void DoAction(const int32 action)
@@ -1262,8 +1599,28 @@ class mob_dread_spawn : public CreatureScript
                 {
                     case ACTION_TRANSFERT_OF_LIGHT:
                     {
+                        // Retreiving new champion of light
+                        championGuid = 0;
+                        me->GetMotionMaster()->Clear();
+                        Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                        Map::PlayerList::const_iterator itr = playerList.begin();
+
+                        while (!championGuid && itr != playerList.end())
+                        {
+                            if (Player* plr = itr->getSource())
+                            {
+                                if (plr->HasAura(SPELL_CHAMPION_OF_LIGHT_HEROIC))
+                                {
+                                    championGuid = plr->GetGUID();
+                                    me->GetMotionMaster()->MovePoint(1, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ());
+                                }
+                            }
+                            ++itr;
+                        }
+
                         me->RemoveAura(SPELL_GATHERING_SPEED);
                         me->CastSpell(me, SPELL_SHA_SPINES, false);
+                        events.RescheduleEvent(EVENT_GATHERING_SPEED, 5000);
                         break;
                     }
                     default:
@@ -1273,24 +1630,30 @@ class mob_dread_spawn : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                    return;
-
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
 
-                switch (events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_GATHERING_SPEED:
+                    switch (eventId)
                     {
-                        me->CastSpell(me, SPELL_GATHERING_SPEED, true);
-                        events.ScheduleEvent(EVENT_GATHERING_SPEED, 5000);
-                        break;
-                    }
+                    case EVENT_GATHERING_SPEED:
+                        {
+                            me->CastSpell(me, SPELL_GATHERING_SPEED, true);
+                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 5000);
+                            break;
+                        }
+                    case EVENT_CHECK_CHAMPION:
+                        {
+                            ChaseChampionOfLight();
+                            events.ScheduleEvent(EVENT_CHECK_CHAMPION, 1000);
+                            break;
+                        }
                     default:
                         break;
+                    }
                 }
 
                 DoMeleeAttackIfReady();
@@ -1300,47 +1663,6 @@ class mob_dread_spawn : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_dread_spawnAI(creature);
-        }
-};
-
-// 61735 - Travel to Dread Expanse
-class mob_travel_to_dread_expanse : public CreatureScript
-{
-    public:
-        mob_travel_to_dread_expanse() : CreatureScript("mob_travel_to_dread_expanse") { }
-
-        struct mob_travel_to_dread_expanseAI : public ScriptedAI
-        {
-            mob_travel_to_dread_expanseAI(Creature* creature) : ScriptedAI(creature)
-            {
-                pInstance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* pInstance;
-
-            void Reset()
-            {
-                // Teleporting players
-                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                {
-                    Position pos;
-                    me->GetNearPosition(pos, frand(5.0f, 10.0f), M_PI * 2 / 3);
-
-                    itr->getSource()->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), me->GetOrientation());
-                }
-
-                // Teleporting Sha
-                if (Creature* Sha = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHA_OF_FEAR)))
-                    Sha->NearTeleportTo(heroicSha.GetPositionX(), heroicSha.GetPositionY(), heroicSha.GetPositionZ(), heroicSha.GetOrientation());
-
-                me->DespawnOrUnsummon();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_travel_to_dread_expanseAI(creature);
         }
 };
 
@@ -1795,10 +2117,7 @@ class spell_submerge : public SpellScriptLoader
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
                     if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    {
                         caster->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
-                        caster->CastSpell(caster, SPELL_EMERGE_DAMAGE, false);
-                    }
                 }
             }
 
@@ -1865,10 +2184,11 @@ class spell_sha_waterspout : public SpellScriptLoader
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, caster, 500.0f);
 
-                JadeCore::RandomResizeList(playerList, caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2);
-
                 if (playerList.empty())
                     return;
+
+                if (playerList.size() > uint8(caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2))
+                    JadeCore::RandomResizeList(playerList, caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2);
 
                 for (Player* target : playerList)
                     caster->CastSpell(target, SPELL_WATERSPOUT_DAMAGE, false);
@@ -1886,16 +2206,59 @@ class spell_sha_waterspout : public SpellScriptLoader
         }
 };
 
+// 120285 - Transfer Light
+class spell_transfer_light : public SpellScriptLoader
+{
+    public:
+        spell_transfer_light() : SpellScriptLoader("spell_transfer_light") { }
+
+        class spell_transfer_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_transfer_light_SpellScript);
+
+            void Transfer()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+
+                if (!caster || !target || target->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                // Switching aura
+                caster->RemoveAura(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                target->AddAura(SPELL_CHAMPION_OF_LIGHT_HEROIC, target);
+
+                // All Dread Spawns change their target
+                std::list<Creature*> dreadList;
+                GetCreatureListWithEntryInGrid(dreadList, caster, NPC_DREAD_SPAWN, 300.0f);
+
+                if (!dreadList.empty())
+                    for (Creature* dreadSpawn : dreadList)
+                        dreadSpawn->AI()->DoAction(ACTION_TRANSFERT_OF_LIGHT);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_transfer_light_SpellScript::Transfer);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_transfer_light_SpellScript();
+        }
+};
+
 void AddSC_boss_sha_of_fear()
 {
     new boss_sha_of_fear();             // 60999
     new mob_pure_light_terrace();       // 60788
     new mob_return_to_the_terrace();    // 65736
+    new mob_travel_to_dread_expanse();  // 61735
     new mob_terror_spawn();             // 61034
     new mob_shrine_guardian();          // 61038 - 61042 - 61046
     new mob_sha_globe();                // 65691
     new mob_dread_spawn();              // 61003
-    new mob_travel_to_dread_expanse();  // 61735
     new spell_breath_of_fear();         // 119414 - 125786
     new spell_conjure_terror_spawn();   // 119108
     new spell_penetrating_bolt();       // 129075
@@ -1908,4 +2271,5 @@ void AddSC_boss_sha_of_fear()
     new spell_submerge();               // 120455
     new spell_emerge();                 // 120458
     new spell_sha_waterspout();         // 120519
+    new spell_transfer_light();         // 120285
 }

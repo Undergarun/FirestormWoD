@@ -1604,10 +1604,12 @@ public:
                     {
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 200.0f);
-                        JadeCore::RandomResizeList(playerList, 1);
 
                         if (!playerList.empty())
+                        {
+                            JadeCore::RandomResizeList(playerList, 1);
                             me->CastSpell(playerList.front(), SPELL_HOF_DMG, true);
+                        }
 
                         events.ScheduleEvent(EVENT_HOF_ATTACK, urand(2000, 3000));
                         break;
