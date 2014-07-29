@@ -3445,6 +3445,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 136345:// Storm Cloud (periodic)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
+            case 121673:// Fire Shot
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 136050:// Malformed Blood
                 spellInfo->Effects[1].BasePoints *= 2.85f;
                 break;

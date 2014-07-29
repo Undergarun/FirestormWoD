@@ -413,6 +413,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             unit->m_movementInfo.t_pos.m_positionY = 0.0f;
             unit->m_movementInfo.t_pos.m_positionZ = 30.0f;
             break;
+        case 11227:
+        case 11228:
+            unit->m_movementInfo.t_pos.SetOrientation(M_PI / 2.f);
+            break;
         default:
             break;
     }
@@ -429,7 +433,12 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         Movement::MoveSplineInit init(*unit);
         init.DisableTransportPathTransformations();
         init.MoveTo(unit->m_movementInfo.t_pos.m_positionX, unit->m_movementInfo.t_pos.m_positionY, unit->m_movementInfo.t_pos.m_positionZ);
-        init.SetFacing(0.0f);
+
+        if (veSeat->m_ID == 11227 || veSeat->m_ID == 11228)
+            init.SetFacing(M_PI / 2.f);
+        else
+            init.SetFacing(0.0f);
+
         init.SetTransportEnter();
         init.Launch();
 
