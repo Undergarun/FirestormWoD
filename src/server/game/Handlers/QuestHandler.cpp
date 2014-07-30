@@ -659,31 +659,23 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 {
-    uint32 questId;
-    ObjectGuid playerGuid;
+    uint32 l_QuestID;
+    uint64 l_QuestGiverGUID;
     bool autoCompleteMode;      // 0 - standard complete quest mode with npc, 1 - auto-complete mode
-    recvData >> questId;
 
-    playerGuid[0] = recvData.ReadBit();
-    playerGuid[4] = recvData.ReadBit();
-    playerGuid[3] = recvData.ReadBit();
+
+    recvData.readPackGUID(l_QuestGiverGUID);
+    recvData >> l_QuestID;
+
     autoCompleteMode = recvData.ReadBit();
-    playerGuid[1] = recvData.ReadBit();
-    playerGuid[5] = recvData.ReadBit();
-    playerGuid[6] = recvData.ReadBit();
-    playerGuid[7] = recvData.ReadBit();
-    playerGuid[2] = recvData.ReadBit();
     recvData.FlushBits();
 
-    uint8 byteOrder[8] = {7, 0, 4, 1, 6, 3, 5, 2};
-    recvData.ReadBytesSeq(playerGuid, byteOrder);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", uint32(GUID_LOPART(playerGuid)), questId);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", uint32(GUID_LOPART(l_QuestGiverGUID)), l_QuestID);
 
     if (autoCompleteMode == 0)
     {
-        Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, playerGuid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
-        if (!object || !object->hasInvolvedQuest(questId))
+        Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_QuestGiverGUID, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+        if (!object || !object->hasInvolvedQuest(l_QuestID))
             return;
 
     // some kind of WPE protection
@@ -691,39 +683,39 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         return;
     }
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(l_QuestID))
     {
         if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [playerGuid: %u] tried to complete questId [entry: %u] by auto-submit flag for quest witch not suport it.",
-                m_Player->GetName(), m_Player->GetGUIDLow(), questId);
+                m_Player->GetName(), m_Player->GetGUIDLow(), l_QuestID);
             return;
         }
-        if (!m_Player->CanSeeStartQuest(quest) && m_Player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+        if (!m_Player->CanSeeStartQuest(quest) && m_Player->GetQuestStatus(l_QuestID) == QUEST_STATUS_NONE)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [playerGuid: %u] tried to complete questId [entry: %u] without being in possession of the questId!",
-                          m_Player->GetName(), m_Player->GetGUIDLow(), questId);
+                          m_Player->GetName(), m_Player->GetGUIDLow(), l_QuestID);
             return;
         }
         // TODO: need a virtual function
         if (m_Player->InBattleground())
             if (Battleground* bg = m_Player->GetBattleground())
                 if (bg->GetTypeID() == BATTLEGROUND_AV)
-                    ((BattlegroundAV*)bg)->HandleQuestComplete(questId, m_Player);
+                    ((BattlegroundAV*)bg)->HandleQuestComplete(l_QuestID, m_Player);
 
-        if (m_Player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE)
+        if (m_Player->GetQuestStatus(l_QuestID) != QUEST_STATUS_COMPLETE)
         {
             if (quest->IsRepeatable())
-                m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, playerGuid, m_Player->CanCompleteRepeatableQuest(quest), false);
+                m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanCompleteRepeatableQuest(quest), false);
             else
-                m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, playerGuid, m_Player->CanRewardQuest(quest, false), false);
+                m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
         }
         else
         {
             if (quest->GetReqItemsCount())                  // some items required
-                m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, playerGuid, m_Player->CanRewardQuest(quest, false), false);
+                m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
             else                                            // no items required
-                m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, playerGuid, !autoCompleteMode);
+                m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID, !autoCompleteMode);
         }
     }
 

@@ -408,7 +408,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_REQUEST_ITEMS,                       STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE,                  STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_QUEST_FAILED,                        STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_QUEST_DETAILS,                       STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_QUEST_DETAILS,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_QUEST_COMPLETE,                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE,                STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_QUEST_GIVER_INVALID_QUEST,                       STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -483,6 +483,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CREATURE_QUERY,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleCreatureQueryOpcode        );
     DEFINE_OPCODE_HANDLER(CMSG_NPC_TEXT_QUERY,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleNpcTextQueryOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_NAME_QUERY,                                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleNameQueryOpcode            );
+    DEFINE_OPCODE_HANDLER(CMSG_QUEST_QUERY,                                     STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestQueryOpcode           );
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -503,6 +504,9 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_STATUS_QUERY,                         STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleQuestgiverStatusQueryOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestgiverStatusMultipleQuery);
     DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_QUERY_QUEST,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestgiverQueryQuestOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_COMPLETE_QUEST,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestgiverCompleteQuest   );
+    DEFINE_OPCODE_HANDLER(CMSG_QUEST_CONFIRM_ACCEPT,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestConfirmAccept        );
+    DEFINE_OPCODE_HANDLER(CMSG_QUESTLOG_REMOVE_QUEST,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestLogRemoveQuest       );
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
@@ -856,14 +860,10 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_QUERY_TIME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_ACCEPT_QUEST,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverAcceptQuestOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_CHOOSE_REWARD,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverChooseRewardOpcode);
-    //DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_COMPLETE_QUEST,               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverCompleteQuest   );
     //DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_HELLO,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverHelloOpcode     );
     //DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_REQUEST_REWARD,               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverRequestRewardOpcode);
-    //DEFINE_OPCODE_HANDLER(CMSG_QUESTLOG_REMOVE_QUEST,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestLogRemoveQuest       );
-    //DEFINE_OPCODE_HANDLER(CMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept        );
     //DEFINE_OPCODE_HANDLER(CMSG_QUEST_NPC_QUERY,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_QUEST_POI_QUERY,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestPOIQuery             );
-    //DEFINE_OPCODE_HANDLER(CMSG_QUEST_QUERY,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestQueryOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_RAID_LEADER_READY_CHECK,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRaidLeaderReadyCheck      );
     //DEFINE_OPCODE_HANDLER(CMSG_RAID_CONFIRM_READY_CHECK,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRaidConfirmReadyCheck     );
     //DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRandomizeCharNameOpcode   );

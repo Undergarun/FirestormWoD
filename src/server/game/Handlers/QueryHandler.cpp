@@ -62,13 +62,8 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
         {
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            if (names->name[i].size())
-                data.append(names->name[i].c_str(), names->name[i].size());
-        }
-        else
-        {
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                data.WriteBits(0, 7);
+                if (names->name[i].size())
+                    data.append(names->name[i].c_str(), names->name[i].size());
         }
 
         data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));

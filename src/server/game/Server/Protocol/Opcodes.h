@@ -331,7 +331,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamQuest
         /// Quest log
-        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x0000,
+        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x1A4B,
         SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0000,
         SMSG_QUEST_UPDATE_FAILED                    = 0x0000,
         SMSG_QUEST_UPDATE_COMPLETE                  = 0x0000,
@@ -356,7 +356,7 @@ enum Opcodes
         SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0000,
         SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0000,
         SMSG_QUEST_GIVER_QUEST_FAILED               = 0x0000,
-        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x10DF,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x0000,
         SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x0000,
         SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0000,
@@ -431,6 +431,7 @@ enum Opcodes
     CMSG_CREATURE_QUERY                         = 0x0367,   ///< 6.0.1 18612
     CMSG_NPC_TEXT_QUERY                         = 0x1B53,   ///< 6.0.1 18612
     CMSG_NAME_QUERY                             = 0x1E42,   ///< 6.0.1 18612
+    CMSG_QUEST_QUERY                            = 0x0096,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -451,6 +452,9 @@ enum Opcodes
     CMSG_QUESTGIVER_STATUS_QUERY                = 0x1C8C,   ///< 6.0.1 18612
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0E8C,   ///< 6.0.1 18612
     CMSG_QUESTGIVER_QUERY_QUEST                 = 0x1B6D,   ///< 6.0.1 18612
+    CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x197D,   ///< 6.0.1 18612
+    CMSG_QUEST_CONFIRM_ACCEPT                   = 0x0B69,   ///< 6.0.1 18612
+    CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0E48,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
@@ -897,14 +901,10 @@ enum Opcodes
     CMSG_QUERY_TIME                                   = 0x0000,
     CMSG_QUESTGIVER_ACCEPT_QUEST                      = 0x0000,
     CMSG_QUESTGIVER_CHOOSE_REWARD                     = 0x0000,
-    CMSG_QUESTGIVER_COMPLETE_QUEST                    = 0x0000,
     CMSG_QUESTGIVER_HELLO                             = 0x0000,
     CMSG_QUESTGIVER_REQUEST_REWARD                    = 0x0000,
-    CMSG_QUESTLOG_REMOVE_QUEST                        = 0x0000,
-    CMSG_QUEST_CONFIRM_ACCEPT                         = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
     CMSG_QUEST_POI_QUERY                              = 0x0000,
-    CMSG_QUEST_QUERY                                  = 0x0000,
     CMSG_RAID_LEADER_READY_CHECK                      = 0x0000,
     CMSG_RAID_CONFIRM_READY_CHECK                     = 0x0000,
     CMSG_RAID_TARGET_UPDATE                           = 0x0000,
