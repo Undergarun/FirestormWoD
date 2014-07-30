@@ -515,6 +515,7 @@
     <field type="int" name="m_selectScreenFileDataID" />
     <field type="int" name="m_lowResScreenFileDataID" />
     <field type="int" name="m_iconFileDataID" />
+    <field type="int" name="newField" />
   </ChrClasses>
   <ChrClassesXPowerTypes build="0">
     <index>
@@ -567,6 +568,7 @@
     <field type="int" name="m_HighResMaleDisplayId" />
     <field type="int" name="m_HighResFemaleDisplayId" />
     <field type="int" name="m_charComponentTexLayoutHiResID" />
+    <field type="int" name="newField" />
   </ChrRaces>
   <ChrSpecialization build="0">
     <index>
@@ -1256,4 +1258,76 @@
     <field type="int" name="field21" />
     <field type="int" name="field22" />
   </QuestV2CliTask>
+  <AreaTable build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ContinentID" />
+    <field type="int" name="ParentAreaID" />
+    <field type="int" name="AreaBit" />
+    <field type="uint" name="Flags_0" />
+    <field type="int" name="Flags_1" />
+    <field type="int" name="SoundProviderPref" />
+    <field type="int" name="SoundProviderPrefUnderwater" />
+    <field type="int" name="AmbienceID" />
+    <field type="int" name="ZoneMusic" />
+    <field type="string" name="ZoneName" />
+    <field type="int" name="IntroSound" />
+    <field type="int" name="ExplorationLevel" />
+    <field type="string" name="AreaNameLang" />
+    <field type="int" name="FactionGroupMask" />
+    <field type="int" name="LiquidTypeID_0" />
+    <field type="int" name="LiquidTypeID_1" />
+    <field type="int" name="LiquidTypeID_2" />
+    <field type="int" name="LiquidTypeID_3" />
+    <field type="float" name="MinElevation" />
+    <field type="float" name="AmbientMultiplier" />
+    <field type="int" name="Lightid" />
+    <field type="int" name="MountFlags" />
+    <field type="int" name="UwIntroSound" />
+    <field type="int" name="UwZoneMusic" />
+    <field type="int" name="UwAmbience" />
+    <field type="int" name="WorldPvpId" />
+    <field type="int" name="PvpCombatWorldStateID" />
+    <field type="int" name="WildBattlePetLevelMin" />
+    <field type="int" name="WildBattlePetLevelMax" />
+    <field type="int" name="WindSettingsID" />
+  </AreaTable>
+  <BattlemasterList build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="MapID0" />
+    <field type="int" name="MapID1" />
+    <field type="int" name="MapID2" />
+    <field type="int" name="MapID3" />
+    <field type="int" name="MapID4" />
+    <field type="int" name="MapID5" />
+    <field type="int" name="MapID6" />
+    <field type="int" name="MapID7" />
+    <field type="int" name="MapID8" />
+    <field type="int" name="MapID9" />
+    <field type="int" name="MapID10" />
+    <field type="int" name="MapID11" />
+    <field type="int" name="MapID12" />
+    <field type="int" name="MapID13" />
+    <field type="int" name="MapID14" />
+    <field type="int" name="MapID15" />
+    <field type="int" name="InstanceType" />
+    <field type="int" name="GroupsAllowed" />
+    <field type="string" name="NameLang" />
+    <field type="int" name="MaxGroupSize" />
+    <field type="int" name="HolidayWorldState" />
+    <field type="int" name="Minlevel" />
+    <field type="int" name="Maxlevel" />
+    <field type="int" name="RatedPlayers" />
+    <field type="int" name="MinPlayers" />
+    <field type="int" name="MaxPlayers" />
+    <field type="int" name="Flags" />
+    <field type="int" name="IconFileDataID" />
+    <field type="string" name="GametypeLang" />
+    <field type="int" name="unk601" />
+  </BattlemasterList>
 </DBFilesClient>

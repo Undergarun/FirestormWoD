@@ -345,6 +345,40 @@ enum AreaFlags
     AREA_FLAG_UNK9             = 0x40000000
 };
 
+enum AreaFlags2
+{
+    AREA_FLAG2_UNK1             = 0x00000001,                // mine / underground ?
+    AREA_FLAG2_UNK2             = 0x00000002,                // PattymackLand only
+    AREA_FLAG2_UNK3             = 0x00000004,                // donjons / raids
+    AREA_FLAG2_UNK4             = 0x00000008,                // OrgrimmarRaid and DraenorAuchindoun
+    AREA_FLAG2_UNK5             = 0x00000010,                //
+    AREA_FLAG2_UNK6             = 0x00000020,                //
+    AREA_FLAG2_UNK7             = 0x00000040,                //
+    AREA_FLAG2_UNK8             = 0x00000080,                //
+    AREA_FLAG2_UNK9             = 0x00000100,                //
+    AREA_FLAG2_UNK10            = 0x00000200,                //
+    AREA_FLAG2_UNK11            = 0x00000400,                //
+    AREA_FLAG2_UNK12            = 0x00000800,                //
+    AREA_FLAG2_UNK13            = 0x00001000,                //
+    AREA_FLAG2_UNK14            = 0x00002000,                //
+    AREA_FLAG2_UNK15            = 0x00004000,                //
+    AREA_FLAG2_UNK16            = 0x00008000,                //
+    AREA_FLAG2_UNK17            = 0x00010000,                //
+    AREA_FLAG2_UNK18            = 0x00020000,                //
+    AREA_FLAG2_UNK19            = 0x00040000,                //
+    AREA_FLAG2_UNK20            = 0x00080000,                //
+    AREA_FLAG2_UNK21            = 0x00100000,                //
+    AREA_FLAG2_UNK22            = 0x00200000,                //
+    AREA_FLAG2_UNK23            = 0x00400000,                //
+    AREA_FLAG2_UNK24            = 0x00800000,                //
+    AREA_FLAG2_UNK25            = 0x01000000,                //
+    AREA_FLAG2_UNK26            = 0x02000000,                //
+    AREA_FLAG2_UNK27            = 0x04000000,                //
+    AREA_FLAG2_UNK28            = 0x08000000,                //
+    AREA_FLAG2_UNK29            = 0x20000000,                //
+    AREA_FLAG2_UNK30            = 0x40000000
+};
+
 enum Difficulty
 {
     NONE_DIFFICULTY              = 0,                       // entry

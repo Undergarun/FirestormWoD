@@ -40,31 +40,32 @@
 
 struct AchievementEntry
 {
-    uint32    ID;                                           // 0
-    int32    requiredFaction;                               // 1 -1=all, 0=horde, 1=alliance
-    int32    mapID;                                         // 2 -1=none
-    //uint32 parentAchievement;                             // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char* name;                                             // 4
-    //char* description;                                    // 5
-    uint32    categoryId;                                   // 6
-    uint32    points;                                       // 7 reward points
-    //uint32 OrderInCategory;                               // 8
-    uint32    flags;                                        // 9
-    //uint32    icon;                                       // 10 icon (from SpellIcon.dbc)
-    //char* reward;                                         // 11
-    uint32 count;                                           // 12 - need this count of completed criterias (own or referenced achievement criterias)
-    uint32 refAchievement;                                  // 13 - referenced achievement (counting of all completed criterias)
-    //uint32 unk_505                                        // 14
+    uint32    ID;                                           // 0        m_ID
+    int32    requiredFaction;                               // 1        m_faction            -1=all, 0=horde, 1=alliance    
+    int32    mapID;                                         // 2        m_instanceID         -1=none    
+    //uint32 parentAchievement;                             // 3        m_supercedes         its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)    
+    char* name;                                             // 4        m_title_lang
+    //char* description;                                    // 5        m_description_lang
+    uint32    categoryId;                                   // 6        m_category
+    uint32    points;                                       // 7        m_points              reward points 
+    //uint32 OrderInCategory;                               // 8        m_ui_order
+    uint32    flags;                                        // 9        m_flags
+    //uint32    icon;                                       // 10       m_iconID              icon (from SpellIcon.dbc) 
+    //char* reward;                                         // 11       m_reward_lang
+    uint32 count;                                           // 12       m_minimum_criteria    need this count of completed criterias (own or referenced achievement criterias)
+    uint32 refAchievement;                                  // 13       m_shares_criteria     referenced achievement (counting of all completed criterias)
+    //uint32 m_criteria_tree                                // 14       m_criteria_tree
 };
 
 struct AchievementCategoryEntry
 {
-    uint32    ID;                                           // 0
-    uint32    parentCategory;                               // 1 -1 for main category
-    //char*     name;                                       // 2
-    //uint32    sortOrder;                                  // 3
+    uint32    ID;                                           // 0        m_ID
+    int32    parentCategory;                                // 1        m_parent        -1 for main category
+    //char*     name;                                       // 2        m_name_mang
+    //uint32    sortOrder;                                  // 3        m_ui_order
 };
 
+// DBC removed since MoP 5.0.5 + @issue : #282
 struct AchievementCriteriaEntry
 {
     uint32  ID;                                             // 0
@@ -635,36 +636,36 @@ struct AchievementCriteriaEntry
 
 struct AreaTableEntry
 {
-    uint32  ID;                                             // 0
-    uint32  mapid;                                          // 1
-    uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3 main index
-    uint32  flags;                                          // 4
-    //uint32 unk505_1;                                      // 5
-    //uint32 unk5;                                          // 6
-    //uint32 unk6;                                          // 7
-    //uint32 unk7;                                          // 8
-    //uint32 unk8;                                          // 9
-    //char*  name                                           // 10   Area name
-    //uint32 unk9;                                          // 11
-    int32   area_level;                                     // 12
-    char*   area_name;                                      // 13   Area name loc
-    uint32  team;                                           // 14
-    uint32  LiquidTypeOverride[4];                          // 15-18 liquid override by type
-    float   MaxDepth;                                       // 19 determine the maximum depth that a player an reach in an area before being teleported back up.
-    //float  unk13;                                         // 20
-    //uint32 unk19;                                         // 21 All zeros
-    //uint32 unk20;                                         // 22 4.0.0
-    //uint32 unk21;                                         // 23 All zeros
-    //uint32 unk22;                                         // 24 4.0.0
-    //uint32 unk23;                                         // 25 4.0.0
-    //uint32 unk24;                                         // 26
-    //int32 worldStateId;                                   // 27 worldStateId
-    //uint32 unk25;                                         // 28
-    //uint32 unk26;                                         // 29
-    //uint32 unk27;                                         // 30
+    uint32  ID;                                             // 0        m_ID
+    uint32  mapid;                                          // 1        m_ContinentID
+    uint32  zone;                                           // 2        m_ParentAreaID      if 0 then it's zone, else it's zone id of this area
+    uint32  exploreFlag;                                    // 3        m_AreaBit           main index
+    uint32  flags;                                          // 4        m_Flags             AreaFlags
+    //uint32 flag2;                                         // 5        m_Flags2
+    //uint32 unk5;                                          // 6        m_SoundProviderPref
+    //uint32 unk6;                                          // 7        m_SoundProviderPrefUnderwater
+    //uint32 unk7;                                          // 8        m_AmbienceID
+    //uint32 unk8;                                          // 9        m_ZoneMusic
+    //char*  name                                           // 10       m_ZoneName
+    //uint32 unk9;                                          // 11       m_IntroSound
+    int32   area_level;                                     // 12       m_ExplorationLevel
+    char*   area_name;                                      // 13       m_AreaNameLang
+    uint32  team;                                           // 14       m_FactionGroupMask
+    uint32  LiquidTypeOverride[4];                          // 15-18    m_LiquidTypeID      liquid override by type
+    float   MaxDepth;                                       // 19       m_MinElevation      determine the maximum depth that a player an reach in an area before being teleported back up.
+    //float  unk13;                                         // 20       m_AmbientMultiplier
+    //uint32 unk19;                                         // 21       m_Lightid           All zeros
+    //uint32 unk20;                                         // 22       m_MountFlags
+    //uint32 unk21;                                         // 23       m_UwIntroSound      All zeros
+    //uint32 unk22;                                         // 24       m_UwZoneMusic
+    //uint32 unk23;                                         // 25       m_UwAmbience
+    //uint32 unk24;                                         // 26       m_WorldPvpId
+    //int32 worldStateId;                                   // 27       m_PvpCombatWorldStateID
+    //uint32 unk25;                                         // 28       m_WildBattlePetLevelMin
+    //uint32 unk26;                                         // 29       m_WildBattlePetLevelMax
+    //uint32 unk27;                                         // 30       m_WindSettingsID
 
-    // helpers
+    // DeathKnightStart map, maybe AreaFlags ? 
     bool IsSanctuary() const
     {
         if (mapid == 609)
@@ -677,9 +678,9 @@ struct AreaTableEntry
 
 struct AreaGroupEntry
 {
-    uint32  AreaGroupId;                                    // 0
-    uint32  AreaId[MAX_GROUP_AREA_IDS];                     // 1-6
-    uint32  nextGroup;                                      // 7 index of next group
+    uint32  AreaGroupId;                                    // 0        m_ID
+    uint32  AreaId[MAX_GROUP_AREA_IDS];                     // 1-6      m_areaID
+    uint32  nextGroup;                                      // 7        m_nextAreaID
 };
 
 struct AreaTriggerEntry
@@ -689,111 +690,106 @@ struct AreaTriggerEntry
     float   x;                                              // 2        m_x
     float   y;                                              // 3        m_y
     float   z;                                              // 4        m_z
-    //uint32                                                // 5
-    //uint32                                                // 6
-    //uint32                                                // 7
+    //uint32                                                // 5        m_phaseUSeFlags
+    //uint32                                                // 6        m_phaseID
+    //uint32                                                // 7        m_phaseGroupID
     float   radius;                                         // 8        m_radius
     float   box_x;                                          // 9        m_box_length
     float   box_y;                                          // 10       m_box_width
     float   box_z;                                          // 11       m_box_heigh
     float   box_orientation;                                // 12       m_box_yaw
-    //uint32                                                // 13
-    //uint32                                                // 14
-    //uint32                                                // 15
-    //uint32                                                // 16
+    //uint32                                                // 13       m_shapeType
+    //uint32                                                // 14       m_shapeID
+    //uint32                                                // 15       m_areaTriggerActionSetID
+    //uint32                                                // 16       m_flags
 };
 
 struct ArmorLocationEntry
 {
-  uint32    InventoryType;                                  // 0
-  float     Value[5];                                       // 1-5 multiplier for armor types (cloth...plate, no armor?)
+  uint32    InventoryType;                                  // 0        m_ID
+  float     Value[5];                                       // 1-5      m_clothmodifier / m_leathermodifier / m_chainmodifier / m_platemodifier / m_modifier  //multiplier for armor types (cloth...plate, no armor?)
 };
 
 struct AuctionHouseEntry
 {
-    uint32    houseId;                                      // 0 index
-    uint32    faction;                                      // 1 id of faction.dbc for player factions associated with city
-    uint32    depositPercent;                               // 2 1/3 from real
-    uint32    cutPercent;                                   // 3
-    //char*     name;                                       // 4
+    uint32    houseId;                                      // 0        m_ID
+    uint32    faction;                                      // 1        m_factionID         id of faction.dbc for player factions associated with city
+    uint32    depositPercent;                               // 2        m_depositRate       1/3 from real
+    uint32    cutPercent;                                   // 3        m_consignementRate
+    //char*     name;                                       // 4        m_name_lang
 };
 
 struct BankBagSlotPricesEntry
 {
-    uint32  ID;
-    uint32  price;
+    uint32  ID;                                             // 0        m_ID
+    uint32  price;                                          // 1        m_cost
 };
 
 struct BarberShopStyleEntry
 {
-    uint32  Id;                                             // 0
-    uint32  type;                                           // 1 value 0 -> hair, value 2 -> facialhair
-    //char*   name;                                         // 2 m_DisplayName_lang
-    //uint32  unk_name;                                     // 3 m_Description_lang
-    //float   CostMultiplier;                               // 4 m_Cost_Modifier
-    uint32  race;                                           // 5 m_race
-    uint32  gender;                                         // 6 m_sex
-    uint32  hair_id;                                        // 7 m_data (real ID to hair/facial hair)
+    uint32  Id;                                             // 0        m_ID
+    uint32  type;                                           // 1        m_type          value 0 -> hair, value 2 -> facialhair
+    //char*   name;                                         // 2        m_DisplayName_lang
+    //uint32  m_Description_lang;                           // 3        m_Description_lang
+    //float   CostMultiplier;                               // 4        m_Cost_Modifier
+    uint32  race;                                           // 5        m_race
+    uint32  gender;                                         // 6        m_sex
+    uint32  hair_id;                                        // 7        m_data (real ID to hair/facial hair)
 };
 
-// @author Selenium: 5.4 valid
 struct BattlemasterListEntry
 {
-    uint32  id;                                             // 0
-    uint32  mapid[11];                                      // 1-11
-    //int32 unk_1;                                          // 12 Possible field for futur mapid
-    //int32 unk_2;                                          // 13 Possible field for futur mapid
-    //int32 unk_3;                                          // 14 Possible field for futur mapid
-    //int32 unk_4;                                          // 15 Possible field for futur mapid
-    //int32 unk_5;                                          // 16 Possible field for futur mapid
-    uint32  type;                                           // 17 (3 - BG, 4 - arena)
-    //uint32 canJoinAsGroup;                                // 18
-    char* name;                                             // 19 Map name
-    //uint32 minPlayers;                                    // 20
-    uint32 HolidayWorldStateId;                             // 21
-    uint32 minLevel;                                        // 22 min level (sync with PvPDifficulty.dbc content)
-    uint32 maxLevel;                                        // 23 max level (sync with PvPDifficulty.dbc content)
-    uint32 maxGroupSize;                                    // 24
-    //uint32 unk_6;                                         // 25 groupe size related (guild challenge ?)
-    //uint32 maxPlayers;                                    // 26
-    //uint32 isRated;                                       // 27 0 for normal 2 rated
-    //uint32 unk_11;                                        // 28 data only for BG
-    //char*  objectiveType;                                 // 29
+    uint32  id;                                             // 0        m_ID
+    uint32  mapid[16];                                      // 1-16     m_MapID
+    uint32  type;                                           // 17       m_InstanceType 3 - BG, 4 - arena
+    //uint32 canJoinAsGroup;                                // 18       m_GroupsAllowed
+    char* name;                                             // 19       m_NameLang
+    //uint32 minPlayers;                                    // 20       m_MaxGroupSize
+    uint32 HolidayWorldStateId;                             // 21       m_HolidayWorldState
+    uint32 minLevel;                                        // 22       m_MinLevel     sync with PvPDifficulty.dbc
+    uint32 maxLevel;                                        // 23       m_MaxLevel     sync with PvPDifficulty.dbc
+    uint32 maxGroupSize;                                    // 24       m_RatedPlayer
+    //uint32 m_MinPlayer;                                   // 25       m_MinPlayer
+    //uint32 maxPlayers;                                    // 26       m_MaxPlayer
+    //uint32 isRated;                                       // 27       m_Flags         2 - Rated / 4 - Unk 6.0.1
+    //uint32 m_IconFileDataID;                              // 28       m_IconFileDataID
+    //char*  objectiveType;                                 // 29       m_GametypeLang
+    //uint32 Unk;                                           // 30       6.0.1 18612     Only Troll Raid 2 have data                               
 };
 
 #define MAX_OUTFIT_ITEMS 24
 
 struct CharStartOutfitEntry
 {
-    //uint32 Id;                                            // 0
-    uint32 RaceClassGender;                                 // 1 (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 2-13
-    //uint32 Unknown1;                                      // 14, unique values (index-like with gaps ordered in other way as ids)
-    //uint32 Unknown2;                                      // 15
+    //uint32 Id;                                            // 0        m_ID
+    uint32 RaceClassGender;                                 // 1        m_raceID + m_classID + m_sexID + m_outfitID = RaceClassGender (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
+    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 2-13     m_itemID
+    //uint32 m_petDisplayID;                                // 14       m_petDisplayID
+    //uint32 m_petFamilyId;                                 // 15       m_petFamilyId
 };
 
 struct CharTitlesEntry
 {
-    uint32  ID;                                             // 0 title ids, for example in Quest::GetCharTitleId()
-    //uint32      unk1;                                     // 1 flags?
-    char* name;                                             // 2 m_name_lang
-    //char*       name2;                                    // 3 m_name1_lang
-    uint32  bit_index;                                      // 4 m_mask_ID used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER_FIELD_KNOWN_TITLES
-    //uint32                                                // 5
+    uint32  ID;                                             // 0        m_ID            exemple in Quest::GetCharTitleId()
+    //uint32    m_Condition_ID;                             // 1        m_Condition_ID
+    char* name;                                             // 2        m_name_lang
+    //char* name2;                                          // 3        m_name1_lang
+    uint32  bit_index;                                      // 4        m_mask_ID       used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER_FIELD_KNOWN_TITLES
+    //uint32                                                // 5        m_flags         4 = temp title / 2 = arena tournament server only
 };
 
 struct ChatChannelsEntry
 {
-    uint32  ChannelID;                                      // 0
-    uint32  flags;                                          // 1
+    uint32  ChannelID;                                      // 0        m_ID
+    uint32  flags;                                          // 1        m_flags
     //uint32                                                // 2        m_factionGroup
     char* pattern;                                          // 3        m_name_lang
-    //char*       name;                                     // 4        m_shortcut_lang
+    //char*  name;                                          // 4        m_shortcut_lang
 };
 
 struct ChrClassesEntry
 {
-    uint32  ClassID;                                        // 0
+    uint32  ClassID;                                        // 0        m_ID
     uint32  powerType;                                      // 1        m_DisplayPower
     //char*                                                 // 2        m_petNameToken
     char* name;                                             // 3        m_name_lang
@@ -801,56 +797,60 @@ struct ChrClassesEntry
     //char*       nameNeutralGender;                        // 5        m_name_male_lang
     //char*       capitalizedName                           // 6        m_filename
     uint32  spellfamily;                                    // 7        m_spellClassSet
-    //uint32 flags2;                                        // 8        m_flags (0x08 HasRelicSlot)
+    //uint32 flags;                                         // 8        m_flags (0x08 HasRelicSlot)
     uint32  CinematicSequence;                              // 9        m_cinematicSequenceID
-    uint32 APPerStrenth;                                    // 11       Attack Power bonus per point of strength
-    uint32 APPerAgility;                                    // 12       Attack Power bonus per point of agility
-    uint32 RAPPerAgility;                                   // 13       Ranged Attack Power bonus per point of agility
-    //uint32                                                // 14       Only death knight
-    //uint32                                                // 15       Only death knight
-    //uint32                                                // 16       All Zeros
-    //uint32                                                // 17
-    //uint32                                                // 18
+    uint32 APPerStrenth;                                    // 11       m_AttackPowerPerStrength        Attack Power bonus per point of strength
+    uint32 APPerAgility;                                    // 12       m_AttackPowerPerAgility         Attack Power bonus per point of agility
+    uint32 RAPPerAgility;                                   // 13       m_RangedAttackPowerPerAgility   Ranged Attack Power bonus per point of agility
+    //uint32                                                // 14       m_DefaultSpec
+    //uint32                                                // 15       m_CreateScreenFileDataID
+    //uint32                                                // 16       m_SelectScreenFileDataID
+    //uint32                                                // 17       m_LowResScreenFileDataID
+    //uint32                                                // 18       m_IconFileDataID
+    //uint32                                                // 19       unk 6.0.1 18612
 };
 
 struct ChrRacesEntry
 {
-    uint32      RaceID;                                     // 0
-    //uint32                                                // 1 unused
-    uint32      FactionID;                                  // 2 faction template id
-    //uint32                                                // 3 unused
-    uint32      model_m;                                    // 4
-    uint32      model_f;                                    // 5
-    //char*                                                 // 6 unused
-    uint32      TeamID;                                     // 7 (7 Alliance, 1 Horde, 42 Neutral)
-    //uint32                                                // 8
-    //uint32                                                // 9
-    //uint32                                                // 10
-    //char*                                                 // 11
-    uint32      CinematicSequence;                          // 12 id from CinematicSequences.dbc
-    //uint32    unk_322;                                    // 13       m_alliance (0 alliance, 1 horde, 2 disabled races)
-    char* name;                                             // 14       m_name_lang used for DBC language detection/selection
-    //char*       nameFemale;                               // 15       m_name_female_lang
-    //char*       nameNeutralGender;                        // 16       m_name_male_lang
-    //char*                                                 // 17       m_facialHairCustomization
-    //char*                                                 // 18       m_facialHairCustomization
-    //char*                                                 // 19       m_hairCustomization
-    //uint32                                                // 20
-    //uint32                                                // 21 (23 for worgens)
-    //uint32                                                // 22 4.0.0
-    //uint32                                                // 23 4.0.0
-    //expansion;                                            // 24       m_required_expansion
-    //uint32                                                // 25 5.0.5
-    //uint32                                                // 26 5.0.5
-    //uint32                                                // 27 5.0.5
-    //float                                                 // 28 5.0.5
-    //uint32                                                // 29 5.0.5 All Zeros
-    //float                                                 // 30 5.0.5
-    //float                                                 // 31 5.0.5
-    //uint32                                                // 32 5.0.5 All zeros
-    //float                                                 // 33 5.0.5
-    //uint32    masterRace;                                 // 34 5.0.5 master race (Pandaren only)
-    //uint32                                                // 35 5.0.5
+    uint32      RaceID;                                     // 0        m_ID
+    //uint32                                                // 1        m_Flags
+    uint32      FactionID;                                  // 2        m_FactionID
+    //uint32                                                // 3        m_ExplorationSoundID
+    uint32      model_m;                                    // 4        m_MaleDisplayId
+    uint32      model_f;                                    // 5        m_FemaleDisplayId
+    //char*                                                 // 6        m_ClientPrefix
+    uint32      TeamID;                                     // 7        m_BaseLanguage (7 Alliance, 1 Horde, 42 Neutral)
+    //uint32                                                // 8        m_CreatureType
+    //uint32                                                // 9        m_ResSicknessSpellID
+    //uint32                                                // 10       m_SplashSoundID
+    //char*                                                 // 11       m_ClientFileString
+    uint32      CinematicSequence;                          // 12       m_CinematicSequenceID
+    //uint32 m_alliance;                                    // 13       m_alliance (0 alliance, 1 horde, 2 disabled races)
+    char* name;                                             // 14       m_NameLang used for DBC language detection/selection
+    //char*       nameFemale;                               // 15       m_NameFemaleLang
+    //char*       nameNeutralGender;                        // 16       m_NameMaleLang
+    //char*                                                 // 17       m_FacialHairCustomization
+    //char*                                                 // 18       m_HairCustomization
+    //uint32                                                // 19       m_RaceRelated
+    //uint32                                                // 20       m_UnalteredVisualRaceID
+    //uint32                                                // 21       m_UaMaleCreatureSoundDataID
+    //uint32                                                // 22       m_UaFemaleCreatureSoundDataID
+    //uint32;                                               // 23       m_CharComponentTextureLayoutID
+    //uint32                                                // 24       m_DefaultClassID
+    //uint32                                                // 25       m_CreateScreenFileDataID
+    //uint32                                                // 26       m_SelectScreenFileDataID
+    //float                                                 // 27       m_MaleCustomizeOffset
+    //float                                                 // 28       m_MaleCustomizeOffset
+    //float                                                 // 29       m_MaleCustomizeOffset
+    //float                                                 // 30       m_FemaleCustomizeOffset
+    //float                                                 // 31       m_FemaleCustomizeOffset
+    //float                                                 // 32       m_FemaleCustomizeOffset
+    //uint32                                                // 33       m_NeutralRaceID
+    //uint32                                                // 34       m_LowResScreenFileDataID
+    //uint32                                                // 35       m_HighResMaleDisplayId
+    //uint32                                                // 36       m_HighResFemaleDisplayId
+    //uint32                                                // 37       m_CharComponentTexLayoutHiResID
+    //uint32                                                // 38       6.0.1 18612 unk related to displayID HightRes for Worgen
 };
 
 struct ChrPowerTypesEntry
@@ -1679,6 +1679,7 @@ struct MapEntry
         return true;
     }
 
+    // @todo : use m_ContinentID from AreTable.dbc used for SPELL_ATTR4_CAST_ONLY_IN_OUTLAND issue #281
     bool IsContinent() const
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 860 || MapID == 870;
