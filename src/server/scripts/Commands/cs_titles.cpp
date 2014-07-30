@@ -92,9 +92,9 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         target->SetTitle(titleInfo);                            // to be sure that title now known
-        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->MaskID);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, titleInfo->name, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, titleInfo->NameLang, tNameLink.c_str());
 
         return true;
     }
@@ -138,7 +138,7 @@ public:
 
         char const* targetName = target->GetName();
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name, targetName);
+        snprintf(titleNameStr, 80, titleInfo->NameLang, targetName);
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
@@ -187,7 +187,7 @@ public:
 
         char const* targetName = target->GetName();
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name, targetName);
+        snprintf(titleNameStr, 80, titleInfo->NameLang, targetName);
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 
@@ -226,7 +226,7 @@ public:
 
         for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
             if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
-                titles2 &= ~(uint64(1) << tEntry->bit_index);
+                titles2 &= ~(uint64(1) << tEntry->MaskID);
 
         titles &= ~titles2;                                     // remove not existed titles
 

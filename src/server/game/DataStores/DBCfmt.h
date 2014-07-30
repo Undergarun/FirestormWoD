@@ -22,27 +22,27 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-const char Achievementfmt[]                   = "niixsxiixixxiix";
+const char Achievementfmt[]                   = "niiissiiiiisiii";
 const std::string CustomAchievementfmt        = "pppaaaapapaappa";
 const std::string CustomAchievementIndex      = "ID";
 const char AchievementCriteriafmt[]           = "niiiixiiiisiiiiixxiiiii";
 const char AreaTableEntryfmt[]                = "iiinixxxxxxxisiiiiifxxxxxxxxxx";
 const char AreaGroupEntryfmt[]                = "niiiiiii";
-const char AreaPOIEntryfmt[]                  = "niiiiiiiiiiiffixixxixxx";
+const char AreaPOIEntryfmt[]                  = "niiiiiiiiiiiffiiissiiii";
 const char AreaTriggerEntryfmt[]              = "nifffxxxfffffxxx";
 const char ArmorLocationfmt[]                 = "nfffff";
-const char AuctionHouseEntryfmt[]             = "niiix";
+const char AuctionHouseEntryfmt[]             = "niiis";
 const char BankBagSlotPricesEntryfmt[]        = "ni";
-const char BarberShopStyleEntryfmt[]          = "nixxxiii";
-const char BattlemasterListEntryfmt[]         = "niiiiiiiiiiixxxxxixsxiiiixxxxx";
-const char CharStartOutfitEntryfmt[]          = "diiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-const char CharTitlesEntryfmt[]               = "nxsxix";
-const char ChatChannelsEntryfmt[]             = "nixsx";
-const char ChrClassesEntryfmt[]               = "nixsxxxixiiiixxxxx";
-const char ChrRacesEntryfmt[]                 = "nxixiixixxxxixsxxxxxxxxxxxxxxxxxxxxx";
+const char BarberShopStyleEntryfmt[]          = "nissfiii";
+const char BattlemasterListEntryfmt[]         = "niiiiiiiiiiiiiiiiiisiiiiiiiiis";
+const char CharStartOutfitEntryfmt[]          = "nbbbbiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
+const char CharTitlesEntryfmt[]               = "nissii";
+const char ChatChannelsEntryfmt[]             = "niiss";
+const char ChrClassesEntryfmt[]               = "nisssssiiiiiiiiiii";
 const char ChrClassesXPowerTypesfmt[]         = "nii";
-const char ChrSpecializationsfmt[]            = "nsiixixxxxxssx";
-const char CinematicSequencesEntryfmt[]       = "nxxxxxxxxx";
+const char ChrRacesEntryfmt[]                 = "nxixiixixxxxixsxxxxxxxxxxxxxxxxxxxxx";
+const char ChrSpecializationsfmt[]            = "nsiiiiiiiiissi";
+const char CinematicSequencesEntryfmt[]       = "niiiiiiiii";
 const char CreatureDisplayInfofmt[]           = "nixxfxxxxxxxxxxxxxxx";
 const char CreatureModelDatafmt[]             = "nxxxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]                = "nfifiiiiixsx";

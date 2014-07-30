@@ -16614,10 +16614,10 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
         if (!powerEntry)
             continue;
 
-        if (powerEntry->classId != classId)
+        if (powerEntry->ClassID != classId)
             continue;
 
-        if (powerEntry->power == powerId)
+        if (powerEntry->PowerType == powerId)
             return index;
 
         ++index;
