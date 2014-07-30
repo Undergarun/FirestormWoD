@@ -618,26 +618,25 @@ void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
 
 void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 {
-    uint32 count;
-    count = recvData.ReadBits(22);
-    recvData.FlushBits();
+    uint32 l_Count;
 
-    if (count >= MAX_QUEST_LOG_SIZE)
+    recvData >> l_Count;
+
+    if (l_Count >= MAX_QUEST_LOG_SIZE)
     {
         recvData.rfinish();
         return;
     }
 
     std::list<uint32> questList;
-    for (uint32 i = 0; i < count; ++i)
+    for (uint32 i = 0; i < l_Count; ++i)
         questList.push_back(recvData.read<uint32>());
 
 
-    WorldPacket data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*count);
-    data << uint32(count); // count
-    data.WriteBits(count, 20);
+    WorldPacket data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*l_Count);
+    data << uint32(l_Count); // count
+    data << uint32(l_Count);
 
-    // Write bits
     for (auto itr : questList)
     {
         uint32 questId = itr;
@@ -646,87 +645,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 
         if (questSlot != MAX_QUEST_LOG_SIZE)
             questOk =m_Player->GetQuestSlotQuestId(questSlot) == questId;
-
-        if (questOk)
-        {
-            QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
-
-            if (POI)
-            {
-                data.WriteBits(POI->size(), 18);
-                for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
-                    data.WriteBits(itr->points.size(), 21);
-            }
-            else
-                data.WriteBits(0, 18);
-        }
-        else
-            data.WriteBits(0, 18);
-    }
-
-    // Write bytes
-    for (auto itr : questList)
-    {
-        uint32 questId = itr;
-        bool questOk = false;
-        uint16 questSlot = m_Player->FindQuestSlot(questId);
-
-        if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =m_Player->GetQuestSlotQuestId(questSlot) == questId;
-
-        if (questOk)
-        {
-            QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
-
-            if (POI)
-            {
-                for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
-                {
-                    data << uint32(itr->Unk4); 
-                    data << uint32(itr->Unk3);
-                    data << uint32(itr->Unk2);
-                    data << uint32(itr->points.size());
-                    data << uint32(itr->AreaId);
-
-                    for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
-                    {
-                        data << int32(itr2->y); // POI point y
-                        data << int32(itr2->x); // POI point x
-                    }
-
-                    data << int32(itr->ObjectiveIndex);
-                    data << uint32(0);
-                    data << uint32(itr->MapId);
-                    data << uint32(0);
-                    data << uint32(0);
-                    data << uint32(itr->Id);
-                }
-                data << uint32(questId);
-                data << uint32(POI->size());
-            }
-            else
-            {
-                data << uint32(questId); // quest ID
-                data << uint32(0); // POI count
-            }
-        }
-        else
-        {
-                data << uint32(questId); // quest ID
-                data << uint32(0); // POI count
-        }
-    }
-
-   /* for (uint32 i = 0; i < count; ++i)
-    {
-        uint32 questId;
-
-        bool questOk = false;
-
-        uint16 questSlot = _player->FindQuestSlot(questId);
-
-        if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
 
         if (questOk)
         {
@@ -736,31 +654,40 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
             {
                 data << uint32(questId); // quest ID
                 data << uint32(POI->size()); // POI count
+                data << uint32(POI->size()); // POI count
 
                 for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
                 {
-                    data << uint32(itr->Id);                // POI index
-                    data << int32(itr->ObjectiveIndex);     // objective index
-                    data << uint32(0);
-                    data << uint32(itr->MapId);             // mapid
-                    data << uint32(itr->AreaId);            // areaid
-                    data << uint32(itr->Unk2);              // unknown
-                    data << uint32(itr->Unk3);              // unknown
-                    data << uint32(itr->Unk4);              // unknown
+                    data << uint32(itr->Id);
+                    data << int32(itr->ObjectiveIndex);
                     data << uint32(0);
                     data << uint32(0);
-                    data << uint32(itr->points.size());     // POI points count
+                    data << uint32(itr->MapId);
+                    data << uint32(itr->AreaId);
+                    data << uint32(0);
+                    data << uint32(0);
+                    data << uint32(itr->Unk4);
+                    data << uint32(0);
+                    data << uint32(0);
+                    data << uint32(itr->points.size());
+                    data << uint32(0);
+
+                    data << uint32(itr->points.size());
 
                     for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
                     {
                         data << int32(itr2->x); // POI point x
                         data << int32(itr2->y); // POI point y
                     }
+
+                    //data << uint32(itr->Unk3);
+                    //data << uint32(itr->Unk2);
                 }
             }
             else
             {
                 data << uint32(questId); // quest ID
+                data << uint32(0); // POI count
                 data << uint32(0); // POI count
             }
         }
@@ -768,8 +695,9 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
         {
             data << uint32(questId); // quest ID
             data << uint32(0); // POI count
+            data << uint32(0); // POI count
         }
-    }*/
+    }
 
     SendPacket(&data);
 }

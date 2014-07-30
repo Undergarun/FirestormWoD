@@ -83,15 +83,9 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
+    uint64 guid;
 
-    uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = {0, 2, 6, 1, 4, 7, 5, 3};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.readPackGUID(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
 
@@ -120,24 +114,13 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
+    uint64 guid;
     uint32 questId;
     uint8 unk1;
 
+    recvData.readPackGUID(guid);
     recvData >> questId;
-
-    guid[2] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
     unk1 = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    uint8 byteOrder[8] = {6, 0, 3, 4, 7, 5, 2, 1};
-    recvData.ReadBytesSeq(guid, byteOrder);
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
 
@@ -428,13 +411,10 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 {
     uint32 questId, reward = 0;
     uint32 slot = 0;
-    ObjectGuid guid;
-    recvData >> questId >> slot;
+    uint64 guid;
 
-    uint8 bitOrder[8] = {6, 7, 4, 5, 0, 3, 2, 1};
-    recvData.ReadBitInOrder(guid, bitOrder);
-    uint8 byteOrder[8] = {4, 1, 2, 5, 6, 0, 7, 3}; 
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.readPackGUID(guid);
+    recvData >> slot >> questId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %u, quest = %u, reward = %u", uint32(GUID_LOPART(guid)), questId, reward);
 
@@ -560,14 +540,10 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
 {
     uint32 questId;
-    ObjectGuid guid;
+    uint64 guid;
 
+    recvData.appendPackGUID(guid);
     recvData >> questId;
-    
-    uint8 bitOrder[8] = {5, 0, 1, 2, 4, 3, 7, 6};
-    uint8 byteOrder[8] = {5, 7, 1, 3, 4, 6, 2, 0};
-    recvData.ReadBitInOrder(guid, bitOrder);
-    recvData.ReadBytesSeq(guid, byteOrder);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_REQUEST_REWARD npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
 

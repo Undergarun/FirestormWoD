@@ -18825,6 +18825,8 @@ void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
     WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4);
     data << uint32(msg);
+    data.WriteBits(0, 9);       ///< Reason text
+    data.FlushBits();
     GetSession()->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
 }
