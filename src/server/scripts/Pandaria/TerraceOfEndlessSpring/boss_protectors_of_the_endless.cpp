@@ -313,7 +313,7 @@ class boss_ancient_regail : public CreatureScript
             {
                 if (pInstance)
                 {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
                         return;
 
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
@@ -347,7 +347,10 @@ class boss_ancient_regail : public CreatureScript
                     return;
 
                 if (pInstance->IsWipe())
+                {
+                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
                     me->GetMotionMaster()->MoveTargetedHome();
+                }
             }
 
 			void JustSummoned(Creature* summon)
@@ -493,6 +496,15 @@ class boss_ancient_regail : public CreatureScript
 			
 			void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 if (!IntroDone(pInstance, me))
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -623,7 +635,7 @@ class boss_ancient_asani : public CreatureScript
             {
                 if (pInstance)
                 {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
                         return;
 
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
@@ -653,7 +665,10 @@ class boss_ancient_asani : public CreatureScript
                     return;
 
                 if (pInstance->IsWipe())
+                {
+                    pInstance->SetBossState(DATA_PROTECTORS,  FAIL);
                     me->GetMotionMaster()->MoveTargetedHome();
+                }
             }
 			
 			void JustSummoned(Creature* summon)
@@ -807,6 +822,15 @@ class boss_ancient_asani : public CreatureScript
 			
 			void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 if (!IntroDone(pInstance, me))
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -930,7 +954,7 @@ class boss_protector_kaolan : public CreatureScript
             {
                 if (pInstance)
                 {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
                         return;
 
                     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
@@ -959,7 +983,10 @@ class boss_protector_kaolan : public CreatureScript
                     return;
 
                 if (pInstance->IsWipe())
+                {
+                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
                     me->GetMotionMaster()->MoveTargetedHome();
+                }
             }
 
 			void JustSummoned(Creature* summon)
@@ -1114,6 +1141,15 @@ class boss_protector_kaolan : public CreatureScript
 			
 			void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 if (!IntroDone(pInstance, me))
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -1374,6 +1410,10 @@ class mob_minion_of_fear : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                    if (pInstance->IsWipe())
+                        me->DespawnOrUnsummon();
+
                 if (!protectorTargetedGuid)
                     return;
 
@@ -1410,8 +1450,12 @@ class mob_minion_of_fear_controller : public CreatureScript
 
         struct mob_minion_of_fear_controllerAI : public ScriptedAI
         {
-            mob_minion_of_fear_controllerAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_minion_of_fear_controllerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
+            InstanceScript* pInstance;
             EventMap events;
             bool started;
 
@@ -1451,6 +1495,15 @@ class mob_minion_of_fear_controller : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        DoAction(ACTION_RESET_MINION_CONTROLLER);
+                        return;
+                    }
+                }
+
                 if (!started)
                     return;
 
