@@ -175,6 +175,9 @@ enum eGameObjects
     GOB_DOOR_TO_MELJARAK            = 214634,
     GOB_GARALON_WALLS               = 212695,
 
+    // Mel'ajrak weapon rack
+    GOB_WEAPON_RACK                 = 211675,
+
     // Shek'zeer Gameobjects
     GOB_EMPRESS_CHAMBER             = 213277,
     GOB_MANTID_QUEEN_CEIL           = 213276,

@@ -90,6 +90,7 @@ enum eUnsokEvents
     EVENT_DRAW_POWER,
     EVENT_AMBER_GLOBULE,
     EVENT_BERSERK,
+    EVENT_SCALPEL_DESPAWN,
 };
 
 enum eUnsokTalk
@@ -116,11 +117,17 @@ enum eUnsokActions
 
 enum eUnsokAdds
 {
+    NPC_AMBER_SCALPEL               = 62510,
     NPC_LIVING_AMBER                = 62691,
     NPC_MUTATED_CONSTRUCT           = 62701,
     NPC_AMBER_MONSTRUOSITY          = 62711,
     NPC_AMBER_POOL_STALKER          = 62762,
     NPC_AMBER_GLOBULE               = 64283,
+};
+
+enum eUnsokTypes
+{
+    TYPE_GET_SCALPEL_TARGET         = 1,
 };
 
 Position spawnAmberMonstruosity = {-2549.87f, 770.0f, 582.92f, 0.0f};
@@ -152,6 +159,7 @@ class boss_unsok : public CreatureScript
             uint8 phase;
             uint8 growth;
             uint64 reshapedGuid;
+            uint32 scalpelTargetGuid;
             bool fightInProgress;
             bool checkMutated;
             bool introDone;
@@ -163,6 +171,7 @@ class boss_unsok : public CreatureScript
                 phase = 0;
                 growth = 0;
                 reshapedGuid = 0;
+                scalpelTargetGuid = 0;
                 fightInProgress = false;
                 checkMutated = false;
                 introDone = false;
@@ -188,6 +197,7 @@ class boss_unsok : public CreatureScript
                 phase = 0;
                 growth = 0;
                 reshapedGuid = 0;
+                scalpelTargetGuid = 0;
                 fightInProgress = false;
                 checkMutated = false;
                 introDone = false;
@@ -246,6 +256,7 @@ class boss_unsok : public CreatureScript
                 summons.DespawnAll();
                 phase = 0;
                 reshapedGuid = 0;
+                scalpelTargetGuid = 0;
                 growth = 0;
                 fightInProgress = false;
                 checkMutated = false;
@@ -357,6 +368,13 @@ class boss_unsok : public CreatureScript
                     DoCast(SPELL_DRAW_POWER);
             }
 
+            uint32 GetData(uint32 type)
+            {
+                if (type == TYPE_GET_SCALPEL_TARGET)
+                    return scalpelTargetGuid;
+                return 0;
+            }
+
             void UpdateAI(const uint32 diff)
             {
                 events.Update(diff);
@@ -384,9 +402,10 @@ class boss_unsok : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                             {
-                                Talk(TALK_SCALPEL);
-                                me->CastSpell(target, SPELL_AMBER_SCALPEL, true);
+                                scalpelTargetGuid = target->GetGUIDLow();
+                                Creature* scalpel = me->SummonCreature(NPC_AMBER_SCALPEL, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                             }
+
                             events.ScheduleEvent(EVENT_AMBER_SCALPEL, phase == 3 ? 15000 : 50000);
                             break;
                         }
@@ -730,6 +749,7 @@ public:
                 damage = me->GetHealth() - 1;
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAurasDueToSpell(SPELL_CORROSIVE_AURA);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->CombatStop(true);
                 DoCast(IsHeroic() ? SPELL_TEMP_FEIGN_DEATH : SPELL_PERMANENT_FEIGN_DEATH);
                 // Removing debuff on initial target
@@ -755,6 +775,7 @@ public:
                 DoCast(me, SPELL_RESURRECT);
                 me->RemoveAura(SPELL_BURNING_AMBER);
                 me->SetReactState(REACT_AGGRESSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 Reset();
             }
         }
@@ -1016,7 +1037,67 @@ class mob_amber_globule : public CreatureScript
         }
 };
 
-// 121995 - Amber Scalpel
+// 62510 - Amber Scalpel
+class mob_amber_scalpel : public CreatureScript
+{
+    public:
+        mob_amber_scalpel() : CreatureScript("mob_amber_scalpel") { }
+
+        struct mob_amber_scalpelAI : public ScriptedAI
+        {
+            mob_amber_scalpelAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+
+            InstanceScript* pInstance;
+            EventMap events;
+            uint32 targetGuid;
+
+            void Reset()
+            {
+                events.Reset();
+                targetGuid = 0;
+                me->SetReactState(REACT_PASSIVE);
+                me->SetDisplayId(43164);
+                me->setFaction(2577);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                events.ScheduleEvent(EVENT_SCALPEL_DESPAWN, 11000);
+
+                if (Creature* unsok = pInstance->instance->GetCreature(pInstance->GetData64(NPC_UNSOK)))
+                {
+                    targetGuid = unsok->AI()->GetData(TYPE_GET_SCALPEL_TARGET);
+                    me->GetMotionMaster()->Clear();
+                    if (Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(targetGuid, 0, HIGHGUID_PLAYER)))
+                        me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+
+                    unsok->AI()->Talk(TALK_SCALPEL);
+                    unsok->CastSpell(me, SPELL_AMBER_SCALPEL, true);
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                if (events.ExecuteEvent() == EVENT_SCALPEL_DESPAWN)
+                {
+                    if (Creature* unsok = pInstance->instance->GetCreature(pInstance->GetData64(NPC_UNSOK)))
+                    {
+                        CAST_AI(boss_unsok::boss_unsokAI, unsok->GetAI())->scalpelTargetGuid = 0;
+                        me->DespawnOrUnsummon();
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_amber_scalpelAI(creature);
+        }
+};
+
+// 121995 - Amber Scalpel - Summoning Living Amber
 class spell_amber_scalpel : public SpellScriptLoader
 {
     public:
@@ -1030,20 +1111,18 @@ class spell_amber_scalpel : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (Player* target = GetHitPlayer())
-                    {
-                        std::list<Creature*> amberList;
-                        GetCreatureListWithEntryInGrid(amberList, caster, NPC_LIVING_AMBER, 200.0f);
-                        if (amberList.size() < 7)
-                            if (urand(0, 1))
-                                caster->ToCreature()->SummonCreature(NPC_LIVING_AMBER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                    }
+                    Creature* scalpel = GetClosestCreatureWithEntry(caster, NPC_AMBER_SCALPEL, 200.0f);
+                    std::list<Creature*> amberList;
+                    GetCreatureListWithEntryInGrid(amberList, caster, NPC_LIVING_AMBER, 200.0f);
+                    if (amberList.size() < 7)
+                        if (urand(0, 1))
+                            caster->ToCreature()->SummonCreature(NPC_LIVING_AMBER, scalpel->GetPositionX(), scalpel->GetPositionY(), scalpel->GetPositionZ());
                 }
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_amber_scalpel_SpellScript::Summon);
+                OnCast += SpellCastFn(spell_amber_scalpel_SpellScript::Summon);
             }
         };
 
@@ -1337,6 +1416,7 @@ void AddSC_boss_unsok()
     new mob_living_amber();             // 62691
     new mob_amber_pool_stalker();       // 62762
     new mob_amber_globule();            // 64283
+    new mob_amber_scalpel();            // 62510
     new spell_amber_scalpel();          // 121995
     new spell_struggle_for_control();   // 122395
     new spell_consume_amber();          // 123156

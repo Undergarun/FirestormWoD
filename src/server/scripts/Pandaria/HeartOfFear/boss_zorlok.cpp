@@ -1576,7 +1576,8 @@ class spell_zorlok_exhale : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                //Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(caster->GetAI()->GetData(TYPE_EXHALE_TARGET), 0, HIGHGUID_PLAYER));
 
                 // No target? Then we pick a random one
                 if (!target || !target->isAlive())
@@ -1649,7 +1650,8 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Unit* caster = GetCaster();
-                Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                //Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
+                Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(caster->GetAI()->GetData(TYPE_EXHALE_TARGET), 0, HIGHGUID_PLAYER));
 
                 if (targets.empty() || !caster || !currentTarget)
                     return;
