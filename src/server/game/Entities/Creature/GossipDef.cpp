@@ -324,45 +324,13 @@ void QuestMenu::ClearMenu()
 
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, uint64 npcGUID)
 {
-    ObjectGuid guid = npcGUID;
     WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100);    // guess size
-    data.WriteBits(Title.size(), 11);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[7]);
-    data.WriteBits(_questMenu.GetMenuItemCount(), 19);
+    data.appendPackGUID(npcGUID);
+    data << uint32(eEmote._Emote);                         // NPC emote
+    data << uint32(eEmote._Delay);                         // player emote
+    data << uint32(_questMenu.GetMenuItemCount());
 
-    uint32 count = 0;
-    for (; count < _questMenu.GetMenuItemCount(); ++count)
-    {
-        QuestMenuItem const& qmi = _questMenu.GetItem(count);
-
-        uint32 questID = qmi.QuestId;
-
-        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
-        {
-            std::string title = quest->GetTitle();
-
-            int loc_idx = _session->GetSessionDbLocaleIndex();
-            if (loc_idx >= 0)
-                if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(ql->Title, loc_idx, title);
-
-            uint8 wrongLen = title.size() % 2;
-            data.WriteBits((title.size() - wrongLen) / 2, 8);
-            data.WriteBit(wrongLen != 0);
-            data.WriteBit(quest->IsRepeatable());
-        }
-    }
-
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[4]);
-
-    count = 0;
-    for (; count < _questMenu.GetMenuItemCount(); ++count)
+    for (uint32 count = 0; count < _questMenu.GetMenuItemCount(); ++count)
     {
         QuestMenuItem const& qmi = _questMenu.GetItem(count);
 
@@ -375,9 +343,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
             int loc_idx = _session->GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-                if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(ql->Title, loc_idx, title);
-
+            if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(questID))
+                ObjectMgr::GetLocaleString(ql->Title, loc_idx, title);
 
             uint32 questStat = plr ? plr->GetQuestStatus(questID) : 0;
 
@@ -391,30 +358,22 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
             else if (questStat == QUEST_STATE_NONE)
                 questStat = 2;
 
-            data << uint32(questStat);                      // quest icon
-            data << uint32(quest->GetFlags());              // quest flags
             data << uint32(questID);
-            data << uint32(0);                              // quest flags 2
+            data << uint32(questStat);                      // quest icon
             data << int32(quest->GetQuestLevel());          // quest level
-            if (title.size())
-                data.append(title.c_str(), title.size());       // quest title
+            data << uint32(quest->GetFlags());              // quest flags
+            data << uint32(0);                              // quest flags 2
+           
+            data.WriteBit(quest->IsRepeatable());
+            data.WriteBits(title.length(), 9);
+            data.FlushBits();
+
+            data.WriteString(title);
         }
     }
 
-    data << uint32(eEmote._Delay);                         // player emote
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-
-    if (Title.size())
-        data.append(Title.c_str(), Title.size());
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
-    data << uint32(eEmote._Emote);                         // NPC emote
-    data.WriteByteSeq(guid[0]);
+    data.WriteBits(Title.size(), 11);
+    data.WriteString(Title);
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
@@ -1237,7 +1196,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
         return;
     }
 
-    uint32 l_StatusFlag = 0;
+    uint32 l_StatusFlag = canComplete ? 0xDE : 0;
 
     ObjectGuid guid = npcGUID;
 
@@ -1251,9 +1210,9 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data << uint32(0);                                                                      ///< Quest flag 2
     data << uint32(quest->GetSuggestedPlayers());
     data << uint32(quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0);
-    data << uint32(l_StatusFlag);  
     data << uint32(quest->GetReqItemsCount());
     data << uint32(quest->GetReqCurrencyCount());
+    data << uint32(l_StatusFlag);
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {

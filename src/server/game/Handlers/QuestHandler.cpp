@@ -414,7 +414,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     uint64 guid;
 
     recvData.readPackGUID(guid);
-    recvData >> slot >> questId;
+    recvData >> questId >> slot;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %u, quest = %u, reward = %u", uint32(GUID_LOPART(guid)), questId, reward);
 
@@ -542,7 +542,7 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
     uint32 questId;
     uint64 guid;
 
-    recvData.appendPackGUID(guid);
+    recvData.readPackGUID(guid);
     recvData >> questId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_REQUEST_REWARD npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
@@ -772,13 +772,11 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
         Player* player = ObjectAccessor::FindPlayer(m_Player->GetDivider());
         if (player)
         {
-            WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
-            ObjectGuid guidObj = player->GetGUID();
-            uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
-            uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
-            data.WriteBitInOrder(guidObj, bitOrder);
-            data.WriteBytesSeq(guidObj, byteOrder);
+            WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8 + 1));
+
+            data.appendPackGUID(player->GetGUID());
             data << uint8(msg); 
+
             player->GetSession()->SendPacket(&data);
             m_Player->SetDivider(0);
         }
@@ -961,13 +959,13 @@ void WorldSession::HandleQueryQuestsCompleted(WorldPacket& /*recvData*/)
 {
     size_t rew_count = m_Player->GetRewardedQuestCount();
 
-
     const RewardedQuestSet &rewQuests = m_Player->getRewardedQuests();
     for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
     {
-        WorldPacket data(SMSG_IS_QUEST_COMPLETE_RESPONSE, 4 + 4 * rew_count);
+        WorldPacket data(SMSG_IS_QUEST_COMPLETE_RESPONSE, 5);
         data << uint32(*itr);
         data.WriteBit(1);
+        data.FlushBits();
         SendPacket(&data);
     }
 

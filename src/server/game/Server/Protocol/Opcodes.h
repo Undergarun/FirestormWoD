@@ -332,38 +332,38 @@ enum Opcodes
     #pragma region JamQuest
         /// Quest log
         SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x1A4B,   ///< 6.0.1 18612
-        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0000,
-        SMSG_QUEST_UPDATE_FAILED                    = 0x0000,
-        SMSG_QUEST_UPDATE_COMPLETE                  = 0x0000,
-        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x0000,
-        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x0000,
-        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x0000,
-        SMSG_QUEST_PUSH_RESULT                      = 0x0000,
+        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x1ADB,   ///< 6.0.1 18612
+        SMSG_QUEST_UPDATE_FAILED                    = 0x19DC,   ///< 6.0.1 18612
+        SMSG_QUEST_UPDATE_COMPLETE                  = 0x015B,   ///< 6.0.1 18612
+        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x0A50,   ///< 6.0.1 18612
+        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x01DF,   ///< 6.0.1 18612
+        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x08CC,   ///< 6.0.1 18612
+        SMSG_QUEST_PUSH_RESULT                      = 0x12DF,   ///< 6.0.1 18612
         SMSG_QUEST_POIQUERY_RESPONSE                = 0x18DF,   ///< 6.0.1 18612
-        SMSG_QUEST_LOG_FULL                         = 0x0000,
+        SMSG_QUEST_LOG_FULL                         = 0x1BDF,   ///< 6.0.1 18612
         SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000,
         SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000,
         SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000,
         SMSG_DAILY_QUESTS_RESET                     = 0x0000,
-        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0000,
-        SMSG_QUEST_FORCE_REMOVED                    = 0x0000,
-        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000,
+        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x12CC,   ///< 6.0.1 18612
+        SMSG_QUEST_FORCE_REMOVED                    = 0x00DC,   ///< 6.0.1 18612
+        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x084C,   ///< 6.0.1 18612
         SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0000,
 
         /// Quest giver
         SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x024C,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_STATUS                     = 0x1ADF,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0B5C,   ///< 6.0.1 18612
-        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0000,
-        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x18D0,   ///< 6.0.1 18612
+        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x13CF,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x10DF,   ///< 6.0.1 18612
-        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x0000,
+        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x01E0,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x104C,   ///< 6.0.1 18612
         SMSG_QUEST_GIVER_INVALID_QUEST              = 0x087F,   ///< 6.0.1 18612
 
         /// Gossip
         SMSG_GOSSIP_MESSAGE                         = 0x034F,   ///< 6.0.1 18612
-        SMSG_GOSSIP_COMPLETE                        = 0x0000,
+        SMSG_GOSSIP_COMPLETE                        = 0x1060,   ///< 6.0.1 18612
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -460,6 +460,7 @@ enum Opcodes
     CMSG_QUESTGIVER_REQUEST_REWARD              = 0x1C9B,   ///< 6.0.1 18612
     CMSG_QUEST_CONFIRM_ACCEPT                   = 0x0B69,   ///< 6.0.1 18612
     CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0E48,   ///< 6.0.1 18612
+    CMSG_PUSHQUESTTOPARTY                       = 0x1297,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
@@ -893,7 +894,6 @@ enum Opcodes
     CMSG_PLAYER_LOGOUT                                = 0x0000,
     CMSG_PLAYER_VEHICLE_ENTER                         = 0x0000,
     CMSG_PLAY_DANCE                                   = 0x0000,
-    CMSG_PUSHQUESTTOPARTY                             = 0x0000,
     CMSG_PVP_LOG_DATA                                 = 0x0000,
     CMSG_QUERY_BATTLEFIELD_STATE                      = 0x0000,
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE               = 0x0000,
@@ -901,8 +901,8 @@ enum Opcodes
     CMSG_QUERY_GUILD_RECIPES                          = 0x0000,
     CMSG_QUERY_GUILD_REWARDS                          = 0x0000,
     CMSG_QUERY_GUILD_XP                               = 0x0000,
-    CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0x0000,
-    CMSG_QUERY_QUESTS_COMPLETED                       = 0x0000,
+    CMSG_QUERY_INSPECT_ACHIEVEMENTS = 0x0000,
+    CMSG_QUERY_QUESTS_COMPLETED = 0x0000,
     CMSG_QUERY_TIME                                   = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
     CMSG_RAID_LEADER_READY_CHECK                      = 0x0000,
