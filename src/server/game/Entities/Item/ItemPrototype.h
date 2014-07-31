@@ -108,11 +108,6 @@ enum ItemBondingType
 
 #define MAX_BIND_TYPE                             6
 
-/* TODO
-    // need to know cases when using item is not allowed in shapeshift
-    ITEM_PROTO_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms
-*/
-
 enum ItemProtoFlags
 {
     ITEM_PROTO_FLAG_UNK1                        = 0x00000001, // ?
@@ -148,9 +143,6 @@ enum ItemProtoFlags
     ITEM_PROTO_FLAG_UNK11                       = 0x40000000, // ?
     ITEM_PROTO_FLAG_BOP_TRADEABLE               = 0x80000000  // bound item that can be traded
 };
-
-/* TODO
-*/
 
 enum ItemFieldFlags
 {
@@ -213,10 +205,19 @@ enum ItemFlagsCustom
 
 enum CurrencyCategory
 {
-    // ...
-    CURRENCY_CATEGORY_ARCHAEOLOGY   = 82,
-    CURRENCY_CATEGORY_META_CONQUEST = 89,
-    // ...
+    CURRENCY_CATEGORY_MISC              = 1,       // Miscellaneous
+    CURRENCY_CATEGORY_PVP               = 2,        //Player vs. Player
+    CURRENCY_CATEGORY_UNUSED            = 3,        //Unused
+    CURRENCY_CATEGORY_CLASSIC           = 4,        //Classic
+    CURRENCY_CATEGORY_WOTLK             = 21,       //Wrath of the Lich King
+    CURRENCY_CATEGORY_DUNGEON_AND_RAID  = 22,       //Dungeon and Raid
+    CURRENCY_CATEGORY_BC                = 23,       //Burning Crusade
+    CURRENCY_CATEGORY_TEST              = 41,       //Test
+    CURRENCY_CATEGORY_CATACLYSM         = 81,       //Cataclysm
+    CURRENCY_CATEGORY_ARCHAEOLOGY       = 82,       //Archaeology
+    CURRENCY_CATEGORY_META_CONQUEST     = 89,       //Meta
+    CURRENCY_CATEGORY_MOP               = 133,      //Mists of Pandaria
+    CURRENCY_CATEGORY_WOD               = 137       //Warlords of Draenor
 };
 
 enum ItemVendorType
@@ -228,23 +229,32 @@ enum ItemVendorType
 
 enum BAG_FAMILY_MASK
 {
-    BAG_FAMILY_MASK_NONE                      = 0x00000000,
-    BAG_FAMILY_MASK_ARROWS                    = 0x00000001,
-    BAG_FAMILY_MASK_BULLETS                   = 0x00000002,
-    BAG_FAMILY_MASK_SOUL_SHARDS               = 0x00000004,
-    BAG_FAMILY_MASK_LEATHERWORKING_SUPP       = 0x00000008,
-    BAG_FAMILY_MASK_INSCRIPTION_SUPP          = 0x00000010,
-    BAG_FAMILY_MASK_HERBS                     = 0x00000020,
-    BAG_FAMILY_MASK_ENCHANTING_SUPP           = 0x00000040,
-    BAG_FAMILY_MASK_ENGINEERING_SUPP          = 0x00000080,
-    BAG_FAMILY_MASK_KEYS                      = 0x00000100,
-    BAG_FAMILY_MASK_GEMS                      = 0x00000200,
-    BAG_FAMILY_MASK_MINING_SUPP               = 0x00000400,
-    BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT       = 0x00000800,
-    BAG_FAMILY_MASK_VANITY_PETS               = 0x00001000,
-    BAG_FAMILY_MASK_CURRENCY_TOKENS           = 0x00002000,
-    BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000,
-    BAG_FAMILY_MASK_FISHING_SUPP              = 0x00008000,
+    BAG_FAMILY_MASK_NONE                        = 0x00000000,
+    BAG_FAMILY_MASK_ARROWS                      = 0x00000001,
+    BAG_FAMILY_MASK_BULLETS                     = 0x00000002,
+    BAG_FAMILY_MASK_SOUL_SHARDS                 = 0x00000004,
+    BAG_FAMILY_MASK_LEATHERWORKING_SUPPLIES     = 0x00000008,
+    BAG_FAMILY_MASK_INSCRIPTION_SUPPLIES        = 0x00000010,
+    BAG_FAMILY_MASK_HERBS                       = 0x00000020,
+    BAG_FAMILY_MASK_ENCHANTING_SUPPLIES         = 0x00000040,
+    BAG_FAMILY_MASK_ENGINEERING_SUPPLIES        = 0x00000080,
+    BAG_FAMILY_MASK_KEYS                        = 0x00000100,
+    BAG_FAMILY_MASK_GEMS                        = 0x00000200,
+    BAG_FAMILY_MASK_MINING_SUPPLIES             = 0x00000400,
+    BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT         = 0x00000800,
+    BAG_FAMILY_MASK_VANITY_PETS                 = 0x00001000,
+    BAG_FAMILY_MASK_CURRENCY_TOKENS             = 0x00002000,
+    BAG_FAMILY_MASK_QUEST_ITEMS                 = 0x00004000,
+    BAG_FAMILY_MASK_FISHING_SUPPLIES            = 0x00008000,
+    BAG_FAMILY_MASK_COOKING_SUPPLIES            = 0x00010000,
+    BAG_FAMILY_MASK_TOYS                        = 0x00020000,
+    BAG_FAMILY_MASK_ARCHAEOLOGY                 = 0x00040000,
+    BAG_FAMILY_MASK_ALCHEMY                     = 0x00080000,
+    BAG_FAMILY_MASK_BLACKSMITHING               = 0x00100000,
+    BAG_FAMILY_MASK_FIRSTAID                    = 0x00200000,
+    BAG_FAMILY_MASK_JEWELCRAFTING               = 0x00400000,
+    BAG_FAMILY_MASK_SKINING                     = 0x00800000,
+    BAG_FAMILY_MASK_TAILORING                   = 0x01000000
 };
 
 enum SocketColor

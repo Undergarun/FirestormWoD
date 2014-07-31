@@ -620,8 +620,8 @@ void Creature::Update(uint32 diff, uint32 entry)
             if (getPowerType() == POWER_ENERGY)
             {
                  if (!IsVehicle() || 
-                    (GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE && 
-                    GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_HEAT))
+                     (GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_PYRITE &&
+                     GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_HEAT))
                     Regenerate(POWER_ENERGY);
             }
             else

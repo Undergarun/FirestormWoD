@@ -20,11 +20,11 @@
 
 const char Itemfmt[] = "niiiiiiii";
 const char ItemCurrencyCostfmt[] = "xn";
-const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii"; // done @author : Izidor
+const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiii";
 const char ItemModifiedAppearanceFmt[] = "niiii";
 const char ItemAppearanceFmt[] = "nii";
-const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxxx";
+const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxx";
 const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";
 const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiixx";
 const char ItemUpgradeEntryfmt[] = "niiiii";

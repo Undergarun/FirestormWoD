@@ -40,27 +40,27 @@
 
 struct AchievementEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    int32    requiredFaction;                               // 1        m_faction            -1=all, 0=horde, 1=alliance    
-    int32    mapID;                                         // 2        m_instanceID         -1=none    
-    //uint32 parentAchievement;                             // 3        m_supercedes         its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)    
-    char* name;                                             // 4        m_title_lang
-    //char* description;                                    // 5        m_description_lang
-    uint32    categoryId;                                   // 6        m_category
-    uint32    points;                                       // 7        m_points              reward points 
-    //uint32 OrderInCategory;                               // 8        m_ui_order
-    uint32    flags;                                        // 9        m_flags
-    //uint32    icon;                                       // 10       m_iconID              icon (from SpellIcon.dbc) 
-    //char* reward;                                         // 11       m_reward_lang
-    uint32 count;                                           // 12       m_minimum_criteria    need this count of completed criterias (own or referenced achievement criterias)
-    uint32 refAchievement;                                  // 13       m_shares_criteria     referenced achievement (counting of all completed criterias)
-    //uint32 m_criteria_tree                                // 14       m_criteria_tree
+    uint32  ID;                                             // 0        m_ID
+    int32   requiredFaction;                                // 1        m_faction               -1=all, 0=horde, 1=alliance
+    int32   mapID;                                          // 2        m_instanceID            -1=none
+    //uint32    parentAchievement;                          // 3        m_supercedes            Its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    char*   name;                                           // 4        m_title_lang
+    //char*     description;                                // 5        m_description_lang
+    uint32  categoryId;                                     // 6        m_category
+    uint32  points;                                         // 7        m_points                Reward points
+    //uint32    OrderInCategory;                            // 8        m_ui_order
+    uint32  flags;                                          // 9        m_flags
+    //uint32    icon;                                       // 10       m_iconID
+    //char*     reward;                                     // 11       m_reward_lang
+    uint32  count;                                          // 12       m_minimum_criteria      Need this count of completed criterias (own or referenced achievement criterias)
+    uint32  refAchievement;                                 // 13       m_shares_criteria       Referenced achievement (counting of all completed criterias)
+    //uint32    m_criteria_tree;                            // 14       m_criteria_tree
 };
 
 struct AchievementCategoryEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    int32    parentCategory;                                // 1        m_parent        -1 for main category
+    uint32  ID;                                             // 0        m_ID
+    int32   parentCategory;                                 // 1        m_parent                -1 for main category
     //char*     name;                                       // 2        m_name_mang
     //uint32    sortOrder;                                  // 3        m_ui_order
 };
@@ -634,38 +634,39 @@ struct AchievementCriteriaEntry
     uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS-1];    // 21-22
 };
 
+
 struct AreaTableEntry
 {
     uint32  ID;                                             // 0        m_ID
     uint32  mapid;                                          // 1        m_ContinentID
-    uint32  zone;                                           // 2        m_ParentAreaID      if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3        m_AreaBit           main index
-    uint32  flags;                                          // 4        m_Flags             AreaFlags
-    //uint32 flag2;                                         // 5        m_Flags2
-    //uint32 unk5;                                          // 6        m_SoundProviderPref
-    //uint32 unk6;                                          // 7        m_SoundProviderPrefUnderwater
-    //uint32 unk7;                                          // 8        m_AmbienceID
-    //uint32 unk8;                                          // 9        m_ZoneMusic
-    //char*  name                                           // 10       m_ZoneName
-    //uint32 unk9;                                          // 11       m_IntroSound
+    uint32  zone;                                           // 2        m_ParentAreaID          If 0 then it's zone, else it's zone id of this area
+    uint32  exploreFlag;                                    // 3        m_AreaBit               Main index
+    uint32  flags;                                          // 4        m_Flags                 -> need uint64  @issue : #283
+    //uint32    m_Flags2;                                   // 5        m_Flags2                -> need uint64  @issue : #283
+    //uint32    m_SoundProviderPref;                        // 6        m_SoundProviderPref
+    //uint32    m_SoundProviderPrefUnderwater;              // 7        m_SoundProviderPrefUnderwater
+    //uint32    m_AmbienceID;                               // 8        m_AmbienceID
+    //uint32    m_ZoneMusic;                                // 9        m_ZoneMusic
+    //char*     m_ZoneName;                                 // 10       m_ZoneName
+    //uint32    m_IntroSound;                               // 11       m_IntroSound
     int32   area_level;                                     // 12       m_ExplorationLevel
     char*   area_name;                                      // 13       m_AreaNameLang
     uint32  team;                                           // 14       m_FactionGroupMask
-    uint32  LiquidTypeOverride[4];                          // 15-18    m_LiquidTypeID      liquid override by type
-    float   MaxDepth;                                       // 19       m_MinElevation      determine the maximum depth that a player an reach in an area before being teleported back up.
-    //float  unk13;                                         // 20       m_AmbientMultiplier
-    //uint32 unk19;                                         // 21       m_Lightid           All zeros
-    //uint32 unk20;                                         // 22       m_MountFlags
-    //uint32 unk21;                                         // 23       m_UwIntroSound      All zeros
-    //uint32 unk22;                                         // 24       m_UwZoneMusic
-    //uint32 unk23;                                         // 25       m_UwAmbience
-    //uint32 unk24;                                         // 26       m_WorldPvpId
-    //int32 worldStateId;                                   // 27       m_PvpCombatWorldStateID
-    //uint32 unk25;                                         // 28       m_WildBattlePetLevelMin
-    //uint32 unk26;                                         // 29       m_WildBattlePetLevelMax
-    //uint32 unk27;                                         // 30       m_WindSettingsID
+    uint32  LiquidTypeOverride[4];                          // 15-18    m_LiquidTypeID          Liquid override by type
+    float   MaxDepth;                                       // 19       m_MinElevation          Determine the maximum depth that a player an reach in an area before being teleported back up.
+    //float     m_AmbientMultiplier;                        // 20       m_AmbientMultiplier
+    //uint32    m_Lightid;                                  // 21       m_Lightid               All zeros
+    //uint32    m_MountFlags;                               // 22       m_MountFlags
+    //uint32    m_UwIntroSound;                             // 23       m_UwIntroSound          All zeros
+    //uint32    m_UwZoneMusic;                              // 24       m_UwZoneMusic
+    //uint32    m_UwAmbience;                               // 25       m_UwAmbience
+    //uint32    m_WorldPvpId;                               // 26       m_WorldPvpId
+    //int32     m_PvpCombatWorldStateID;                    // 27       m_PvpCombatWorldStateID
+    //uint32    m_WildBattlePetLevelMin;                    // 28       m_WildBattlePetLevelMin
+    //uint32    m_WildBattlePetLevelMax;                    // 29       m_WildBattlePetLevelMax
+    //uint32    m_WindSettingsID;                           // 30       m_WindSettingsID
 
-    // DeathKnightStart map, maybe AreaFlags ? 
+    // DeathKnightStart map, maybe AreaFlags ?
     bool IsSanctuary() const
     {
         if (mapid == 609)
@@ -690,32 +691,32 @@ struct AreaTriggerEntry
     float   x;                                              // 2        m_x
     float   y;                                              // 3        m_y
     float   z;                                              // 4        m_z
-    //uint32                                                // 5        m_phaseUSeFlags
-    //uint32                                                // 6        m_phaseID
-    //uint32                                                // 7        m_phaseGroupID
+    //uint32    m_phaseUSeFlags;                            // 5        m_phaseUSeFlags
+    //uint32    m_phaseID;                                  // 6        m_phaseID
+    //uint32    m_phaseGroupID;                             // 7        m_phaseGroupID
     float   radius;                                         // 8        m_radius
     float   box_x;                                          // 9        m_box_length
     float   box_y;                                          // 10       m_box_width
     float   box_z;                                          // 11       m_box_heigh
     float   box_orientation;                                // 12       m_box_yaw
-    //uint32                                                // 13       m_shapeType
-    //uint32                                                // 14       m_shapeID
-    //uint32                                                // 15       m_areaTriggerActionSetID
-    //uint32                                                // 16       m_flags
+    //uint32    m_shapeType;                                // 13       m_shapeType
+    //uint32    m_shapeID;                                  // 14       m_shapeID
+    //uint32    m_areaTriggerActionSetID;                   // 15       m_areaTriggerActionSetID
+    //uint32    m_flags;                                    // 16       m_flags
 };
 
 struct ArmorLocationEntry
 {
   uint32    InventoryType;                                  // 0        m_ID
-  float     Value[5];                                       // 1-5      m_clothmodifier / m_leathermodifier / m_chainmodifier / m_platemodifier / m_modifier  //multiplier for armor types (cloth...plate, no armor?)
+  float     Value[5];                                       // 1-5      m_clothmodifier / m_leathermodifier / m_chainmodifier / m_platemodifier / m_modifier  //multiplier for armor types
 };
 
 struct AuctionHouseEntry
 {
-    uint32    houseId;                                      // 0        m_ID
-    uint32    faction;                                      // 1        m_factionID         id of faction.dbc for player factions associated with city
-    uint32    depositPercent;                               // 2        m_depositRate       1/3 from real
-    uint32    cutPercent;                                   // 3        m_consignementRate
+    uint32  houseId;                                        // 0        m_ID
+    uint32  faction;                                        // 1        m_factionID             m_ID of faction.dbc for player factions associated with city
+    uint32  depositPercent;                                 // 2        m_depositRate           1/3 from real
+    uint32  cutPercent;                                     // 3        m_consignementRate
     //char*     name;                                       // 4        m_name_lang
 };
 
@@ -728,401 +729,390 @@ struct BankBagSlotPricesEntry
 struct BarberShopStyleEntry
 {
     uint32  Id;                                             // 0        m_ID
-    uint32  type;                                           // 1        m_type          value 0 -> hair, value 2 -> facialhair
-    //char*   name;                                         // 2        m_DisplayName_lang
-    //uint32  m_Description_lang;                           // 3        m_Description_lang
-    //float   CostMultiplier;                               // 4        m_Cost_Modifier
+    uint32  type;                                           // 1        m_type                  Value 0 -> hair, value 2 -> facial hair
+    //char*     m_DisplayName_lang;                         // 2        m_DisplayName_lang
+    //uint32    m_Description_lang;                         // 3        m_Description_lang
+    //float     m_CostMultiplier;                           // 4        m_Cost_Modifier
     uint32  race;                                           // 5        m_race
     uint32  gender;                                         // 6        m_sex
-    uint32  hair_id;                                        // 7        m_data (real ID to hair/facial hair)
+    uint32  hair_id;                                        // 7        m_data                  Real ID to hair/facial hair
 };
 
 struct BattlemasterListEntry
 {
     uint32  id;                                             // 0        m_ID
     uint32  mapid[16];                                      // 1-16     m_MapID
-    uint32  type;                                           // 17       m_InstanceType 3 - BG, 4 - arena
-    //uint32 canJoinAsGroup;                                // 18       m_GroupsAllowed
+    uint32  type;                                           // 17       m_InstanceType          3 - BG, 4 - arena
+    //uint32    m_GroupsAllowed;                            // 18       m_GroupsAllowed
     char* name;                                             // 19       m_NameLang
-    //uint32 minPlayers;                                    // 20       m_MaxGroupSize
+    //uint32    m_MaxGroupSize;                             // 20       m_MaxGroupSize
     uint32 HolidayWorldStateId;                             // 21       m_HolidayWorldState
-    uint32 minLevel;                                        // 22       m_MinLevel     sync with PvPDifficulty.dbc
-    uint32 maxLevel;                                        // 23       m_MaxLevel     sync with PvPDifficulty.dbc
+    uint32 minLevel;                                        // 22       m_MinLevel
+    uint32 maxLevel;                                        // 23       m_MaxLevel
     uint32 maxGroupSize;                                    // 24       m_RatedPlayer
-    //uint32 m_MinPlayer;                                   // 25       m_MinPlayer
-    //uint32 maxPlayers;                                    // 26       m_MaxPlayer
-    //uint32 isRated;                                       // 27       m_Flags         2 - Rated / 4 - Unk 6.0.1
-    //uint32 m_IconFileDataID;                              // 28       m_IconFileDataID
-    //char*  objectiveType;                                 // 29       m_GametypeLang
-    //uint32 Unk;                                           // 30       6.0.1 18612     Only Troll Raid 2 have data                               
+    //uint32    m_MinPlayer;                                // 25       m_MinPlayer
+    //uint32    maxPlayers;                                 // 26       m_MaxPlayer
+    //uint32    isRated;                                    // 27       m_Flags                 2 - Rated / 4 - Unk 6.0.1
+    //uint32    m_IconFileDataID;                           // 28       m_IconFileDataID
+    //char*     objectiveType;                              // 29       m_GametypeLang
+    //uint32    Unk_601_18612;                              // 30       6.0.1 18612             Only Troll Raid 2 have data
 };
 
 #define MAX_OUTFIT_ITEMS 24
 
 struct CharStartOutfitEntry
 {
-    //uint32 Id;                                            // 0        m_ID
-    uint32 RaceClassGender;                                 // 1        m_raceID + m_classID + m_sexID + m_outfitID = RaceClassGender (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 2-13     m_itemID
-    //uint32 m_petDisplayID;                                // 14       m_petDisplayID
-    //uint32 m_petFamilyId;                                 // 15       m_petFamilyId
+    //uint32 m_ID;                                          // 0        m_ID
+    uint32 RaceClassGender;                                 // 1-4      m_raceID + m_classID + m_sexID + m_outfitID = RaceClassGender (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
+    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28     m_itemID
+    //uint32 m_petDisplayID;                                // 29       m_petDisplayID
+    //uint32 m_petFamilyId;                                 // 30       m_petFamilyId
 };
 
 struct CharTitlesEntry
 {
-    uint32  ID;                                             // 0        m_ID            exemple in Quest::GetCharTitleId()
+    uint32  ID;                                             // 0        m_ID                    Exemple in Quest::GetCharTitleId()
     //uint32    m_Condition_ID;                             // 1        m_Condition_ID
-    char* name;                                             // 2        m_name_lang
-    //char* name2;                                          // 3        m_name1_lang
-    uint32  bit_index;                                      // 4        m_mask_ID       used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER_FIELD_KNOWN_TITLES
-    //uint32                                                // 5        m_flags         4 = temp title / 2 = arena tournament server only
+    char*   name;                                           // 2        m_name_lang
+    //char*     m_name1_lang;                               // 3        m_name1_lang
+    uint32  bit_index;                                      // 4        m_mask_ID               Used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER_FIELD_KNOWN_TITLES
+    //uint32    m_flags;                                    // 5        m_flags                 4 = temp title / 2 = arena tournament server only
 };
 
 struct ChatChannelsEntry
 {
     uint32  ChannelID;                                      // 0        m_ID
     uint32  flags;                                          // 1        m_flags
-    //uint32                                                // 2        m_factionGroup
-    char* pattern;                                          // 3        m_name_lang
-    //char*  name;                                          // 4        m_shortcut_lang
+    //uint32    m_factionGroup;                             // 2        m_factionGroup
+    char*   pattern;                                        // 3        m_name_lang
+    //char*     m_shortcut_lang;                            // 4        m_shortcut_lang
 };
 
 struct ChrClassesEntry
 {
     uint32  ClassID;                                        // 0        m_ID
     uint32  powerType;                                      // 1        m_DisplayPower
-    //char*                                                 // 2        m_petNameToken
+    //char*     m_petNameToken;                             // 2        m_petNameToken
     char* name;                                             // 3        m_name_lang
-    //char*       nameFemale;                               // 4        m_name_female_lang
-    //char*       nameNeutralGender;                        // 5        m_name_male_lang
-    //char*       capitalizedName                           // 6        m_filename
+    //char*     m_name_female_lang;                         // 4        m_name_female_lang
+    //char*     m_name_male_lang;                           // 5        m_name_male_lang
+    //char*     m_filename;                                 // 6        m_filename
     uint32  spellfamily;                                    // 7        m_spellClassSet
-    //uint32 flags;                                         // 8        m_flags (0x08 HasRelicSlot)
+    //uint32    flags;                                      // 8        m_flags                 (0x08 HasRelicSlot)
     uint32  CinematicSequence;                              // 9        m_cinematicSequenceID
-    uint32 APPerStrenth;                                    // 11       m_AttackPowerPerStrength        Attack Power bonus per point of strength
-    uint32 APPerAgility;                                    // 12       m_AttackPowerPerAgility         Attack Power bonus per point of agility
-    uint32 RAPPerAgility;                                   // 13       m_RangedAttackPowerPerAgility   Ranged Attack Power bonus per point of agility
-    //uint32                                                // 14       m_DefaultSpec
-    //uint32                                                // 15       m_CreateScreenFileDataID
-    //uint32                                                // 16       m_SelectScreenFileDataID
-    //uint32                                                // 17       m_LowResScreenFileDataID
-    //uint32                                                // 18       m_IconFileDataID
-    //uint32                                                // 19       unk 6.0.1 18612
+    uint32  APPerStrenth;                                   // 10       m_AttackPowerPerStrength        Attack Power bonus per point of strength
+    uint32  APPerAgility;                                   // 11       m_AttackPowerPerAgility         Attack Power bonus per point of agility
+    uint32  RAPPerAgility;                                  // 12       m_RangedAttackPowerPerAgility   Ranged Attack Power bonus per point of agility
+    //uint32    m_DefaultSpec;                              // 13       m_DefaultSpec
+    //uint32    m_CreateScreenFileDataID;                   // 14       m_CreateScreenFileDataID
+    //uint32    m_SelectScreenFileDataID;                   // 15       m_SelectScreenFileDataID
+    //uint32    m_LowResScreenFileDataID;                   // 16       m_LowResScreenFileDataID
+    //uint32    m_IconFileDataID;                           // 17       m_IconFileDataID
+    //uint32    Unk_601_18612;                              // 18       unk 6.0.1 18612
 };
 
 struct ChrRacesEntry
 {
-    uint32      RaceID;                                     // 0        m_ID
-    //uint32                                                // 1        m_Flags
-    uint32      FactionID;                                  // 2        m_FactionID
-    //uint32                                                // 3        m_ExplorationSoundID
-    uint32      model_m;                                    // 4        m_MaleDisplayId
-    uint32      model_f;                                    // 5        m_FemaleDisplayId
-    //char*                                                 // 6        m_ClientPrefix
-    uint32      TeamID;                                     // 7        m_BaseLanguage (7 Alliance, 1 Horde, 42 Neutral)
-    //uint32                                                // 8        m_CreatureType
-    //uint32                                                // 9        m_ResSicknessSpellID
-    //uint32                                                // 10       m_SplashSoundID
-    //char*                                                 // 11       m_ClientFileString
-    uint32      CinematicSequence;                          // 12       m_CinematicSequenceID
-    //uint32 m_alliance;                                    // 13       m_alliance (0 alliance, 1 horde, 2 disabled races)
-    char* name;                                             // 14       m_NameLang used for DBC language detection/selection
-    //char*       nameFemale;                               // 15       m_NameFemaleLang
-    //char*       nameNeutralGender;                        // 16       m_NameMaleLang
-    //char*                                                 // 17       m_FacialHairCustomization
-    //char*                                                 // 18       m_HairCustomization
-    //uint32                                                // 19       m_RaceRelated
-    //uint32                                                // 20       m_UnalteredVisualRaceID
-    //uint32                                                // 21       m_UaMaleCreatureSoundDataID
-    //uint32                                                // 22       m_UaFemaleCreatureSoundDataID
-    //uint32;                                               // 23       m_CharComponentTextureLayoutID
-    //uint32                                                // 24       m_DefaultClassID
-    //uint32                                                // 25       m_CreateScreenFileDataID
-    //uint32                                                // 26       m_SelectScreenFileDataID
-    //float                                                 // 27       m_MaleCustomizeOffset
-    //float                                                 // 28       m_MaleCustomizeOffset
-    //float                                                 // 29       m_MaleCustomizeOffset
-    //float                                                 // 30       m_FemaleCustomizeOffset
-    //float                                                 // 31       m_FemaleCustomizeOffset
-    //float                                                 // 32       m_FemaleCustomizeOffset
-    //uint32                                                // 33       m_NeutralRaceID
-    //uint32                                                // 34       m_LowResScreenFileDataID
-    //uint32                                                // 35       m_HighResMaleDisplayId
-    //uint32                                                // 36       m_HighResFemaleDisplayId
-    //uint32                                                // 37       m_CharComponentTexLayoutHiResID
-    //uint32                                                // 38       6.0.1 18612 unk related to displayID HightRes for Worgen
+    uint32  RaceID;                                         // 0        m_ID
+    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  FactionID;                                      // 2        m_FactionID
+    //uint32    m_ExplorationSoundID;                       // 3        m_ExplorationSoundID
+    uint32  model_m;                                        // 4        m_MaleDisplayId
+    uint32  model_f;                                        // 5        m_FemaleDisplayId
+    //char*     m_ClientPrefix;                             // 6        m_ClientPrefix
+    uint32  TeamID;                                         // 7        m_BaseLanguage          (7 Alliance, 1 Horde, 42 Neutral)
+    //uint32    m_CreatureType;                             // 8        m_CreatureType
+    //uint32    m_ResSicknessSpellID;                       // 9        m_ResSicknessSpellID
+    //uint32    m_SplashSoundID;                            // 10       m_SplashSoundID
+    //char*     m_ClientFileString;                         // 11       m_ClientFileString
+    uint32  CinematicSequence;                              // 12       m_CinematicSequenceID
+    //uint32    m_alliance;                                 // 13       m_alliance              (0 alliance, 1 horde, 2 disabled races)
+    char*   name;                                           // 14       m_NameLang used for DBC language detection/selection
+    //char*     m_NameFemaleLang;                           // 15       m_NameFemaleLang
+    //char*     m_NameMaleLang;                             // 16       m_NameMaleLang
+    //char*     m_FacialHairCustomization;                  // 17       m_FacialHairCustomization
+    //char*     m_HairCustomization;                        // 18       m_HairCustomization
+    //uint32    m_RaceRelated;                              // 19       m_RaceRelated
+    //uint32    m_UnalteredVisualRaceID;                    // 20       m_UnalteredVisualRaceID
+    //uint32    m_UaMaleCreatureSoundDataID;                // 21       m_UaMaleCreatureSoundDataID
+    //uint32    m_UaFemaleCreatureSoundDataID;              // 22       m_UaFemaleCreatureSoundDataID
+    //uint32    m_CharComponentTextureLayoutID;             // 23       m_CharComponentTextureLayoutID
+    //uint32    m_DefaultClassID;                           // 24       m_DefaultClassID
+    //uint32    m_CreateScreenFileDataID;                   // 25       m_CreateScreenFileDataID
+    //uint32    m_SelectScreenFileDataID;                   // 26       m_SelectScreenFileDataID
+    //float     m_MaleCustomizeOffset;                      // 27       m_MaleCustomizeOffset
+    //float     m_MaleCustomizeOffset;                      // 28       m_MaleCustomizeOffset
+    //float     m_MaleCustomizeOffset;                      // 29       m_MaleCustomizeOffset
+    //float     m_FemaleCustomizeOffset;                    // 30       m_FemaleCustomizeOffset
+    //float     m_FemaleCustomizeOffset;                    // 31       m_FemaleCustomizeOffset
+    //float     m_FemaleCustomizeOffset;                    // 32       m_FemaleCustomizeOffset
+    //uint32    m_NeutralRaceID;                            // 33       m_NeutralRaceID
+    //uint32    m_LowResScreenFileDataID;                   // 34       m_LowResScreenFileDataID
+    //uint32    m_HighResMaleDisplayId;                     // 35       m_HighResMaleDisplayId
+    //uint32    m_HighResFemaleDisplayId;                   // 36       m_HighResFemaleDisplayId
+    //uint32    m_CharComponentTexLayoutHiResID;            // 37       m_CharComponentTexLayoutHiResID
+    //uint32    Unk_601_18612;                              // 38       6.0.1 18612 unk related to displayID HightRes for Worgen
 };
 
+// Removed in 6.0.1 18612
 struct ChrPowerTypesEntry
 {
-   uint32 entry;                                            // 0
-   uint32 classId;                                          // 1
-   uint32 power;                                            // 2
+   uint32   entry;                                          // 0
+   uint32   classId;                                        // 1
+   uint32   power;                                          // 2
 };
 
 struct ChrSpecializationsEntry
 {
-    uint32 entry;                                           // 0
-    char*  iconName;                                        // 1
-    uint32 classId;                                         // 2
-    uint32 specializationSpell;                             // 3
-    //uint32 unk                                            // 4, empty
-    uint32 tabId;                                           // 5
-    //uint32 unk                                            // 6
-    //uint32 unk                                            // 7
-    //uint32 unk                                            // 8
-    //uint32 unk                                            // 9
-    //uint32 unk                                            // 10
-    char* specializationName;                               // 11
-    char* description;                                      // 12
-    //uint32 unk                                            // 13
-    //uint32 unk                                            // 14
+    uint32  entry;                                          // 0        m_ID
+    char*   iconName;                                       // 1        m_BackgroundFile
+    uint32  classId;                                        // 2        m_ClassID
+    uint32  specializationSpell;                            // 3        m_MasterySpellID
+    //uint32    m_MasterySpellID;                           // 4        m_MasterySpellID
+    uint32  tabId;                                          // 5        m_OrderIndex
+    //uint32    m_PetTalentType;                            // 6        m_PetTalentType
+    //uint32    m_Role;                                     // 7        m_Role
+    //uint32    m_SpellIconID                               // 8        m_SpellIconID
+    //uint32    RaidBuffs;                                  // 9        m_RaidBuffs
+    //uint32    Flags;                                      // 10       m_Flags
+    char*   specializationName;                             // 11       m_NameLang
+    //char*     m_NameLang                                  // 12       m_NameLang1
+    char*   description;                                    // 13       m_DescriptionLang
+    //uint32    m_MaxBuffs;                                 // 14       m_MaxBuffs
+    //uint32    Unk_601_18612;                              // 15       Unk_601_18612
 };
 
 /* Unused
 struct CinematicCameraEntry
 {
-    uint32      id;                                         // 0 index
-    char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
-    float       start_x;                                    // 3
-    float       start_y;                                    // 4
-    float       start_z;                                    // 5
-    float       unk6;                                       // 6 speed?
+    uint32      m_ID;                                       // 0        m_ID
+    char*       m_Model;                                    // 1        m_Model
+    uint32      m_SoundID;                                  // 2        m_SoundID
+    float       m_Origin_x;                                 // 3        m_Origin_x
+    float       m_Origin_y;                                 // 4        m_Origin_y
+    float       m_Origin_z;                                 // 5        m_Origin_z
+    float       m_OriginFacing;                             // 6        m_OriginFacing
 };
 */
 
 struct CinematicSequencesEntry
 {
-    uint32      Id;                                         // 0 index
-    //uint32      unk1;                                     // 1
-    //uint32      cinematicCamera;                          // 2 id in CinematicCamera.dbc
-                                                            // 3-9 always 0
+    uint32  Id;                                             // 0        Im_D
+    //uint32    m_SoundID;                                  // 1        m_SoundID
+    //uint32    m_Camera;                                   // 2-9      m_Camera                m_ID in CinematicCamera.dbc
+
 };
 
 struct CreatureDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0    m_ID
-    uint32      ModelId;                                    // 1    m_modelID
-    //uint32      sounID;                                   // 2    m_soundID
-    //uint32      extendedDisplayInfoID;                    // 3    m_extendedDisplayInfoID
-    float       scale;                                      // 4    m_creatureModelScale
-    //uint32  creatureModelAlpha;                           // 5    m_creatureModelAlpha
-    //char*   textureName;                                  // 6-8  m_textureVariation[3]
-    //char*   portraitTextureName ;                         // 9    m_portraitTextureName
-    //uint32  sizeClass;                                    // 10   m_sizeClass
-    //uint32  bloodID;                                      // 11   m_bloodID
-    //uint32  NPCSoundID;                                   // 12   m_NPCSoundID
-    //uint32  particleColorID;                              // 13   m_particleColorID
-    //uint32  creatureGeosetData                            // 14   m_creatureGeosetData
-    //uint32  objectEffectPackageID                         // 15   m_objectEffectPackageID 0 only
-    //uint32                                                // 16   0 only
-    //uint32                                                // 17   0 only
-    //int32                                                 // 18
-    //uint32                                                // 19   5.4.X
-    //uint32                                                // 20   5.4.X
+    uint32  Displayid;                                      // 0        m_ID
+    uint32  ModelId;                                        // 1        m_ModelID
+    //uint32    m_sounID;                                   // 2        m_SoundID
+    //uint32    m_extendedDisplayInfoID;                    // 3        m_ExtendedDisplayInfoID
+    float   scale;                                          // 4        m_CreatureModelScale
+    //uint32    m_creatureModelAlpha;                       // 5        m_CreatureModelAlpha
+    //char*     m_textureName;                              // 6-8      m_TextureVariation[3]
+    //char*     m_portraitTextureName ;                     // 9        m_PortraitTextureName
+    //uint32    m_PortraitCreatureDisplayInfoID             // 10       m_PortraitCreatureDisplayInfoID
+    //uint32    m_SizeClass;                                // 11       m_SizeClasss
+    //uint32    m_BloodID;                                  // 12       m_BloodID
+    //uint32    m_NPCSoundID;                               // 13       m_NPCSoundID
+    //uint32    m_ParticleColorID;                          // 14       m_ParticleColorID
+    //uint32    m_CreatureGeosetData;                       // 15       m_CreatureGeosetData
+    //uint32    m_ObjectEffectPackageID;                    // 16       m_ObjectEffectPackageID
+    //uint32    m_AnimReplacementSetID;                     // 17       m_AnimReplacementSetID
+    //uint32    m_Flags;                                    // 18       m_Flags
+    //int32     m_Gender;                                   // 19       m_Gender
+    //uint32    m_StateSpellVisualKitID;                    // 20       m_StateSpellVisualKitID
 };
 
 struct CreatureFamilyEntry
 {
     uint32  ID;                                             // 0        m_ID
-    float   minScale;                                       // 1        m_minScale
-    uint32  minScaleLevel;                                  // 2        m_minScaleLevel
-    float   maxScale;                                       // 3        m_maxScale
-    uint32  maxScaleLevel;                                  // 4        m_maxScaleLevel
-    uint32  skillLine[2];                                   // 5-6      m_skillLine
-    uint32  petFoodMask;                                    // 7        m_petFoodMask
-    int32   petTalentType;                                  // 8        m_petTalentType
-                                                            // 9        m_categoryEnumID
-    char* Name;                                             // 10       m_name_lang
-                                                            // 11       m_iconFile
+    float   minScale;                                       // 1        m_MinScale
+    uint32  minScaleLevel;                                  // 2        m_MinScaleLevel
+    float   maxScale;                                       // 3        m_MaxScale
+    uint32  maxScaleLevel;                                  // 4        m_MaxScaleLevel
+    uint32  skillLine[2];                                   // 5-6      m_SkillLine
+    uint32  petFoodMask;                                    // 7        m_PetFoodMask
+    int32   petTalentType;                                  // 8        m_PetTalentType
+    //uint32    m_categoryEnumID;                           // 9        m_CategoryEnumID
+    char*   Name;                                           // 10       m_NameLang
+    //char*     m_iconFile;                                 // 11       m_IconFile
 };
 
 struct CreatureModelDataEntry
 {
-    uint32    Id;                                           // 0
-    //uint32  Flags;                                        // 1
-    //char*   ModelPath                                     // 2
-    //uint32  Unk1;                                         // 3
-    //float   Scale;                                        // 4    Used in calculation of unit collision data
-    //int32   Unk2;                                         // 5
-    //int32   Unk3;                                         // 6
-    //float   Unk4;                                         // 7
-    //float   Unk5;                                         // 8
-    //float   Unk6;                                         // 9
-    //uint32  Unk7;                                         // 10   only 0
-    //uint32  Unk8;                                         // 11
-    //uint32  Unk9;                                         // 12
-    //uint32  Unk10;                                        // 13
-    //float   CollisionWidth;                               // 14
-    float   CollisionHeight;                                // 15
-    float   MountHeight;                                    // 16   Used in calculation of unit collision data when mounted
-    //float   Unks[13]                                      // 17-30
-    //float   unk540_1;                                     // 31
-    //uint32  unk540_2;                                     // 32
-    //float   unk540_3;                                     // 33
+    uint32  Id;                                             // 0        m_ID
+    //uint32    m_Flags;                                    // 1        m_Flags
+    //uint32    m_FileDataID;                               // 2        m_FileDataID
+    //uint32    m_SizeClass;                                // 3        m_SizeClass
+    //float     m_ModelScale;                               // 4        m_ModelScale
+    //int32     m_BloodID;                                  // 5        m_BloodID
+    //int32     m_FootprintTextureID;                       // 6        m_FootprintTextureID
+    //float     m_FootprintTextureLength;                   // 7        m_FootprintTextureLength
+    //float     m_FootprintTextureWidth;                    // 8        m_FootprintTextureWidth
+    //float     m_FootprintParticleScale;                   // 9        m_FootprintParticleScale
+    //uint32    m_FoleyMaterialID;                          // 10       m_FoleyMaterialID
+    //uint32    m_FootstepShakeSize;                        // 11       m_FootstepShakeSize
+    //uint32    m_DeathThudShakeSize;                       // 12       m_DeathThudShakeSize
+    //uint32    m_SoundID;                                  // 13       m_SoundID
+    //float     m_CollisionWidth;                           // 14       m_CollisionWidth
+    float   CollisionHeight;                                // 15       m_CollisionHeight
+    float   MountHeight;                                    // 16       m_MountHeight
+    //float     m_GeoBoxMin[3];                             // 17-19    m_GeoBoxMin[3]
+    //float     m_GeoBoxMax[3];                             // 20-22    m_GeoBoxMax[3]
+    //float     m_WorldEffectScale;                         // 23       m_WorldEffectScale
+    //float     m_AttachedEffectScale;                      // 24       m_AttachedEffectScale
+    //float     m_MissileCollisionRadius;                   // 25       m_MissileCollisionRadius
+    //float     m_MissileCollisionPush;                     // 26       m_MissileCollisionPush
+    //float     m_MissileCollisionRaise;                    // 27       m_MissileCollisionRaise
+    //float     m_OverrideLootEffectScale;                  // 28       m_OverrideLootEffectScale
+    //float     m_OverrideNameScale;                        // 29       m_OverrideNameScale
+    //float     m_OverrideSelectionRadius;                  // 30       m_OverrideSelectionRadius
+    //float     m_TamedPetBaseScale;                        // 31       m_TamedPetBaseScale
+    //uint32    m_CreatureGeosetDataID;                     // 32       m_CreatureGeosetDataID
+    //float     m_HoverHeight;                              // 33       m_HoverHeight
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 struct CreatureSpellDataEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    uint32    spellId[MAX_CREATURE_SPELL_DATA_SLOT];        // 1-4      m_spells[4]
+    uint32  ID;                                             // 0        m_ID
+    uint32  spellId[MAX_CREATURE_SPELL_DATA_SLOT];          // 1-4      m_spells[4]
     //uint32    availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7      m_availability[4]
 };
 
 struct CreatureTypeEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    //char*   Name;                                         // 1        m_name_lang
-    //uint32    no_experience;                              // 2        m_flags no exp (non-combat pets, battlepet, gas cloud.)
+    uint32  ID;                                             // 0        m_ID
+    //char*     Name;                                       // 1        m_name_lang
+    //uint32    no_experience;                              // 2        m_flags                 1 = no_xp
 };
 
-/* Unused
+/* Unused see enum CurrencyCategory
 struct CurrencyCategoryEntry
 {
-    uint32    ID;                                           // 0
-    uint32    Unk1;                                         // 1
-    char*     Name;                                         // 2
+    uint32      ID;                                         // 0        m_ID
+    uint32      m_Flags;                                    // 1        m_Flags
+    char*       m_Name_lang;                                // 2        m_Name_lang
 
 };
 */
 
-// @author Selenium: 5.4 valid
+// @issue : #284
 struct CurrencyTypesEntry
 {
-    uint32 ID;                                              // 0        not used
-    uint32 Category;                                        // 1        may be category
-    //char* name;                                           // 2
-    //char* iconName;                                       // 3
-    //uint32 unk4;                                          // 4        only 615 have data
-    //uint32 unk5;                                          // 5        archaeology token only
-    uint32 SubstitutionId;                                  // 6
-    uint32 TotalCap;                                        // 7
-    uint32 WeekCap;                                         // 8
-    uint32 Flags;                                           // 9
-    //char* description;                                    // 10
-    //char* subDescription;                                 // 11
+    uint32  ID;                                             // 0        m_ID
+    uint32  Category;                                       // 1        m_CategoryID
+    //char*     m_NameLang;                                 // 2        m_NameLang
+    //char*     m_InventoryIcon;                            // 3        m_InventoryIcon
+    //char*     m_InventoryIcon2;                           // 4        m_InventoryIcon2
+    //uint32    m_SpellWeight;                              // 5        m_SpellWeight
+    //uint32    m_SpellCategory;                            // 6        m_SpellCategory
+    uint32  TotalCap;                                       // 7        m_MaxQty
+    uint32  WeekCap;                                        // 8        m_MaxEarnablePerWeek
+    uint32  Flags;                                          // 9        m_Flags
+    //uint32    m_Quality                                   // 10       m_Quality
+    //char*     m_DescriptionLang;                          // 11       m_DescriptionLang
 
     bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
     bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
     float GetPrecision() const  { return HasPrecision() ? 100.0f : 1.0f; }
 };
 
-// @author Selenium: 5.4 valid
 struct DestructibleModelDataEntry
 {
-    uint32  Id;                                             // 0
-    uint32  DamagedDisplayId;                               // 1
-    //uint32  DamagedUnk1;                                  // 2
-    //uint32  DamagedUnk2;                                  // 3
-    //uint32  DamagedUnk3;                                  // 4
-    uint32  DestroyedDisplayId;                             // 5
-    //uint32  DestroyedUnk1;                                // 6
-    //uint32  DestroyedUnk2;                                // 7
-    //uint32  DestroyedUnk3;                                // 8
-    //uint32  DestroyedUnk4;                                // 9
-    uint32  RebuildingDisplayId;                            // 10
-    //uint32  RebuildingUnk1;                               // 11
-    //uint32  RebuildingUnk2;                               // 12
-    //uint32  RebuildingUnk3;                               // 13
-    //uint32  RebuildingUnk4;                               // 14
-    uint32  SmokeDisplayId;                                 // 15
-    //uint32  SmokeUnk1;                                    // 16
-    //uint32  SmokeUnk2;                                    // 17
-    //uint32  SmokeUnk3;                                    // 18
-    //uint32  SmokeUnk4;                                    // 19
-    //uint32  UnkDisplayid;                                 // 20
-    //uint32  Unk6;                                         // 21
-    //uint32  Unk7;                                         // 22
-    //uint32  Unk8;                                         // 23
+    uint32  Id;                                             // 0        m_ID
+    uint32  DamagedDisplayId;                               // 1        m_State0Wmo
+    //uint32    m_State0ImpactEffectDoodadSet;              // 2        m_State0ImpactEffectDoodadSet
+    //uint32    m_State0AmbientDoodadSet;                   // 3        m_State0AmbientDoodadSet
+    //uint32    m_State0NameSet;                            // 4        m_State0NameSet
+    uint32  DestroyedDisplayId;                             // 5        m_State1Wmo
+    //uint32    m_State1DestructionDoodadSet;               // 6        m_State1DestructionDoodadSet
+    //uint32    m_State1ImpactEffectDoodadSet;              // 7        m_State1ImpactEffectDoodadSet
+    //uint32    m_State1AmbientDoodadSet;                   // 8        m_State1AmbientDoodadSet
+    //uint32    m_State1NameSet;                            // 9        m_State1NameSet
+    uint32  RebuildingDisplayId;                            // 10       m_State2Wmo
+    //uint32    m_State2DestructionDoodadSet;               // 11       m_State2DestructionDoodadSet
+    //uint32    m_State2ImpactEffectDoodadSet;              // 12       m_State2ImpactEffectDoodadSet
+    //uint32    m_State2AmbientDoodadSet;                   // 13       m_State2AmbientDoodadSet
+    //uint32    m_State2NameSet;                            // 14       m_State2NameSet
+    uint32  SmokeDisplayId;                                 // 15       m_State3Wmo
+    //uint32    m_State3InitDoodadSet;                      // 16       m_State3InitDoodadSet
+    //uint32    m_State3AmbientDoodadSet;                   // 17       m_State3AmbientDoodadSet
+    //uint32    m_State3NameSet;                            // 18       m_State3NameSet
+    //uint32    m_EjectDirection;                           // 19       m_EjectDirection
+    //uint32    m_RepairGroundFx;                           // 20       m_RepairGroundFx
+    //uint32    m_DoNotHighlight;                           // 21       m_DoNotHighlight
+    //uint32    m_HealEffect;                               // 22       m_HealEffect
+    //uint32    m_HealEffectSpeed;                          // 23       m_HealEffectSpeed;
 };
 
-// @author Selenium: 5.4 valid
 struct DungeonEncounterEntry
 {
-    uint32 id;                                              // 0        unique id
-    uint32 mapId;                                           // 1        map id
-    uint32 difficulty;                                      // 2        instance mode
-    //int32 unk_1;                                          // 3
-    uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
-    char* encounterName;                                    // 5        encounter name
-    //uint32 nameFlags;                                     // 6
-    //uint32 unk_1;                                         // 7
-    //uint32 unk_3
+    uint32  id;                                             // 0        m_ID
+    uint32  mapId;                                          // 1        m_MapID
+    uint32  difficulty;                                     // 2        m_DifficultyID
+    //int32     m_orderIndex;                               // 3        m_orderIndex
+    uint32  encounterIndex;                                 // 4        m_Bit
+    char*   encounterName;                                  // 5        m_name_lang
+    //uint32    m_CreatureDisplayID;                        // 6        m_CreatureDisplayID
+    //uint32    m_spellIconID;                              // 7        m_spellIconID
+    //uint32    m_flags;                                    // 8        m_flags
 };
 
-// @author Selenium: 5.4 valid
 struct DurabilityCostsEntry
 {
-    uint32    Itemlvl;                                      // 0
-    uint32    multiplier[29];                               // 1-29
+    uint32  Itemlvl;                                        // 0        m_ID
+    uint32  multiplier[29];                                 // 1-29     m_weaponSubclassCost1-21 and m_armorSubClassCost1-8
 };
 
-// @author Selenium: 5.4 valid
 struct DurabilityQualityEntry
 {
-    uint32    Id;                                           // 0
-    float     quality_mod;                                  // 1
+    uint32  Id;                                             // 0        m_ID
+    float   quality_mod;                                    // 1        m_data
 };
 
-// @author Selenium: 5.4 valid
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0
-    //char* Name;                                           // 1        internal name
-    //uint32 AnimationId;                                   // 2        ref to animationData
-    uint32  Flags;                                          // 3        bitmask, may be unit_flags
-    uint32  EmoteType;                                      // 4        Can be 0, 1 or 2 (determine how emote are shown)
-    uint32  UnitStandState;                                 // 5        uncomfirmed, may be enum UnitStandStateType
-    //uint32 SoundId;                                       // 6        ref to soundEntries
-    //uint32 unk_1                                          // 7
+    uint32  Id;                                             // 0        m_ID
+    //char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
+    //uint32    m_AnimID;                                   // 2        m_AnimID
+    uint32  Flags;                                          // 3        m_EmoteFlags
+    uint32  EmoteType;                                      // 4        m_EmoteSpecProc
+    uint32  UnitStandState;                                 // 5        m_EmoteSpecProcParam
+    //uint32    m_EventSoundID;                             // 6        m_EventSoundID
+    //uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
 };
 
-// @author Selenium: 5.4 valid
 struct EmotesTextEntry
 {
-    uint32  Id;                                             // 0
-    uint32  textid;                                         // 1
-    //uint32                                                // 2
-    //uint32                                                // 3
-    //uint32                                                // 4
-    //uint32                                                // 5
-    //uint32                                                // 6        0 only
-    //uint32                                                // 7
-    //uint32                                                // 8        0 only
-    //uint32                                                // 9
-    //uint32                                                // 10       0 only
-    //uint32                                                // 11
-    //uint32                                                // 12
-    //uint32                                                // 13       0 only
-    //uint32                                                // 14       0 only
-    //uint32                                                // 15
-    //uint32                                                // 16       0 only
-    //uint32                                                // 17       0 only
-    //uint32                                                // 18       0 only
+    uint32  Id;                                             // 0        m_ID
+    //char*     m_Name;                                     // 1        m_Name
+    uint32  textid;                                         // 2        m_EmoteID
+    //uint32    m_EmoteText[16];                            // 3-18     m_EmoteText
 };
 
-// @author Selenium: 5.4 valid
 struct FactionEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    int32       reputationListID;                           // 1        m_reputationIndex
-    uint32      BaseRepRaceMask[4];                         // 2-5      m_reputationRaceMask
-    uint32      BaseRepClassMask[4];                        // 6-9      m_reputationClassMask
-    int32       BaseRepValue[4];                            // 10-13    m_reputationBase
-    uint32      ReputationFlags[4];                         // 14-17    m_reputationFlags
-    uint32      team;                                       // 18       m_parentFactionID
-    float       spilloverRateIn;                            // 19       Faction gains incoming rep * spilloverRateIn
-    float       spilloverRateOut;                           // 20       Faction outputs rep * spilloverRateOut as spillover reputation
-    uint32      spilloverMaxRankIn;                         // 21       The highest rank the faction will profit from incoming spillover
-    //uint32    spilloverRank_unk;                          // 22       It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    char* name;                                             // 23       m_name_lang
+    uint32  ID;                                             // 0        m_ID
+    int32   reputationListID;                               // 1        m_ReputationIndex
+    uint32  BaseRepRaceMask[4];                             // 2-5      m_ReputationRaceMask
+    uint32  BaseRepClassMask[4];                            // 6-9      m_ReputationClassMask
+    int32   BaseRepValue[4];                                // 10-13    m_ReputationBase
+    uint32  ReputationFlags[4];                             // 14-17    m_ReputationFlags
+    uint32  team;                                           // 18       m_ParentFactionID
+    float   spilloverRateIn;                                // 19       m_ParentFactionMod      Faction gains incoming rep * spilloverRateIn
+    float   spilloverRateOut;                               // 20       m_ParentFactionMod      Faction outputs rep * spilloverRateOut as spillover reputation
+    uint32  spilloverMaxRankIn;                             // 21       m_ParentFactionCap      The highest rank the faction will profit from incoming spillover
+    //uint32    spilloverRank_unk;                          // 22       m_ParentFactionCap      It does not seem to be the max standing at which a faction outputs spillover ...so no idea
+    char*   name;                                           // 23       m_name_lang
     //char*     description;                                // 24       m_description_lang
-    //uint32    unk_1;                                      // 25
-    //uint32    unk_2;                                      // 26
-    //uint32    unk_3;                                      // 27
+    //uint32    m_Expansion;                                // 25       m_Expansion
+    //uint32    m_Flags;                                    // 26       m_Flags
+    //uint32    m_FriendshipRepID;                          // 27       m_FriendshipRepID       Friendship system NYI
 
     // helpers
     bool CanHaveReputation() const
@@ -1133,18 +1123,16 @@ struct FactionEntry
 
 #define MAX_FACTION_RELATIONS 4
 
-// @author Selenium: 5.4 valid
 struct FactionTemplateEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    uint32      faction;                                    // 1        m_faction
-    uint32      factionFlags;                               // 2        m_flags
-    uint32      ourMask;                                    // 3        m_factionGroup
-    uint32      friendlyMask;                               // 4        m_friendGroup
-    uint32      hostileMask;                                // 5        m_enemyGroup
-    uint32      enemyFaction[MAX_FACTION_RELATIONS];        // 6-9      m_enemies[MAX_FACTION_RELATIONS]
-    uint32      friendFaction[MAX_FACTION_RELATIONS];       // 10-14    m_friend[MAX_FACTION_RELATIONS]
-    //-------------------------------------------------------  end structure
+    uint32  ID;                                             // 0        m_ID
+    uint32  faction;                                        // 1        m_faction
+    uint32  factionFlags;                                   // 2        m_flags
+    uint32  ourMask;                                        // 3        m_factionGroup
+    uint32  friendlyMask;                                   // 4        m_friendGroup
+    uint32  hostileMask;                                    // 5        m_enemyGroup
+    uint32  enemyFaction[MAX_FACTION_RELATIONS];            // 6-9      m_enemies[MAX_FACTION_RELATIONS]
+    uint32  friendFaction[MAX_FACTION_RELATIONS];           // 10-14    m_friend[MAX_FACTION_RELATIONS]
 
     // helpers
     bool IsFriendlyTo(FactionTemplateEntry const& entry) const
@@ -1188,50 +1176,47 @@ struct FactionTemplateEntry
     bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
 };
 
-// @author Selenium: 5.4 valid
 struct GameObjectDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0        m_ID
-    char* filename;                                         // 1
-    //uint32  unk1[10];                                     // 2-11
-    float   minX;                                           // 12
-    float   minY;                                           // 13
-    float   minZ;                                           // 14
-    float   maxX;                                           // 15
-    float   maxY;                                           // 16
-    float   maxZ;                                           // 17
-    //uint32  transport;                                    // 18
-    //float unk_1;                                          // 19
-    //float unk_2;                                          // 20
+    uint32  Displayid;                                      // 0        m_ID
+    uint32   m_FileDataID;                                  // 1        m_FileDataID
+    //uint32    m_Sound[10];                                // 2-11     m_Sound
+    float   minX;                                           // 12       m_GeoBoxMin
+    float   minY;                                           // 13       m_GeoBoxMin
+    float   minZ;                                           // 14       m_GeoBoxMin
+    float   maxX;                                           // 15       m_GeoBoxMax
+    float   maxY;                                           // 16       m_GeoBoxMax
+    float   maxZ;                                           // 17       m_GeoBoxMax
+    //uint32    m_ObjectEffectPackageID;                    // 18       m_ObjectEffectPackageID
+    //float     m_OverrideLootEffectScale;                  // 19       m_OverrideLootEffectScale
+    //float     m_OverrideNameScale;                        // 20       m_OverrideNameScale
 };
 
-// @author Selenium: 5.4 valid
 struct GemPropertiesEntry
 {
     uint32      ID;                                         // 0        m_id
-    uint32      spellitemenchantement;                      // 1        m_enchant_id
-                                                            // 2        m_maxcount_inv
-                                                            // 3        m_maxcount_item
+    uint32      spellitemenchantement;                      // 1        m_EnchantId
+    //uint32    m_MaxcountInv                               // 2        m_MaxcountInv
+    //uint32    m_MaxcountItem                              // 3        m_maxcount_item
     uint32      color;                                      // 4        m_type
-    //uint32                                                // 5
+    //uint32    m_MinItemLevel                              // 5        m_MinItemLevel
 };
 
-// @author Selenium: 5.4 valid
 struct GlyphPropertiesEntry
 {
-    uint32  Id;                                             // 0
-    uint32  SpellId;                                        // 1
-    uint32  TypeFlags;                                      // 2
-    uint32  Unk1;                                           // 3        GlyphIconId (SpellIcon.dbc)
-    uint32  GlyphExclusiveCategoryID;                       // 4        GlyphIconId
+    uint32  Id;                                             // 0        m_ID
+    uint32  SpellId;                                        // 1        m_SpellID
+    uint32  TypeFlags;                                      // 2        m_GlyphType
+    uint32  m_SpellIconID;                                  // 3        m_SpellIconID
+    uint32  GlyphExclusiveCategoryID;                       // 4        m_GlyphExclusiveCategoryID
 };
 
 // @author Selenium: 5.4 valid
 struct GlyphSlotEntry
 {
-    uint32  Id;                                             // 0
-    uint32  TypeFlags;                                      // 1
-    uint32  Order;                                          // 2
+    uint32  Id;                                             // 0        m_ID
+    uint32  TypeFlags;                                      // 1        m_Type
+    uint32  Order;                                          // 2        m_Tooltip
 };
 
 // All Gt* DBC store data for 100 levels, some by 100 per class/race
@@ -1241,152 +1226,138 @@ struct GlyphSlotEntry
 
 struct GtBarberShopCostBaseEntry
 {
-    //uint32 level;
+    //uint32    level;
     float   cost;
 };
 
 struct GtCombatRatingsEntry
 {
-    //uint32 level;
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtChanceToMeleeCritBaseEntry
 {
-    //uint32 level;
-    float    base;
+    //uint32    level;
+    float   base;
 };
 
 struct GtChanceToMeleeCritEntry
 {
-    //uint32 level;
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtChanceToSpellCritBaseEntry
 {
-    float    base;
+    //uint32    level;
+    float   base;
 };
 
 struct GtChanceToSpellCritEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtOCTClassCombatRatingScalarEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtOCTRegenHPEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtOCTRegenMPEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct gtOCTHpPerStaminaEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtRegenHPPerSptEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtRegenMPPerSptEntry
 {
-    float    ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtSpellScalingEntry
 {
-    float value;
+    //uint32    level;
+    float   value;
 };
 
 struct GtOCTBaseHPByClassEntry
 {
-    float ratio;
+    //uint32    level;
+    float   ratio;
 };
 
 struct GtOCTBaseMPByClassEntry
 {
-    float ratio;
+    //uint32    level;
+    float   ratio;
 };
 
-// @author Selenium: 5.4 valid
 struct GuildPerkSpellsEntry
 {
-    //uint32    Id;                                         // 0
-    uint32  Level;                                          // 1
-    uint32  SpellId;                                        // 2
+    //uint32    Id;                                         // 0        m_ID
+    uint32  Level;                                          // 1        m_GuildLevel
+    uint32  SpellId;                                        // 2        m_SpellID
 };
 
-//Unused
-//struct HolidayDescriptionsEntry
-//{
-//    uint32 ID;                                            // 0, m_holidayDescriptionID
-//    //char*     name                                      // 1  m_name_lang
-//};
-//
-//
-//
-//struct HolidayNamesEntry
-//{
-//    uint32 ID;                                            // 0, m_holidayNameID
-//    //char*     name                                      // 1  m_name_lang
-//};
-
-// @author Selenium: 5.4 valid
-// ImportPriceArmor.dbc
 struct ImportPriceArmorEntry
 {
-    uint32 InventoryType;                                   // 0        Id/InventoryType
-    float ClothFactor;                                      // 1        Price factor cloth
-    float LeatherFactor;                                    // 2        Price factor leather
-    float MailFactor;                                       // 3        Price factor mail
-    float PlateFactor;                                      // 4        Price factor plate
+    uint32  InventoryType;                                  // 0        m_ID
+    float   ClothFactor;                                    // 1        m_ClothModifier
+    float   LeatherFactor;                                  // 2        m_LeatherModifier
+    float   MailFactor;                                     // 3        m_ChainModifier
+    float   PlateFactor;                                    // 4        m_PlateModifier
 };
 
-// @author Selenium: 5.4 valid
-// ImportPriceQuality.dbc
 struct ImportPriceQualityEntry
 {
-    uint32 QualityId;                                       // 0        Quality Id (+1?)
-    float Factor;                                           // 1        Price factor
+    uint32  QualityId;                                      // 0        m_ID
+    float   Factor;                                         // 1        m_data
 };
 
-// @author Selenium: 5.4 valid
-// ImportPriceShield.dbc
 struct ImportPriceShieldEntry
 {
-    uint32 Id;                                              // 0        Unk id (only 1 and 2)
-    float Factor;                                           // 1        Price factor
+    uint32  Id;                                             // 0        m_ID
+    float   Factor;                                         // 1        m_data
 };
 
-// @author Selenium: 5.4 valid
-// ImportPriceWeapon.dbc
 struct ImportPriceWeaponEntry
 {
-    uint32 Id;                                              // 0        Unk id (mainhand - 0, offhand - 1, weapon - 2, 2hweapon - 3, ranged/rangedright/relic - 4)
-    float Factor;                                           // 1        Price factor
+    uint32  Id;                                             // 0        m_ID
+    float   Factor;                                         // 1        m_data
 };
 
-// @author Selenium: 5.4 valid
-// ItemPriceBase.dbc
 struct ItemPriceBaseEntry
 {
-    //uint32    ID;                                         // 0
-    uint32  ItemLevel;                                      // 1        Item level (1 - 1000)
-    float   ArmorFactor;                                    // 2        Price factor for armor
-    float   WeaponFactor;                                   // 3        Price factor for weapons
+    //uint32    ID;                                         // 0        m_ID
+    uint32  ItemLevel;                                      // 1        m_ItemLevel
+    float   ArmorFactor;                                    // 2        m_Armor
+    float   WeaponFactor;                                   // 3        m_Weapon
 };
 
-// @author Selenium: 5.4 valid
+
+// delete 6.0.1 ?
 struct ItemReforgeEntry
 {
     uint32  Id;                                             // 0
@@ -1396,7 +1367,7 @@ struct ItemReforgeEntry
     float   FinalMultiplier;                                // 4
 };
 
-// @author Selenium: 5.4 valid
+
 // common struct for:
 // ItemDamageAmmo.dbc
 // ItemDamageOneHand.dbc
@@ -1408,112 +1379,100 @@ struct ItemReforgeEntry
 // ItemDamageWand.dbc
 struct ItemDamageEntry
 {
-    uint32    Id;                                           // 0 item level
-    float     DPS[7];                                       // 1-7 multiplier for item quality
-    uint32    Id2;                                          // 8 item level
+    uint32  Id;                                             // 0        m_ID
+    float   DPS[7];                                         // 1-7      m_Qualitymod
+    uint32  Id2;                                            // 8        m_ItemLevel
 };
 
-// @author Selenium: 5.4 valid
 struct ItemArmorQualityEntry
 {
-    uint32    Id;                                           // 0 item level
-    float     Value[7];                                     // 1-7 multiplier for item quality
-    uint32    Id2;                                          // 8 item level
+    uint32  Id;                                             // 0        m_ID
+    float   Value[7];                                       // 1-7      m_Qualitymod
+    uint32  Id2;                                            // 8        m_ItemLevel
 };
 
-// @author Selenium: 5.4 valid
 struct ItemArmorShieldEntry
 {
-    uint32    Id;                                           // 0 item level
-    uint32    Id2;                                          // 1 item level
-    float     Value[7];                                     // 2-8 multiplier for item quality
+    uint32  Id;                                             // 0        m_ID
+    uint32  Id2;                                            // 1        m_ItemLevel
+    float   Value[7];                                       // 2-8      m_Qualitymod
 };
 
-// @author Selenium: 5.4 valid
 struct ItemArmorTotalEntry
 {
-    uint32    Id;                                           // 0 item level
-    uint32    Id2;                                          // 1 item level
-    float     Value[4];                                     // 2-5 multiplier for armor types (cloth...plate)
+    uint32  Id;                                             // 0        m_ID
+    uint32  Id2;                                            // 1        m_ItemLevel
+    float   Value[4];                                       // 2-5      m_Qualitymod
 };
 
-// @author Selenium: 5.4 valid
-// ItemClass.dbc
 struct ItemClassEntry
 {
-    uint32    Class;                                        // 0 item class id
-    //uint32 unk_1;                                         // 1
-    float     PriceFactor;                                  // 2 used to calculate certain prices
-  //char*     Name;                                         // 3 class name
+    uint32  Class;                                          // 0        m_ClassID
+    //uint32    m_Flags;                                    // 1        m_Flags
+    float   PriceFactor;                                    // 2        m_PriceModifier
+  //char*       m_ClassNameLang;                            // 3        m_ClassNameLang
 };
 
-// @author Selenium: 5.4 valid
 struct ItemBagFamilyEntry
 {
-    uint32   ID;                                            // 0
-    //char*     name;                                       // 1        m_name_lang
+    uint32  ID;                                             // 0        m_ID
+    //char*     m_NameLang;                                 // 1        m_NameLang
 };
 
-// @author Selenium: 5.4 valid
+// we have no data in 6.0.1 18612
 struct ItemDisplayInfoEntry
 {
     uint32  ID;                                             // 0        m_ID
-    //char*   m_modelName;                                  // 1-2      m_modelName[2]
-    //uint32                                                // 3-4      m_modelTexture[2]
-    //uint32                                                // 5        m_inventoryIcon
-    //uint32                                                // 6-8      m_geosetGroup[3]
-    //uint32                                                // 9        m_flags
-    //uint32                                                // 10       m_spellVisualID
-    //uint32                                                // 11       m_groupSoundIndex
-    //uint32                                                // 12-13    m_helmetGeosetVis[2]
-    //uint32                                                // 14-15    m_texture[2]
-    //uint32                                                // 16-23    m_itemVisual[8]
-    //uint32                                                // 24       m_particleColorID
-    //uint32 unk_1;                                         // 25
+    //char*                                                 // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // ?
+    //uint32                                                // 22
 };
 
-// @author Selenium: 5.4 valid
 struct ItemDisenchantLootEntry
 {
-    uint32 Id;                                              // 0
-    uint32 ItemClass;                                       // 1
-    int32 ItemSubClass;                                     // 2
-    uint32 ItemQuality;                                     // 3
-    uint32 MinItemLevel;                                    // 4
-    uint32 MaxItemLevel;                                    // 5
-    uint32 RequiredDisenchantSkill;                         // 6
+    uint32  Id;                                             // 0        m_ID
+    uint32  ItemClass;                                      // 1        m_Class
+    int32   ItemSubClass;                                   // 2        m_Subclass
+    uint32  ItemQuality;                                    // 3        m_Quality
+    uint32  MinItemLevel;                                   // 4        m_MinLevel
+    uint32  MaxItemLevel;                                   // 5        m_MaxLevel
+    uint32  RequiredDisenchantSkill;                        // 6        m_SkillRequired
 };
 
-// @author Selenium: 5.4 valid
 struct ItemLimitCategoryEntry
 {
-    uint32      ID;                                         // 0 Id
+    uint32  ID;                                             // 0 Id
     //char*     name;                                       // 1        m_name_lang
-    uint32      maxCount;                                   // 2,       m_quantity max allowed equipped as item or in gem slot
-    uint32      mode;                                       // 3,       m_flags 0 = have, 1 = equip (enum ItemLimitCategoryMode)
+    uint32  maxCount;                                       // 2,       m_quantity max allowed equipped as item or in gem slot
+    uint32  mode;                                           // 3,       m_flags 0 = have, 1 = equip (enum ItemLimitCategoryMode)
 };
 
-#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
+#define MAX_ITEM_ENCHANTMENT_EFFECTS 5
 
-// @author Selenium: 5.4 valid
 struct ItemRandomPropertiesEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    //char* internalName                                    // 1        m_Name
-    uint32    enchant_id[MAX_ITEM_ENCHANTMENT_EFFECTS];     // 2-4      m_Enchantment
-    //uint32 unk_1;                                         // 5        unused
-    //uint32 unk_2;                                         // 6        unused
-    char* nameSuffix;                                       // 7        m_name_lang
+    uint32  ID;                                             // 0        m_ID
+    //char*     internalName                                // 1        m_Name
+    uint32  enchant_id[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 2-6      m_Enchantment
+    char*   nameSuffix;                                     // 7        m_name_lang
 };
 
-// @author Selenium: 5.4 valid
 struct ItemRandomSuffixEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    char* nameSuffix;                                       // 1        m_name_lang
-    //char* internalName;                                   // 2        m_internalName
-    uint32    enchant_id[5];                                // 3-7      m_enchantment
-    uint32    prefix[5];                                    // 8-12     m_allocationPct
+    uint32  ID;                                             // 0        m_ID
+    char*   nameSuffix;                                     // 1        m_name_lang
+    //char*     internalName;                               // 2        m_internalName
+    uint32  enchant_id[5];                                  // 3-7      m_enchantment
+    uint32  prefix[5];                                      // 8-12     m_allocationPct
 };
 
 #define MAX_ITEM_SET_ITEMS 17
@@ -1522,67 +1481,66 @@ struct ItemRandomSuffixEntry
 struct ItemSetEntry
 {
     //uint32    id                                          // 0        m_ID
-    char* name;                                             // 1        m_name_lang
-    uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 2-18     m_itemID
-    uint32    required_skill_id;                            // 19       m_requiredSkill
-    uint32    required_skill_value;                         // 20       m_requiredSkillRank
+    char*   name;                                           // 1        m_name_lang
+    uint32  itemId[MAX_ITEM_SET_ITEMS];                     // 2-18     m_itemID
+    uint32  required_skill_id;                              // 19       m_requiredSkill
+    uint32  required_skill_value;                           // 20       m_requiredSkillRank
 };
 
 struct ItemSpecOverrideEntry
 {
-    uint32 ID;
-    uint32 itemEntry;
-    uint32 specID;
+    uint32  ID;                                             // 1        m_ID
+    uint32  itemEntry;                                      // 2        m_IemID
+    uint32  specID;                                         // 3        m_SpecID
 };
 
-// @author Selenium: 5.4 valid
 struct LFGDungeonEntry
 {
-    uint32  ID;                                             // 0
-    //char*   name;                                         // 1
-    uint32  minlevel;                                       // 2
-    uint32  maxlevel;                                       // 3
-    uint32  reclevel;                                       // 4
-    uint32  recminlevel;                                    // 5
-    uint32  recmaxlevel;                                    // 6
-    int32  map;                                             // 7
-    uint32  difficulty;                                     // 8
-    uint32  flags;                                          // 9
-    uint32  type;                                           // 10
-    //int32  unk_1;                                         // 11
-    //char*   namelite;                                     // 12 Name lite
-    uint32  expansion;                                      // 13
-    //uint32  unk_2;                                        // 14
-    uint32 grouptype;                                       // 15
-    //char* descr                                           // 16 Description
-    uint32 flags2;                                          // 17
-    uint32 tankNeeded;                                      // 18
-    uint32 healerNeeded;                                    // 19
-    uint32 dpsNeeded;                                       // 20
-    //uint32 unk_3;                                         // 21 only 0/1
-    //uint32 unk_4;                                         // 22
-    //uint32 unk_5;                                         // 23
-    //uint32 unk_6;                                         // 24 only 0
-    uint32 category;                                        // 25 only for categories
-    //uint32 unk_8;                                         // 26 only 0
-    //uint32 unk_9;                                         // 27
-    //uint32 unk_10;                                        // 28
+    uint32  ID;                                             // 0        m_ID
+    //char*     m_NameLang;                                 // 1        m_NameLang
+    uint32  minlevel;                                       // 2        m_MinLevel
+    uint32  maxlevel;                                       // 3        m_MaxLevel
+    uint32  reclevel;                                       // 4        m_TargetLevel
+    uint32  recminlevel;                                    // 5        m_TargetLevelMin
+    uint32  recmaxlevel;                                    // 6        m_TargetLevelMax
+    int32   map;                                             // 7       m_MapID
+    uint32  difficulty;                                     // 8        m_DifficultyID
+    uint32  flags;                                          // 9        m_Flags
+    uint32  type;                                           // 10       m_TypeID
+    //int32     m_Faction;                                  // 11       m_Faction
+    //char*     m_TextureFilename;                          // 12       m_TextureFilename
+    uint32  expansion;                                      // 13       m_ExpansionLevel
+    //uint32    m_OrderIndex;                               // 14       m_OrderIndex
+    uint32  grouptype;                                      // 15       m_GroupId
+    //char*     m_DescriptionLang;                          // 16       m_DescriptionLang
+    uint32  flags2;                                         // 17       m_RandomId
+    uint32  tankNeeded;                                     // 18       m_CountTank
+    uint32  healerNeeded;                                   // 19       m_CountHealer
+    uint32  dpsNeeded;                                      // 20       m_CountDamage
+    //uint32    m_MinCountTank;                             // 21       m_MinCountTank
+    //uint32    m_MinCountHealer;                           // 22       m_MinCountHealer
+    //uint32    m_MinCountDamage;                           // 23       m_MinCountDamage
+    //uint32    m_ScenarioID;                               // 24       m_ScenarioID
+    uint32  category;                                       // 25       m_Subtype
+    //uint32    m_BonusReputationAmount;                    // 26       m_BonusReputationAmount
+    //uint32    m_MentorCharLevel;                          // 27       m_MentorCharLevel
+    //uint32    m_MentorItemLevel;                          // 28       m_MentorItemLevel
+
     // Helpers
     uint32 Entry() const { return ID + (type << 24); }
     // 1 = LFG_TYPE_DUNGEON
     bool isScenario() const { return type == 1 && tankNeeded == 0 && healerNeeded == 0 && dpsNeeded == 3; }
 };
 
-
-// @author Selenium: 5.4 valid
+// delete ? no data for 6.0.1 18612
 struct LiquidTypeEntry
 {
-    uint32      Id;                                         // 1
+    uint32  Id;                                             // 1
     //char*     Name;                                       // 2
     //uint32    Flags;                                      // 3
-    uint32      Type;                                       // 4
+    uint32  Type;                                            // 4
     //uint32    SoundId;                                    // 5
-    uint32      SpellId;                                    // 6
+    uint32  SpellId;                                        // 6
     //float     MaxDarkenDepth;                             // 7
     //float     FogDarkenIntensity;                         // 8
     //float     AmbDarkenIntensity;                         // 9
@@ -1601,60 +1559,56 @@ struct LiquidTypeEntry
     //uint32
     //uint32
     //uint32
-    //uint32
+    //uint32                                                // 50
 };
 
 #define MAX_LOCK_CASE 8
 
-// @author Selenium: 5.4 valid
 struct LockEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    uint32      Type[MAX_LOCK_CASE];                        // 1-8      m_Type
-    uint32      Index[MAX_LOCK_CASE];                       // 9-16     m_Index
-    uint32      Skill[MAX_LOCK_CASE];                       // 17-24    m_Skill
-    //uint32      Action[MAX_LOCK_CASE];                    // 25-32    m_Action
+    uint32  ID;                                             // 0        m_ID
+    uint32  Type[MAX_LOCK_CASE];                            // 1-8      m_Type
+    uint32  Index[MAX_LOCK_CASE];                           // 9-16     m_Index
+    uint32  Skill[MAX_LOCK_CASE];                           // 17-24    m_Skill
+    //uint32    Action[MAX_LOCK_CASE];                      // 25-32    m_Action
 };
 
-// @author Selenium: 5.4 valid
 struct PhaseEntry
 {
-    uint32    ID;                                           // 0
-    uint32    flag;                                         // 1
+    uint32  ID;                                             // 0        m_ID
+    uint32  flag;                                           // 1        m_Flags
 };
 
-// @author Selenium: 5.4 valid
 struct MailTemplateEntry
 {
-    uint32  ID;                                             // 0
-    //char* subject;                                        // 1        m_subject_lang
+    uint32  ID;                                             // 0        m_ID
+    //char*     subject;                                    // 1        m_subject_lang
     char*   content;                                        // 2        m_body_lang
 };
 
-// @author Selenium: 5.4 valid
 struct MapEntry
 {
-    uint32      MapID;                                      // 0
-    //char*     direcotry;                                  // 1        unused
-    uint32      instanceType;                               // 2
-    //uint32    flags;                                      // 3
-    //uint32    MapType;                                    // 5        0 / 1 / 2 / 3 transport only
-    char*       MapNameLang;                                // 6        m_MapName_lang
-    uint32      AreaTableID;                                // 7        m_areaTableID
+    uint32  MapID;                                          // 0        m_ID
+    //char*     direcotry;                                  // 1        m_Directory
+    uint32  instanceType;                                   // 2        m_InstanceType
+    //uint32    flags;                                      // 3        m_Flags
+    //uint32    MapType;                                    // 5        m_MapType               3 = transport /  4 = Garnison
+    char*   MapNameLang;                                    // 6        m_MapName_lang
+    uint32  AreaTableID;                                    // 7        m_areaTableID
     //char*     MapDescription0Lang;                        // 8        m_MapDescription0_lang
     //char*     MapDescription1Lang;                        // 9        m_MapDescription1_lang
-    uint32      LoadingScreenID;                            // 10       m_LoadingScreenID (LoadingScreens.dbc)
+    uint32  LoadingScreenID;                                // 10       m_LoadingScreenID
     //float     MinimapIconScale;                           // 11       m_minimapIconScale
-    int32       CorpseMapID;                                // 12       m_corpseMapID map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
-    float       CorpseX;                                    // 13       m_corpseX entrance x coordinate in ghost mode  (in most cases = normal entrance)
-    float       CorpseY;                                    // 14       m_corpseY entrance y coordinate in ghost mode  (in most cases = normal entrance)
+    int32   CorpseMapID;                                    // 12       m_corpseMapID           map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    float   CorpseX;                                        // 13       m_corpseX               entrance x coordinate in ghost mode  (in most cases = normal entrance)
+    float   CorpseY;                                        // 14       m_corpseY               entrance y coordinate in ghost mode  (in most cases = normal entrance)
     //uint32    TimeOfDayOverride;                          // 15       m_timeOfDayOverride
-    uint32      ExpansionID;                                // 16       m_expansionID
-    uint32      RaidOffset;                                 // 17       m_raidOffset
-    uint32      MaxPlayers;                                 // 18       m_maxPlayers
-    int32       ParentMapID;                                // 19       mapid, related to phasing
-    //int32     CosmeticParentMapID;                        // 20       mapid, related to cosmetic
-    //uint32    TimeOffset;                                 // 21       
+    uint32  ExpansionID;                                    // 16       m_expansionID
+    uint32  RaidOffset;                                     // 17       m_raidOffset
+    uint32  MaxPlayers;                                     // 18       m_maxPlayers
+    int32   ParentMapID;                                    // 19       m_ParentMapID
+    //int32     CosmeticParentMapID;                        // 20       m_CosmeticParentMapID
+    //uint32    TimeOffset;                                 // 21       m_TimeOffset
 
     // Helpers
     uint32 Expansion() const { return ExpansionID; }
@@ -1686,378 +1640,353 @@ struct MapEntry
     }
 };
 
-// @author Selenium: 5.4 valid
 struct MapDifficultyEntry
 {
-    //uint32      Id;                                       // 0
-    uint32      MapId;                                      // 1
-    uint32      Difficulty;                                 // 2        (for arenas: arena slot)
-    char*       areaTriggerText;                            // 3        m_message_lang (text showed when transfer to map failed)
-    uint32      resetTime;                                  // 4        m_raidDuration in secs, 0 if no fixed reset time
-    uint32      maxPlayers;                                 // 5        m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
-    //uint32    unk_1;                                      // 6        0 only
-    //uint32    unk_1;                                      // 6        0 only
+    //uint32    Id;                                         // 0        m_ID
+    uint32  MapId;                                          // 1        m_MapID
+    uint32  Difficulty;                                     // 2        m_DifficultyID          (for arenas: arena slot)
+    char*   areaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
+    uint32  resetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
+    uint32  maxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
+    //uint32    LockID;                                     // 6        m_LockID
+    //uint32    Unk_601_18612;                              // 7        Unk_601_18612           m_message_lang for WOD
 };
 
-// @author Selenium: 5.4 valid
 struct MountCapabilityEntry
 {
-    uint32 Id;
-    uint32 Flags;
-    uint32 RequiredRidingSkill;
-    uint32 RequiredArea;
-    uint32 RequiredAura;
-    uint32 RequiredSpell;
-    uint32 SpeedModSpell;
-    int32  RequiredMap;
+    uint32  Id;                                             // 0        m_ID
+    uint32  Flags;                                          // 1        m_Flags
+    uint32  RequiredRidingSkill;                            // 2        m_ReqRidingSkill
+    uint32  RequiredArea;                                   // 3        m_ReqAreaID
+    uint32  RequiredAura;                                   // 4        m_ReqSpellAuraID
+    uint32  RequiredSpell;                                  // 5        m_ReqSpellKnownID
+    uint32  SpeedModSpell;                                  // 6        m_ModSpellAuraID
+    int32   RequiredMap;                                    // 7        m_ReqMapID
 };
 
 #define MAX_MOUNT_CAPABILITIES 24
 
-// @author Selenium: 5.4 valid
 struct MountTypeEntry
 {
-    uint32 Id;
-    uint32 MountCapability[MAX_MOUNT_CAPABILITIES];
+    uint32  Id;                                             // 0        m_ID
+    uint32  MountCapability[MAX_MOUNT_CAPABILITIES];        // 1        m_Capability
 };
 
-// @author Selenium: 5.4 valid
 struct MovieEntry
 {
-    uint32      Id;                                         // 0        index
-    //char*       filename;                                 // 1
-    //uint32      unk1;                                     // 2        m_volume
-    //uint32      unk2;                                     // 3        4.0.0
-    //uint32      unk3;                                     // 4        5.0.0
+    uint32  Id;                                             // 0        m_ID
+    //uint32    Volume;                                     // 1        m_Volume
+    //uint32    KeyID;                                      // 2        m_KeyID
+    //uint32    AudioFileDataID;                            // 3        m_AudioFileDataID
+    //uint32    unk3m_SubtitleFileDataID;                   // 4        m_SubtitleFileDataID
 };
 
-// @author Selenium: 5.4 valid
 struct NameGenEntry
 {
-    //uint32 id;
-    char*  name;
-    uint32 race;
-    uint32 gender;
+    //uint32    id;                                         // 0        m_ID
+    char*   name;                                           // 1        m_Name
+    uint32  race;                                           // 2        m_RaceID
+    uint32  gender;                                         // 3        m_Sex
 };
 
 #define MAX_OVERRIDE_SPELL 10
 
-
-// @author Selenium: 5.4 valid
 struct PvPDifficultyEntry
 {
-    //uint32      id;                                       // 0        m_ID
-    uint32      mapId;                                      // 1
-    uint32      bracketId;                                  // 2
-    uint32      minLevel;                                   // 3
-    uint32      maxLevel;                                   // 4
+    //uint32    id;                                         // 0        m_ID
+    uint32  mapId;                                          // 1        m_MapID
+    uint32  bracketId;                                      // 2        m_RangeIndex
+    uint32  minLevel;                                       // 3        m_MinLevel
+    uint32  maxLevel;                                       // 4        m_MaxLevel
 
     // helpers
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
 };
 
-// @author Selenium: 5.4 valid
 struct QuestSortEntry
 {
     uint32      id;                                         // 0        m_ID
     //char*       name;                                     // 1        m_SortName_lang
 };
 
-// @author Selenium: 5.4 valid
 struct QuestXPEntry
 {
-  uint32      id;
-  uint32      Exp[10];
+    uint32  id;                                             // 0        m_ID
+    uint32  Exp[10];                                        // 1 -9     m_Difficulty
 };
 
-// @author Selenium: 5.4 valid
 struct QuestFactionRewEntry
 {
-  uint32      id;
-  int32       QuestRewFactionValue[10];
+    uint32  id;                                             // 0        m_ID
+    int32   QuestRewFactionValue[10];                       // 1 -9     m_Difficulty
 };
 
 struct QuestPOIPointEntry
 {
-    uint32 unk;
-    int32 x;
-    int32 y;
-    uint32 ID;
+    uint32  unk;                                            // 0        m_ID
+    int32   x;                                              // 1        m_X
+    int32   y;                                              // 2        m_Y
+    uint32  ID;                                             // 3        m_QuestPOIBlobID
 };
 
+// delete ? 6.0.1  18612
 struct RandomPropertiesPointsEntry
 {
-    uint32    Id;                                           // 0 hidden key
-    uint32    EpicPropertiesPoints[5];                      // 1-5
-    uint32    RarePropertiesPoints[5];                      // 6-10
-    uint32    UncommonPropertiesPoints[5];                  // 11-15
+    uint32  Id;                                             // 0
+    uint32  EpicPropertiesPoints[5];                        // 1-5
+    uint32  RarePropertiesPoints[5];                        // 6-10
+    uint32  UncommonPropertiesPoints[5];                    // 11-15
 };
 
 struct ResearchBranchEntry
 {
-    uint32 ID;          // 0
-    //char*  Name;      // 1
-    //uint32 FieldID;   // 2
-    uint32 CurrencyID;  // 3
-    //char*  Icon;      // 4
-    uint32 ItemID;      // 5
+    uint32  ID;                                             // 0        m_ID
+    //char*     m_Name;                                     // 1        m_NameLang
+    //uint32    m_ResearchFieldID;                          // 2        m_ResearchFieldID
+    uint32  CurrencyID;                                     // 3        m_CurrencyID
+    //char*     m_Texture;                                  // 4        m_Texture
+    uint32  ItemID;                                         // 5        m_ItemID
 };
 
 struct ResearchProjectEntry
 {
-    uint32      ID;                                         // 0
-    //char*       name;                                     // 1
-    //char*       description;                              // 2
-    uint32      rare;                                       // 3
-    uint32      branchId;                                   // 4
-    uint32      spellId;                                    // 5
-    //uint32    complexity;                                 // 6
-    //char*     path;                                       // 7
-    uint32      req_currency;                               // 8
+    uint32  ID;                                             // 0        m_ID
+    //char*     m_ID;                                       // 1        m_NameLang
+    //char*     m_NameLang;                                 // 2        m_DescriptionLang
+    uint32  rare;                                           // 3        m_Rarity
+    uint32  branchId;                                       // 4        m_ResearchBranchID
+    uint32  spellId;                                        // 5        m_SpellID
+    //uint32    m_NumSockets;                               // 6        m_NumSockets
+    //char*     m_Texture;                                  // 7        m_Texture
+    uint32  req_currency;                                   // 8        m_RequiredWeight
 
 };
 
 struct ResearchSiteEntry
 {
-    uint32 ID;                                              // 0
-    uint32 mapId;                                           // 1
-    uint32 POIid;                                           // 2
-    //char* areaName;                                       // 3
-    //uint32 flags;                                         // 4
-};
-// @author Selenium: 5.4 valid
-struct ScalingStatDistributionEntry
-{
-    uint32 Id;                                              // 0
-    uint32 Minlevel;                                        // 1
-    uint32 MaxLevel;                                        // 22       m_maxlevel
-    uint32 Unk;                                             // 1
+    uint32  ID;                                             // 0        m_ID
+    uint32  mapId;                                          // 1        m_MapID
+    uint32  POIid;                                          // 2        m_QuestPOIBlobID
+    //char*     m_NameLang;                                 // 3        m_NameLang
+    //uint32    AreaPOIIconEnum;                            // 4        m_AreaPOIIconEnum
 };
 
-// @author Selenium: todo for 5.4 valid
+struct ScalingStatDistributionEntry
+{
+    uint32  Id;                                             // 0        m_ID
+    uint32  Minlevel;                                       // 1        m_Minlevel
+    uint32  MaxLevel;                                       // 2        m_Maxlevel
+    uint32  Unk_601_18612;                                  // 3        Unk_601_18612
+};
+
 struct ScalingStatValuesEntry
 {
-    uint32 Id;                                              // 0
-    uint32 Level;                                           // 1
-    uint32 dpsMod[7];                                       // 2-8      DPS mod for level
-    uint32 Spellpower;                                      // 9        Spell power for level
-    uint32 StatMultiplier[5];                               // 10-14    Multiplier for ScalingStatDistribution
-    uint32 Armor[8][4];                                     // 15-47    Armor for level
-    uint32 CloakArmor;                                      // 48       Armor for cloak
-    //uint32 Unk540_1;                                      // 49       New in 5.4.X @todo
+    uint32 Id;                                              // 0        m_ID
+    uint32 Level;                                           // 1        m_Charlevel
+    uint32 dpsMod[7];                                       // 2-8      m_EffectiveLevel + m_WeaponDPS1H + m_WeaponDPS2H + m_SpellcasterDPS1H + m_SpellcasterDPS2H + m_RangedDPS + m_WandDPS
+    uint32 Spellpower;                                      // 9        m_SpellPower
+    uint32 StatMultiplier[5];                               // 10-14    m_BudgetPrimary + m_BudgetSecondary + m_BudgetTertiary + m_BudgetSub + m_BudgetTrivial
+    uint32 Armor[8][4];                                     // 15-47    m_ArmorShoulder[4] + m_ArmorChest[4] + m_ArmorHead[4] + m_ArmorLegs[4] + m_ArmorFeet[4] + m_ArmorWaist[4] + m_ArmorHands[4] + m_ArmorWrists[4]
+    uint32 CloakArmor;                                      // 48       m_ArmorBack
+    //uint32 m_ArmorShield;                                 // 49       m_ArmorShield
 
     uint32 GetStatMultiplier(uint32 inventoryType) const;
     uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
     uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
 };
 
-// @author Selenium: 5.4 valid
+// used ? 
 //struct SkillRaceClassInfoEntry
 //{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillId;                                    // 1      m_skillID
-//    uint32    raceMask;                                   // 2      m_raceMask
-//    uint32    classMask;                                  // 3      m_classMask
-//    uint32    flags;                                      // 4      m_flags
-//    uint32    reqLevel;                                   // 5      m_minLevel
-//    uint32    skillTierId;                                // 6      m_skillTierID
-//    uint32    skillCostID;                                // 7      m_skillCostIndex
+//    uint32    id;                                         // 0        m_ID
+//    uint32    skillId;                                    // 1        m_skillID
+//    uint32    raceMask;                                   // 2        m_raceMask
+//    uint32    classMask;                                  // 3        m_classMask
+//    uint32    flags;                                      // 4        m_flags
+//    uint32    reqLevel;                                   // 5        m_minLevel
+//    uint32    skillTierId;                                // 6        m_skillTierID
+//    uint32    skillCostID;                                // 7        m_skillCostIndex
 //};
 
-// 16 field removed
 //struct SkillTiersEntry
 //{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillValue[16];                             // 1-17   m_cost
-//    uint32    maxSkillValue[16];                          // 18-32  m_valueMax
+//    uint32    id;                                         // 0        m_ID
+//    uint32    skillValue[16];                             // 1-17     m_cost
+//    uint32    maxSkillValue[16];                          // 18-32    m_valueMax
 //};
 
-// @author Selenium: 5.4 valid
 struct SkillLineEntry
 {
-    uint32 id;                                              // 0    m_ID
-    int32 categoryId;                                       // 1    m_categoryID
-    char* name;                                             // 2    m_displayName_lang
-    //char* description;                                    // 3    m_description_lang
-    uint32 spellIcon;                                       // 4    m_spellIconID
-    //char* alternateVerb;                                  // 5    m_alternateVerb_lang
-    uint32 canLink;                                         // 6    m_canLink (prof. with recipes)
-    //uint32 skillId;                                       // 7    Only cooking skill id
-    uint32 unk_1;                                           // 8    Unknow, maybe flag ?
+    uint32  id;                                             // 0        m_ID
+    int32   categoryId;                                     // 1        m_categoryID
+    char*   name;                                           // 2        m_displayName_lang
+    //char*     description;                                // 3        m_description_lang
+    uint32  spellIcon;                                      // 4        m_spellIconID
+    //char*     alternateVerb;                              // 5        m_alternateVerb_lang
+    uint32  canLink;                                        // 6        m_canLink (prof. with recipes)
+    //uint32    m_ParentSkillLineID;                        // 7        m_ParentSkillLineID
+    uint32  m_Flags;                                        // 8        m_Flags
 };
 
-// @author Selenium: 5.4 valid
 struct SkillLineAbilityEntry
 {
-    uint32    id;                                           // 0        m_ID
-    uint32    skillId;                                      // 1        m_skillLine
-    uint32    spellId;                                      // 2        m_spell
-    uint32    racemask;                                     // 3        m_raceMask
-    uint32    classmask;                                    // 4        m_classMask
-    uint32    req_skill_value;                              // 5        m_minSkillLineRank
-    uint32    forward_spellid;                              // 6        m_supercededBySpell
-    uint32    learnOnGetSkill;                              // 7        m_acquireMethod
-    uint32    max_value;                                    // 8        m_trivialSkillLineRankHigh
-    uint32    min_value;                                    // 9        m_trivialSkillLineRankLow
-    uint32    skill_gain;                                   // 10       m_skillgain 1-30
-    //uint32  unk_1                                         // 11       4.0.0 unk (increment id)
-    //uint32  unk_2                                         // 12       5.0.5
+    uint32  id;                                             // 0        m_ID
+    uint32  skillId;                                        // 1        m_skillLine
+    uint32  spellId;                                        // 2        m_spell
+    uint32  racemask;                                       // 3        m_raceMask
+    uint32  classmask;                                      // 4        m_classMask
+    uint32  req_skill_value;                                // 5        m_minSkillLineRank
+    uint32  forward_spellid;                                // 6        m_supercededBySpell
+    uint32  learnOnGetSkill;                                // 7        m_acquireMethod
+    uint32  max_value;                                      // 8        m_trivialSkillLineRankHigh
+    uint32  min_value;                                      // 9        m_trivialSkillLineRankLow
+    uint32  skill_gain;                                     // 10       m_NumSkillUps
+    //uint32    m_UniqueBit;                                // 11       m_UniqueBit
+    //uint32    m_TradeSkillCategoryID;                     // 12       m_TradeSkillCategoryID
 };
 
-// @author Selenium: 5.4 valid
 struct SoundEntriesEntry
 {
-    uint32    Id;                                           // 0        m_ID
-    //uint32  Type;                                         // 1        m_soundType
-    //char*   InternalName;                                 // 2        m_name
-    //uint32  Unk540_1[10];                                 // 3-12     m_File[10] old char* but no string ?
-    //uint32  Unk13[10];                                    // 13-22    m_Freq[10]
-    //float   volumeFloat;                                  // 23       m_volumeFloat
-    //uint32                                                // 24       m_flags
-    //float                                                 // 25       m_minDistance
-    //float                                                 // 26       m_distanceCutoff
-                                                            // 27       m_EAXDef
-    //uint32  unk540_2;                                     // 28
-    //float   unk540_3;                                     // 29
-    //float   unk540_4;                                     // 30
-    //float   unk540_5;                                     // 31
-    //float   unk540_6;                                     // 32
-    //float   unk540_7;                                     // 33
-    //uint32  unk540_8;                                     // 34
+    uint32  Id;                                             // 0        m_ID
+    //uint32    Type;                                       // 1        m_SoundType
+    //char*     InternalName;                               // 2        m_Name
+    //uint32    m_FileDataID[20];                           // 3-22     m_FileDataID
+    //uint32    m_Freq[20];                                 // 23-42    m_Freq
+    //float     m_volumeFloat;                              // 43       m_VolumeFloat
+    //uint32    m_Flags;                                    // 44       m_Flags
+    //float     m_MinDistance;                              // 45       m_MinDistance
+    //float     m_DistanceCutoff;                           // 46       m_DistanceCutoff
+    //uint32    m_EAXDef;                                   // 47       m_EAXDef
+    //uint32    m_SoundEntriesAdvancedID;                   // 48       m_SoundEntriesAdvancedID
+    //float     m_Volumevariationplus;                      // 49       m_Volumevariationplus
+    //float     m_Volumevariationminus;                     // 50       m_Volumevariationminus
+    //float     m_Pitchvariationplus;                       // 51       m_Pitchvariationplus
+    //float     m_Pitchvariationminus;                      // 52       m_Pitchvariationminus
+    //float     m_PitchAdjust;                              // 53       m_PitchAdjust
+    //uint32    m_Dialogtype;                               // 54       m_Dialogtype
+    //uint32    m_BusOverwriteID;                           // 55       m_BusOverwriteID
 };
 
-// SpecializationSpells.dbc
-// @author Selenium: 5.4 valid
 struct SpecializationSpellEntry
 {
-    uint32  Id;                      // 0
-    uint32  SpecializationEntry;     // 1
-    uint32  LearnSpell;              // 2
-    uint32  OverrideSpell;           // 3
-    //uint32 Unk_1                   // 4  Always 0
+    uint32  Id;                                             // 0        m_ID
+    uint32  SpecializationEntry;                            // 1        m_SpecID
+    uint32  LearnSpell;                                     // 2        m_SpellID
+    uint32  OverrideSpell;                                  // 3        m_OverridesSpellID
+    //char*     m_DescriptionLang;                          // 4        m_DescriptionLang       No data
 };
 
-// @author Selenium: 5.4 valid
-// SpellEffect.dbc
 struct SpellEffectEntry
 {
-    uint32    Id;                                           // 0         m_ID
-    uint32    EffectDifficulty;                             // 1         m_effectDifficulty
-    uint32    Effect;                                       // 2         m_effect
-    float     EffectValueMultiplier;                        // 3         m_effectAmplitude
-    uint32    EffectApplyAuraName;                          // 4         m_effectAura
-    uint32    EffectAmplitude;                              // 5         m_effectAuraPeriod
-    int32     EffectBasePoints;                             // 6         m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    float     EffectBonusMultiplier;                        // 7         m_effectBonus
-    float     EffectDamageMultiplier;                       // 8         m_effectChainAmplitude
-    uint32    EffectChainTarget;                            // 9         m_effectChainTargets
-    int32     EffectDieSides;                               // 10        m_effectDieSides
-    uint32    EffectItemType;                               // 11        m_effectItemType
-    uint32    EffectMechanic;                               // 12        m_effectMechanic
-    int32     EffectMiscValue;                              // 13        m_effectMiscValue
-    int32     EffectMiscValueB;                             // 14        m_effectMiscValueB
-    float     EffectPointsPerComboPoint;                    // 15        m_effectPointsPerCombo
-    uint32    EffectRadiusIndex;                            // 16        m_effectRadiusIndex - spellradius.dbc
-    uint32    EffectRadiusMaxIndex;                         // 17        4.0.0
-    float     EffectRealPointsPerLevel;                     // 18        m_effectRealPointsPerLevel
-    flag128   EffectSpellClassMask;                         // 19 - 22   m_effectSpellClassMask1(2/3), effect 0
-    uint32    EffectTriggerSpell;                           // 23        m_effectTriggerSpell
-    //float   unk_1                                         // 24        5.0.5
-    uint32    EffectImplicitTargetA;                        // 25        m_implicitTargetA
-    uint32    EffectImplicitTargetB;                        // 26        m_implicitTargetB
-    uint32    EffectSpellId;                                // 27        new 4.0.0
-    uint32    EffectIndex;                                  // 28        new 4.0.0
-    //uint32  unk_flag_2                                    // 29        4.2.0 Flag
-    float BonusCoefficientFromAP;
+    uint32  Id;                                             // 0        m_ID
+    uint32  EffectDifficulty;                               // 1        m_EffectDifficulty
+    uint32  Effect;                                         // 2        m_Effect
+    float   EffectValueMultiplier;                          // 3        m_EffectAmplitude
+    uint32  EffectApplyAuraName;                            // 4        m_EffectAura
+    uint32  EffectAmplitude;                                // 5        m_EffectAuraPeriod
+    int32   EffectBasePoints;                               // 6        m_EffectBasePoints     Don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints
+    float   EffectBonusMultiplier;                          // 7        m_EffectBonusCoefficient
+    float   EffectDamageMultiplier;                         // 8        m_EffectChainAmplitude
+    uint32  EffectChainTarget;                              // 9        m_EffectChainTargets
+    int32   EffectDieSides;                                 // 10       m_EffectDieSides
+    uint32  EffectItemType;                                 // 11       m_EffectItemType
+    uint32  EffectMechanic;                                 // 12       m_EffectMechanic
+    int32   EffectMiscValue;                                // 13       m_EffectMiscValue
+    int32   EffectMiscValueB;                               // 14       m_EffectMiscValueB
+    float   EffectPointsPerComboPoint;                      // 15       m_EffectPointsPerResource
+    uint32  EffectRadiusIndex;                              // 16       m_EffectRadiusIndex     Spellradius.dbc
+    uint32  EffectRadiusMaxIndex;                           // 17       m_EffectRadiusMaxIndex
+    float   EffectRealPointsPerLevel;                       // 18       m_EffectRealPointsPerLevel
+    flag128 EffectSpellClassMask;                           // 19-22    m_effectSpellClassMask1 (2/3), effect 0
+    uint32  EffectTriggerSpell;                             // 23       m_effectTriggerSpell
+    //float     m_EffectPosFacing;                          // 24       m_EffectPosFacing
+    uint32  EffectImplicitTargetA;                          // 25       m_implicitTargetA
+    uint32  EffectImplicitTargetB;                          // 26       m_implicitTargetB
+    uint32  EffectSpellId;                                  // 27       m_SpellID
+    uint32  EffectIndex;                                    // 28       m_EffectIndex
+    //uint32    m_EffectAttributes;                         // 29       m_EffectAttributes
+    float   BonusCoefficientFromAP;                         // 30       m_BonusCoefficientFromAP
 };
 
-// @author Selenium: 5.4 valid
 struct SpellEffectScalingEntry
 {
-    //uint32    Unk_540;                                    // New 5.4.X
-    float     Multiplier;                                   // 1
-    float     RandomMultiplier;                             // 2
-    float     OtherMultiplier;                              // 3
-    uint32    Id;                                           // Effect ID
+    //uint32    m_ID;                                       // 0        m_ID
+    float   Multiplier;                                     // 1        m_Coefficient
+    float   RandomMultiplier;                               // 2        m_Variance
+    float   OtherMultiplier;                                // 3        m_ResourceCoefficient
+    uint32  Id;                                             // 4        m_SpellEffectID
 };
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 4294967295
 
-// SpellAuraOptions.dbc
-// @author Selenium: 5.4 valid
 struct SpellAuraOptionsEntry
 {
-    uint32    Id;                                           // 0       m_ID
-    uint32    StackAmount;                                  // 1       m_cumulativeAura
-    uint32    procChance;                                   // 2       m_procChance
-    uint32    procCharges;                                  // 3       m_procCharges
-    uint32    procFlags;                                    // 4       m_procTypeMask
-    //uint32    Unk_1;                                      // 5
-    //uint32    Unk_2;                                      // 6       Flag
-    //uint32    Unk_3;                                      // 7
-    //uint32    Unk_4;                                      // 8
+    uint32  Id;                                             // 0        m_ID
+    //uint32    m_SpellID;                                  // 1        m_SpellID
+    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    uint32  StackAmount;                                    // 1        m_cumulativeAura
+    uint32  procChance;                                     // 2        m_procChance
+    uint32  procCharges;                                    // 3        m_procCharges
+    uint32  procFlags;                                      // 4        m_procTypeMask
+    //uint32    m_m_ProcCategoryRecovery;                   // 5        m_ProcCategoryRecovery
+    //uint32    m_SpellProcsPerMinuteID;                    // 6        m_SpellProcsPerMinuteID
 };
 
-
-
-// Spell.dbc
-// @author Selenium: 5.4 valid
 struct SpellEntry
 {
-    uint32    Id;                                           // 0       m_ID
-    char* SpellName;                                        // 1       m_name_lang
-    char* Rank;                                             // 2       m_nameSubtext_lang
-    //char* Description;                                    // 3       m_description_lang not used
-    //char* ToolTip;                                        // 4       m_auraDescription_lang not used
-    uint32    runeCostID;                                   // 5       m_runeCostID
-    //uint32  spellMissileID;                               // 6       m_spellMissileID not used
-    //uint32  spellDescriptionVariableID;                   // 7       m_spellDescriptionVariableID, 3.2.0
-    uint32 SpellScalingId;                                  // 8        SpellScaling.dbc
-    uint32 SpellAuraOptionsId;                              // 9       SpellAuraOptions.dbc
-    uint32 SpellAuraRestrictionsId;                         // 10       SpellAuraRestrictions.dbc
-    uint32 SpellCastingRequirementsId;                      // 11       SpellCastingRequirements.dbc
-    uint32 SpellCategoriesId;                               // 12       SpellCategories.dbc
-    uint32 SpellClassOptionsId;                             // 13       SpellClassOptions.dbc
-    uint32 SpellCooldownsId;                                // 14       SpellCooldowns.dbc
-    uint32 SpellEquippedItemsId;                            // 15       SpellEquippedItems.dbc
-    uint32 SpellInterruptsId;                               // 16       SpellInterrupts.dbc
-    uint32 SpellLevelsId;                                   // 17       SpellLevels.dbc
-    uint32 SpellReagentsId;                                 // 18       SpellReagents.dbc
-    uint32 SpellShapeshiftId;                               // 19       SpellShapeshift.dbc
-    uint32 SpellTargetRestrictionsId;                       // 20       SpellTargetRestrictions.dbc
-    uint32 SpellTotemsId;                                   // 21       SpellTotems.dbc
-    uint32 ResearchProject;                                 // 22       ResearchProject.dbc
-    uint32 SpellMiscId;                                     // 23       SpellMisc.dbc
+    uint32  Id;                                             // 0        m_ID
+    char*   SpellName;                                      // 1        m_name_lang
+    char*   Rank;                                           // 2        m_nameSubtext_lang
+    //char*     Description;                                // 3        m_description_lang
+    //char*     ToolTip;                                    // 4        m_auraDescription_lang
+    uint32  runeCostID;                                     // 5        m_runeCostID
+    //uint32    spellMissileID;                             // 6        m_spellMissileID
+    //uint32    spellDescriptionVariableID;                 // 7        m_spellDescriptionVariableID
+    uint32  SpellScalingId;                                 // 8        m_ScalingID
+    uint32  SpellAuraOptionsId;                             // 9        m_AuraOptionsID
+    uint32  SpellAuraRestrictionsId;                        // 10       m_AuraRestrictionsID
+    uint32  SpellCastingRequirementsId;                     // 11       m_CastingRequirementsID
+    uint32  SpellCategoriesId;                              // 12       m_CategoriesID
+    uint32  SpellClassOptionsId;                            // 13       m_ClassOptionsID
+    uint32  SpellCooldownsId;                               // 14       m_CooldownsID
+    uint32  SpellEquippedItemsId;                           // 15       m_EquippedItemsID
+    uint32  SpellInterruptsId;                              // 16       m_InterruptsID
+    uint32  SpellLevelsId;                                  // 17       m_LevelsID
+    uint32  SpellReagentsId;                                // 18       m_ReagentsID
+    uint32  SpellShapeshiftId;                              // 19       m_ShapeshiftID
+    uint32  SpellTargetRestrictionsId;                      // 20       m_TargetRestrictionsID
+    uint32  SpellTotemsId;                                  // 21       m_TotemsID
+    uint32  ResearchProject;                                // 22       m_RequiredProjectID
+    uint32  SpellMiscId;                                    // 23       m_MiscID
 
     // struct access functions
     SpellEffectEntry const* GetSpellEffect(uint32 eff, uint32 difficulty) const;
 };
 
-// SpellCategories.dbc
 struct SpellCategoriesEntry
 {
-    uint32 Id;                                          // 0        m_ID
-    uint32 SpellId;                                     // 1        m_spellId
-    uint32 Unk1;                                        // 2
-    uint32 Category;                                    // 3        m_category
-    uint32 DmgClass;                                    // 4        m_defenseType
-    uint32 Dispel;                                      // 5        m_dispelType
-    uint32 Mechanic;                                    // 6        m_mechanic
-    uint32 PreventionType;                              // 7        m_preventionType
-    uint32 StartRecoveryCategory;                       // 8        m_startRecoveryCategory
-    uint32 ChargesCategory;                             // 9        m_chargesCategory
+    uint32  Id;                                             // 0        m_ID
+    uint32  SpellId;                                        // 1        m_spellId
+    uint32  m_DifficultyID;                                 // 2        m_DifficultyID
+    uint32  Category;                                       // 3        m_category
+    uint32  DmgClass;                                       // 4        m_defenseType
+    uint32  Dispel;                                         // 5        m_dispelType
+    uint32  Mechanic;                                       // 6        m_mechanic
+    uint32  PreventionType;                                 // 7        m_preventionType
+    uint32  StartRecoveryCategory;                          // 8        m_startRecoveryCategory
+    uint32  ChargesCategory;                                // 9        m_chargesCategory
 };
 
 // SpellCategory.dbc
 struct SpellCategoryEntry
 {
-    uint32 Id;                                          // 0
-    uint32 Flags;                                       // 1
-    uint32 Unk1;                                        // 2
-    char const *Description;                            // 3
-    uint32 MaxCharges;                                  // 4
-    uint32 ChargeRegenTime;                             // 5
+    uint32  Id;                                             // 0        m_ID
+    uint32  Flags;                                          // 1        m_Flags
+    uint32  m_UsesPerWeek;                                  // 2        m_UsesPerWeek           (byte)
+    char*   Description;                                    // 3        m_NameLang
+    uint32  MaxCharges;                                     // 4        m_MaxCharges
+    uint32  ChargeRegenTime;                                // 5        m_ChargeRecoveryTime
 };
 
 typedef std::set<uint32> SpellCategorySet;
@@ -2066,53 +1995,48 @@ typedef std::list<const SpellEntry*> SpellSkillingList;
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
 
-// @author Selenium: 5.4 valid
 struct SpellCastTimesEntry
 {
-    uint32    ID;                                           // 0
-    int32     CastTime;                                     // 1
-    //float     CastTimePerLevel;                           // 2 unsure / per skill?
-    //int32     MinCastTime;                                // 3 unsure
+    uint32  ID;                                             // 0        m_ID
+    int32   CastTime;                                       // 1        m_Base
+    //float     m_PerLevel;                                 // 2        m_PerLevel
+    //int32     m_Minimum;                                  // 3        m_Minimum
 };
 
-// @author Selenium: 5.4 valid
 struct SpellFocusObjectEntry
 {
-    uint32    ID;                                           // 0
-    //char*     Name;                                       // 1        m_name_lang
+    uint32  ID;                                             // 0        m_ID
+    //char*     Name;                                       // 1        m_NameLang
 };
 
-// @author Selenium: 5.4 valid
 struct SpellRadiusEntry
 {
-    uint32    ID;                                           // 0
-    float     radiusHostile;                                // 1
-    //uint32    unk_1;                                      // 2    always 0
-    float     radiusFriend;                                 // 3
-    //float    unk_2                                        // 4
+    uint32  ID;                                             // 0        m_ID
+    float   radiusHostile;                                  // 1        m_Radius
+    //float     m_RadiusPerLevel;                           // 2        m_RadiusPerLevel
+    float   radiusFriend;                                   // 3        m_RadiusMin
+    //float     RadiusMaxm_                                 // 4        m_RadiusMax
 };
 
-// @author Selenium: todo for 5.4 valid
 struct SpellRangeEntry
 {
-    uint32    ID;                                           // 0
-    float     minRangeHostile;                              // 1
-    float     minRangeFriend;                               // 2
-    float     maxRangeHostile;                              // 3
-    float     maxRangeFriend;                               // 4    friend means unattackable unit here
-    uint32    type;                                         // 5
-    //char*   Name;                                         // 6    m_displayName_lang
-    //char*   ShortName;                                    // 7    m_displayNameShort_lang
+    uint32  ID;                                             // 0        m_ID
+    float   minRangeHostile;                                // 1        m_RangeMin
+    float   minRangeFriend;                                 // 2        m_RangeMin
+    float   maxRangeHostile;                                // 3        m_RangeMax
+    float   maxRangeFriend;                                 // 4        m_RangeMax
+    uint32  type;                                           // 5        m_Flags
+    //char*     Name;                                       // 6        m_displayName_lang
+    //char*     ShortName;                                  // 7        m_displayNameShort_lang
 };
 
-// SpellEquippedItems.dbc
-// @author Selenium: 5.4 valid
+// delete ?  6.0.1 18612
 struct SpellEquippedItemsEntry
 {
-    //uint32    Id;                                         // 0    m_ID
-    int32     EquippedItemClass;                            // 1    m_equippedItemClass (value)
-    int32     EquippedItemInventoryTypeMask;                // 2    m_equippedItemInvTypes (mask)
-    int32     EquippedItemSubClassMask;                     // 3    m_equippedItemSubclass (mask)
+    //uint32    Id;                                         // 0        m_ID
+    int32   EquippedItemClass;                              // 1        m_equippedItemClass (value)
+    int32   EquippedItemInventoryTypeMask;                  // 2        m_equippedItemInvTypes (mask)
+    int32   EquippedItemSubClassMask;                       // 3        m_equippedItemSubclass (mask)
     //uint32    unk_1                                       // 4
     //uint32    unk_2                                       // 5
 };
@@ -2122,135 +2046,118 @@ struct SpellEquippedItemsEntry
 struct SpellCooldownsEntry
 {
     //uint32    Id;                                         // 0    m_ID
-    uint32    CategoryRecoveryTime;                         // 1    m_categoryRecoveryTime
-    uint32    RecoveryTime;                                 // 2    m_recoveryTime
-    uint32    StartRecoveryTime;                            // 3    m_startRecoveryTime
-    //uint32    unk_1                                       // 4    unk timer
-    //uin32     unk_2                                       // 5    unk timer_2
+    //uint32    m_SpellID;                                  // 1    m_SpellID
+    //uint32    m_DifficultyID;                             // 2    m_DifficultyID
+    uint32  CategoryRecoveryTime;                           // 3    m_categoryRecoveryTime
+    uint32  RecoveryTime;                                   // 4    m_recoveryTime
+    uint32  StartRecoveryTime;                              // 5    m_startRecoveryTime
 };
 
-// SpellInterrupts.dbc
-// @author Selenium: 5.4 valid
 struct SpellInterruptsEntry
 {
-    //uint32    Id;                                         // 0       m_ID
-    uint32    AuraInterruptFlags;                           // 1       m_auraInterruptFlags
-    //uint32    unk_1                                       // 2       4.0.0
-    uint32    ChannelInterruptFlags;                        // 3       m_channelInterruptFlags
-    //uint32    unk_2                                       // 4       4.0.0
-    uint32    InterruptFlags;                               // 5       m_interruptFlags
-    //uint32    unk_2                                       // 6       New 5.4.0
-    //uint32    unk_3                                       // 7       New 5.4.0
+    //uint32    Id;                                         // 0        m_ID
+    //uint32    m_SpellID;                                  // 1        m_SpellID
+    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    uint32  AuraInterruptFlags;                             // 3        m_auraInterruptFlags
+    //uint32    m_auraInterruptFlags                        // 4        m_auraInterruptFlags
+    uint32  ChannelInterruptFlags;                          // 5        m_channelInterruptFlags
+    //uint32    m_channelInterruptFlags                     // 6        m_channelInterruptFlags
+    uint32  InterruptFlags;                                 // 7        m_interruptFlags
 };
 
-// SpellLevels.dbc
-// @author Selenium: 5.4 valid
 struct SpellLevelsEntry
 {
-    //uint32    Id;                                         // 0 m_ID
-    uint32  SpellId;                                        // 1 m_spellId
-    //uint32    unk_1;                                      // 2 5.0.1.15589
-    uint32  baseLevel;                                      // 3 m_baseLevel
-    uint32  maxLevel;                                       // 4 m_maxLevel
-    uint32  spellLevel;                                     // 5 m_spellLevel
+    //uint32    Id;                                         // 0        m_ID
+    uint32  SpellId;                                        // 1        m_spellId
+    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    uint32  baseLevel;                                      // 3        m_baseLevel
+    uint32  maxLevel;                                       // 4        m_maxLevel
+    uint32  spellLevel;                                     // 5        m_spellLevel
 };
-
 
 #define MAX_SHAPESHIFT_SPELLS 8
 
-//SpellShapeshiftForm.dbc
-// @author Selenium: 5.4 valid
 struct SpellShapeshiftFormEntry
 {
-    uint32 ID;                                              // 0
-    //uint32 buttonPosition;                                // 1 unused
-    //char* Name;                                           // 2 unused
-    uint32 flags1;                                          // 3
-    int32  creatureType;                                    // 4 <=0 humanoid, other normal creature types
-    //uint32 unk_1;                                         // 5 unused, related to next field
-    uint32 attackSpeed;                                     // 6
-    uint32 modelID_A;                                       // 7 alliance modelid (0 means no model)
-    uint32 modelID_H;                                       // 8 All zeros
-    //uint32 unk_2;                                         // 9 unused always 0
-    //uint32 unk_3;                                         // 10 unused always 0
-    uint32 stanceSpell[MAX_SHAPESHIFT_SPELLS];              // 11-18 spells which appear in the bar after shapeshifting
-    //uint32 unk_4;                                         // 19 only fly form have data
-    //uint32 unk_5;                                         // 20 always 0
+    uint32  ID;                                             // 0        m_ID
+    //uint32    m_BonusActionBar;                           // 1        m_BonusActionBar
+    //char*     m_NameLang;                                 // 2        m_NameLang
+    uint32  m_Flags;                                          // 3      m_Flags
+    int32   creatureType;                                   // 4        m_CreatureType
+    //uint32    m_AttackIconID;                             // 5        m_AttackIconID
+    uint32  attackSpeed;                                    // 6        m_CombatRoundTime
+    uint32  modelID_A;                                      // 7        m_CreatureDisplayID
+    uint32  modelID_H;                                      // 8        m_CreatureDisplayID
+    //uint32    m_CreatureDisplayID;                        // 9        m_CreatureDisplayID
+    //uint32    m_CreatureDisplayID;                        // 10       m_CreatureDisplayID
+    uint32  stanceSpell[MAX_SHAPESHIFT_SPELLS];             // 11-18    m_PresetSpellID
+    //uint32    m_MountTypeID;                              // 19       m_MountTypeID
+    //uint32    m_ExitSoundEntriesID;                       // 20       m_ExitSoundEntriesID
 };
 
-// SpellShapeshift.dbc
-// @author Selenium: 5.4 valid
 struct SpellShapeshiftEntry
 {
-    uint32    Id;                                           // 0 - m_ID
-    uint32    StancesNot;                                   // 3 - m_shapeshiftExclude
-    // uint32 unk_1;                                        // 2 - always 0
-    uint32    Stances;                                      // 1 - m_shapeshiftMask
-    // uint32 unk_3;                                        // 4 - always 0
-    // int32    StanceBarOrder;                             // 5 - m_stanceBarOrder not used
+    uint32  Id;                                             // 0 -      m_ID
+    uint32  StancesNot;                                     // 3 -      m_shapeshiftExclude
+    // uint32    m_shapeshiftExclude;                       // 2 -      m_shapeshiftExclude
+    uint32  Stances;                                        // 1 -      m_shapeshiftMask
+    // uint32   m_ShapeshiftMask;                           // 4 -      m_ShapeshiftMask
+    // int32    StanceBarOrder;                             // 5 -      m_stanceBarOrder
 };
 
-// SpellTargetRestrictions.dbc
-// @author Selenium: 5.4 valid
 struct SpellTargetRestrictionsEntry
 {
-    uint32  Id;                                             // 0 m_ID
-    uint32  SpellId;                                        // 1 m_spellId
-    //uint32    Unknown;                                    // 2
-    float   MaxTargetRadius;                                // 3 m_maxTargetRadius
-    //float    Unknown;                                     // 4 5.0.1.15589
-    uint32  MaxAffectedTargets;                             // 5 m_maxTargets
-    uint32  MaxTargetLevel;                                 // 6 m_maxTargetLevel
-    uint32  TargetCreatureType;                             // 7 m_targetCreatureType
-    uint32  Targets;                                        // 8 m_targets
+    uint32  Id;                                             // 0        m_ID
+    uint32  SpellId;                                        // 1        m_spellId
+    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    float   MaxTargetRadius;                                // 3        m_ConeAngle
+    //float    m_Width;                                     // 4        m_Width
+    uint32  MaxAffectedTargets;                             // 5        m_maxTargets
+    uint32  MaxTargetLevel;                                 // 6        m_maxTargetLevel
+    uint32  TargetCreatureType;                             // 7        m_targetCreatureType
+    uint32  Targets;                                        // 8        m_targets
 };
 
-// SpellScaling.dbc
-// @author Selenium: 5.4 valid
 struct SpellScalingEntry
 {
     //uint32    Id;                                         // 0        m_ID
-    int32     CastTimeMin;                                  // 1
-    int32     CastTimeMax;                                  // 2
-    int32     CastTimeMaxLevel;                             // 3
-    int32     ScalingClass;                                 // 4        (index * 100) + charLevel - 1 => gtSpellScaling.dbc
-    float     CoefBase;                                     // 5
-    uint32    CoefLevelBase;                                // 6
-    //uin32   unk505                                        // 7
-    //uint32  unk505                                        // 8
+    int32   CastTimeMin;                                    // 1        m_CastTimeMin
+    int32   CastTimeMax;                                    // 2        m_CastTimeMax
+    int32   CastTimeMaxLevel;                               // 3        m_CastTimeMaxLevel
+    int32   ScalingClass;                                   // 4        m_Class                 index * 100 + charLevel - 1 => gtSpellScaling.dbc
+    float   CoefBase;                                       // 5        m_NerfFactor
+    uint32  CoefLevelBase;                                  // 6        m_NerfMaxLevel
+    //uin32     m_MaxScalingLevel                           // 7        m_MaxScalingLevel
+    //uint32    m_ScalesFromItemLevel                       // 8        m_ScalesFromItemLevel
 };
 
-// @author Selenium: 5.4 valid
 struct SpellDurationEntry
 {
-    uint32    ID;
-    int32     Duration[3];
+    uint32  ID;                                             // 0        m_ID
+    int32   Duration[3];                                    // 1-3      m_Duration + m_DurationPerLevel + m_MaxDuration
 };
 
-// @author Selenium:  5.4 valid
-// 3 new float on 5.4
 struct SpellItemEnchantmentEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    //uint32      charges;                                  // 1        m_charges
-    uint32      type[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 2-4      m_effect[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    uint32      amount[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 5-7      m_effectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 11-13    m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    char*       description;                                // 14       m_name_lang
-    uint32      aura_id;                                    // 15       m_itemVisual
-    uint32      slot;                                       // 16       m_flags
-    uint32      GemID;                                      // 17       m_src_itemID
-    uint32      EnchantmentCondition;                       // 18       m_condition_id
-    uint32      requiredSkill;                              // 19       m_requiredSkillID
-    uint32      requiredSkillValue;                         // 20       m_requiredSkillRank
-    uint32      requiredLevel;                              // 21       new in 3.1
-    //uint32    unk_level                                   // 22       new in 3.1, look like level (max)?
-    // uint32   unk_1
-    // int32    unk_2
-    // int32    unk_3
-    // float    unk_4
-    // float    unk_5
-    // float    unk_6
+    uint32  ID;                                             // 0        m_ID
+    //uint32    charges;                                    // 1        m_charges
+    uint32  type[3];                                        // 2-4      m_effect[3]
+    uint32  amount[3];                                      // 5-7      m_effectPointsMin[3]
+    uint32  spellid[3];                                     // 8-10     m_effectArg[3]
+    char*   description;                                    // 11       m_name_lang
+    uint32  aura_id;                                        // 12       m_itemVisual
+    uint32  slot;                                           // 13       m_flags
+    uint32  GemID;                                          // 14       m_src_itemID
+    uint32  EnchantmentCondition;                           // 15       m_condition_id
+    uint32  requiredSkill;                                  // 16       m_requiredSkillID
+    uint32  requiredSkillValue;                             // 17       m_requiredSkillRank
+    uint32  requiredLevel;                                  // 18       m_MinLevel
+    //uint32    m_MaxLevel;                                 // 19       m_MaxLevel
+    // uint32   m_ItemLevel;                                // 20       m_ItemLevel
+    // int32    m_ScalingClass;                             // 21       m_ScalingClass
+    // int32    m_ScalingClassRestricted                    // 22       m_ScalingClassRestricted
+    // float    m_EffectScalingPoints[3]                    // 23 -25   m_EffectScalingPoints
+
 };
 
 //@todo
@@ -2265,176 +2172,170 @@ struct SpellItemEnchantmentConditionEntry
     //uint8   Logic[5]                                      // 25-30    m_logic[5]
 };
 
-
 // SummonProperties.dbc
 struct SummonPropertiesEntry
 {
-    uint32  Id;                                             // 0
-    uint32  Category;                                       // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?, 5 ?
-    uint32  Faction;                                        // 2, 14 rows > 0
-    uint32  Type;                                           // 3, see enum
-    uint32  Slot;                                           // 4, 0-6
-    uint32  Flags;                                          // 5
+    uint32  Id;                                             // 0        m_ID
+    uint32  Category;                                       // 1        m_Control
+    uint32  Faction;                                        // 2        m_Faction
+    uint32  Type;                                           // 3        m_Title
+    uint32  Slot;                                           // 4        m_Slot
+    uint32  Flags;                                          // 5        m_Flags
 };
 
-// @author Selenium: 5.4 valid
 struct TalentEntry
 {
-    uint32  Id;             // 0
-    //uint32  unk;          // 1
-    uint32  rank;           // 2
-    //uint32  unk;          // 3
-    uint32  spellId;        // 4
-    //uint32  unk;          // 5 only 0
-    //uint32  unk;          // 6 only 0
-    //uint32  unk;          // 7 only 0
-    uint32  classId;        // 8
-    uint32  spellOverride;  // 9
-    char*   description;    // 10
+    uint32  Id;                                             // 0        m_ID
+    //uint32    m_SpecID;                                   // 1        m_SpecID
+    uint32  rank;                                           // 2        m_TierID
+    //uint32    m_ColumnIndex;                              // 3        m_ColumnIndex
+    uint32  spellId;                                        // 4        m_SpellID
+    //uint32    m_Flags;                                    // 5        m_Flags
+    //uint32    m_CategoryMask;                             // 6        m_CategoryMask
+    //uint32    m_CategoryMask;                             // 7        m_CategoryMask
+    uint32  classId;                                        // 8        m_ClassID
+    uint32  spellOverride;                                  // 9        m_OverridesSpellID
+    char*   description;                                    // 10       m_DescriptionLang
 
 };
 
-// @author Selenium:  5.4 valid
 struct TaxiNodesEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    uint32    map_id;                                       // 1        m_ContinentID
-    float     x;                                            // 2        m_x
-    float     y;                                            // 3        m_y
-    float     z;                                            // 4        m_z
-    char* name;                                             // 5        m_Name_lang
-    uint32    MountCreatureID[2];                           // 6-7      m_MountCreatureID[2]
-    //uint32    unk_1                                       // 8
-    //uint32    unk_2                                       // 9        faction group ? 1 for  Alliance, 2 for Horde
-    //float     unk_3                                       // 10
-    //float     unk_4                                       // 11
+    uint32  ID;                                             // 0        m_ID
+    uint32  map_id;                                         // 1        m_ContinentID
+    float   x;                                              // 2        m_x
+    float   y;                                              // 3        m_y
+    float   z;                                              // 4        m_z
+    char*   name;                                           // 5        m_Name_lang
+    uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
+    //uint32    m_ConditionID                               // 8        m_ConditionID
+    //uint32    m_Flags                                     // 9        m_Flags
+    //float     m_MapOffset                                 // 10       m_MapOffset
+    //float     m_MapOffset                                 // 11       m_MapOffset
 };
 
-// @author Selenium: 5.4 valid
 struct TaxiPathEntry
 {
-    uint32    ID;                                           // 0        m_ID
-    uint32    from;                                         // 1        m_FromTaxiNode
-    uint32    to;                                           // 2        m_ToTaxiNode
-    uint32    price;                                        // 3        m_Cost
+    uint32  ID;                                             // 0        m_ID
+    uint32  from;                                           // 1        m_FromTaxiNode
+    uint32  to;                                             // 2        m_ToTaxiNode
+    uint32  price;                                          // 3        m_Cost
 };
 
-// @author Selenium: 5.4 valid
 struct TotemCategoryEntry
 {
-    uint32    ID;                                           // 0
+    uint32    ID;                                           // 0        m_ID
     //char*   name;                                         // 1        m_name_lang
-    uint32    categoryType;                                 // 2        m_totemCategoryType (one for specialization)
-    uint32    categoryMask;                                 // 3        m_totemCategoryMask (compatibility mask for same type: different for totems, compatible from high to low for rods)
+    uint32    categoryType;                                 // 2        m_totemCategoryType     (one for specialization)
+    uint32    categoryMask;                                 // 3        m_totemCategoryMask     (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
 #define MAX_VEHICLE_SEATS 8
 
 struct VehicleEntry
 {
-    uint32  m_ID;                                           // 0
-    uint32  m_flags;                                        // 1
-    //uint32    unk_1                                       // 2
-    float   m_turnSpeed;                                    // 3
-    float   m_pitchSpeed;                                   // 4
-    float   m_pitchMin;                                     // 5
-    float   m_pitchMax;                                     // 6
-    uint32  m_seatID[MAX_VEHICLE_SEATS];                    // 7-15
-    float   m_mouseLookOffsetPitch;                         // 16
-    float   m_cameraFadeDistScalarMin;                      // 17
-    float   m_cameraFadeDistScalarMax;                      // 18
-    float   m_cameraPitchOffset;                            // 19
-    float   m_facingLimitRight;                             // 20
-    float   m_facingLimitLeft;                              // 21
-    float   m_msslTrgtTurnLingering;                        // 22
-    float   m_msslTrgtPitchLingering;                       // 23
-    float   m_msslTrgtMouseLingering;                       // 24
-    float   m_msslTrgtEndOpacity;                           // 25
-    float   m_msslTrgtArcSpeed;                             // 26
-    float   m_msslTrgtArcRepeat;                            // 27
-    float   m_msslTrgtArcWidth;                             // 28
-    float   m_msslTrgtImpactRadius[2];                      // 29-30
-    char*   m_msslTrgtArcTexture;                           // 31
-    char*   m_msslTrgtImpactTexture;                        // 32
-    char*   m_msslTrgtImpactModel[2];                       // 33-34
-    float   m_cameraYawOffset;                              // 35
-    uint32  m_uiLocomotionType;                             // 36
-    float   m_msslTrgtImpactTexRadius;                      // 37
-    uint32  m_uiSeatIndicatorType;                          // 38
-    uint32  m_powerType;                                    // 39, new in 3.1
-    //uint32    unk_2                                       // 40, new in 3.1
-    //uint32    unk_3                                       // 41, new in 3.1
+    uint32  m_ID;                                           // 0        m_ID
+    uint32  m_flags;                                        // 1        m_Flags
+    //uint32    m_FlagsB                                    // 2        m_FlagsB
+    float   m_turnSpeed;                                    // 3        m_TurnSpeed
+    float   m_pitchSpeed;                                   // 4        m_PitchSpeed
+    float   m_pitchMin;                                     // 5        m_PitchMin
+    float   m_pitchMax;                                     // 6        m_PitchMax
+    uint32  m_seatID[MAX_VEHICLE_SEATS];                    // 7-15     m_SeatID
+    float   m_mouseLookOffsetPitch;                         // 16       m_MouseLookOffsetPitch
+    float   m_cameraFadeDistScalarMin;                      // 17       m_CameraFadeDistScalarMin
+    float   m_cameraFadeDistScalarMax;                      // 18       m_CameraFadeDistScalarMax
+    float   m_cameraPitchOffset;                            // 19       m_CameraPitchOffset
+    float   m_facingLimitRight;                             // 20       m_FacingLimitRight
+    float   m_facingLimitLeft;                              // 21       m_FacingLimitLeft
+    float   m_msslTrgtTurnLingering;                        // 22       m_MsslTrgtTurnLingering
+    float   m_msslTrgtPitchLingering;                       // 23       m_MsslTrgtPitchLingering
+    float   m_msslTrgtMouseLingering;                       // 24       m_MsslTrgtMouseLingering
+    float   m_msslTrgtEndOpacity;                           // 25       m_MsslTrgtEndOpacity
+    float   m_msslTrgtArcSpeed;                             // 26       m_MsslTrgtArcSpeed
+    float   m_msslTrgtArcRepeat;                            // 27       m_MsslTrgtArcRepeat
+    float   m_msslTrgtArcWidth;                             // 28       m_MsslTrgtArcWidth
+    float   m_msslTrgtImpactRadius[2];                      // 29-30    m_MsslTrgtImpactRadius
+    char*   m_msslTrgtArcTexture;                           // 31       m_MsslTrgtArcTexture
+    char*   m_msslTrgtImpactTexture;                        // 32       m_MsslTrgtImpactTexture
+    char*   m_msslTrgtImpactModel[2];                       // 33-34    m_MsslTrgtImpactModel
+    float   m_cameraYawOffset;                              // 35       m_CameraYawOffset
+    uint32  m_uiLocomotionType;                             // 36       m_UiLocomotionType
+    float   m_msslTrgtImpactTexRadius;                      // 37       m_MsslTrgtImpactTexRadius
+    uint32  m_uiSeatIndicatorType;                          // 38       m_VehicleUIIndicatorID
+    uint32  m_PowerDisplayID;                               // 39       m_PowerDisplayID
+    //uint32    m_PowerDisplayID;                           // 40       m_PowerDisplayID
+    //uint32    m_PowerDisplayID;                           // 41       m_PowerDisplayID
 };
-
 
 struct VehicleSeatEntry
 {
-    uint32  m_ID;                                           // 0
-    uint32  m_flags;                                        // 1
-    int32   m_attachmentID;                                 // 2
-    float   m_attachmentOffsetX;                            // 3
-    float   m_attachmentOffsetY;                            // 4
-    float   m_attachmentOffsetZ;                            // 5
-    float   m_enterPreDelay;                                // 6
-    float   m_enterSpeed;                                   // 7
-    float   m_enterGravity;                                 // 8
-    float   m_enterMinDuration;                             // 9
-    float   m_enterMaxDuration;                             // 10
-    float   m_enterMinArcHeight;                            // 11
-    float   m_enterMaxArcHeight;                            // 12
-    int32   m_enterAnimStart;                               // 13
-    int32   m_enterAnimLoop;                                // 14
-    int32   m_rideAnimStart;                                // 15
-    int32   m_rideAnimLoop;                                 // 16
-    int32   m_rideUpperAnimStart;                           // 17
-    int32   m_rideUpperAnimLoop;                            // 18
-    float   m_exitPreDelay;                                 // 19
-    float   m_exitSpeed;                                    // 20
-    float   m_exitGravity;                                  // 21
-    float   m_exitMinDuration;                              // 22
-    float   m_exitMaxDuration;                              // 23
-    float   m_exitMinArcHeight;                             // 24
-    float   m_exitMaxArcHeight;                             // 25
-    int32   m_exitAnimStart;                                // 26
-    int32   m_exitAnimLoop;                                 // 27
-    int32   m_exitAnimEnd;                                  // 28
-    float   m_passengerYaw;                                 // 29
-    float   m_passengerPitch;                               // 30
-    float   m_passengerRoll;                                // 31
-    int32   m_passengerAttachmentID;                        // 32
-    int32   m_vehicleEnterAnim;                             // 33
-    int32   m_vehicleExitAnim;                              // 34
-    int32   m_vehicleRideAnimLoop;                          // 35
-    int32   m_vehicleEnterAnimBone;                         // 36
-    int32   m_vehicleExitAnimBone;                          // 37
-    int32   m_vehicleRideAnimLoopBone;                      // 38
-    float   m_vehicleEnterAnimDelay;                        // 39
-    float   m_vehicleExitAnimDelay;                         // 40
-    uint32  m_vehicleAbilityDisplay;                        // 41
-    uint32  m_enterUISoundID;                               // 42
-    uint32  m_exitUISoundID;                                // 43
-    uint32  m_flagsB;                                       // 44
-    //float   Unk_1;                                        // 45
-    //float   Unk_2;                                        // 46
-    //float   Unk_3;                                        // 47
-    //float   Unk_4;                                        // 48
-    //float   Unk_5;                                        // 59
-    //float   Unk_6;                                        // 50
-    //float   Unk_7;                                        // 51
-    //float   Unk_8;                                        // 52
-    //float   Unk_9;                                        // 53
-    //float   Unk_10;                                       // 54
-    //float   Unk_11;                                       // 55
-    //int32   Unk_12;                                       // 56
-    //int32   Unk_13;                                       // 57
-    //int32   Unk_14;                                       // 58
-    //int32   Unk_15;                                       // 59
-    //int32   Unk_16;                                       // 60
-    //int32   Unk_17;                                       // 61
-    //int32   Unk_18;                                       // 62
-    //int32   Unk_19;                                       // 63
-    //int32   Unk_flags;                                    // 64
-    //int32   Unk_21;                                       // 65
+    uint32  m_ID;                                           // 0        m_ID
+    uint32  m_flags;                                        // 1        m_Flags
+    int32   m_attachmentID;                                 // 2        m_AttachmentID
+    float   m_attachmentOffsetX;                            // 3        m_AttachmentOffsetX
+    float   m_attachmentOffsetY;                            // 4        m_AttachmentOffsetY
+    float   m_attachmentOffsetZ;                            // 5        m_AttachmentOffsetZ
+    float   m_enterPreDelay;                                // 6        m_EnterPreDelay
+    float   m_enterSpeed;                                   // 7        m_EnterSpeed
+    float   m_enterGravity;                                 // 8        m_EnterGravity
+    float   m_enterMinDuration;                             // 9        m_EnterMinDuration
+    float   m_enterMaxDuration;                             // 10       m_EnterMaxDuration
+    float   m_enterMinArcHeight;                            // 11       m_EnterMinArcHeight
+    float   m_enterMaxArcHeight;                            // 12       m_EnterMaxArcHeight
+    int32   m_enterAnimStart;                               // 13       m_EnterAnimStart
+    int32   m_enterAnimLoop;                                // 14       m_EnterAnimLoop
+    int32   m_rideAnimStart;                                // 15       m_RideAnimStart
+    int32   m_rideAnimLoop;                                 // 16       m_RideAnimLoop
+    int32   m_rideUpperAnimStart;                           // 17       m_RideUpperAnimStart
+    int32   m_rideUpperAnimLoop;                            // 18       m_RideUpperAnimLoop
+    float   m_exitPreDelay;                                 // 19       m_ExitPreDelay
+    float   m_exitSpeed;                                    // 20       m_ExitSpeed
+    float   m_exitGravity;                                  // 21       m_ExitGravity
+    float   m_exitMinDuration;                              // 22       m_ExitMinDuration
+    float   m_exitMaxDuration;                              // 23       m_ExitMaxDuration
+    float   m_exitMinArcHeight;                             // 24       m_ExitMinArcHeight
+    float   m_exitMaxArcHeight;                             // 25       m_ExitMaxArcHeight
+    int32   m_exitAnimStart;                                // 26       m_ExitAnimStart
+    int32   m_exitAnimLoop;                                 // 27       m_ExitAnimLoop
+    int32   m_exitAnimEnd;                                  // 28       m_ExitAnimEnd
+    float   m_passengerYaw;                                 // 29       m_PassengerYaw
+    float   m_passengerPitch;                               // 30       m_PassengerPitch
+    float   m_passengerRoll;                                // 31       m_PassengerRoll
+    int32   m_passengerAttachmentID;                        // 32       m_PassengerAttachmentID
+    int32   m_vehicleEnterAnim;                             // 33       m_VehicleEnterAnim
+    int32   m_vehicleExitAnim;                              // 34       m_VehicleExitAnim
+    int32   m_vehicleRideAnimLoop;                          // 35       m_VehicleRideAnimLoop
+    int32   m_vehicleEnterAnimBone;                         // 36       m_VehicleEnterAnimBone
+    int32   m_vehicleExitAnimBone;                          // 37       m_VehicleExitAnimBone
+    int32   m_vehicleRideAnimLoopBone;                      // 38       m_VehicleRideAnimLoopBone
+    float   m_vehicleEnterAnimDelay;                        // 39       m_VehicleEnterAnimDelay
+    float   m_vehicleExitAnimDelay;                         // 40       m_VehicleExitAnimDelay
+    uint32  m_vehicleAbilityDisplay;                        // 41       m_VehicleAbilityDisplay
+    uint32  m_enterUISoundID;                               // 42       m_EnterUISoundID
+    uint32  m_exitUISoundID;                                // 43       m_ExitUISoundID
+    uint32  m_flagsB;                                       // 44       m_FlagsB
+    //float     m_CameraEnteringDelay;                      // 45       m_CameraEnteringDelay
+    //float     m_CameraEnteringDuration;                   // 46       m_CameraEnteringDuration
+    //float     m_CameraExitingDelay;                       // 47       m_CameraExitingDelay
+    //float     m_CameraExitingDuration;                    // 48       m_CameraExitingDuration
+    //float     m_CameraOffsetX;                            // 48       m_CameraOffsetX
+    //float     m_CameraOffsetY;                            // 59       m_CameraOffsetY
+    //float     m_CameraOffsetZ;                            // 50       m_CameraOffsetZ
+    //float     m_CameraPosChaseRate;                       // 51       m_CameraPosChaseRate
+    //float     m_CameraFacingChaseRate;                    // 52       m_CameraFacingChaseRate
+    //float     m_CameraEnteringZoom;                       // 53       m_CameraEnteringZoom
+    //float     m_CameraSeatZoomMin;                        // 54       m_CameraSeatZoomMin
+    //float     m_CameraSeatZoomMax;                        // 55       m_CameraSeatZoomMax
+    //int32     m_EnterAnimKitID;                           // 56       m_EnterAnimKitID
+    //int32     m_RideAnimKitID;                            // 57       m_RideAnimKitID
+    //int32     m_ExitAnimKitID;                            // 58       m_ExitAnimKitID
+    //int32     m_VehicleEnterAnimKitID;                    // 59       m_VehicleEnterAnimKitID
+    //int32     m_VehicleRideAnimKitID;                     // 60       m_VehicleRideAnimKitID
+    //int32     m_VehicleExitAnimKitID;                     // 61       m_VehicleExitAnimKitID
+    //int32     m_CameraModeID;                             // 62       m_CameraModeID
+    //int32     m_FlagsC;                                   // 63       m_FlagsC
+    //int32     m_UiSkinFileDataID;                         // 64       m_UiSkinFileDataID
 
     bool CanEnterOrExit() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT; }
     bool CanSwitchFromSeat() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH; }
@@ -2445,100 +2346,93 @@ struct VehicleSeatEntry
     bool IsEjectable() const { return m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE; }
 };
 
-// @author Selenium: 5.4 valid
 struct WMOAreaTableEntry
 {
-    uint32 Id;                                              // 0 index
-    int32 rootId;                                           // 1 used in root WMO
-    int32 adtId;                                            // 2 used in adt file
-    int32 groupId;                                          // 3 used in group WMO
-    //uint32 unk_1;                                         // 4
-    //uint32 unk_2;                                         // 5
-    //uint32 unk_3;                                         // 6
-    //uint32 unk_4;                                         // 7
-    //uint32 unk_5;                                         // 8
-    uint32 Flags;                                           // 9 used for indoor/outdoor determination
-    uint32 areaId;                                          // 10 link to AreaTableEntry.ID
-    //char *Name;                                           // 11 m_AreaName_lang
-    //uint32 unk_6;                                         // 12
-    //uint32 unk_7;                                         // 13
-    //uint32 unk_8;                                         // 14
+    uint32  Id;                                             // 0        m_ID
+    int32   rootId;                                         // 1        m_WMOID
+    int32   adtId;                                          // 2        m_NameSetID
+    int32   groupId;                                        // 3        m_WMOGroupID
+    //uint32    m_SoundProviderPref;                        // 4        m_SoundProviderPref
+    //uint32    m_SoundProviderPrefUnderwater;              // 5        m_SoundProviderPrefUnderwater
+    //uint32    m_AmbienceID;                               // 6        m_AmbienceID
+    //uint32    m_ZoneMusic;                                // 7        m_ZoneMusic
+    //uint32    m_IntroSound;                               // 8        m_IntroSound
+    uint32  Flags;                                          // 9        m_Flags                 Used for indoor/outdoor determination
+    uint32  areaId;                                         // 10       m_AreaTableID
+    //char*     m_AreaNameLang;                             // 11       m_AreaNameLang
+    //uint32    m_UwIntroSound;                             // 12       m_UwIntroSound
+    //uint32    m_UwZoneMusic;                              // 13       m_UwZoneMusic
+    //uint32    m_UwAmbience;                               // 14       m_UwAmbience
 };
 
-// @author Selenium: 5.4 valid
 struct WorldMapAreaEntry
 {
-    //uint32  ID;                                           // 0
-    uint32  map_id;                                         // 1
-    uint32  area_id;                                        // 2 index (continent 0 areas ignored)
-    //char* internal_name                                   // 3 Map name
-    float   y1;                                             // 4
-    float   y2;                                             // 5
-    float   x1;                                             // 6
-    float   x2;                                             // 7
-    int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
-    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
-    // uint32  parentMapID;                                 // 10
-    // uint32  Unk_1                                        // 11 Flag ?
-    uint32  minRecommendedLevel;                            // 12 Minimum recommended level displayed on world map
-    uint32  maxRecommendedLevel;                            // 13 Maximum recommended level displayed on world map
+    //uint32    m_ID;                                       // 0        m_ID
+    uint32  map_id;                                         // 1        m_MapID
+    uint32  area_id;                                        // 2        m_AreaID
+    //char*     m_AreaName;                                 // 3        m_AreaName
+    float   y1;                                             // 4        m_LocLeft
+    float   y2;                                             // 5        m_LocRight
+    float   x1;                                             // 6        m_LocTop
+    float   x2;                                             // 7        m_LocBottom
+    int32   virtual_map_id;                                 // 8        m_DisplayMapID          -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
+    // int32    m_DefaultDungeon;                           // 9        m_DefaultDungeon        Floor    pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
+    // uint32   m_ParentWorldMapID;                         // 10       m_ParentWorldMapID
+    // uint32   m_Flags;                                    // 11       m_Flags
+    uint32  minRecommendedLevel;                            // 12       m_LevelRangeMin
+    uint32  maxRecommendedLevel;                            // 13       m_LevelRangeMax
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
 
-// @author Selenium: 5.4 valid
 struct WorldMapOverlayEntry
 {
-    uint32    ID;                                           // 0
-    //uint32    worldMapAreaId;                             // 1 idx in WorldMapArea.dbc
-    uint32    areatableID[MAX_WORLD_MAP_OVERLAY_AREA_IDX];  // 2-5
-    //char* internal_name;                                  // 6
-    //uint32 unk_1;                                         // 7 m_textureWidth
-    //uint32 unk_2;                                         // 8 m_textureHeight
-    //uint32 unk_3;                                         // 9 m_offsetX
-    //uint32 unk_4;                                         // 10 m_offsetY
-    //uint32 unk_5;                                         // 11 m_hitRectTop
-    //uint32 unk_6;                                         // 12 m_hitRectLeft
-    //uint32 unk_7;                                         // 13 m_hitRectBottom
-    //uint32 unk_8;                                         // 14 m_hitRectRight
-    //uint32 unk_9;                                         // 15 unk 5.0.5
+    uint32  ID;                                             // 0        m_ID
+    //uint32    worldMapAreaId;                             // 1        m_MapAreaID
+    uint32  areatableID[MAX_WORLD_MAP_OVERLAY_AREA_IDX];    // 2-5      m_AreaID
+    //char*     mTextureName;                               // 6        m_TextureName
+    //uint32    m_TextureWidth;                             // 7        m_TextureWidth
+    //uint32    m_TextureHeight;                            // 8        m_TextureHeight
+    //uint32    m_OffsetX;                                  // 9        m_OffsetX
+    //uint32    m_OffsetY;                                  // 10       m_OffsetY
+    //uint32    m_HitRectTop;                               // 11       m_HitRectTop
+    //uint32    m_HitRectLeft;                              // 12       m_HitRectLeft
+    //uint32    m_HitRectBottom;                            // 13       m_HitRectBottom
+    //uint32    m_HitRectRight;                             // 14       m_HitRectRight
+    //uint32    m_PlayerConditionID;                        // 15       m_PlayerConditionID
 };
 
 struct WorldSafeLocsEntry
 {
-    uint32    ID;                                           // 0
-    uint32    map_id;                                       // 1
-    float     x;                                            // 2
-    float     y;                                            // 3
-    float     z;                                            // 4
-    //float   unk;                                          // 5
-    //char*   name;                                         // 6 m_AreaName_lang
+    uint32  ID;                                             // 0        m_ID
+    uint32  map_id;                                         // 1        m_Continent
+    float   x;                                              // 2        m_LocX
+    float   y;                                              // 3        m_LocY
+    float   z;                                              // 4        m_LocZ
+    //float     m_Facing;                                   // 5        m_Facing
+    //char*     m_AreaNameLang;                             // 6        m_AreaNameLang
 };
 
-
-// @author Selenium: 5.4 valid
 //UNUSED ACTUALY
 /*
-struct WorldStateUI
+struct WorldStateUIEntry
 {
-    uint32    ID;                                           // 0
-    uint32    map_id;                                       // 1 Can be -1 to show up everywhere.
-    uint32    zone;                                         // 2 Can be zero for "everywhere".
-    uint32    phaseMask;                                    // 3 Phase this WorldState is avaliable in
-    uint32    icon;                                         // 4 The icon that is used in the interface.
-    //uint32    Unk_1                                       // 5 Only 0
-    char*     textureFilename;                              // 6
-    char*     WorldstateString;                             // 7 The worldstate text
-    char*     description;                                  // 8 Text shown when hovering mouse on icon
-    uint32    worldstateID;                                 // 9 This is the actual ID used
-    uint32    type;                                         // 10 0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
-    uint32    path_icon;                                    // 11
-    uint32    description_2;                                // 12
-    uint32    unk_2;                                        // 13
-    uint32    unk_3;                                        // 14 Used for some progress bars.
-    uint32    unk_4;                                        // 15 Unused (only 0)
-};
-*/
+    uint32  m_ID;                                           // 0        m_ID
+    uint32  m_MapID;                                        // 1        m_MapID
+    uint32  m_AreaID;                                       // 2        m_AreaID
+    uint32  m_PhaseUseFlags;                                // 3        m_PhaseUseFlags
+    uint32  m_PhaseID;                                      // 4        m_PhaseID
+    uint32  m_PhaseGroupID;                                 // 5        m_PhaseGroupID
+    char*   m_Icon;                                         // 6        m_Icon
+    char*   m_StringLang;                                   // 7        m_StringLang
+    char*   m_TooltipLang;                                  // 8        m_TooltipLang
+    uint32  m_StateVariable;                                // 9        m_StateVariable
+    uint32  m_Type;                                         // 10       m_Type
+    char*   m_DynamicIcon;                                  // 11       m_DynamicIcon
+    char*   m_DynamicTooltipLang;                           // 12       m_DynamicTooltipLang
+    char*   m_ExtendedUI;                                   // 13       m_ExtendedUI
+    uint32  m_ExtendedUIStateVariable[3];                   // 14 - 16  m_ExtendedUIStateVariable
+};*/
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)

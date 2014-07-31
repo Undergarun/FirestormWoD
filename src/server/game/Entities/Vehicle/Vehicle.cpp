@@ -59,7 +59,7 @@ void Vehicle::Install()
 {
     if (Creature* creature = _me->ToCreature())
     {
-        switch (_vehicleInfo->m_powerType)
+        switch (_vehicleInfo->m_PowerDisplayID)
         {
             case POWER_STEAM:
             case POWER_HEAT:

@@ -27,6 +27,7 @@
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
 
+// @issue : #260
 void AddItemsSetItem(Player* player, Item* item)
 {
     //ItemTemplate const* proto = item->GetTemplate();
@@ -188,15 +189,15 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                         return false;
                     return true;
                 case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENCHANTING_SUPP))
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENCHANTING_SUPPLIES))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_MINING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPP))
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPPLIES))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENGINEERING_SUPP))
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_ENGINEERING_SUPPLIES))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_GEM_CONTAINER:
@@ -204,15 +205,15 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                         return false;
                     return true;
                 case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_LEATHERWORKING_SUPP))
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_LEATHERWORKING_SUPPLIES))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPP))
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPPLIES))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_TACKLE_CONTAINER:
-                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPP))
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPPLIES))
                         return false;
                     return true;
                 default:

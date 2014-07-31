@@ -1,1 +1,1 @@
-ALTER TABLE `540_characters`.`characters` CHANGE `petslotused` `petslotused` INT(10) UNSIGNED NULL ; 
+ALTER TABLE `characters` CHANGE `petslotused` `petslotused` INT(10) UNSIGNED NULL ; 

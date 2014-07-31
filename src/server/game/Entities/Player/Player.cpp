@@ -27788,7 +27788,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
     for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); i++)
     {
         SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(i);
-        if (!pSkill || (pSkill->id != 794 && pSkill->unk_1 != 0x1080))
+        if (!pSkill || (pSkill->id != 794 && pSkill->m_Flags != 0x1080))
             continue;
 
         if (HasSkill(i))

@@ -592,6 +592,27 @@
     <field type="int" name="m_primaryStatOrder_2" />
     <field type="int" name="m_primaryStatOrder_3" />
   </ChrSpecialization>
+  <ChrSpecialization build="18612">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_backgroundFile" />
+    <field type="int" name="m_classID" />
+    <field type="int" name="m_masterySpellID_1" />
+    <field type="int" name="m_masterySpellID_2" />
+    <field type="int" name="m_orderIndex" />
+    <field type="int" name="m_petTalentType" />
+    <field type="int" name="m_role" />
+    <field type="int" name="m_spellIconID" />
+    <field type="int" name="m_raidBuffs" />
+    <field type="int" name="m_flags" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="name_langunk" />
+    <field type="string" name="m_description_lang" />
+    <field type="int" name="m_maxBuffs" />
+    <field type="int" name="unk_601_18612" />
+  </ChrSpecialization>
   <CinematicCamera build="0">
     <index>
       <primary>m_ID</primary>
@@ -617,7 +638,7 @@
     <field type="int" name="m_camera_5" />
     <field type="int" name="m_camera_6" />
     <field type="int" name="m_camera_7" />
-    <field type="int" name="field9" />
+    <field type="int" name="m_camera_8" />
   </CinematicSequences>
   <CombatCondition build="0">
     <index>
@@ -990,6 +1011,7 @@
     <field type="int" name="m_groupSizeDmgCurveID" />
     <field type="int" name="m_groupSizeSpellPointsCurveID" />
     <field type="string" name="m_name_lang" />
+    <field type="int" name="newField" />
   </Difficulty>
   <DungeonEncounter build="0">
     <index>
@@ -1330,4 +1352,465 @@
     <field type="string" name="GametypeLang" />
     <field type="int" name="unk601" />
   </BattlemasterList>
+  <FactionTemplate build="18612">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_Faction" />
+    <field type="int" name="m_Flags" />
+    <field type="int" name="m_FactionGroup" />
+    <field type="int" name="m_FriendGroup" />
+    <field type="int" name="m_EnemyGroup" />
+    <field type="int" name="m_Enemies_1" />
+    <field type="int" name="m_Enemies_2" />
+    <field type="int" name="m_Enemies_3" />
+    <field type="int" name="m_Enemies_4" />
+    <field type="int" name="m_Friend_1" />
+    <field type="int" name="m_Friend_2" />
+    <field type="int" name="m_Friend_3" />
+    <field type="int" name="m_Friend_4" />
+  </FactionTemplate>
+  <GameObjectDisplayInfo build="18612">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="FileDataID" />
+    <field type="int" name="Sound_1" />
+    <field type="int" name="Sound_2" />
+    <field type="int" name="Sound_3" />
+    <field type="int" name="Sound_4" />
+    <field type="int" name="Sound_5" />
+    <field type="int" name="Sound_6" />
+    <field type="int" name="Sound_7" />
+    <field type="int" name="Sound_8" />
+    <field type="int" name="Sound_9" />
+    <field type="int" name="Sound_10" />
+    <field type="float" name="GeoBoxMin_x" />
+    <field type="float" name="GeoBoxMin_y" />
+    <field type="float" name="GeoBoxMin_z" />
+    <field type="float" name="GeoBoxMax_x" />
+    <field type="float" name="GeoBoxMax_y" />
+    <field type="float" name="GeoBoxMax_z" />
+    <field type="int" name="ObjectEffectPackageID" />
+    <field type="float" name="OverrideLootEffectScale" />
+    <field type="float" name="OverrideNameScale" />
+  </GameObjectDisplayInfo>
+  <GemProperties build="18612">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="EnchantId" />
+    <field type="int" name="MaxcountInv" />
+    <field type="int" name="MaxcountItem" />
+    <field type="int" name="Type" />
+    <field type="int" name="MinItemLevel" />
+  </GemProperties>
+  <GlyphProperties build="18612">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="GlyphType" />
+    <field type="int" name="SpellIconID" />
+    <field type="int" name="GlyphExclusiveCategoryID" />
+  </GlyphProperties>
+  <GlyphSlot build="0">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="Type" />
+    <field type="int" name="field2" />
+  </GlyphSlot>
+  <gtArmorMitigationByLvl build="0">
+    <index>
+      <primary>Index</primary>
+    </index>
+    <field type="int" name="Index" />
+    <field type="float" name="Data" />
+  </gtArmorMitigationByLvl>
+  <gtBarberShopCostBase build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="float" name="data" />
+  </gtBarberShopCostBase>
+  <gtOCTClassCombatRatingScalar build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="data" />
+  </gtOCTClassCombatRatingScalar>
+  <gtChanceToMeleeCritBase build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </gtChanceToMeleeCritBase>
+  <gtOCTBaseHPByClass build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </gtOCTBaseHPByClass>
+  <GuildPerkSpells build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="GuildLevel" />
+    <field type="int" name="SpellID" />
+  </GuildPerkSpells>
+  <ImportPriceArmor build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="ClothModifier" />
+    <field type="float" name="LeatherModifier" />
+    <field type="float" name="ChainModifier" />
+    <field type="float" name="PlateModifier" />
+  </ImportPriceArmor>
+  <ItemDisplayInfo build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="ModelName" />
+    <field type="string" name="ModelName2" />
+    <field type="string" name="ModelTexture" />
+    <field type="string" name="ModelTexture2" />
+    <field type="float" name="GeosetGroup_1" />
+    <field type="float" name="GeosetGroup_2" />
+    <field type="float" name="GeosetGroup_3" />
+    <field type="int" name="Flags" />
+    <field type="int" name="SpellVisualID" />
+    <field type="int" name="HelmetGeosetVis_1" />
+    <field type="int" name="HelmetGeosetVis_2" />
+    <field type="string" name="Texture" />
+    <field type="int" name="ItemVisual" />
+    <field type="int" name="ParticleColorID" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+  </ItemDisplayInfo>
+  <ItemRandomProperties build="18612">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="string" name="name" />
+    <field type="int" name="Enchantment1" />
+    <field type="int" name="Enchantment2" />
+    <field type="int" name="Enchantment3" />
+    <field type="int" name="Enchantment4" />
+    <field type="int" name="Enchantment5" />
+    <field type="string" name="name_lang" />
+  </ItemRandomProperties>
+  <ItemSetSpell build="18612">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ItemSetID" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="Threshold" />
+    <field type="int" name="ChrSpecID" />
+  </ItemSetSpell>
+  <LockType build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="NameLang" />
+    <field type="string" name="ResourceNameLang" />
+    <field type="string" name="VerbLang" />
+    <field type="string" name="CursorName" />
+  </LockType>
+  <MailTemplate build="0">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="string" name="SubjectLang" />
+    <field type="string" name="BodyLang" />
+  </MailTemplate>
+  <MapDifficulty build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="map_id" />
+    <field type="int" name="difficulty" />
+    <field type="string" name="MessageLang" />
+    <field type="int" name="RaidDuration" />
+    <field type="int" name="MaxPlayers" />
+    <field type="int" name="LockID" />
+    <field type="int" name="unk" />
+  </MapDifficulty>
+  <ScalingStatDistribution build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </ScalingStatDistribution>
+  <SpecializationSpells build="18612">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SpecID" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="OverridesSpellID" />
+    <field type="string" name="DescriptionLang" />
+  </SpecializationSpells>
+  <SpellEffectScaling build="18612">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="float" name="Coefficient" />
+    <field type="float" name="Variance" />
+    <field type="float" name="ResourceCoefficient" />
+    <field type="int" name="SpellEffectID" />
+  </SpellEffectScaling>
+  <SpellEffect build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="Effect" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+    <field type="int" name="field30" />
+  </SpellEffect>
+  <SpellItemEnchantmentCondition build="0">
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_LtOperandType1" />
+    <field type="int" name="m_LtOperandType2" />
+    <field type="int" name="m_LtOperandType3" />
+    <field type="int" name="m_LtOperandType4" />
+    <field type="int" name="m_LtOperandType5" />
+    <field type="int" name="m_LtOperand1" />
+    <field type="int" name="m_LtOperand2" />
+    <field type="int" name="m_LtOperand3" />
+    <field type="int" name="m_LtOperand4" />
+    <field type="int" name="m_LtOperand5" />
+    <field type="int" name="m_Operator1" />
+    <field type="int" name="m_Operator2" />
+    <field type="int" name="m_Operator3" />
+    <field type="int" name="m_Operator4" />
+    <field type="int" name="m_Operator5" />
+    <field type="int" name="m_RtOperandType1" />
+    <field type="int" name="m_RtOperandType2" />
+    <field type="int" name="m_RtOperandType3" />
+    <field type="int" name="m_RtOperandType4" />
+    <field type="int" name="m_RtOperandType5" />
+    <field type="int" name="m_RtOperand1" />
+    <field type="int" name="m_RtOperand2" />
+    <field type="int" name="m_RtOperand3" />
+    <field type="int" name="m_RtOperand4" />
+    <field type="int" name="m_RtOperand5" />
+    <field type="int" name="m_Logic1" />
+    <field type="int" name="m_Logic2" />
+    <field type="int" name="m_Logic3" />
+    <field type="int" name="m_Logic4" />
+    <field type="int" name="m_Logic5" />
+  </SpellItemEnchantmentCondition>
+  <ItemBagFamily build="18612">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_NameLang" />
+  </ItemBagFamily>
+  <ItemSubClass build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="m_ID" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </ItemSubClass>
+  <ItemSubClassMask build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="string" name="field3" />
+  </ItemSubClassMask>
+  <Vehicle build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+    <field type="int" name="field30" />
+    <field type="int" name="field31" />
+    <field type="int" name="field32" />
+    <field type="int" name="field33" />
+    <field type="int" name="field34" />
+    <field type="int" name="field35" />
+    <field type="int" name="field36" />
+    <field type="int" name="field37" />
+    <field type="int" name="field38" />
+    <field type="int" name="field39" />
+    <field type="int" name="field40" />
+  </Vehicle>
+  <PowerDisplay build="0">
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_ActualType" />
+    <field type="string" name="m_GlobalStringBaseTag" />
+    <field type="byte" name="m_Red" />
+    <field type="int" name="m_Green" />
+    <field type="int" name="m_Blue" />
+  </PowerDisplay>
+  <SpellItemEnchantment build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Charges" />
+    <field type="int" name="Effect1" />
+    <field type="int" name="Effect2" />
+    <field type="int" name="Effect3" />
+    <field type="int" name="EffectPointsMin1" />
+    <field type="int" name="EffectPointsMin2" />
+    <field type="int" name="EffectPointsMin3" />
+    <field type="int" name="EffectArg1" />
+    <field type="int" name="EffectArg2" />
+    <field type="int" name="EffectArg3" />
+    <field type="string" name="NameLang" />
+    <field type="int" name="ItemVisual" />
+    <field type="int" name="Flags" />
+    <field type="int" name="SrcItemID" />
+    <field type="int" name="ConditionId" />
+    <field type="int" name="RequiredSkillID" />
+    <field type="int" name="RequiredSkillRank" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="ItemLevel" />
+    <field type="int" name="ScalingClass" />
+    <field type="int" name="ScalingClassRestricted" />
+    <field type="float" name="EffectScalingPoints" />
+    <field type="float" name="EffectScalingPoints2" />
+    <field type="float" name="EffectScalingPoints3" />
+  </SpellItemEnchantment>
+  <ItemExtendedCost build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="reqhonorpoints" />
+    <field type="int" name="reqarenapoints" />
+    <field type="int" name="RequiredArenaSlot" />
+    <field type="int" name="RequiredItem1" />
+    <field type="int" name="RequiredItem2" />
+    <field type="int" name="RequiredItem3" />
+    <field type="int" name="RequiredItem4" />
+    <field type="int" name="RequiredItem5" />
+    <field type="int" name="RequiredItemCount1" />
+    <field type="int" name="RequiredItemCount2" />
+    <field type="int" name="RequiredItemCount3" />
+    <field type="int" name="RequiredItemCount4" />
+    <field type="int" name="RequiredItemCount5" />
+    <field type="int" name="RequiredPersonalArenaRating" />
+    <field type="int" name="ItemPurchaseGroup" />
+    <field type="int" name="RequiredCurrency1" />
+    <field type="int" name="RequiredCurrency2" />
+    <field type="int" name="RequiredCurrency3" />
+    <field type="int" name="RequiredCurrency4" />
+    <field type="int" name="RequiredCurrency5" />
+    <field type="int" name="RequiredCurrencyCount1" />
+    <field type="int" name="RequiredCurrencyCount2" />
+    <field type="int" name="RequiredCurrencyCount3" />
+    <field type="int" name="RequiredCurrencyCount4" />
+    <field type="int" name="RequiredCurrencyCount5" />
+    <field type="int" name="RequiredFactionId" />
+    <field type="int" name="RequiredFactionStanding" />
+    <field type="int" name="RequirementFlags" />
+    <field type="int" name="RequiredGuildLevel" />
+  </ItemExtendedCost>
 </DBFilesClient>

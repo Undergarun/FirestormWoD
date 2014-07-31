@@ -58,7 +58,6 @@ struct ItemCurrencyCostEntry
     uint32  ItemId;
 };
 
-// 5.4.0 17399 check @author : Izidor
 struct ItemSparseEntry
 {
     uint32     ID;                                           // 0
@@ -192,8 +191,8 @@ struct ItemExtendedCostEntry
     //uint32    RequiredFactionId;                                      // 26
     //uint32    RequiredFactionStanding;                                // 27
     //uint32    RequirementFlags;                                       // 28
-    //uint32    RequiredGuildLevel;                                     // 29
-    //uint32    RequiredAchievement;                                    // 30
+    //uint32    RequiredGuildLevel;                                     // 29 removed ? 
+    //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
 struct BattlePetSpeciesEntry

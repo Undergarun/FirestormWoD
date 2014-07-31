@@ -1,0 +1,3919 @@
+public class Achievement_Category
+{
+    public int ID;
+    public int Parent;
+    public string NameLang;
+    public int UiOrder;
+}
+
+public class Achievement
+{
+    public int ID;
+    public int Faction;
+    public int InstanceId;
+    public int Supercedes;
+    public string TitleLang;
+    public string DescriptionLang;
+    public int Category;
+    public int Points;
+    public int UiOrder;
+    public int Flags;
+    public int IconID;
+    public string RewardLang;
+    public int MinimumCriteria;
+    public int SharesCriteria;
+    public int CriteriaTree;
+}
+
+public class AnimKitBoneSetAlias
+{
+    public int ID;
+    public int BoneDataID;
+    public int AnimKitBoneSetID;
+}
+
+public class AnimKitBoneSet
+{
+    public int ID;
+    public string Name;
+    public int BoneDataID;
+    public int ParentAnimKitBoneSetID;
+    public int ExtraBoneCount;
+    public int AltAnimKitBoneSetID;
+}
+
+public class AnimKitConfigBoneSet
+{
+    public int ID;
+    public int ParentAnimKitConfigID;
+    public int AnimKitBoneSetID;
+    public int AnimKitPriorityID;
+}
+
+public class AnimKitConfig
+{
+    public int ID;
+    public int ConfigFlags;
+}
+
+public class AnimKitPriority
+{
+    public int ID;
+    public int Priority;
+}
+
+public class AnimKit
+{
+    public int ID;
+    public int OneShotDuration;
+    public int OneShotStopAnimKitID;
+    public int LowDefAnimKitID;
+}
+
+public class AnimKitSegment
+{
+    public int ID;
+    public int ParentAnimKitID;
+    public int OrderIndex;
+    public int AnimID;
+    public int AnimStartTime;
+    public int AnimKitConfigID;
+    public int StartCondition;
+    public int StartConditionParam;
+    public int StartConditionDelay;
+    public int EndCondition;
+    public int EndConditionParam;
+    public int EndConditionDelay;
+    public float Speed;
+    public int SegmentFlags;
+    public int ForcedVariation;
+    public int OverrideConfigFlags;
+    public int LoopToSegmentIndex;
+}
+
+public class AnimReplacement
+{
+    public int ID;
+    public int SrcAnimID;
+    public int DstAnimID;
+    public int ParentAnimReplacementSetID;
+}
+
+public class AnimReplacementSet
+{
+    public int ID;
+    public int ExecOrder;
+}
+
+public class AreaAssignment
+{
+    public int Index;
+    public int MapID;
+    public int AreaID;
+    public int ChunkX;
+    public int ChunkY;
+}
+
+public class AreaGroup
+{
+    public int ID;
+    public int[6] AreaID;
+    public int NextAreaID;
+}
+
+public class AreaPOI
+{
+    public int ID;
+    public int Importance;
+    public int[9] Icon;
+    public int FactionID;
+    public float[2] Pos;
+    public int ContinentID;
+    public int Flags;
+    public int AreaID;
+    public string NameLang;
+    public string DescriptionLang;
+    public int WorldStateID;
+    public int PlayerConditionID;
+    public int WorldMapLink;
+    public int PortLocID;
+}
+
+public class AreaTriggerActionSet
+{
+    public int ID;
+    public int Flags;
+}
+
+public class AreaTriggerBox
+{
+    public int ID;
+    public float[3] Extents;
+}
+
+public class AreaTriggerCylinder
+{
+    public int ID;
+    public float Radius;
+    public float Height;
+}
+
+public class AreaTrigger
+{
+    public int ID;
+    public int ContinentID;
+    public float[3] Pos;
+    public int PhaseUseFlags;
+    public int PhaseID;
+    public int PhaseGroupID;
+    public float Radius;
+    public float BoxLength;
+    public float BoxWidth;
+    public float BoxHeight;
+    public float BoxYaw;
+    public int ShapeType;
+    public int ShapeID;
+    public int AreaTriggerActionSetID;
+    public int Flags;
+}
+
+public class AreaTriggerSphere
+{
+    public int ID;
+    public float MaxRadius;
+}
+
+public class ArmorLocation
+{
+    public int ID;
+    public float Clothmodifier;
+    public float Leathermodifier;
+    public float Chainmodifier;
+    public float Platemodifier;
+    public float Modifier;
+}
+
+public class AuctionHouse
+{
+    public int ID;
+    public int FactionID;
+    public int DepositRate;
+    public int ConsignmentRate;
+    public string NameLang;
+}
+
+public class BankBagSlotPrices
+{
+    public int ID;
+    public int Cost;
+}
+
+public class BannedAddOns
+{
+    public int ID;
+    public int[4] NameMD5;
+    public int[4] VersionMD5;
+    public int LastModified;
+    public int Flags;
+}
+
+public class BarberShopStyle
+{
+    public int ID;
+    public int Type;
+    public string DisplayNameLang;
+    public string DescriptionLang;
+    public float CostModifier;
+    public int Race;
+    public int Sex;
+    public int Data;
+}
+
+public class BattlemasterList
+{
+    public int ID;
+    public int[16] MapID;
+    public int InstanceType;
+    public int GroupsAllowed;
+    public string NameLang;
+    public int MaxGroupSize;
+    public int HolidayWorldState;
+    public int Minlevel;
+    public int Maxlevel;
+    public int RatedPlayers;
+    public int MinPlayers;
+    public int MaxPlayers;
+    public int Flags;
+    public int IconFileDataID;
+    public string GametypeLang;
+}
+
+public class CameraMode
+{
+    public int ID;
+    public string Name;
+    public int Type;
+    public int Flags;
+    public float[3] PositionOffset;
+    public float[3] TargetOffset;
+    public float PositionSmoothing;
+    public float RotationSmoothing;
+    public float FieldOfView;
+    public int LockedPositionOffsetBase;
+    public int LockedPositionOffsetDirection;
+    public int LockedTargetOffsetBase;
+    public int LockedTargetOffsetDirection;
+}
+
+public class CameraShakes
+{
+    public int ID;
+    public int ShakeType;
+    public int Direction;
+    public float Amplitude;
+    public float Frequency;
+    public float Duration;
+    public float Phase;
+    public float Coefficient;
+    public int Flags;
+}
+
+public class CastableRaidBuffs
+{
+    public int ID;
+    public int SpellID;
+    public int CastingSpellID;
+}
+
+public class Cfg_Categories
+{
+    public int ID;
+    public int LocaleMask;
+    public int CreateCharsetMask;
+    public int ExistingCharsetMask;
+    public int Flags;
+    public string NameLang;
+}
+
+public class Cfg_Configs
+{
+    public int Index;
+    public int ID;
+    public int RealmType;
+    public int PlayerKillingAllowed;
+    public int Roleplaying;
+    public int PlayerAttackSpeedBase;
+    public int MaxDamageReductionPctPhysical;
+}
+
+public class Cfg_Regions
+{
+    public int ID;
+    public string Tag;
+    public int RegionGroupMask;
+    public int RulesetID;
+}
+
+public class CharacterFacialHairStyles
+{
+    public int Index;
+    public int RaceID;
+    public int SexID;
+    public int VariationID;
+    public int[5] Geoset;
+}
+
+public class CharacterLoadoutItem
+{
+    public int ID;
+    public int CharacterLoadoutID;
+    public int ItemID;
+    public int ItemDisplayInfoID;
+    public int ItemInventoryType;
+}
+
+public class CharacterLoadout
+{
+    public int ID;
+    public int ChrClassID;
+    public int Purpose;
+    public int Racemask;
+}
+
+public class CharBaseInfo
+{
+    public int Index;
+    public byte RaceID;
+    public byte ClassID;
+}
+
+public class CharBaseSection
+{
+    public int ID;
+    public int FallbackID;
+    public int LayoutResType;
+}
+
+public class CharComponentTextureLayouts
+{
+    public int ID;
+    public int Width;
+    public int Height;
+}
+
+public class CharComponentTextureSections
+{
+    public int ID;
+    public int CharComponentTextureLayoutID;
+    public int SectionType;
+    public int X;
+    public int Y;
+    public int Width;
+    public int Height;
+}
+
+public class CharHairGeosets
+{
+    public int ID;
+    public int RaceID;
+    public int SexID;
+    public int VariationID;
+    public int VariationType;
+    public int GeosetID;
+    public int GeosetType;
+    public int Showscalp;
+    public int ColorIndex;
+}
+
+public class CharSections
+{
+    public int ID;
+    public int RaceID;
+    public int SexID;
+    public int BaseSection;
+    public string TextureName;
+    public int Flags;
+    public int VariationIndex;
+    public int ColorIndex;
+}
+
+public class CharStartOutfit
+{
+    public int ID;
+    public byte RaceID;
+    public byte ClassID;
+    public byte SexID;
+    public byte OutfitID;
+    public int[24] ItemID;
+    public int[24] DisplayItemID;
+    public int[24] InventoryType;
+    public int PetDisplayID;
+    public int PetFamilyID;
+}
+
+public class CharTitles
+{
+    public int ID;
+    public int ConditionID;
+    public string NameLang;
+    public string Name1Lang;
+    public int MaskID;
+    public int Flags;
+}
+
+public class ChatChannels
+{
+    public int ID;
+    public int Flags;
+    public int FactionGroup;
+    public string NameLang;
+    public string ShortcutLang;
+}
+
+public class ChatProfanity
+{
+    public int ID;
+    public string Text;
+    public int Language;
+}
+
+public class ChrClasses
+{
+    public int ID;
+    public int DisplayPower;
+    public string PetNameToken;
+    public string NameLang;
+    public string NameFemaleLang;
+    public string NameMaleLang;
+    public string Filename;
+    public int SpellClassSet;
+    public int Flags;
+    public int CinematicSequenceID;
+    public int AttackPowerPerStrength;
+    public int AttackPowerPerAgility;
+    public int RangedAttackPowerPerAgility;
+    public int DefaultSpec;
+    public int CreateScreenFileDataID;
+    public int SelectScreenFileDataID;
+    public int LowResScreenFileDataID;
+    public int IconFileDataID;
+}
+
+public class ChrClassesXPowerTypes
+{
+    public int Index;
+    public int ClassID;
+    public int PowerType;
+}
+
+public class ChrRaces
+{
+    public int ID;
+    public int Flags;
+    public int FactionID;
+    public int ExplorationSoundID;
+    public int MaleDisplayId;
+    public int FemaleDisplayId;
+    public string ClientPrefix;
+    public int BaseLanguage;
+    public int CreatureType;
+    public int ResSicknessSpellID;
+    public int SplashSoundID;
+    public string ClientFileString;
+    public int CinematicSequenceID;
+    public int Alliance;
+    public string NameLang;
+    public string NameFemaleLang;
+    public string NameMaleLang;
+    public string FacialHairCustomization;
+    public string HairCustomization;
+    public int RaceRelated;
+    public int UnalteredVisualRaceID;
+    public int UaMaleCreatureSoundDataID;
+    public int UaFemaleCreatureSoundDataID;
+    public int CharComponentTextureLayoutID;
+    public int DefaultClassID;
+    public int CreateScreenFileDataID;
+    public int SelectScreenFileDataID;
+    public float[3] MaleCustomizeOffset;
+    public float[3] FemaleCustomizeOffset;
+    public int NeutralRaceID;
+    public int LowResScreenFileDataID;
+    public int HighResMaleDisplayId;
+    public int HighResFemaleDisplayId;
+    public int CharComponentTexLayoutHiResID;
+}
+
+public class ChrSpecialization
+{
+    public int ID;
+    public string BackgroundFile;
+    public int ClassID;
+    public int[2] MasterySpellID;
+    public int OrderIndex;
+    public int PetTalentType;
+    public int Role;
+    public int SpellIconID;
+    public int RaidBuffs;
+    public int Flags;
+    public string NameLang;
+    public string DescriptionLang;
+    public int MaxBuffs;
+    public int[3] PrimaryStatOrder;
+}
+
+public class CinematicCamera
+{
+    public int ID;
+    public string Model;
+    public int SoundID;
+    public float[3] Origin;
+    public float OriginFacing;
+}
+
+public class CinematicSequences
+{
+    public int ID;
+    public int SoundID;
+    public int[8] Camera;
+}
+
+public class CombatCondition
+{
+    public int ID;
+    public int WorldStateExpressionID;
+    public int SelfConditionID;
+    public int TargetConditionID;
+    public int[2] FriendConditionID;
+    public int[2] FriendConditionOp;
+    public int[2] FriendConditionCount;
+    public int FriendConditionLogic;
+    public int[2] EnemyConditionID;
+    public int[2] EnemyConditionOp;
+    public int[2] EnemyConditionCount;
+    public int EnemyConditionLogic;
+}
+
+public class ConsoleScripts
+{
+    public int ID;
+    public string Name;
+    public string Script;
+}
+
+public class CreatureDisplayInfoExtra
+{
+    public int ID;
+    public int DisplayRaceID;
+    public int DisplaySexID;
+    public int SkinID;
+    public int FaceID;
+    public int HairStyleID;
+    public int HairColorID;
+    public int FacialHairID;
+    public int[11] NPCItemDisplay;
+    public int Flags;
+    public int FileDataID;
+    public int HdFileDataID;
+}
+
+public class CreatureDisplayInfo
+{
+    public int ID;
+    public int ModelID;
+    public int SoundID;
+    public int ExtendedDisplayInfoID;
+    public float CreatureModelScale;
+    public int CreatureModelAlpha;
+    public string TextureVariation;
+    public string PortraitTextureName;
+    public int PortraitCreatureDisplayInfoID;
+    public int SizeClass;
+    public int BloodID;
+    public int NPCSoundID;
+    public int ParticleColorID;
+    public int CreatureGeosetData;
+    public int ObjectEffectPackageID;
+    public int AnimReplacementSetID;
+    public int Flags;
+    public int Gender;
+    public int StateSpellVisualKitID;
+}
+
+public class CreatureFamily
+{
+    public int ID;
+    public float MinScale;
+    public int MinScaleLevel;
+    public float MaxScale;
+    public int MaxScaleLevel;
+    public int[2] SkillLine;
+    public int PetFoodMask;
+    public int PetTalentType;
+    public int CategoryEnumID;
+    public string NameLang;
+    public string IconFile;
+}
+
+public class CreatureImmunities
+{
+    public int ID;
+    public int School;
+    public int DispelType;
+    public int MechanicsAllowed;
+    public int Mechanic;
+    public int EffectsAllowed;
+    public int[7] Effect;
+    public int StatesAllowed;
+    public int[15] State;
+    public int Flags;
+}
+
+public class CreatureModelData
+{
+    public int ID;
+    public int Flags;
+    public int FileDataID;
+    public int SizeClass;
+    public float ModelScale;
+    public int BloodID;
+    public int FootprintTextureID;
+    public float FootprintTextureLength;
+    public float FootprintTextureWidth;
+    public float FootprintParticleScale;
+    public int FoleyMaterialID;
+    public int FootstepShakeSize;
+    public int DeathThudShakeSize;
+    public int SoundID;
+    public float CollisionWidth;
+    public float CollisionHeight;
+    public float MountHeight;
+    public float[3] GeoBoxMin;
+    public float[3] GeoBoxMax;
+    public float WorldEffectScale;
+    public float AttachedEffectScale;
+    public float MissileCollisionRadius;
+    public float MissileCollisionPush;
+    public float MissileCollisionRaise;
+    public float OverrideLootEffectScale;
+    public float OverrideNameScale;
+    public float OverrideSelectionRadius;
+    public float TamedPetBaseScale;
+    public int CreatureGeosetDataID;
+    public float HoverHeight;
+}
+
+public class CreatureMovementInfo
+{
+    public int ID;
+    public float SmoothFacingChaseRate;
+}
+
+public class CreatureSoundData
+{
+    public int ID;
+    public int SoundExertionID;
+    public int SoundExertionCriticalID;
+    public int SoundInjuryID;
+    public int SoundInjuryCriticalID;
+    public int SoundInjuryCrushingBlowID;
+    public int SoundDeathID;
+    public int SoundStunID;
+    public int SoundStandID;
+    public int SoundFootstepID;
+    public int SoundAggroID;
+    public int SoundWingFlapID;
+    public int SoundWingGlideID;
+    public int SoundAlertID;
+    public int[5] SoundFidget;
+    public int[4] CustomAttack;
+    public int NPCSoundID;
+    public int LoopSoundID;
+    public int CreatureImpactType;
+    public int SoundJumpStartID;
+    public int SoundJumpEndID;
+    public int SoundPetAttackID;
+    public int SoundPetOrderID;
+    public int SoundPetDismissID;
+    public float FidgetDelaySecondsMin;
+    public float FidgetDelaySecondsMax;
+    public int BirthSoundID;
+    public int SpellCastDirectedSoundID;
+    public int SubmergeSoundID;
+    public int SubmergedSoundID;
+    public int CreatureSoundDataIDPet;
+    public int TransformSoundID;
+    public int TransformAnimatedSoundID;
+}
+
+public class CreatureSpellData
+{
+    public int ID;
+    public int[4] Spells;
+    public int[4] Availability;
+}
+
+public class CreatureType
+{
+    public int ID;
+    public string NameLang;
+    public int Flags;
+}
+
+public class Criteria
+{
+    public int ID;
+    public int Type;
+    public int Asset;
+    public int StartEvent;
+    public int StartAsset;
+    public int StartTimer;
+    public int FailEvent;
+    public int FailAsset;
+    public int ModifierTreeId;
+    public int Flags;
+    public int EligibilityWorldStateID;
+    public int EligibilityWorldStateValue;
+}
+
+public class CriteriaTree
+{
+    public int ID;
+    public int CriteriaID;
+    public  Amount;
+    public int Operator;
+    public int Parent;
+    public int Flags;
+    public string DescriptionLang;
+    public int OrderIndex;
+}
+
+public class CriteriaTreeXEffect
+{
+    public int ID;
+    public int CriteriaTreeID;
+    public int WorldEffectID;
+}
+
+public class CurrencyCategory
+{
+    public int ID;
+    public int Flags;
+    public string NameLang;
+}
+
+public class CurrencyTypes
+{
+    public int ID;
+    public int CategoryID;
+    public string NameLang;
+    public string InventoryIcon;
+    public int SpellWeight;
+    public int SpellCategory;
+    public int MaxQty;
+    public int MaxEarnablePerWeek;
+    public int Flags;
+    public int Quality;
+    public string DescriptionLang;
+}
+
+public class DeathThudLookups
+{
+    public int ID;
+    public int SizeClass;
+    public int TerrainTypeSoundID;
+    public int SoundEntryID;
+    public int SoundEntryIDWater;
+}
+
+public class DeclinedWordCases
+{
+    public int ID;
+    public int DeclinedWordID;
+    public int CaseIndex;
+    public string DeclinedWord;
+}
+
+public class DeclinedWord
+{
+    public int ID;
+    public string Word;
+}
+
+public class DestructibleModelData
+{
+    public int ID;
+    public int State0Wmo;
+    public int State0ImpactEffectDoodadSet;
+    public int State0AmbientDoodadSet;
+    public int State0NameSet;
+    public int State1Wmo;
+    public int State1DestructionDoodadSet;
+    public int State1ImpactEffectDoodadSet;
+    public int State1AmbientDoodadSet;
+    public int State1NameSet;
+    public int State2Wmo;
+    public int State2DestructionDoodadSet;
+    public int State2ImpactEffectDoodadSet;
+    public int State2AmbientDoodadSet;
+    public int State2NameSet;
+    public int State3Wmo;
+    public int State3InitDoodadSet;
+    public int State3AmbientDoodadSet;
+    public int State3NameSet;
+    public int EjectDirection;
+    public int RepairGroundFx;
+    public int DoNotHighlight;
+    public int HealEffect;
+    public int HealEffectSpeed;
+}
+
+public class Difficulty
+{
+    public int ID;
+    public int FallbackDifficultyID;
+    public int InstanceType;
+    public int MinPlayers;
+    public int MaxPlayers;
+    public int OldEnumValue;
+    public int Flags;
+    public int ToggleDifficultyID;
+    public int GroupSizeHealthCurveID;
+    public int GroupSizeDmgCurveID;
+    public int GroupSizeSpellPointsCurveID;
+    public string NameLang;
+}
+
+public class DungeonEncounter
+{
+    public int ID;
+    public int MapID;
+    public int DifficultyID;
+    public int OrderIndex;
+    public int Bit;
+    public string NameLang;
+    public int CreatureDisplayID;
+    public int SpellIconID;
+    public int Flags;
+}
+
+public class DungeonMapChunk
+{
+    public int ID;
+    public int MapID;
+    public int WmoGroupID;
+    public int DungeonMapID;
+    public float MinZ;
+    public int DoodadPlacementID;
+}
+
+public class DungeonMap
+{
+    public int ID;
+    public int MapID;
+    public int FloorIndex;
+    public float[2] Min;
+    public float[2] Max;
+    public int ParentWorldMapID;
+    public int Flags;
+}
+
+public class DurabilityCosts
+{
+    public int ID;
+    public int[21] WeaponSubClassCost;
+    public int[8] ArmorSubClassCost;
+}
+
+public class DurabilityQuality
+{
+    public int ID;
+    public float Data;
+}
+
+public class Emotes
+{
+    public int ID;
+    public string EmoteSlashCommand;
+    public int AnimID;
+    public int EmoteFlags;
+    public int EmoteSpecProc;
+    public int EmoteSpecProcParam;
+    public int EventSoundID;
+    public int SpellVisualKitID;
+}
+
+public class EmotesTextData
+{
+    public int ID;
+    public string TextLang;
+}
+
+public class EmotesText
+{
+    public int ID;
+    public string Name;
+    public int EmoteID;
+    public int[16] EmoteText;
+}
+
+public class EmotesTextSound
+{
+    public int ID;
+    public int EmotesTextID;
+    public int RaceID;
+    public int SexID;
+    public int SoundID;
+}
+
+public class EnvironmentalDamage
+{
+    public int ID;
+    public int EnumID;
+    public int VisualkitID;
+}
+
+public class Exhaustion
+{
+    public int ID;
+    public int Xp;
+    public float Factor;
+    public float OutdoorHours;
+    public float InnHours;
+    public string NameLang;
+    public float Threshold;
+    public string CombatLogText;
+}
+
+public class FactionGroup
+{
+    public int ID;
+    public int MaskID;
+    public string InternalName;
+    public string NameLang;
+}
+
+public class Faction
+{
+    public int ID;
+    public int ReputationIndex;
+    public int[4] ReputationRaceMask;
+    public int[4] ReputationClassMask;
+    public int[4] ReputationBase;
+    public int[4] ReputationFlags;
+    public int ParentFactionID;
+    public float[2] ParentFactionMod;
+    public int[2] ParentFactionCap;
+    public string NameLang;
+    public string DescriptionLang;
+    public int Expansion;
+    public int Flags;
+    public int FriendshipRepID;
+}
+
+public class FactionTemplate
+{
+    public int ID;
+    public int Faction;
+    public int Flags;
+    public int FactionGroup;
+    public int FriendGroup;
+    public int EnemyGroup;
+    public int[4] Enemies;
+    public int[4] Friend;
+}
+
+public class FootstepTerrainLookup
+{
+    public int ID;
+    public int CreatureFootstepID;
+    public int TerrainSoundID;
+    public int SoundID;
+    public int SoundIDSplash;
+}
+
+public class FriendshipRepReaction
+{
+    public int ID;
+    public int FriendshipRepID;
+    public int ReactionThreshold;
+    public string ReactionLang;
+}
+
+public class FriendshipReputation
+{
+    public int ID;
+    public int FactionID;
+    public int TextureFileID;
+    public string DescriptionLang;
+}
+
+public class GameObjectArtKit
+{
+    public int ID;
+    public string TextureVariation;
+    public string AttachModel;
+}
+
+public class GameObjectDiffAnimMap
+{
+    public int ID;
+    public int GameObjectDiffAnimID;
+    public int DifficultyID;
+    public int Animation;
+    public int AttachmentDisplayID;
+}
+
+public class GameObjectDisplayInfo
+{
+    public int ID;
+    public int FileDataID;
+    public int[10] Sound;
+    public float[3] GeoBoxMin;
+    public float[3] GeoBoxMax;
+    public int ObjectEffectPackageID;
+    public float OverrideLootEffectScale;
+    public float OverrideNameScale;
+}
+
+public class GameTables
+{
+    public int Index;
+    public string Name;
+    public int NumRows;
+    public int NumColumns;
+}
+
+public class GameTips
+{
+    public int ID;
+    public string TextLang;
+    public int MinLevel;
+    public int MaxLevel;
+}
+
+public class GarrUiAnimClassInfo
+{
+    public int ID;
+    public int GarrClassSpecID;
+    public int SpellVisualID;
+    public int MovementType;
+    public float ImpactDelaySecs;
+}
+
+public class GarrUiAnimRaceInfo
+{
+    public int ID;
+    public int ChrRaceID;
+    public float Scale;
+    public float Height;
+    public float SingleModelScale;
+    public float SingleModelHeight;
+}
+
+public class GemProperties
+{
+    public int Id;
+    public int EnchantId;
+    public int MaxcountInv;
+    public int MaxcountItem;
+    public int Type;
+    public int MinItemLevel;
+}
+
+public class GlueScreenEmote
+{
+    public int ID;
+    public int ClassId;
+    public int RaceId;
+    public int SexId;
+    public int LeftHandItemType;
+    public int RightHandItemType;
+    public int AnimKitId;
+    public int SpellVisualKitId;
+}
+
+public class GlyphProperties
+{
+    public int Id;
+    public int SpellID;
+    public int GlyphType;
+    public int SpellIconID;
+    public int GlyphExclusiveCategoryID;
+}
+
+public class GlyphSlot
+{
+    public int Id;
+    public int Type;
+    public int Tooltip;
+}
+
+public class GMSurveyAnswers
+{
+    public int ID;
+    public int SortIndex;
+    public int GMSurveyQuestionID;
+    public string AnswerLang;
+}
+
+public class GMSurveyCurrentSurvey
+{
+    public int LANGID;
+    public int GMSURVEYID;
+}
+
+public class GMSurveyQuestions
+{
+    public int ID;
+    public string QuestionLang;
+}
+
+public class GMSurveySurveys
+{
+    public int ID;
+    public int[15] Q;
+}
+
+public class GMTicketCategory
+{
+    public int ID;
+    public string CategoryLang;
+}
+
+public class GroundEffectTexture
+{
+    public int ID;
+    public int[4] DoodadId;
+    public int[4] DoodadWeight;
+    public int Density;
+    public int Sound;
+}
+
+public class gtArmorMitigationByLvl
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtBarberShopCostBase
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtBattlePetTypeDamageMod
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtBattlePetXP
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtChanceToMeleeCritBase
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtChanceToMeleeCrit
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtChanceToSpellCritBase
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtChanceToSpellCrit
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtCombatRatings
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtItemSocketCostPerLevel
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtNPCManaCostScaler
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtOCTBaseHPByClass
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtOCTBaseMPByClass
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtOCTClassCombatRatingScalar
+{
+    public int ID;
+    public float Data;
+}
+
+public class gtOCTHpPerStamina
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtOCTLevelExperience
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtRegenMPPerSpt
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtResilienceDR
+{
+    public int Index;
+    public float Data;
+}
+
+public class gtSpellScaling
+{
+    public int Index;
+    public float Data;
+}
+
+public class GuildColorBackground
+{
+    public int ColorID;
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+}
+
+public class GuildColorBorder
+{
+    public int ColorID;
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+}
+
+public class GuildColorEmblem
+{
+    public int ColorID;
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+}
+
+public class GuildPerkSpells
+{
+    public int Id;
+    public int GuildLevel;
+    public int SpellID;
+}
+
+public class HelmetAnimScaling
+{
+    public int ID;
+    public int HelmetGeosetVisDataID;
+    public int RaceID;
+    public float Amount;
+}
+
+public class HelmetGeosetVisData
+{
+    public int ID;
+    public int[7] HideGeoset;
+}
+
+public class HolidayDescriptions
+{
+    public int ID;
+    public string DescriptionLang;
+}
+
+public class HolidayNames
+{
+    public int ID;
+    public string NameLang;
+}
+
+public class Holidays
+{
+    public int ID;
+    public int[10] Duration;
+    public int[26] Date;
+    public int Region;
+    public int Looping;
+    public int[10] CalendarFlags;
+    public int HolidayNameID;
+    public int HolidayDescriptionID;
+    public string TextureFilename;
+    public int Priority;
+    public int CalendarFilterType;
+    public int Flags;
+}
+
+public class ImportPriceArmor
+{
+    public int ID;
+    public float ClothModifier;
+    public float LeatherModifier;
+    public float ChainModifier;
+    public float PlateModifier;
+}
+
+public class ImportPriceQuality
+{
+    public int ID;
+    public float Data;
+}
+
+public class ImportPriceShield
+{
+    public int ID;
+    public float Data;
+}
+
+public class ImportPriceWeapon
+{
+    public int ID;
+    public float Data;
+}
+
+public class ItemArmorQuality
+{
+    public int ID;
+    public float[7] Qualitymod;
+    public int ItemLevel;
+}
+
+public class ItemArmorShield
+{
+    public int ID;
+    public int ItemLevel;
+    public float[7] Quality;
+}
+
+public class ItemArmorTotal
+{
+    public int ID;
+    public int ItemLevel;
+    public float Cloth;
+    public float Leather;
+    public float Mail;
+    public float Plate;
+}
+
+public class ItemBagFamily
+{
+    public int ID;
+    public string NameLang;
+}
+
+public class ItemClass
+{
+    public int ClassID;
+    public int Flags;
+    public float PriceModifier;
+    public string ClassNameLang;
+}
+
+public class ItemDamageAmmo
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageOneHandCaster
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageOneHand
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageRanged
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageThrown
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageTwoHandCaster
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageTwoHand
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDamageWand
+{
+    public int ID;
+    public float[7] Quality;
+    public int ItemLevel;
+}
+
+public class ItemDisenchantLoot
+{
+    public int ID;
+    public int Class;
+    public int Subclass;
+    public int Quality;
+    public int MinLevel;
+    public int MaxLevel;
+    public int SkillRequired;
+}
+
+public class ItemDisplayInfo
+{
+    public int ID;
+    public string ModelName;
+    public string ModelTexture;
+    public int[3] GeosetGroup;
+    public int Flags;
+    public int SpellVisualID;
+    public int[2] HelmetGeosetVis;
+    public string Texture;
+    public int ItemVisual;
+    public int ParticleColorID;
+}
+
+public class ItemGroupSounds
+{
+    public int ID;
+    public int[4] Sound;
+}
+
+public class ItemLimitCategory
+{
+    public int ID;
+    public string NameLang;
+    public int Quantity;
+    public int Flags;
+}
+
+public class ItemNameDescription
+{
+    public int ID;
+    public string DescriptionLang;
+    public int Color;
+}
+
+public class ItemPetFood
+{
+    public int ID;
+    public string NameLang;
+}
+
+public class ItemPriceBase
+{
+    public int ID;
+    public int ItemLevel;
+    public float Armor;
+    public float Weapon;
+}
+
+public class ItemPurchaseGroup
+{
+    public int ID;
+    public int[8] ItemID;
+    public string NameLang;
+}
+
+public class ItemRandomProperties
+{
+    public int ID;
+    public string Name;
+    public int[5] Enchantment;
+    public string NameLang;
+}
+
+public class ItemRandomSuffix
+{
+    public int ID;
+    public string NameLang;
+    public string InternalName;
+    public int[5] Enchantment;
+    public int[5] AllocationPct;
+}
+
+public class ItemSet
+{
+    public int ID;
+    public string NameLang;
+    public int[17] ItemID;
+    public int RequiredSkill;
+    public int RequiredSkillRank;
+}
+
+public class ItemSetSpell
+{
+    public int ID;
+    public int ItemSetID;
+    public int SpellID;
+    public int Threshold;
+    public int ChrSpecID;
+}
+
+public class ItemSpecOverride
+{
+    public int ID;
+    public int ItemID;
+    public int SpecID;
+}
+
+public class ItemSpec
+{
+    public int ID;
+    public int MinLevel;
+    public int MaxLevel;
+    public int ItemType;
+    public int PrimaryStat;
+    public int SecondaryStat;
+    public int SpecializationID;
+}
+
+public class ItemSubClassMask
+{
+    public int Index;
+    public int ClassID;
+    public int Mask;
+    public string NameLang;
+}
+
+public class ItemSubClass
+{
+    public int Index;
+    public int ClassID;
+    public int SubClassID;
+    public int PrerequisiteProficiency;
+    public int PostrequisiteProficiency;
+    public int Flags;
+    public int DisplayFlags;
+    public int WeaponParrySeq;
+    public int WeaponReadySeq;
+    public int WeaponAttackSeq;
+    public int WeaponSwingSize;
+    public string DisplayNameLang;
+    public string VerboseNameLang;
+}
+
+public class ItemUpgradePath
+{
+    public int Id;
+}
+
+public class ItemVisualEffects
+{
+    public int ID;
+    public string Model;
+}
+
+public class ItemVisuals
+{
+    public int ID;
+    public int[5] Slot;
+}
+
+public class JournalEncounterCreature
+{
+    public int ID;
+    public int JournalEncounterID;
+    public int CreatureDisplayInfoID;
+    public int OrderIndex;
+    public int FileDataID;
+    public string NameLang;
+    public string DescriptionLang;
+}
+
+public class JournalEncounterItem
+{
+    public int ID;
+    public int JournalEncounterID;
+    public int ItemID;
+    public int DifficultyMask;
+    public int FactionMask;
+    public int Flags;
+}
+
+public class JournalEncounter
+{
+    public int ID;
+    public int DungeonMapID;
+    public int WorldMapAreaID;
+    public float[2] Map;
+    public int FirstSectionID;
+    public int JournalInstanceID;
+    public int OrderIndex;
+    public int DifficultyMask;
+    public string NameLang;
+    public string DescriptionLang;
+    public int Flags;
+}
+
+public class JournalEncounterSection
+{
+    public int ID;
+    public int JournalEncounterID;
+    public int NextSiblingSectionID;
+    public int FirstChildSectionID;
+    public int ParentSectionID;
+    public int OrderIndex;
+    public int Type;
+    public int Flags;
+    public int IconFlags;
+    public string TitleLang;
+    public string BodyTextLang;
+    public int DifficultyMask;
+    public int IconCreatureDisplayInfoID;
+    public int SpellID;
+    public int IconFileDataID;
+}
+
+public class JournalEncounterXDifficulty
+{
+    public int ID;
+    public int JournalEncounterID;
+    public int DifficultyID;
+}
+
+public class JournalInstance
+{
+    public int ID;
+    public int MapID;
+    public int AreaID;
+    public int ButtonFiledataID;
+    public int ButtonSmallFileDataID;
+    public int BackgroundFiledataID;
+    public int LoreFileDataID;
+    public string NameLang;
+    public string DescriptionLang;
+}
+
+public class JournalItemXDifficulty
+{
+    public int ID;
+    public int JournalEncounterItemID;
+    public int DifficultyID;
+}
+
+public class JournalSectionXDifficulty
+{
+    public int ID;
+    public int JournalEncounterSectionID;
+    public int DifficultyID;
+}
+
+public class JournalTier
+{
+    public int ID;
+    public string NameLang;
+}
+
+public class JournalTierXInstance
+{
+    public int JournalTierID;
+    public int JournalInstanceID;
+}
+
+public class Languages
+{
+    public int ID;
+    public string NameLang;
+}
+
+public class LanguageWords
+{
+    public int ID;
+    public int LanguageID;
+    public string Word;
+}
+
+public class LfgDungeonExpansion
+{
+    public int ID;
+    public int LfgId;
+    public int ExpansionLevel;
+    public int RandomId;
+    public int HardLevelMin;
+    public int HardLevelMax;
+    public int TargetLevelMin;
+    public int TargetLevelMax;
+}
+
+public class LfgDungeonGroup
+{
+    public int ID;
+    public string NameLang;
+    public int OrderIndex;
+    public int ParentGroupId;
+    public int Typeid;
+}
+
+public class LfgDungeonsGroupingMap
+{
+    public int ID;
+    public int LfgDungeonsID;
+    public int RandomLfgDungeonsID;
+    public int GroupId;
+}
+
+public class LfgDungeons
+{
+    public int ID;
+    public string NameLang;
+    public int MinLevel;
+    public int MaxLevel;
+    public int TargetLevel;
+    public int TargetLevelMin;
+    public int TargetLevelMax;
+    public int MapID;
+    public int DifficultyID;
+    public int Flags;
+    public int TypeID;
+    public int Faction;
+    public string TextureFilename;
+    public int ExpansionLevel;
+    public int OrderIndex;
+    public int GroupId;
+    public string DescriptionLang;
+    public int RandomId;
+    public int CountTank;
+    public int CountHealer;
+    public int CountDamage;
+    public int MinCountTank;
+    public int MinCountHealer;
+    public int MinCountDamage;
+    public int ScenarioID;
+    public int Subtype;
+    public int BonusReputationAmount;
+    public int MentorCharLevel;
+    public int MentorItemLevel;
+}
+
+public class LoadingScreens
+{
+    public int ID;
+    public string Name;
+    public string FileName;
+    public int HasWideScreen;
+}
+
+public class LoadingScreenTaxiSplines
+{
+    public int ID;
+    public int PathID;
+    public float[10] Locx;
+    public float[10] Locy;
+    public int LegIndex;
+    public int LoadingScreenID;
+}
+
+public class Lock
+{
+    public int ID;
+    public int[8] Type;
+    public int[8] Index;
+    public int[8] Skill;
+    public int[8] Action;
+}
+
+public class LockType
+{
+    public int ID;
+    public string NameLang;
+    public string ResourceNameLang;
+    public string VerbLang;
+    public string CursorName;
+}
+
+public class MailTemplate
+{
+    public int ID;
+    public string SubjectLang;
+    public string BodyLang;
+}
+
+public class ManifestInterfaceActionIcon
+{
+    public int ID;
+}
+
+public class ManifestInterfaceData
+{
+    public int ID;
+    public string FilePath;
+    public string FileName;
+}
+
+public class ManifestInterfaceItemIcon
+{
+    public int ID;
+}
+
+public class ManifestInterfaceTOCData
+{
+    public int ID;
+    public string FilePath;
+}
+
+public class MapDifficulty
+{
+    public int ID;
+    public int MapID;
+    public int DifficultyID;
+    public string MessageLang;
+    public int RaidDuration;
+    public int MaxPlayers;
+    public int LockID;
+}
+
+public class Material
+{
+    public int ID;
+    public int Flags;
+    public int FoleySoundID;
+    public int SheatheSoundID;
+    public int UnsheatheSoundID;
+}
+
+public class MinorTalent
+{
+    public int ID;
+    public int ChrSpecializationID;
+    public int SpellID;
+    public int OrderIndex;
+}
+
+public class ModifierTree
+{
+    public int ID;
+    public int Type;
+    public int Asset;
+    public int SecondaryAsset;
+    public int Operator;
+    public int Amount;
+    public int Parent;
+}
+
+public class MountCapability
+{
+    public int ID;
+    public int Flags;
+    public int ReqRidingSkill;
+    public int ReqAreaID;
+    public int ReqSpellAuraID;
+    public int ReqSpellKnownID;
+    public int ModSpellAuraID;
+    public int ReqMapID;
+}
+
+public class MountType
+{
+    public int ID;
+    public int[24] Capability;
+}
+
+public class MovieFileData
+{
+    public int FileDataID;
+    public int Resolution;
+}
+
+public class MovieOverlays
+{
+    public int Index;
+    public int MovieID;
+    public int LocaleMask;
+    public int OverlayRangeBegin;
+    public int OverlayRangeEnd;
+}
+
+public class Movie
+{
+    public int ID;
+    public int Volume;
+    public int KeyID;
+    public int AudioFileDataID;
+    public int SubtitleFileDataID;
+}
+
+public class MovieVariation
+{
+    public int ID;
+    public int MovieID;
+    public int FileDataID;
+    public int OverlayFileDataID;
+}
+
+public class NameGen
+{
+    public int ID;
+    public string Name;
+    public int RaceID;
+    public int Sex;
+}
+
+public class NamesProfanity
+{
+    public int ID;
+    public string Name;
+    public int Language;
+}
+
+public class NamesReservedLocale
+{
+    public int ID;
+    public string Name;
+    public int LocaleMask;
+}
+
+public class NamesReserved
+{
+    public int ID;
+    public string Name;
+}
+
+public class NPCSounds
+{
+    public int ID;
+    public int[4] SoundID;
+}
+
+public class ObjectEffectGroup
+{
+    public int ID;
+    public string Name;
+}
+
+public class ObjectEffectModifier
+{
+    public int ID;
+    public int InputType;
+    public int MapType;
+    public int OutputType;
+    public float[4] Param;
+}
+
+public class ObjectEffectPackageElem
+{
+    public int ID;
+    public int ObjectEffectPackageID;
+    public int ObjectEffectGroupID;
+    public int StateType;
+}
+
+public class ObjectEffectPackage
+{
+    public int ID;
+    public string Name;
+}
+
+public class ObjectEffect
+{
+    public int ID;
+    public string Name;
+    public int ObjectEffectGroupID;
+    public int TriggerType;
+    public int EventType;
+    public int EffectRecType;
+    public int EffectRecID;
+    public int Attachment;
+    public float[3] Offset;
+    public int ObjectEffectModifierID;
+}
+
+public class OverrideSpellData
+{
+    public int ID;
+    public int[10] Spells;
+    public int Flags;
+    public int PlayerActionbarFileDataID;
+}
+
+public class Package
+{
+    public int ID;
+    public string Icon;
+    public int Cost;
+    public string NameLang;
+}
+
+public class PageTextMaterial
+{
+    public int ID;
+    public string Name;
+}
+
+public class PaperDollItemFrame
+{
+    public int Index;
+    public string ItemButtonName;
+    public string SlotIcon;
+    public int SlotNumber;
+}
+
+public class ParticleColor
+{
+    public int ID;
+    public int[3] Start;
+    public int[3] Mid;
+    public int[3] End;
+}
+
+public class Phase
+{
+    public int ID;
+    public string Name;
+    public int Flags;
+}
+
+public class PhaseShiftZoneSounds
+{
+    public int ID;
+    public int AreaID;
+    public int WMOAreaID;
+    public int PhaseID;
+    public int PhaseGroupID;
+    public int PhaseUseFlags;
+    public int ZoneIntroMusicID;
+    public int ZoneMusicID;
+    public int SoundAmbienceID;
+    public int SoundProviderPreferencesID;
+    public int UWZoneIntroMusicID;
+    public int UWZoneMusicID;
+    public int UWSoundAmbienceID;
+    public int UWSoundProviderPreferencesID;
+}
+
+public class PhaseXPhaseGroup
+{
+    public int ID;
+    public int PhaseID;
+    public int PhaseGroupID;
+}
+
+public class PlayerCondition
+{
+    public int ID;
+    public int Flags;
+    public int MinLevel;
+    public int MaxLevel;
+    public int RaceMask;
+    public int ClassMask;
+    public int Gender;
+    public int NativeGender;
+    public int[4] SkillID;
+    public int[4] MinSkill;
+    public int[4] MaxSkill;
+    public int SkillLogic;
+    public int LanguageID;
+    public int MinLanguage;
+    public int MaxLanguage;
+    public int[3] MinFactionID;
+    public int MaxFactionID;
+    public int[3] MinReputation;
+    public int MaxReputation;
+    public int ReputationLogic;
+    public int MinPVPRank;
+    public int MaxPVPRank;
+    public int PvpMedal;
+    public int PrevQuestLogic;
+    public int[4] PrevQuestID;
+    public int CurrQuestLogic;
+    public int[4] CurrQuestID;
+    public int CurrentCompletedQuestLogic;
+    public int[4] CurrentCompletedQuestID;
+    public int SpellLogic;
+    public int[4] SpellID;
+    public int ItemLogic;
+    public int[4] ItemID;
+    public int[4] ItemCount;
+    public int ItemFlags;
+    public int[2] Explored;
+    public int[2] Time;
+    public int AuraSpellLogic;
+    public int[4] AuraSpellID;
+    public int WorldStateExpressionID;
+    public int WeatherID;
+    public int PartyStatus;
+    public int LifetimeMaxPVPRank;
+    public int AchievementLogic;
+    public int[4] Achievement;
+    public int LfgLogic;
+    public int[4] LfgStatus;
+    public int[4] LfgCompare;
+    public int[4] LfgValue;
+    public int AreaLogic;
+    public int[4] AreaID;
+    public int CurrencyLogic;
+    public int[4] CurrencyID;
+    public int[4] CurrencyCount;
+    public int QuestKillID;
+    public int QuestKillLogic;
+    public int[4] QuestKillMonster;
+    public int MinExpansionLevel;
+    public int MaxExpansionLevel;
+    public int MinExpansionTier;
+    public int MaxExpansionTier;
+    public int MinGuildLevel;
+    public int MaxGuildLevel;
+    public int PhaseUseFlags;
+    public int PhaseID;
+    public int PhaseGroupID;
+    public int MinAvgItemLevel;
+    public int MaxAvgItemLevel;
+    public int MinAvgEquippedItemLevel;
+    public int MaxAvgEquippedItemLevel;
+    public int ChrSpecializationIndex;
+    public int ChrSpecializationRole;
+    public string FailureDescriptionLang;
+    public int PowerType;
+    public int PowerTypeComp;
+    public int PowerTypeValue;
+}
+
+public class PowerDisplay
+{
+    public int ID;
+    public int ActualType;
+    public string GlobalStringBaseTag;
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+}
+
+public class PvpDifficulty
+{
+    public int ID;
+    public int MapID;
+    public int RangeIndex;
+    public int MinLevel;
+    public int MaxLevel;
+}
+
+public class QuestFactionReward
+{
+    public int ID;
+    public int[10] Difficulty;
+}
+
+public class QuestFeedbackEffect
+{
+    public int ID;
+    public int FileDataID;
+    public int AttachPoint;
+    public int Minimapobject;
+    public int Priority;
+    public int Flags;
+}
+
+public class QuestInfo
+{
+    public int ID;
+    public string InfoNameLang;
+}
+
+public class QuestMoneyReward
+{
+    public int ID;
+    public int[10] Difficulty;
+}
+
+public class QuestPOIBlob
+{
+    public int ID;
+    public int NumPoints;
+    public int MapID;
+    public int WorldMapAreaID;
+}
+
+public class QuestPOIPoint
+{
+    public int ID;
+    public int X;
+    public int Y;
+    public int QuestPOIBlobID;
+}
+
+public class QuestSort
+{
+    public int ID;
+    public string SortNameLang;
+}
+
+public class QuestV2
+{
+    public int ID;
+    public int UniqueBitFlag;
+}
+
+public class QuestXP
+{
+    public int ID;
+    public int[10] Difficulty;
+}
+
+public class RacialMounts
+{
+    public int ID;
+    public int Race;
+    public int SpellId;
+}
+
+public class RandPropPoints
+{
+    public int ID;
+    public int[5] Epic;
+    public int[5] Superior;
+    public int[5] Good;
+}
+
+public class ResearchBranch
+{
+    public int ID;
+    public string NameLang;
+    public int ResearchFieldID;
+    public int CurrencyID;
+    public string Texture;
+    public int ItemID;
+}
+
+public class ResearchField
+{
+    public int ID;
+    public string NameLang;
+    public int Slot;
+}
+
+public class ResearchProject
+{
+    public int ID;
+    public string NameLang;
+    public string DescriptionLang;
+    public int Rarity;
+    public int ResearchBranchID;
+    public int SpellID;
+    public int NumSockets;
+    public string Texture;
+    public int RequiredWeight;
+}
+
+public class ResearchSite
+{
+    public int ID;
+    public int MapID;
+    public int QuestPOIBlobID;
+    public string NameLang;
+    public int AreaPOIIconEnum;
+}
+
+public class Resistances
+{
+    public int ID;
+    public int Flags;
+    public int FizzleSoundID;
+    public string NameLang;
+}
+
+public class RulesetRaidOverride
+{
+    public int ID;
+    public int MapID;
+    public int DifficultyID;
+    public int RulesetID;
+    public int SharedLock;
+    public int Raidduration;
+}
+
+public class ScalingStatDistribution
+{
+    public int ID;
+    public int[10] StatID;
+    public int[10] Bonus;
+    public int Minlevel;
+    public int Maxlevel;
+}
+
+public class ScalingStatValues
+{
+    public int ID;
+    public int Charlevel;
+    public int EffectiveLevel;
+    public int WeaponDPS1H;
+    public int WeaponDPS2H;
+    public int SpellcasterDPS1H;
+    public int SpellcasterDPS2H;
+    public int RangedDPS;
+    public int WandDPS;
+    public int SpellPower;
+    public int BudgetPrimary;
+    public int BudgetSecondary;
+    public int BudgetTertiary;
+    public int BudgetSub;
+    public int BudgetTrivial;
+    public int[4] ArmorShoulder;
+    public int[4] ArmorChest;
+    public int[4] ArmorHead;
+    public int[4] ArmorLegs;
+    public int[4] ArmorFeet;
+    public int[4] ArmorWaist;
+    public int[4] ArmorHands;
+    public int[4] ArmorWrists;
+    public int ArmorBack;
+    public int ArmorShield;
+}
+
+public class ScenarioEventEntry
+{
+    public int ID;
+    public int TriggerType;
+    public int TriggerAsset;
+}
+
+public class Scenario
+{
+    public int ID;
+    public string NameLang;
+    public int Flags;
+}
+
+public class ScenarioStep
+{
+    public int ID;
+    public int Criteriatreeid;
+    public int ScenarioID;
+    public int OrderIndex;
+    public string DescriptionLang;
+    public string TitleLang;
+    public int Flags;
+    public int RelatedStep;
+    public int Supersedes;
+    public int RewardQuestID;
+}
+
+public class ScreenEffect
+{
+    public int Id;
+    public string Name;
+    public int Effect;
+    public int[4] Param;
+    public int LightParamsID;
+    public int LightParamsFadeIn;
+    public int LightParamsFadeOut;
+    public int LightFlags;
+    public int SoundAmbienceID;
+    public int ZoneMusicID;
+    public int TimeOfDayOverride;
+    public int EffectMask;
+}
+
+public class ScreenLocation
+{
+    public int ID;
+    public string Name;
+}
+
+public class ServerMessages
+{
+    public int ID;
+    public string TextLang;
+}
+
+public class SkillLineAbility
+{
+    public int ID;
+    public int SkillLine;
+    public int Spell;
+    public int RaceMask;
+    public int ClassMask;
+    public int MinSkillLineRank;
+    public int SupercedesSpell;
+    public int AcquireMethod;
+    public int TrivialSkillLineRankHigh;
+    public int TrivialSkillLineRankLow;
+    public int NumSkillUps;
+    public int UniqueBit;
+    public int TradeSkillCategoryID;
+}
+
+public class SkillLineAbilitySortedSpell
+{
+    public int ID;
+    public int Spell;
+}
+
+public class SkillLine
+{
+    public int ID;
+    public int CategoryID;
+    public string DisplayNameLang;
+    public string DescriptionLang;
+    public int SpellIconID;
+    public string AlternateVerbLang;
+    public int CanLink;
+    public int ParentSkillLineID;
+    public int Flags;
+}
+
+public class SkillRaceClassInfo
+{
+    public int ID;
+    public int SkillID;
+    public int RaceMask;
+    public int ClassMask;
+    public int Flags;
+    public int Availability;
+    public int MinLevel;
+    public int SkillTierID;
+}
+
+public class SkillTiers
+{
+    public int ID;
+    public int[16] Value;
+}
+
+public class SoundAmbienceFlavor
+{
+    public int ID;
+    public int SoundAmbienceID;
+    public int SoundEntriesIDDay;
+    public int SoundEntriesIDNight;
+}
+
+public class SoundAmbience
+{
+    public int ID;
+    public int[2] AmbienceID;
+    public int Flags;
+}
+
+public class SoundFilterElem
+{
+    public int ID;
+    public int SoundFilterID;
+    public int OrderIndex;
+    public int FilterType;
+    public float[9] Params;
+}
+
+public class SoundFilter
+{
+    public int ID;
+    public string Name;
+}
+
+public class SoundOverride
+{
+    public int ID;
+    public int WowEditLock;
+    public string WowEditLockUser;
+    public int ZoneIntroMusicID;
+    public int ZoneMusicID;
+    public int SoundAmbienceID;
+    public int SoundProviderPreferencesID;
+}
+
+public class SoundProviderPreferences
+{
+    public int ID;
+    public string Description;
+    public int Flags;
+    public int EAXEnvironmentSelection;
+    public float EAXDecayTime;
+    public float EAX2EnvironmentSize;
+    public float EAX2EnvironmentDiffusion;
+    public int EAX2Room;
+    public int EAX2RoomHF;
+    public float EAX2DecayHFRatio;
+    public int EAX2Reflections;
+    public float EAX2ReflectionsDelay;
+    public int EAX2Reverb;
+    public float EAX2ReverbDelay;
+    public float EAX2RoomRolloff;
+    public float EAX2AirAbsorption;
+    public int EAX3RoomLF;
+    public float EAX3DecayLFRatio;
+    public float EAX3EchoTime;
+    public float EAX3EchoDepth;
+    public float EAX3ModulationTime;
+    public float EAX3ModulationDepth;
+    public float EAX3HFReference;
+    public float EAX3LFReference;
+}
+
+public class SpamMessages
+{
+    public int ID;
+    public string Text;
+}
+
+public class SpecializationSpells
+{
+    public int ID;
+    public int SpecID;
+    public int SpellID;
+    public int OverridesSpellID;
+    public string DescriptionLang;
+}
+
+public class SpellActivationOverlay
+{
+    public int ID;
+    public int SpellID;
+    public int OverlayFileDataID;
+    public int ScreenLocationID;
+    public int Color;
+    public float Scale;
+    public int[4] IconHighlightSpellClassMask;
+    public int TriggerType;
+    public int SoundEntriesID;
+}
+
+public class SpellAuraOptions
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int CumulativeAura;
+    public int ProcChance;
+    public int ProcCharges;
+    public int ProcTypeMask;
+    public int ProcCategoryRecovery;
+    public int SpellProcsPerMinuteID;
+}
+
+public class SpellAuraVisibility
+{
+    public int ID;
+    public int SpellID;
+    public int Type;
+    public int Flags;
+}
+
+public class SpellAuraVisXChrSpec
+{
+    public int ID;
+    public int SpellAuraVisibilityID;
+    public int ChrSpecializationID;
+}
+
+public class SpellCastingRequirements
+{
+    public int ID;
+    public int FacingCasterFlags;
+    public int MinFactionID;
+    public int MinReputation;
+    public int RequiredAreasID;
+    public int RequiredAuraVision;
+    public int RequiresSpellFocus;
+}
+
+public class SpellCastTimes
+{
+    public int ID;
+    public int Base;
+    public int PerLevel;
+    public int Minimum;
+}
+
+public class SpellCategories
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int Category;
+    public int DefenseType;
+    public int DispelType;
+    public int Mechanic;
+    public int PreventionType;
+    public int StartRecoveryCategory;
+    public int ChargeCategory;
+}
+
+public class SpellCategory
+{
+    public int ID;
+    public int Flags;
+    public byte UsesPerWeek;
+    public string NameLang;
+    public int MaxCharges;
+    public int ChargeRecoveryTime;
+}
+
+public class SpellCooldowns
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int CategoryRecoveryTime;
+    public int RecoveryTime;
+    public int StartRecoveryTime;
+}
+
+public class SpellDescriptionVariables
+{
+    public int ID;
+    public string Variables;
+}
+
+public class SpellDispelType
+{
+    public int ID;
+    public string NameLang;
+    public int Mask;
+    public int ImmunityPossible;
+    public string InternalName;
+}
+
+public class SpellDuration
+{
+    public int ID;
+    public int Duration;
+    public int DurationPerLevel;
+    public int MaxDuration;
+}
+
+public class SpellEffect
+{
+    public int ID;
+    public int DifficultyID;
+    public int Effect;
+    public float EffectAmplitude;
+    public int EffectAura;
+    public int EffectAuraPeriod;
+    public int EffectBasePoints;
+    public float EffectBonusCoefficient;
+    public float EffectChainAmplitude;
+    public int EffectChainTargets;
+    public int EffectDieSides;
+    public int EffectItemType;
+    public int EffectMechanic;
+    public int[2] EffectMiscValue;
+    public float EffectPointsPerResource;
+    public int[2] EffectRadiusIndex;
+    public float EffectRealPointsPerLevel;
+    public int[4] EffectSpellClassMask;
+    public int EffectTriggerSpell;
+    public float EffectPosFacing;
+    public int[2] ImplicitTarget;
+    public int SpellID;
+    public int EffectIndex;
+    public int EffectAttributes;
+    public float BonusCoefficientFromAP;
+}
+
+public class SpellEffectScaling
+{
+    public int ID;
+    public float Coefficient;
+    public float Variance;
+    public float ResourceCoefficient;
+    public int SpellEffectID;
+}
+
+public class SpellEquippedItems
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int EquippedItemClass;
+    public int EquippedItemInvTypes;
+    public int EquippedItemSubclass;
+}
+
+public class SpellFlyoutItem
+{
+    public int ID;
+    public int SpellFlyoutID;
+    public int SpellID;
+    public int Slot;
+}
+
+public class SpellFlyout
+{
+    public int ID;
+    public int Flags;
+    public int RaceMask;
+    public int ClassMask;
+    public int SpellIconID;
+    public string NameLang;
+    public string DescriptionLang;
+}
+
+public class SpellFocusObject
+{
+    public int ID;
+    public string NameLang;
+}
+
+public class SpellIcon
+{
+    public int ID;
+    public string TextureFilename;
+}
+
+public class SpellInterrupts
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int[2] AuraInterruptFlags;
+    public int[2] ChannelInterruptFlags;
+    public int InterruptFlags;
+}
+
+public class SpellItemEnchantmentCondition
+{
+    public int ID;
+    public int[1] LtOperandType;
+    public int[5] LtOperand;
+    public int[1] Operator;
+    public int[1] RtOperandType;
+    public int[5] RtOperand;
+    public int[1] Logic;
+}
+
+public class SpellItemEnchantment
+{
+    public int ID;
+    public int Charges;
+    public int[3] Effect;
+    public int[3] EffectPointsMin;
+    public int[3] EffectArg;
+    public string NameLang;
+    public int ItemVisual;
+    public int Flags;
+    public int SrcItemID;
+    public int ConditionId;
+    public int RequiredSkillID;
+    public int RequiredSkillRank;
+    public int MinLevel;
+    public int MaxLevel;
+    public int ItemLevel;
+    public int ScalingClass;
+    public int ScalingClassRestricted;
+    public float[3] EffectScalingPoints;
+}
+
+public class SpellKeyboundOverride
+{
+    public int ID;
+    public string Function;
+}
+
+public class SpellLearnSpell
+{
+    public int ID;
+    public int LearnSpellID;
+    public int OverridesSpellID;
+    public int SpellID;
+}
+
+public class SpellLevels
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int BaseLevel;
+    public int MaxLevel;
+    public int SpellLevel;
+}
+
+public class SpellMechanic
+{
+    public int ID;
+    public string StateNameLang;
+}
+
+public class SpellMisc
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public int[14] Attributes;
+    public int CastingTimeIndex;
+    public int DurationIndex;
+    public int RangeIndex;
+    public float Speed;
+    public int[2] SpellVisualID;
+    public int SpellIconID;
+    public int ActiveIconID;
+    public int SchoolMask;
+}
+
+public class SpellProcsPerMinuteMod
+{
+    public int ID;
+    public int Type;
+    public int Param;
+    public float Coeff;
+    public int SpellProcsPerMinuteID;
+}
+
+public class SpellProcsPerMinute
+{
+    public int ID;
+    public float BaseProcRate;
+    public int Flags;
+}
+
+public class SpellRadius
+{
+    public int ID;
+    public float Radius;
+    public float RadiusPerLevel;
+    public float RadiusMin;
+    public float RadiusMax;
+}
+
+public class SpellRange
+{
+    public int ID;
+    public float[2] RangeMin;
+    public float[2] RangeMax;
+    public int Flags;
+    public string DisplayNameLang;
+    public string DisplayNameShortLang;
+}
+
+public class Spell
+{
+    public int ID;
+    public string NameLang;
+    public string NameSubtextLang;
+    public string DescriptionLang;
+    public string AuraDescriptionLang;
+    public int RuneCostID;
+    public int SpellMissileID;
+    public int DescriptionVariablesID;
+    public int ScalingID;
+    public int AuraOptionsID;
+    public int AuraRestrictionsID;
+    public int CastingRequirementsID;
+    public int CategoriesID;
+    public int ClassOptionsID;
+    public int CooldownsID;
+    public int EquippedItemsID;
+    public int InterruptsID;
+    public int LevelsID;
+    public int ReagentsID;
+    public int ShapeshiftID;
+    public int TargetRestrictionsID;
+    public int TotemsID;
+    public int RequiredProjectID;
+    public int MiscID;
+}
+
+public class SpellRuneCost
+{
+    public int ID;
+    public int Blood;
+    public int Unholy;
+    public int Frost;
+    public int Chromatic;
+    public int RunicPower;
+}
+
+public class SpellScaling
+{
+    public int ID;
+    public int CastTimeMin;
+    public int CastTimeMax;
+    public int CastTimeMaxLevel;
+    public int Class;
+    public float NerfFactor;
+    public int NerfMaxLevel;
+    public int MaxScalingLevel;
+    public int ScalesFromItemLevel;
+}
+
+public class SpellShapeshiftForm
+{
+    public int ID;
+    public int BonusActionBar;
+    public string NameLang;
+    public int Flags;
+    public int CreatureType;
+    public int AttackIconID;
+    public int CombatRoundTime;
+    public int[4] CreatureDisplayID;
+    public int[8] PresetSpellID;
+    public int MountTypeID;
+    public int ExitSoundEntriesID;
+}
+
+public class SpellShapeshift
+{
+    public int ID;
+    public int[2] ShapeshiftExclude;
+    public int[2] ShapeshiftMask;
+    public int StanceBarOrder;
+}
+
+public class SpellSpecialUnitEffect
+{
+    public int EnumID;
+    public int SpellVisualEffectNameID;
+}
+
+public class SpellTargetRestrictions
+{
+    public int ID;
+    public int SpellID;
+    public int DifficultyID;
+    public float ConeAngle;
+    public float Width;
+    public int MaxTargets;
+    public int MaxTargetLevel;
+    public int TargetCreatureType;
+    public int Targets;
+}
+
+public class SpellTotems
+{
+    public int ID;
+    public int[2] RequiredTotemCategoryID;
+    public int[2] Totem;
+}
+
+public class Stationery
+{
+    public int ID;
+    public int ItemID;
+    public string Texture;
+    public int Flags;
+}
+
+public class StringLookups
+{
+    public int ID;
+    public string String;
+}
+
+public class SummonProperties
+{
+    public int Id;
+    public int Control;
+    public int Faction;
+    public int Title;
+    public int Slot;
+    public int Flags;
+}
+
+public class Talent
+{
+    public int ID;
+    public int SpecID;
+    public int TierID;
+    public int ColumnIndex;
+    public int SpellID;
+    public int Flags;
+    public int[2] CategoryMask;
+    public int ClassID;
+    public int OverridesSpellID;
+    public string DescriptionLang;
+}
+
+public class TaxiNodes
+{
+    public int ID;
+    public int ContinentID;
+    public float[3] Pos;
+    public string NameLang;
+    public int[2] MountCreatureID;
+    public int ConditionID;
+    public int Flags;
+    public float[2] MapOffset;
+}
+
+public class TaxiPathNode
+{
+    public int ID;
+    public int PathID;
+    public int NodeIndex;
+    public int ContinentID;
+    public float[3] Loc;
+    public int Flags;
+    public int Delay;
+    public int ArrivalEventID;
+    public int DepartureEventID;
+}
+
+public class TaxiPath
+{
+    public int ID;
+    public int FromTaxiNode;
+    public int ToTaxiNode;
+    public int Cost;
+}
+
+public class TerrainTypeSounds
+{
+    public int ID;
+}
+
+public class TotemCategory
+{
+    public int ID;
+    public string NameLang;
+    public int TotemCategoryType;
+    public int TotemCategoryMask;
+}
+
+public class TradeSkillCategory
+{
+    public int Id;
+    public int Skilllineid;
+    public int Parenttradeskillcategoryid;
+    public int Orderindex;
+    public string NameLang;
+    public int Flags;
+}
+
+public class TransportAnimation
+{
+    public int ID;
+    public int TransportID;
+    public int TimeIndex;
+    public float[3] Pos;
+    public int SequenceID;
+}
+
+public class TransportPhysics
+{
+    public int ID;
+    public float WaveAmp;
+    public float WaveTimeScale;
+    public float RollAmp;
+    public float RollTimeScale;
+    public float PitchAmp;
+    public float PitchTimeScale;
+    public float MaxBank;
+    public float MaxBankTurnSpeed;
+    public float SpeedDampThresh;
+    public float SpeedDamp;
+}
+
+public class TransportRotation
+{
+    public int ID;
+    public int GameObjectsID;
+    public int TimeIndex;
+    public float[4] Rot;
+}
+
+public class UnitBloodLevels
+{
+    public int ID;
+    public int[3] Violencelevel;
+}
+
+public class UnitBlood
+{
+    public int ID;
+    public int[2] CombatBloodSpurtFront;
+    public int[2] CombatBloodSpurtBack;
+    public string GroundBlood;
+}
+
+public class UnitCondition
+{
+    public int ID;
+    public int Flags;
+    public int[8] Variable;
+    public int[8] Op;
+    public int[8] Value;
+}
+
+public class UnitPowerBar
+{
+    public int ID;
+    public int MinPower;
+    public int MaxPower;
+    public int StartPower;
+    public int CenterPower;
+    public float RegenerationPeace;
+    public float RegenerationCombat;
+    public int BarType;
+    public int[6] FileDataID;
+    public int[6] Color;
+    public int Flags;
+    public string NameLang;
+    public string CostLang;
+    public string OutOfErrorLang;
+    public string ToolTipLang;
+    public float StartInset;
+    public float EndInset;
+}
+
+public class Vehicle
+{
+    public int ID;
+    public int Flags;
+    public int FlagsB;
+    public float TurnSpeed;
+    public float PitchSpeed;
+    public float PitchMin;
+    public float PitchMax;
+    public int[8] SeatID;
+    public float MouseLookOffsetPitch;
+    public float CameraFadeDistScalarMin;
+    public float CameraFadeDistScalarMax;
+    public float CameraPitchOffset;
+    public float FacingLimitRight;
+    public float FacingLimitLeft;
+    public float MsslTrgtTurnLingering;
+    public float MsslTrgtPitchLingering;
+    public float MsslTrgtMouseLingering;
+    public float MsslTrgtEndOpacity;
+    public float MsslTrgtArcSpeed;
+    public float MsslTrgtArcRepeat;
+    public float MsslTrgtArcWidth;
+    public float[2] MsslTrgtImpactRadius;
+    public string MsslTrgtArcTexture;
+    public string MsslTrgtImpactTexture;
+    public string MsslTrgtImpactModel;
+    public float CameraYawOffset;
+    public int UiLocomotionType;
+    public float MsslTrgtImpactTexRadius;
+    public int VehicleUIIndicatorID;
+    public int[3] PowerDisplayID;
+}
+
+public class VehicleSeat
+{
+    public int ID;
+    public int Flags;
+    public int AttachmentID;
+    public float[3] AttachmentOffset;
+    public float EnterPreDelay;
+    public float EnterSpeed;
+    public float EnterGravity;
+    public float EnterMinDuration;
+    public float EnterMaxDuration;
+    public float EnterMinArcHeight;
+    public float EnterMaxArcHeight;
+    public int EnterAnimStart;
+    public int EnterAnimLoop;
+    public int RideAnimStart;
+    public int RideAnimLoop;
+    public int RideUpperAnimStart;
+    public int RideUpperAnimLoop;
+    public float ExitPreDelay;
+    public float ExitSpeed;
+    public float ExitGravity;
+    public float ExitMinDuration;
+    public float ExitMaxDuration;
+    public float ExitMinArcHeight;
+    public float ExitMaxArcHeight;
+    public int ExitAnimStart;
+    public int ExitAnimLoop;
+    public int ExitAnimEnd;
+    public float PassengerYaw;
+    public float PassengerPitch;
+    public float PassengerRoll;
+    public int PassengerAttachmentID;
+    public int VehicleEnterAnim;
+    public int VehicleExitAnim;
+    public int VehicleRideAnimLoop;
+    public int VehicleEnterAnimBone;
+    public int VehicleExitAnimBone;
+    public int VehicleRideAnimLoopBone;
+    public float VehicleEnterAnimDelay;
+    public float VehicleExitAnimDelay;
+    public int VehicleAbilityDisplay;
+    public int EnterUISoundID;
+    public int ExitUISoundID;
+    public int FlagsB;
+    public float CameraEnteringDelay;
+    public float CameraEnteringDuration;
+    public float CameraExitingDelay;
+    public float CameraExitingDuration;
+    public float[3] CameraOffset;
+    public float CameraPosChaseRate;
+    public float CameraFacingChaseRate;
+    public float CameraEnteringZoom;
+    public float CameraSeatZoomMin;
+    public float CameraSeatZoomMax;
+    public int EnterAnimKitID;
+    public int RideAnimKitID;
+    public int ExitAnimKitID;
+    public int VehicleEnterAnimKitID;
+    public int VehicleRideAnimKitID;
+    public int VehicleExitAnimKitID;
+    public int CameraModeID;
+    public int FlagsC;
+    public int UiSkinFileDataID;
+}
+
+public class VehicleUIIndicator
+{
+    public int ID;
+    public string BackgroundTexture;
+}
+
+public class VehicleUIIndSeat
+{
+    public int ID;
+    public int VehicleUIIndicatorID;
+    public int VirtualSeatIndex;
+    public float XPos;
+    public float YPos;
+}
+
+public class VocalUISounds
+{
+    public int ID;
+    public int VocalUIEnum;
+    public int RaceID;
+    public int[2] NormalSoundID;
+    public int[2] PissedSoundID;
+}
+
+public class WeaponImpactSounds
+{
+    public int ID;
+    public int WeaponSubClassID;
+    public int ParrySoundType;
+    public int[10] ImpactSoundID;
+    public int[10] CritImpactSoundID;
+}
+
+public class WeaponSwingSounds2
+{
+    public int ID;
+    public int SwingType;
+    public int Crit;
+    public int SoundID;
+}
+
+public class World_PVP_Area
+{
+    public int ID;
+    public int AreaID;
+    public int NextTimeWorldstate;
+    public int GameTimeWorldstate;
+    public int BattlePopulateTime;
+    public int MinLevel;
+    public int MaxLevel;
+}
+
+public class WorldChunkSounds
+{
+    public int Index;
+    public int MapID;
+    public int ChunkX;
+    public int ChunkY;
+    public int SubchunkX;
+    public int SubchunkY;
+    public int SoundOverrideID;
+}
+
+public class WorldEffect
+{
+    public int ID;
+    public int TargetType;
+    public int TargetAsset;
+    public int QuestFeedbackEffectID;
+    public int PlayerConditionID;
+    public int CombatConditionID;
+    public int WhenToDisplay;
+}
+
+public class WorldElapsedTimer
+{
+    public int ID;
+    public string NameLang;
+    public int Flags;
+    public int Type;
+}
+
+public class WorldMapArea
+{
+    public int ID;
+    public int MapID;
+    public int AreaID;
+    public string AreaName;
+    public float LocLeft;
+    public float LocRight;
+    public float LocTop;
+    public float LocBottom;
+    public int DisplayMapID;
+    public int DefaultDungeonFloor;
+    public int ParentWorldMapID;
+    public int Flags;
+    public int LevelRangeMin;
+    public int LevelRangeMax;
+}
+
+public class WorldMapContinent
+{
+    public int ID;
+    public int MapID;
+    public int LeftBoundary;
+    public int RightBoundary;
+    public int TopBoundary;
+    public int BottomBoundary;
+    public float[2] ContinentOffset;
+    public float Scale;
+    public float[2] TaxiMin;
+    public float[2] TaxiMax;
+    public int WorldMapID;
+}
+
+public class WorldMapOverlay
+{
+    public int ID;
+    public int MapAreaID;
+    public int[4] AreaID;
+    public string TextureName;
+    public int TextureWidth;
+    public int TextureHeight;
+    public int OffsetX;
+    public int OffsetY;
+    public int HitRectTop;
+    public int HitRectLeft;
+    public int HitRectBottom;
+    public int HitRectRight;
+    public int PlayerConditionID;
+}
+
+public class WorldMapTransforms
+{
+    public int ID;
+    public int MapID;
+    public float[3] RegionMin;
+    public float[3] RegionMax;
+    public int NewMapID;
+    public float[2] RegionOffset;
+    public int NewDungeonMapID;
+    public int Flags;
+    public int NewAreaID;
+    public float RegionScale;
+}
+
+public class WorldSafeLocs
+{
+    public int ID;
+    public int Continent;
+    public float[3] Loc;
+    public float Facing;
+    public string AreaNameLang;
+}
+
+public class WorldStateExpression
+{
+    public int ID;
+    public string Expression;
+}
+
+public class WorldState
+{
+    public int ID;
+}
+
+public class WorldStateUI
+{
+    public int ID;
+    public int MapID;
+    public int AreaID;
+    public int PhaseUseFlags;
+    public int PhaseID;
+    public int PhaseGroupID;
+    public string Icon;
+    public string StringLang;
+    public string TooltipLang;
+    public int StateVariable;
+    public int Type;
+    public string DynamicIcon;
+    public string DynamicTooltipLang;
+    public string ExtendedUI;
+    public int[3] ExtendedUIStateVariable;
+}
+
+public class WorldStateZoneSounds
+{
+    public int Index;
+    public int WorldStateID;
+    public int WorldStateValue;
+    public int AreaID;
+    public int WMOAreaID;
+    public int ZoneIntroMusicID;
+    public int ZoneMusicID;
+    public int SoundAmbienceID;
+    public int SoundProviderPreferencesID;
+}
+
+public class ZoneIntroMusicTable
+{
+    public int ID;
+    public string Name;
+    public int SoundID;
+    public int Priority;
+    public int MinDelayMinutes;
+}
+
+public class ZoneMusic
+{
+    public int ID;
+    public string SetName;
+    public int[2] SilenceIntervalMin;
+    public int[2] SilenceIntervalMax;
+    public int[2] Sounds;
+}
+
+public class AnimationData
+{
+    public int ID;
+    public string Name;
+    public int Flags;
+    public int Fallback;
+    public int BehaviorID;
+    public int BehaviorTier;
+}
+
+public class AreaTable
+{
+    public int ID;
+    public int ContinentID;
+    public int ParentAreaID;
+    public int AreaBit;
+    public int[2] Flags;
+    public int SoundProviderPref;
+    public int SoundProviderPrefUnderwater;
+    public int AmbienceID;
+    public int ZoneMusic;
+    public string ZoneName;
+    public int IntroSound;
+    public int ExplorationLevel;
+    public string AreaNameLang;
+    public int FactionGroupMask;
+    public int[4] LiquidTypeID;
+    public float MinElevation;
+    public float AmbientMultiplier;
+    public int Lightid;
+    public int MountFlags;
+    public int UwIntroSound;
+    public int UwZoneMusic;
+    public int UwAmbience;
+    public int WorldPvpId;
+    public int PvpCombatWorldStateID;
+    public int WildBattlePetLevelMin;
+    public int WildBattlePetLevelMax;
+    public int WindSettingsID;
+}
+
+public class FileData
+{
+    public int ID;
+    public string Filename;
+    public string Filepath;
+}
+
+public class FootprintTextures
+{
+    public int ID;
+    public string FootstepFilename;
+}
+
+public class GroundEffectDoodad
+{
+    public int ID;
+    public string Doodadpath;
+    public int Flags;
+    public float Animscale;
+    public float Pushscale;
+}
+
+public class LightData
+{
+    public int ID;
+    public int LightParamID;
+    public int Time;
+    public int DirectColor;
+    public int AmbientColor;
+    public int SkyTopColor;
+    public int SkyMiddleColor;
+    public int SkyBand1Color;
+    public int SkyBand2Color;
+    public int SkySmogColor;
+    public int SkyFogColor;
+    public int SunColor;
+    public int CloudSunColor;
+    public int CloudEmissiveColor;
+    public int CloudLayer1AmbientColor;
+    public int CloudLayer2AmbientColor;
+    public int OceanCloseColor;
+    public int OceanFarColor;
+    public int RiverCloseColor;
+    public int RiverFarColor;
+    public int ShadowOpacity;
+    public float FogEnd;
+    public float FogScaler;
+    public float CloudDensity;
+    public float FogDensity;
+}
+
+public class LightParams
+{
+    public int ID;
+    public int HighlightSky;
+    public int LightSkyboxID;
+    public int CloudTypeID;
+    public float Glow;
+    public float WaterShallowAlpha;
+    public float WaterDeepAlpha;
+    public float OceanShallowAlpha;
+    public float OceanDeepAlpha;
+    public int Flags;
+}
+
+public class Light
+{
+    public int ID;
+    public int ContinentID;
+    public float X;
+    public float Y;
+    public float Z;
+    public float FalloffStart;
+    public float FalloffEnd;
+    public int[8] LightParamsID;
+}
+
+public class LightSkybox
+{
+    public int ID;
+    public string Name;
+    public int Flags;
+}
+
+public class LiquidMaterial
+{
+    public int ID;
+    public int LVF;
+    public int Flags;
+}
+
+public class LiquidObject
+{
+    public int ID;
+    public float FlowDirection;
+    public float FlowSpeed;
+    public int LiquidTypeID;
+    public int Fishable;
+    public int Reflection;
+}
+
+public class LiquidType
+{
+    public int ID;
+    public string Name;
+    public int Flags;
+    public int SoundBank;
+    public int SoundID;
+    public int SpellID;
+    public float MaxDarkenDepth;
+    public float FogDarkenIntensity;
+    public float AmbDarkenIntensity;
+    public float DirDarkenIntensity;
+    public int LightID;
+    public float ParticleScale;
+    public int ParticleMovement;
+    public int ParticleTexSlots;
+    public int MaterialID;
+    public string Texture;
+    public int[2] Color;
+    public float[18] Float;
+    public int[4] Int;
+}
+
+public class Map
+{
+    public int ID;
+    public string Directory;
+    public int InstanceType;
+    public int Flags;
+    public int MapType;
+    public string MapNameLang;
+    public int AreaTableID;
+    public string MapDescription0Lang;
+    public string MapDescription1Lang;
+    public int LoadingScreenID;
+    public float MinimapIconScale;
+    public int CorpseMapID;
+    public float[2] Corpse;
+    public int TimeOfDayOverride;
+    public int ExpansionID;
+    public int RaidOffset;
+    public int MaxPlayers;
+    public int ParentMapID;
+    public int CosmeticParentMapID;
+    public int TimeOffset;
+}
+
+public class SoundBusName
+{
+    public int EnumID;
+    public string Name;
+}
+
+public class SoundBus
+{
+    public int ID;
+    public int Parent;
+    public int DefaultPriority;
+    public int DefaultPriorityPenalty;
+    public int RaidPriority;
+    public int RaidPriorityPenalty;
+    public float DefaultVolume;
+    public float RaidVolume;
+    public int DefaultPlaybackLimit;
+    public int RaidPlaybackLimit;
+    public int BusEnumID;
+}
+
+public class SoundEmitterPillPoints
+{
+    public int ID;
+    public int SoundEmittersID;
+    public float[3] Position;
+}
+
+public class SoundEmitters
+{
+    public int ID;
+    public float[3] Position;
+    public float[3] Direction;
+    public int SoundEntriesID;
+    public int MapID;
+    public string Name;
+    public int EmitterType;
+    public int PhaseID;
+    public int PhaseGroupID;
+    public int PhaseUseFlags;
+    public int Flags;
+    public int WorldStateExpressionID;
+}
+
+public class SoundEntriesAdvanced
+{
+    public int ID;
+    public int SoundEntryID;
+    public float InnerRadius2D;
+    public int TimeA;
+    public int TimeB;
+    public int TimeC;
+    public int TimeD;
+    public int RandomOffsetRange;
+    public int Usage;
+    public int TimeIntervalMin;
+    public int TimeIntervalMax;
+    public int VolumeSliderCategory;
+    public float DuckToSFX;
+    public float DuckToMusic;
+    public float DuckToAmbience;
+    public float InnerRadiusOfInfluence;
+    public float OuterRadiusOfInfluence;
+    public int TimeToDuck;
+    public int TimeToUnduck;
+    public float InsideAngle;
+    public float OutsideAngle;
+    public float OutsideVolume;
+    public float OuterRadius2D;
+    public int MinRandomPosOffset;
+    public int MaxRandomPosOffset;
+    public float DuckToDialog;
+    public float DuckToSuppressors;
+    public int MsOffset;
+    public float[20] Volume;
+}
+
+public class SoundEntriesFallbacks
+{
+    public int ID;
+    public int SoundEntriesID;
+    public int FallbackSoundEntriesID;
+}
+
+public class SoundEntries
+{
+    public int ID;
+    public int SoundType;
+    public string Name;
+    public int[20] FileDataID;
+    public int[20] Freq;
+    public float VolumeFloat;
+    public int Flags;
+    public float MinDistance;
+    public float DistanceCutoff;
+    public int EAXDef;
+    public int SoundEntriesAdvancedID;
+    public float Volumevariationplus;
+    public float Volumevariationminus;
+    public float Pitchvariationplus;
+    public float Pitchvariationminus;
+    public float PitchAdjust;
+    public int Dialogtype;
+    public int BusOverwriteID;
+}
+
+public class SpellChainEffects
+{
+    public int ID;
+    public float AvgSegLen;
+    public float Width;
+    public float NoiseScale;
+    public float TexCoordScale;
+    public int SegDuration;
+    public int SegDelay;
+    public int Flags;
+    public int JointCount;
+    public float JointOffsetRadius;
+    public int JointsPerMinorJoint;
+    public int MinorJointsPerMajorJoint;
+    public float MinorJointScale;
+    public float MajorJointScale;
+    public float JointMoveSpeed;
+    public float JointSmoothness;
+    public float MinDurationBetweenJointJumps;
+    public float MaxDurationBetweenJointJumps;
+    public float WaveHeight;
+    public float WaveFreq;
+    public float WaveSpeed;
+    public float MinWaveAngle;
+    public float MaxWaveAngle;
+    public float MinWaveSpin;
+    public float MaxWaveSpin;
+    public float ArcHeight;
+    public float MinArcAngle;
+    public float MaxArcAngle;
+    public float MinArcSpin;
+    public float MaxArcSpin;
+    public float DelayBetweenEffects;
+    public float MinFlickerOnDuration;
+    public float MaxFlickerOnDuration;
+    public float MinFlickerOffDuration;
+    public float MaxFlickerOffDuration;
+    public float PulseSpeed;
+    public float PulseOnLength;
+    public float PulseFadeLength;
+    public byte Alpha;
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+    public byte BlendMode;
+    public int RenderLayer;
+    public float TextureLength;
+    public float WavePhase;
+    public int[11] SpellChainEffectID;
+    public string Texture;
+}
+
+public class Startup_Strings
+{
+    public int ID;
+    public string Name;
+    public string MessageLang;
+}
+
+public class TerrainMaterial
+{
+    public int ID;
+    public string Name;
+    public int Shader;
+    public string EnvMapPath;
+}
+
+public class TerrainType
+{
+    public int Index;
+    public int TerrainID;
+    public string TerrainDesc;
+    public int FootstepSprayRun;
+    public int FootstepSprayWalk;
+    public int SoundID;
+    public int Flags;
+}
+
+public class VideoHardware
+{
+    public int ID;
+    public int VendorID;
+    public int DeviceID;
+    public int FarclipIdx;
+    public int TerrainLODDistIdx;
+    public int TerrainShadowLOD;
+    public int DetailDoodadDensityIdx;
+    public int DetailDoodadAlpha;
+    public int AnimatingDoodadIdx;
+    public int Trilinear;
+    public int NumLights;
+    public int Specularity;
+    public int WaterLODIdx;
+    public int ParticleDensityIdx;
+    public int UnitDrawDistIdx;
+    public int SmallCullDistIdx;
+    public int ResolutionIdx;
+    public int BaseMipLevel;
+    public string OglOverrides;
+    public string D3dOverrides;
+    public int FixLag;
+    public int Multisample;
+    public int Atlasdisable;
+}
+
+public class Weather
+{
+    public int ID;
+    public int AmbienceID;
+    public int Type;
+    public int EffectType;
+    public float[2] Intensity;
+    public float TransitionSkyBox;
+    public float[3] EffectColor;
+    public string EffectTexture;
+    public int SoundAmbienceID;
+    public int WindSettingsID;
+}
+
+public class WMOAreaTable
+{
+    public int ID;
+    public int WMOID;
+    public int NameSetID;
+    public int WMOGroupID;
+    public int SoundProviderPref;
+    public int SoundProviderPrefUnderwater;
+    public int AmbienceID;
+    public int ZoneMusic;
+    public int IntroSound;
+    public int Flags;
+    public int AreaTableID;
+    public string AreaNameLang;
+    public int UwIntroSound;
+    public int UwZoneMusic;
+    public int UwAmbience;
+}
+
+public class ZoneLightPoint
+{
+    public int ID;
+    public int ZoneLightID;
+    public float[2] Pos;
+    public int PointOrder;
+}
+
+public class ZoneLight
+{
+    public int ID;
+    public string Name;
+    public int MapID;
+    public int LightID;
+}
