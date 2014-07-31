@@ -40,21 +40,21 @@
 
 struct AchievementEntry
 {
-    uint32  ID;                                             // 0        m_ID
-    int32   requiredFaction;                                // 1        m_faction               -1=all, 0=horde, 1=alliance
-    int32   mapID;                                          // 2        m_instanceID            -1=none
-    //uint32    parentAchievement;                          // 3        m_supercedes            Its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char*   name;                                           // 4        m_title_lang
-    //char*     description;                                // 5        m_description_lang
-    uint32  categoryId;                                     // 6        m_category
-    uint32  points;                                         // 7        m_points                Reward points
-    //uint32    OrderInCategory;                            // 8        m_ui_order
-    uint32  flags;                                          // 9        m_flags
-    //uint32    icon;                                       // 10       m_iconID
-    //char*     reward;                                     // 11       m_reward_lang
-    uint32  count;                                          // 12       m_minimum_criteria      Need this count of completed criterias (own or referenced achievement criterias)
-    uint32  refAchievement;                                 // 13       m_shares_criteria       Referenced achievement (counting of all completed criterias)
-    //uint32    m_criteria_tree;                            // 14       m_criteria_tree
+    uint32  m_ID;                                           // 0        m_ID
+    int32   m_Faction;                                      // 1        m_Faction               -1=all, 0=horde, 1=alliance
+    int32   m_InstanceID;                                   // 2        m_InstanceID            -1=none
+    //uint32    m_Supercedes;                               // 3        m_Supercedes            Its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    char*   m_TitleLang;                                    // 4        m_Titlelang
+    //char*     m_DescriptionLang;                          // 5        m_DescriptionLang
+    uint32  m_Category;                                     // 6        m_Category              unused
+    uint32  m_Points;                                       // 7        m_Points                Reward points
+    //uint32    m_UiOrder;                                  // 8        m_UiOrder
+    uint32  m_Flags;                                        // 9        m_Flags
+    //uint32    m_IconID;                                   // 10       m_IconID
+    //char*     m_RewardLang;                               // 11       m_RewardLang
+    uint32  m_MinimumCriteria;                              // 12       m_MinimumCriteria      Need this count of completed criterias (own or referenced achievement criterias)
+    uint32  m_SharesCriteria;                               // 13       m_SharesCriteria       Referenced achievement (counting of all completed criterias)
+    //uint32    m_CriteriaTree;                             // 14       m_CriteriaTree
 };
 
 struct AchievementCategoryEntry

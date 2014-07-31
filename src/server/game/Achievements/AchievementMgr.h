@@ -310,13 +310,13 @@ class AchievementGlobalMgr
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
         {
-            AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->ID);
+            AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->m_ID);
             return iter != m_achievementRewards.end() ? &iter->second : NULL;
         }
 
         AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const
         {
-            AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->ID);
+            AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->m_ID);
             return iter != m_achievementRewardLocales.end() ? &iter->second : NULL;
         }
 
@@ -328,12 +328,12 @@ class AchievementGlobalMgr
 
         bool IsRealmCompleted(AchievementEntry const* achievement) const
         {
-            return m_allCompletedAchievements.find(achievement->ID) != m_allCompletedAchievements.end();
+            return m_allCompletedAchievements.find(achievement->m_ID) != m_allCompletedAchievements.end();
         }
 
         void SetRealmCompleted(AchievementEntry const* achievement)
         {
-            m_allCompletedAchievements.insert(achievement->ID);
+            m_allCompletedAchievements.insert(achievement->m_ID);
         }
 
         bool IsGroupCriteriaType(AchievementCriteriaTypes type) const
