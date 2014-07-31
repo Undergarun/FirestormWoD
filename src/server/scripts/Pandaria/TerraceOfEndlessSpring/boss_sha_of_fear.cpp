@@ -1056,7 +1056,7 @@ class mob_return_to_the_terrace : public CreatureScript
 
             void Reset()
             {
-                inDreadExpanse = me->GetPositionY() < 0.0f;
+                inDreadExpanse = (me->GetPositionZ() < 0.0f);
                 events.Reset();
                 if (Creature* Sha = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHA_OF_FEAR)))
                 {
