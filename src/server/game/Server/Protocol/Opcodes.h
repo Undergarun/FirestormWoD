@@ -105,6 +105,9 @@ enum Opcodes
         SMSG_ATTACK_START                           = 0x117A,   ///< 6.0.1 18612
         SMSG_ATTACK_STOP                            = 0x058B,   ///< 6.0.1 18612
         SMSG_AI_REACTION                            = 0x1D53,   ///< 6.0.1 18612
+
+        /// Vendor
+        SMSG_LIST_INVENTORY                         = 0x02F9,   ///< 6.0.1 18612
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -448,6 +451,14 @@ enum Opcodes
     CMSG_TOGGLE_PVP                             = 0x0807,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
+    /// Vendors
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_LIST_INVENTORY                         = 0x02DE,   ///< 6.0.1 18612
+    CMSG_REPAIR_ITEM                            = 0x0E39,   ///< 6.0.1 18612
+    CMSG_BUYBACK_ITEM                           = 0x10DD,   ///< 6.0.1 18612
+    CMSG_BUY_ITEM                               = 0x18DD,   ///< 6.0.1 18612
+
+    //////////////////////////////////////////////////////////////////////////
     /// Quest
     //////////////////////////////////////////////////////////////////////////
     CMSG_QUESTGIVER_HELLO                       = 0x1AE9,   ///< 6.0.1 18612
@@ -629,9 +640,7 @@ enum Opcodes
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x0000,
     CMSG_BLACK_MARKET_PLACE_BID                       = 0x0000,
     CMSG_BOT_DETECTED2                                = 0x0000,
-    CMSG_BUYBACK_ITEM                                 = 0x0000,
     CMSG_BUY_BANK_SLOT                                = 0x0000,
-    CMSG_BUY_ITEM                                     = 0x0000,
     CMSG_CALENDAR_ADD_EVENT                           = 0x0000,
     CMSG_CALENDAR_ARENA_TEAM                          = 0x0000,
     CMSG_CALENDAR_COMPLAIN                            = 0x0000,
@@ -835,7 +844,6 @@ enum Opcodes
     CMSG_LF_GUILD_POST_REQUEST                        = 0x0000,
     CMSG_LF_GUILD_REMOVE_RECRUIT                      = 0x0000,
     CMSG_LF_GUILD_SET_GUILD_POST                      = 0x0000,
-    CMSG_LIST_INVENTORY                               = 0x0000,
     CMSG_LIST_STABLE_PETS                             = 0x0000,
     CMSG_LOOT                                         = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
@@ -917,7 +925,6 @@ enum Opcodes
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x0000,
     CMSG_REFORGE_ITEM                                 = 0x0000,
     CMSG_REORDER_CHARACTERS                           = 0x0000,
-    CMSG_REPAIR_ITEM                                  = 0x0000,
     CMSG_REPOP_REQUEST                                = 0x0000,
     CMSG_REPORT_BUG                                   = 0x0000,
     CMSG_REPORT_PVP_AFK                               = 0x0000,
@@ -1417,7 +1424,6 @@ enum Opcodes
     SMSG_LFG_UPDATE_SEARCH                            = 0x0000,
     SMSG_LFG_UPDATE_STATUS                            = 0x0000,
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
-    SMSG_LIST_INVENTORY                               = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
     SMSG_LOAD_CUF_PROFILES                            = 0x0000,
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x0000,

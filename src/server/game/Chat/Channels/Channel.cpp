@@ -843,7 +843,7 @@ void Channel::MakeLeft(WorldPacket* data, uint64 guid)
 // done 0x02
 void Channel::MakeYouJoined(WorldPacket* p_Data)
 {
-    std::string l_UnkString = "Channel::MakeYouJoined Unk string";
+    std::string l_UnkString = "";
 
     p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 1 + m_name.size() + 4);
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name

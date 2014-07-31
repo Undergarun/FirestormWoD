@@ -688,18 +688,11 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
 void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUYBACK_ITEM");
-    ObjectGuid vendorguid;
+    uint64 vendorguid;
     uint32 slot;
 
+    recvData.readPackGUID(vendorguid);
     recvData >> slot;
-
-    uint8 bitsOrder[8] = { 6, 0, 5, 4, 7, 2, 1, 3 };
-    recvData.ReadBitInOrder(vendorguid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 0, 4, 3, 5, 6, 1, 7, 2 };
-    recvData.ReadBytesSeq(vendorguid, bytesOrder);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -777,79 +770,77 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
-void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
-    ObjectGuid vendorguid, bagGuid;
-    uint32 item, slot, count, bag;
-    uint8 itemType; // 1 = item, 2 = currency
 
-    recvData >> bag >> count >> item >> slot;
+    uint64 l_VendorGUID = 0;
+    uint64 l_BagGUID    = 0;
 
-    vendorguid[4] = recvData.ReadBit();
-    vendorguid[2] = recvData.ReadBit();
-    vendorguid[7] = recvData.ReadBit();
-    vendorguid[1] = recvData.ReadBit();
-    vendorguid[6] = recvData.ReadBit();
-    bagGuid[2] = recvData.ReadBit();
-    bagGuid[5] = recvData.ReadBit();
-    bagGuid[6] = recvData.ReadBit();
-    bagGuid[7] = recvData.ReadBit();
-    vendorguid[5] = recvData.ReadBit();
-    bagGuid[0] = recvData.ReadBit();
-    bagGuid[3] = recvData.ReadBit();
-    bagGuid[1] = recvData.ReadBit();
-    vendorguid[3] = recvData.ReadBit();
-    itemType = recvData.ReadBits(2);
-    bagGuid[4] = recvData.ReadBit();
-    vendorguid[0] = recvData.ReadBit();
+    uint32 l_Muid       = 0;
+    uint32 l_Slot       = 0;
+    uint32 l_Quantity   = 0;
 
-    recvData.FlushBits();
+    uint8 l_ItemType = ITEM_VENDOR_TYPE_NONE;
 
-    recvData.ReadByteSeq(vendorguid[1]);
-    recvData.ReadByteSeq(bagGuid[1]);
-    recvData.ReadByteSeq(bagGuid[0]);
-    recvData.ReadByteSeq(bagGuid[2]);
-    recvData.ReadByteSeq(bagGuid[3]);
-    recvData.ReadByteSeq(bagGuid[7]);
-    recvData.ReadByteSeq(vendorguid[4]);
-    recvData.ReadByteSeq(bagGuid[5]);
-    recvData.ReadByteSeq(vendorguid[2]);
-    recvData.ReadByteSeq(vendorguid[3]);
-    recvData.ReadByteSeq(bagGuid[4]);
-    recvData.ReadByteSeq(vendorguid[0]);
-    recvData.ReadByteSeq(vendorguid[7]);
-    recvData.ReadByteSeq(vendorguid[6]);
-    recvData.ReadByteSeq(vendorguid[5]);
-    recvData.ReadByteSeq(bagGuid[6]);
+    p_RecvPacket.readPackGUID(l_VendorGUID);
+    p_RecvPacket.readPackGUID(l_BagGUID);
 
-    // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
+    p_RecvPacket.read_skip<uint32>();           ///< Item ID
+    p_RecvPacket.read_skip<uint32>();           ///< RandomPropertiesSeed
+    p_RecvPacket.read_skip<uint32>();           ///< RandomPropertiesID
+
+    bool l_HasItemBonus     = p_RecvPacket.ReadBit();
+    bool l_HasModifications = p_RecvPacket.ReadBit();
+
+    if (l_HasItemBonus)
+    {
+        p_RecvPacket.read_skip<uint8>();        ///< Context
+
+        uint32 l_Count = p_RecvPacket.read<uint32>();
+
+        for (uint32 l_I = 0; l_I < l_Count;  l_I++)
+            p_RecvPacket.read_skip<uint32>();   ///< Bonus ID
+    }
+
+    if (l_HasModifications)
+        p_RecvPacket.read_skip<uint32>();       ///< Modifications
+
+    p_RecvPacket >> l_Quantity;
+    p_RecvPacket >> l_Muid;
+    p_RecvPacket >> l_Slot;
+
+    l_ItemType = p_RecvPacket.ReadBits(2);
+
+    /// Client expects count starting at 1, and we send vendorslot+1 to client already
+    if (l_Slot > 0)
+        --l_Slot;
     else
         return; // cheating
 
-    sLog->OutPandashan("HandleBuyItemOpcode[%u] %u %u %u %u", m_Player->GetGUIDLow(), bag, count, item, slot);
+    sLog->OutPandashan("HandleBuyItemOpcode[%u] %u %u %u", m_Player->GetGUIDLow(), l_Quantity, l_Muid, l_Slot);
 
-    if (itemType == ITEM_VENDOR_TYPE_ITEM)
-        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, NULL_BAG, NULL_SLOT);
-    else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
-        GetPlayer()->BuyCurrencyFromVendorSlot(vendorguid, slot, item, count);
-    else
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
+    switch (l_ItemType)
+    {
+        case ITEM_VENDOR_TYPE_ITEM:
+            m_Player->BuyItemFromVendorSlot(l_VendorGUID, l_Slot, l_Muid, l_Quantity, NULL_BAG, NULL_SLOT);
+            break;
+
+        case ITEM_VENDOR_TYPE_CURRENCY:
+            m_Player->BuyCurrencyFromVendorSlot(l_VendorGUID, l_Slot, l_Muid, l_Quantity);
+            break;
+
+        default:
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", l_ItemType);
+            break;
+    }
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
+    uint64 guid;
 
-    uint8 bitsOrder[8] = { 3, 4, 0, 1, 6, 2, 5, 7 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 6, 5, 1, 7, 0, 4, 3 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
+    recvData.readPackGUID(guid);
 
     if (!GetPlayer()->isAlive())
         return;
@@ -859,79 +850,79 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
     SendListInventory(guid);
 }
 
-void WorldSession::SendListInventory(uint64 vendorGuid)
+void WorldSession::SendListInventory(uint64 p_VendorGUID)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
 
-    Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
-    if (!vendor)
+    Creature* l_Vendor = GetPlayer()->GetNPCIfCanInteractWith(p_VendorGUID, UNIT_NPC_FLAG_VENDOR);
+
+    if (!l_Vendor)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorGuid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(p_VendorGUID)));
         m_Player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, 0);
         return;
     }
 
-    // remove fake death
+    /// remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    // Stop the npc if moving
-    if (vendor->HasUnitState(UNIT_STATE_MOVING))
-        vendor->StopMoving();
+    /// Stop the npc if moving
+    if (l_Vendor->HasUnitState(UNIT_STATE_MOVING))
+        l_Vendor->StopMoving();
 
-    VendorItemData const* vendorItems = vendor->GetVendorItems();
+    VendorItemData const* vendorItems = l_Vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    ByteBuffer itemsData;
-    std::vector<bool> enablers;
-    enablers.reserve(3 * rawItemCount);
+    ByteBuffer l_ItemDataBuffer;
 
-    const float discountMod = m_Player->GetReputationPriceDiscount(vendor);
-    uint32 count = 0;
-    uint32 realCount = 0;
+    const float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Vendor);
+    uint32 l_Muid = 0;
+    uint32 l_ItemCount = 0;
+
     for (uint32 slot = 0; slot < rawItemCount; ++slot)
     {
-        count++;
+        l_Muid++;
 
-        VendorItem const* vendorItem = vendorItems->GetItem(slot);
-        if (!vendorItem)
+        VendorItem const* l_VendorItem = vendorItems->GetItem(slot);
+        if (!l_VendorItem)
             continue;
 
-        if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
+        if (l_VendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
-            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
-            if (!itemTemplate) 
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_VendorItem->item);
+            if (!l_ItemTemplate) 
                 continue;
 
-            uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+            uint32 l_AvailableInStock = !l_VendorItem->maxcount ? 0xFFFFFFFF : l_Vendor->GetVendorItemCurrentCount(l_VendorItem);
             if (!m_Player->isGameMaster()) // ignore conditions if GM on
             {
-                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), vendorItem->item);
-                if (!sConditionMgr->IsObjectMeetToConditions(m_Player, vendor, conditions))
+                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(l_Vendor->GetEntry(), l_VendorItem->item);
+                if (!sConditionMgr->IsObjectMeetToConditions(m_Player, l_Vendor, conditions))
                 {
-                    sLog->outDebug(LOG_FILTER_CONDITIONSYS, "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), vendorItem->item);
+                    sLog->outDebug(LOG_FILTER_CONDITIONSYS, "SendListInventory: conditions not met for creature entry %u item %u", l_Vendor->GetEntry(), l_VendorItem->item);
                     continue;
                 }
 
                 // Respect allowed class
-                if (!(itemTemplate->AllowableClass & m_Player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                if (!(l_ItemTemplate->AllowableClass & m_Player->getClassMask()) && l_ItemTemplate->Bonding == BIND_WHEN_PICKED_UP)
                     continue;
 
                 // Custom MoP Script for Pandarens Mounts (Alliance)
-                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && m_Player->getRace() != RACE_PANDAREN_ALLI
+                if (l_ItemTemplate->Class == 15 && l_ItemTemplate->SubClass == 5 && m_Player->getRace() != RACE_PANDAREN_ALLI
                     && m_Player->getRace() != RACE_PANDAREN_HORDE && m_Player->getRace() != RACE_PANDAREN_NEUTRAL
-                    && vendor->GetEntry() == 65068 && m_Player->GetReputationRank(1353) != REP_EXALTED)
+                    && l_Vendor->GetEntry() == 65068 && m_Player->GetReputationRank(1353) != REP_EXALTED)
                     continue;
 
                 // Custom MoP Script for Pandarens Mounts (Horde)
-                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && m_Player->getRace() != RACE_PANDAREN_ALLI
+                if (l_ItemTemplate->Class == 15 && l_ItemTemplate->SubClass == 5 && m_Player->getRace() != RACE_PANDAREN_ALLI
                     && m_Player->getRace() != RACE_PANDAREN_HORDE && m_Player->getRace() != RACE_PANDAREN_NEUTRAL
-                    && vendor->GetEntry() == 66022 && m_Player->GetReputationRank(1352) != REP_EXALTED)
+                    && l_Vendor->GetEntry() == 66022 && m_Player->GetReputationRank(1352) != REP_EXALTED)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
-                if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && m_Player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
+                if ((l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && m_Player->GetTeam() == ALLIANCE) ||
+                    (l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
                     continue;
 
                 std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
@@ -939,7 +930,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
                 for (auto reward: rewards)
                 {
-                    if (itemTemplate->ItemId != reward.Entry)
+                    if (l_ItemTemplate->ItemId != reward.Entry)
                         continue;
 
                     Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId());
@@ -979,112 +970,90 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                     continue;
 
                 // Items sold out are not displayed in list
-                if (leftInStock == 0)
+                if (l_AvailableInStock == 0)
                     continue;
             }
 
             // reputation discount
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+            int32 l_Price = l_VendorItem->IsGoldRequired(l_ItemTemplate) ? uint32(floor(l_ItemTemplate->BuyPrice * l_DiscountMod)) : 0;
 
-            if (int32 priceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
-                 price -= CalculatePct(price, priceMod);
+            if (int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
+                 l_Price -= CalculatePct(l_Price, l_PriceMod);
 
-            itemsData << int32(leftInStock);
-            itemsData << uint32(vendorItem->Type);              // 1 is items, 2 is currency
-            itemsData << uint32(itemTemplate->MaxDurability);
-            itemsData << uint32(465);                           // Unk UInt32
-            itemsData << uint32(price);
-            itemsData << uint32(itemTemplate->DisplayInfoID);
-            itemsData << uint32(vendorItem->item);
-            itemsData << uint32(count);                         // client expects counting to start at 1
+            l_ItemDataBuffer << uint32(l_Muid);
+            l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type
 
-            enablers.push_back(0);                              // unk bit
+            l_ItemDataBuffer << uint32(l_VendorItem->item);                 ///< Item Entry
+            l_ItemDataBuffer << uint32(l_ItemTemplate->RandomProperty);     ///< Random Properties Seed
+            l_ItemDataBuffer << uint32(l_ItemTemplate->RandomSuffix);       ///< Random Properties ID
 
-            if (vendorItem->ExtendedCost != 0)
-            {
-                enablers.push_back(0);
-                itemsData << uint32(vendorItem->ExtendedCost);
-            }
-            else
-                enablers.push_back(1);
+            l_ItemDataBuffer.WriteBit(false);                               ///< Has Item Bonus
+            l_ItemDataBuffer.WriteBit(false);                               ///< Has Modifications
+            l_ItemDataBuffer.FlushBits();
 
-            enablers.push_back(1);                              // hasCondition, unk ?
+            l_ItemDataBuffer << int32(l_AvailableInStock);                  ///< Available In Stock
+            l_ItemDataBuffer << uint32(l_Price);                            ///< Price
+            l_ItemDataBuffer << uint32(l_ItemTemplate->MaxDurability);      ///< Max durability
+            l_ItemDataBuffer << uint32(l_ItemTemplate->BuyCount);           ///< Stack count
+            l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
+            l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            itemsData << uint32(itemTemplate->BuyCount);
+            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.FlushBits();
 
-            realCount++;
+            l_ItemCount++;
         }
-        else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
+        else if (l_VendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
-            CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
+            CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(l_VendorItem->item);
 
             if (!currencyTemplate)
                 continue;
 
-            if (vendorItem->ExtendedCost == 0)
+            if (l_VendorItem->ExtendedCost == 0)
                 continue; // there's no price defined for currencies, only extendedcost is used
 
-            uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+            uint32 l_Precision  = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+            uint32 l_Price      = l_VendorItem->maxcount * l_Precision;
 
-            itemsData << int32(-1);                                 // leftInStock
-            itemsData << uint32(vendorItem->Type);                  // 1 is items, 2 is currency
-            itemsData << uint32(0);                                 // max durability
-            itemsData << uint32(0);                                 // unk UInt32
-            itemsData << uint32(0);                                 // price, only seen currency types that have Extended cost
-            itemsData << uint32(0);                                 // displayId
-            itemsData << uint32(vendorItem->item);
-            itemsData << uint32(count);                             // client expects counting to start at 1
+            l_ItemDataBuffer << uint32(l_Muid);
+            l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_CURRENCY);          ///< Item type
 
-            enablers.push_back(0);                                  // unk bit
+            l_ItemDataBuffer << uint32(l_VendorItem->item);                 ///< Item Entry
+            l_ItemDataBuffer << uint32(0);                                  ///< Random Properties Seed
+            l_ItemDataBuffer << uint32(0);                                  ///< Random Properties ID
 
-            if (vendorItem->ExtendedCost != 0)
-            {
-                enablers.push_back(0);
-                itemsData << uint32(vendorItem->ExtendedCost);
-            }
-            else
-                enablers.push_back(1);
+            l_ItemDataBuffer.WriteBit(false);                               ///< Has Item Bonus
+            l_ItemDataBuffer.WriteBit(false);                               ///< Has Modifications
+            l_ItemDataBuffer.FlushBits();
 
-            enablers.push_back(1);                                  // hasCondition, unk bit
+            l_ItemDataBuffer << int32(-1);                                  ///< Available In Stock
+            l_ItemDataBuffer << uint32(l_Price);                            ///< Price
+            l_ItemDataBuffer << uint32(0);                                  ///< Max durability
+            l_ItemDataBuffer << uint32(0);                                  ///< Stack count
+            l_ItemDataBuffer << uint32(0);                                  ///< Extended cost ID
+            l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            itemsData << uint32(vendorItem->maxcount * precision);
+            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.FlushBits();
 
-            realCount++;
+            l_ItemCount++;
         }
         // else error
     }
 
-    ObjectGuid guid = vendorGuid;
+    WorldPacket l_Response(SMSG_LIST_INVENTORY);
+    l_Response.appendPackGUID(p_VendorGUID);
 
-    WorldPacket data(SMSG_LIST_INVENTORY);
+    if (l_ItemCount)
+        l_Response << uint8(l_ItemCount);                   ///< Reason
+    else
+        l_Response << uint8(l_Vendor->isArmorer());         ///< Reason
 
-    data.WriteBit(guid[5]);
-    data.WriteBits(realCount, 18); // item count
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
+    l_Response << uint32(l_ItemCount);
+    l_Response.append(l_ItemDataBuffer);
 
-    for (std::vector<bool>::const_iterator itr = enablers.begin(); itr != enablers.end(); ++itr)
-        data.WriteBit(*itr);
-
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[4]);
-
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-    data.FlushBits();
-    data.append(itemsData);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data << uint8(realCount == 0); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-
-    SendPacket(&data);
+    SendPacket(&l_Response);
 }
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
