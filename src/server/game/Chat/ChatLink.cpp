@@ -370,7 +370,7 @@ bool AchievementChatLink::ValidateName(char* buffer, const char* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    if (*_achievement->name && strcmp(_achievement->name, buffer) == 0)
+    if (*_achievement->m_TitleLang && strcmp(_achievement->m_TitleLang, buffer) == 0)
         return true;
 
     sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): linked achievement (id: %u) name wasn't found in any localization", context, _achievement->m_ID);

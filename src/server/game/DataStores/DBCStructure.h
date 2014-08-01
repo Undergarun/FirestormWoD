@@ -44,7 +44,7 @@ struct AchievementEntry
     int32   m_Faction;                                      // 1        m_Faction               -1=all, 0=horde, 1=alliance
     int32   m_InstanceID;                                   // 2        m_InstanceID            -1=none
     //uint32    m_Supercedes;                               // 3        m_Supercedes            Its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char*   m_TitleLang;                                    // 4        m_Titlelang
+    char*   m_TitleLang;                                    // 4        m_TitleLang
     //char*     m_DescriptionLang;                          // 5        m_DescriptionLang
     uint32  m_Category;                                     // 6        m_Category              unused
     uint32  m_Points;                                       // 7        m_Points                Reward points

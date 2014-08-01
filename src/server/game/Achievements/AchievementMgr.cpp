@@ -1968,7 +1968,7 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* entry)
 
     // For achievement with referenced achievement criterias get from referenced and counter from self
     uint32 achievementForTestId = entry->m_SharesCriteria ? entry->m_SharesCriteria : entry->m_ID;
-    uint32 achievementForTestCount = entry->count;
+    uint32 achievementForTestCount = entry->m_MinimumCriteria;
 
     AchievementCriteriaEntryList const* cList = sAchievementMgr->GetAchievementCriteriaByAchievement(achievementForTestId);
     if (!cList)
