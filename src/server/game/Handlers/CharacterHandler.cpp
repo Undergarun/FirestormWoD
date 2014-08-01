@@ -1421,32 +1421,50 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
+enum TUTORIAL_ACTIONS
 {
-    uint32 data;
-    recvData >> data;
+    TUTORIAL_ACTION_FLAG    = 0,
+    TUTORIAL_ACTION_CLEAR   = 1,
+    TUTORIAL_ACTION_RESET   = 2,
+};
 
-    uint8 index = uint8(data / 32);
-    if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
-        return;
-
-    uint32 value = (data % 32);
-
-    uint32 flag = GetTutorialInt(index);
-    flag |= (1 << value);
-    SetTutorialInt(index, flag);
-}
-
-void WorldSession::HandleTutorialClear(WorldPacket& /*recvData*/)
+void WorldSession::HandleTutorial(WorldPacket& p_RecvPacket)
 {
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        SetTutorialInt(i, 0xFFFFFFFF);
-}
+    uint32 l_Action;
 
-void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
-{
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        SetTutorialInt(i, 0x00000000);
+    l_Action = p_RecvPacket.ReadBits(2);
+
+    switch (l_Action)
+    {
+        case TUTORIAL_ACTION_FLAG:
+            {
+                uint32 l_TutorialBit;
+                p_RecvPacket >> l_TutorialBit;
+
+                uint8 l_Index = uint8(l_TutorialBit / 32);
+
+                if (l_Index >= MAX_ACCOUNT_TUTORIAL_VALUES)
+                    return;
+
+                uint32 l_Value = (l_TutorialBit % 32);
+
+                uint32 l_Flag = GetTutorialInt(l_Index);
+                l_Flag |= (1 << l_Value);
+
+                SetTutorialInt(l_Index, l_Flag);
+            }
+            break;
+
+        case TUTORIAL_ACTION_CLEAR:
+            for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
+                SetTutorialInt(l_I, 0xFFFFFFFF);
+            break;
+
+        case TUTORIAL_ACTION_RESET:
+            for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
+                SetTutorialInt(l_I, 0x00000000);
+            break;
+    }
 }
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)

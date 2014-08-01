@@ -526,161 +526,143 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
 }
 
-void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SELL_ITEM");
 
-    time_t now = time(NULL);
-    if (now - timeLastSellItemOpcode < 1)
+    time_t l_Now = time(NULL);
+
+    if (l_Now - l_TimeLastSellItemOpcode < 1)
         return;
     else
-       timeLastSellItemOpcode = now;
+       l_TimeLastSellItemOpcode = l_Now;
 
-    ObjectGuid vendorguid;
-    ObjectGuid itemguid;
-    uint32 count = 0;
+    uint64 l_VendorGUID = 0;
+    uint64 l_ItemGUID   = 0;
 
-    recvData >> count;
+    uint32 l_Amount = 0;
 
-    itemguid[7] = recvData.ReadBit();
-    itemguid[5] = recvData.ReadBit();
-    itemguid[1] = recvData.ReadBit();
-    itemguid[3] = recvData.ReadBit();
-    vendorguid[2] = recvData.ReadBit();
-    vendorguid[3] = recvData.ReadBit();
-    itemguid[2] = recvData.ReadBit();
-    vendorguid[5] = recvData.ReadBit();
-    vendorguid[6] = recvData.ReadBit();
-    itemguid[6] = recvData.ReadBit();
-    vendorguid[1] = recvData.ReadBit();
-    itemguid[4] = recvData.ReadBit();
-    vendorguid[7] = recvData.ReadBit();
-    vendorguid[4] = recvData.ReadBit();
-    vendorguid[0] = recvData.ReadBit();
-    itemguid[0] = recvData.ReadBit();
+    p_RecvPacket.readPackGUID(l_VendorGUID);
+    p_RecvPacket.readPackGUID(l_ItemGUID);
 
-    recvData.FlushBits();
+    p_RecvPacket >> l_Amount;
 
-    recvData.ReadByteSeq(itemguid[2]);
-    recvData.ReadByteSeq(itemguid[6]);
-    recvData.ReadByteSeq(vendorguid[1]);
-    recvData.ReadByteSeq(itemguid[5]);
-    recvData.ReadByteSeq(vendorguid[6]);
-    recvData.ReadByteSeq(itemguid[3]);
-    recvData.ReadByteSeq(itemguid[4]);
-    recvData.ReadByteSeq(itemguid[7]);
-    recvData.ReadByteSeq(itemguid[0]);
-    recvData.ReadByteSeq(vendorguid[5]);
-    recvData.ReadByteSeq(vendorguid[2]);
-    recvData.ReadByteSeq(vendorguid[3]);
-    recvData.ReadByteSeq(itemguid[1]);
-    recvData.ReadByteSeq(vendorguid[4]);
-    recvData.ReadByteSeq(vendorguid[0]);
-    recvData.ReadByteSeq(vendorguid[7]);
-
-    if (!itemguid)
+    if (!l_ItemGUID)
         return;
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
-    if (!creature)
+    Creature* l_Creature = GetPlayer()->GetNPCIfCanInteractWith(l_VendorGUID, UNIT_NPC_FLAG_VENDOR);
+
+    if (!l_Creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
-        m_Player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_VendorGUID)));
+        m_Player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, l_ItemGUID);
         return;
     }
 
-    // remove fake death
+    /// remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Item* pItem = m_Player->GetItemByGuid(itemguid);
-    if (pItem)
+    Item* l_PlayerItem = m_Player->GetItemByGuid(l_ItemGUID);
+
+    if (l_PlayerItem)
     {
-        sLog->OutPandashan("HandleSellItemOpcode[%u] %u %u", GetPlayer()->GetGUIDLow(), pItem->GetEntry(), count);
+        sLog->OutPandashan("HandleSellItemOpcode[%u] %u %u", GetPlayer()->GetGUIDLow(), l_PlayerItem->GetEntry(), l_Amount);
+        
         // prevent sell not owner item
-        if (m_Player->GetGUID() != pItem->GetOwnerGUID())
+        if (m_Player->GetGUID() != l_PlayerItem->GetOwnerGUID())
         {
-            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid);
+            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
             return;
         }
 
         // prevent sell non empty bag by drag-and-drop at vendor's item list
-        if (pItem->IsNotEmptyBag())
+        if (l_PlayerItem->IsNotEmptyBag())
         {
-            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid);
+            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
             return;
         }
 
         // prevent sell currently looted item
-        if (m_Player->GetLootGUID() == pItem->GetGUID())
+        if (m_Player->GetLootGUID() == l_PlayerItem->GetGUID())
         {
-            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid);
+            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
             return;
         }
 
         // prevent selling item for sellprice when the item is still refundable
         // this probably happens when right clicking a refundable item, the client sends both
         // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
-        if (pItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        if (l_PlayerItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
             return; // Therefore, no feedback to client
 
         // special case at auto sell (sell all)
-        if (count == 0)
-            count = pItem->GetCount();
+        if (l_Amount == 0)
+            l_Amount = l_PlayerItem->GetCount();
         else
         {
             // prevent sell more items that exist in stack (possible only not from client)
-            if (count > pItem->GetCount())
+            if (l_Amount > l_PlayerItem->GetCount())
             {
-                m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid);
+                m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
                 return;
             }
         }
 
-        ItemTemplate const* pProto = pItem->GetTemplate();
-        if (pProto)
+        ItemTemplate const* l_PlayerItemTemplate = l_PlayerItem->GetTemplate();
+
+        if (l_PlayerItemTemplate)
         {
-            if (pProto->SellPrice > 0)
+            if (l_PlayerItemTemplate->SellPrice > 0)
             {
-                if (count < pItem->GetCount())               // need split items
+                if (l_Amount < l_PlayerItem->GetCount())               // need split items
                 {
-                    Item* pNewItem = pItem->CloneItem(count, m_Player);
+                    Item* pNewItem = l_PlayerItem->CloneItem(l_Amount, m_Player);
+
                     if (!pNewItem)
                     {
-                        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
-                        m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid);
+                        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", l_PlayerItem->GetEntry(), l_Amount);
+                        m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
                         return;
                     }
 
-                    pItem->SetCount(pItem->GetCount() - count);
-                    m_Player->ItemRemovedQuestCheck(pItem->GetEntry(), count);
+                    l_PlayerItem->SetCount(l_PlayerItem->GetCount() - l_Amount);
+                    m_Player->ItemRemovedQuestCheck(l_PlayerItem->GetEntry(), l_Amount);
+
                     if (m_Player->IsInWorld())
-                        pItem->SendUpdateToPlayer(m_Player);
-                    pItem->SetState(ITEM_CHANGED, m_Player);
+                        l_PlayerItem->SendUpdateToPlayer(m_Player);
+
+                    l_PlayerItem->SetState(ITEM_CHANGED, m_Player);
 
                     m_Player->AddItemToBuyBackSlot(pNewItem);
+
                     if (m_Player->IsInWorld())
                         pNewItem->SendUpdateToPlayer(m_Player);
                 }
                 else
                 {
-                    m_Player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-                    m_Player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    pItem->RemoveFromUpdateQueueOf(m_Player);
-                    m_Player->AddItemToBuyBackSlot(pItem);
+                    m_Player->ItemRemovedQuestCheck(l_PlayerItem->GetEntry(), l_PlayerItem->GetCount());
+                    m_Player->RemoveItem(l_PlayerItem->GetBagSlot(), l_PlayerItem->GetSlot(), true);
+
+                    l_PlayerItem->RemoveFromUpdateQueueOf(m_Player);
+
+                    m_Player->AddItemToBuyBackSlot(l_PlayerItem);
                 }
 
-                uint32 money = pProto->SellPrice * count;
-                m_Player->ModifyMoney(money);
-                m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+                uint32 l_Money = l_PlayerItemTemplate->SellPrice * l_Amount;
+
+                m_Player->ModifyMoney(l_Money);
+                m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, l_Money);
             }
             else
-                m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid);
+                m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
 
             return;
         }
     }
-    m_Player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, itemguid);
+
+    m_Player->SendSellError(SELL_ERR_CANT_FIND_ITEM, l_Creature, l_ItemGUID);
+
     return;
 }
 
@@ -779,13 +761,14 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
     uint32 l_Muid       = 0;
     uint32 l_Slot       = 0;
     uint32 l_Quantity   = 0;
+    uint32 l_ItemID     = 0;
 
     uint8 l_ItemType = ITEM_VENDOR_TYPE_NONE;
 
     p_RecvPacket.readPackGUID(l_VendorGUID);
     p_RecvPacket.readPackGUID(l_BagGUID);
 
-    p_RecvPacket.read_skip<uint32>();           ///< Item ID
+    p_RecvPacket >> l_ItemID;
     p_RecvPacket.read_skip<uint32>();           ///< RandomPropertiesSeed
     p_RecvPacket.read_skip<uint32>();           ///< RandomPropertiesID
 
@@ -812,8 +795,8 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
     l_ItemType = p_RecvPacket.ReadBits(2);
 
     /// Client expects count starting at 1, and we send vendorslot+1 to client already
-    if (l_Slot > 0)
-        --l_Slot;
+    if (l_Muid > 0)
+        --l_Muid;
     else
         return; // cheating
 
@@ -822,11 +805,11 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
     switch (l_ItemType)
     {
         case ITEM_VENDOR_TYPE_ITEM:
-            m_Player->BuyItemFromVendorSlot(l_VendorGUID, l_Slot, l_Muid, l_Quantity, NULL_BAG, NULL_SLOT);
+            m_Player->BuyItemFromVendorSlot(l_VendorGUID, l_Muid, l_ItemID, l_Quantity, NULL_BAG, NULL_SLOT);
             break;
 
         case ITEM_VENDOR_TYPE_CURRENCY:
-            m_Player->BuyCurrencyFromVendorSlot(l_VendorGUID, l_Slot, l_Muid, l_Quantity);
+            m_Player->BuyCurrencyFromVendorSlot(l_VendorGUID, l_Muid, l_ItemID, l_Quantity);
             break;
 
         default:

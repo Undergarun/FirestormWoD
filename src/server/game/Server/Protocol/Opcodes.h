@@ -79,6 +79,7 @@ enum Opcodes
         SMSG_EXPLORATION_EXPERIENCE                 = 0x0288,   ///< 6.0.1 18612
         SMSG_LOG_XP_GAIN                            = 0x04E1,   ///< 6.0.1 18612
         SMSG_LEVELUP_INFO                           = 0x1CE2,   ///< 6.0.1 18612
+        SMSG_ITEM_PUSH_RESULT                       = 0x0F47,   ///< 6.0.1 18612
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x02CE,   ///< 6.0.1 18612
@@ -108,6 +109,9 @@ enum Opcodes
 
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x02F9,   ///< 6.0.1 18612
+        SMSG_BUY_FAILED                             = 0x136E,   ///< 6.0.1 18612
+        SMSG_BUY_ITEM                               = 0x0ED4,   ///< 6.0.1 18612
+        SMSG_SELL_ITEM                              = 0x1E42,   ///< 6.0.1 18612
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -449,6 +453,7 @@ enum Opcodes
     CMSG_GOSSIP_HELLO                           = 0x1194,   ///< 6.0.1 18612
     CMSG_GOSSIP_SELECT_OPTION                   = 0x12DA,   ///< 6.0.1 18612
     CMSG_TOGGLE_PVP                             = 0x0807,   ///< 6.0.1 18612
+    CMSG_TUTORIAL                               = 0x0DE1,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -457,6 +462,7 @@ enum Opcodes
     CMSG_REPAIR_ITEM                            = 0x0E39,   ///< 6.0.1 18612
     CMSG_BUYBACK_ITEM                           = 0x10DD,   ///< 6.0.1 18612
     CMSG_BUY_ITEM                               = 0x18DD,   ///< 6.0.1 18612
+    CMSG_SELL_ITEM                              = 0x017D,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest
@@ -960,7 +966,6 @@ enum Opcodes
     CMSG_SEARCH_LFG_LEAVE                             = 0x0000,
     CMSG_SELECT_FACTION                               = 0x0000,
     CMSG_SELF_RES                                     = 0x0000,
-    CMSG_SELL_ITEM                                    = 0x0000,
     CMSG_SEND_MAIL                                    = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                 = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID         = 0x0000,
@@ -1031,9 +1036,6 @@ enum Opcodes
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x0000,
     CMSG_TRIGGER_CINEMATIC_CHEAT                      = 0x0000,
     CMSG_TURN_IN_PETITION                             = 0x0000,
-    CMSG_TUTORIAL_CLEAR                               = 0x0000,
-    CMSG_TUTORIAL_FLAG                                = 0x0000,
-    CMSG_TUTORIAL_RESET                               = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
@@ -1169,8 +1171,6 @@ enum Opcodes
     SMSG_BONUS_ROLL_EMPTY                             = 0x0000,
     SMSG_BREAK_TARGET                                 = 0x0000,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0x0000,
-    SMSG_BUY_FAILED                                   = 0x0000,
-    SMSG_BUY_ITEM                                     = 0x0000,
     SMSG_CALENDAR_ACTION_PENDING                      = 0x0000,
     SMSG_CALENDAR_ARENA_TEAM                          = 0x0000,
     SMSG_CALENDAR_CLEAR_PENDING_ACTION                = 0x0000,
@@ -1392,7 +1392,6 @@ enum Opcodes
     SMSG_ITEM_COOLDOWN                                = 0x0000,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x0000,
     SMSG_ITEM_REFUND_INFO_RESPONSE                    = 0x0000,
-    SMSG_ITEM_PUSH_RESULT                             = 0x0000,
     SMSG_ITEM_REFUND_RESULT                           = 0x0000,
     SMSG_ITEM_REMOVE_PASSIVE                          = 0x0000,
     SMSG_ITEM_SEND_PASSIVE                            = 0x0000,
@@ -1636,7 +1635,6 @@ enum Opcodes
     SMSG_SCENE_OBJECT_PET_BATTLE_ROUND_RESULT         = 0x0000,
     SMSG_SCENE_OBJECT_PET_BATTLE_REMPLACEMENTS_MADE   = 0x0000,
     SMSG_SCRIPT_MESSAGE                               = 0x0000,
-    SMSG_SELL_ITEM                                    = 0x0000,
     SMSG_SEND_ITEM_PASSIVE                            = 0x0000,
     SMSG_SEND_ITEM_DURABILITY                         = 0x0000,
     SMSG_SEND_MAIL_RESULT                             = 0x0000,

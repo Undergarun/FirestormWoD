@@ -15077,7 +15077,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (eslot * 4), pItem->GetGUID());
+        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (BUYBACK_SLOT_START * 4) + (eslot * 4), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, proto->SellPrice * pItem->GetCount());
         else
@@ -15114,7 +15114,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         m_items[slot] = NULL;
 
         uint32 eslot = slot - BUYBACK_SLOT_START;
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
+        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (BUYBACK_SLOT_START * 4) + (slot * 4), 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
 
@@ -15247,19 +15247,9 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
     ObjectGuid guid = creature ? creature->GetGUID() : 0;
 
-    uint8 bitsOrder[8] = { 7, 5, 4, 2, 6, 0, 3, 1 };
-    data.WriteBitInOrder(guid, bitsOrder);
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
+    data.appendPackGUID(guid);
     data << uint32(item);
     data << uint8(msg);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
 
     GetSession()->SendPacket(&data);
 }
@@ -15272,40 +15262,9 @@ void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
     ObjectGuid npcGuid = creature ? creature->GetGUID() : 0;
     WorldPacket data(SMSG_SELL_ITEM);
 
-    data.WriteBit(itemGuid[6]);
-    data.WriteBit(itemGuid[3]);
-    data.WriteBit(npcGuid[3]);
-    data.WriteBit(npcGuid[5]);
-    data.WriteBit(npcGuid[2]);
-    data.WriteBit(itemGuid[7]);
-    data.WriteBit(npcGuid[0]);
-    data.WriteBit(npcGuid[1]);
-    data.WriteBit(itemGuid[5]);
-    data.WriteBit(npcGuid[6]);
-    data.WriteBit(itemGuid[4]);
-    data.WriteBit(npcGuid[7]);
-    data.WriteBit(itemGuid[0]);
-    data.WriteBit(itemGuid[2]);
-    data.WriteBit(npcGuid[4]);
-    data.WriteBit(itemGuid[1]);
-
+    data.appendPackGUID(npcGuid);
+    data.appendPackGUID(itemGuid);
     data << uint8(msg);
-    data.WriteByteSeq(npcGuid[6]);
-    data.WriteByteSeq(itemGuid[3]);
-    data.WriteByteSeq(itemGuid[4]);
-    data.WriteByteSeq(npcGuid[7]);
-    data.WriteByteSeq(npcGuid[4]);
-    data.WriteByteSeq(itemGuid[0]);
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[1]);
-    data.WriteByteSeq(itemGuid[1]);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(itemGuid[7]);
-    data.WriteByteSeq(itemGuid[2]);
-    data.WriteByteSeq(itemGuid[6]);
-    data.WriteByteSeq(npcGuid[3]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(itemGuid[5]);
 
     GetSession()->SendPacket(&data);
 }
@@ -16238,64 +16197,38 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast)
+void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool created, bool broadcast)
 {
     if (!item)                                              // prevent crash
         return;
 
     WorldPacket data(SMSG_ITEM_PUSH_RESULT);
 
-    ObjectGuid guid = GetGUID();
-    ObjectGuid unkGuid = 0;
+    data.appendPackGUID(GetGUID());                         ///< Player GUID
+    data << uint8(item->GetBagSlot());                      ///< Slot
+    data << uint32(0);
+    data << uint32(item->GetEntry());                       ///< Item ID
+    data << uint32(item->GetItemSuffixFactor());            ///< Random Properties Seed
+    data << uint32(item->GetItemRandomPropertyId());        ///< Random Properties ID
+    data.WriteBit(false);                                   ///< Has Item Bonus
+    data.WriteBit(false);                                   ///< Has Modifications
+    data.FlushBits();
+    data << uint32(0);
+    data << uint32(p_Quantity);                             ///< Quantity
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);                                      ///< BattlePetBreedQuality
+    data << uint32(0);
+    data.appendPackGUID(item->GetGUID());                   ///< Item GUID
 
-    data.WriteBit(guid[0]);
-    data.WriteBit(unkGuid[6]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(created);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(1);                                       // display
-    data.WriteBit(unkGuid[3]);
-    data.WriteBit(unkGuid[4]);
-    data.WriteBit(unkGuid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(unkGuid[7]);
-    data.WriteBit(unkGuid[2]);
-    data.WriteBit(unkGuid[0]);
-    data.WriteBit(unkGuid[1]);
-    data.WriteBit(0);                                       // additional loot
-    data.WriteBit(received);
-    data.WriteBit(guid[2]);
+    data.WriteBit(received);                                ///< Pushed
+    data.WriteBit(created);                                 ///< Created
+    data.WriteBit(true);                                    ///< Display Text
+    data.WriteBit(0);                                       ///< Is Bonus Roll
+    data.FlushBits();
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-    data << uint32(0);
-    data << uint32(count);                                  // count of items
-    data << uint32(item->GetItemRandomPropertyId());
-    data << uint32(0);
-    data.WriteByteSeq(guid[3]);
-    data << uint32(0);
-    data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
-    data.WriteByteSeq(unkGuid[7]);
-    data << uint32(item->GetItemSuffixFactor());
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(unkGuid[5]);
-    data.WriteByteSeq(unkGuid[3]);
-    data.WriteByteSeq(unkGuid[6]);
-    data.WriteByteSeq(guid[6]);
-    data << uint8(item->GetBagSlot());                      // bagslot
-    data.WriteByteSeq(unkGuid[4]);
-    data.WriteByteSeq(guid[4]);
-    data << uint32(0);
-    data << uint32(0);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(unkGuid[0]);
-    data.WriteByteSeq(unkGuid[1]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(unkGuid[2]);
-    data << uint32(item->GetEntry());                       // item id
+    //data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
 
     if (broadcast && GetGroup())
         GetGroup()->BroadcastPacket(&data, true);
@@ -24072,20 +24005,10 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
         ObjectGuid vendorGuid = pVendor->GetGUID();
 
-        uint8 bitsOrder[8] = { 6, 0, 5, 2, 4, 1, 7, 3 };
-        data.WriteBitInOrder(vendorGuid, bitsOrder);
-
-        data.WriteByteSeq(vendorGuid[7]);
-        data << uint32(count);
-        data.WriteByteSeq(vendorGuid[6]);
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        data.WriteByteSeq(vendorGuid[2]);
-        data.WriteByteSeq(vendorGuid[0]);
-        data.WriteByteSeq(vendorGuid[3]);
+        data.appendPackGUID(vendorGuid);
         data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data.WriteByteSeq(vendorGuid[5]);
-        data.WriteByteSeq(vendorGuid[4]);
-        data.WriteByteSeq(vendorGuid[1]);
+        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+        data << uint32(count);
 
         GetSession()->SendPacket(&data);
         SendNewItem(it, count, true, false, false);

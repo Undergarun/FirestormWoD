@@ -949,7 +949,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
                 break;
 
             case MSEGuid:
-                p_Data << p_MovementInformation->guid;
+                p_Data.appendPackGUID(p_MovementInformation->guid);
                 break;
 
             case MSEMovementFlags:
@@ -982,7 +982,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
 
             case MSETransportGuid:
                 if (l_HasTransportData)
-                    p_Data << p_MovementInformation->t_guid;
+                    p_Data.appendPackGUID(p_MovementInformation->t_guid);
                 break;
 
             case MSETransportPositionX:
