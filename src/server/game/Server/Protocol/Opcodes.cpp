@@ -130,6 +130,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_EXPLORATION_EXPERIENCE,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_LOG_XP_GAIN,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_LEVELUP_INFO,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_ITEM_PUSH_RESULT,                                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Interaction
         DEFINE_OPCODE_HANDLER(SMSG_LOGOUT_RESPONSE,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -159,6 +160,9 @@ void InitOpcodes()
 
         /// Vendor
         DEFINE_OPCODE_HANDLER(SMSG_LIST_INVENTORY,                                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BUY_FAILED,                                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BUY_ITEM,                                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_SELL_ITEM,                                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1095,8 +1099,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT,         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_WON,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_BREAK_TARGET,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BUY_FAILED,                              STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BUY_ITEM,                                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_ARENA_TEAM,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_CLEAR_PENDING_ACTION,           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_COMMAND_RESULT,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -1243,7 +1245,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_ITEM_ADD_PASSIVE,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_ITEM_COOLDOWN,                           STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_ITEM_ENCHANT_TIME_UPDATE,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_ITEM_PUSH_RESULT,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_ITEM_REFUND_INFO_RESPONSE,               STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_ITEM_REFUND_RESULT,                      STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_ITEM_REMOVE_PASSIVE,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -1419,7 +1420,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_RESYNC_RUNES,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_ROLL_POLL_INFORM,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_RWHOIS,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_SELL_ITEM,                               STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_SEND_MAIL_RESULT,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_SERVER_TIME,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_SERVER_INFO_RESPONSE,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
