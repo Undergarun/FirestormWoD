@@ -449,6 +449,7 @@ enum Opcodes
     CMSG_GOSSIP_HELLO                           = 0x1194,   ///< 6.0.1 18612
     CMSG_GOSSIP_SELECT_OPTION                   = 0x12DA,   ///< 6.0.1 18612
     CMSG_TOGGLE_PVP                             = 0x0807,   ///< 6.0.1 18612
+    CMSG_TUTORIAL                               = 0x0DE1,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -457,6 +458,7 @@ enum Opcodes
     CMSG_REPAIR_ITEM                            = 0x0E39,   ///< 6.0.1 18612
     CMSG_BUYBACK_ITEM                           = 0x10DD,   ///< 6.0.1 18612
     CMSG_BUY_ITEM                               = 0x18DD,   ///< 6.0.1 18612
+    CMSG_SELL_ITEM                              = 0x017D,   ///< 6.0.1 18612
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest
@@ -960,7 +962,6 @@ enum Opcodes
     CMSG_SEARCH_LFG_LEAVE                             = 0x0000,
     CMSG_SELECT_FACTION                               = 0x0000,
     CMSG_SELF_RES                                     = 0x0000,
-    CMSG_SELL_ITEM                                    = 0x0000,
     CMSG_SEND_MAIL                                    = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                 = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID         = 0x0000,
@@ -1031,9 +1032,6 @@ enum Opcodes
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x0000,
     CMSG_TRIGGER_CINEMATIC_CHEAT                      = 0x0000,
     CMSG_TURN_IN_PETITION                             = 0x0000,
-    CMSG_TUTORIAL_CLEAR                               = 0x0000,
-    CMSG_TUTORIAL_FLAG                                = 0x0000,
-    CMSG_TUTORIAL_RESET                               = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,

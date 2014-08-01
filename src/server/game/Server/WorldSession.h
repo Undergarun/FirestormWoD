@@ -819,9 +819,7 @@ class WorldSession
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
-        void HandleTutorialFlag (WorldPacket& recvData);
-        void HandleTutorialClear(WorldPacket& recvData);
-        void HandleTutorialReset(WorldPacket& recvData);
+        void HandleTutorial (WorldPacket& recvData);
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);
@@ -1146,7 +1144,7 @@ class WorldSession
         time_t timeLastArenaTeamCommand;
         time_t timeLastCalendarInvCommand;
         time_t timeLastChangeSubGroupCommand;
-        time_t timeLastSellItemOpcode;
+        time_t l_TimeLastSellItemOpcode;
 
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
