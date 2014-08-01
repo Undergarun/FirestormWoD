@@ -806,7 +806,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
     switch (l_ItemType)
     {
         case ITEM_VENDOR_TYPE_ITEM:
-            m_Player->BuyItemFromVendorSlot(l_VendorGUID, l_Muid, l_ItemID, l_Quantity, NULL_BAG, l_Slot);
+            m_Player->BuyItemFromVendorSlot(l_VendorGUID, l_Muid, l_ItemID, l_Quantity, NULL_BAG, NULL_SLOT);
             break;
 
         case ITEM_VENDOR_TYPE_CURRENCY:
