@@ -573,7 +573,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         case SPELL_AURA_MOD_RATING:
         {
-            // Heart's Judgment, Heart of Ignacious trinket (Heroic) 
+            // Heart's Judgment, Heart of Ignacious trinket (Heroic)
             if (m_spellInfo->Id == 92328)
             {
                 if (AuraPtr pAura = caster->GetAura(92325))
@@ -961,7 +961,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     // Improved Recuperate
                     if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_ROGUE, 4819, 0))
                         heal_pct += aurEff->GetAmount();
-                    
+
                     amount = CalculatePct(caster->GetMaxHealth(), 0.001 * heal_pct);
 
                     break;
@@ -1297,8 +1297,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // It's only for players now
     if (caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || 
-        GetAuraType() == SPELL_AURA_PERIODIC_LEECH || 
+        if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE ||
+        GetAuraType() == SPELL_AURA_PERIODIC_LEECH ||
         GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
         {
             if (GetBase()->GetType() == UNIT_AURA_TYPE)
@@ -1311,7 +1311,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     temp_damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
                 else
                     temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, DOT, GetBase()->GetStackAmount());
-                
+
                 temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
 
                 m_fixed_periodic.SetFixedDamage(temp_damage);
@@ -3766,7 +3766,7 @@ void AuraEffect::HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool 
     {
         if (target->getVictim() != caster)
         {
-            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsAIEnabled 
+            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsAIEnabled
                 && (!target->ToCreature()->HasReactState(REACT_PASSIVE) || (target->IsPetGuardianStuff() && IS_PLAYER_GUID(target->GetCharmerOrOwnerGUID()))))
             {
                 // taken from case COMMAND_ATTACK:                        //spellid=1792  //ATTACK PetHandler.cpp
@@ -5438,7 +5438,7 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
 
     switch (m_spellInfo->Id)
     {
-        // Heart's Judgment, Heart of Ignacious 
+        // Heart's Judgment, Heart of Ignacious
         case 91041:
             target->RemoveAurasDueToSpell(91027);
             break;
@@ -5553,7 +5553,7 @@ void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* au
     // Magic damage modifiers implemented in Unit::MeleeDamageBonusDone
     // This information for client side use only
     // Get attack power bonus for all attack type
-    target->SetFloatValue(PLAYER_FIELD_OVERRIDE_APBY_SPELL_POWER_PERCENT, float(GetAmount()));   
+    target->SetFloatValue(PLAYER_FIELD_OVERRIDE_APBY_SPELL_POWER_PERCENT, float(GetAmount()));
 }
 
 void AuraEffect::HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -7974,7 +7974,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         crit = roll_chance_f(m_fixed_periodic.GetCriticalChance());
     else
         crit = IsPeriodicTickCrit(target, caster);
-    
+
     if (crit)
         damage = caster->SpellCriticalHealingBonus(m_spellInfo, damage, target);
 

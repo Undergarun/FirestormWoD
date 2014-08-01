@@ -307,7 +307,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
         m_Player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
     }
-    
+
     //! If trading
     if (TradeData* tradeData = m_Player->GetTradeData())
     {
@@ -485,7 +485,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << uint32(proto->CurrencySubstitutionId);
     buff << uint32(proto->CurrencySubstitutionCount);
 
-    
     data << uint32(DB2_REPLY_SPARSE);
     data << uint32(entry);
     data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_SPARSE));
@@ -891,7 +890,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
         if (l_VendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
             ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_VendorItem->item);
-            if (!l_ItemTemplate) 
+            if (!l_ItemTemplate)
                 continue;
 
             uint32 l_AvailableInStock = !l_VendorItem->maxcount ? 0xFFFFFFFF : l_Vendor->GetVendorItemCurrentCount(l_VendorItem);
@@ -952,7 +951,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                         if (!guild->GetAchievementMgr().HasAchieved(reward.AchievementId))
                         {
                             if (!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
-                            { 
+                            {
                                 guildRewardCheckPassed = false;
                                 break;
                             }

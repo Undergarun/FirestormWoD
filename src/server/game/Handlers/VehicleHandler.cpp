@@ -166,13 +166,10 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             recvData.ReadByteSeq(playerGUID[6]);
             recvData.ReadByteSeq(accessoryGUID[1]);
 
-
-
-            
             /*recvData >> seatId;
             recvData >> y;
             recvData >> x;
-            
+
             uint64 accessory;        // accessory vehicle guid
             recvData >> accessory;*/
 

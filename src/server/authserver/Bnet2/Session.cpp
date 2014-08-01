@@ -59,10 +59,10 @@ namespace BNet2 {
         while (1)
         {
             uint32_t l_Size = GetSocket().recv_len();
-            
+
             if (l_Size < 2)
                 return;
-            
+
             uint8_t * l_Buffer = new uint8_t[l_Size];
 
             if (!GetSocket().recv((char *)l_Buffer, l_Size))
@@ -142,7 +142,7 @@ namespace BNet2 {
     {
         sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnClose");
     }
-    
+
     //////////////////////////////////////////////////////////////////////////
 
     /// Send packet
@@ -308,7 +308,7 @@ namespace BNet2 {
                 return true;
             }
         }
-        
+
         /// Have login
         if (p_Packet->ReadBits<bool>(1))
         {
@@ -548,27 +548,27 @@ namespace BNet2 {
          {
              const Realm &realm = i->second;
              uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
- 
+
              //Not visible if can't access realm
              if (lock)
                  continue;
- 
+
              //// don't work with realms which not compatible with the client
              //bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
- 
+
              uint32 flag = realm.flag;
              //RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.gamebuild);
              //if (!okBuild)
              //{
              //    if (!buildInfo)
              //        continue;
- 
+
              //    flag |= REALM_FLAG_OFFLINE | REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
              //}
- 
+
              //if (!buildInfo)
              //    flag &= ~REALM_FLAG_SPECIFYBUILD;
- 
+
              std::string name = i->first;
              //if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
              //{
@@ -576,9 +576,9 @@ namespace BNet2 {
              //    ss << name << " (" << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
              //    name = ss.str();
              //}
- 
+
              BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
- 
+
              l_Buffer.WriteBits(true, 1);
              l_Buffer.WriteBits(1, 32);
              l_Buffer.WriteBits<float>(0, 32);
@@ -592,7 +592,7 @@ namespace BNet2 {
              l_Buffer.WriteBits(0, 8);
              l_Buffer.WriteBits(0, 32);
              l_Buffer.WriteBits(realmCounter, 8);
- 
+
              l_Buffer.FlushBits();
              l_Buffer.Write<uint8_t>(0x43);
              l_Buffer.Write<uint8_t>(0x02);
@@ -648,9 +648,9 @@ namespace BNet2 {
         l_Hmac.UpdateData(clientSalt, sizeof(clientSalt));
         l_Hmac.UpdateData(serverSalt, sizeof(serverSalt));
         l_Hmac.Finalize();
-        
+
         memcpy(sessionKey, l_Hmac.GetDigest(), l_Hmac.GetLength());
-        
+
         HmacHash l_Hmac2(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64));
         l_Hmac2.UpdateData((const uint8_t*)"WoW", 4);
         l_Hmac2.UpdateData(serverSalt, sizeof(serverSalt));
@@ -674,7 +674,7 @@ namespace BNet2 {
         stmt->setString(0, l_K.AsHexStr());
         stmt->setString(1, GetSocket().getRemoteAddress().c_str());
         stmt->setUInt32(2, GetLocaleByName(m_Locale));
-        
+
         switch (GetClientPlatform())
         {
             case BATTLENET2_PLATFORM_WIN:
@@ -731,7 +731,7 @@ namespace BNet2 {
             uint8_t port[2];
             *(uint16_t*)port = l_Address.get_port_number();
             std::reverse(port, port + sizeof(port));
-            
+
             uint32_t l_IpAddress = l_Address.get_ip_address();
             EndianConvertReverse(l_IpAddress);
 

@@ -480,7 +480,7 @@ void Unit::Update(uint32 p_time, uint32 entry /*= 0*/)
                 init.SetTransportEnter();
                 init.Launch();
             }
-            
+
             m_SendTransportMoveTimer = 0;
         }
         else
@@ -884,7 +884,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
             return 0;
-        
+
         // Signal to pets that their owner was attacked
         Pet* pet = victim->ToPlayer()->GetPet();
 
@@ -1321,7 +1321,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit*
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return;
-    
+
     SpellCastTargets targets;
     targets.SetUnitTarget(victim);
 
@@ -1333,7 +1333,7 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return;
-    
+
     SpellCastTargets targets;
     targets.SetDst(x, y, z, GetOrientation());
 
@@ -1345,7 +1345,7 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return;
-    
+
     SpellCastTargets targets;
     targets.SetGOTarget(go);
 
@@ -1952,16 +1952,16 @@ bool Unit::IsSpellResisted(Unit* victim, SpellSchoolMask schoolMask, SpellInfo c
         uint32 level = victim->getLevel();
         float resistanceConstant = 0.0f;
 
-        // http://elitistjerks.com/f15/t29453-combat_ratings_level_85_cataclysm/
+        // @toto update me http://elitistjerks.com/f15/t29453-combat_ratings_level_85_cataclysm/
         if (level >= 61)
             resistanceConstant = 150 + ((level - 60) * (level - 67.5));
         else if (level >= 21 && level <= 60)
             resistanceConstant = 50 + ((level - 20) * 2.5);
-        else 
+        else
             resistanceConstant = 50.0f;
 
         float averageResist = victimResistance / (victimResistance + resistanceConstant);
-        
+
         int32 tmp = int32(averageResist * 10000);
         int32 rand = irand(0, 10000);
         return (rand < tmp);
@@ -2001,7 +2001,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             resistanceConstant = 150 + ((level - 60) * (level - 67.5));
         else if (level >= 21 && level <= 60)
             resistanceConstant = 50 + ((level - 20) * 2.5);
-        else 
+        else
             resistanceConstant = 50.0f;
 
         float averageResist = victimResistance / (victimResistance + resistanceConstant);
@@ -3208,7 +3208,7 @@ void Unit::_UpdateAutoRepeatSpell()
 {
     // check "real time" interrupts
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
-    if (((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75)) && 
+    if (((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75)) &&
         !HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo) && !HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // cancel wand shoot
@@ -3723,7 +3723,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
 
     aurApp->SetRemoveMode(removeMode);
     AuraPtr aura = aurApp->GetBase();
-    
+
     // dead loop is killing the server probably
     ASSERT(m_removedAurasCount < 0xFFFFFFFF);
 
@@ -6043,7 +6043,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     int32 new_amount = old_amount + add_heal;
 
                     int32 bp0 = std::min(new_amount, max_amount);
-                    CastCustomSpell(victim, 96881, &bp0, 0, 0, true); 
+                    CastCustomSpell(victim, 96881, &bp0, 0, 0, true);
                     return true;
                 }
                 // Wrath of Tarecgosa
@@ -6715,7 +6715,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (victim != ToPlayer()->GetSelectedUnit())
                         return false;
-                    
+
                     basepoints0 = int32(CalculatePct(damage, 20));
                     triggered_spell_id = 105909;
 
@@ -7199,12 +7199,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 {
                     if (!victim || !victim->ToPlayer())
                         return false;
-                    
+
                     Player* plr = victim->ToPlayer();
                     if (!plr)
                         return false;
 
-                    
                     std::list<Player*> plrList;
                     JadeCore::AnyFriendlyUnitInObjectRangeCheck check(this, this, 15.0f);
                     JadeCore::PlayerListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, plrList, check);
@@ -7625,7 +7624,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // Item - Rogue T12 4P Bonus
                     if (HasAura(99175))
                     {
-                        uint32 spellIds[3] = {99186, 99187, 99188}; 
+                        uint32 spellIds[3] = {99186, 99187, 99188};
                         uint32 crIds[3] = {CR_HASTE_MELEE, CR_CRIT_MELEE, CR_MASTERY};
                         uint32 i = urand(0, 2);
                         int32 bp0 = int32(CalculatePct(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + crIds[i]), 25));
@@ -7793,12 +7792,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 {
                     if (!victim || !victim->ToPlayer())
                         return false;
-                    
+
                     Player* plr = victim->ToPlayer();
                     if (!plr)
                         return false;
 
-                    
                     std::list<Player*> plrList;
                     JadeCore::AnyFriendlyUnitInObjectRangeCheck check(this, this, 15.0f);
                     JadeCore::PlayerListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, plrList, check);
@@ -8387,7 +8385,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     SpellInfo const* windfurySpellInfo = sSpellMgr->GetSpellInfo(spellId);
                     if (!windfurySpellInfo)
                         return false;
-                    
+
                     int32 extra_attack_power = CalculateSpellDamage(victim, windfurySpellInfo, 1);
 
                     // Value gained from additional AP
@@ -9831,15 +9829,15 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Savage Defence
+        // Savage Defense
         case 62600:
         {
             int32 chance = 50;
-            
+
             // Item - Druid T13 Feral 2P Bonus (Savage Defense and Blood In The Water)
             if (procSpell && procSpell->Id == 33878 && HasAura(105725))
                 chance = 100;
-            
+
             if (!roll_chance_i(chance))
                 return false;
             break;
@@ -10386,7 +10384,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
             break;
         // Embedded Blade, Mannoroth, Well of Eternity
-        case 109542: 
+        case 109542:
             if (!victim)
                 return false;
             target = victim;
@@ -14002,7 +14000,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     float TakenTotalMod = 1.0f;
 
     // ..taken
-    TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, 
+    TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN,
     spellProto ? spellProto->GetSchoolMask() : GetMeleeDamageSchoolMask());
 
     // .. taken pct (special attacks)
@@ -14044,7 +14042,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     else
     {
         AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET);
-        for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)   
+        for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
         {
             if ((*i)->GetCaster() == attacker)
                 AddPct(TakenTotalMod, (*i)->GetAmount());
@@ -14564,7 +14562,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     // can't attack self
     if (this == target)
         return false;
-    
+
     // Sha of anger mind control and Maddening Shout
     if (target->HasAura(119626) || target->HasAura(117708))
         return true;
@@ -14629,7 +14627,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         {
             Player const* player = target->GetTypeId() == TYPEID_PLAYER ? target->ToPlayer() : ToPlayer();
             Unit const* creature = target->GetTypeId() == TYPEID_UNIT ? target : this;
-            
             {
                 if (FactionTemplateEntry const* factionTemplate = creature->getFactionTemplateEntry())
                     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplate->faction))
@@ -15126,7 +15123,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_WALK:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {3, 0, 5, 4, 2, 7, 1, 6};
                 data.WriteBitInOrder(guid, bitOrder);
 
@@ -15144,7 +15141,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_RUN:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
                 data.WriteBitInOrder(guid, bitOrder);
                 uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
@@ -15156,7 +15153,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_RUN_BACK:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {1, 7, 4, 5, 2, 6, 0, 3};
                 data.WriteBitInOrder(guid, bitOrder);
 
@@ -15174,7 +15171,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_SWIM:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
                 data.WriteBitInOrder(guid, bitOrder);
                 data.WriteByteSeq(guid[4]);
@@ -15191,7 +15188,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_SWIM_BACK:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {3, 4, 1, 0, 6, 2, 7, 5};
                 data.WriteBitInOrder(guid, bitOrder);
 
@@ -15211,7 +15208,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
                 data << float(GetSpeed(mtype));
-    
+
                 uint8 bitOrder[8] = {2, 3, 0, 1, 6, 7, 5, 4};
                 data.WriteBitInOrder(guid, bitOrder);
 
@@ -15222,7 +15219,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_FLIGHT:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {7, 1, 5, 6, 4, 3, 0, 2};
                 data.WriteBitInOrder(guid, bitOrder);
                 data.WriteByteSeq(guid[0]);
@@ -15239,7 +15236,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_FLIGHT_BACK:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
-    
+
                 uint8 bitOrder[8] = {3, 2, 4, 5, 0, 1, 6, 7};
                 data.WriteBitInOrder(guid, bitOrder);
 
@@ -15262,7 +15259,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
                 uint8 bitOrder[8] = {2, 7, 5, 6, 0, 4, 3, 1};
                 data.WriteBitInOrder(guid, bitOrder);
-    
+
                 uint8 byteOrder[8] = {5, 1, 3, 6, 2, 0, 7, 4};
                 data.WriteBytesSeq(guid, byteOrder);
                 break;
@@ -15358,7 +15355,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4);
                 data << float(GetSpeed(mtype));
                 data << uint32(0);
-    
+
                 uint8 bitOrder[8] = { 0, 5, 3, 2, 7, 4, 6, 1 };
                 data.WriteBitInOrder(guid, bitOrder);
 
@@ -17709,7 +17706,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         SetCantProc(false);
 }
 
-bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell, 
+bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell,
 uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
 {
     // Dragon Breath & Living Bomb
@@ -19098,7 +19095,7 @@ void Unit::SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, 
 void Unit::SendMoveRoot(uint32 value)
 {
     WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
-    
+
     data.appendPackGUID(GetGUID());
     data << uint32(value);
 
@@ -19175,12 +19172,12 @@ void Unit::SetRooted(bool apply)
         {
             ObjectGuid guid = GetGUID();
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
-    
+
             uint8 bitOrder[8] = {4, 2, 5, 1, 0, 7, 6, 3};
             data.WriteBitInOrder(guid, bitOrder);
 
             data.FlushBits();
-    
+
             uint8 byteOrder[8] = {7, 5, 3, 0, 6, 1, 4, 2};
             data.WriteBytesSeq(guid, byteOrder);
 
@@ -19198,12 +19195,12 @@ void Unit::SetRooted(bool apply)
             {
                 ObjectGuid guid = GetGUID();
                 WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-                    
+
                 uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
                 data.WriteBitInOrder(guid, bitOrder);
 
                 data.FlushBits();
-    
+
                 uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
                 data.WriteBytesSeq(guid, byteOrder);
 
@@ -19690,7 +19687,6 @@ AuraPtr Unit::ToggleAura(uint32 spellId, Unit* target)
     else
         return target->AddAura(spellId, target);
 
-    
     return NULLAURA;
 }
 
@@ -19753,7 +19749,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    
+
     uint8 bitOrder[8] = { 3, 0, 6, 7, 4, 1, 5, 2 };
     data.WriteBitInOrder(guid, bitOrder);
 
@@ -19978,8 +19974,8 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
 
     ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-    
+    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1 + 8 + 4 + 4 + 4 + 4 + 4));
+
     uint8 bitOrder[8] = {4, 6, 3, 7, 2, 5, 0, 1};
     data.WriteBitInOrder(guid, bitOrder);
     data.WriteByteSeq(guid[2]);
@@ -21183,12 +21179,12 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     {
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
         ObjectGuid guid = GetGUID();
-    
+
         uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
         data.WriteBitInOrder(guid, bitOrder);
 
         data.FlushBits();
-    
+
         uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
         data.WriteBytesSeq(guid, byteOrder);
 

@@ -35,7 +35,7 @@ struct CUFProfileData
     bool auto10:1;
     bool bit24:1;
     bool autoPvE:1;
-    
+
     uint16 unk0;
     uint16 unk1;
     uint16 frameWidth;

@@ -268,7 +268,7 @@ uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
 
 typedef std::map<uint32, GuildNewsEntry> GuildNewsLogMap;
 
-#define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience 
+#define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Emblem info

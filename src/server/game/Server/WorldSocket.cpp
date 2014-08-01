@@ -1193,7 +1193,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
 
     /// Re-check account ban (same check as in auth server)
     QueryResult l_BanResult = LoginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1  UNION  SELECT 1 FROM ip_banned WHERE ip = '%s'", l_AccountID, GetRemoteAddress().c_str());
-    
+
     /// if account banned
     if (l_BanResult)
     {

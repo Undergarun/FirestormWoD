@@ -481,11 +481,11 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     }
 
     if (m_Player->CanRewardQuest(quest, reward, true))
-    { 
+    {
         m_Player->RewardQuest(quest, reward, object);
 
         switch (object->GetTypeId())
-        { 
+        {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
             {
@@ -533,7 +533,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
             break;
         }
     }
-    else 
+    else
         m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
 }
 
@@ -775,7 +775,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
             WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8 + 1));
 
             data.appendPackGUID(player->GetGUID());
-            data << uint8(msg); 
+            data << uint8(msg);
 
             player->GetSession()->SendPacket(&data);
             m_Player->SetDivider(0);

@@ -601,7 +601,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
         sLog->OutPandashan("m_caster is null!! spellId %u", m_spellInfo->Id);
     }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)     
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
 }
 
@@ -1004,14 +1004,14 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
     Spell* channeledSpell = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
     if (!channeledSpell)
         return;
-    
+
     switch (targetType.GetTarget())
     {
         case TARGET_UNIT_CHANNEL_TARGET:
         {
             WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT));
             CallScriptObjectTargetSelectHandlers(target, effIndex);
-            // unit target may be no longer avalible - teleported out of map for example
+            // unit target may be no longer available - teleported out of map for example
             if (target && target->ToUnit())
                 AddUnitTarget(target->ToUnit(), 1 << effIndex);
             break;
@@ -1502,7 +1502,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 break;
             }
             case SPELLFAMILY_DRUID:
-                switch(m_spellInfo->Id) 
+                switch(m_spellInfo->Id)
                 {
                     // Firebloom, Item  Druid T12 Restoration 4P Bonus
                     case 99017:
@@ -1514,7 +1514,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         maxSize = 3;
                         power = POWER_HEALTH;
                         break;
-                    // Tranquility 
+                    // Tranquility
                     case 44203:
                         maxSize = 5;
                         power = POWER_HEALTH;
@@ -2560,7 +2560,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             m_caster->ProcDamageAndSpell(target, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, 0, BASE_ATTACK, m_spellInfo);
             if (m_spellInfo->Id == 2136) // hack to trigger impact in reflect
             {
-                m_caster->ProcDamageAndSpell(m_caster, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, 
+                m_caster->ProcDamageAndSpell(m_caster, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG,
                     PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_NORMAL_HIT, 1, 0, BASE_ATTACK, m_spellInfo);
             }
         }
@@ -3546,7 +3546,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         m_casttime = 0;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    { 
+    {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
 
         // Set cast time to 0 if .cheat cast time is enabled.
@@ -3557,7 +3557,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKINGeffect
-    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() && 
+    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() &&
         m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
         !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
@@ -3877,7 +3877,7 @@ void Spell::cast(bool skipCheck)
     }
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    { 
+    {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
@@ -4314,7 +4314,7 @@ void Spell::finish(bool ok)
     // Stop Attack for some spells
     if (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET)
         m_caster->AttackStop();
-    
+
     if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
         if (Item* item = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID))
             if (item->IsEquipable() && !item->IsEquipped())
@@ -4716,7 +4716,7 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
-        data << float(l_Y); 
+        data << float(l_Y);
         data << float(l_Z);
         data << float(l_X);
     }
@@ -4762,7 +4762,7 @@ void Spell::SendSpellStart()
     data << uint32(l_PredictAmount);
     data << uint8(l_PredicType);
     data.appendPackGUID(l_PredicOverrideTarget);
-    
+
     for (auto l_Itr : m_targets.GetExtraTargets())
     {
         data.appendPackGUID(l_Itr._transportGUID);
@@ -4781,9 +4781,9 @@ void Spell::SendSpellStart()
         data << uint32(0); // Projectile Visual 1
         data << uint32(0); // Projectile Visual 2
     }
-// 
-// 
-// 
+//
+//
+//
 //     bool unkBit = false;
 //     bool unkInt = false;
 //     bool unkInt3 = false;
@@ -4794,22 +4794,22 @@ void Spell::SendSpellStart()
 //     bool hasRuneStateAfter = false; // don't needed in spell_start
 //     bool unkByte5 = false;
 //     bool unkByte6 = false;
-// 
-// 
-// 
+//
+//
+//
 //     data.WriteBit(!hasRuneStateBefore);                     // !has rune before
-// 
+//
 //     uint8 runeCooldownCount = 0;
 //     //if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
 //         //runeCooldownCount = 6;
-// 
-//     data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
-// 
+//
+//    data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
+//
 //     if (hasRuneStateBefore)
 //         data << uint8(m_runesState);
-// 
-// 
-// 
+//
+//
+//
 //     if (runeCooldownCount)
 //     {
 //         if (Player* player = m_caster->ToPlayer())
@@ -4826,13 +4826,13 @@ void Spell::SendSpellStart()
 //                 data << uint8(0);
 //         }
 //     }
-// 
+//
 //     if (unkStringLength > 0)
 //     {
 //         std::string unkString = "";
 //         data << unkString;
 //     }
-// 
+//
 //     for (uint32 i = 0; i < powerCount; i++)
 //     {
 //         // not sure about this ...
@@ -4954,9 +4954,9 @@ void Spell::SendSpellGo()
     data << uint32(m_spellInfo->Id);
     data << uint32(castFlags);
     data << uint32(m_casttime);
-    data << uint32(l_HitCount);  
-    data << uint32(l_MissCount); 
-    data << uint32(l_MissCount); 
+    data << uint32(l_HitCount);
+    data << uint32(l_MissCount);
+    data << uint32(l_MissCount);
     data.WriteBits(m_targets.GetTargetMask(), 21);
     data.WriteBit(m_targets.HasSrc());
     data.WriteBit(m_targets.HasDst());
@@ -5172,11 +5172,11 @@ void Spell::SendSpellGo()
 void Spell::WriteSpellGoTargets(WorldPacket* data)
 {
     // This function also fill data for channeled spells:
-    // m_needAliveTargetMask req for stop channelig if one target die
+    // m_needAliveTargetMask req for stop channeling if one target die
     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
-        if ((*ihit).effectMask == 0)                  // No effect apply - all immuned add state
-        
+        if ((*ihit).effectMask == 0)                  // No effect apply - all immune add state
+
             // possibly SPELL_MISS_IMMUNE2 for this??
             ihit->missCondition = SPELL_MISS_IMMUNE2;
     }
@@ -5202,7 +5202,7 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
     }
 
     for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit <= 255; ++ighit)
-    { 
+    {
         *data << uint64(ighit->targetGUID);                 // Always hits
         ++hit;
     }
@@ -5511,25 +5511,25 @@ void Spell::SendResurrectRequest(Player* target)
     data.WriteBit(guid[4]);
     data.WriteBit(guid[6]);
     data.WriteBit(guid[3]);
-    
+
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[5]);
-    
+
     data << uint32(m_spellInfo->Id);
-    
+
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[0]);
     data.WriteString(resurrectorName);
-    
+
     data.WriteByteSeq(guid[7]);
-    
+
     data << uint32(0);
     data << uint32(0);
-    
+   
     data.WriteByteSeq(guid[6]);
-    
+
     target->GetSession()->SendPacket(&data);
 }
 
@@ -6198,7 +6198,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Check vehicle flags
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE))
-    { 
+    {
         SpellCastResult vehicleCheck = m_spellInfo->CheckVehicle(m_caster);
         if (vehicleCheck != SPELL_CAST_OK)
             return vehicleCheck;
@@ -6212,7 +6212,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!conditions.empty() && !sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
         {
             // send error msg to player if condition failed and text message available
-            // TODO: using WorldSession::SendNotification is not blizzlike
+            // @TODO: using WorldSession::SendNotification is not blizzlike
             if (Player* playerCaster = m_caster->ToPlayer())
             {
                 // mLastFailedCondition can be NULL if there was an error processing the condition in Condition::Meets (i.e. wrong data for ConditionTarget or others)
@@ -6815,7 +6815,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_CASTER_AURASTATE;
-                    
+
                     Pet* pet = m_caster->ToPlayer()->GetPet();
                     if (!pet)
                         return SPELL_FAILED_CASTER_AURASTATE;
@@ -6957,7 +6957,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     switch(m_spellInfo->Id)
     {
         case 50334: // Berserk
-        case 61336: // Survival Instincts 
+        case 61336: // Survival Instincts
         {
             if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster->ToPlayer()->IsInFeralForm())
                 return SPELL_FAILED_ONLY_SHAPESHIFT;
@@ -8054,12 +8054,12 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
                 return true;
             if (LOSAdditionalRules(target))
                 return true;
- 
+
             if (m_targets.HasDst())
             {
                 float x, y, z;
                 m_targets.GetDstPos()->GetPosition(x, y, z);
-                
+
                 if (!target->IsWithinLOS(x, y, z))
                     return false;
             }

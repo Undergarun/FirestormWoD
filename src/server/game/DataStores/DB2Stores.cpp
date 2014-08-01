@@ -114,29 +114,29 @@ void LoadDB2Stores(const std::string& dataPath)
 
     StoreProblemList1 bad_db2_files;
 
-    LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");              
-    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");                          
-    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");              
-    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");                  
-    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");                 
-    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");                  
-    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");          
-    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");              
-    LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");                 
-    LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");                   
-    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");            
-    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");                   
-    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");            
-    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");                  
-    LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2");                 
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");
+    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");
+    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");
+    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");
+    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");
+    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
+    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");
+    LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");
+    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");
+    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");
+    LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2");
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2");
-    LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore,     db2Path, "SpellAuraRestrictions.db2");         
-    LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");                                              
-    LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");                                             
+    LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore,     db2Path, "SpellAuraRestrictions.db2");
+    LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
+    LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sOverrideSpellDataStore,         db2Path, "OverrideSpellData.db2");
-    LoadDB2(bad_db2_files, sSpellMiscStore,                 db2Path, "SpellMisc.db2"); 
+    LoadDB2(bad_db2_files, sSpellMiscStore,                 db2Path, "SpellMisc.db2");
     LoadDB2(bad_db2_files, sSpellPowerStore,                db2Path, "SpellPower.db2");
-    LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2"); 
+    LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2");
     LoadDB2(bad_db2_files, sSpellClassOptionsStore,         db2Path, "SpellClassOptions.db2");
 
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)

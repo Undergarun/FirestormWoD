@@ -718,12 +718,12 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
     ObjectGuid playerGuid = m_Player->GetGUID();
     // WTB StartBitStream...
-    
+
     uint8 bitOrder2[8] = { 2, 4, 1, 0, 6, 3, 7, 5 };
     data.WriteBitInOrder(playerGuid, bitOrder2);
 
     data.WriteBit(0); // unk bit, usually 0
-    
+
     uint8 byteOrder2[8] = { 3, 1, 5, 7, 4, 0, 6, 2 };
     data.WriteBytesSeq(playerGuid, byteOrder2);
 
@@ -749,7 +749,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     uint8 tradeSlot;
     uint8 srcBag;
     uint8 srcSlot;
-    
+
     recvPacket >> tradeSlot;
     recvPacket >> srcSlot;
     recvPacket >> srcBag;

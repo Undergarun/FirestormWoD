@@ -61,7 +61,7 @@ namespace BNet2 {
                 break;
 
             default:
-                break;  
+                break;
         }
 
         return "unkn";
@@ -95,7 +95,7 @@ namespace BNet2 {
 
         return false;
     }
-    
+
     //////////////////////////////////////////////////////////////////////////
 
     /// Register module

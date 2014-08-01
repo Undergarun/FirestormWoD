@@ -601,7 +601,7 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     summonerGuid[7] = recvData.ReadBit();
     summonerGuid[3] = recvData.ReadBit();
     summonerGuid[6] = recvData.ReadBit();
-    
+
     agree = recvData.ReadBit();
 
     summonerGuid[4] = recvData.ReadBit();
@@ -848,7 +848,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
         in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
         It will freeze clients that receive this player's movement info.*/
-    
+
     REMOVE_VIOLATING_FLAGS(p_MovementInformation->HasMovementFlag(MOVEMENTFLAG_ROOT),
         MOVEMENTFLAG_ROOT);
 
@@ -947,7 +947,6 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
             case MSEHasSpline:
                 p_Data.WriteBit(false);
                 break;
-
 
             case MSEGuid:
                 p_Data << p_MovementInformation->guid;
@@ -1070,7 +1069,6 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
             case MSEUnkCounterLoop:
                 break;
 
-
             case MSEFlushBits:
                 p_Data.FlushBits();
                 break;
@@ -1081,7 +1079,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
             case MSEOneBit:
                 p_Data.WriteBit(1);
                 break;
-            
+
             default:
                 ASSERT(false && "Incorrect sequence element detected at ReadMovementInfo");
                 break;

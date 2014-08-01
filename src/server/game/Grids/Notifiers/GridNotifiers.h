@@ -115,7 +115,7 @@ namespace JadeCore
 
         void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
         void Visit(CreatureMapType &m)
-        { 
+        {
             for (GridRefManager<Creature>::iterator iter = m.begin(); iter != m.end(); ++iter)
                 iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
         }
@@ -165,9 +165,8 @@ namespace JadeCore
         uint32 i_phaseMask;
         float i_distSq;
         UnfriendlyMessageDistDeliverer(Unit* src, WorldPacket* msg, float dist)
-            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
-        {
-        }
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist) { }
+
         void Visit(PlayerMapType &m);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
 
@@ -182,7 +181,7 @@ namespace JadeCore
 
             if (WorldSession* session = player->GetSession())
                 session->SendPacket(i_message);
-            
+
             if (i_message->GetOpcode() == SMSG_CLEAR_TARGET)
             {
                 for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_AUTOREPEAT_SPELL; ++i)

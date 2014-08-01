@@ -1070,7 +1070,7 @@ class ObjectMgr
             TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(TempSummonGroupKey(summonerId, summonerType, group));
             if (itr != _tempSummonDataStore.end())
                 return &itr->second;
-                   
+
             return NULL;
         }
 
@@ -1298,7 +1298,7 @@ class ObjectMgr
 
         ///Temporaire pour la création des Z, a remettre en private après
         GameObjectDataContainer _gameObjectDataStore;
-    
+
         std::set<uint32> const& GetOverwriteExtendedCosts() const
         {
             return _overwriteExtendedCosts;
@@ -1456,7 +1456,7 @@ class ObjectMgr
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
-    
+
         std::set<uint32> _overwriteExtendedCosts;
 
         enum CreatureLinkedRespawnType

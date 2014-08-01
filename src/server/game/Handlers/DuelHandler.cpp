@@ -37,7 +37,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     recvPacket.ReadBitInOrder(guid, bitOrder);
 
     recvPacket.FlushBits();
-    
+
     uint8 byteOrder[8] = { 5, 2, 3, 6, 1, 0, 4, 7 };
     recvPacket.ReadBytesSeq(guid, byteOrder);
 

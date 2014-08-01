@@ -496,7 +496,7 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
             aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID));
             aura->GetDynobjOwner()->SetAura(aura);
             aura->_InitEffects(effMask, caster, baseAmount);
-            
+
             aura->LoadScripts();
             ASSERT(aura->GetDynobjOwner());
             ASSERT(aura->GetDynobjOwner()->IsInWorld());
@@ -1181,7 +1181,7 @@ bool Aura::CanBeSaved() const
 
     // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
     // we skip saving this aura
-    // Also for some reason other auras put as MultiSlot crash core on keeping them after restart, 
+    // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
     // so put here only these for which you are sure they get removed
     switch (GetId())
     {
@@ -1190,7 +1190,7 @@ bool Aura::CanBeSaved() const
         // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
         // we skip saving this aura
         case 44413:
-        case 40075: // Fel Flak Fire 
+        case 40075: // Fel Flak Fire
         case 55849: // Power Spark
         case 61669: // Aspect of the Beast
         // When a druid logins, he doesnt have either eclipse power, nor the marker auras, nor the eclipse buffs. Dont save them.
@@ -1469,7 +1469,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             aur->RefreshDuration();
 
                         if (!target->HasAura(100029) && aurApp->GetBase()->GetStackAmount() >= 25)
-                            target->CastSpell(target, 100029, true);    
+                            target->CastSpell(target, 100029, true);
 
                         break;
                     // Arion - Swirling Winds
@@ -2323,7 +2323,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
             // not channeled AOE effects should not stack (blizzard should, but Consecration should not)
             if (m_spellInfo->Effects[i].IsTargetingArea() && !m_spellInfo->IsChanneled())
                 continue;
-                
+
             switch (m_spellInfo->Effects[i].ApplyAuraName)
             {
                 // DOT or HOT from different casters will stack
@@ -2407,7 +2407,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     }
 
     if (m_spellInfo->SpellIconID != existingSpellInfo->SpellIconID &&
-        ((m_spellInfo->GetMaxDuration() <= 60*IN_MILLISECONDS && m_spellInfo->GetMaxDuration() != -1) || 
+        ((m_spellInfo->GetMaxDuration() <= 60*IN_MILLISECONDS && m_spellInfo->GetMaxDuration() != -1) ||
         (existingSpellInfo->GetMaxDuration() <= 60*IN_MILLISECONDS && existingSpellInfo->GetMaxDuration() != -1)))
         return true;
 
@@ -2423,7 +2423,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
                 {
                     case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
                     case SPELL_AURA_MOD_STAT:
-                        if (m_spellInfo->Effects[i].MiscValue == existingSpellInfo->Effects[i].MiscValue || (m_spellInfo->Effects[i].MiscValueB != 0 && 
+                        if (m_spellInfo->Effects[i].MiscValue == existingSpellInfo->Effects[i].MiscValue || (m_spellInfo->Effects[i].MiscValueB != 0 &&
                             m_spellInfo->Effects[i].MiscValueB == existingSpellInfo->Effects[i].MiscValueB))
                             return false;
                         break;
@@ -2440,7 +2440,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
 
     if (m_spellInfo->SpellFamilyName != existingSpellInfo->SpellFamilyName)
         return true;
-        
+
     bool isVehicleAura1 = false;
     bool isVehicleAura2 = false;
     uint8 i = 0;

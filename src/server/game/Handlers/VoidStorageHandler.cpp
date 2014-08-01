@@ -170,7 +170,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     // Read everything
 
     ObjectGuid npcGuid;
-    
+
     uint32 countDeposit = recvData.ReadBits(24);
 
     std::vector<ObjectGuid> itemGuids(countDeposit);
@@ -357,7 +357,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
         ObjectGuid itemId = withdrawItems[i].ItemId;
-    
+
         uint8 bitOrder[8] = { 7, 2, 6, 5, 1, 0, 4, 3 };
         data.WriteBitInOrder(itemId, bitOrder);
     }
@@ -367,7 +367,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
         ObjectGuid itemId = withdrawItems[i].ItemId;
-    
+
         uint8 byteOrder[8] = { 6, 1, 5, 4, 3, 7, 2, 0 };
         data.WriteBytesSeq(itemId, byteOrder);
     }

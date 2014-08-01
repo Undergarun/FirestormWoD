@@ -37,8 +37,8 @@ namespace BNet2 {
 
                 if (!HasComponent(l_Component))
                     m_Components.push_back(l_Component);
-            } 
-            
+            }
+
             for (uint32_t l_Locale = 0; l_Locale < l_Locales.size(); ++l_Locale)
             {
                 AuthComponent l_Component;
@@ -159,7 +159,7 @@ namespace BNet2 {
         if (p_Flag & BNet2::BATTLENET2_PLATFORM_WIN64)
             l_Out.push_back("Wn64");
         if (p_Flag & BNet2::BATTLENET2_PLATFORM_MAC64)
-            l_Out.push_back("Mc64");        
+            l_Out.push_back("Mc64");
 
         return l_Out;
     }

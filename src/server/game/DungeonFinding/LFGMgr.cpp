@@ -551,7 +551,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         lockData.lockstatus = LFG_LOCKSTATUS_OK;
 
         AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
-        
+
         uint8 LevelMin = 0;
         uint8 LevelMax = 0;
         if (ar)

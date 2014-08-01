@@ -180,7 +180,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             {
                 uint32 l_MessageLenght = 0;
                 std::string l_Message = "";
-                
+
                 l_MessageLenght = p_RecvData.ReadBits(8);
                 p_RecvData >> l_Message;
 

@@ -57,7 +57,7 @@ enum Opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   ///< 6.0.1 18612
         SMSG_CACHE_VERSION                          = 0x10CE,   ///< 6.0.1 18612
         SMSG_ADDON_INFO                             = 0x184A,   ///< 6.0.1 18612
-        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0000,   ///< 
+        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0000,   ///<
         SMSG_SET_TIME_ZONE_INFORMATION              = 0x0648,   ///< 6.0.1 18612
         SMSG_LOGIN_VERIFY_WORLD                     = 0x017D,   ///< 6.0.1 18612
         SMSG_NEW_WORLD                              = 0x16E5,   ///< 6.0.1 18612
@@ -89,7 +89,7 @@ enum Opcodes
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x15C5,   ///< 6.0.1 18612
         SMSG_DESTROY_OBJECT                         = 0x104E,   ///< 6.0.1 18612
-        SMSG_POWER_UPDATE                           = 0x0000,   ///< 
+        SMSG_POWER_UPDATE                           = 0x0000,   ///<
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   ///< 6.0.1 18612
@@ -414,7 +414,7 @@ enum Opcodes
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x18DA,   ///< 6.0.1 18612
     CMSG_SHOWING_CLOAK                          = 0x1B7A,   ///< 6.0.1 18612
     CMSG_SHOWING_HELM                           = 0x0ACE,   ///< 6.0.1 18612
-    
+
     //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
@@ -505,7 +505,7 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_CHANNEL                   = 0x000C,   ///<
 
     CMSG_JOIN_CHANNEL                           = 0x0066,   ///< 6.0.1 18612
-     
+
     //////////////////////////////////////////////////////////////////////////
     /// Movement
     //////////////////////////////////////////////////////////////////////////
@@ -516,10 +516,10 @@ enum Opcodes
     CMSG_MOVE_START_BACKWARD                    = 0x084B,   ///< 6.0.1 18612
     CMSG_MOVE_START_STRAFE_LEFT                 = 0x08CC,   ///< 6.0.1 18612
     CMSG_MOVE_START_STRAFE_RIGHT                = 0x03DC,   ///< 6.0.1 18612
-    
+
     /// Misc
     CMSG_MOVE_JUMP                              = 0x03D0,   ///< 6.0.1 18612
-    CMSG_WORLD_PORT_RESPONSE                    = 0x0000,   ///< 
+    CMSG_WORLD_PORT_RESPONSE                    = 0x0000,   ///<
 
     /// Update
     CMSG_MOVE_HEARTBEAT                         = 0x12CB,   ///< 6.0.1 18612

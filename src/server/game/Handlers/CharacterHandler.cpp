@@ -269,7 +269,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
             Player::BuildEnumData(p_Result, &l_Data);
 
             /// This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-            if (!sWorld->HasCharacterNameData(l_GuidLow)) 
+            if (!sWorld->HasCharacterNameData(l_GuidLow))
                 sWorld->AddCharacterNameData(l_GuidLow, (*p_Result)[1].GetString(), (*p_Result)[4].GetUInt8(), (*p_Result)[2].GetUInt8(), (*p_Result)[3].GetUInt8(), (*p_Result)[7].GetUInt8());
 
             _allowedCharsToLogin.insert(l_GuidLow);
@@ -357,12 +357,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
             switch (l_RaceTeam)
             {
-                case ALLIANCE: 
-                    l_IsDisabled = l_Mask & (1 << 0); 
+                case ALLIANCE:
+                    l_IsDisabled = l_Mask & (1 << 0);
                     break;
 
-                case HORDE:    
-                    l_IsDisabled = l_Mask & (1 << 1); 
+                case HORDE:
+                    l_IsDisabled = l_Mask & (1 << 1);
                     break;
             }
 
@@ -472,7 +472,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
     delete _charCreateCallback.GetParam();  // Delete existing if any, to make the callback chain reset to stage 0
 
     _charCreateCallback.SetParam(new CharacterCreateInfo(l_CharacterName, l_CharacterRace, l_CharacterClass, l_CharacterGender, l_CharacterSkin, l_CharacterFace, l_CharacterHairStyle, l_CharacterHairColor, l_CharacterFacialHair, l_CharacterOutfitID, p_RecvData));
-    
+
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     l_Stmt->setString(0, l_CharacterName);
 
@@ -913,7 +913,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
         sLog->OutPandashan("Player kicked due to flood of CMSG_PLAYER_LOGIN");
         KickPlayer();
     }
-    
+
     if (PlayerLoading() || GetPlayer() != NULL)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Player tries to login again, AccountId = %d", GetAccountId());
@@ -1053,10 +1053,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     l_Data.WriteBit(l_StoreIsAvailable);                            ///< Can purchase in store
     l_Data.WriteBit(l_StoreIsDisabledByParentalControls);           ///< Is store disabled by parental controls
     l_Data.WriteBit(l_ItemRestorationButtonEnbaled);                ///< Item Restoration Button Enabled
-    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled     
+    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled
     l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
     l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
-    l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.) 
+    l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.)
     l_Data.FlushBits();
 
     if (l_EuropaTicketSystemEnabled)
@@ -1125,7 +1125,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
-    
+
     const static std::string l_TimeZoneName = "Europe/Paris";
 
     l_Data.Initialize(SMSG_SET_TIME_ZONE_INFORMATION, 26);
@@ -1179,52 +1179,51 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     SendPacket(&l_Data);
 
     uint32 time3 = getMSTime() - time2;
-    
+
     // Send item extended costs hotfix
     std::set<uint32> extendedCostHotFix = sObjectMgr->GetOverwriteExtendedCosts();
     for (auto itr : extendedCostHotFix)
     {
         const ItemExtendedCostEntry* extendedCost = sItemExtendedCostStore.LookupEntry(itr);
-        
+
         if (!extendedCost)
             continue;
-        
+
         WorldPacket data(SMSG_DB_REPLY);
         ByteBuffer buff;
-        
+
         buff << uint32(extendedCost->ID);
         buff << uint32(0); // reqhonorpoints
         buff << uint32(0); // reqarenapoints
         buff << uint32(extendedCost->RequiredArenaSlot);
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
             buff << uint32(extendedCost->RequiredItem[i]);
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
             buff << uint32(extendedCost->RequiredItemCount[i]);
-        
+
         buff << uint32(extendedCost->RequiredPersonalArenaRating);
         buff << uint32(0); // ItemPurchaseGroup
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
             buff << uint32(extendedCost->RequiredCurrency[i]);
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
             buff << uint32(extendedCost->RequiredCurrencyCount[i]);
-        
+
         // Unk
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
             buff << uint32(0);
-        
+
         data << uint32(buff.size());
         data.append(buff);
-        
+
         data << uint32(DB2_REPLY_ITEM_EXTENDED_COST);
         data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, DB2_REPLY_ITEM_EXTENDED_COST));
         data << uint32(extendedCost->ID);
-        
+
         SendPacket(&data);
-        
     }
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
@@ -2174,7 +2173,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 
         uint8 bytesOrder[8] = { 4, 1, 6, 5, 3, 2, 0, 7 };
         recvData.ReadBytesSeq(itemGuid[i], bytesOrder);
-        
+
         if (i < uint32(startSlot))
             continue;
 

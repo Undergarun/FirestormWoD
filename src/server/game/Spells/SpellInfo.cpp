@@ -127,7 +127,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
         printf("SPELL_TARGET overflow!! %u\r\n", _target);
         return 0;
     }
-    
+
     uint32 targetMask = 0;
     if (GetTarget() == TARGET_DEST_TRAJ)
     {
@@ -1450,7 +1450,7 @@ bool SpellInfo::CanCritDamageClassNone() const
     switch (Id)
     {
         case 379:   // Shaman - Earth Shield
-        case 73685: // Shaman - Unleash Elements - Unleash Life 
+        case 73685: // Shaman - Unleash Elements - Unleash Life
 
         case 86958: // Shaman - Cleansing Waters
         case 86961:
@@ -1693,9 +1693,9 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 106108:
         case 105925:
         case 110070:
-        case 110069: 
-        case 110068: 
-        case 109075: 
+        case 110069:
+        case 110068:
+        case 109075:
         case 110080:
         case 110079:
         case 110078:
@@ -1953,7 +1953,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return SPELL_FAILED_BAD_TARGETS;
 
-    // TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to 
+    // TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
     // not allow passengers to be implicitly hit by spells, however this target type should be an exception,
     // if this is left it kills spells that award kill credit from vehicle to master and some or all* spells,
     // the use of these 2 covers passenger target check
@@ -2708,7 +2708,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
     {
         if (!Effects[i].IsEffect())
             continue;
-        
+
         if (Effects[i].TargetA.GetTarget() >= TOTAL_SPELL_TARGETS)
         {
             printf("%u SPELL_TARGET overflow!! %u\r\n", Id, Effects[i].TargetA.GetTarget());
@@ -2747,7 +2747,7 @@ bool SpellInfo::IsAllwaysStackModifers() const
         case 23333:
         case 23335:
 
-        case 16191: // mana tide buff 
+        case 16191: // mana tide buff
             return true;
        default:
             break;
@@ -3375,11 +3375,11 @@ bool SpellInfo::IsIgnoringCombat() const
             return true;
         default: break;
     }
-    
+
     // Dark Intent
     if (SpellFamilyName == SPELLFAMILY_WARLOCK && (SpellFamilyFlags[2] & 0x00800000))
         return true;
-    
+
     return false;
 }
 
@@ -3674,7 +3674,7 @@ bool SpellInfo::IsNeedAdditionalLosChecks() const
     switch(Id)
     {
         case 3600:  // Earthbind Totem
-        case 50622: 
+        case 50622:
         case 44949: // Whirlwind from bladestorm
         case 23455: // Holy Nova
         case 87204: // Sin and Punishment proc

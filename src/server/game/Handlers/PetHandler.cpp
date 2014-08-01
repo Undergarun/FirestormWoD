@@ -900,7 +900,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(casterGUID[2]);
     recvPacket.ReadByteSeq(casterGUID[3]);
     recvPacket.ReadByteSeq(casterGUID[7]);
-    
+
     for (uint32 i = 0; i < archeologyCounter; i++)
     {
         recvPacket.read_skip<uint32>(); // entry

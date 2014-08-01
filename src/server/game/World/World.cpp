@@ -1345,7 +1345,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = ConfigMgr::GetIntDefault("Anticheat.DetectionsEnabled",31);
     m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
 
-    // Announce server for a ban    
+    // Announce server for a ban
     m_bool_configs[CONFIG_ANNOUNCE_BAN] = ConfigMgr::GetBoolDefault("AnnounceBan", false);
     m_bool_configs[CONFIG_ANNOUNCE_MUTE] = ConfigMgr::GetBoolDefault("AnnounceMute", false);
     m_bool_configs[CONFIG_SPELL_FORBIDDEN] = ConfigMgr::GetBoolDefault("SpellForbidden", false);
@@ -1624,7 +1624,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
-    
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "loading Quest Dynamic Reward...");
     sObjectMgr->LoadQuestDynamicRewards();
 
@@ -1983,7 +1983,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
-    
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading item extended cost...");
     sObjectMgr->LoadItemExtendedCost();
 
@@ -2612,11 +2612,10 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
                     uint32 timeRemaining = fieldsCheck[0].GetUInt32();
                     if (timeRemaining > duration_secs)
                     {
-                         return BAN_TOO_SMALL; 
+                         return BAN_TOO_SMALL;
                     }
                 }
 
-            
                 //Permanent ban
                 stmtt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT);
                 stmtt->setUInt32(0, account);

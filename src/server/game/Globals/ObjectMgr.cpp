@@ -394,8 +394,8 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                                 7                  8                    9                  10                11                     12
                                              "difficulty_entry_7, difficulty_entry_8, difficulty_entry_9, difficulty_entry_10, difficulty_entry_11, difficulty_entry_12, "
     //                                                  13                  14              15                       16                    17                   18                    19                  20
-                                             "difficulty_entry_13, difficulty_entry_14, difficulty_entry_15, difficulty_entry_16, difficulty_entry_17, difficulty_entry_18, difficulty_entry_19, difficulty_entry_20, " 
-                                             
+                                             "difficulty_entry_13, difficulty_entry_14, difficulty_entry_15, difficulty_entry_16, difficulty_entry_17, difficulty_entry_18, difficulty_entry_19, difficulty_entry_20, "
+
                                              "KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           21      22      23       24           25           26        27     28      29        30        31         32         33        34         35
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction_A, faction_H, npcflag, npcflag2, speed_walk, speed_run, "
@@ -4458,7 +4458,7 @@ void ObjectMgr::LoadQuestDynamicRewards()
     do
     {
         Field* fields = result->Fetch();
-        
+
         uint32 questId = fields[0].GetUInt32();
 
         if (_questTemplates.find(questId) == _questTemplates.end())
@@ -4470,7 +4470,7 @@ void ObjectMgr::LoadQuestDynamicRewards()
         quest->AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
     }
     while (result->NextRow());
-    
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -5370,7 +5370,7 @@ void ObjectMgr::LoadNpcTextLocales()
 
     _npcTextLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, " 
+    QueryResult result = WorldDatabase.Query("SELECT entry, "
         "Text0_0_loc1,  Text0_1_loc1,  Text1_0_loc1,  Text1_1_loc1,  Text2_0_loc1,  Text2_1_loc1,  Text3_0_loc1,  Text3_1_loc1,  Text4_0_loc1,  Text4_1_loc1,  Text5_0_loc1,  Text5_1_loc1,  Text6_0_loc1,  Text6_1_loc1,  Text7_0_loc1,  Text7_1_loc1,  Text8_0_loc1,   Text8_1_loc1,   Text9_0_loc1,   Text9_1_loc1, "
         "Text0_0_loc2,  Text0_1_loc2,  Text1_0_loc2,  Text1_1_loc2,  Text2_0_loc2,  Text2_1_loc2,  Text3_0_loc2,  Text3_1_loc1,  Text4_0_loc2,  Text4_1_loc2,  Text5_0_loc2,  Text5_1_loc2,  Text6_0_loc2,  Text6_1_loc2,  Text7_0_loc2,  Text7_1_loc2,  Text8_0_loc2,   Text8_1_loc2,   Text9_0_loc2,   Text9_1_loc2, "
         "Text0_0_loc3,  Text0_1_loc3,  Text1_0_loc3,  Text1_1_loc3,  Text2_0_loc3,  Text2_1_loc3,  Text3_0_loc3,  Text3_1_loc1,  Text4_0_loc3,  Text4_1_loc3,  Text5_0_loc3,  Text5_1_loc3,  Text6_0_loc3,  Text6_1_loc3,  Text7_0_loc3,  Text7_1_loc3,  Text8_0_loc3,   Text8_1_loc3,   Text9_0_loc3,   Text9_1_loc3, "
@@ -5817,7 +5817,7 @@ void ObjectMgr::LoadGraveyardZones()
         }
 
         if (areaEntry->zone != 0 && zoneId != 33 && zoneId != 5287 && zoneId != 6170 && zoneId != 6176 && zoneId != 6450 && zoneId != 6451
-                             && zoneId != 6452 && zoneId != 6453 && zoneId != 6454 && zoneId != 6455 && zoneId != 6456 && zoneId != 6450) 
+                             && zoneId != 6452 && zoneId != 6453 && zoneId != 6454 && zoneId != 6455 && zoneId != 6456 && zoneId != 6450)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
             continue;
@@ -9428,46 +9428,44 @@ void ObjectMgr::RestructGameObjectGUID(uint32 nbLigneToRestruct)
 void ObjectMgr::LoadItemExtendedCost()
 {
     QueryResult result = WorldDatabase.PQuery("SELECT ID, RequiredArenaSlot, RequiredItem1, RequiredItem2, RequiredItem3, RequiredItem4, RequiredItem5, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5,RequiredPersonalArenaRating, RequiredCurrency1, RequiredCurrency2, RequiredCurrency3, RequiredCurrency4, RequiredCurrency5, RequiredCurrencyCount1, RequiredCurrencyCount2, RequiredCurrencyCount3, RequiredCurrencyCount4, RequiredCurrencyCount5 FROM item_extended_cost");
-    
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 item extended cost info. DB table `item_extended_cost` is empty.");
         return;
     }
-    
+
     uint32 counter = 0;
-    
+
     do
     {
         Field* field = result->Fetch();
         int index = 0;
         counter++;
-        
+
         ItemExtendedCostEntry* extendedCost = new ItemExtendedCostEntry();
         extendedCost->ID = field[index++].GetUInt32();
         extendedCost->RequiredArenaSlot = field[index++].GetUInt32();
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
             extendedCost->RequiredItem[i] = field[index++].GetUInt32();
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
             extendedCost->RequiredItemCount[i] = field[index++].GetUInt32();
-        
+
         extendedCost->RequiredPersonalArenaRating = field[index++].GetUInt32();
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
             extendedCost->RequiredCurrency[i] = field[index++].GetUInt32();
-        
+
         for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
             extendedCost->RequiredCurrencyCount[i] = field[index++].GetUInt32();
-        
+
         sItemExtendedCostStore.EraseEntry(extendedCost->ID);
         sItemExtendedCostStore.AddEntry(extendedCost->ID, (const ItemExtendedCostEntry*)extendedCost);
         _overwriteExtendedCosts.insert(extendedCost->ID);
-        
     }
     while (result->NextRow());
-    
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item extended cost info.", counter);
 }
 

@@ -26,7 +26,7 @@
 #include "Timer.h"
 #include "GameObjectModel.h"
 #include "ModelInstance.h"
-#include "VMapDefinitions.h" 
+#include "VMapDefinitions.h"
 
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>

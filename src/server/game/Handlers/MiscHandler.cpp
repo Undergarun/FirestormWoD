@@ -976,7 +976,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 
     uint32 status;
     recvData >> status;
-    
+
     ObjectGuid guid;
 
     uint8 bitsOrder[8] = { 3, 4, 1, 5, 2, 0, 7, 6 };
@@ -1522,7 +1522,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         data.WriteBit(itemCreator[5]);
         data.WriteBit(itemCreator[4]);
     }
-    
+
     data.WriteBit(playerGuid[4]);
     data.WriteBit(playerGuid[1]);
     data.WriteBit(playerGuid[0]);
@@ -1622,7 +1622,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
         data << uint64(guild->GetExperience());
     }
-    
+
     data.WriteByteSeq(playerGuid[6]);
     data.WriteByteSeq(playerGuid[4]);
     data.WriteByteSeq(playerGuid[2]);
@@ -1657,10 +1657,10 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
 
     uint8 bitOrder2[8] = { 5, 3, 7, 2, 1, 6, 0, 4 };
     data.WriteBitInOrder(playerGuid, bitOrder2);
-    
+
     const uint32 cycleCount = 3; // MAX_ARENA_SLOT
     data.WriteBits(cycleCount, 3);
-    
+
     data.WriteByteSeq(playerGuid[7]);
 
     for (int i = 0; i < cycleCount; ++i)
@@ -1670,9 +1670,9 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
         data << uint32(player->GetSeasonWins(i));
         data << uint32(0);
         data << uint32(0);
-        
+
         data << uint8(i);
-        
+
         data << uint32(0);
         data << uint32(0);
         data << uint32(player->GetArenaPersonalRating(i));
@@ -1722,10 +1722,10 @@ void WorldSession::HandleInspectRatedBGStatsOpcode(WorldPacket& recvData)
     data << uint32(0); //SeasonWin
     data << uint32(0); //SeasonPlayed
     data << uint32(0); //Rating
-    
+
     uint8 bitOrder3[8] = {5, 7, 2, 3, 4, 6, 0, 1};
     data.WriteBitInOrder(gguid, bitOrder3);
-    
+
     uint8 byteOrder2[8] = {6, 2, 3, 1, 7, 5, 4, 0};
     data.WriteBytesSeq(gguid, byteOrder2);
 
@@ -1744,7 +1744,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
     recvData >> time;                                      // time in m.sec.
     recvData >> mapid;
     recvData >> PositionX;
-    recvData >> Orientation;     
+    recvData >> Orientation;
     recvData >> PositionY;
     recvData >> PositionZ;                          // o (3.141593 = 180 degrees)
 
@@ -2199,7 +2199,7 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     04000000
     60 04 // 1121 (mapid)
     61 04 // 1030 (mapid)
-    
+
     ED // guid bitmask
     79 07 81 23 56 02 // guid bytes*/
 
@@ -2226,10 +2226,10 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     data << unkValue;
     //for (uint32 i = 0; i < unkValue; i++)
         //data << uint16(0);
-    
+
     uint8 bitOrder[8] = { 0, 2, 1, 5, 3, 7, 4, 6 };
     data.WriteBitInOrder(guid, bitOrder);
-    
+
     uint8 byteOrder[8] = { 0, 5, 4, 7, 6, 2, 1, 3 };
     data.WriteBytesSeq(guid, byteOrder);
 
@@ -2512,7 +2512,7 @@ void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 {
     uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
     uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
-    
+
     uint32 skillId = recvPacket.read<uint32>();
     uint32 spellId = recvPacket.read<uint32>();
 

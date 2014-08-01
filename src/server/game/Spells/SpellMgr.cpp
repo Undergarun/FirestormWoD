@@ -2059,13 +2059,12 @@ void SpellMgr::LoadForbiddenSpells()
     do
     {
         Field *fields = result->Fetch();
-    
+
         mForbiddenSpells.push_back(fields[0].GetUInt32());
 
         ++count;
     }
     while (result->NextRow());
-
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u forbidden spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3067,7 +3066,7 @@ void SpellMgr::LoadSpellClassInfo()
         // Natural Insight druid
         if (ClassID == CLASS_DRUID)
             mSpellClassInfo[ClassID].insert(112857);
-        
+
         // Sinister Strike Enabler
         if (ClassID == CLASS_ROGUE)
             mSpellClassInfo[ClassID].insert(79327);
@@ -5315,10 +5314,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 57143: // Life Burst (Wyrmrest Skytalon)
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
-            // This would never crit on retail and it has attribute for SPELL_ATTR3_NO_DONE_BONUS because is handled from player, 
-            // until someone figures how to make scions not critting without hack and without making them main casters this should stay here. 
-            case 63934: // Arcane Barrage (casted by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)). 
-                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT; 
+            // This would never crit on retail and it has attribute for SPELL_ATTR3_NO_DONE_BONUS because is handled from player,
+            // until someone figures how to make scions not critting without hack and without making them main casters this should stay here.
+            case 63934: // Arcane Barrage (casted by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)).
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
             // ENDOF EYE OF ETERNITY SPELLS
             //
@@ -5381,7 +5380,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 71159: // Awaken Plagued Zombies
                 spellInfo->SetDurationIndex(21);
                 break;
-            case 71127: // Mortal Wound  
+            case 71127: // Mortal Wound
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;
             case 70530: // Volatile Ooze Beam Protection (Professor Putricide)
@@ -5651,7 +5650,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 89268: // Throw Food Targeting
-            case 89740: 
+            case 89740:
             case 90561:
             case 90562:
             case 90582:
@@ -5745,7 +5744,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 87426: // Shadow Apparition
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 73685: // Unleash Life 
+            case 73685: // Unleash Life
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
             case 49560: // Death Grip
@@ -5790,7 +5789,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 6358: // Seduction
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
-            
+
             default:
                 break;
         }

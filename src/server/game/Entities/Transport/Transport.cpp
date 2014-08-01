@@ -82,12 +82,11 @@ void MapManager::UnLoadTransportFromMap(Transport* t)
             if (t != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
 
-    t->m_NPCPassengerSet.clear();         
+    t->m_NPCPassengerSet.clear();
     m_TransportsByInstanceIdMap[t->GetInstanceId()].erase(t);
     m_Transports.erase(t);
     t->m_WayPoints.clear();
     t->RemoveFromWorld();
-
 }
 
 void MapManager::LoadTransportForPlayers(Player* player)
@@ -111,7 +110,7 @@ void MapManager::LoadTransportForPlayers(Player* player)
 void MapManager::UnLoadTransportForPlayers(Player* player)
 {
     MapManager::TransportMap& tmap = sMapMgr->m_TransportsByInstanceIdMap;
-    
+
     UpdateData transData(player->GetMapId());
 
     MapManager::TransportSet& tset = tmap[player->GetInstanceId()];

@@ -491,7 +491,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     {
         if (!fgets(buf, 32000, fin))
         {
-            if (feof(fin)) 
+            if (feof(fin))
                 break;
 
             ROLLBACK(DUMP_FILE_BROKEN);

@@ -360,7 +360,7 @@ void WorldSession::HandleMailDelete(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_MAIL_DELETE");
 
     uint32 mailId;
-    recvData.read_skip<uint32>();   
+    recvData.read_skip<uint32>();
     recvData >> mailId;                       // mailTemplateId
 
     Mail* m = m_Player->GetMail(mailId);

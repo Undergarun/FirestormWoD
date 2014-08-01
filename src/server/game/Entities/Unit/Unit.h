@@ -1755,7 +1755,7 @@ class Unit : public WorldObject
         void SendThreatListUpdate();
 
         void SendClearTarget();
-        
+
         void BuildHeartBeatMsg(WorldPacket* data) const;
 
         bool isAlive() const { return (m_deathState == ALIVE); };
@@ -2414,7 +2414,7 @@ class Unit : public WorldObject
 
     protected:
         explicit Unit (bool isWorldObject);
-        
+
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         UnitAI* i_AI, *i_disabledAI;
@@ -2573,8 +2573,8 @@ class Unit : public WorldObject
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after beginning removing from world
 
-        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing       
-        bool _isWalkingBeforeCharm; // Are we walking before we were charmed? 
+        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
+        bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
         int32 _eclipsePower;
 
@@ -2587,7 +2587,7 @@ namespace JadeCore
     class PowerPctOrderPred
     {
         public:
-            PowerPctOrderPred(Powers power, bool ascending = true) : m_power(power), m_ascending(ascending) {}
+            PowerPctOrderPred(Powers power, bool ascending = true) : m_power(power), m_ascending(ascending) { }
             bool operator() (const Unit* a, const Unit* b) const
             {
                 float rA = a->GetMaxPower(m_power) ? float(a->GetPower(m_power)) / float(a->GetMaxPower(m_power)) : 0.0f;

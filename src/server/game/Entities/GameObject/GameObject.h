@@ -416,16 +416,21 @@ struct GameObjectTemplate
             default: return false;
         }
     }
- 
-    bool IsUsableMounted() const 
+
+    bool IsUsableMounted() const
     {
-        switch (type) 
+        switch (type)
         {
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted; 
-            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted; 
-            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted; 
-            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted; 
-            default: return false; 
+            case GAMEOBJECT_TYPE_QUESTGIVER:
+                return questgiver.allowMounted;
+            case GAMEOBJECT_TYPE_TEXT:
+                return text.allowMounted;
+            case GAMEOBJECT_TYPE_GOOBER:
+                return goober.allowMounted;
+            case GAMEOBJECT_TYPE_SPELLCASTER:
+                return spellcaster.allowMounted;
+            default:
+                return false;
         }
     }
 
@@ -433,18 +438,30 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:       return door.lockId;
-            case GAMEOBJECT_TYPE_BUTTON:     return button.lockId;
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.lockId;
-            case GAMEOBJECT_TYPE_CHEST:      return chest.lockId;
-            case GAMEOBJECT_TYPE_TRAP:       return trap.lockId;
-            case GAMEOBJECT_TYPE_GOOBER:     return goober.lockId;
-            case GAMEOBJECT_TYPE_AREADAMAGE: return areadamage.lockId;
-            case GAMEOBJECT_TYPE_CAMERA:     return camera.lockId;
-            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.lockId;
-            case GAMEOBJECT_TYPE_FISHINGHOLE:return fishinghole.lockId;
-            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.lockId;
-            default: return 0;
+            case GAMEOBJECT_TYPE_DOOR:
+                return door.lockId;
+            case GAMEOBJECT_TYPE_BUTTON:
+                return button.lockId;
+            case GAMEOBJECT_TYPE_QUESTGIVER:
+                return questgiver.lockId;
+            case GAMEOBJECT_TYPE_CHEST:
+                return chest.lockId;
+            case GAMEOBJECT_TYPE_TRAP:
+                return trap.lockId;
+            case GAMEOBJECT_TYPE_GOOBER:
+                return goober.lockId;
+            case GAMEOBJECT_TYPE_AREADAMAGE:
+                return areadamage.lockId;
+            case GAMEOBJECT_TYPE_CAMERA:
+                return camera.lockId;
+            case GAMEOBJECT_TYPE_FLAGSTAND:
+                return flagstand.lockId;
+            case GAMEOBJECT_TYPE_FISHINGHOLE:
+                return fishinghole.lockId;
+            case GAMEOBJECT_TYPE_FLAGDROP:
+                return flagdrop.lockId;
+            default:
+                return 0;
         }
     }
 
@@ -634,7 +651,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
     public:
         explicit GameObject();
         ~GameObject();
-        
+
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         void AddToWorld();

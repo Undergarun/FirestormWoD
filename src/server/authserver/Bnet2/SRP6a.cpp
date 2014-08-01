@@ -44,7 +44,7 @@ namespace BNet2 {
         PrivateB.SetBinary(l_Buffer, 4 * SHA256_DIGEST_LENGTH);
 
         BigNumber l_Result = ((K * V) + G.ModExp(PrivateB, N)) % N;
-        
+
         uint8 * l_BinResult = l_Result.AsByteArray(4 * SHA256_DIGEST_LENGTH);
 
         for (uint32_t l_I = 0; l_I < sizeof(PublicB); ++l_I)
@@ -81,7 +81,7 @@ namespace BNet2 {
     /// Compute session key
     void SRP6a::ComputeSessionKey()
     {
-        uint32_t l_Size = S.GetNumBytes(); 
+        uint32_t l_Size = S.GetNumBytes();
 
         uint8 * l_SBytes = S.AsByteArray(l_Size);
 
@@ -129,7 +129,7 @@ namespace BNet2 {
         uint8_t * l_Buffer = new uint8_t[l_BufferSize];
         uint32_t l_PtrPos = 0;
 
-        
+
         std::string l_IHexString;
         for (uint32_t l_I = 0; l_I < SHA256_DIGEST_LENGTH; l_I++)
         {

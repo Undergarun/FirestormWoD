@@ -1363,7 +1363,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
         proto1->InventoryType == INVTYPE_FINGER ||
         proto1->InventoryType == INVTYPE_TRINKET ||
         proto1->InventoryType == INVTYPE_AMMO ||
-        proto1->InventoryType == INVTYPE_QUIVER || 
+        proto1->InventoryType == INVTYPE_QUIVER ||
         proto1->InventoryType == INVTYPE_NON_EQUIP ||
         proto1->InventoryType == INVTYPE_TABARD)
         return false;
@@ -1374,7 +1374,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
         proto2->InventoryType == INVTYPE_FINGER ||
         proto2->InventoryType == INVTYPE_TRINKET ||
         proto2->InventoryType == INVTYPE_AMMO ||
-        proto2->InventoryType == INVTYPE_QUIVER || 
+        proto2->InventoryType == INVTYPE_QUIVER ||
         proto2->InventoryType == INVTYPE_NON_EQUIP ||
         proto2->InventoryType == INVTYPE_TABARD)
         return false;
@@ -1407,7 +1407,7 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     {
         uint32 skill1 = proto1->GetSkill();
         uint32 skill2 = proto2->GetSkill();
-        
+
         if ((skill1 == SKILL_PLATE_MAIL || skill1 == SKILL_LEATHER ||
             skill1 == SKILL_MAIL || skill1 == SKILL_CLOTH) ||
             (skill2 == SKILL_PLATE_MAIL || skill2 == SKILL_LEATHER ||

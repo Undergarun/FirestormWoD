@@ -191,7 +191,7 @@ struct ItemExtendedCostEntry
     //uint32    RequiredFactionId;                                      // 26
     //uint32    RequiredFactionStanding;                                // 27
     //uint32    RequirementFlags;                                       // 28
-    //uint32    RequiredGuildLevel;                                     // 29 removed ? 
+    //uint32    RequiredGuildLevel;                                     // 29 removed ?
     //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
@@ -311,7 +311,7 @@ struct AreaPOIEntry
     //uint32 unk;                                           // 6
     float x;                                                // 7
     float y;                                                // 8
-    //uint32 unk;                                           // 9 
+    //uint32 unk;                                           // 9
     //char* name;                                           // 10
     uint32 worldState;                                      // 11
     //uint32 unk;                                           // 12
@@ -336,7 +336,7 @@ struct HolidaysEntry
     //uint32 holidayDescriptionId;                          // 40       m_holidayDescriptionID (HolidayDescriptions.dbc)
     uint32 Priority;                                        // 41       m_priority
     char* TextureFilename;                                  // 42       m_textureFilename
-    int32 CalendarFilterType;                               // 43       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)    
+    int32 CalendarFilterType;                               // 43       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     //uint32 flags;                                         // 44       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
