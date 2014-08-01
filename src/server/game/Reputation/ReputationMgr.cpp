@@ -198,45 +198,40 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    WorldPacket data(SMSG_INITIALIZE_FACTIONS, 256 * 6);
+    WorldPacket l_Data(SMSG_INITIALIZE_FACTIONS, 256 * 3);
 
-    ByteBuffer bits;
-    RepListID a = 0;
+    RepListID l_A = 0;
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
         // fill in absent fields
-        for (; a != itr->first; ++a)
+        for (; l_A != itr->first; ++l_A)
         {
-            data << uint32(0);
-            data << uint8(0);
-
-            bits.WriteBit(0);
+            l_Data << uint8(0);                   ///< Faction Flags
+            l_Data << uint32(0);                  ///< Faction Standings
         }
 
-        // fill in encountered data
-        data << uint32(itr->second.Standing);
-        data << uint8(itr->second.Flags);
-
-        bits.WriteBit(itr->second.needSend);
+        l_Data << uint8(itr->second.Flags);       ///< Faction Flags
+        l_Data << uint32(itr->second.Standing);   ///< Faction Standings
 
         itr->second.needSend = false;
 
-        ++a;
+        ++l_A;
+    }
+
+    for (; l_A != 256; ++l_A)
+    {
+        l_Data << uint8(0);                       ///< Faction Flags
+        l_Data << uint32(0);                      ///< Faction Standings
     }
 
     // fill in absent fields
-    for (; a != 256; ++a)
-    {
-        data << uint32 (0x00000000);
-        data << uint8  (0x00);
+    for (l_A = 0 ; l_A != 256; ++l_A)
+        l_Data.WriteBit(0);                       ///< Faction Has Bonus
 
-        bits.WriteBit(0);
-    }
+    l_Data.FlushBits();
 
-    data.append(bits);
-
-    _player->SendDirectMessage(&data);
+    _player->SendDirectMessage(&l_Data);
 }
 
 void ReputationMgr::SendStates()

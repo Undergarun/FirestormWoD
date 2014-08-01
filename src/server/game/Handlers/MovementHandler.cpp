@@ -505,21 +505,12 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     }
 }
 
-void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& p_RecvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
-    ObjectGuid guid;
-
-    recvPacket.ReadBit(); //unk
-
-    uint8 bitsOrder[8] = { 4, 7, 6, 0, 5, 3, 1, 2 };
-    recvPacket.ReadBitInOrder(guid, bitsOrder);
-
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 0, 3, 6, 5, 2, 4, 1 };
-    recvPacket.ReadBytesSeq(guid, bytesOrder);
+    uint64 l_Guid;
+    p_RecvPacket.readPackGUID(l_Guid);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)

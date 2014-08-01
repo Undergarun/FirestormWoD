@@ -354,29 +354,29 @@ struct OverrideSpellDataEntry
 struct SpellMiscEntry
 {
     uint32    Id;                                           // 0        m_ID
-    uint32    SpellId;                                      // 1        m_spellId
-    //uint32 Unknown;                                       // 2        5.0.1.15589
-    uint32    Attributes;                                   // 3        m_attribute
-    uint32    AttributesEx;                                 // 4        m_attributesEx
-    uint32    AttributesEx2;                                // 5        m_attributesExB
-    uint32    AttributesEx3;                                // 6        m_attributesExC
-    uint32    AttributesEx4;                                // 7        m_attributesExD
-    uint32    AttributesEx5;                                // 8        m_attributesExE
-    uint32    AttributesEx6;                                // 9        m_attributesExF
-    uint32    AttributesEx7;                                // 10       m_attributesExG (0x20 - totems, 0x4 - paladin auras, etc...)
-    uint32    AttributesEx8;                                // 11       m_attributesExH
-    uint32    AttributesEx9;                                // 12       m_attributesExI
-    uint32    AttributesEx10;                               // 13       m_attributesExI
-    uint32    AttributesEx11;                               // 14       m_attributesExI
-    uint32    AttributesEx12;                               // 15       m_attributesExI
-    uint32    CastingTimeIndex;                             // 16       m_castingTimeIndex
-    uint32    DurationIndex;                                // 17       m_durationIndex
-    uint32    rangeIndex;                                   // 18       m_rangeIndex
-    float     speed;                                        // 19       m_speed
-    uint32    SpellVisual[2];                               // 20-21    m_spellVisualID
-    uint32    SpellIconID;                                  // 22       m_spellIconID
-    uint32    activeIconID;                                 // 23       m_activeIconID
-    uint32    SchoolMask;                                   // 24       m_schoolMask
+    uint32    Attributes;                                   // 1        m_attribute
+    uint32    AttributesEx;                                 // 2        m_attributesEx
+    uint32    AttributesEx2;                                // 3        m_attributesExB
+    uint32    AttributesEx3;                                // 4        m_attributesExC
+    uint32    AttributesEx4;                                // 5        m_attributesExD
+    uint32    AttributesEx5;                                // 6        m_attributesExE
+    uint32    AttributesEx6;                                // 7        m_attributesExF
+    uint32    AttributesEx7;                                // 8        m_attributesExG (0x20 - totems, 0x4 - paladin auras, etc...)
+    uint32    AttributesEx8;                                // 9        m_attributesExH
+    uint32    AttributesEx9;                                // 10       m_attributesExI
+    uint32    AttributesEx10;                               // 11       m_attributesExJ
+    uint32    AttributesEx11;                               // 12       m_attributesExK
+    uint32    AttributesEx12;                               // 13       m_attributesExL
+    uint32    AttributesEx13;                               // 14       m_attributesExM
+    uint32    CastingTimeIndex;                             // 15       m_castingTimeIndex
+    uint32    DurationIndex;                                // 16       m_durationIndex
+    uint32    rangeIndex;                                   // 17       m_rangeIndex
+    float     speed;                                        // 18       m_speed
+    uint32    SpellVisual[2];                               // 19-20    m_spellVisualID
+    uint32    SpellIconID;                                  // 21       m_spellIconID
+    uint32    activeIconID;                                 // 22       m_activeIconID
+    uint32    SchoolMask;                                   // 23       m_schoolMask
+    //uint32    Unknown;                                    // 24       unk 601 18612
 };
 
 // SpellPower.dbc

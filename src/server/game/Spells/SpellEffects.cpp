@@ -7834,11 +7834,11 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     // binding
     WorldPacket data(SMSG_BIND_POINT_UPDATE, (4 + 4 + 4 + 4 + 4));
-    data << float(loc.m_positionY);
     data << float(loc.m_positionX);
+    data << float(loc.m_positionY);
     data << float(loc.m_positionZ);
-    data << uint32(area_id);
     data << uint32(loc.m_mapId);
+    data << uint32(area_id);
     player->SendDirectMessage(&data);
 
     // zone update

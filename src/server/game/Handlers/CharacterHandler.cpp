@@ -1061,17 +1061,17 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     if (l_EuropaTicketSystemEnabled)
     {
-        l_Data << uint32(0);
-        l_Data << uint32(60);
-        l_Data << uint32(10);
-        l_Data << uint32(1);
+        l_Data << uint32(0);                                        ///< Max Tries
+        l_Data << uint32(60);                                       ///< Per Milliseconds
+        l_Data << uint32(10);                                       ///< Try Count
+        l_Data << uint32(1);                                        ///< Last Reset Time Before Now
     }
 
     if (l_PlayTimeAlert)
     {
-        l_Data << uint32(l_PlayTimeAlertDisplayAlertDelay);       ///< Alert delay
-        l_Data << uint32(l_PlayTimeAlertDisplayAlertPeriod);      ///< Alert period
-        l_Data << uint32(l_PlayTimeAlertDisplayAlertTime);        ///< Alert display time
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertDelay);         ///< Alert delay
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertPeriod);        ///< Alert period
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertTime);          ///< Alert display time
     }
 
     SendPacket(&l_Data);
@@ -1166,16 +1166,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     l_Data << uint64(0);
     SendPacket(&l_Data);
 
-    l_Data.Initialize(SMSG_HOTFIX_INFO);
+    l_Data.Initialize(SMSG_HOTFIX_NOTIFY_BLOB);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    l_Data.WriteBits(hotfix.size(), 20);
-    l_Data.FlushBits();
+
+    l_Data << uint32(hotfix.size());
+
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
+        l_Data << uint32(hotfix[i].Type);
         l_Data << uint32(hotfix[i].Entry);
         l_Data << uint32(hotfix[i].Timestamp);
-        l_Data << uint32(hotfix[i].Type);
     }
+
     SendPacket(&l_Data);
 
     uint32 time3 = getMSTime() - time2;
@@ -1189,41 +1191,41 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         if (!extendedCost)
             continue;
         
-        WorldPacket data(SMSG_DB_REPLY);
-        ByteBuffer buff;
+        //WorldPacket data(SMSG_DB_REPLY);
+        //ByteBuffer buff;
+        //
+        //buff << uint32(extendedCost->ID);
+        //buff << uint32(0); // reqhonorpoints
+        //buff << uint32(0); // reqarenapoints
+        //buff << uint32(extendedCost->RequiredArenaSlot);
+        //
+        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
+        //    buff << uint32(extendedCost->RequiredItem[i]);
+        //
+        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
+        //    buff << uint32(extendedCost->RequiredItemCount[i]);
+        //
+        //buff << uint32(extendedCost->RequiredPersonalArenaRating);
+        //buff << uint32(0); // ItemPurchaseGroup
+        //
+        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
+        //    buff << uint32(extendedCost->RequiredCurrency[i]);
+        //
+        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
+        //    buff << uint32(extendedCost->RequiredCurrencyCount[i]);
+        //
+        //// Unk
+        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
+        //    buff << uint32(0);
+        //
+        //data << uint32(buff.size());
+        //data.append(buff);
+        //
+        //data << uint32(DB2_REPLY_ITEM_EXTENDED_COST);
+        //data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, DB2_REPLY_ITEM_EXTENDED_COST));
+        //data << uint32(extendedCost->ID);
         
-        buff << uint32(extendedCost->ID);
-        buff << uint32(0); // reqhonorpoints
-        buff << uint32(0); // reqarenapoints
-        buff << uint32(extendedCost->RequiredArenaSlot);
-        
-        for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
-            buff << uint32(extendedCost->RequiredItem[i]);
-        
-        for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
-            buff << uint32(extendedCost->RequiredItemCount[i]);
-        
-        buff << uint32(extendedCost->RequiredPersonalArenaRating);
-        buff << uint32(0); // ItemPurchaseGroup
-        
-        for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-            buff << uint32(extendedCost->RequiredCurrency[i]);
-        
-        for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-            buff << uint32(extendedCost->RequiredCurrencyCount[i]);
-        
-        // Unk
-        for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-            buff << uint32(0);
-        
-        data << uint32(buff.size());
-        data.append(buff);
-        
-        data << uint32(DB2_REPLY_ITEM_EXTENDED_COST);
-        data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, DB2_REPLY_ITEM_EXTENDED_COST));
-        data << uint32(extendedCost->ID);
-        
-        SendPacket(&data);
+        //SendPacket(&data);
         
     }
 

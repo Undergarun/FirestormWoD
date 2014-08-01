@@ -2343,102 +2343,42 @@ struct VisibleAchievementPred
 template<class T>
 void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 {
-    const CriteriaProgressMap* progressMap = GetCriteriaProgressMap();
+    const CriteriaProgressMap* l_ProgressMap = GetCriteriaProgressMap();
 
-    if (!progressMap)
+    if (!l_ProgressMap)
         return;
 
-    VisibleAchievementPred isVisible;
-    size_t numCriteria = progressMap->size();
-    size_t numAchievements = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), isVisible);
-    ObjectGuid guid = GetOwner()->GetGUID();
-    ObjectGuid counter;
+    VisibleAchievementPred l_IsVisible;
+    size_t l_CriteriaCount      = l_ProgressMap->size();
+    size_t l_AchievementCount   = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), l_IsVisible);
 
     WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA);
 
-    data.WriteBits(numAchievements, 20);
+    data << uint32(l_AchievementCount);
+    data << uint32(l_CriteriaCount);
 
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
-        if (!isVisible(*itr))
+        if (!l_IsVisible(*itr))
             continue;
 
-        ObjectGuid firstAccountGuid = (*itr).second.first_guid;
-
-        uint8 bitOrder[8] = { 6, 1, 5, 3, 2, 7, 0, 4 };
-        data.WriteBitInOrder(firstAccountGuid, bitOrder);
+        data << uint32(itr->first);                                 ///< Id
+        data << uint32(secsToTimeBitFields((*itr).second.date));    ///< Date
+        data.appendPackGUID((*itr).second.first_guid);              ///< Owner
+        data << uint32(realmID);                                    ///< Virtual Realm Address
+        data << uint32(realmID);                                    ///< Native Realm Address
     }
 
-    data.WriteBits(numCriteria, 19);
-
-    for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
+    for (CriteriaProgressMap::const_iterator itr = l_ProgressMap->begin(); itr != l_ProgressMap->end(); ++itr)
     {
-        counter = uint64(itr->second.counter);
-
-        data.WriteBit(counter[5]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(counter[1]);
-        data.WriteBit(counter[7]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(counter[3]);
-        data.WriteBit(guid[5]);
-        data.WriteBits(0, 4);
-        data.WriteBit(counter[0]);
-        data.WriteBit(counter[6]);
-        data.WriteBit(counter[4]);
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(counter[2]);
-    }
-
-    for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
-    {
-        counter = uint64(itr->second.counter);
-
-        data.WriteByteSeq(guid[1]);
-        data << uint32(itr->first);     // Criteria id
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(counter[5]);
-        data << uint32(0);              // Unk value from 5.4.0, always 0
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(counter[0]);
-        data  << uint32(227545947);     // Unk value from 5.4.0, always 227545947
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(counter[2]);
-        data.WriteByteSeq(counter[1]);
-        data << uint32(0);              // Unk value from 5.4.0, always 0
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(counter[3]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(counter[4]);
-        data.WriteByteSeq(counter[7]);
-        data.WriteByteSeq(counter[6]);
-        data.WriteByteSeq(guid[0]);
-    }
-
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
-    {
-        if (!isVisible(*itr))
-            continue;
-
-        ObjectGuid firstAccountGuid = (*itr).second.first_guid;
-
-        data.WriteByteSeq(firstAccountGuid[4]);
-        data.WriteByteSeq(firstAccountGuid[6]);
-        data.WriteByteSeq(firstAccountGuid[3]);
-        data.WriteByteSeq(firstAccountGuid[0]);
-        data << uint32(realmID);                                   // Unk timer from 5.4.0 17399, sometimes 50724907
-        data.WriteByteSeq(firstAccountGuid[1]);
-        data.WriteByteSeq(firstAccountGuid[2]);
-        data << uint32(secsToTimeBitFields((*itr).second.date));
-        data.WriteByteSeq(firstAccountGuid[7]);
-        data.WriteByteSeq(firstAccountGuid[5]);
-        data << uint32(realmID);                                   // Unk timer from 5.4.0 17399, sometimes 50724907
-        data << uint32(itr->first);
+        data << uint32(itr->first);                     ///< Id
+        data << uint64(itr->second.counter);            ///< Quantity
+        data.appendPackGUID(GetOwner()->GetGUID());     ///< Player
+        data << uint32(secsToTimeBitFields(time(0)));   ///< Date
+        data << uint32(0);                              ///< TimeFromStart
+        data << uint32(0);                              ///< TimeFromCreate
+        data.WriteBits(0, 4);                           ///< Flags
+        data.FlushBits();
     }
 
     SendPacket(&data);

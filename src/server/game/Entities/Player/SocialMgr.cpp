@@ -158,30 +158,31 @@ void PlayerSocial::SendSocialList(Player* player)
 
     WorldPacket data(SMSG_CONTACT_LIST, (4+4+size*25));     // just can guess size
     data << uint32(7);                                      // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
-    data << uint32(size);                                   // friends count
+    data.WriteBits(size, 8);                                // friends count
+    data.FlushBits();
 
     for (PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
     {
         sSocialMgr->GetFriendInfo(player, itr->first, itr->second);
 
-        data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));                         // player guid
-        data << uint32(realmID);
-        data << uint32(0);
-        data << uint32(itr->second.Flags);                  // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
-        data << itr->second.Note;                           // string note
-        if (itr->second.Flags & SOCIAL_FLAG_FRIEND)         // if IsFriend()
-        {
-            data << uint8(itr->second.Status);              // online/offline/etc?
-            if (itr->second.Status)                         // if online
-            {
-                data << uint32(itr->second.Area);           // player area
-                data << uint32(itr->second.Level);          // player level
-                data << uint32(itr->second.Class);          // player class
-            }
-        }
+        data.appendPackGUID(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+        data.appendPackGUID(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_WOW_ACCOUNT));
+        data << uint32(realmID);                            ///< Virtual Realm Addr
+        data << uint32(realmID);                            ///< Native Realm Addr
+        data << uint32(itr->second.Flags);                  ///< player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
+        data << uint8(itr->second.Status);                  ///< online/offline/etc?
+        data << uint32(itr->second.Area);                   ///< player area
+        data << uint32(itr->second.Level);                  ///< player level
+        data << uint32(itr->second.Class);                  ///< player class
+
+        data.WriteBits(itr->second.Note.size(), 10);
+        data.FlushBits();
+
+        data.WriteString(itr->second.Note);                           // string note
     }
 
     player->GetSession()->SendPacket(&data);
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CONTACT_LIST");
 }
 

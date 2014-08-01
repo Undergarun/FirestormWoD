@@ -8563,83 +8563,82 @@ void Player::_SaveCurrency(SQLTransaction& trans)
     }
 }
 
-void Player::SendNewCurrency(uint32 id)
+void Player::SendNewCurrency(uint32 p_ID)
 {
-    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    if (itr == _currencyStorage.end())
+    PlayerCurrenciesMap::const_iterator l_It = _currencyStorage.find(p_ID);
+
+    if (l_It == _currencyStorage.end())
         return;
 
-    WorldPacket packet(SMSG_INIT_CURRENCY);
+    WorldPacket l_Data(SMSG_INIT_CURRENCY);
 
-    packet.WriteBits(1, 21);
+    l_Data << uint32(1);
     
-    CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
-    if (!entry) // should never happen
+    CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_ID);
+
+    if (!l_CurrencyEntry) // should never happen
         return;
     
-    uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-    uint32 weekCount = itr->second.weekCount / precision;
-    uint32 weekCap = GetCurrencyWeekCap(entry->ID) / precision;
-    uint32 seasonTotal = itr->second.seasonTotal / precision;
-    
-    packet.WriteBit(weekCount);
-    packet.WriteBit(seasonTotal);
-    packet.WriteBit(weekCap);
-    packet.WriteBits(itr->second.flags, 5);
+    uint32 l_Precision = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+    uint32 l_WeekCount = l_It->second.weekCount / l_Precision;
+    uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
+    uint32 l_SeasonTotal = l_It->second.seasonTotal / l_Precision;
 
-    packet << uint32(itr->second.totalCount / precision);
+    l_Data << uint32(l_CurrencyEntry->ID);
+    l_Data << uint32(l_It->second.totalCount / l_Precision);
 
-    if (weekCount)
-        packet << uint32(weekCount);
-    if (weekCap)
-        packet << uint32(weekCap);
-    if (seasonTotal)
-        packet << uint32(seasonTotal);
-    
-    packet << uint32(entry->ID);
+    l_Data.WriteBit(l_WeekCount);
+    l_Data.WriteBit(l_WeekCap);
+    l_Data.WriteBit(l_SeasonTotal);
+    l_Data.WriteBits(l_It->second.flags, 5);
+    l_Data.FlushBits();
 
-    GetSession()->SendPacket(&packet);
+    if (l_WeekCount)
+        l_Data << uint32(l_WeekCount);
+    if (l_WeekCap)
+        l_Data << uint32(l_WeekCap);
+    if (l_SeasonTotal)
+        l_Data << uint32(l_SeasonTotal);
+
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendCurrencies()
 {
-    ByteBuffer currencyData;
-    WorldPacket packet(SMSG_INIT_CURRENCY);
+    WorldPacket l_Data(SMSG_INIT_CURRENCY);
 
-    packet.WriteBits(_currencyStorage.size(), 21);
+    l_Data << uint32(_currencyStorage.size());
 
-    for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
+    for (PlayerCurrenciesMap::const_iterator l_It = _currencyStorage.begin(); l_It != _currencyStorage.end(); ++l_It)
     {
-        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-        if (!entry) // should never happen
+        CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_It->first);
+
+        if (!l_CurrencyEntry) // should never happen
             continue;
 
-        uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-        uint32 weekCount = itr->second.weekCount / precision;
-        uint32 weekCap = GetCurrencyWeekCap(entry->ID) / precision;
-        uint32 seasonTotal = itr->second.seasonTotal / precision;
+        uint32 l_Precision      = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+        uint32 l_WeekCount      = l_It->second.weekCount / l_Precision;
+        uint32 l_WeekCap        = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
+        uint32 l_SeasonTotal    = l_It->second.seasonTotal / l_Precision;
         
-        packet.WriteBit(weekCount);
-        packet.WriteBit(seasonTotal);
-        packet.WriteBit(weekCap);
-        packet.WriteBits(itr->second.flags, 5);
+        l_Data << uint32(l_CurrencyEntry->ID);
+        l_Data << uint32(l_It->second.totalCount / l_Precision);
 
-        currencyData << uint32(itr->second.totalCount / precision);
-        
-        if (weekCount)
-            currencyData << uint32(weekCount);
-        if (weekCap)
-            currencyData << uint32(weekCap);
-        if (seasonTotal)
-            currencyData << uint32(seasonTotal);
+        l_Data.WriteBit(l_WeekCount);
+        l_Data.WriteBit(l_WeekCap);
+        l_Data.WriteBit(l_SeasonTotal);
+        l_Data.WriteBits(l_It->second.flags, 5);
+        l_Data.FlushBits();
 
-        currencyData << uint32(entry->ID);
+        if (l_WeekCount)
+            l_Data << uint32(l_WeekCount);
+        if (l_WeekCap)
+            l_Data << uint32(l_WeekCap);
+        if (l_SeasonTotal)
+            l_Data << uint32(l_SeasonTotal);
     }
 
-    packet.FlushBits();
-    packet.append(currencyData);
-
-    GetSession()->SendPacket(&packet);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendPvpRewards()
@@ -25383,9 +25382,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // Homebind
     WorldPacket data(SMSG_BIND_POINT_UPDATE, 5 * 4);
-    data << m_homebindY << m_homebindX << m_homebindZ;
-    data << uint32(m_homebindAreaId);
+    data << m_homebindX << m_homebindY << m_homebindZ;
     data << uint32(m_homebindMapId);
+    data << uint32(m_homebindAreaId);
     GetSession()->SendPacket(&data);
 
     // SMSG_SET_PROFICIENCY
@@ -25418,29 +25417,40 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << uint32(1);                                          // added in 3.1.2
     GetSession()->SendPacket(&data);
 
+    bool l_IsInInstance = GetGroup() && (GetMap()->IsDungeon() || GetMap()->IsRaid());
+
     data.Initialize(SMSG_WORLD_SERVER_INFO, 4 * 5);
-    data << uint32(0);
-    data << uint32(1380070800);
-    data << uint8(0);
-    data.WriteBit(false);
-    data.WriteBit(false);
-    data.WriteBit(false);
-    data.WriteBit(false);
+
+    if (GetMap()->IsDungeon())
+        data << uint32(GetDungeonDifficulty());                             ///< DifficultyID
+    else if (GetMap()->IsRaid())
+        data << uint32(GetRaidDifficulty());                                ///< DifficultyID
+    else
+        data << uint32(0);                                                  ///< DifficultyID
+
+    data << uint8(0);                                                       ///< Is Tournament Realm
+    data << uint32(sWorld->GetNextWeeklyQuestsResetTime() - (2 * WEEK));    ///< Last Weekly Reset
+    data.WriteBit(false);                                                   ///< Has Restricted Account Max Level
+    data.WriteBit(false);                                                   ///< Has Restricted Account Max Money
+    data.WriteBit(false);                                                   ///< Has Ineligible For Loot Mask
+    data.WriteBit(l_IsInInstance);                                          ///< Has Instance Group Size
+
+    if (l_IsInInstance)
+        data << uint32(GetGroup()->GetMembersCount());
+
     GetSession()->SendPacket(&data);
-    
+
     data.Initialize(SMSG_INITIAL_SETUP, 2062);
-    data << uint8(4);
-    data << uint8(0);
-    data << uint32(3);
-    data.WriteBit(false);
-    data.WriteBits(2048, 24);
-    data << uint32(1135753200);
-    uint8 unkdatabyte[2048] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 133, 0, 0, 1, 128, 162, 164, 0, 144, 4, 24, 0, 0, 8, 4, 16, 130, 24, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    for (int i = 0; i < 2048; ++i)
-    {
-        data << uint8(unkdatabyte[i]);
-    }
+    data << uint32(2500);                                       ///< Completed Quest count
+    data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
+    data << uint8(0);                                           ///< Server Expansion Tier
+    data << uint32(1135753200);                                 ///< Server Region ID
+
+    for (int l_I = 0; l_I < 2500; ++l_I)
+        data << uint8(0);                                       ///< Quest completed bit
+
     GetSession()->SendPacket(&data);
+
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
@@ -28050,7 +28060,8 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
         if (specCount > MAX_TALENT_SPECS)
             SetSpecsCount(MAX_TALENT_SPECS);
 
-        data->WriteBits(specCount, 19);
+        *data << uint8(activeSpec);
+        *data << uint32(specCount);
 
         uint8* talentCount = new uint8[specCount];
 
@@ -28067,12 +28078,12 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
             }
         }
 
-        for (uint8 i = 0; i < specCount; i++)
-            data->WriteBits(talentCount[i], 23);
-
         // loop through all specs (only 1 for now)
-        for (uint8 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
+        for (uint8 specIdx = 0; specIdx < specCount; ++specIdx)
         {
+            *data << uint32(GetSpecializationId(specIdx));
+            *data << uint32(talentCount[specIdx]);
+
             // Glyphs datas
             for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
                 *data << uint16(GetGlyph(specIdx, i));               // GlyphProperties.dbc
@@ -28085,11 +28096,8 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
                     *data << uint16(spell->talentId);           // Talents.dbc
             }
 
-            *data << uint32(GetSpecializationId(specIdx));
         }
 
-        *data << uint8(activeSpec);
-        
         delete[] talentCount;
         talentCount = NULL;
     }
@@ -28159,103 +28167,46 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
 void Player::SendEquipmentSetList()
 {
-    uint32 count = 0;
+    uint32 l_EquipmentSetCount = 0;
 
-    WorldPacket data(SMSG_EQUIPMENT_SET_LIST);
-    ByteBuffer bytesData;
+    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST);
 
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    for (EquipmentSets::iterator l_Itr = m_EquipmentSets.begin(); l_Itr != m_EquipmentSets.end(); ++l_Itr)
     {
-        if (itr->second.state == EQUIPMENT_SET_DELETED)
+        if (l_Itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
 
-        ++count;
+        ++l_EquipmentSetCount;
     }
 
-    data.WriteBits(count, 19);
+    l_Data << uint32(l_EquipmentSetCount);
 
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    for (EquipmentSets::iterator l_Itr = m_EquipmentSets.begin(); l_Itr != m_EquipmentSets.end(); ++l_Itr)
     {
-        if (itr->second.state == EQUIPMENT_SET_DELETED)
+        if (l_Itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
 
-        ObjectGuid setGuid = itr->second.Guid;
+        l_Data << uint64(l_Itr->second.Guid);
+        l_Data << uint32(l_Itr->first);
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
-            if (itr->second.IgnoreMask & (1 << i))
-            {
-                uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
-                data.WriteBitInOrder(0, bitsOrder);
-            }
+            if (l_Itr->second.IgnoreMask & (1 << i))
+                l_Data.appendPackGUID(0);
             else
-            {
-                ObjectGuid itemGuid = MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM);
-
-                uint8 bitsOrder[8] = { 0, 6, 5, 4, 2, 7, 1, 3 };
-                data.WriteBitInOrder(itemGuid, bitsOrder);
-            }
+                l_Data.appendPackGUID(MAKE_NEW_GUID(l_Itr->second.Items[i], 0, HIGHGUID_ITEM));
         }
 
-        data.WriteBit(setGuid[6]);
-        data.WriteBit(setGuid[0]);
-        data.WriteBit(setGuid[2]);
-        data.WriteBit(setGuid[5]);
-        data.WriteBits(itr->second.Name.size(), 8);
-        data.WriteBit(setGuid[3]);
+        l_Data.WriteBits(l_Itr->second.Name.size(), 8);
+        l_Data.WriteBits(l_Itr->second.IconName.size(), 9);
+        l_Data.FlushBits();
 
-        uint8 wrongLen = itr->second.IconName.size() % 2;
-        data.WriteBits((itr->second.IconName.size() - wrongLen) / 2, 8);
-        data.WriteBit(wrongLen != 0);
-        data.WriteBit(setGuid[4]);
-        data.WriteBit(setGuid[7]);
-        data.WriteBit(setGuid[1]);
+        l_Data.WriteString(l_Itr->second.Name);
+        l_Data.WriteString(l_Itr->second.IconName);
     }
 
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
-    {
-        if (itr->second.state == EQUIPMENT_SET_DELETED)
-            continue;
-
-        ObjectGuid setGuid = itr->second.Guid;
-
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        {
-            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
-            if (itr->second.IgnoreMask & (1 << i))
-            {
-                uint8 bytesOrder[8] = { 4, 6, 3, 5, 0, 2, 1, 7 };
-                data.WriteBytesSeq(0, bytesOrder);
-            }
-            else
-            {
-                ObjectGuid itemGuid = MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM);
-
-                uint8 bytesOrder[8] = { 4, 6, 3, 5, 0, 2, 1, 7 };
-                data.WriteBytesSeq(itemGuid, bytesOrder);
-            }
-        }
-
-        if (itr->second.Name.size())
-            data.append(itr->second.Name.c_str(), itr->second.Name.size());
-
-        data.WriteByteSeq(setGuid[5]);
-        data.WriteByteSeq(setGuid[0]);
-        data.WriteByteSeq(setGuid[3]);
-        data.WriteByteSeq(setGuid[6]);
-        data.WriteByteSeq(setGuid[1]);
-
-        if (itr->second.IconName.size())
-            data.append(itr->second.IconName.c_str(), itr->second.IconName.size());
-
-        data.WriteByteSeq(setGuid[7]);
-        data.WriteByteSeq(setGuid[4]);
-        data.WriteByteSeq(setGuid[2]);
-        data << uint32(itr->first);
-    }
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
@@ -28291,24 +28242,24 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
         eqslot.Guid = sObjectMgr->GenerateEquipmentSetGuid();
         ObjectGuid guid = eqslot.Guid;
 
-        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED);
+        WorldPacket l_Data(SMSG_EQUIPMENT_SET_SAVED);
 
         uint8 bitsOrder[8] = { 2, 6, 0, 5, 3, 4, 1, 7 };
-        data.WriteBitInOrder(guid, bitsOrder);
+        l_Data.WriteBitInOrder(guid, bitsOrder);
 
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[1]);
+        l_Data.WriteByteSeq(guid[4]);
+        l_Data.WriteByteSeq(guid[6]);
+        l_Data.WriteByteSeq(guid[0]);
+        l_Data.WriteByteSeq(guid[5]);
+        l_Data.WriteByteSeq(guid[2]);
+        l_Data.WriteByteSeq(guid[1]);
 
-        data << uint32(index);
+        l_Data << uint32(index);
 
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[3]);
+        l_Data.WriteByteSeq(guid[7]);
+        l_Data.WriteByteSeq(guid[3]);
 
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(&l_Data);
     }
 
     eqslot.state = old_state == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
@@ -29526,13 +29477,8 @@ void Player::SetMover(Unit* target)
     if (m_mover)
     {
         WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
-        ObjectGuid guid = target->GetGUID();
     
-        uint8 bitOrder[8] = { 7, 4, 2, 6, 0, 1, 3, 5 };
-        data.WriteBitInOrder(guid, bitOrder);
-    
-        uint8 byteOrder[8] = { 2, 5, 0, 3, 7, 1, 6, 4 };
-        data.WriteBytesSeq(guid, byteOrder);
+        data.appendPackGUID(target->GetGUID());
 
         GetSession()->SendPacket(&data);
     }
