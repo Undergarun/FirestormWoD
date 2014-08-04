@@ -512,14 +512,18 @@ class boss_zorlok : public CreatureScript
                 // another loop(s) until a platform is picked.
                 while (true)
                 {
+                    // count is used to set the same chance to be chosen for all platforms
+                    uint32 count = 0;
                     for (auto platform : platforms)
                     {
-                        if (urand(0,1))
+                        // can only trigger if urand returns 0
+                        if (!urand(0, uint32(platforms.size() - (1 + count))))
                         {
                             platforms.remove(platform);
                             ++numPlat;
                             return platformToUse = platform;
                         }
+                        ++count;
                     }
                 }
             }

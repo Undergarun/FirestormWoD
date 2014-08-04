@@ -884,6 +884,9 @@ void ShekzeerBuffAdds(Creature* me)
         std::list<Creature*> addList;
         GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 8.0f);
 
+        if (addList.empty())
+            continue;
+
         // Retaining only alive mobs who aren't me
         for (Creature* mob : addList)
         {
@@ -899,14 +902,15 @@ void ShekzeerBuffAdds(Creature* me)
     // If buff should be applied, we have to check that we have the right number of stacks
     if (buff)
     {
-        AuraPtr aura = me->AddAura(SPELL_BAND_OF_VALOR, me);
-
-        if (aura->GetStackAmount() != stacks)
-            aura->SetStackAmount(stacks);
+        if (AuraPtr aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
+        {
+            if (aura->GetStackAmount() != stacks)
+                aura->SetStackAmount(stacks);
+        }
     }
 
     // Remove aura if applied and there's no add around
-    if (!buff && me->HasAura(SPELL_BAND_OF_VALOR))
+    else if (!buff && me->HasAura(SPELL_BAND_OF_VALOR))
         me->RemoveAura(SPELL_BAND_OF_VALOR);
 }
 

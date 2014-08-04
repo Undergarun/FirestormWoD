@@ -6800,6 +6800,9 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
+    if (!caster || !target)
+        return;
+
     switch (GetSpellInfo()->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -6807,20 +6810,17 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             switch (GetId())
             {
                 case 98971: // Smoldering Rune, Item - Death Knight T12 DPS 2P Bonus
-                    GetCaster()->CastSpell(GetCaster(), 99055, true);
+                    caster->CastSpell(caster, 99055, true);
                     break;
                 case 91296: // Egg Shell, Corrupted Egg Shell
-                    GetCaster()->CastSpell(GetCaster(), 91306, true);
+                    GetCaster()->CastSpell(caster, 91306, true);
                     break;
                 case 91308: // Egg Shell, Corrupted Egg Shell (H)
-                    GetCaster()->CastSpell(GetCaster(), 91311, true);
+                    caster->CastSpell(caster, 91311, true);
                     break;
                 case 66149: // Bullet Controller Periodic - 10 Man
                 case 68396: // Bullet Controller Periodic - 25 Man
                 {
-                    if (!caster)
-                        break;
-
                     caster->CastCustomSpell(66152, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     caster->CastCustomSpell(66153, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     break;
@@ -6833,9 +6833,9 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 {
                     if (target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
                     {
-                         target->CastSpell(target, 62475, true); // System Shutdown
-                         if (Unit* veh = target->GetVehicleBase())
-                             veh->CastSpell(target, 62475, true);
+                        target->CastSpell(target, 62475, true); // System Shutdown
+                        if (Unit* veh = target->GetVehicleBase())
+                            veh->CastSpell(target, 62475, true);
                     }
                     break;
                 }
@@ -6850,9 +6850,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 }
                 case 102522:// Fan the Flames
                 {
-                    if (!caster)
-                        break;
-
                     switch (rand()%4)
                     {
                         case 1:
@@ -6909,9 +6906,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 // Camouflage
                 case 80326:
                 {
-                    if (!caster)
-                        break;
-
                     if ((caster->isMoving() && !caster->HasAura(119449)) || caster->HasAura(80325))
                         return;
 
@@ -6937,9 +6931,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             break;
         }
         case SPELLFAMILY_SHAMAN:
-            if (!caster || !target)
-                break;
-
+        {
             switch (GetId())
             {
                 // Astral Shift
@@ -6950,10 +6942,9 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     break;
             }
             break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
-            if (!caster)
-                break;
-
+        {
             switch (GetId())
             {
                 // Hysteria
@@ -6972,12 +6963,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         caster->RemoveAurasDueToSpell(96268);
                     break;
                 }
-                default:
-                    break;
-            }
-
-            switch (GetSpellInfo()->Id)
-            {
                 case 50034: // Blood Rites
                 case 56835: // Reaping
                 {
@@ -6993,34 +6978,35 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 default:
                     break;
             }
-            break;
-        case SPELLFAMILY_PALADIN:
-            if (!caster || !target)
-                break;
 
+            break;
+        }
+        case SPELLFAMILY_PALADIN:
+        {
             // Holy Radiance
             if (GetId() == 82327)
                 caster->CastSpell(target, 86452, true);
             break;
+        }
         case SPELLFAMILY_WARLOCK:
+        {
             switch (GetId())
             {
                 // Curse of Elements - Jinx
                 case 1490:
                 {
-                    Unit * caster = GetCaster();
-                    if (!caster)
-                        break;
                     if (AuraEffectPtr aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 5002, 0))
                     {
                         if (aurEff->GetId() == 85479)
                             caster->CastSpell(target, 86105, true);
-                        else caster->CastSpell(target, 85547, true);
+                        else
+                            caster->CastSpell(target, 85547, true);
                     }
                     break;
                 }
             }
             break;
+        }
         default:
             break;
     }
