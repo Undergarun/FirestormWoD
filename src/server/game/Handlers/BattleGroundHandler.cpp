@@ -843,3 +843,26 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket & recvData)
 
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
+
+void WorldSession::HandleWargameQueryOpcode(WorldPacket& p_RecvData)
+{
+    ObjectGuid l_FirstLeader = 0;
+    ObjectGuid l_SecondLeader = 0;
+
+    l_FirstLeader[7] = p_RecvData.ReadBit();
+    l_FirstLeader[0] = p_RecvData.ReadBit();
+    l_FirstLeader[6] = p_RecvData.ReadBit();
+    l_FirstLeader[3] = p_RecvData.ReadBit();
+    l_FirstLeader[1] = p_RecvData.ReadBit();
+    l_FirstLeader[2] = p_RecvData.ReadBit();
+    l_SecondLeader[1] = p_RecvData.ReadBit();
+    l_FirstLeader[5] = p_RecvData.ReadBit();
+    l_SecondLeader[6] = p_RecvData.ReadBit();
+    l_SecondLeader[3] = p_RecvData.ReadBit();
+    l_SecondLeader[0] = p_RecvData.ReadBit();
+    l_SecondLeader[5] = p_RecvData.ReadBit();
+    l_SecondLeader[2] = p_RecvData.ReadBit();
+    l_SecondLeader[4] = p_RecvData.ReadBit();
+    l_SecondLeader[7] = p_RecvData.ReadBit();
+    l_FirstLeader[4] = p_RecvData.ReadBit();
+}

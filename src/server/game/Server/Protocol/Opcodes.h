@@ -580,6 +580,7 @@ enum Opcodes
     CMSG_VOID_STORAGE_UNLOCK                          = 0x11A7, // 5.4.0 17399
     CMSG_VOID_SWAP_ITEM                               = 0x14A3, // 5.4.0 17399
     CMSG_WARDEN_DATA                                  = 0x1702, // 5.4.0 17399
+    CMSG_WARGAME_QUERY                                = 0x1696, // 5.4.0 17399
     CMSG_WARGAME_ACCEPT                               = 0x000,  // 5.0.5 16048
     CMSG_WARGAME_START                                = 0x000,  // 5.0.5 16048
     CMSG_WHO                                          = 0x1E06, // 5.4.0 17399
