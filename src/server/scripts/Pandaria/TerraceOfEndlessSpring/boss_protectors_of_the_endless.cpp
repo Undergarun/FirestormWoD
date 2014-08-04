@@ -271,9 +271,11 @@ class boss_ancient_regail : public CreatureScript
 			
 			void Reset()
 			{
+                if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
+                    return;
+
                 SetEquipmentSlots(false, REGAIL_ITEMS, REGAIL_ITEMS, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
-                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -343,7 +345,8 @@ class boss_ancient_regail : public CreatureScript
                 if (!pInstance)
                     return;
 
-                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                EncounterState bossState = pInstance->GetBossState(DATA_PROTECTORS);
+                if (bossState == FAIL || bossState == NOT_STARTED)
                     return;
 
                 if (pInstance->IsWipe())
@@ -596,9 +599,11 @@ class boss_ancient_asani : public CreatureScript
 			
 			void Reset()
 			{
+                if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
+                    return;
+
                 SetEquipmentSlots(false, ASANI_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
-                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -661,7 +666,8 @@ class boss_ancient_asani : public CreatureScript
                 if (!pInstance)
                     return;
 
-                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                EncounterState bossState = pInstance->GetBossState(DATA_PROTECTORS);
+                if (bossState == FAIL || bossState == NOT_STARTED)
                     return;
 
                 if (pInstance->IsWipe())
@@ -916,9 +922,11 @@ class boss_protector_kaolan : public CreatureScript
 			
 			void Reset()
 			{
+                if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
+                    return;
+
                 SetEquipmentSlots(false, KAOLAN_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
-                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -979,7 +987,8 @@ class boss_protector_kaolan : public CreatureScript
                 if (!pInstance)
                     return;
 
-                if (pInstance->GetBossState(DATA_PROTECTORS) == FAIL)
+                EncounterState bossState = pInstance->GetBossState(DATA_PROTECTORS);
+                if (bossState == FAIL || bossState == NOT_STARTED)
                     return;
 
                 if (pInstance->IsWipe())
@@ -1461,8 +1470,8 @@ class mob_minion_of_fear_controller : public CreatureScript
 
             void Reset()
             {
-                started = false;
                 events.Reset();
+                started = false;
             }
 
             void JustSummoned(Creature* summon)
@@ -1795,25 +1804,30 @@ class spell_corrupted_essence : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
+                Unit* caster = GetCaster();
+                if (targets.empty() || !caster)
                     return;
 
-                std::list<WorldObject*> targetsToRemove;
+                targets.clear();
 
-                for (auto itr : targets)
-                {
-                    if (!itr->ToUnit())
-                        continue;
+                // Retreiving all players in 100.0f around the caster
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, caster, 100.0f);
 
-                    if (AuraPtr corruptedEssence = itr->ToUnit()->GetAura(SPELL_CORRUPTED_ESSENCE))
-                    {
-                        corruptedEssence->ModStackAmount(1);
-                        targetsToRemove.push_back(itr);
-                    }
-                }
+                if (playerList.empty())
+                    return;
 
-                for (auto itr : targetsToRemove)
-                    targets.remove(itr);
+                // Sorting players by distance from caster
+                playerList.sort(JadeCore::DistanceCompareOrderPred(caster));
+
+                // Reducing the list (only if too big)
+                uint32 maxSize = caster->GetMap()->Is25ManRaid() ? 5 : 2;
+                if (playerList.size() > maxSize)
+                    playerList.resize(maxSize);
+
+                // Adding players to the targets list
+                for (Player* plr : playerList)
+                    targets.push_back(plr);
             }
 
             void Register()
