@@ -854,6 +854,7 @@ class WorldSession
         void HandleLeaveBattlefieldOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
         void HandleBattlemasterJoinRated(WorldPacket& recvData);
+        void HandleWargameQueryOpcode(WorldPacket& p_RecvData);
 
         void HandleReportPvPAFK(WorldPacket& recvData);
         void HandleRequestRatedBgInfo(WorldPacket & recvData);
