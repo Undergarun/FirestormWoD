@@ -124,27 +124,53 @@ inline char const* GetLogNameForGuid(uint64 guid)
 
 enum Guid128Type
 {
-    GUID_TYPE_ITEM              = 0x03, ///< 6.0.1 18612
-    GUID_TYPE_CONTAINER         = 0x03, ///< 6.0.1 18612
-    GUID_TYPE_PLAYER            = 0x02, ///< 6.0.1 18612
-    GUID_TYPE_GAMEOBJECT        = 0x0A, ///< 6.0.1 18612
-    GUID_TYPE_TRANSPORT         = 0x17, ///< Guessed
-    GUID_TYPE_UNIT              = 0x07, ///< 6.0.1 18612
-    GUID_TYPE_PET               = 0x08, ///< 6.0.1 18612
-    GUID_TYPE_VEHICLE           = 0x09, ///< 6.0.1 18612
-    GUID_TYPE_DYNAMIC_OBJECT    = 0x0B, ///< 6.0.1 18612
-    GUID_TYPE_CORPSE            = 0x0D, ///< 6.0.1 18612
-    GUID_TYPE_AREATRIGGER       = 0x0C, ///< 6.0.1 18612
-    GUID_TYPE_BATTLEGROUND      = 0x06, ///< Guessed
-    GUID_TYPE_MO_TRANSPORT      = 0x05, ///< 6.0.1 18612
-    GUID_TYPE_GROUP             = 0x1A, ///< 6.0.1 18612
-    GUID_TYPE_GUILD             = 0x1B, ///< 6.0.1 18612
-    GUID_TYPE_INSTANCE_SAVE     = 0x01, ///< Guessed
-    GUID_TYPE_LOOT              = 0x15, ///< Guessed
-    GUID_TYPE_SCENE_OBJECT      = 0x16, ///< Guessed
-    GUID_TYPE_ACTOR             = 0x13, ///< 6.0.1 18612
-    GUID_TYPE_BNET_ACC          = 0x1D, ///< 6.0.1 18612
-    GUID_TYPE_WOW_ACC           = 0x1C  ///< 6.0.1 18612
+    GUID_TYPE_PLAYER                = 0x02, ///< 6.0.1 18663
+    GUID_TYPE_ITEM                  = 0x03, ///< 6.0.1 18663
+    GUID_TYPE_CONTAINER             = 0x03, ///< 6.0.1 18663
+    GUID_TYPE_STATIC_DOOR           = 0x04, ///< 6.0.1 18663
+    GUID_TYPE_MO_TRANSPORT          = 0x05, ///< 6.0.1 18663
+    GUID_TYPE_CONVERSATION          = 0x06, ///< 6.0.1 18663
+    GUID_TYPE_UNIT                  = 0x07, ///< 6.0.1 18663
+    GUID_TYPE_VEHICLE               = 0x08, ///< 6.0.1 18663
+    GUID_TYPE_PET                   = 0x09, ///< 6.0.1 18663
+    GUID_TYPE_GAMEOBJECT            = 0x0A, ///< 6.0.1 18663
+    GUID_TYPE_DYNAMIC_OBJECT        = 0x0B, ///< 6.0.1 18663
+    GUID_TYPE_AREATRIGGER           = 0x0C, ///< 6.0.1 18663
+    GUID_TYPE_CORPSE                = 0x0D, ///< 6.0.1 18663
+    GUID_TYPE_LOOT                  = 0x0E, ///< 6.0.1 18663
+    GUID_TYPE_SCENE_OBJECT          = 0x0F, ///< 6.0.1 18663
+    GUID_TYPE_SCENARIO              = 0x10, ///< 6.0.1 18663
+    GUID_TYPE_AI_GROUP              = 0x11, ///< 6.0.1 18663
+    GUID_TYPE_DYNAMIC_DOOR          = 0x12, ///< 6.0.1 18663
+    GUID_TYPE_CLIENT_ACTOR          = 0x13, ///< 6.0.1 18663
+    GUID_TYPE_VIGNETTE              = 0x14, ///< 6.0.1 18663
+    GUID_TYPE_CALL_FOR_HELP         = 0x15, ///< 6.0.1 18663
+    GUID_TYPE_AI_RESOURCE           = 0x16, ///< 6.0.1 18663
+    GUID_TYPE_AI_LOCK               = 0x17, ///< 6.0.1 18663
+    GUID_TYPE_AI_LOCK_TICKET        = 0x18, ///< 6.0.1 18663
+    GUID_TYPE_CHAT_CHANNEL          = 0x19, ///< 6.0.1 18663
+    GUID_TYPE_GROUP                 = 0x1A, ///< 6.0.1 18663
+    GUID_TYPE_GUILD                 = 0x1B, ///< 6.0.1 18663
+    GUID_TYPE_WOW_ACC               = 0x1C, ///< 6.0.1 18663
+    GUID_TYPE_BNET_ACC              = 0x1D, ///< 6.0.1 18663
+    GUID_TYPE_GM_TASK               = 0x1E, ///< 6.0.1 18663
+    GUID_TYPE_MOBILE_SESSION        = 0x1F, ///< 6.0.1 18663
+    GUID_TYPE_RAID_GROUP            = 0x20, ///< 6.0.1 18663
+    GUID_TYPE_SPELL                 = 0x21, ///< 6.0.1 18663
+    GUID_TYPE_MAIL                  = 0x22, ///< 6.0.1 18663
+    GUID_TYPE_WEB_OBJ               = 0x23, ///< 6.0.1 18663
+    GUID_TYPE_LFG_OBJECT            = 0x24, ///< 6.0.1 18663
+    GUID_TYPE_LFG_LIST              = 0x25, ///< 6.0.1 18663
+    GUID_TYPE_USER_ROUTER           = 0x26, ///< 6.0.1 18663
+    GUID_TYPE_PVP_QUEUE_GROUP       = 0x27, ///< 6.0.1 18663
+    GUID_TYPE_USER_CLIENT           = 0x28, ///< 6.0.1 18663
+    GUID_TYPE_PET_BATTLE            = 0x29, ///< 6.0.1 18663
+    GUID_TYPE_UNIQUE_USER_CLIENT    = 0x2A, ///< 6.0.1 18663
+    GUID_TYPE_BATTLE_PET            = 0x2B, ///< 6.0.1 18663
+
+    GUID_TYPE_TRANSPORT         = 0x2C, ///< unk
+    GUID_TYPE_BATTLEGROUND      = 0x2D, ///< unk
+    GUID_TYPE_INSTANCE_SAVE     = 0x2E, ///< unk
 };
 
 struct Guid128
