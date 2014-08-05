@@ -2568,7 +2568,7 @@ void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisp
 void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 targetGuid) const
 {
     uint32 messageLength = text ? strlen(text) : 0;
-    uint32 speakerNameLength = name ? strlen(name) + 1 : 0;
+    uint32 speakerNameLength = name ? strlen(name) : 0;
     uint32 prefixeLength = 0;
     Unit* target = ObjectAccessor::FindUnit(targetGuid);
     uint32 receiverLength = target ? strlen(target->GetName()) : 0;
