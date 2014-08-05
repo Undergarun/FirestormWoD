@@ -1862,6 +1862,14 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+enum RealmQueryNameResponse
+{
+    REALM_QUERY_NAME_RESPONSE_OK        = 0,
+    REALM_QUERY_NAME_RESPONSE_DENY      = 1,
+    REALM_QUERY_NAME_RESPONSE_RETRY     = 2,
+    REALM_QUERY_NAME_RESPONSE_OK_TEMP   = 3,
+};
+
 void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
@@ -1874,12 +1882,11 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     std::string realmName = sWorld->GetRealmName();
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE);
-    // 0 : OK, 1 : Error, 2 : Retry, 3 : Show '?'
     data << realmID;
-    data << uint8(0); // ok, realmId exist server-side
+    data << uint8(REALM_QUERY_NAME_RESPONSE_OK);
     data.WriteBits(realmName.size(), 8);
     data.WriteBits(realmName.size(), 8);
-    data.WriteBit(1); // unk, if it's main realm ?
+    data.WriteBit(1); // Is Locale
     data.FlushBits();
     data.append(realmName.c_str(), realmName.size());
     data.append(realmName.c_str(), realmName.size());
