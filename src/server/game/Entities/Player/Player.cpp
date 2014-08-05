@@ -28047,57 +28047,41 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
     return true;
 }
 
-void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
+void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
 {
-    uint8 specCount = GetSpecsCount();
-    uint8 activeSpec = GetActiveSpec();
+    printf("Player::BuildPlayerTalentsInfoData begin\n");
 
-    if (specCount)
+    uint8 l_SpeCount = GetSpecsCount();
+
+    if (l_SpeCount > MAX_TALENT_SPECS)
+        SetSpecsCount(MAX_TALENT_SPECS);
+    printf("%d spe count \n", (uint32)l_SpeCount);
+    *p_Data << uint8(GetActiveSpec());
+    *p_Data << uint32(l_SpeCount);
+
+    for (uint8 l_SpeIT = 0; l_SpeIT < l_SpeCount; ++l_SpeIT)
     {
-        if (specCount > MAX_TALENT_SPECS)
-            SetSpecsCount(MAX_TALENT_SPECS);
+        PlayerTalentMap & l_PlayerTalent = *GetTalentMap(l_SpeIT);
+        ByteBuffer l_Talents(400);
 
-        *data << uint8(activeSpec);
-        *data << uint32(specCount);
-
-        uint8* talentCount = new uint8[specCount];
-
-        // loop through all specs to set talent counter
-        for (uint8 specIdx = 0; specIdx < specCount; ++specIdx)
+        for (PlayerTalentMap::iterator itr = l_PlayerTalent.begin(); itr != l_PlayerTalent.end(); ++itr)
         {
-            talentCount[specIdx] = 0;
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo((*itr).first);
 
-            for (auto itr : *GetTalentMap(specIdx))
-            {
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-                if (spell && spell->talentId)
-                    talentCount[specIdx]++;
-            }
+            if (l_SpellInfo && l_SpellInfo->talentId)
+                l_Talents << uint16(l_SpellInfo->talentId);
         }
 
-        // loop through all specs (only 1 for now)
-        for (uint8 specIdx = 0; specIdx < specCount; ++specIdx)
-        {
-            *data << uint32(GetSpecializationId(specIdx));
-            *data << uint32(talentCount[specIdx]);
+        *p_Data << uint32(GetSpecializationId(l_SpeIT));
+        *p_Data << uint32(l_Talents.size() / 2);
 
-            // Glyphs datas
-            for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-                *data << uint16(GetGlyph(specIdx, i));               // GlyphProperties.dbc
+        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
+            *p_Data << uint16(GetGlyph(l_SpeIT, i));
 
-            // Talents datas
-            for (auto itr : *GetTalentMap(specIdx))
-            {
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-                if (spell && spell->talentId)
-                    *data << uint16(spell->talentId);           // Talents.dbc
-            }
-
-        }
-
-        delete[] talentCount;
-        talentCount = NULL;
+        p_Data->append(l_Talents);
     }
+
+    printf("Player::BuildPlayerTalentsInfoData end\n");
 }
 
 void Player::SendTalentsInfoData(bool pet)

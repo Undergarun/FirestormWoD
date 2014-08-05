@@ -445,8 +445,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CAST_SPELL                             = 0x0326,   ///< 6.0.1 18663
-    CMSG_CANCEL_CAST                            = 0x0968,   ///< 6.0.1 18663
+    CMSG_CAST_SPELL                             = 0x0968,   ///< 6.0.1 18663
+    CMSG_CANCEL_CAST                            = 0x1BF8,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
@@ -469,7 +469,7 @@ enum Opcodes
     CMSG_SETSHEATHED                            = 0x137E,   ///< 6.0.1 18663
     CMSG_GOSSIP_HELLO                           = 0x1194,   ///< 6.0.1 18663
     CMSG_GOSSIP_SELECT_OPTION                   = 0x12DA,   ///< 6.0.1 18663
-    CMSG_TOGGLE_PVP                             = 0x0807,   ///< 6.0.1 18663
+    CMSG_TOGGLE_PVP                             = 0x1495,   ///< 6.0.1 18663
     CMSG_TUTORIAL                               = 0x0DE1,   ///< 6.0.1 18663
     CMSG_SET_SPECIALIZATION                     = 0x0482,   ///< 6.0.1 18663
     CMSG_SET_WATCHED_FACTION                    = 0x08EE,   ///< 6.0.1 18663
@@ -551,7 +551,7 @@ enum Opcodes
     /// Update
     CMSG_MOVE_HEARTBEAT                         = 0x12CB,   ///< 6.0.1 18663
     CMSG_MOVE_SET_FACING                        = 0x135F,   ///< 6.0.1 18663
-    CMSG_MOVE_TELEPORT_ACK = 0x0000,
+    CMSG_MOVE_TELEPORT_ACK                      = 0x0000,
 
     /// Stop
     CMSG_MOVE_STOP                              = 0x034B,   ///< 6.0.1 18663
