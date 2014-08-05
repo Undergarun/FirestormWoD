@@ -51,12 +51,12 @@ const uint8_t win32_packet_routage_data[]                   = {0x90};           
 const uint8_t win32_packet_routage_data2[]                  = {0x33, 0xFF, 0x90};                           ///< nop
 
 const struct RewriteItem Win32Patchs[] = {
-    { 0x0A50110, sizeof(win32_packet_disable_filter_jam_dispatch),  win32_packet_disable_filter_jam_dispatch    },   ///< Disable packet filter
+    { 0x0000000, sizeof(win32_packet_disable_filter_jam_dispatch),  win32_packet_disable_filter_jam_dispatch    },   ///< Disable packet filter
     { 0x0000000, sizeof(win32_packet_routage_data),                 win32_packet_routage_data                   },   ///< Don't use special routage for packets
     { 0x0000000, sizeof(win32_packet_routage_data2),                win32_packet_routage_data2                  },   ///< Don't use special routage for packets
-    { 0x0A0E758, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
-    { 0x0A31C24, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
-    { 0x0ACEB0C, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
+    { 0x0A19F08, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
+    { 0x0A3D234, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
+    { 0x0ADA514, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
 };
 
 const uint8_t mac64_packet_disable_filter_date[]  = {0x8B, 0x55, 0x0C, 0xE9, 0x41, 0x01, 0x00, 0x00}; // mov edx, [ebp+arg_4];  jmp 141h
