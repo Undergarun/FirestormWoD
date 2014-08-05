@@ -1278,15 +1278,6 @@ void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber,
     data.WriteByteSeq(target[1]);
     data << uint32(roll.itemCount);
 
-
-
-
-
-
-
-
-
-
     /*data.WriteBit(target[3]);
     data.WriteBit(target[4]);
     data.WriteBit(guid[7]);
@@ -1306,7 +1297,7 @@ void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber,
     data.WriteBit(guid[6]);
     data.WriteBit(roll.itemSlot == 0);//!Bit57
     data.WriteBit(guid[5]);
-    
+
     data << uint32(roll.itemRandomSuffix);                  // Item random property ID
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(target[1]);
@@ -1315,14 +1306,14 @@ void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber,
     data.WriteByteSeq(guid[2]);
     if (roll.itemSlot)
         data << uint8(roll.itemSlot);
-    
+
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
-    
+
     data.WriteByteSeq(guid[0]);
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
     data.WriteByteSeq(target[6]);
     data.WriteByteSeq(target[2]);
-    
+
     data << uint32(1);
     data.WriteByteSeq(target[5]);
     data.WriteByteSeq(guid[7]);
@@ -1363,7 +1354,7 @@ void Group::SendLootRollWon(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumb
     WorldPacket data(SMSG_LOOT_ROLL_WON, (8 + 4 + 4 + 4 + 4 + 8 + 1 + 1));
     ObjectGuid target = targetGuid;
     ObjectGuid guid = roll.lootedGUID;
-    
+
     data.WriteBit(guid[7]);
     data.WriteBit(target[0]);
     data.WriteBit(target[5]);

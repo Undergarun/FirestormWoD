@@ -464,7 +464,7 @@ enum PlayerFlags
     PLAYER_FLAGS_GUILD_LEVEL_ENABLED    = 0x10000000,       // Lua_GetGuildLevelEnabled() - enables guild leveling related UI
     PLAYER_FLAGS_VOID_UNLOCKED          = 0x20000000,       // void storage
     PLAYER_FLAGS_UNK30                  = 0x40000000,
-    PLAYER_FLAGS_UNK31                  = 0x80000000,   
+    PLAYER_FLAGS_UNK31                  = 0x80000000,
 };
 
 // used for PLAYER_FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
@@ -2128,7 +2128,7 @@ class Player : public Unit, public GridObject<Player>
                 UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
             }
         }
-        
+
         // Arena
         uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaPersonalRating[slot]; }
         uint32 GetBestRatingOfWeek(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfWeek[slot]; }
@@ -3453,7 +3453,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_SeasonWins[MAX_PVP_SLOT];
         uint32 m_WeekGames[MAX_PVP_SLOT];
         uint32 m_SeasonGames[MAX_PVP_SLOT];
-        
+
         CUFProfiles m_cufProfiles;
 
         /*********************************************************/

@@ -211,7 +211,7 @@ void AddSC_boss_baron_silverlaine();
 void AddSC_boss_commander_springvale();
 void AddSC_boss_lord_valden();
 void AddSC_boss_lord_godfrey();
-void AddSC_shadowfang_keep();                
+void AddSC_shadowfang_keep();
 void AddSC_instance_shadowfang_keep();
 void AddSC_boss_magistrate_barthilas();      //Stratholme
 void AddSC_boss_maleki_the_pallid();
@@ -453,7 +453,7 @@ void AddSC_boss_razorscale();
 void AddSC_boss_xt002();
 void AddSC_boss_assembly_of_iron();
 void AddSC_boss_kologarn();
-void AddSC_boss_auriaya();              
+void AddSC_boss_auriaya();
 void AddSC_boss_hodir();
 void AddSC_boss_freya();
 void AddSC_boss_mimiron();
@@ -506,7 +506,7 @@ void AddSC_boss_lich_king_hr();
 void AddSC_instance_icecrown_citadel(); // Icecrown Citadel
 void AddSC_icecrown_citadel();
 void AddSC_icecrown_citadel_teleport();
-void AddSC_boss_lord_marrowgar();       
+void AddSC_boss_lord_marrowgar();
 void AddSC_boss_lady_deathwhisper();
 void AddSC_boss_gunship_battle();
 void AddSC_boss_deathbringer_saurfang();
@@ -1033,7 +1033,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_commander_springvale();
     AddSC_boss_lord_valden();
     AddSC_boss_lord_godfrey();
-    AddSC_shadowfang_keep();                
+    AddSC_shadowfang_keep();
     AddSC_instance_shadowfang_keep();
     AddSC_boss_magistrate_barthilas();      //Stratholme
     AddSC_boss_maleki_the_pallid();
@@ -1458,7 +1458,7 @@ void AddNorthrendScripts()
     AddSC_boss_xt002();
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
-    AddSC_boss_auriaya();              
+    AddSC_boss_auriaya();
     AddSC_boss_hodir();
     AddSC_boss_freya();
     AddSC_boss_mimiron();
@@ -1511,7 +1511,7 @@ void AddNorthrendScripts()
     AddSC_instance_icecrown_citadel(); // Icecrown Citadel
     AddSC_icecrown_citadel();
     AddSC_icecrown_citadel_teleport();
-    AddSC_boss_lord_marrowgar();       
+    AddSC_boss_lord_marrowgar();
     AddSC_boss_lady_deathwhisper();
     AddSC_boss_gunship_battle();
     AddSC_boss_deathbringer_saurfang();

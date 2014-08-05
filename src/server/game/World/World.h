@@ -876,7 +876,7 @@ class World
 
         void ResetCurrencyWeekCap();
 
-        std::map<Object*, bool> deleteUnits; 
+        std::map<Object*, bool> deleteUnits;
         bool isDelete(Object* obj)
         {
             if (deleteUnits.find(obj) != deleteUnits.end())

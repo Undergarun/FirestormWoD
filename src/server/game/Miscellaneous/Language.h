@@ -1168,9 +1168,9 @@ enum TrinityStrings
     LANG_ANTISPAM_ERROR                 = 11013,
 
     LANG_TITANIUM_SEAL_USE              = 11190,
-    LANG_TITANIUM_SEAL_UP               = 11191,    
+    LANG_TITANIUM_SEAL_UP               = 11191,
     LANG_TITANIUM_SEAL_DOWN             = 11192,
-    
+
     // Ulduar Locales (reserved: 12000 - 12049)
     LANG_ULD_TEL_BASE_CAMP              = 12000, // Teleport to the Expedition Base Camp
     LANG_ULD_TEL_FORM_GROUNDS           = 12001, // Teleport to the Formation Grounds
@@ -1182,7 +1182,7 @@ enum TrinityStrings
     LANG_ULD_TEL_IMAGINATION            = 12007, // Teleport to the Spark of Imagination
     LANG_ULD_TEL_DESCENT                = 12008, // Teleport to the Descent into Madness
     LANG_ULD_RAZOR_GOSSIP               = 12009, // Activate Harpoons! (boss Razorscale)
- 
+
     // Icecrown Citadel Locales (reserved: 13050 - 13099)
     LANG_ICC_RING_ALREADY_HAVE              = 13050,
     LANG_ICC_RING_NOT_ENOUGH_REP            = 13051,

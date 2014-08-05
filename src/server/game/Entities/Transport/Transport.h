@@ -65,11 +65,11 @@ class Transport : public GameObject, public TransportBase
         bool IsStopped() const { return shouldBeStopped; }
 
         static float getX(float x, float y, Transport* trans)
-        { 
+        {
             return trans->GetPositionX() + (x * cos(trans->GetOrientation()) + y * sin(trans->GetOrientation() + float(M_PI)));
         }
         static float getY(float x, float y, Transport* trans)
-        { 
+        {
             return trans->GetPositionY() + (y * cos(trans->GetOrientation()) + x * sin(trans->GetOrientation()));
         }
         static float getZ(float z, Transport* trans)

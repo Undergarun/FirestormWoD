@@ -259,7 +259,7 @@ class GuildFinderMgr
 
         /// wipes everything related to a guild. Used when that guild is disbanded
         void DeleteGuild(uint32 guildId);
-        
+
         /**
          * @brief Returns a set of membership requests for a guild
          * @param guildGuid The guild's database guid.
@@ -287,7 +287,7 @@ class GuildFinderMgr
 
         /// Counts the amount of pending membership requests, given the player's db guid.
         uint8 CountRequestsFromPlayer(uint32 playerId);
- 
+
         void SendApplicantListUpdate(Guild& guild);
         void SendMembershipRequestListUpdate(Player& player);
 };

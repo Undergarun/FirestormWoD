@@ -366,7 +366,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
     uint32 unk;                                       // type id from dbc
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
     ObjectGuid guid;
-    
+
     action = recvData.ReadBit();
     recvData.FlushBits();
     recvData >> queueSlot;

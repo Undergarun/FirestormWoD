@@ -1643,7 +1643,7 @@ void Player::HandleDrowning(uint32 time_diff)
         // Vash'jir zones
         if (m_zoneUpdateId == 4815 || m_zoneUpdateId == 4816 || m_zoneUpdateId == 5144 || m_zoneUpdateId == 5145|| m_zoneUpdateId == 5146)
             return;
-        
+
         // Breath timer not activated - activate it
         if (m_MirrorTimer[BREATH_TIMER] == DISABLED_MIRROR_TIMER)
         {
@@ -1658,7 +1658,7 @@ void Player::HandleDrowning(uint32 time_diff)
             {
                 m_MirrorTimer[BREATH_TIMER]+= 1*IN_MILLISECONDS;
                 // Calculate and deal damage
-                // TODO: Check this formula
+                // @TODO: Check this formula
                 uint32 damage = GetMaxHealth() / 5 + urand(0, getLevel()-1);
                 EnvironmentalDamage(DAMAGE_DROWNING, damage);
             }
@@ -2825,7 +2825,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
                 if (unk)
                     data << uint32(0);
-                
+
                 GetSession()->SendPacket(&data);
             }
 
@@ -3808,7 +3808,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
 
     // VIP xp reward
     if (GetSession()->IsPremium())
-        xp *= 1.15f;    
+        xp *= 1.15f;
 
     uint32 bonus_xp = 0;
     bool recruitAFriend = GetsRecruitAFriendBonus(true);
@@ -3986,7 +3986,7 @@ void Player::GiveLevel(uint8 level)
                 if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
                     SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
             }
-    
+
     if (level == 85)
     {
         uint32 idQuest;
@@ -4364,7 +4364,7 @@ void Player::SendKnownSpells()
 {
     uint32 l_SpellCount = 0;
 
-    WorldPacket l_Data(SMSG_SEND_KNOWN_SPELLS);   
+    WorldPacket l_Data(SMSG_SEND_KNOWN_SPELLS);
 
     l_Data.WriteBit(1);
     l_Data.FlushBits();
@@ -4578,7 +4578,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr != GetTalentMap(spec)->end())
         itr->second->state = PLAYERSPELL_UNCHANGED;
-    else 
+    else
     {
 
         PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
@@ -5591,7 +5591,7 @@ bool Player::ResetTalents(bool no_cost)
 
     SetFreeTalentPoints(talentPointsForLevel);
     SetUsedTalentCount(0);
-    
+
     SQLTransaction charTrans = CharacterDatabase.BeginTransaction();
     SQLTransaction accountTrans = LoginDatabase.BeginTransaction();
     _SaveTalents(charTrans);
@@ -6707,7 +6707,7 @@ void Player::RepopAtGraveyard()
     // for example from WorldSession::HandleMovementOpcodes
 
     AreaTableEntry const* zone = GetAreaEntryByAreaID(GetAreaId());
-    
+
     if (!zone)
     {
         sLog->outInfo(LOG_FILTER_PLAYER, "Joueur %u dans une zone nulle; area id : %u", GetGUIDLow(), GetAreaId());
@@ -7344,8 +7344,8 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
             int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
-            
-            // Since 4.0.x, we have bonus skill point reward with somes items ...
+
+            // Since 4.0.x, we have bonus skill point reward with somes items
             if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10)
                 craft_skill_gain = _spell_idx->second->skill_gain;
 
@@ -7761,7 +7761,7 @@ void Player::SendActionButtons(uint32 p_State) const
         for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
         {
             ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-            
+
             if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
                 l_Data << uint64(itr->second.packedData);
             else
@@ -8686,10 +8686,10 @@ uint32 Player::GetCurrencyOnSeason(uint32 id, bool usePrecision) const
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
         return 0;
-    
+
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
     uint32 precision = (usePrecision && currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-    
+
     return itr->second.seasonTotal / precision;
 }
 
@@ -8728,7 +8728,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     uint32 oldTotalCount = 0;
     uint32 oldWeekCount = 0;
     uint32 oldSeasonTotalCount = 0;
-    
+
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
     {
@@ -8933,7 +8933,7 @@ uint32 Player::CalculateCurrencyWeekCap(uint32 id)
         packet << uint32(currency->ID);
         GetSession()->SendPacket(&packet);
     }*/
-    
+
     return cap;
 }
 
@@ -9088,7 +9088,7 @@ void Player::UpdateArea(uint32 newArea)
 
     //Pandaria area update for monk level < 85
     if (area && getLevel() < 85 && getClass() == CLASS_MONK && GetMapId() == 870 && area->mapid == 870 &&
-        newArea != 6081 && newArea != 6526 && newArea != 6527 
+        newArea != 6081 && newArea != 6526 && newArea != 6527
         && GetZoneId() == 5841 && !isGameMaster())
         TeleportTo(870, 3818.55f, 1793.18f, 950.35f, GetOrientation());
 
@@ -10666,7 +10666,7 @@ void Player::SendNotifyLootMoneyRemoved(uint64 gold)
 
     uint8 byteOrder[8] = { 1, 4, 0, 6, 3, 7, 5, 2 };
     data.WriteBytesSeq(guid, byteOrder);
-    
+
     GetSession()->SendPacket(&data);
 }
 
@@ -14308,8 +14308,6 @@ void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequ
             {
                 if (Item* pItem = pBag->GetItemByPos(j))
                 {
-
-                
                     if (pItem->GetEntry() == item && !pItem->IsInTrade())
                     {
                         // all items in bags can be unequipped
@@ -16247,7 +16245,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
     menu->ClearMenus();
 
     menu->GetGossipMenu().SetMenuId(menuId);
-    
+
     GossipMenuItemsMapBounds menuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
 
     // if default menuId and no menu options exist for this, use options from default options
@@ -16804,7 +16802,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
 
 bool Player::CanTakeQuest(Quest const* quest, bool msg)
 {
-    return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) 
+    return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
         && SatisfyQuestTeam(quest, msg)
         && SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestLevel(quest, msg)
@@ -16853,8 +16851,8 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
         // auto complete quest
         if (qInfo->IsAutoComplete() && CanTakeQuest(qInfo, false))
-        {            
-           return true;
+        {
+            return true;
         }
 
         QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
@@ -17016,7 +17014,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
                 RewardChoiceItemId[i] = quest->RewardChoiceItemId[i];
                 RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
             }
-        }        
+        }
         if (RewardChoiceItemId[reward])
         {
             ItemPosCountVec dest;
@@ -17373,7 +17371,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     PhaseUpdateData phaseUdateData;
     phaseUdateData.AddQuestUpdate(quest_id);
     phaseMgr.NotifyConditionChanged(phaseUdateData);
-    
+
     // Must come after the insert in m_RewardedQuests because of spell_area check
     RemoveActiveQuest(quest_id);
 
@@ -18707,12 +18705,12 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     WorldPacket data(SMSG_QUEST_GIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
     data << uint32(questId);
     data << uint32(xp);
-    data << uint32(quest->GetRewardSkillId());             ///< 4.x bonus skill id
-    data << uint32(quest->GetRewardSkillPoints());         ///< 4.x bonus skill points
-    data << uint32(quest->GetBonusTalents());              ///< bonus talents (not verified for 4.x)
+    data << uint32(quest->GetRewardSkillId());             ///< Bonus skill id
+    data << uint32(quest->GetRewardSkillPoints());         ///< Bonus skill points
+    data << uint32(quest->GetBonusTalents());              ///< Bonus talents
     data << uint32(moneyReward);
 
-    data.WriteBit(1);                                      ///< LaunchGossip 
+    data.WriteBit(1);                                      ///< LaunchGossip
     data.WriteBit(1);                                      ///< UseQuestReward
 
     GetSession()->SendPacket(&data);
@@ -18727,7 +18725,7 @@ void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
     {
         WorldPacket data(SMSG_QUEST_GIVER_QUEST_FAILED, 4 + 4);
         data << uint32(questId);
-        data << uint32(reason);                             // failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
+        data << uint32(reason);                             // Failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
         GetSession()->SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_FAILED");
     }
@@ -18782,7 +18780,7 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
     if (player)
     {
         WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
-        
+
         data.appendPackGUID(player->GetGUID());
         data << uint8(msg);
 
@@ -19729,7 +19727,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     m_achievementMgr.CheckAllAchievementCriteria(this);
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
-    
+
     /*if (QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
         m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();*/
 
@@ -21945,7 +21943,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     trans->Append(stmt);
 
     for (auto id : m_dailyQuestStorage)
-    { 
+    {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
         stmt->setUInt32(0, GetGUIDLow());
         stmt->setUInt32(1, id);
@@ -22111,7 +22109,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER)) 
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
@@ -22137,7 +22135,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0)) 
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
@@ -22854,7 +22852,6 @@ void Player::PetSpellInitialize()
             data << uint32(categoryCooldown);       // category cooldown
             data << uint16(spellInfo->Category);    // spell category
             data << uint32(cooldown);               // spell cooldown
-            
         }
         else
         {
@@ -22980,7 +22977,7 @@ void Player::VehicleSpellInitialize()
     //}
 
     data.WriteByteSeq(guid[6]);
-    
+
     time_t now = sWorld->GetGameTime();
     for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
     {
@@ -23006,7 +23003,7 @@ void Player::VehicleSpellInitialize()
             data << uint32(cooldown);               // spell cooldown
         }
         else
-        {          
+        {
             data << uint32(0);
             data << uint16(0);
             data << uint32(cooldown);
@@ -24263,7 +24260,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             }
 
             uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-            
+
             // Second field in dbc is season count except two strange rows
             if (i == 1 && iece->ID != 2999)
             {
@@ -24315,7 +24312,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             if (!guild->GetAchievementMgr().HasAchieved(reward.AchievementId))
             {
                 if (!(reward.AchievementId == 5492 && guild->GetAchievementMgr().HasAchieved(4912)) && !(reward.AchievementId == 4912 && guild->GetAchievementMgr().HasAchieved(5492)))
-                { 
+                {
                     SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                     return false;
                 }
@@ -24375,7 +24372,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     }
 
     if (crItem->maxcount != 0) // bought
-    { 
+    {
         /*if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
             if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
                 guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_PURCHASED, time(NULL), GetGUID(), 0, item);*/
@@ -25395,7 +25392,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendTalentsInfoData(false);
 
     SendKnownSpells();
-    
+
     //4374 - summon pet spell in packet - 111896, 111895, 111859, 111897, 111898
     //5376
 
@@ -27685,7 +27682,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, skill);
             uint16 step = 0;
-            
+
             if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
                 step = max / 75;
 
@@ -29114,7 +29111,7 @@ void Player::SendCUFProfiles()
         data << cdata.unk6;//148
         data << cdata.unk7;//147
         data << cdata.unk5;//146
-        
+
         data.append(profile.name.c_str(), profile.nameLen);
 
         data << cdata.unk1;//152
@@ -29304,7 +29301,6 @@ void Player::SendMovementSetCanFly(bool apply)
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 1 + 8 + 4);
         data.appendPackGUID(GetGUID());
         data << uint32(0);
-        
     }
     SendDirectMessage(&data);
 }
@@ -29315,7 +29311,7 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
     if (apply)
     {
         WorldPacket data(SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
-    
+
         uint8 bitOrder[8] = {5, 0, 2, 3, 4, 7, 6, 1};
         data.WriteBitInOrder(guid, bitOrder);
 
@@ -29333,7 +29329,7 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
     else
     {
         WorldPacket data(SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
-    
+
         uint8 bitOrder[8] = {3, 1, 6, 2, 4, 5, 7, 0};
         data.WriteBitInOrder(guid, bitOrder);
 
@@ -29358,7 +29354,7 @@ void Player::SendMovementSetHover(bool apply)
     if (apply)
     {
         data.Initialize(SMSG_MOVE_SET_HOVER, 12);
-    
+
         uint8 bitOrder[8] = { 5, 6, 1, 7, 0, 2, 4, 3 };
         data.WriteBitInOrder(guid, bitOrder);
 
@@ -29377,7 +29373,7 @@ void Player::SendMovementSetHover(bool apply)
     else
     {
         data.Initialize(SMSG_MOVE_UNSET_HOVER, 12);
-    
+
         uint8 bitOrder[8] = { 1, 7, 0, 5, 2, 6, 3, 4 };
         data.WriteBitInOrder(guid, bitOrder);
 
@@ -29403,7 +29399,7 @@ void Player::SendMovementSetWaterWalking(bool apply)
     else
     {
         WorldPacket data(SMSG_MOVE_LAND_WALK, 12);
-   
+
         data.appendPackGUID(GetGUID());
         data << uint32(0);  // Movement counter
 
@@ -29477,7 +29473,6 @@ void Player::SetMover(Unit* target)
     if (m_mover)
     {
         WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
-    
         data.appendPackGUID(target->GetGUID());
 
         GetSession()->SendPacket(&data);

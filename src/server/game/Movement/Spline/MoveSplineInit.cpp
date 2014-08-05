@@ -260,7 +260,7 @@ namespace Movement
         l_Data.FlushBits();
 
         if (l_FinalFacingMode == MonsterMoveFacingAngle)
-            l_Data << l_MoveSpline.facing.angle; 
+            l_Data << l_MoveSpline.facing.angle;
         else if (l_FinalFacingMode == MonsterMoveFacingTarget)
             l_Data.appendPackGUID(l_MoveSpline.facing.target);
         else if (l_FinalFacingMode == MonsterMoveFacingSpot)

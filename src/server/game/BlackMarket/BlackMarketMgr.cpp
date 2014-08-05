@@ -78,7 +78,7 @@ void BMAuctionEntry::UpdateToDB(SQLTransaction& trans)
 }
 
 uint32 BMAuctionEntry::TimeLeft()
-{ 
+{
     uint32 endTime = startTime + bm_template->duration;
     uint32 curTime = time(NULL);
     return (endTime >= curTime) ? endTime - curTime : 0;

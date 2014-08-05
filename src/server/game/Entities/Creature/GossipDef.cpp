@@ -363,7 +363,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
             data << int32(quest->GetQuestLevel());          // quest level
             data << uint32(quest->GetFlags());              // quest flags
             data << uint32(0);                              // quest flags 2
-           
+
             data.WriteBit(quest->IsRepeatable());
             data.WriteBits(title.length(), 9);
             data.FlushBits();
@@ -418,7 +418,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     ObjectGuid guid = npcGUID;
     ObjectGuid guid2 = npcGUID;
     bool hiddenRewardItem = quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
-    
+
     uint32 l_LearnSpellCount = 0;
 
     float QuestXpRate = 1;
@@ -515,7 +515,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
         uint8   l_Type  = quest->RequiredNpcOrGo[i] > 0 ? QUEST_OBJECTIVE_TYPE_NPC : QUEST_OBJECTIVE_TYPE_GO;
         uint32  l_Entry = quest->RequiredNpcOrGo[i] > 0 ? quest->RequiredNpcOrGo[i] : quest->RequiredNpcOrGo[i] * -1;
 
-        data << uint32(i + quest->GetReqItemsCount()); 
+        data << uint32(i + quest->GetReqItemsCount());
         data << uint32(l_Entry);
         data << uint32(quest->RequiredNpcOrGoCount[i]);
         data << uint8(l_Type);
@@ -554,10 +554,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 //     data << uint32(quest->GetQuestGiverPortrait());
 //     data << uint32(quest->GetSuggestedPlayers());
 //     data << uint32(quest->GetRewSpell());
-// 
+//
 //     data << uint32(0); //unk 0
 //     data << uint32(0); //unk 0
-// 
+//
 //     data.WriteBit(1);                                       // ActiveAccept//AutoFinish
 //     data.WriteBit(0);                                       // 4.x FIXME: Starts at AreaTrigger
 
@@ -672,7 +672,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
 
     data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[0]);
-    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[0]); 
+    data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[0]);
     data << uint32(0);                                      ///< Display ID
     data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemId[1]);
     data << uint32(hiddenItemReward ? 0 : quest->RewardChoiceItemCount[1]);
@@ -1156,7 +1156,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data.WriteBits(questTitle.size(), 9);
     data.WriteBits(questOfferRewardText.size(), 12);
     data.WriteBits(questGiverTextWindow.size(), 10);
-    data.WriteBits(questGiverTargetName.size(), 8); 
+    data.WriteBits(questGiverTargetName.size(), 8);
     data.WriteBits(questTurnTextWindow.size(), 10);
     data.WriteBits(questTurnTargetName.size(), 8);
     data.FlushBits();

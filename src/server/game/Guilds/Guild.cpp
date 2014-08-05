@@ -224,7 +224,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
 void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content, bool hasCashFlow /* = false */) const
 {
     ObjectGuid logGuid = MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER);
-    
+
     bool hasItem = m_eventType == GUILD_BANK_LOG_DEPOSIT_ITEM || m_eventType == GUILD_BANK_LOG_WITHDRAW_ITEM ||
                    m_eventType == GUILD_BANK_LOG_MOVE_ITEM || m_eventType == GUILD_BANK_LOG_MOVE_ITEM2;
 
@@ -1876,7 +1876,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
         data.WriteByteSeq(playerGuid[2]);
         data.WriteByteSeq(playerGuid[3]);
 
-        BroadcastPacket(&data);        
+        BroadcastPacket(&data);
 
         sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));
     }
@@ -3647,7 +3647,6 @@ void Guild::GiveXP(uint32 xp, Player* source)
 
         // Notify all online players that guild level changed and learn perks
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-
         {
             if (Player* player = itr->second->FindPlayer())
             {
@@ -3656,7 +3655,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
                     player->learnSpell(perksToLearn[i], true);
             }
         }
-    
+
         //GetNewsLog().AddNewEvent(GUILD_NEWS_LEVEL_UP, time(NULL), 0, 0, _level);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, source);
 

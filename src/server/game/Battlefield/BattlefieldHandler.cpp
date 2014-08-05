@@ -47,7 +47,7 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pT
     data.WriteByteSeq(guidBytes[3]);
     data << uint32(zoneId);         // Zone Id
     data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[4]);   
+    data.WriteByteSeq(guidBytes[4]);
     data.WriteByteSeq(guidBytes[2]);
     //Sending the packet to player
     SendPacket(&data);
@@ -61,7 +61,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
     bool warmup = true;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE);
-    
+
     data.WriteBit(1); // !+9
     data.WriteBit(guidBytes[2]);
     data.WriteBit(0); // +48
@@ -191,7 +191,7 @@ void WorldSession::SendBfEntered(uint64 guid)
     data.WriteBit(bgGuid[4]);
     data.WriteBit(1); // unk
     data.FlushBits();
-    
+
     uint8 byteOrder[8] = {1, 7, 3, 4, 2, 5, 6, 0};
     data.WriteBytesSeq(bgGuid, byteOrder);
 
@@ -240,7 +240,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     recvData.ReadBitInOrder(guid, bitOrder);
 
     accepted = recvData.ReadBit();
-    
+
     recvData.FlushBits();
 
     uint8 byteOrder[8] = {6, 4, 0, 1, 5, 7, 3, 2};
@@ -254,7 +254,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
         return;
-    
+
     bf->PlayerAcceptInviteToQueue(m_Player);
 }
 

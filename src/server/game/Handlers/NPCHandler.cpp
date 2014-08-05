@@ -319,7 +319,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!unit->isCanTrainingOf(m_Player, true))
-    { 
+    {
         SendTrainerService(guid, spellId, 0);
         return;
     }
@@ -335,14 +335,14 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     // not found, cheat?
     TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
     if (!trainer_spell)
-    { 
+    {
         SendTrainerService(guid, spellId, 0);
         return;
     }
 
     // can't be learn, cheat? Or double learn with lags...
     if (m_Player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
-    { 
+    {
         SendTrainerService(guid, spellId, 0);
         return;
     }
@@ -352,7 +352,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     // check money requirement
     if (!m_Player->HasEnoughMoney(uint64(nSpellCost)))
-    { 
+    {
         SendTrainerService(guid, spellId, 1);
         return;
     }
@@ -370,7 +370,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     SendTrainerService(guid, spellId, 2);
 
-    // Archaeology
+    // Archeology
     if (spellId == 78670)
     {
         m_Player->GetArchaeologyMgr().GenerateResearchSites();
@@ -379,7 +379,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 }
 
 void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
-{ 
+{
     WorldPacket data(SMSG_TRAINER_SERVICE, 16);
     ObjectGuid npcGuid = guid;
 

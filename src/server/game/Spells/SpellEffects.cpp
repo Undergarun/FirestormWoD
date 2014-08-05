@@ -984,7 +984,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     uint32 crit = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_CRIT_MELEE);
                     uint32 mastery = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
                     uint32 haste = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
-                    
+
                     uint8 stacks = 1;
                     if (AuraPtr aur = m_caster->GetAura(96923))
                         stacks = aur->GetStackAmount();
@@ -997,7 +997,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         m_caster->CastCustomSpell(m_caster, 96927, &bp0, 0, 0, true);
                     else if (mastery > haste && mastery > crit)
                         m_caster->CastCustomSpell(m_caster, 96929, &bp0, 0, 0, true);
-                    
+
                     m_caster->RemoveAurasDueToSpell(96923);
 
                     break;
@@ -1484,13 +1484,13 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
                 if (unitTarget->ToPlayer()->HasSpellCooldown(115191))
                     unitTarget->ToPlayer()->RemoveSpellCooldown(115191, true);
-                
+
                 if (!unitTarget->HasAura(108208))
                     unitTarget->CastSpell(unitTarget, 1784, true);
                 else
                     unitTarget->CastSpell(unitTarget, 115191, true);
                 return;
-            }  
+            }
             // Demonic Empowerment -- succubus
             case 54437:
             {
@@ -1767,7 +1767,7 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 49575: // Death Grip 
+        case 49575: // Death Grip
         case 92832: // Leap of Faith
             m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
             break;
@@ -2693,7 +2693,7 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
     {
         case 52309: new_id = 52314; break; // Nightstone Choker
         case 52308: new_id = 52316; break; // Hessonite Band
-        case 52307: new_id = 52312; break; // Alicite Pendant  
+        case 52307: new_id = 52312; break; // Alicite Pendant
         case 52306: new_id = 52310; break; // Jasper Ring
         default: break;
     }
@@ -2833,7 +2833,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         case 99069: // Fires of Heaven, Item - Paladin T12 Holy 2P Bonus
         case 99007: // Heartfire, Item - Druid T12 Restoration 2P Bonus
         case 99131: // Divine Fire, Item - Mage T12 2P Bonus
-        case 99189: // Flametide, Item - Shaman T12 Restoration 2P Bonus 
+        case 99189: // Flametide, Item - Shaman T12 Restoration 2P Bonus
             damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
             break;
         case 35395: // Crusader Strike
@@ -3615,7 +3615,6 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             if (AuraPtr aur = itr->first)
                 aur->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-        
     }
 
     DispelChargesList dispel_list;
@@ -3694,7 +3693,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                 if (m_caster->IsFriendlyTo(unitTarget))
                 {
                     int32 bp = int32(unitTarget->CountPctFromMaxHealth(aurEff->GetAmount() * count));
-                    m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true); 
+                    m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true);
                 }
             }
         }
@@ -3705,7 +3704,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, 119856, true);
         }
     }
-    
+
     WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8+8+4+1+4+success_list.size()*5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
@@ -4365,7 +4364,7 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         if (HostileReference* forcedVictim = unitTarget->getThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
             unitTarget->getThreatManager().setCurrentVictim(forcedVictim);
 
-    if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->IsAIEnabled 
+    if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->IsAIEnabled
     && (!unitTarget->ToCreature()->HasReactState(REACT_PASSIVE) || (unitTarget->IsPetGuardianStuff() && IS_PLAYER_GUID(unitTarget->GetCharmerOrOwnerGUID()))))
     {
         // taken from case COMMAND_ATTACK:                        //spellid=1792  //ATTACK PetHandler.cpp
@@ -5674,7 +5673,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    m_caster->ToPlayer()->ReduceSpellCooldown(2894, 4000); 
+                    m_caster->ToPlayer()->ReduceSpellCooldown(2894, 4000);
                     break;
             }
         }
@@ -6157,7 +6156,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     float o = m_caster->GetOrientation();
 
     int32 duration = 0;
-    
+
     // Archaeology
     if (m_spellInfo->Id == 80451)
     {

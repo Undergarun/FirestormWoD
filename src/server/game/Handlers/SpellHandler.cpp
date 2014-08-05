@@ -156,7 +156,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     recvPacket.FlushBits();
 
     recvPacket.ReadByteSeq(itemGuid[7]);
-       
 
     for (uint8 i = 0; i < archeologyCounter; i++)
     {
@@ -176,7 +175,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
                 break;
         }
     }
-    
+
     delete[] archeologyType;
     archeologyType = NULL;
     delete[] usedCount;
@@ -668,36 +667,36 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     if (spellInfo->IsPassive())
     {
-        p_RecvPacket.rfinish(); // prevent spam at ignore packet 
-        return; 
+        p_RecvPacket.rfinish(); // prevent spam at ignore packet
+        return;
     }
 
     Unit* caster = mover;
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(l_SpellID)) 
+    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(l_SpellID))
     {
-        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells 
+        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
         // change caster to player and let him cast
-        if (!m_Player->IsOnVehicle(caster) || spellInfo->CheckVehicle(m_Player) != SPELL_CAST_OK) 
+        if (!m_Player->IsOnVehicle(caster) || spellInfo->CheckVehicle(m_Player) != SPELL_CAST_OK)
         {
             p_RecvPacket.rfinish(); // prevent spam at ignore packet
             return;
         }
 
-        caster = m_Player; 
+        caster = m_Player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER && 
+    if (caster->GetTypeId() == TYPEID_PLAYER &&
         !caster->ToPlayer()->HasActiveSpell(l_SpellID) &&
-         l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine 
+         l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
          l_SpellID != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(l_TargetGUID)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
     {
-        // not have spell in spellbook 
+        // not have spell in spellbook
         // cheater? kick? ban?
         if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
         {
             p_RecvPacket.rfinish(); // prevent spam at ignore packet
             return;
-        } 
+        }
     }
 
     Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);

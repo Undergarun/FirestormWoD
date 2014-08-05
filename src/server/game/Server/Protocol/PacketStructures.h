@@ -41,7 +41,7 @@ struct ServerSpec
 #define SET_PLAYER_DIFFICULTY_RESULTS uint32
 #define JAM_PRODUCT_CHOICE_RESULT uint32
 #define JamAddBattlenetFriendError uint32
-#define ARENA_ERROR_TYPE uint32 
+#define ARENA_ERROR_TYPE uint32
 #define PETITION_ERROR uint32
 #define ATTACKSWINGERR uint32
 #define IMMIGRATION_STATE uint32

@@ -949,7 +949,7 @@ void Battleground::EndBattleground(uint32 winner)
                 UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, winner_bonus);
                 if (!player->GetRandomWinner())
                 {
-                    // 100cp awarded for the first rated battleground won each day 
+                    // 100cp awarded for the first rated battleground won each day
                     player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
                 }

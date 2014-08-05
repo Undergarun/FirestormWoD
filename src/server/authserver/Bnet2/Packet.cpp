@@ -100,7 +100,7 @@ namespace BNet2 {
     /// Read 4 character
     std::string Packet::ReadFourCC()
     {
-        union 
+        union
         {
             uint32_t Value;
             uint8_t Bytes[4];

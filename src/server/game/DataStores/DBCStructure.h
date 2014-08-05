@@ -465,7 +465,7 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM         = 90
         struct
         {
-            uint32  unused;                                 // 
+            uint32  unused;                                 //
             uint32  lootCount;                             // 4
         } loot_epic_item;
 
@@ -1795,7 +1795,7 @@ struct ScalingStatValuesEntry
     uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
 };
 
-// used ? 
+// used ?
 //struct SkillRaceClassInfoEntry
 //{
 //    uint32    id;                                         // 0        m_ID

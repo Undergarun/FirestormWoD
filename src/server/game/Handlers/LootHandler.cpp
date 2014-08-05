@@ -244,7 +244,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             }
              /*@todo: check me for 5.0.5*/
             uint32 goldPerPlayer = uint32((loot->gold) / (playersNear.size()));
-            
+
             loot->NotifyMoneyRemoved(goldPerPlayer);
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
@@ -316,7 +316,7 @@ void WorldSession::HandleLootOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 
     ObjectGuid guid;
-    
+
     uint8 bitOrder[8] = { 0, 6, 7, 3, 5, 1, 2, 4 };
     recvData.ReadBitInOrder(guid, bitOrder);
 
@@ -614,7 +614,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     uint8 bitOrder[8] = {1, 4, 3, 6, 0, 2, 7, 5};
     for (uint32 i = 0; i < count; ++i)
         recvData.ReadBitInOrder(guids[i], bitOrder);
-    
+
     target_playerguid[1] = recvData.ReadBit();
     recvData.FlushBits();
 

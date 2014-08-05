@@ -256,7 +256,7 @@ inline uint8 GetClassBySpec(uint32 spec)
         case SPEC_MONK_BREWMASTER:
         case SPEC_MONK_WINDWALKER:
         case SPEC_MONK_MISTWEAVER:
-            return CLASS_MONK;              
+            return CLASS_MONK;
         default:
             return CLASS_NONE;
     }

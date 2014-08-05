@@ -142,7 +142,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
         Guild* guild = sGuildMgr->GetGuildById(itr->first);
         if (guild == nullptr)
             continue;
- 
+
         ObjectGuid guildGUID = ObjectGuid(guild->GetGUID());
 
         data.WriteBit(guildGUID[4]);

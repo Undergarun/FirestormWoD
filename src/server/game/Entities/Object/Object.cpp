@@ -354,10 +354,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     if (p_Flags & UPDATEFLAG_VEHICLE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_VEHICLE;
 
-    p_Data->WriteBit(0);                                            ///< Fake bit 1 
+    p_Data->WriteBit(0);                                            ///< Fake bit 1
     p_Data->WriteBit(0);                                            ///< Fake bit 2
-    p_Data->WriteBit(0);                                            ///< Fake bit 3 
-    p_Data->WriteBit(0);                                            ///< Fake bit 4 
+    p_Data->WriteBit(0);                                            ///< Fake bit 3
+    p_Data->WriteBit(0);                                            ///< Fake bit 4
     p_Data->WriteBit(p_Flags & UPDATEFLAG_LIVING);                  ///< Living
     p_Data->WriteBit(p_Flags & UPDATEFLAG_GO_TRANSPORT_POSITION);   ///< Go Transport Position
     p_Data->WriteBit(p_Flags & UPDATEFLAG_STATIONARY_POSITION);     ///< Stationary Position
@@ -438,7 +438,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                 if (l_Unit->m_movementInfo.t_time3)
                     *p_Data << uint32(l_Unit->m_movementInfo.t_time3);      ///< Transport time 3
             }
-            
+
             if (l_HasFallData)
             {
                 *p_Data << uint32(l_Unit->m_movementInfo.fallTime);         ///< Fall time
@@ -466,7 +466,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         *p_Data << l_Unit->GetSpeed(MOVE_TURN_RATE);                        ///< Turn rate
         *p_Data << l_Unit->GetSpeed(MOVE_PITCH_RATE);                       ///< Pitch rate
         *p_Data << uint32(l_UnkCounter);                                    ///< Unk counter
-        
+
         for (uint32 l_Frame = 0; l_Frame < l_UnkCounter; l_Frame++)
         {
             *p_Data << uint32(0);                                           ///< Unk
@@ -2552,7 +2552,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     *data << uint8(msgtype);
     *data << uint8(language);
     data->appendPackGUID(senderGuid);
-    data->appendPackGUID(0); 
+    data->appendPackGUID(0);
     data->appendPackGUID(0);
     data->appendPackGUID(targetGuid);
     *data << uint32(realmID);
@@ -3138,7 +3138,7 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
 }
 
 GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
-{ 
+{
     GameObject* go = NULL;
     JadeCore::NearestGameObjectTypeInObjectRangeCheck checker(*this, type, range);
     JadeCore::GameObjectLastSearcher<JadeCore::NearestGameObjectTypeInObjectRangeCheck> searcher(this, go, checker);
@@ -3182,7 +3182,7 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
 }
 
 void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
-{    
+{
     JadeCore::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
     JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, playerList, checker);
     this->VisitNearbyWorldObject(maxSearchRange, searcher);

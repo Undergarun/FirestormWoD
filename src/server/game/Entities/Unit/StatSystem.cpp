@@ -967,7 +967,7 @@ void Player::UpdateManaRegen()
         base_regen = base_regen + (base_regen * 0.5f);
         base_regen *= HastePct;
     }
-    
+
     // Not In Combat : 2% of base mana + spirit_regen
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen);
     // In Combat : 2% of base mana

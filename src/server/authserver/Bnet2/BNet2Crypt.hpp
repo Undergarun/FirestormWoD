@@ -5,8 +5,8 @@
 #include "Cryptography/ARC4.h"
 #include "Cryptography/BigNumber.h"
 
-namespace BNet2 {
-
+namespace BNet2
+{
     /// BNet2 ARC4 crypt
     class BNet2Crypt
     {
@@ -16,7 +16,7 @@ namespace BNet2 {
 
             /// Init
             void Init(BigNumber * p_SessionKey);
-            
+
             /// Decrypt data
             void Decrypt(uint8_t * p_Data, size_t p_Size);
             /// Encrypt data
@@ -29,7 +29,5 @@ namespace BNet2 {
             ARC4 m_ClientDecrypt;   ///< ARC4 client decrypter
             ARC4 m_ServerEncrypt;   ///< ARC4 server encrypter
             bool m_Initialized;     ///< Is ready
-
     };
-
 }

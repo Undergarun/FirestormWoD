@@ -220,7 +220,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         else
             sLog->outDebug(LOG_FILTER_MAPS, "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName());
     }
-    
+
     Group* group = player->GetGroup();
     if (entry->IsRaid())
     {

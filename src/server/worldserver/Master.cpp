@@ -426,8 +426,8 @@ public:
                     if (error)
                     {
                         sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", perso_guid);
-                    	LoginDatabase.PQuery("UPDATE transferts SET nb_attempt = nb_attempt+1 WHERE id = %u", transaction);
-                    	continue;
+                        LoginDatabase.PQuery("UPDATE transferts SET nb_attempt = nb_attempt+1 WHERE id = %u", transaction);
+                        continue;
                     }
                 }
                 while(toDump->NextRow());
@@ -540,54 +540,9 @@ public:
     }
 };
 
-/*void TestTransfertDump()
-{
-    QueryResult toDump = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account != 0 AND logout_time > 1380618170 LIMIT 100");
-                                                                                           
-    if(toDump)
-    {
-        do
-        {
-            Field* field = toDump->Fetch();
-            uint32 perso_guid = field[0].GetUInt32();
+Master::Master() { }
 
-            if (Player * pPlayer = sObjectMgr->GetPlayerByLowGUID(perso_guid))
-            {
-                pPlayer->GetSession()->SendNotification("Vous devez vous deconnecter pour pouvoir transferer votre personnage");
-                continue;
-            }
-
-            bool error = true;
-            std::string dump;
-            if (PlayerDumpWriter().GetDump(perso_guid, dump))
-            {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_TRANSFERT_DUMP_TEST);
-                stmt->setUInt32(0, 426933);      // account id
-                stmt->setUInt32(1, perso_guid);  // perso guid
-                stmt->setUInt32(2, realmID);     // realm id
-                stmt->setUInt32(3, 50);          // destination realm id (test local)
-                stmt->setString(4, "");          // revision, legacy code
-                stmt->setString(5, dump);        // pdump data
-                stmt->setString(6, "");          // last error
-                stmt->setString(7, "0");         // nb attempt
- 
-                if (!LoginDatabase.DirectExecuteWithReturn(stmt))
-                    printf("TestTransfertDump Error ! [%u]\r\n", perso_guid);
-
-            }
-
-        }
-        while(toDump->NextRow());
-    }
-}*/
-
-Master::Master()
-{
-}
-
-Master::~Master()
-{
-}
+Master::~Master() { }
 
 /// Main function
 int Master::Run()
@@ -599,13 +554,13 @@ int Master::Run()
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "       __          __     ______              ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "      / /___ _____/ /__  / ____/___  ________ ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, " __  / / __ `/ __  / _ \\/ /   / __ \\/ ___/ _ \\");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "/ /_/ / /_/ / /_/ /  __/ /___/ /_/ / /  /  __/");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "\\____/\\__,_/\\__,_/\\___/\\____/\\____/_/   \\___/");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "http://www.pandashan.com\n");
-
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "  _  __    _           _      _____               ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " | |/ /   | |         | |    / ____|              ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " | ' / ___| |__   __ _| |__ | |     ___  _ __ ___  ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " |  < / _ \\ '_ \\ / _` | '_ \\| |    / _ \\| '__/ _ \\ ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " | . \\  __/ |_) | (_| | |_) | |___| (_) | | |  __/ ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " |_|\\_\\___|_.__/ \\__,_|_.__/ \\_____\\___/|_|  \\___| ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " www.kebab-frites.com \n");
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
     if (!pidfile.empty())

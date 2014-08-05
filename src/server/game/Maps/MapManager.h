@@ -153,7 +153,7 @@ class MapManager
         // Map max diff functions
         bool HaveMaxDiff() const { return m_mapDiffLimit; }
         void SetMapDiffLimit(bool value) { m_mapDiffLimit = value; }
-        
+
         uint32 GetNextInstanceId() const { return _nextInstanceId; };
         void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 

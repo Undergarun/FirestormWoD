@@ -502,7 +502,7 @@ void GuildMgr::LoadGuildXpForLevel()
         GuildXPperLevel[level] = requiredXP;
         ++count;
 
-    } 
+    }
     while (result->NextRow());
 
     // fill level gaps

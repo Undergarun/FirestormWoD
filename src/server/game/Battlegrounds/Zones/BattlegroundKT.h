@@ -48,7 +48,7 @@ enum BG_KT_Creatures
     BG_KT_CREATURE_ORB_AURA_2   = 1,
     BG_KT_CREATURE_ORB_AURA_3   = 2,
     BG_KT_CREATURE_ORB_AURA_4   = 3,
-    
+
     BG_KT_CREATURE_SPIRIT_1     = 4,
     BG_KT_CREATURE_SPIRIT_2     = 5,
 

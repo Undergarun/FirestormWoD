@@ -1104,7 +1104,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 {
                     if (Player* pOwner = m_owner->ToPlayer())
                         m_modMeleeHitChance = pOwner->GetFloatValue(PLAYER_FIELD_UI_SPELL_HIT_MODIFIER) + pOwner->GetRatingBonusValue(CR_HIT_SPELL);
-                    
+
                     float bonusDmg = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.15f;
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2) + bonusDmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
@@ -1634,7 +1634,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
 void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEffectResult, uint32 timediff, bool login)
 {
     sLog->outDebug(LOG_FILTER_PETS, "Loading auras for pet %u", GetGUIDLow());
-    
+
     PreparedQueryResult result = auraResult;
     PreparedQueryResult resultEffect = auraEffectResult;
 
@@ -1800,7 +1800,6 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         // don't save guid of caster in case we are caster of the spell - guid for pet is generated every pet load, so it won't match saved guid anyways
         uint64 casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? 0 : itr->second->GetCasterGUID();
 
-       
         index = 0;
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());

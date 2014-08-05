@@ -372,7 +372,7 @@ struct ClientSetVeteranTrial
     bool IsVeteranTrial;		///< Offset 0x0000 Type _MJVTBL_BOOL
 };
 
-///< SMSG_AUTH_RESPONSE 
+///< SMSG_AUTH_RESPONSE
 struct ClientAuthResponse
 {
     struct JamAuthWaitInfo
@@ -398,11 +398,11 @@ struct ClientAuthResponse
 
         struct JamRaceClassAvailability
         {
-			JamRaceClassAvailability(uint8 RoC, uint8 E)
-			{
-				RaceOrClassID = RoC;
-				RequiredExpansion = E;
-			}
+            JamRaceClassAvailability(uint8 RoC, uint8 E)
+            {
+                RaceOrClassID = RoC;
+                RequiredExpansion = E;
+            }
 
             uint8 RaceOrClassID;    		///< Offset 0x0000 Type _MJVTBL_UINT8
             uint8 RequiredExpansion;		///< Offset 0x0001 Type _MJVTBL_UINT8
@@ -6373,8 +6373,8 @@ struct ClientQueryCreatureResponse
         int32              M_flags[2];              		///< Offset 0x006C Type MakeMJVTblForFixedArrayOf<int,2,&(MJVTBL_INT32)>::MJVTBL
         int32              M_proxyCreatureID[2];    		///< Offset 0x0074 Type MakeMJVTblForFixedArrayOf<int,2,&(MJVTBL_INT32)>::MJVTBL
         int32              M_creatureDisplayID[4];  		///< Offset 0x007C Type MakeMJVTblForFixedArrayOf<int,4,&(MJVTBL_INT32)>::MJVTBL
-		std::string        M_name[4];               		///< Offset 0x0090 Type MakeMJVTblForFixedArrayOf<JamDynamicString,4,&(MJVTBL_DYNAMICSTRING)>::MJVTBL
-		std::string        M_nameAlt[4];            		///< Offset 0x00D0 Type MakeMJVTblForFixedArrayOf<JamDynamicString,4,&(MJVTBL_DYNAMICSTRING)>::MJVTBL
+        std::string        M_name[4];               		///< Offset 0x0090 Type MakeMJVTblForFixedArrayOf<JamDynamicString,4,&(MJVTBL_DYNAMICSTRING)>::MJVTBL
+        std::string        M_nameAlt[4];            		///< Offset 0x00D0 Type MakeMJVTblForFixedArrayOf<JamDynamicString,4,&(MJVTBL_DYNAMICSTRING)>::MJVTBL
     };
 
     bool         Allow;       		///< Offset 0x0000 Type _MJVTBL_BOOL

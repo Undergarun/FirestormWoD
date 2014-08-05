@@ -1228,7 +1228,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             if (player->isDND())
                 status |= MEMBER_STATUS_DND;
         }
-        
+
         dataBuffer << uint16(status);
     }
 

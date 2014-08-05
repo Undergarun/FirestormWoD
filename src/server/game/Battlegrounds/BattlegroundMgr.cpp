@@ -147,7 +147,7 @@ void BattlegroundMgr::Update(uint32 diff)
             BattlegroundBracketId bracket_id = scheduled[i]->_bracket_id;
             m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating);
         }
-           
+
         /*for (std::vector<QueueSchedulerItem*>::iterator itr = scheduled.begin();
             itr != scheduled.end(); ++itr)
             delete *itr;*/
@@ -255,7 +255,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(QueueSlot);
             *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);
             data->WriteByteSeq(bg_guid[2]);
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID            
+            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
             data->WriteByteSeq(player_guid[1]);
             data->WriteByteSeq(player_guid[0]);
             data->WriteByteSeq(player_guid[4]);
@@ -363,7 +363,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteByteSeq(player_guid[2]);
             data->WriteByteSeq(bg_guid[7]);
             *data << uint32(Time2); // Elapsed Time
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID            
+            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
             *data << uint32(bg->GetMapId());            // Map Id
             data->WriteByteSeq(bg_guid[4]);
             data->WriteByteSeq(bg_guid[3]);
@@ -855,7 +855,7 @@ void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* data, Battleground* b
     data->WriteByteSeq(player_guid[4]);
     data->WriteByteSeq(player_guid[2]);
 
-    *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                         // Unk, always 1 
+    *data << uint32(bg->isArena() ? bg->GetMaxPlayersPerTeam() : 1);                         // Unk, always 1
 
     data->WriteByteSeq(bg_guid[0]);
     data->WriteByteSeq(unkguid[1]);
@@ -886,10 +886,10 @@ void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint6
     ObjectGuid guidBytes = guid;
 
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8);
-    
+
     uint8 bitOrder[8] = { 5, 6, 1, 7, 0, 2, 4, 3 };
     data->WriteBitInOrder(guidBytes, bitOrder);
-    
+
     uint8 byteOrder[8] = { 6, 1, 5, 7, 4, 0, 3, 2 };
     data->WriteBytesSeq(guidBytes, byteOrder);
 }

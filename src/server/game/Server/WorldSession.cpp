@@ -1041,7 +1041,7 @@ void WorldSession::SendAddonsInfo()
             uint32 l_PublicCRC = 0;
 
             uint8 l_IsEnabled = 1;
-            
+
             l_Data << l_IsEnabled;                                          ///< uint8  => Is enabled
             l_Data << l_PublicCRC;                                          ///< uint32 => new CRC
         }
@@ -1053,7 +1053,7 @@ void WorldSession::SendAddonsInfo()
             l_Data.append(l_AddonPublicKey, sizeof(l_AddonPublicKey));      ///< Addon public key
         }
     }
-    
+
     m_addonsList.clear();
 
     SendPacket(&l_Data);

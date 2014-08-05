@@ -128,7 +128,7 @@ void GmTicket::WritePacket(WorldPacket& data) const
 
     if (GetMessage().size())
         data.append(GetMessage().c_str(), GetMessage().size());
-    
+
     data << uint8(_haveTicket);
 
     if (GetMessage().size())
