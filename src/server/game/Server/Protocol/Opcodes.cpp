@@ -602,12 +602,18 @@ void InitOpcodes()
     /// Update
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_HEARTBEAT,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_FACING,                                 STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_ACK,                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveTeleportAck           );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_ACK,                               STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMoveTeleportAck            );
 
     /// Stop
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_STOP,                                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_STOP_TURN,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_STOP_STRAFE,                                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+
+    /// Ack
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_SWIM_SPEED_CHEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT,                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_SPEED_CHEAT,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1793,14 +1799,10 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_ALL_SPEED_CHEAT,                 STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_COLLISION_HEIGHT,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT,         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FLIGHT_SPEED_CHEAT,              STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_PITCH_RATE_CHEAT,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RAW_POSITION_ACK,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT,            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_SPEED,                       STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_SPEED_CHEAT,                 STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT,           STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_SWIM_SPEED_CHEAT,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_TURN_RATE_CHEAT,                 STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_WALK_SPEED_CHEAT,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_START_SWIM_CHEAT,                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

@@ -558,11 +558,16 @@ enum Opcodes
     CMSG_MOVE_STOP_TURN                         = 0x0BCF,   ///< 6.0.1 18663
     CMSG_MOVE_STOP_STRAFE                       = 0x09CF,   ///< 6.0.1 18663
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
+    /// ACK
+    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x104F,   ///< 6.0.1 18663
+    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x125C,   ///< 6.0.1 18663
+    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x13CF,   ///< 6.0.1 18663
+    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x02CF,   ///< 6.0.1 18663
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     // MSG
     MSG_INSPECT_ARENA_TEAMS = 0x0000,
@@ -579,14 +584,10 @@ enum Opcodes
     MSG_MOVE_SET_ALL_SPEED_CHEAT = 0x0000,
     MSG_MOVE_SET_COLLISION_HEIGHT = 0x0000,
     MSG_MOVE_SET_FACING = 0x0000,
-    MSG_MOVE_SET_FLIGHT_SPEED_CHEAT = 0x0000,
     MSG_MOVE_SET_PITCH = 0x0000,
     MSG_MOVE_SET_RAW_POSITION_ACK = 0x0000,
-    MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT = 0x0000,
     MSG_MOVE_SET_RUN_MODE = 0x0000,
-    MSG_MOVE_SET_RUN_SPEED_CHEAT = 0x0000,
     MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT = 0x0000,
-    MSG_MOVE_SET_SWIM_SPEED_CHEAT = 0x0000,
     MSG_MOVE_SET_TURN_RATE_CHEAT = 0x0000,
     MSG_MOVE_SET_WALK_MODE = 0x0000,
     MSG_MOVE_SET_WALK_SPEED_CHEAT = 0x0000,
