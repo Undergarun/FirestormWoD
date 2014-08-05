@@ -2590,7 +2590,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     data->appendPackGUID(senderGuid);
     data->appendPackGUID(0);
     data->appendPackGUID(0);
-    data->appendPackGUID(targetGuid);
+    data->appendPackGUID(0);
     *data << uint32(realmID);
     *data << uint32(realmID);
     data->appendPackGUID(groupGuid);
@@ -2607,6 +2607,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     data->WriteBit(false);  ///< Faker sender name
     data->FlushBits();
 
+    data->WriteString(name ? name : 0);
     data->WriteString(text ? text : 0);
 }
 
