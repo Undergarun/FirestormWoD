@@ -1189,6 +1189,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         const ItemExtendedCostEntry* extendedCost = sItemExtendedCostStore.LookupEntry(itr);
 
         if (!extendedCost)
+            continue;
 
         //WorldPacket data(SMSG_DB_REPLY);
         //ByteBuffer buff;
