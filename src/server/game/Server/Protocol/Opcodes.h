@@ -98,7 +98,6 @@ enum Opcodes
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x15C5,   ///< 6.0.1 18663
-        SMSG_DESTROY_OBJECT                         = 0x104E,   ///< 6.0.1 18663
         SMSG_POWER_UPDATE                           = 0x0000,   ///<
 
         /// Character list

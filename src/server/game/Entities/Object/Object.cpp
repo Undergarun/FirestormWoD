@@ -52,6 +52,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "MoveSpline.h"
+#include "SceneObject.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -310,14 +311,49 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 {
     ASSERT(p_Target);
 
-    WorldPacket l_Data(SMSG_DESTROY_OBJECT, 8 + 1);
+    /// SMSG_DESTROY_OBJECT doesn't exist anymore, now blizz use OUT_OF_RANGE block
+    /// in SMSG_UPDATE_OBJECT to destroy an WorldObject
+    WorldPacket l_Data(SMSG_UPDATE_OBJECT, 40);
+    
+    uint16 l_MapID = 0;
 
-    l_Data.appendPackGUID(GetGUID());
+    switch (GetTypeId())
+    {
+        case TYPEID_PLAYER:
+        case TYPEID_UNIT:
+            l_MapID = ToUnit()->GetMapId();
+            break;
 
-    //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
-    //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
-    l_Data.WriteBit(p_OnDeath);
-    l_Data.FlushBits();
+        case TYPEID_ITEM:
+        case TYPEID_CONTAINER:
+            l_MapID = p_Target->GetMapId();
+
+
+        case TYPEID_GAMEOBJECT:
+            l_MapID = ToGameObject()->GetMapId();
+            break;
+
+        case TYPEID_DYNAMICOBJECT:
+            l_MapID = ToDynObject()->GetMapId();
+            break;
+
+        case TYPEID_AREATRIGGER:
+            l_MapID = ToAreaTrigger()->GetMapId();
+            break;
+
+        case TYPEID_CORPSE:
+            l_MapID = ToCorpse()->GetMapId();
+            break;
+
+        case TYPEID_SCENEOBJECT:
+            l_MapID = reinterpret_cast<const SceneObject*>(this)->GetMapId();
+            break;
+
+    }
+
+    UpdateData l_Update(l_MapID);
+    l_Update.AddOutOfRangeGUID(GetGUID());
+    l_Update.BuildPacket(&l_Data);
 
     p_Target->GetSession()->SendPacket(&l_Data);
 }
