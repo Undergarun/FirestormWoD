@@ -464,6 +464,7 @@ enum Opcodes
     CMSG_NAME_QUERY                             = 0x1E42,   ///< 6.0.1 18663
     CMSG_QUEST_QUERY                            = 0x0096,   ///< 6.0.1 18663
     CMSG_QUEST_POI_QUERY                        = 0x0E41,   ///< 6.0.1 18663
+    CMSG_REALM_NAME_QUERY                       = 0x0CC1,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -958,7 +959,6 @@ enum Opcodes
     CMSG_RANDOM_ROLL                                  = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     CMSG_READ_ITEM                                    = 0x0000,
-    CMSG_REALM_NAME_QUERY                             = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
     CMSG_RECLAIM_CORPSE                               = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x0000,

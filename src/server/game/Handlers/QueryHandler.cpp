@@ -31,6 +31,13 @@
 #include "Pet.h"
 #include "MapManager.h"
 
+enum NameQueryResponse
+{
+    NAME_QUERY_RESULT_OK    = 0,
+    NAME_QUERY_RESULT_DENY  = 1,
+    NAME_QUERY_RESULT_RETRY = 2,
+};
+
 void WorldSession::SendNameQueryOpcode(uint64 guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
@@ -38,7 +45,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
 
-    data << uint8(!nameData ? 1 : 0);
+    data << uint8(nameData ? NAME_QUERY_RESULT_OK : NAME_QUERY_RESULT_DENY);
     data.appendPackGUID(guid);
 
     if (nameData)
@@ -66,8 +73,8 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
                     data.append(names->name[i].c_str(), names->name[i].size());
         }
 
-        data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
-        data.appendPackGUID(MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+        data.appendPackGUID(0);// MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
+        data.appendPackGUID(0);// MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
         data.appendPackGUID(guid);
 
         data << uint32(realmID);
