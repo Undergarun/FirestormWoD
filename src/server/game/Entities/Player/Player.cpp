@@ -207,19 +207,17 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
     }
 }
 
-void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, ByteBuffer& dataBuffer, bool all)
+void PlayerTaxi::AppendTaximaskTo(ByteBuffer& p_Data, bool p_AllNodes)
 {
-    data.WriteBits(TaxiMaskSize, 24);
-
-    if (all)
+    if (p_AllNodes)
     {
-        for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            dataBuffer << uint8(sTaxiNodesMask[i]);         // all existed nodes
+        for (uint8 l_I = 0; l_I < TaxiMaskSize; ++l_I)
+            p_Data << uint8(sTaxiNodesMask[l_I]);         // all existed nodes
     }
     else
     {
-        for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            dataBuffer << uint8(m_taximask[i]);             // known nodes
+        for (uint8 l_I = 0; l_I < TaxiMaskSize; ++l_I)
+            p_Data << uint8(m_taximask[l_I]);             // known nodes
     }
 }
 
@@ -22687,8 +22685,8 @@ void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string
     *data << uint8(language);
     data->appendPackGUID(GetGUID());
     data->appendPackGUID(guildGuid);
-    data->appendPackGUID(MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
-    data->appendPackGUID(GetGUID());
+    data->appendPackGUID(0);// MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
+    data->appendPackGUID(0);
     *data << uint32(realmID);
     *data << uint32(realmID);
     data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);

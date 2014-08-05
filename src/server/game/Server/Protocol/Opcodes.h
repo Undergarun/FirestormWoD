@@ -127,6 +127,13 @@ enum Opcodes
 
         /// Friends
         SMSG_CONTACT_LIST                           = 0x1C9B,   ///< 6.0.1 18663
+
+        /// Taxi
+        SMSG_TAXI_NODE_STATUS                       = 0x0049,   ///< 6.0.1 18663
+        SMSG_NEW_TAXI_PATH                          = 0x06C6,   ///< 6.0.1 18663
+        SMSG_SHOW_TAXI_NODES                        = 0x1ED7,   ///< 6.0.1 18663
+        SMSG_ACTIVATE_TAXI_REPLY                    = 0x004A,   ///< 6.0.1 18663
+
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -486,6 +493,14 @@ enum Opcodes
     CMSG_SELL_ITEM                              = 0x017D,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
+    /// Taxi
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0C9C,   ///< 6.0.1 18663
+    CMSG_ENABLE_TAXI_NODE                       = 0x0ACD,   ///< 6.0.1 18663
+    CMSG_ACTIVATE_TAXI                          = 0x0CB9,   ///< 6.0.1 18663
+    CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x02FA,   ///< 6.0.1 18663
+
+    //////////////////////////////////////////////////////////////////////////
     /// Quest
     //////////////////////////////////////////////////////////////////////////
     CMSG_QUESTGIVER_HELLO                       = 0x1AE9,   ///< 6.0.1 18663
@@ -611,8 +626,6 @@ enum Opcodes
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
     CMSG_ACCEPT_TRADE                                 = 0x0000,
-    CMSG_ACTIVATETAXI                                 = 0x0000,
-    CMSG_ACTIVATETAXIEXPRESS                          = 0x0000,
     CMSG_ADDON_REGISTERED_PREFIXES                    = 0x0000,
     CMSG_ADD_FRIEND                                   = 0x0000,
     CMSG_ADD_IGNORE                                   = 0x0000,
@@ -752,7 +765,6 @@ enum Opcodes
     CMSG_LFD_LOCK_INFO_REQUEST                        = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
-    CMSG_ENABLETAXI                                   = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
     CMSG_EQUIPMENT_SET_USE                            = 0x0000,
     CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
@@ -1011,7 +1023,6 @@ enum Opcodes
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
     CMSG_SET_SKILL_CHEAT                              = 0x0000,
-    CMSG_SET_TAXI_BENCHMARK_MODE                      = 0x0000,
     CMSG_SET_TITLE                                    = 0x0000,
     CMSG_SET_TRADE_CURRENCY                           = 0x0000,
     CMSG_SET_TRADE_GOLD                               = 0x0000,
@@ -1036,11 +1047,6 @@ enum Opcodes
     CMSG_SWAP_INV_ITEM                                = 0x0000,
     CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
-    CMSG_TAXICLEARALLNODES                            = 0x0000,
-    CMSG_TAXIENABLEALLNODES                           = 0x0000,
-    CMSG_TAXINODE_STATUS_QUERY                        = 0x0000,
-    CMSG_TAXIQUERYAVAILABLENODES                      = 0x0000,
-    CMSG_TAXISHOWNODES                                = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
     CMSG_TEXT_EMOTE                                   = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
@@ -1097,7 +1103,6 @@ enum Opcodes
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x0000,
     SMSG_ACHIEVEMENT_DELETED                          = 0x0000,
     SMSG_ACHIEVEMENT_EARNED                           = 0x0000,
-    SMSG_ACTIVATE_TAXI_REPLY                          = 0x0000,
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
@@ -1494,7 +1499,6 @@ enum Opcodes
     SMSG_MOVE_UPDATE_TURN_RATE                        = 0x0000,
     SMSG_MOVE_UPDATE_WALK_SPEED                       = 0x0000,
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
-    SMSG_NEW_TAXI_PATH                                = 0x0000,
     SMSG_NEW_WORLD_ABORT                              = 0x0000,
     SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x0000,
     SMSG_NOTIFICATION                                 = 0x0000,
@@ -1671,7 +1675,6 @@ enum Opcodes
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
-    SMSG_SHOW_TAXI_NODES                              = 0x0000,
     SMSG_SHOW_BANK                                    = 0x0000,
     SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI        = 0x0000,
     SMSG_SHOW_RATINGS                                 = 0x0000,
@@ -1722,7 +1725,6 @@ enum Opcodes
     SMSG_SUSPEND_COMMS                                = 0x0000,
     SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x0000,
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x0000,
-    SMSG_TAXI_NODE_STATUS                             = 0x0000,
     SMSG_TEST_DROP_RATE_RESULT                        = 0x0000,
     SMSG_TEXT_EMOTE                                   = 0x0000,
     SMSG_THREAT_CLEAR                                 = 0x0000,

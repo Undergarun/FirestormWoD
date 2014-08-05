@@ -2118,8 +2118,7 @@ void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
-    uint8 mode;
-    recvData >> mode;
+    bool mode = recvData.ReadBit();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }
