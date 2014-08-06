@@ -454,45 +454,34 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
+    uint64 l_GameObjectGUID;
 
-    uint8 bitsOrder[8] = { 5, 3, 1, 4, 6, 7, 2, 0 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    recvData.readPackGUID(l_GameObjectGUID);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 6, 1, 5, 3, 4, 0, 2, 7 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(l_GameObjectGUID));
 
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
 
-    if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
+    if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(l_GameObjectGUID))
         obj->Use(m_Player);
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 {
-    ObjectGuid guid;
+    uint64 l_GameObjectGUID;
 
-    uint8 bitsOrder[8] = { 5, 2, 7, 3, 0, 6, 4, 1 };
-    recvPacket.ReadBitInOrder(guid, bitsOrder);
+    recvPacket.readPackGUID(l_GameObjectGUID);
 
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 6, 0, 5, 3, 4, 1, 7, 2 };
-    recvPacket.ReadBytesSeq(guid, bytesOrder);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(l_GameObjectGUID));
 
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
 
-    GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
+    GameObject* go = GetPlayer()->GetMap()->GetGameObject(l_GameObjectGUID);
+
     if (!go)
         return;
 

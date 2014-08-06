@@ -485,6 +485,8 @@ enum Opcodes
     CMSG_SET_WATCHED_FACTION                    = 0x08EE,   ///< 6.0.1 18663
     CMSG_SET_FACTION_INACTIVE                   = 0x0AE9,   ///< 6.0.1 18663
     CMSG_AREATRIGGER                            = 0x02B3,   ///< 6.0.1 18663
+    CMSG_GAMEOBJECT_REPORT_USE                  = 0x0369,   ///< 6.0.1 18663
+    CMSG_GAMEOBJECT_USE                         = 0x02CE,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -774,8 +776,6 @@ enum Opcodes
     CMSG_FAR_SIGHT                                    = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
-    CMSG_GAMEOBJECT_REPORT_USE                        = 0x0000,
-    CMSG_GAMEOBJECT_USE                               = 0x0000,
     CMSG_GAMESPEED_SET                                = 0x0000,
     CMSG_GAMETIME_SET                                 = 0x0000,
     CMSG_GETDEATHBINDZONE                             = 0x0000,
