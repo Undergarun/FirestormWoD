@@ -19,6 +19,7 @@
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
 #include "Weather.h"
+#include "GameObjectAI.h"
 
 #include "heart_of_fear.h"
 
@@ -91,8 +92,7 @@ enum Spells
     SPELL_BERSERK_MELJARAK      = 120207, // 480 seconds or 8 mins Enrage.
 
     /*** Misc / Impaling Spear ***/
-    SPELL_IMP_SPEAR_ABIL        = 122220, // Aura player receives when clicking on the racks. Gives Action Bar with button 1 to throw spear.
-    SPELL_IMP_SPEAR             = 122224, // Incapacitates an add for 50 seconds, damage breaks it.
+    SPELL_IMPALING_SPEAR        = 122220, // Aura player receives when clicking on the racks. Gives Action Bar with button 1 to throw spear.
     SPELL_BROWN_MANTID_WINGS    = 140633,
     SPELL_RED_MANTID_WINGS      = 138392,
     SPELL_BLUE_MANTID_WINGS     = 138393,
@@ -139,16 +139,16 @@ enum Events
     EVENT_RAIN_OF_BLADES,         // 60 secs after pull
     EVENT_WIND_BOMB,
 
-    EVENT_CHECK_ADD_CC_DEATH,     // Checks how many adds are dead / CC'ed.
-    EVENT_SUMMON_REINFORCEMENTS,
+    // Respawn in HM
+    EVENT_SUMMON_KORTHIK,
+    EVENT_SUMMON_SRATHIK,
+    EVENT_SUMMON_ZARTHIK,
 
     EVENT_BERSERK_MELJARAK,
 
     /*** Adds ***/
     // Wind Bomb
     EVENT_ARM,                    // 3 secs after spawn
-
-    // The Swarm
 
     // - Kor'thik Elite Blademaster
     EVENT_KORTHIK_STRIKE,         // 19s after pull.
@@ -179,8 +179,18 @@ enum Adds
 enum Types
 {
     TYPE_WHIRLING_BLADE = 1,
-    TYPE_WB_DEAL_DMG    = 2,
-    TYPE_IS_IN_COMBAT   = 3,
+    TYPE_WB_DEAL_DMG,
+    TYPE_IS_IN_COMBAT,
+    TYPE_NO_RESPAWN
+};
+
+enum eMeljarakActions
+{
+    ACTION_KORTHIK_DIED = 1,
+    ACTION_SRATHIK_DIED,
+    ACTION_ZARTHIK_DIED,
+    ACTION_ADDGROUP_DIED,
+    ACTION_CHECK_CONTROLLED_ADDS,
 };
 
 #define DISPLAYID_WINDBOMB 45684
@@ -224,7 +234,8 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
     // Previous boss must have been done
     if (!pInstance->CheckRequiredBosses(DATA_MELJARAK))
     {
-        Meljarak->AI()->EnterEvadeMode();
+        if (!Meljarak->IsInEvadeMode())
+            Meljarak->AI()->EnterEvadeMode();
         return false;
     }
 
@@ -239,8 +250,10 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
     {
         std::list<Creature*> addList;
         GetCreatureListWithEntryInGrid(addList, launcher, addEntries[i], 30.0f);
-        for (Creature* add : addList)
-            add->AI()->EnterCombat(attacker);
+
+        if (!addList.empty())
+            for (Creature* add : addList)
+                add->AI()->EnterCombat(attacker);
     }
 
     return true;
@@ -265,7 +278,6 @@ public:
         EventMap events;
         bool introDone;
         bool windBombScheduled;
-        bool reinforcementsSummoned;
         bool inCombat;
 
         void Reset()
@@ -273,15 +285,20 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            // Removing pools
-            std::list<Creature*> poolList;
-            GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
-            for (Creature* pool : poolList)
-                pool->DespawnOrUnsummon();
+            // Removing wind bombs, amber prisons, whirling blades and Resin pools NPC
+            uint32 addEntries[4] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE, NPC_CORROSIVE_RESIN_POOL};
+            for (uint8 i = 0; i < 4; ++i)
+            {
+                std::list<Creature*> addList;
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+
+                if (!addList.empty())
+                    for (Creature* add : addList)
+                        add->DespawnOrUnsummon();
+            }
 
             introDone = false;
             windBombScheduled = false;
-            reinforcementsSummoned = false;
             inCombat = false;
             me->RemoveAllDynObjects();
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
@@ -289,9 +306,12 @@ public:
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
 
-
-            if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
-                instance->SetBossState(DATA_MELJARAK, NOT_STARTED);
+            if (instance)
+            {
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IMPALING_SPEAR);
+                if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
+                    instance->SetBossState(DATA_MELJARAK, NOT_STARTED);
+            }
 
             _Reset();
 
@@ -324,7 +344,8 @@ public:
 
                 if (!instance->CheckRequiredBosses(DATA_MELJARAK))
                 {
-                    EnterEvadeMode();
+                    if (!me->IsInEvadeMode())
+                        EnterEvadeMode();
                     return;
                 }
 
@@ -345,9 +366,6 @@ public:
 
             Talk(SAY_AGGRO);
 
-            // Special Adds Check event.
-            events.ScheduleEvent(EVENT_CHECK_ADD_CC_DEATH, 1000);
-
             // Normal events.
             events.ScheduleEvent(EVENT_WHIRLING_BLADE, 36000);
             events.ScheduleEvent(EVENT_RAIN_OF_BLADES, 60000);
@@ -355,6 +373,8 @@ public:
 
             // Elite Battlemasters event.
             events.ScheduleEvent(EVENT_KORTHIK_STRIKE, 19000);
+
+            me->AddAura(SPELL_WATCHFUL_EYE_1, me);
 
             if (instance)
             {
@@ -382,16 +402,26 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            // Removing wind bombs, amber prisons and whirling blades NPC
-            uint32 addEntries[3] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE};
-            for (uint8 i = 0; i < 3; ++i)
+            // Removing wind bombs, amber prisons, whirling blades and Resin pools NPC
+            uint32 addEntries[4] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE, NPC_CORROSIVE_RESIN_POOL};
+            for (uint8 i = 0; i < 4; ++i)
             {
                 std::list<Creature*> addList;
                 GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
 
-                for (Creature* add : addList)
-                    add->DespawnOrUnsummon();
+                if (!addList.empty())
+                    for (Creature* add : addList)
+                        add->DespawnOrUnsummon();
             }
+
+            // Resetting weapons rack available
+            std::list<GameObject*> rackList;
+            GetGameObjectListWithEntryInGrid(rackList, me, GOB_WEAPON_RACK, 200.0f);
+
+            if (!rackList.empty())
+                for (std::list<GameObject*>::iterator itr = rackList.begin(); itr != rackList.end(); ++itr)
+                    if ((*itr)->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                        (*itr)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
             me->DeleteThreatList();
             me->CombatStop(true);
@@ -400,14 +430,7 @@ public:
             me->RemoveAllDynObjects();
             me->SetReactState(REACT_PASSIVE);
             windBombScheduled = false;
-            reinforcementsSummoned = false;
             inCombat = false;
-
-            // Remove resin pools
-            std::list<Creature*> poolList;
-            GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
-            for (Creature* pool : poolList)
-                pool->DespawnOrUnsummon();
 
             SummonSwarmAdds();
 
@@ -419,6 +442,7 @@ public:
                     instance->SetBossState(DATA_MELJARAK, TO_BE_DECIDED);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IMPALING_SPEAR);
             }
 
             me->GetMotionMaster()->MoveTargetedHome();
@@ -440,17 +464,23 @@ public:
             me->RemoveAllDynObjects();
             summons.DespawnAll();
 
-            // Removing pools
-            std::list<Creature*> poolList;
-            GetCreatureListWithEntryInGrid(poolList, me, NPC_CORROSIVE_RESIN_POOL, 200.0f);
-            if (poolList.size())
-                for (std::list<Creature*>::iterator itr = poolList.begin(); itr != poolList.end(); ++itr)
-                    (*itr)->DespawnOrUnsummon();
+            // Removing wind bombs, amber prisons, whirling blades and Resin pools NPC
+            uint32 addEntries[4] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE, NPC_CORROSIVE_RESIN_POOL};
+            for (uint8 i = 0; i < 4; ++i)
+            {
+                std::list<Creature*> addList;
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+
+                if (!addList.empty())
+                    for (Creature* add : addList)
+                        add->DespawnOrUnsummon();
+            }
 
             if (instance)
             {
                 instance->SetBossState(DATA_MELJARAK, DONE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IMPALING_SPEAR);
             }
 
             _JustDied();
@@ -472,11 +502,81 @@ public:
             return 0;
         }
 
+        void DoAction(int32 const action)
+        {
+            switch (action)
+            {
+                case ACTION_KORTHIK_DIED:
+                {
+                    DoAction(ACTION_ADDGROUP_DIED);
+
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_SUMMON_KORTHIK, 45000);
+                    break;
+                }
+                case ACTION_SRATHIK_DIED:
+                {
+                    DoAction(ACTION_ADDGROUP_DIED);
+
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_SUMMON_SRATHIK, 45000);
+                    break;
+                }
+                case ACTION_ZARTHIK_DIED:
+                {
+                    DoAction(ACTION_ADDGROUP_DIED);
+
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_SUMMON_ZARTHIK, 45000);
+                    break;
+                }
+                case ACTION_ADDGROUP_DIED:
+                {
+                    Talk(SAY_ADD_GROUP_DIES);
+                    Talk(SAY_WATCHFUL_EYE);
+                    if (!IsHeroic())
+                        me->AddAura(SPELL_RECKLESNESS_N, me);
+                    else
+                        me->AddAura(SPELL_RECKLESNESS_H, me);
+
+                    uint8 addsAlive = GetLivingAddCount();
+
+                    // Should be 6 or 3 - At least 1 group has been killed
+                    if (addsAlive < 9)
+                    {
+                        me->RemoveAura(SPELL_WATCHFUL_EYE_1);
+                        me->AddAura(SPELL_WATCHFUL_EYE_2, me);
+                        // Should be 3 - At least 2 groups have been killed
+                        if (addsAlive < 6)
+                        {
+                            me->RemoveAura(SPELL_WATCHFUL_EYE_2);
+                            me->AddAura(SPELL_WATCHFUL_EYE_3, me);
+                        }
+                        // 0 - All groups have been killed
+                        if (!addsAlive)
+                            me->RemoveAura(SPELL_WATCHFUL_EYE_3);
+                    }
+                    break;
+                }
+                case ACTION_CHECK_CONTROLLED_ADDS:
+                {
+                    // In HM, 3 adds only can be controlled. In NM : 4 adds if 9 are alive, 2 if 6 are alive and none if 3 are alive
+                    uint8 limit = IsHeroic() ? 3 : (me->HasAura(SPELL_WATCHFUL_EYE_1) ? 4 : (me->HasAura(SPELL_WATCHFUL_EYE_2) ? 2 : 0));
+
+                    if (GetSpearImpaledAdds() > limit)
+                        DoCast(SPELL_COWARDS);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
         void UpdateAI(uint32 const diff)
         {
             if (instance)
             {
-                if (instance->IsWipe())
+                if (instance->IsWipe() && !me->IsInEvadeMode())
                 {
                     EnterEvadeMode();
                     return;
@@ -498,121 +598,39 @@ public:
             {
                 switch (eventId)
                 {
-                    // Special Adds Check event.
-                    case EVENT_CHECK_ADD_CC_DEATH:
+                    // Heroic Mode : make an adds' group respawn 45secs after it died
+                    case EVENT_SUMMON_KORTHIK:
                     {
-                        // Normal mode.
-                        if (!me->GetMap()->IsHeroic())
-                        {
-                            // Check for CC'ed adds, no groups died.
-                            if (GetLivingAddCount() == 9)
-                            {
-                                me->RemoveAurasDueToSpell(SPELL_WATCHFUL_EYE_2);
-                                me->RemoveAurasDueToSpell(SPELL_WATCHFUL_EYE_3);
-
-                                if (!me->HasAura(SPELL_WATCHFUL_EYE_1))
-                                    me->AddAura(SPELL_WATCHFUL_EYE_1, me);
-
-                                if (GetSpearImpaledAdds() > 4)
-                                    //RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 4);
-                                    DoCast(SPELL_COWARDS);
-                            }
-                            // Check for CC'ed adds. Also one of the groups died, so summon reinforcements if not summoned.
-                            else if (GetLivingAddCount() == 6)
-                            {
-                                Talk(SAY_WATCHFUL_EYE);
-
-                                me->RemoveAurasDueToSpell(SPELL_WATCHFUL_EYE_1);
-                                me->RemoveAurasDueToSpell(SPELL_WATCHFUL_EYE_3);
-
-                                if (!me->HasAura(SPELL_WATCHFUL_EYE_2))
-                                    me->AddAura(SPELL_WATCHFUL_EYE_2, me);
-
-                                if (GetSpearImpaledAdds() > 2)
-                                    // RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 2);
-                                    DoCast(SPELL_COWARDS);
-
-                                if (!reinforcementsSummoned)
-                                {
-                                    Talk(SAY_ADD_GROUP_DIES);
-                                    me->AddAura(SPELL_RECKLESNESS_N, me);
-
-                                    if (IsHeroic())
-                                        events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
-                                    reinforcementsSummoned = true;
-                                }
-                            }
-                            // Check for CC'ed adds. Also two of the groups died, so summon reinforcements if not summoned.
-                            else if (GetLivingAddCount() == 3)
-                            {
-                                Talk(SAY_WATCHFUL_EYE);
-
-                                me->RemoveAurasDueToSpell(SPELL_WATCHFUL_EYE_1);
-                                me->RemoveAurasDueToSpell(SPELL_WATCHFUL_EYE_2);
-
-                                if (!me->HasAura(SPELL_WATCHFUL_EYE_3))
-                                    me->AddAura(SPELL_WATCHFUL_EYE_3, me);
-
-                                if (GetSpearImpaledAdds() > 0)
-                                    DoCast(SPELL_COWARDS);
-                                    // RemoveImpaledAddsAuras(GetSpearImpaledAdds());
-
-                                if (!reinforcementsSummoned)
-                                {
-                                    Talk(SAY_ADD_GROUP_DIES);
-                                    me->AddAura(SPELL_RECKLESNESS_N, me);
-
-                                    if (IsHeroic())
-                                        events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
-                                    reinforcementsSummoned = true;
-                                }
-                            }
-                            // All of the groups died at once somehow (Weird :)), so summon reinforcements if not summoned.
-                            else if (GetLivingAddCount() == 0) // Shouldn't happen unless you kill all adds in 1 sec, but just to make sure.
-                            {
-                                if (!reinforcementsSummoned)
-                                {
-                                    Talk(SAY_ADD_GROUP_DIES);
-                                    me->AddAura(SPELL_RECKLESNESS_N, me);
-
-                                    if (IsHeroic())
-                                        events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
-                                    reinforcementsSummoned = true;
-                                }
-                            }
-                        }
-                        // Heroic mode
-                        else
-                        {
-                            if (GetSpearImpaledAdds() > 3)
-                                DoCast(SPELL_COWARDS);
-                                // RemoveImpaledAddsAuras(GetSpearImpaledAdds() - 3);
-
-                            if (GetLivingAddCount() < 9)
-                            {
-                                if (!reinforcementsSummoned)
-                                {
-                                    Talk(SAY_ADD_GROUP_DIES);
-                                    me->AddAura(SPELL_RECKLESNESS_H, me);
-
-                                    events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 45000);
-                                    reinforcementsSummoned = true;
-                                }
-                            }
-                        }
-                        events.ScheduleEvent(EVENT_CHECK_ADD_CC_DEATH, 100);
+                        SummonSwarmAdds(NPC_KORTHIK_ELITE_BLADEMASTER);
                         break;
                     }
-                    case EVENT_SUMMON_REINFORCEMENTS:
+                    case EVENT_SUMMON_SRATHIK:
                     {
-                        SummonReinforcements();
+                        SummonSwarmAdds(NPC_SRATHIK_AMBER_TRAPPER);
+                        break;
+                    }
+                    case EVENT_SUMMON_ZARTHIK:
+                    {
+                        SummonSwarmAdds(NPC_ZARTHIK_BATTLE_MENDER);
                         break;
                     }
                     // Elite Battlemasters event:
                     case EVENT_KORTHIK_STRIKE:
                     {
 				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
-                            EliteBattleMastersCastStrike(target);
+                        {
+                            std::list<Creature*> battleMasters;
+                            GetCreatureListWithEntryInGrid(battleMasters, me, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);
+
+                            if (battleMasters.empty())
+                                return;
+
+                            // Cast it.
+                            for (std::list<Creature*>::iterator iter = battleMasters.begin(); iter != battleMasters.end(); ++iter)
+                                if ((*iter)->isAlive())
+                                    (*iter)->CastSpell(target, SPELL_KORTHIK_STRIKE, false);
+                        }
+
                         events.ScheduleEvent(EVENT_KORTHIK_STRIKE, urand(34000, 50000));
                         break;
                     }
@@ -661,13 +679,16 @@ public:
 
     private:
 
-        void SummonSwarmAdds()
+        void SummonSwarmAdds(uint32 entry = 0)
         {
             for (uint8 i = 0; i < 3; i++)
             {
-                me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, PosKorthikEliteMaster[i],  TEMPSUMMON_MANUAL_DESPAWN);
-                me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER,     PosSrathikAmberTrapper[i], TEMPSUMMON_MANUAL_DESPAWN);
-                me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER,     PosZarthikBattleMender[i], TEMPSUMMON_MANUAL_DESPAWN);
+                if (!entry || entry == NPC_KORTHIK_ELITE_BLADEMASTER)
+                    me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, PosKorthikEliteMaster[i]);
+                if (!entry || entry == NPC_SRATHIK_AMBER_TRAPPER)
+                    me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER,     PosSrathikAmberTrapper[i]);
+                if (!entry || entry == NPC_ZARTHIK_BATTLE_MENDER)
+                    me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER,     PosZarthikBattleMender[i]);
             }
         }
 
@@ -684,163 +705,23 @@ public:
             if (allAdds.empty())
                 return livingAdds;
 
-            for (std::list<Creature*>::iterator iter = allAdds.begin(); iter != allAdds.end(); iter++)
-                if ((*iter)->isAlive())
-                    livingAdds++;
-
-            return livingAdds;
+            return uint32(allAdds.size());
         }
 
         uint32 GetSpearImpaledAdds()
         {
             uint32 impaledAdds = 0;
-
             std::list<Creature*> allAdds;
+            uint32 addEntries[3] = { NPC_KORTHIK_ELITE_BLADEMASTER, NPC_SRATHIK_AMBER_TRAPPER, NPC_ZARTHIK_BATTLE_MENDER };
 
-            GetCreatureListWithEntryInGrid(allAdds, me, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);
-            GetCreatureListWithEntryInGrid(allAdds, me, NPC_SRATHIK_AMBER_TRAPPER, 150.0f);
-            GetCreatureListWithEntryInGrid(allAdds, me, NPC_ZARTHIK_BATTLE_MENDER, 150.0f);
+            for (uint8 i = 0; i < 3; ++i)
+            {
+                allAdds.clear();
+                GetCreatureListWithEntryInGrid(allAdds, me, addEntries[i], 150.0f);
 
-            if (allAdds.empty())
-                return impaledAdds;
-
-            for (std::list<Creature*>::iterator iter = allAdds.begin(); iter != allAdds.end(); iter++)
-                if ((*iter)->HasCrowdControlAura())
-                    impaledAdds++;
-
+                impaledAdds += uint32(allAdds.size());
+            }
             return impaledAdds;
-        }
-
-        void RemoveImpaledAddsAuras(uint32 numberToRemove)
-        {
-            uint32 addsToRemoveAuraFrom = numberToRemove;
-
-            std::list<Creature*> allAdds;
-
-            GetCreatureListWithEntryInGrid(allAdds, me, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);
-            GetCreatureListWithEntryInGrid(allAdds, me, NPC_SRATHIK_AMBER_TRAPPER, 150.0f);
-            GetCreatureListWithEntryInGrid(allAdds, me, NPC_ZARTHIK_BATTLE_MENDER, 150.0f);
-
-            if (allAdds.empty())
-                return;
-
-            for (std::list<Creature*>::iterator iter = allAdds.begin(); iter != allAdds.end(); iter++)
-            {
-                if ((*iter)->HasCrowdControlAura() && addsToRemoveAuraFrom > 0)
-                {
-                    (*iter)->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE);
-                    addsToRemoveAuraFrom--;
-                }
-            }
-        }
-
-        bool EliteBattleMastersDied()
-        {
-            if (GetClosestCreatureWithEntry(me, NPC_KORTHIK_ELITE_BLADEMASTER, 200.0f, true))
-                return true;
-
-            return false;
-        }
-
-        bool AmberTrappersDied()
-        {
-            if (GetClosestCreatureWithEntry(me, NPC_SRATHIK_AMBER_TRAPPER, 200.0f, true))
-                return true;
-
-            return false;
-        }
-
-        bool BattleMendersDied()
-        {
-            if (GetClosestCreatureWithEntry(me, NPC_ZARTHIK_BATTLE_MENDER, 200.0f, true))
-                return true;
-
-            return false;
-        }
-
-        void SummonReinforcements()
-        {
-            Talk(SAY_SUMMON_REINFORCE);
-            Talk(ANN_REINFORCEMENTS);
-
-            // Safety check first :).
-            if (GetLivingAddCount() == 9)
-                return;
-            // One group died.
-            else if (GetLivingAddCount() == 6)
-            {
-                for (uint8 i = 0; i < 3; i++)
-                {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 15.f);
-                    if (EliteBattleMastersDied()) // Summon Elite Battlemasters.
-                        me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    else if (AmberTrappersDied()) // Summon Amber Trappers.
-                        me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    else if (BattleMendersDied()) // Summon Battle Menders.
-                        me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                }
-            }
-            // Two groups died.
-            else if (GetLivingAddCount() == 3)
-            {
-                for (uint8 i = 0; i < 3; i++)
-                {
-                    Position pos;
-                    if (EliteBattleMastersDied() && AmberTrappersDied()) // Summon Elite Battlemasters and Amber Trappers.
-                    {
-                        me->GetRandomNearPosition(pos, 15.f);
-                        me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                        me->GetRandomNearPosition(pos, 15.f);
-                        me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    }
-                    else if (BattleMendersDied() && AmberTrappersDied()) // Summon Battle Menders and Amber Trappers.
-                    {
-                        me->GetRandomNearPosition(pos, 15.f);
-                        me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                        me->GetRandomNearPosition(pos, 15.f);
-                        me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    }
-                    else if (EliteBattleMastersDied() && BattleMendersDied()) // Summon Elite Battlemasters and Battle Menders.
-                    {
-                        me->GetRandomNearPosition(pos, 15.f);
-                        me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                        me->GetRandomNearPosition(pos, 15.f);
-                        me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    }
-                }
-            }
-            // All groups died (WTF...Nuke blast!).
-            else if (GetLivingAddCount() == 0)
-            {
-                for (uint8 i = 0; i < 3; i++) // Summon them all! :))
-                {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 15.f);
-                    me->SummonCreature(NPC_KORTHIK_ELITE_BLADEMASTER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    me->GetRandomNearPosition(pos, 15.f);
-                    me->SummonCreature(NPC_SRATHIK_AMBER_TRAPPER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                    me->GetRandomNearPosition(pos, 15.f);
-                    me->SummonCreature(NPC_ZARTHIK_BATTLE_MENDER, pos, TEMPSUMMON_MANUAL_DESPAWN);
-                }
-            }
-
-            reinforcementsSummoned = false;
-        }
-
-        void EliteBattleMastersCastStrike(Unit* target)
-        {
-            std::list<Creature*> battleMasters;
-
-            GetCreatureListWithEntryInGrid(battleMasters, me, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);
-
-            if (battleMasters.empty())
-                return;
-
-            // Cast it.
-            for (std::list<Creature*>::iterator iter = battleMasters.begin(); iter != battleMasters.end(); ++iter)
-                if ((*iter)->isAlive())
-                    (*iter)->CastSpell(target, SPELL_KORTHIK_STRIKE, false);
         }
     };
 
@@ -865,24 +746,54 @@ public:
 
         InstanceScript* pInstance;
         bool inCombat;
+        bool respawn;
 
         void Reset()
         {
             inCombat = false;
+            respawn = true;
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
         }
 
+        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        {
+            if (me->HasCrowdControlAura())
+                if (pInstance)
+                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+        }
+
         void JustDied(Unit* killer)
         {
-            // Killing the other adds of the same group
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+            if (respawn)
+            {
+                // Killing the other adds of the same group
+                std::list<Creature*> mobList;
+                GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
 
-            for (auto mob : mobList)
-                if (mob->isAlive())
-                    killer->Kill(mob, false);
+                if (!mobList.empty())
+                {
+                    for (auto mob : mobList)
+                    {
+                        // Set respawn to 0 for the other mobs, to avoid infinite loops of Kill/JustDied/Respawn
+                        mob->AI()->SetData(TYPE_NO_RESPAWN, 0);
+                        if (mob->isAlive())
+                            killer->Kill(mob, false);
+                    }
+                }
+
+                if (pInstance)
+                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        meljarak->AI()->DoAction(ACTION_KORTHIK_DIED);
+            }
+        }
+
+        void SetData(uint32 type, uint32 value)
+        {
+            if (type == TYPE_NO_RESPAWN)
+                respawn = false;
         }
 
         void EnterCombat(Unit* attacker)
@@ -908,14 +819,20 @@ public:
             std::list<Creature*> mobList;
             GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
 
-            if (damage > me->GetHealth())
-                for (auto mob : mobList)
-                    killer->Kill(mob, true);
-
-            else
-                for (auto mob : mobList)
-                    if (mob->GetGUID() != me->GetGUID())
-                        mob->ModifyHealth(-int32(damage));
+            if (!mobList.empty())
+            {
+                if (damage > me->GetHealth())
+                {
+                    for (auto mob : mobList)
+                        killer->Kill(mob, true);
+                }
+                else
+                {
+                    for (auto mob : mobList)
+                        if (mob->GetGUID() != me->GetGUID())
+                            mob->ModifyHealth(-int32(damage));
+                }
+            }
         }
 
         uint32 GetData(uint32 type)
@@ -956,19 +873,21 @@ public:
     {
         npc_srathik_amber_trapperAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             charged = false;
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
         EventMap events;
         bool charged;
         bool inCombat;
+        bool respawn;
 
         void Reset()
         {
             events.Reset();
             inCombat = false;
+            respawn = true;
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_9);
             if (!me->HasAura(SPELL_RED_MANTID_WINGS))
@@ -980,7 +899,7 @@ public:
             if (attacker->GetTypeId() != TYPEID_PLAYER || inCombat)
                 return;
 
-            if (!StartPack(instance, me, attacker))
+            if (!StartPack(pInstance, me, attacker))
                 return;
 
             inCombat = true;
@@ -992,16 +911,44 @@ public:
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
         }
 
+        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        {
+            if (me->HasCrowdControlAura())
+                if (pInstance)
+                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+        }
+
         void JustDied(Unit* killer)
         {
             events.Reset();
-            // Killing the other adds of the same group
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+            if (respawn)
+            {
+                // Killing the other adds of the same group
+                std::list<Creature*> mobList;
+                GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
 
-            for (auto mob : mobList)
-                if (mob->isAlive())
-                    killer->Kill(mob, false);
+                if (!mobList.empty())
+                {
+                    for (auto mob : mobList)
+                    {
+                        // Set respawn to 0 for the other mobs, to avoid infinite loops of Kill/JustDied/Respawn
+                        mob->AI()->SetData(TYPE_NO_RESPAWN, 0);
+                        if (mob->isAlive())
+                            killer->Kill(mob, false);
+                    }
+                }
+
+                if (pInstance)
+                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        meljarak->AI()->DoAction(ACTION_SRATHIK_DIED);
+            }
+        }
+
+        void SetData(uint32 type, uint32 value)
+        {
+            if (type == TYPE_NO_RESPAWN)
+                respawn = false;
         }
 
         void DamageTaken(Unit* killer, uint32 &damage)
@@ -1013,14 +960,20 @@ public:
             std::list<Creature*> mobList;
             GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
 
+            if (mobList.empty())
+                return;
+
             if (damage > me->GetHealth())
+            {
                 for (auto mob : mobList)
                     killer->Kill(mob, true);
-
+            }
             else
+            {
                 for (auto mob : mobList)
                     if (mob->GetGUID() != me->GetGUID())
                         mob->ModifyHealth(-int32(damage));
+            }
         }
 
         uint32 GetData(uint32 type)
@@ -1077,19 +1030,21 @@ public:
     {
         npc_zarthik_battle_menderAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             charged = false;
         }
 
-        InstanceScript* instance;
+        InstanceScript* pInstance;
         EventMap events;
         bool charged;
         bool inCombat;
+        bool respawn;
 
         void Reset()
         {
             events.Reset();
             inCombat = false;
+            respawn = true;
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
             if (!me->HasAura(SPELL_BLUE_MANTID_WINGS))
                 DoCast(me, SPELL_BLUE_MANTID_WINGS);
@@ -1100,7 +1055,7 @@ public:
             if (attacker->GetTypeId() != TYPEID_PLAYER || inCombat)
                 return;
 
-            if (!StartPack(instance, me, attacker))
+            if (!StartPack(pInstance, me, attacker))
                 return;
 
             inCombat = true;
@@ -1113,16 +1068,44 @@ public:
             
         }
 
+        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        {
+            if (me->HasCrowdControlAura())
+                if (pInstance)
+                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+        }
+
         void JustDied(Unit* killer)
         {
             events.Reset();
-            // Killing the other adds of the same group
-            std::list<Creature*> mobList;
-            GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
+            if (respawn)
+            {
+                // Killing the other adds of the same group
+                std::list<Creature*> mobList;
+                GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
 
-            for (auto mob : mobList)
-                if (mob->isAlive())
-                    killer->Kill(mob, false);
+                if (!mobList.empty())
+                {
+                    for (auto mob : mobList)
+                    {
+                        // Set respawn to 0 for the other mobs, to avoid infinite loops of Kill/JustDied/Respawn
+                        mob->AI()->SetData(TYPE_NO_RESPAWN, 0);
+                        if (mob->isAlive())
+                            killer->Kill(mob, false);
+                    }
+                }
+
+                if (pInstance)
+                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                        meljarak->AI()->DoAction(ACTION_ZARTHIK_DIED);
+            }
+        }
+
+        void SetData(uint32 type, uint32 value)
+        {
+            if (type == TYPE_NO_RESPAWN)
+                respawn = false;
         }
 
         void DamageTaken(Unit* killer, uint32 &damage)
@@ -1134,14 +1117,20 @@ public:
             std::list<Creature*> mobList;
             GetCreatureListWithEntryInGrid(mobList, me, me->GetEntry(), 200.0f);
 
+            if (mobList.empty())
+                return;
+
             if (damage > me->GetHealth())
+            {
                 for (auto mob : mobList)
                     killer->Kill(mob, true);
-
+            }
             else
+            {
                 for (auto mob : mobList)
                     if (mob->GetGUID() != me->GetGUID())
                         mob->ModifyHealth(-int32(damage));
+            }
         }
 
         uint32 GetData(uint32 type)
@@ -1171,8 +1160,9 @@ public:
                         std::list<Creature*> addList;
                         GetCreatureListWithEntryInGrid(addList, me, addEntries[result], 150.0f);
 
-                        for (Creature* add : addList)
-                            me->CastSpell(add, SPELL_MENDING, true);
+                        if (!addList.empty())
+                            for (Creature* add : addList)
+                                me->CastSpell(add, SPELL_MENDING, true);
 
                         events.ScheduleEvent(EVENT_MENDING, urand(30000, 40000));
                     }
@@ -1182,11 +1172,10 @@ public:
                         events.ScheduleEvent(EVENT_QUICKENING, urand(33000, 54000));
                         break;
                     }
-
-                    default: break;
+                    default:
+                        break;
                 }
             }
-
             DoMeleeAttackIfReady();
         }
     };
@@ -1567,9 +1556,10 @@ public:
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, caster, 30.0f);
 
-                        for (auto player : playerList)
-                            if (player->IsInBetween(caster, target, 3.0f))
-                                targets.push_back(player);
+                        if (!playerList.empty())
+                            for (auto player : playerList)
+                                if (player->IsInBetween(caster, target, 3.0f))
+                                    targets.push_back(player);
                     }
                 }
                 else
@@ -1589,6 +1579,26 @@ public:
     }
 };
 
+// 211675 - Kri'thik Weapon Rack
+class go_krithik_weapon_rack : public GameObjectScript
+{
+    public:
+        go_krithik_weapon_rack() : GameObjectScript("go_krithik_weapon_rack") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (!player->HasAura(SPELL_IMPALING_SPEAR))
+            {
+                player->AddAura(SPELL_IMPALING_SPEAR, player);
+                go->SetGoState(GO_STATE_READY);
+                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                return true;
+            }
+
+            return false;
+        }
+};
+
 void AddSC_boss_meljarak()
 {
     new boss_wind_lord_meljarak();          // 62397
@@ -1603,4 +1613,5 @@ void AddSC_boss_meljarak()
     new spell_mending();                    // 122147
     new spell_whirling_blade_sword();       // 121897
     new spell_whirling_blade_damages();     // 121898
+    new go_krithik_weapon_rack();           // 211675
 }
