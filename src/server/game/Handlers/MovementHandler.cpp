@@ -207,57 +207,54 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
 
-    ObjectGuid guid;
-    uint32 flags, time;
-    recvPacket >> flags >> time;
+    uint64 l_MoverGUID;
+    uint32 l_AckIndex, l_MoveTime;
 
-    uint8 bitOrder[8] = {3, 4, 7, 2, 5, 1, 6, 0};
-    recvPacket.ReadBitInOrder(guid, bitOrder);
+    recvPacket.readPackGUID(l_MoverGUID);
+    recvPacket >> l_AckIndex >> l_MoveTime;
 
-    uint8 byteOrder[8] = {0, 6, 5, 3, 7, 1, 2, 4};
-    recvPacket.ReadBytesSeq(guid, byteOrder);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(l_MoverGUID));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "AckIndex %u, MoveTime %u", l_AckIndex, l_MoveTime/IN_MILLISECONDS);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(guid));
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Flags %u, time %u", flags, time/IN_MILLISECONDS);
+    Player* l_MoverPlayer = m_Player->m_mover->ToPlayer();
 
-    Player* plMover = m_Player->m_mover->ToPlayer();
-
-    if (!plMover || !plMover->IsBeingTeleportedNear())
+    if (!l_MoverPlayer || !l_MoverPlayer->IsBeingTeleportedNear())
         return;
 
-    if (guid != plMover->GetGUID())
+    if (l_MoverGUID != l_MoverPlayer->GetGUID())
         return;
 
-    plMover->SetSemaphoreTeleportNear(false);
-    plMover->SetIgnoreMovementCount(5);
+    l_MoverPlayer->SetSemaphoreTeleportNear(false);
+    l_MoverPlayer->SetIgnoreMovementCount(5);
 
-    uint32 old_zone = plMover->GetZoneId();
+    uint32 l_OldZone = l_MoverPlayer->GetZoneId();
 
-    WorldLocation const& dest = plMover->GetTeleportDest();
+    WorldLocation const& l_Destination = l_MoverPlayer->GetTeleportDest();
 
-    plMover->UpdatePosition(dest, true);
+    l_MoverPlayer->UpdatePosition(l_Destination, true);
 
-    uint32 newzone, newarea;
-    plMover->GetZoneAndAreaId(newzone, newarea);
-    plMover->UpdateZone(newzone, newarea);
+    uint32 l_NewZone, l_NewArea;
+
+    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea);
+    l_MoverPlayer->UpdateZone(l_NewZone, l_NewArea);
 
     // new zone
-    if (old_zone != newzone)
+    if (l_OldZone != l_NewZone)
     {
         // honorless target
-        if (plMover->pvpInfo.inHostileArea)
-            plMover->CastSpell(plMover, 2479, true);
+        if (l_MoverPlayer->pvpInfo.inHostileArea)
+            l_MoverPlayer->CastSpell(l_MoverPlayer, 2479, true);
 
         // in friendly area
-        else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
-            plMover->UpdatePvP(false, false);
+        else if (l_MoverPlayer->IsPvP() && !l_MoverPlayer->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+            l_MoverPlayer->UpdatePvP(false, false);
     }
 
     // resummon pet
-    plMover->ResummonPetTemporaryUnSummonedIfAny();
+    l_MoverPlayer->ResummonPetTemporaryUnSummonedIfAny();
 
     //lets process all delayed operations on successful teleport
-    plMover->ProcessDelayedOperations();
+    l_MoverPlayer->ProcessDelayedOperations();
 }
 
 void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)

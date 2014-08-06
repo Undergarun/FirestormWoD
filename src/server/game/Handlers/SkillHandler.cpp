@@ -63,21 +63,22 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleLearnTalents(WorldPacket& recvData)
+void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
 {
-    uint32 count = recvData.ReadBits(23);
-    recvData.FlushBits();
+    uint32 l_TalentCount = 0; 
+    
+    p_RecvPacket >> l_TalentCount;
 
-    if (count > MAX_TALENT_SPELLS)
+    if (l_TalentCount > MAX_TALENT_SPELLS)
         return;
 
-    if (count > m_Player->GetFreeTalentPoints())
+    if (l_TalentCount > m_Player->GetFreeTalentPoints())
         return;
 
-    for (uint32 i = 0; i < count; i++)
+    for (uint32 l_I = 0; l_I < l_TalentCount; l_I++)
     {
-        uint16 talentId = recvData.read<uint16>();
-        m_Player->LearnTalent(talentId);
+        uint16 l_TalentID = p_RecvPacket.read<uint16>();
+        m_Player->LearnTalent(l_TalentID);
     }
 
     m_Player->SendTalentsInfoData(false);

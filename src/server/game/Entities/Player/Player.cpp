@@ -2538,59 +2538,31 @@ uint8 Player::GetChatTag() const
 
 void Player::SendTeleportPacket(Position &oldPos)
 {
-    ObjectGuid guid = GetGUID();
     ObjectGuid transGuid = GetTransGUID();
-    bool unk = false;
+    bool l_HasVehicle = false;
 
     WorldPacket data(SMSG_MOVE_TELEPORT, 38);
-    data << float(GetOrientation());
-    data << float(GetPositionY());
+    data.appendPackGUID(GetGUID());
+    data << uint32(0);                  //  SequenceIndex
     data << float(GetPositionX());
+    data << float(GetPositionY());
     data << float(GetPositionZMinusOffset());
-    data << uint32(0);                  //  mask ? 0x180 on retail sniff
+    data << float(GetOrientation());
 
-    data.WriteBit(unk);                 // unk bit
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(uint64(transGuid) != 0LL);   // has transport
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
+    data.WriteBit(uint64(transGuid) != 0LL);
+    data.WriteBit(l_HasVehicle);
+    data.FlushBits();
 
     if (transGuid)
+        data.appendPackGUID(GetTransGUID());
+
+    if (l_HasVehicle)
     {
-        uint8 bitOrder[8] = {2, 5, 3, 6, 1, 4, 7, 0};
-        data.WriteBitInOrder(transGuid, bitOrder);
+        data << uint8(0);   ///< VehicleSeatIndex
+        data.WriteBit(0);   ///< VehicleExitVoluntary
+        data.WriteBit(0);   ///< VehicleExitTeleport
+        data.FlushBits();
     }
-
-    data.WriteBit(guid[4]);
-
-    if (unk)
-    {
-        data.WriteBit(0);
-        data.WriteBit(0);
-    }
-
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteByteSeq(guid[7]);
-
-    if (transGuid != 0LL)
-    {
-        uint8 byteOrder[8] = {3, 0, 1, 7, 2, 6, 5, 4};
-        data.WriteBytesSeq(transGuid, byteOrder);
-    }
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-
-    if (unk)
-        data << uint8(0);           // unk, maybe seat ?
 
     Relocate(&oldPos);
     SendDirectMessage(&data);
@@ -2812,16 +2784,19 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                bool unk = false;
+                bool l_TransferSpellID = false;
+
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
+
                 data << uint32(mapid);
                 data.WriteBit(0);
                 data.WriteBit(m_transport != NULL);
+                data.FlushBits();
 
                 if (m_transport)
-                    data  << GetMapId() << m_transport->GetEntry();
+                    data << m_transport->GetEntry() << GetMapId();
 
-                if (unk)
+                if (l_TransferSpellID)
                     data << uint32(0);
 
                 GetSession()->SendPacket(&data);
@@ -25550,12 +25525,11 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
 {
-    WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
-    data.WriteBits(reason, 5);
-    data.WriteBit(!arg);
+    WorldPacket data(SMSG_TRANSFER_ABORTED, 4 + 2);
     data << uint32(mapid);
-    if (arg)
-        data << uint8(arg);
+    data << uint8(arg);
+    data.WriteBits(reason, 5);
+    data.FlushBits();
 
     GetSession()->SendPacket(&data);
 }

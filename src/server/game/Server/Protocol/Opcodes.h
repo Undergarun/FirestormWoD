@@ -90,6 +90,8 @@ enum Opcodes
         SMSG_INITIALIZE_FACTIONS                    = 0x02FA,   ///< 6.0.1 18663
         SMSG_BIND_POINT_UPDATE                      = 0x1D46,   ///< 6.0.1 18663
         SMSG_UPDATE_TALENT_DATA                     = 0x1AE9,   ///< 6.0.1 18663
+        SMSG_TRANSFER_ABORTED                       = 0x1CD3,   ///< 6.0.1 18663
+        SMSG_TRANSFER_PENDING                       = 0x05AF,   ///< 6.0.1 18663
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18663
@@ -287,6 +289,7 @@ enum Opcodes
         SMSG_MOVE_SET_PITCH_RATE                    = 0x1365,   ///< 6.0.1 18663
 
         /// Player
+        SMSG_MOVE_TELEPORT                          = 0x0176,   ///< 6.0.1 18663
         SMSG_MOVE_ROOT                              = 0x033E,   ///< 6.0.1 18663
         SMSG_MOVE_UNROOT                            = 0x0B45,   ///< 6.0.1 18663
         SMSG_MOVE_WATER_WALK                        = 0x0026,   ///< 6.0.1 18663
@@ -451,6 +454,7 @@ enum Opcodes
     CMSG_SHOWING_CLOAK                          = 0x1B7A,   ///< 6.0.1 18663
     CMSG_SHOWING_HELM                           = 0x0ACE,   ///< 6.0.1 18663
     CMSG_SET_ACTIVE_MOVER                       = 0x125B,   ///< 6.0.1 18663
+    CMSG_LEARN_TALENTS                          = 0x09D7,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
@@ -587,7 +591,7 @@ enum Opcodes
     /// Update
     CMSG_MOVE_HEARTBEAT                         = 0x12CB,   ///< 6.0.1 18663
     CMSG_MOVE_SET_FACING                        = 0x135F,   ///< 6.0.1 18663
-    CMSG_MOVE_TELEPORT_ACK                      = 0x0000,
+    CMSG_MOVE_TELEPORT_ACK                      = 0x035F,   ///< 6.0.1 18663
 
     /// Stop
     CMSG_MOVE_STOP                              = 0x034B,   ///< 6.0.1 18663
@@ -879,7 +883,6 @@ enum Opcodes
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
     CMSG_KEEP_ALIVE                                   = 0x0000,
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x0000,
-    CMSG_LEARN_TALENTS                                = 0x0000,
     CMSG_LEAVE_BATTLEFIELD                            = 0x0000,
     CMSG_LEAVE_CHANNEL                                = 0x0000,
     CMSG_LFG_GET_PLAYER_INFO                          = 0x0000,
@@ -1489,7 +1492,6 @@ enum Opcodes
     SMSG_MOVE_SET_COMPOUND_STATE                      = 0x0000,
     SMSG_MOVE_SET_HOVER                               = 0x0000,
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
-    SMSG_MOVE_TELEPORT                                = 0x0000,
     SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000,
     SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING            = 0x0000,
     SMSG_MOVE_UNSET_HOVER                             = 0x0000,
@@ -1746,8 +1748,6 @@ enum Opcodes
     SMSG_TRADE_UPDATED                                = 0x0000,
     SMSG_TRAINER_LIST                                 = 0x0000,
     SMSG_TRAINER_SERVICE                              = 0x0000,
-    SMSG_TRANSFER_ABORTED                             = 0x0000,
-    SMSG_TRANSFER_PENDING                             = 0x0000,
     SMSG_TRIGGER_CINEMATIC                            = 0x0000,
     SMSG_TRIGGER_MOVIE                                = 0x0000,
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x0000,
