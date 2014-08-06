@@ -166,7 +166,6 @@ class boss_tsulong : public CreatureScript
             bool needToLeave;
             uint32 berserkTimer;
             uint32 leaveTimer;
-            uint32 nightTimer;
 
             void Reset()
             {
@@ -181,7 +180,6 @@ class boss_tsulong : public CreatureScript
                 needToLeave = false;
                 leaveTimer = 0;
                 berserkTimer = 60000 * 8;
-                nightTimer = 0;
 
                 me->SetDisableGravity(true);
                 me->SetCanFly(true);
@@ -203,6 +201,7 @@ class boss_tsulong : public CreatureScript
                     {
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_BREATH);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
 
                         needToLeave = true;
                         leaveTimer = 10000;
@@ -287,6 +286,7 @@ class boss_tsulong : public CreatureScript
                     pInstance->SetBossState(DATA_TSULONG, DONE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_BREATH);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                 }
 
                 _JustDied();
@@ -371,12 +371,12 @@ class boss_tsulong : public CreatureScript
                     pInstance->SetBossState(DATA_TSULONG, DONE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                 }
                 me->ReenableEvadeMode();
                 me->ReenableHealthRegen();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->CombatStop();
-                nightTimer = 500;
                 EnterEvadeMode();
 
                 switch (me->GetMap()->GetSpawnMode())
@@ -448,21 +448,6 @@ class boss_tsulong : public CreatureScript
 
                 if (phase == PHASE_DAY || phase == PHASE_NIGHT)
                 {
-                    // Night effect - aura with 1.25 sec duration
-                    if (phase == PHASE_NIGHT)
-                    {
-                        if (nightTimer <= diff)
-                        {
-                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                me->AddAura(SPELL_NIGHT_PHASE_EFFECT, itr->getSource());
-                            // me->AddAura(SPELL_NIGHT_PHASE_EFFECT, me);
-                            nightTimer = 500;
-                        }
-                        else
-                            nightTimer -= diff;
-                    }
-
                     if (berserkTimer <= diff)
                     {
                         DoCast(SPELL_BERSERK);
@@ -537,8 +522,8 @@ class boss_tsulong : public CreatureScript
                             if (me->GetMap()->IsHeroic())
                                 events.RescheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
                             events.RescheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
-                            me->AddAura(SPELL_NIGHT_PHASE_EFFECT, me);
-                            nightTimer = 500;
+                            if (instance)
+                                instance->DoAddAuraOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                             break;
                         case EVENT_SPAWN_SUNBEAM:
                             Position pos;
@@ -598,6 +583,8 @@ class boss_tsulong : public CreatureScript
                             events.RescheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA, 0, PHASE_DAY);
                             if (IsHeroic())
                                 me->CastSpell(me, SPELL_TRIGGER_LIGHT_OF_DAY, false);
+                            if (instance)
+                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                             break;
                         case EVENT_SUN_BREATH:
                             me->CastSpell(me, SPELL_SUN_BREATH, false);
