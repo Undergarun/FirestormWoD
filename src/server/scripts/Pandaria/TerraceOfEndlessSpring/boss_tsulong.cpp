@@ -409,6 +409,12 @@ class boss_tsulong : public CreatureScript
                 }
             }
 
+            void EnterEvadeMode()
+            {
+                if (pInstance)
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
+            }
+
             void DespawnAllTinyTerror()
             {
                 std::list<Creature*> tinyTerrors;
