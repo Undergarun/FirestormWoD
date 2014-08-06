@@ -228,94 +228,90 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 {
-    uint32 entry;
-    recvData >> entry;
-    ObjectGuid guid;
+    uint32 l_GobEntry;
+    uint64 l_GobGUID;
 
-    uint8 bitOrder[8] = { 2, 4, 3, 7, 0, 6, 1, 5 };
-    recvData.ReadBitInOrder(guid, bitOrder);
+    recvData >> l_GobEntry;
+    recvData.readPackGUID(l_GobGUID);
 
-    recvData.FlushBits();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY Entry: %u. ", l_GobEntry);
 
-    uint8 byteOrder[8] = { 1, 7, 2, 3, 6, 5, 4, 0 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    ByteBuffer l_GobData;
 
-    if (const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry))
+    if (const GameObjectTemplate* l_GobInfo = sObjectMgr->GetGameObjectTemplate(l_GobEntry))
     {
-        std::string Name;
-        std::string IconName;
-        std::string CastBarCaption;
+        std::string l_Name;
+        std::string l_IconeName;
+        std::string l_CastBarCaption;
 
-        Name = info->name;
-        IconName = info->IconName;
-        CastBarCaption = info->castBarCaption;
+        l_Name              = l_GobInfo->name;
+        l_IconeName         = l_GobInfo->IconName;
+        l_CastBarCaption    = l_GobInfo->castBarCaption;
 
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        int l_LocaleIndex = GetSessionDbLocaleIndex();
+
+        if (l_LocaleIndex >= 0)
         {
-            if (GameObjectLocale const* gl = sObjectMgr->GetGameObjectLocale(entry))
+            if (GameObjectLocale const* l_GobLocale = sObjectMgr->GetGameObjectLocale(l_GobEntry))
             {
-                ObjectMgr::GetLocaleString(gl->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
+                ObjectMgr::GetLocaleString(l_GobLocale->Name, l_LocaleIndex, l_Name);
+                ObjectMgr::GetLocaleString(l_GobLocale->CastBarCaption, l_LocaleIndex, l_CastBarCaption);
             }
         }
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name.c_str(), entry);
-        WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE);
-        ByteBuffer byteBuffer;
+        l_GobData << uint32(l_GobInfo->type);
+        l_GobData << uint32(l_GobInfo->displayId);
+        l_GobData << l_Name;
+        l_GobData << "";
+        l_GobData << "";
+        l_GobData << "";
+        l_GobData << l_IconeName;                                       // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
+        l_GobData << l_CastBarCaption;                                  // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
+        l_GobData << "";
 
-        data.WriteBit(1);                                               // Always 1, from sniffs
-        data.FlushBits();
+        for (int i = 0; i < MAX_GAMEOBJECT_DATA; i++)
+            l_GobData << uint32(l_GobInfo->raw.data[i]);
 
-        data << uint32(entry);
+        l_GobData << float(l_GobInfo->size);                            // go size
 
+        uint8 l_QuestItemCount = 0;
+
+        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+            if (l_GobInfo->questItems[i])
+                l_QuestItemCount++;
+
+        l_GobData << uint8(l_QuestItemCount);
+
+        for (int i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS && l_QuestItemCount > 0; i++)
         {
-            byteBuffer << uint32(info->type);
-            byteBuffer << uint32(info->displayId);
-            byteBuffer << Name;
-            byteBuffer << uint32(0);                                    // unk
-            byteBuffer << CastBarCaption;                               // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-            byteBuffer << IconName;                                     // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
-
-            for (int i = 0; i < 32; i++)
-                byteBuffer << uint32(info->raw.data[i]);
-
-            byteBuffer << float(info->size);                            // go size
-
-            uint8 questItemCount = 0;
-            for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-                if (info->questItems[i])
-                    questItemCount++;
-
-            byteBuffer << uint8(questItemCount);
-
-            for (int i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS && questItemCount > 0; i++)
+            if (l_GobInfo->questItems[i])
             {
-                if (info->questItems[i])
-                {
-                    byteBuffer << uint32(info->questItems[i]);          // itemId[6], quest drop
-                    questItemCount--;
-                }
+                l_GobData << uint32(l_GobInfo->questItems[i]);          // itemId[6], quest drop
+                l_QuestItemCount--;
             }
-
-            byteBuffer << uint32(info->unkInt32);                       // 4.x, unknown
         }
 
-        data << uint32(byteBuffer.size());
-        data.append(byteBuffer);
-
-        SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
+        l_GobData << uint32(l_GobInfo->unkInt32);                       // 4.x, unknown
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-            GUID_LOPART(guid), entry);
-        WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4);
-        data << uint32(entry | 0x80000000);
-        SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)", GUID_LOPART(l_GobGUID), l_GobEntry);
     }
+
+    WorldPacket l_Response(SMSG_GAMEOBJECT_QUERY_RESPONSE);
+
+    l_Response << uint32(l_GobEntry);
+
+    l_Response.WriteBit(l_GobData.size() != 0);
+    l_Response.FlushBits();
+
+    l_Response << uint32(l_GobData.size());
+
+    l_Response.append(l_GobData);
+
+    SendPacket(&l_Response);
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
 }
 
 void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)

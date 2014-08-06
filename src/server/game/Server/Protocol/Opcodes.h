@@ -73,6 +73,7 @@ enum Opcodes
         SMSG_NPC_TEXT_UPDATE                        = 0x1059,   ///< 6.0.1 18663
         SMSG_NAME_QUERY_RESPONSE                    = 0x1462,   ///< 6.0.1 18663
         SMSG_REALM_QUERY_RESPONSE                   = 0x0E58,   ///< 6.0.1 18663
+        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x127A,   ///< 6.0.1 18663
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x1C42,   ///< 6.0.1 18663
@@ -465,6 +466,7 @@ enum Opcodes
     CMSG_QUEST_QUERY                            = 0x0096,   ///< 6.0.1 18663
     CMSG_QUEST_POI_QUERY                        = 0x0E41,   ///< 6.0.1 18663
     CMSG_REALM_NAME_QUERY                       = 0x0CC1,   ///< 6.0.1 18663
+    CMSG_GAMEOBJECT_QUERY                       = 0x0942,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -772,7 +774,6 @@ enum Opcodes
     CMSG_FAR_SIGHT                                    = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
-    CMSG_GAMEOBJECT_QUERY                             = 0x0000,
     CMSG_GAMEOBJECT_REPORT_USE                        = 0x0000,
     CMSG_GAMEOBJECT_USE                               = 0x0000,
     CMSG_GAMESPEED_SET                                = 0x0000,
@@ -1332,7 +1333,6 @@ enum Opcodes
     SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x0000,
     SMSG_GAMEOBJECT_DESPAWN_ANIM                      = 0x0000,
     SMSG_GAMEOBJECT_PAGETEXT                          = 0x0000,
-    SMSG_GAMEOBJECT_QUERY_RESPONSE                    = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                       = 0x0000,
     SMSG_GAMEOBJECT_PLAY_SPELL_VISUAL                 = 0x0000,
     SMSG_GAME_SPEED_SET                               = 0x0000,
