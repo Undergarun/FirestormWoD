@@ -124,6 +124,7 @@ inline char const* GetLogNameForGuid(uint64 guid)
 
 enum Guid128Type
 {
+    GUID_TYPE_NONE                  = 0x00,
     GUID_TYPE_PLAYER                = 0x02, ///< 6.0.1 18663
     GUID_TYPE_ITEM                  = 0x03, ///< 6.0.1 18663
     GUID_TYPE_CONTAINER             = 0x03, ///< 6.0.1 18663

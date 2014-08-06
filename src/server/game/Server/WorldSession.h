@@ -242,6 +242,15 @@ class WorldSession
         WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
+        uint64 GetWoWAccountGUID()
+        {
+            return MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT);
+        }
+        uint64 GetBNetAccountGUID()
+        {
+            return MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT);
+        }
+
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }

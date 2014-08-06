@@ -5,10 +5,10 @@ Guid128 Guid64To128(const uint64 & p_64Guid)
     if (p_64Guid == 0)
         return Guid128(0, 0);
 
-    Guid128Type l_Type;
-    uint64 l_Low = GUID_LOPART(p_64Guid);
-    uint32 l_Mid = GUID_ENPART(p_64Guid);
-    uint32 l_RealmID = 1;
+    Guid128Type l_Type  = GUID_TYPE_NONE;
+    uint64 l_Low        = GUID_LOPART(p_64Guid);
+    uint32 l_Mid        = GUID_ENPART(p_64Guid);
+    uint32 l_RealmID    = 1;
 
     switch (GUID_HIPART(p_64Guid))
     {
@@ -32,6 +32,9 @@ Guid128 Guid64To128(const uint64 & p_64Guid)
         case HIGHGUID_BNET_ACCOUNT:       l_Type = GUID_TYPE_BNET_ACC;          break;
         case HIGHGUID_WOW_ACCOUNT:        l_Type = GUID_TYPE_WOW_ACC;           break;
     }
+
+    if (l_Type == GUID_TYPE_BNET_ACC || l_Type == GUID_TYPE_WOW_ACC)
+        l_RealmID = 0;
 
     return Guid128(l_Type, l_RealmID, l_Mid, l_Low);
 }

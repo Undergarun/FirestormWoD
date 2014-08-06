@@ -73,8 +73,8 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
                     data.append(names->name[i].c_str(), names->name[i].size());
         }
 
-        data.appendPackGUID(0);// MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
-        data.appendPackGUID(0);// MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_BNET_ACCOUNT));
+        data.appendPackGUID(player ? player->GetSession()->GetWoWAccountGUID()  : 0);
+        data.appendPackGUID(player ? player->GetSession()->GetBNetAccountGUID() : 0);
         data.appendPackGUID(guid);
 
         data << uint32(realmID);
