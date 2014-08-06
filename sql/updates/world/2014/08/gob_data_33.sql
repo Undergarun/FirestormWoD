@@ -1,0 +1,1 @@
+ALTER TABLE `gameobject_template` ADD COLUMN `data32` INT(10) DEFAULT '0' NOT NULL AFTER `data31`, CHANGE `data31` `data31` INT(10) DEFAULT '0' NOT NULL;
