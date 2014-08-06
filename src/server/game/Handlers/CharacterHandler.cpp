@@ -1022,7 +1022,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     bool l_RecruitAFriendSystem                 = false;
     bool l_HasTravelPass                        = false;
     bool l_WebTicketSystemStatus                = false;
-    bool l_StoreEnabled                         = false;
+    bool l_StoreEnabled                         = true;
     bool l_StoreIsDisabledByParentalControls    = false;
     bool l_StoreIsAvailable                     = true;
 
