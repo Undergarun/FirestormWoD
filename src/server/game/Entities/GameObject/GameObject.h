@@ -736,14 +736,21 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void Refresh();
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
+        
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
+        
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0)); }
         void SetGoState(GOState state);
-        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2); }
+
+        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1); }
         void SetGoArtKit(uint8 artkit);
-        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
-        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, animprogress); }
+
+        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3); }
+        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3, animprogress); }
+
+        void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
+
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update);

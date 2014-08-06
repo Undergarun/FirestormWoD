@@ -1054,7 +1054,7 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
 
 void GameObject::SetGoArtKit(uint8 kit)
 {
-    SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, kit);
+    SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1, kit);
     GameObjectData* data = const_cast<GameObjectData*>(sObjectMgr->GetGOData(m_DBTableGuid));
     if (data)
         data->artKit = kit;
