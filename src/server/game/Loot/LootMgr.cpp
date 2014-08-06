@@ -923,53 +923,41 @@ ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
     return b;
 }
 
-ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
+ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 {
     if (lv.permission == NONE_PERMISSION)
     {
-        b.WriteBit(0);      // Unk bit
-        b.WriteBit(0);      // Creature guid 0
-        b.WriteBit(0);      // Creature guid 1
-        b.WriteBit(1);      // !Unk bit
-        b.WriteBit(0);      // Loot guid 7
-        b.WriteBit(0);      // Creature guid 3
-        b.WriteBit(0);      // Loot guid 2
-        b.WriteBit(0);      // Loot guid 0
-        b.WriteBit(1);      // 4 - X = Permission != 3
-        b.WriteBit(0);      // Loot guid 1
-        b.WriteBit(0);      // Unk bit
-        b.WriteBit(0);      // Creature guid 6
-        b.WriteBit(1);      // !HasLootType
-        b.WriteBit(0);      // Loot guid 3
-        b.WriteBit(1);      // !Unk bit
-        b.WriteBits(0, 20); // Currency count
-        b.WriteBit(0);      // Creature guid 7
-        b.WriteBit(0);      // Creature guid 4
-        b.WriteBit(0);      // Loot guid 6
-        b.WriteBit(0);      // Creature guid 2
-        b.WriteBit(1);      // !hasGold
-        b.WriteBit(0);      // Loot guid 4
-        b.WriteBits(0, 19); // Items count
-        b.WriteBit(0);      // Creature guid 5
-        b.WriteBit(0);      // Unk bit
-        return b;
+        p_Data.appendPackGUID(0);
+        p_Data.appendPackGUID(0);
+        p_Data << uint8(6);                                 ///< Failure reason
+        p_Data << uint8(0);
+        p_Data << uint8(0);
+        p_Data << uint8(0);
+        p_Data << uint32(0);
+        p_Data << uint32(0);
+        p_Data << uint32(0);
+
+        p_Data.WriteBit(false);                             ///< Unk
+        p_Data.WriteBit(false);                             ///< Unk
+        p_Data.WriteBit(false);                             ///< Unk
+        p_Data.FlushBits();
+        return p_Data;
     }
 
-    Loot &l = lv.loot;
-    ByteBuffer bitsItemBuffer;
-    ByteBuffer dataBuffer;
+    Loot &l_Loot = lv.loot;
 
-    ObjectGuid creatureGuid = lv._guid;
-    ObjectGuid lootViewGuid = MAKE_NEW_GUID(GUID_LOPART(creatureGuid), 0, HIGHGUID_LOOT);
-    sObjectMgr->setLootViewGUID(lootViewGuid, creatureGuid);
+    ObjectGuid l_CreatureGuid   = lv._guid;
+    ObjectGuid l_LootGuid       = MAKE_NEW_GUID(GUID_LOPART(l_CreatureGuid), 0, HIGHGUID_LOOT);
 
-    bool unkBit69 = false;
-    bool unkBit48 = true;
-    bool unkBit84 = true;
-    bool unkBit32 = true;
-    uint8 itemsShown = 0;
-    uint8 currenciesShown = 0;
-    uint32 index = 0;
+    sObjectMgr->setLootViewGUID(l_LootGuid, l_CreatureGuid);
+
+    uint32 l_Index = 0;
+
+    uint8 l_ItemCount       = 0;
+    uint8 l_CurrencyCount   = 0;
+    uint8 l_UIType          = LOOT_ITEM_UI_MASTER;
+
+    ByteBuffer l_ItemsDataBuffer;
 
     switch (lv.permission)
     {
@@ -977,73 +965,83 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         {
             // if you are not the round-robin group looter, you can only see
             // blocked rolled items and quest items, and !ffa items
-            for (uint8 i = 0; i < l.items.size(); ++i)
+            for (uint8 l_I = 0; l_I < l_Loot.items.size(); ++l_I)
             {
-                if (!l.items[i].currency && !l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l_Loot.items[l_I].currency && !l_Loot.items[l_I].is_looted && !l_Loot.items[l_I].freeforall && l_Loot.items[l_I].conditions.empty() && l_Loot.items[l_I].AllowedForPlayer(lv.viewer))
                 {
-                    uint8 slot_type;
+                    uint8 l_SlotType;
 
-                    if (l.items[i].is_blocked)
-                        slot_type = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                    else if (l.roundRobinPlayer == 0 || !l.items[i].is_underthreshold || lv.viewer->GetGUID() == l.roundRobinPlayer)
+                    if (l_Loot.items[l_I].is_blocked)
+                        l_SlotType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                    else if (l_Loot.roundRobinPlayer == 0 || !l_Loot.items[l_I].is_underthreshold || lv.viewer->GetGUID() == l_Loot.roundRobinPlayer)
                     {
                         // no round robin owner or he has released the loot
                         // or it IS the round robin group owner
                         // => item is lootable
-                        slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        l_SlotType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     }
                     else
                         // item shall not be displayed.
                         continue;
 
-                    bitsItemBuffer.WriteBit(true); // unk, inverse
-                    bitsItemBuffer.WriteBit(!i);
-                    bitsItemBuffer.WriteBits(1, 2);
-                    bitsItemBuffer.WriteBit(0);
-                    bitsItemBuffer.WriteBits(slot_type, 3);
+                    uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                    if (i)
-                        dataBuffer << uint8(i);
+                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                        l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    dataBuffer << uint32(l.items[i].count);
-                    dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
-                    dataBuffer << uint32(l.items[i].randomPropertyId);
-                    dataBuffer << uint32(l.items[i].randomSuffix);
-                    dataBuffer << uint32(0);
-                    dataBuffer << uint32(l.items[i].itemid);
-                    ++itemsShown;
-                    ++index;
+                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(l_SlotType, 3);                 ///< Ui Type
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                    l_ItemsDataBuffer.FlushBits();
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
+                    l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                    l_ItemsDataBuffer << uint8(l_I);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
+
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                    l_ItemsDataBuffer.FlushBits();
+
+                    ++l_ItemCount;
+                    ++l_Index;
                 }
             }
             break;
         }
         case ROUND_ROBIN_PERMISSION:
         {
-            for (uint8 i = 0; i < l.items.size(); ++i)
+            for (uint8 l_I = 0; l_I < l_Loot.items.size(); ++l_I)
             {
-                if (!l.items[i].currency && !l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l_Loot.items[l_I].currency && !l_Loot.items[l_I].is_looted && !l_Loot.items[l_I].freeforall && l_Loot.items[l_I].conditions.empty() && l_Loot.items[l_I].AllowedForPlayer(lv.viewer))
                 {
-                    if (l.roundRobinPlayer != 0 && lv.viewer->GetGUID() != l.roundRobinPlayer)
+                    if (l_Loot.roundRobinPlayer != 0 && lv.viewer->GetGUID() != l_Loot.roundRobinPlayer)
                         // item shall not be displayed.
                         continue;
 
-                    bitsItemBuffer.WriteBit(true); // unk, inverse
-                    bitsItemBuffer.WriteBit(!i);
-                    bitsItemBuffer.WriteBits(1, 2);
-                    bitsItemBuffer.WriteBit(0);
-                    bitsItemBuffer.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);
+                    uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                    if (i)
-                        dataBuffer << uint8(i);
+                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                        l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    dataBuffer << uint32(l.items[i].count);
-                    dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
-                    dataBuffer << uint32(l.items[i].randomPropertyId);
-                    dataBuffer << uint32(l.items[i].randomSuffix);
-                    dataBuffer << uint32(0);
-                    dataBuffer << uint32(l.items[i].itemid);
-                    ++itemsShown;
-                    ++index;
+                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                    l_ItemsDataBuffer.FlushBits();
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
+                    l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                    l_ItemsDataBuffer << uint8(l_I);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
+
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                    l_ItemsDataBuffer.FlushBits();
+
+                    ++l_ItemCount;
+                    ++l_Index;
                 }
             }
             break;
@@ -1052,56 +1050,47 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         case MASTER_PERMISSION:
         case OWNER_PERMISSION:
         {
-            uint8 slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
-            switch (lv.permission)
+            for (uint8 l_I = 0; l_I < l_Loot.items.size(); ++l_I)
             {
-                case MASTER_PERMISSION:
-                    slot_type = LOOT_SLOT_TYPE_MASTER;
-                    break;
-                case OWNER_PERMISSION:
-                    slot_type = LOOT_SLOT_TYPE_OWNER;
-                    break;
-                default:
-                    break;
-            }
-
-            for (uint8 i = 0; i < l.items.size(); ++i)
-            {
-                if (!l.items[i].currency && !l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l_Loot.items[l_I].currency && !l_Loot.items[l_I].is_looted && !l_Loot.items[l_I].freeforall && l_Loot.items[l_I].conditions.empty() && l_Loot.items[l_I].AllowedForPlayer(lv.viewer))
                 {
-                    bitsItemBuffer.WriteBit(true); // unk inverse
-                    bitsItemBuffer.WriteBit(!i);
-                    bitsItemBuffer.WriteBits(1, 2);
-                    bitsItemBuffer.WriteBit(0);
-                    bitsItemBuffer.WriteBits(slot_type, 3);
+                    uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                    if (i)
-                        dataBuffer << uint8(i);
+                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                        l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    dataBuffer << uint32(l.items[i].count);
+                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                    l_ItemsDataBuffer.FlushBits();
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
+                    l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                    l_ItemsDataBuffer << uint8(l_I);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
+                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
 
-                    dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
-                    dataBuffer << uint32(l.items[i].randomPropertyId);
-                    dataBuffer << uint32(l.items[i].randomSuffix);
-                    dataBuffer << uint32(0);
-                    dataBuffer << uint32(l.items[i].itemid);
-                    ++itemsShown;
-                    ++index;
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                    l_ItemsDataBuffer.FlushBits();
+
+                    ++l_ItemCount;
+                    ++l_Index;
                 }
             }
             break;
         }
         default:
-            return b;
+            return p_Data;
     }
 
     // Process radius loot
-    for (uint32 slot = l.items.size() + l.quest_items.size(); slot <= l.maxLinkedSlot; slot++)
+    for (uint32 slot = l_Loot.items.size() + l_Loot.quest_items.size(); slot <= l_Loot.maxLinkedSlot; slot++)
     {
-        if (!l.isLinkedLoot(slot))
+        if (!l_Loot.isLinkedLoot(slot))
             continue;
 
-        LinkedLootInfo& loot = l.getLinkedLoot(slot);
+        LinkedLootInfo& loot = l_Loot.getLinkedLoot(slot);
         {
             Creature* c = lv.viewer->GetCreature(*lv.viewer, loot.creatureGUID);
             if (!c)
@@ -1132,23 +1121,28 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             // item shall not be displayed.
                             continue;
 
-                        bitsItemBuffer.WriteBit(true); // unk, inverse
-                        bitsItemBuffer.WriteBit(!slot);
-                        bitsItemBuffer.WriteBits(1, 2);
-                        bitsItemBuffer.WriteBit(0);
-                        bitsItemBuffer.WriteBits(slot_type, 3);
+                        uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                        if (slot)
-                            dataBuffer << uint8(slot);
+                        if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[loot.slot].itemid))
+                            l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].count);
-                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot->items[loot.slot].itemid)->DisplayInfoID);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
-                        dataBuffer << uint32(0);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
-                        ++itemsShown;
-                        ++index;
+                        l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                        l_ItemsDataBuffer.WriteBits(slot_type, 3);                  ///< Ui Type
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                        l_ItemsDataBuffer.FlushBits();
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].count);
+                        l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                        l_ItemsDataBuffer << uint8(slot);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
+
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                        l_ItemsDataBuffer.FlushBits();
+
+                        ++l_ItemCount;
+                        ++l_Index;
                     }
                     break;
                 }
@@ -1161,23 +1155,28 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             // item shall not be displayed.
                             continue;
 
-                        bitsItemBuffer.WriteBit(true); // unk, inverse
-                        bitsItemBuffer.WriteBit(!slot);
-                        bitsItemBuffer.WriteBits(1, 2);
-                        bitsItemBuffer.WriteBit(0);
-                        bitsItemBuffer.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);
+                        uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                        if (slot)
-                            dataBuffer << uint8(slot);
+                        if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[loot.slot].itemid))
+                            l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].count);
-                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot->items[loot.slot].itemid)->DisplayInfoID);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
-                        dataBuffer << uint32(0);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
-                        ++itemsShown;
-                        ++index;
+                        l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                        l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                        l_ItemsDataBuffer.FlushBits();
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].count);
+                        l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                        l_ItemsDataBuffer << uint8(slot);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
+
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                        l_ItemsDataBuffer.FlushBits();
+
+                        ++l_ItemCount;
+                        ++l_Index;
                     }
                     break;
                 }
@@ -1201,23 +1200,28 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     if (!linkedLoot->items[loot.slot].currency && !linkedLoot->items[loot.slot].is_looted && !linkedLoot->items[loot.slot].freeforall &&
                         linkedLoot->items[loot.slot].conditions.empty() && linkedLoot->items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
-                        bitsItemBuffer.WriteBit(true); // unk, inverse
-                        bitsItemBuffer.WriteBit(!slot);
-                        bitsItemBuffer.WriteBits(1, 2);
-                        bitsItemBuffer.WriteBit(0);
-                        bitsItemBuffer.WriteBits(slot_type, 3);
+                        uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                        if (slot)
-                            dataBuffer << uint8(slot);
+                        if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[loot.slot].itemid))
+                            l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].count);
-                        dataBuffer << uint32(sObjectMgr->GetItemTemplate(linkedLoot->items[loot.slot].itemid)->DisplayInfoID);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
-                        dataBuffer << uint32(0);
-                        dataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
-                        ++itemsShown;
-                        ++index;
+                        l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                        l_ItemsDataBuffer.WriteBits(slot_type, 3);                  ///< Ui Type
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                        l_ItemsDataBuffer.FlushBits();
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].count);
+                        l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                        l_ItemsDataBuffer << uint8(slot);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].itemid);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].randomSuffix);
+                        l_ItemsDataBuffer << uint32(linkedLoot->items[loot.slot].randomPropertyId);
+
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                        l_ItemsDataBuffer.FlushBits();
+
+                        ++l_ItemCount;
+                        ++l_Index;
                     }
                     break;
                 }
@@ -1228,14 +1232,14 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     }
 
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
-    QuestItemMap const& lootPlayerQuestItems = l.GetPlayerQuestItems();
+    QuestItemMap const& lootPlayerQuestItems = l_Loot.GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(lv.viewer->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
     {
         QuestItemList* q_list = q_itr->second;
         for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
         {
-            LootItem &item = l.quest_items[qi->index];
+            LootItem &item = l_Loot.quest_items[qi->index];
             if (!qi->is_looted && !item.is_looted)
             {
                 uint8 slottype = 0;
@@ -1261,66 +1265,76 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 else
                    slottype = uint8(slotType);
 
-                bitsItemBuffer.WriteBit(true); // unk, inverse
-                bitsItemBuffer.WriteBit(!(l.items.size() + (qi - q_list->begin())));
-                bitsItemBuffer.WriteBits(1, 2);
-                bitsItemBuffer.WriteBit(0);
-                bitsItemBuffer.WriteBits(slottype, 3);
+                uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                if (l.items.size() + (qi - q_list->begin()))
-                    dataBuffer << uint8(l.items.size() + (qi - q_list->begin()));
+                if (lv.viewer && lv.viewer->HasQuestForItem(item.itemid))
+                    l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                dataBuffer << uint32(item.count);
-                dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
-                dataBuffer << uint32(item.randomPropertyId);
-                dataBuffer << uint32(item.randomSuffix);
-                dataBuffer << uint32(0);
-                dataBuffer << uint32(item.itemid);
-                ++itemsShown;
-                ++index;
+                l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                l_ItemsDataBuffer.WriteBits(slottype, 3);                   ///< Ui Type
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                l_ItemsDataBuffer.FlushBits();
+                l_ItemsDataBuffer << uint32(item.count);
+                l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                l_ItemsDataBuffer << uint8(l_Loot.items.size() + (qi - q_list->begin()));
+                l_ItemsDataBuffer << uint32(item.itemid);
+                l_ItemsDataBuffer << uint32(item.randomSuffix);
+                l_ItemsDataBuffer << uint32(item.randomPropertyId);
+
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                l_ItemsDataBuffer.FlushBits();
+
+                ++l_ItemCount;
+                ++l_Index;
             }
         }
     }
 
-    QuestItemMap const& lootPlayerFFAItems = l.GetPlayerFFAItems();
+    QuestItemMap const& lootPlayerFFAItems = l_Loot.GetPlayerFFAItems();
     QuestItemMap::const_iterator ffa_itr = lootPlayerFFAItems.find(lv.viewer->GetGUIDLow());
     if (ffa_itr != lootPlayerFFAItems.end())
     {
         QuestItemList* ffa_list = ffa_itr->second;
         for (QuestItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
         {
-            LootItem &item = l.items[fi->index];
+            LootItem &item = l_Loot.items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
-                bitsItemBuffer.WriteBit(true); // unk, inverse
-                bitsItemBuffer.WriteBit(!fi->index);
-                bitsItemBuffer.WriteBits(1, 2);
-                bitsItemBuffer.WriteBit(0);
-                bitsItemBuffer.WriteBits(slotType, 3);
+                uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                if (fi->index)
-                    dataBuffer << uint8(fi->index);
+                if (lv.viewer && lv.viewer->HasQuestForItem(item.itemid))
+                    l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                dataBuffer << uint32(item.count);
-                dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
-                dataBuffer << uint32(item.randomPropertyId);
-                dataBuffer << uint32(item.randomSuffix);
-                dataBuffer << uint32(0);
-                dataBuffer << uint32(item.itemid);
-                ++itemsShown;
-                ++index;
+                l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                l_ItemsDataBuffer.WriteBits(l_UIType, 3);                   ///< Ui Type
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                l_ItemsDataBuffer.FlushBits();
+                l_ItemsDataBuffer << uint32(item.count);
+                l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                l_ItemsDataBuffer << uint8(fi->index);
+                l_ItemsDataBuffer << uint32(item.itemid);
+                l_ItemsDataBuffer << uint32(item.randomSuffix);
+                l_ItemsDataBuffer << uint32(item.randomPropertyId);
+
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                l_ItemsDataBuffer.FlushBits();
+
+                ++l_ItemCount;
+                ++l_Index;
             }
         }
     }
 
-    QuestItemMap const& lootPlayerNonQuestNonFFAConditionalItems = l.GetPlayerNonQuestNonFFAConditionalItems();
+    QuestItemMap const& lootPlayerNonQuestNonFFAConditionalItems = l_Loot.GetPlayerNonQuestNonFFAConditionalItems();
     QuestItemMap::const_iterator nn_itr = lootPlayerNonQuestNonFFAConditionalItems.find(lv.viewer->GetGUIDLow());
     if (nn_itr != lootPlayerNonQuestNonFFAConditionalItems.end())
     {
         QuestItemList* conditional_list = nn_itr->second;
         for (QuestItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
         {
-            LootItem &item = l.items[ci->index];
+            LootItem &item = l_Loot.items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
                 uint8 slottype = 0;
@@ -1347,126 +1361,79 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 else
                     slottype = uint8(slotType);
 
-                bitsItemBuffer.WriteBit(true); // unk, inverse
-                bitsItemBuffer.WriteBit(!ci->index);
-                bitsItemBuffer.WriteBits(1, 2);
-                bitsItemBuffer.WriteBit(0);
-                bitsItemBuffer.WriteBits(slottype, 3);
+                uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                if (ci->index)
-                    dataBuffer << uint8(ci->index);
+                if (lv.viewer && lv.viewer->HasQuestForItem(item.itemid))
+                    l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                dataBuffer << uint32(item.count);
-                dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
-                dataBuffer << uint32(item.randomPropertyId);
-                dataBuffer << uint32(item.randomSuffix);
-                dataBuffer << uint32(0);
-                dataBuffer << uint32(item.itemid);
-                ++itemsShown;
-                ++index;
+                l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                l_ItemsDataBuffer.WriteBits(slotType, 3);                   ///< Ui Type
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
+                l_ItemsDataBuffer.FlushBits();
+                l_ItemsDataBuffer << uint32(item.count);
+                l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                l_ItemsDataBuffer << uint8(ci->index);
+                l_ItemsDataBuffer << uint32(item.itemid);
+                l_ItemsDataBuffer << uint32(item.randomSuffix);
+                l_ItemsDataBuffer << uint32(item.randomPropertyId);
+
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
+                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+                l_ItemsDataBuffer.FlushBits();
+
+                ++l_ItemCount;
+                ++l_Index;
             }
         }
     }
 
-    ByteBuffer currenciesBuffer;
-    QuestItemMap const& lootPlayerCurrencies = l.GetPlayerCurrencies();
+    ByteBuffer l_CurrenciesDataBuffer;
+    QuestItemMap const& lootPlayerCurrencies = l_Loot.GetPlayerCurrencies();
     QuestItemMap::const_iterator currency_itr = lootPlayerCurrencies.find(lv.viewer->GetGUIDLow());
     if (currency_itr != lootPlayerCurrencies.end())
     {
         QuestItemList* currency_list = currency_itr->second;
         for (QuestItemList::const_iterator ci = currency_list->begin() ; ci != currency_list->end(); ++ci)
         {
-            LootItem& item = l.items[ci->index];
+            LootItem& item = l_Loot.items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
-                currenciesBuffer << uint8(ci->index);
-
                 if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(item.itemid))
-                    currenciesBuffer << uint32(currency->ID);
+                    l_CurrenciesDataBuffer << uint32(currency->ID);
                 else
-                    currenciesBuffer << uint32(0);
+                    l_CurrenciesDataBuffer << uint32(0);
+                l_CurrenciesDataBuffer << uint32(item.count);
+                l_CurrenciesDataBuffer << uint8(ci->index);
+                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);
+                l_CurrenciesDataBuffer.FlushBits();
 
-                currenciesBuffer << uint32(item.count);
-
-                ++currenciesShown;
+                ++l_CurrencyCount;
             }
         }
     }
 
-    b.WriteBit(unkBit69);
-    b.WriteBit(creatureGuid[0]);
-    b.WriteBit(creatureGuid[1]);
-    b.WriteBit(!unkBit48);
-    b.WriteBit(lootViewGuid[7]);
-    b.WriteBit(creatureGuid[3]);
-    b.WriteBit(lootViewGuid[2]);
-    b.WriteBit(lootViewGuid[0]);
-    b.WriteBit(lv.permission == ROUND_ROBIN_PERMISSION);
-    b.WriteBit(lootViewGuid[1]);
-    b.WriteBit(unkBit84);
-    b.WriteBit(creatureGuid[6]);
-    b.WriteBit(!lv._loot_type);
-    b.WriteBit(lootViewGuid[3]);
-    b.WriteBit(!unkBit32);
-    b.WriteBits(currenciesShown, 20);                       // Currencies
-    b.WriteBit(creatureGuid[7]);
-    b.WriteBit(creatureGuid[4]);
-    b.WriteBit(lootViewGuid[6]);
+    p_Data.appendPackGUID(l_CreatureGuid);
+    p_Data.appendPackGUID(l_LootGuid);
+    p_Data << uint8(17);                                ///< Failure reason
+    p_Data << uint8(lv.loot.loot_type);
+    p_Data << uint8((lv.viewer && lv.viewer->GetGroup()) ? lv.viewer->GetGroup()->GetLootMethod() : FREE_FOR_ALL);
+    p_Data << uint8((lv.viewer && lv.viewer->GetGroup()) ? lv.viewer->GetGroup()->GetLootThreshold() : ITEM_QUALITY_UNCOMMON);
+    p_Data << uint32(lv.loot.gold + lv.loot.additionalLinkedGold);
+    p_Data << uint32(l_ItemCount);
+    p_Data << uint32(l_CurrencyCount);
 
-    for (uint8 i = 0; i < currenciesShown; i++)
-        b.WriteBits(6, 3);
+    if (l_ItemCount)
+        p_Data.append(l_ItemsDataBuffer);
 
-    b.WriteBit(creatureGuid[2]);
-    b.WriteBit(!lv.loot.gold);
-    b.WriteBit(lootViewGuid[4]);
-    b.WriteBits(itemsShown, 19);
+    if (l_CurrencyCount)
+        p_Data.append(l_CurrenciesDataBuffer);
 
-    for (uint32 i = 0; i < uint32(itemsShown * 8); i++)
-        b.WriteBit(bitsItemBuffer.ReadBit());
+    p_Data.WriteBit(lv.permission != NONE_PERMISSION);  ///< Unk
+    p_Data.WriteBit(lv.permission != NONE_PERMISSION);  ///< Unk
+    p_Data.WriteBit(false);                             ///< Unk
+    p_Data.FlushBits();
 
-    b.WriteBit(creatureGuid[5]);
-    b.WriteBit(0);
-
-    if (lv.permission != ROUND_ROBIN_PERMISSION)
-        b << uint8(2);
-
-    b.FlushBits();
-    if (currenciesBuffer.size())
-        b.append(currenciesBuffer);
-
-    b.WriteByteSeq(creatureGuid[3]);
-    b.append(dataBuffer);
-    b.WriteByteSeq(creatureGuid[0]);
-
-    if (lv.loot.gold + lv.loot.additionalLinkedGold)
-        b << uint32(lv.loot.gold + lv.loot.additionalLinkedGold);
-
-    if (lv._loot_type)
-        b << uint8(lv._loot_type);
-
-    b.WriteByteSeq(lootViewGuid[5]);
-    b.WriteByteSeq(creatureGuid[7]);
-    b.WriteByteSeq(creatureGuid[6]);
-    b.WriteByteSeq(lootViewGuid[1]);
-
-    if (unkBit48)
-        b << uint8(2);
-
-    if (unkBit32)
-        b << uint8(17);
-
-    b.WriteByteSeq(lootViewGuid[0]);
-    b.WriteByteSeq(creatureGuid[2]);
-    b.WriteByteSeq(creatureGuid[5]);
-    b.WriteByteSeq(lootViewGuid[7]);
-    b.WriteByteSeq(lootViewGuid[3]);
-    b.WriteByteSeq(creatureGuid[1]);
-    b.WriteByteSeq(lootViewGuid[2]);
-    b.WriteByteSeq(creatureGuid[4]);
-    b.WriteByteSeq(lootViewGuid[4]);
-    b.WriteByteSeq(lootViewGuid[6]);
-
-    return b;
+    return p_Data;
 }
 
 //

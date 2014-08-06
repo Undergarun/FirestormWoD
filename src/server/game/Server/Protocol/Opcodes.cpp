@@ -185,6 +185,15 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_NEW_TAXI_PATH,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_SHOW_TAXI_NODES,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_ACTIVATE_TAXI_REPLY,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
+        /// Loot
+        DEFINE_OPCODE_HANDLER(SMSG_LOOT_LIST,                                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LOOT_RESPONSE,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LOOT_MONEY_NOTIFY,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LOOT_RELEASE,                                    STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LOOT_RELEASE_ALL,                                STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LOOT_REMOVED,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_COIN_REMOVED,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -495,6 +504,14 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTIVE_MOVER,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetActiveMoverOpcode       );
 
     //////////////////////////////////////////////////////////////////////////
+    /// Loot
+    //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_LOOT,                                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleLootOpcode                 );
+    DEFINE_OPCODE_HANDLER(CMSG_LOOT_MONEY,                                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleLootMoneyOpcode            );
+    DEFINE_OPCODE_HANDLER(CMSG_LOOT_ITEM,                                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleLootItemOpcode             );
+    DEFINE_OPCODE_HANDLER(CMSG_LOOT_RELEASE,                                    STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleLootReleaseOpcode          );
+
+    //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
     DEFINE_OPCODE_HANDLER(CMSG_ATTACKSTOP,                                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAttackStopOpcode           );
@@ -672,7 +689,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_AUTOEQUIP_ITEM_SLOT,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAutoEquipItemSlotOpcode   );
     //DEFINE_OPCODE_HANDLER(CMSG_AUTOSTORE_BAG_ITEM,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAutoStoreBagItemOpcode    );
     //DEFINE_OPCODE_HANDLER(CMSG_AUTOSTORE_BANK_ITEM,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAutoStoreBankItemOpcode   );
-    //DEFINE_OPCODE_HANDLER(CMSG_AUTOSTORE_LOOT_ITEM,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAutostoreLootItemOpcode   );
     //DEFINE_OPCODE_HANDLER(CMSG_BANKER_ACTIVATE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBankerActivateOpcode      );
     //DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LEAVE,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfExitRequest             );
     //DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LIST,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldListOpcode     );
@@ -862,12 +878,9 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_REMOVE_RECRUIT,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderRemoveRecruit  );
     //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost   );
     //DEFINE_OPCODE_HANDLER(CMSG_LIST_STABLE_PETS,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode     );
-    //DEFINE_OPCODE_HANDLER(CMSG_LOOT,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootOpcode                );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_CURRENCY,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_MASTER_GIVE,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterGiveOpcode      );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_METHOD,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMethodOpcode          );
-    //DEFINE_OPCODE_HANDLER(CMSG_LOOT_MONEY,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMoneyOpcode           );
-    //DEFINE_OPCODE_HANDLER(CMSG_LOOT_RELEASE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootReleaseOpcode         );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_ROLL,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootRoll                  );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_MASTER_ASK_FOR_ROLL,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterAskForRoll      );
     //DEFINE_OPCODE_HANDLER(CMSG_MAIL_CREATE_TEXT_ITEM,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMailCreateTextItem        );
@@ -1294,16 +1307,11 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_LOSS_OF_CONTROL_AURA_UPDATE,             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_LOOT_ALL_PASSED,                         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_LOOT_CONTENTS,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_LOOT_LIST,                               STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_MASTER_LOOT_CANDIDATE_LIST,              STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_LOOT_MONEY_NOTIFY,                       STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_LOOT_RELEASE_RESPONSE,                   STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_LOOT_REMOVED,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_LOOT_RESPONSE,                           STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_LOOT_ROLL,                               STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_LOOT_ROLL_WON,                           STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_LOOT_START_ROLL,                         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_COIN_REMOVED,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_MAIL_LIST_RESULT,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_MAP_OBJ_EVENTS,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_MEETINGSTONE_COMPLETE,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );

@@ -94,6 +94,26 @@ enum LootType
     LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
 };
 
+enum LootItemUiType
+{
+    //                                  = 0,
+    LOOT_ITEM_UI_MASTER                 = 1,
+    LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
+    //                                  = 3,
+    LOOT_ITEM_UI_ROLL                   = 4,
+    //                                  = 5,
+    LOOT_ITEM_UI_NORMAL                 = 6,
+    LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 7
+};
+
+enum LootListItemType
+{
+    //                                  = 0,
+    LOOT_LIST_ITEM                      = 1,
+    LOOT_LIST_TRACKING_QUEST            = 2,
+    LOOT_LIST_CURRENCY                  = 3
+};
+
 // type of Loot Item in Loot View
 enum LootSlotType
 {

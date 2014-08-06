@@ -135,6 +135,14 @@ enum Opcodes
         SMSG_SHOW_TAXI_NODES                        = 0x1ED7,   ///< 6.0.1 18663
         SMSG_ACTIVATE_TAXI_REPLY                    = 0x004A,   ///< 6.0.1 18663
 
+        /// Loot
+        SMSG_LOOT_LIST                              = 0x1179,   ///< 6.0.1 18663
+        SMSG_LOOT_RESPONSE                          = 0x0969,   ///< 6.0.1 18663
+        SMSG_LOOT_MONEY_NOTIFY                      = 0x0E8B,   ///< 6.0.1 18663
+        SMSG_LOOT_RELEASE                           = 0x0C8B,   ///< 6.0.1 18663
+        SMSG_LOOT_RELEASE_ALL                       = 0x1658,   ///< 6.0.1 18663
+        SMSG_LOOT_REMOVED                           = 0x126E,   ///< 6.0.1 18663
+        SMSG_COIN_REMOVED                           = 0x1C0C,   ///< 6.0.1 18663
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -445,6 +453,14 @@ enum Opcodes
     CMSG_SET_ACTIVE_MOVER                       = 0x125B,   ///< 6.0.1 18663
 
     //////////////////////////////////////////////////////////////////////////
+    /// Loot
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_LOOT                                   = 0x01B5,   ///< 6.0.1 18663
+    CMSG_LOOT_MONEY                             = 0x1362,   ///< 6.0.1 18663
+    CMSG_LOOT_ITEM                              = 0x0353,   ///< 6.0.1 18663
+    CMSG_LOOT_RELEASE                           = 0x0B71,   ///< 6.0.1 18663
+
+    //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
     CMSG_ATTACKSTOP                             = 0x1347,   ///< 6.0.1 18663
@@ -663,7 +679,6 @@ enum Opcodes
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x0000,
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
-    CMSG_AUTOSTORE_LOOT_ITEM                          = 0x0000,
     CMSG_BANKER_ACTIVATE                              = 0x0000,
     CMSG_BATTLEFIELD_JOIN                             = 0x0000,
     CMSG_BATTLEFIELD_LEAVE                            = 0x0000,
@@ -886,12 +901,9 @@ enum Opcodes
     CMSG_LF_GUILD_REMOVE_RECRUIT                      = 0x0000,
     CMSG_LF_GUILD_SET_GUILD_POST                      = 0x0000,
     CMSG_LIST_STABLE_PETS                             = 0x0000,
-    CMSG_LOOT                                         = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
     CMSG_LOOT_METHOD                                  = 0x0000,
-    CMSG_LOOT_MONEY                                   = 0x0000,
-    CMSG_LOOT_RELEASE                                 = 0x0000,
     CMSG_LOOT_ROLL                                    = 0x0000,
     CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0x0000,
     CMSG_MAIL_CREATE_TEXT_ITEM                        = 0x0000,
@@ -1441,20 +1453,13 @@ enum Opcodes
     SMSG_LOOT_ALL_PASSED                              = 0x0000,
     SMSG_LOOT_CONTENTS                                = 0x0000,
     SMSG_LOOT_ITEM_LIST                               = 0x0000,
-    SMSG_LOOT_LIST                                    = 0x0000,
     SMSG_MASTER_LOOT_CANDIDATE_LIST                   = 0x0000,
-    SMSG_LOOT_MONEY_NOTIFY                            = 0x0000,
     SMSG_LOOT_RELEASE_RESPONSE                        = 0x0000,
-    SMSG_LOOT_RELEASE                                 = 0x0000,
-    SMSG_LOOT_RELEASE_ALL                             = 0x0000,
-    SMSG_LOOT_REMOVED                                 = 0x0000,
-    SMSG_LOOT_RESPONSE                                = 0x0000,
     SMSG_LOOT_ROLL                                    = 0x0000,
     SMSG_LOOT_ROLLS_COMPLETE                          = 0x0000,
     SMSG_LOOT_ROLL_WON                                = 0x0000,
     SMSG_LOOT_START_ROLL                              = 0x0000,
     SMSG_LOOT_UPDATED                                 = 0x0000,
-    SMSG_COIN_REMOVED                                 = 0x0000,
     SMSG_MAIL_LIST_RESULT                             = 0x0000,
     SMSG_MAP_OBJ_EVENTS                               = 0x0000,
     SMSG_MEETINGSTONE_COMPLETE                        = 0x0000,

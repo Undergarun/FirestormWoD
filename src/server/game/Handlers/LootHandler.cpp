@@ -33,107 +33,102 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootItemOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
 
-    Player* player = GetPlayer();
-    uint64 lguid = player->GetLootGUID();
-    Loot* loot = NULL;
-    uint8 lootSlot = 0;
-    uint8 linkedLootSlot = 255;
+    Loot* l_Loot = NULL;
 
-    uint32 count = recvData.ReadBits(23);
+    uint64 l_LootGuid = m_Player->GetLootGUID();
 
-    std::vector<ObjectGuid> guids;
-    guids.resize(count);
+    uint32 l_LootCount = 0;
 
-    uint8 bitOrder[8] = { 3, 7, 2, 4, 0, 5, 6, 1 };
-    for (uint32 i = 0; i < count; i++)
-        recvData.ReadBitInOrder(guids[i], bitOrder);
+    uint8 l_LootListID      = 0;
+    uint8 l_LinkedLootSlot  = 255;
 
-    recvData.FlushBits();
+    std::vector<uint64> l_LootObjectGuids;
 
-    for (uint32 i = 0; i < count; i++)
+    recvData >> l_LootCount;
+
+    l_LootObjectGuids.resize(l_LootCount);
+
+    for (uint32 l_I = 0; l_I < l_LootCount; l_I++)
     {
-        recvData.ReadByteSeq(guids[i][4]);
-        recvData.ReadByteSeq(guids[i][7]);
-        recvData.ReadByteSeq(guids[i][6]);
-        recvData.ReadByteSeq(guids[i][5]);
-        recvData >> lootSlot;
-        recvData.ReadByteSeq(guids[i][3]);
-        recvData.ReadByteSeq(guids[i][1]);
-        recvData.ReadByteSeq(guids[i][0]);
-        recvData.ReadByteSeq(guids[i][2]);
+        recvData.readPackGUID(l_LootObjectGuids[l_I]);
+        recvData >> l_LootListID;
 
-        linkedLootSlot = 0xFF;
+        l_LinkedLootSlot = 0xFF;
 
-        if (IS_GAMEOBJECT_GUID(lguid))
+        if (IS_GAMEOBJECT_GUID(l_LootGuid))
         {
-            GameObject* go = player->GetMap()->GetGameObject(lguid);
+            GameObject * l_GameObject = m_Player->GetMap()->GetGameObject(l_LootGuid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-            if (!go || ((go->GetOwnerGUID() != m_Player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE)))
+            if (!l_GameObject || ((l_GameObject->GetOwnerGUID() != m_Player->GetGUID() && l_GameObject->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !l_GameObject->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE)))
             {
-                player->SendLootRelease(lguid);
+                m_Player->SendLootRelease(l_LootGuid);
                 return;
             }
 
-            loot = &go->loot;
+            l_Loot = &l_GameObject->loot;
         }
-        else if (IS_ITEM_GUID(lguid))
+        else if (IS_ITEM_GUID(l_LootGuid))
         {
-            Item* pItem = player->GetItemByGuid(lguid);
+            Item * l_Item = m_Player->GetItemByGuid(l_LootGuid);
 
-            if (!pItem)
+            if (!l_Item)
             {
-                player->SendLootRelease(lguid);
+                m_Player->SendLootRelease(l_LootGuid);
                 return;
             }
 
-            loot = &pItem->loot;
+            l_Loot = &l_Item->loot;
         }
-        else if (IS_CORPSE_GUID(lguid))
+        else if (IS_CORPSE_GUID(l_LootGuid))
         {
-            Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
-            if (!bones)
+            Corpse * l_Bones = ObjectAccessor::GetCorpse(*m_Player, l_LootGuid);
+
+            if (!l_Bones)
             {
-                player->SendLootRelease(lguid);
+                m_Player->SendLootRelease(l_LootGuid);
                 return;
             }
 
-            loot = &bones->loot;
+            l_Loot = &l_Bones->loot;
         }
         else
         {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
+            Creature* l_Creature = GetPlayer()->GetMap()->GetCreature(l_LootGuid);
 
-            bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+            bool l_IsLootAllowed = l_Creature && l_Creature->isAlive() == (m_Player->getClass() == CLASS_ROGUE && l_Creature->lootForPickPocketed);
 
-            if (!lootAllowed || (!creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125048)))
+            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125048)))
             {
-                player->SendLootRelease(lguid);
+                m_Player->SendLootRelease(l_LootGuid);
                 return;
             }
 
-            loot = &creature->loot;
-            if (loot->isLinkedLoot(lootSlot))
+            l_Loot = &l_Creature->loot;
+
+            if (l_Loot->isLinkedLoot(l_LootListID))
             {
-                LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(lootSlot);
-                creature = player->GetCreature(*player, linkedLootInfo.creatureGUID);
-                if (!creature)
+                LinkedLootInfo linkedLootInfo = l_Loot->getLinkedLoot(l_LootListID);
+
+                l_Creature = m_Player->GetCreature(*m_Player, linkedLootInfo.creatureGUID);
+
+                if (!l_Creature)
                 {
-                    player->SendLootRelease(lguid);
+                    m_Player->SendLootRelease(l_LootGuid);
                     return;
                 }
 
-                loot = &creature->loot;
-                linkedLootSlot = lootSlot;
-                lootSlot = linkedLootInfo.slot;
+                l_Loot = &l_Creature->loot;
+                l_LinkedLootSlot = l_LootListID;
+                l_LootListID = linkedLootInfo.slot;
             }
         }
 
-        player->StoreLootItem(lootSlot, loot, linkedLootSlot);
+        m_Player->StoreLootItem(l_LootListID, l_Loot, l_LinkedLootSlot);
     }
 }
 
@@ -142,6 +137,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
 
     Player* player = GetPlayer();
+
     uint64 guid = player->GetLootGUID();
     if (!guid)
         return;
@@ -315,46 +311,34 @@ void WorldSession::HandleLootOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 
-    ObjectGuid guid;
+    uint64 l_UnitGuid;
 
-    uint8 bitOrder[8] = { 0, 6, 7, 3, 5, 1, 2, 4 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 5, 1, 2, 6, 0, 7, 3, 4 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.readPackGUID(l_UnitGuid);
 
     // Check possible cheat
     if (!m_Player->isAlive())
         return;
 
-    GetPlayer()->SendLoot(guid, LOOT_CORPSE);
+    GetPlayer()->SendLoot(l_UnitGuid, LOOT_CORPSE);
 
     // interrupt cast
     if (GetPlayer()->IsNonMeleeSpellCasted(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
-void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootReleaseOpcode(WorldPacket& p_RecvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
-    ObjectGuid guid;
+    uint64 l_ObjectGuid;
 
-    uint8 bitOrder[8] = { 3, 6, 1, 0, 7, 2, 5, 4 };
-    recvData.ReadBitInOrder(guid, bitOrder);
+    p_RecvPacket.readPackGUID(l_ObjectGuid);
 
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 0, 6, 4, 7, 1, 2, 5, 3 };
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    if (uint64 lguid = GetPlayer()->GetLootGUID())
-        if (lguid == guid)
-            DoLootRelease(lguid);
+    if (uint64 l_LootGuid = GetPlayer()->GetLootGUID())
+        if (l_LootGuid == l_ObjectGuid)
+            DoLootRelease(l_LootGuid);
 }
 
 void WorldSession::DoLootRelease(uint64 lguid)

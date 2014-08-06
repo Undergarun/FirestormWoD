@@ -18757,21 +18757,13 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
             if (creature)
             {
                 WorldPacket data2(SMSG_LOOT_LIST);
-                ObjectGuid creatureGuid = creature->GetGUID();
 
-                data.WriteBit(creatureGuid[4]);
-                data.WriteBit(creatureGuid[5]);
-                data.WriteBit(creatureGuid[2]);
-                data.WriteBit(creatureGuid[3]);
-                data.WriteBit(creatureGuid[7]);
-                data.WriteBit(false); // groupLooterGuid
-                data.WriteBit(false); // unk guid
-                data.WriteBit(creatureGuid[1]);
-                data.WriteBit(creatureGuid[6]);
-                data.WriteBit(creatureGuid[0]);
+                data2.appendPackGUID(creature->GetGUID());
 
-                uint8 byteOrder[8] = {0, 2, 5, 4, 3, 1, 6, 7};
-                data.WriteBytesSeq(creatureGuid, byteOrder);
+                data2.WriteBit(false); // RoundRobinWinnerGuid
+                data2.WriteBit(false); // MasterGuid
+                data2.FlushBits();
+
                 player->SendMessageToSet(&data2, true);
             }
         }

@@ -1499,58 +1499,21 @@ void Group::SendLootAllPassed(Roll const& roll)
 }
 
 // notify group members which player is the allowed looter for the given creature
-void Group::SendLooter(Creature* creature, Player* groupLooter)
+void Group::SendLooter(Creature* creature, Player* p_GroupLooter)
 {
     ASSERT(creature);
 
-    // groupLooter->GetPackGUID() 40 - 44
-
     WorldPacket data(SMSG_LOOT_LIST);
 
-    ObjectGuid creatureGuid = creature->GetGUID();
-    ObjectGuid groupLooterGuid = groupLooter ? groupLooter->GetGUID() : 0;
-    data.WriteBit(creatureGuid[4]);
-    data.WriteBit(creatureGuid[5]);
-    data.WriteBit(creatureGuid[2]);
-    data.WriteBit(creatureGuid[3]);
-    data.WriteBit(creatureGuid[7]);
-    data.WriteBit(groupLooterGuid);
+    ObjectGuid l_Master = p_GroupLooter ? p_GroupLooter->GetGUID() : 0;
 
-    if (groupLooterGuid)
-    {
-        uint8 bitOrder[8] = {5, 1, 3, 0, 7, 6, 2, 4};
-        data.WriteBitInOrder(groupLooterGuid, bitOrder);
-    }
+    data.appendPackGUID(creature->GetGUID());   ///< Owner
+    data.WriteBit(l_Master);                    ///< Master
+    data.WriteBit(false);                       ///< RoundRobinWinner
+    data.FlushBits();
 
-    data.WriteBit(false); // unk guid
-    data.WriteBit(creatureGuid[1]);
-    data.WriteBit(creatureGuid[6]);
-    data.WriteBit(creatureGuid[0]);
-
-    if (false) // unk guid
-    {
-    }
-
-    if (groupLooterGuid)
-    {
-        uint8 byteOrder[8] = {3, 2, 7, 0, 5, 1, 6, 4};
-        data.WriteBytesSeq(groupLooterGuid, byteOrder);
-    }
-
-    uint8 byteOrder[8] = {0, 2, 5, 4, 3, 1, 6, 7};
-    data.WriteBytesSeq(creatureGuid, byteOrder);
-
-    /*
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(creature->GetGUID());
-    //data << uint8(0); // unk1
-
-    if (groupLooter)
-        data.append(groupLooter->GetPackGUID());
-    else
-        data << uint64(0);
-    data << uint64(0);
-*/
+    if (l_Master)
+        data.appendPackGUID(l_Master);
 
     BroadcastPacket(&data, false);
 }
