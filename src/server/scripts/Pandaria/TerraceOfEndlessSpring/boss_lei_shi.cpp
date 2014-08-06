@@ -229,7 +229,7 @@ class boss_lei_shi : public CreatureScript
                     DoZoneInCombat();
 
                     if (me->GetMap()->IsHeroic())
-                        me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, true);
+                        me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, false);
 
                     Talk(TALK_AGGRO);
                 }
@@ -466,7 +466,7 @@ class boss_lei_shi : public CreatureScript
                         hidden = false;
 
                         if (me->GetMap()->IsHeroic())
-                            me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, true);
+                            me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, false);
 
                         // Only have Lei Shi (hidden) in summons
                         summons.DespawnAll();
@@ -888,7 +888,8 @@ class spell_scary_fog_dot : public SpellScriptLoader
                 if (!players.isEmpty())
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         if (Player* player = itr->getSource())
-                            if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) >= HEROIC_DIST_TO_VORTEX)
+                            if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) >= HEROIC_DIST_TO_VORTEX &&
+                                !player->HasAura(SPELL_SCARY_FOG_DOT))
                                 targets.push_back(player);
 
                 for (auto itr : targets)
@@ -951,15 +952,15 @@ class spell_scary_fog_stacks : public SpellScriptLoader
             {
                 for (auto itr : targets)
                 {
-                    if (itr->ToUnit() && itr->ToUnit()->GetEntry() != NPC_LEI_SHI_HIDDEN)
+                    if (!itr->ToUnit() || itr->ToUnit()->GetEntry() == NPC_LEI_SHI_HIDDEN || itr->GetDistance2d(GetCaster()) > 10.0f)
+                        continue;
+
+                    if (AuraPtr scary = GetCaster()->GetAura(SPELL_SCARY_FOG_STACKS))
                     {
-                        if (AuraPtr scary = GetCaster()->GetAura(SPELL_SCARY_FOG_STACKS))
-                        {
-                            if (AuraPtr scaryTarget = itr->ToUnit()->GetAura(SPELL_SCARY_FOG_STACKS))
-                                scaryTarget->SetStackAmount(scary->GetStackAmount());
-                            else if (AuraPtr scaryTarget = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
-                                scaryTarget->SetStackAmount(scary->GetStackAmount());
-                        }
+                        if (AuraPtr scaryTarget = itr->ToUnit()->GetAura(SPELL_SCARY_FOG_STACKS))
+                            scaryTarget->SetStackAmount(scary->GetStackAmount());
+                        else if (AuraPtr scaryTarget = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
+                            scaryTarget->SetStackAmount(scary->GetStackAmount());
                     }
                 }
 
