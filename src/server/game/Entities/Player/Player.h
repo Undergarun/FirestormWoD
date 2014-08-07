@@ -998,7 +998,7 @@ enum AttackSwingError
     ATTACKSWINGERR_BAD_FACING   = 1,
     ATTACKSWINGERR_NOT_IN_RANGE = 2,
     ATTACKSWINGERR_DEAD_TARGET  = 3,
-}
+};
 
 struct auraEffectData
 {
