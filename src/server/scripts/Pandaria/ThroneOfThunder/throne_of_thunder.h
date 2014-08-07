@@ -173,7 +173,7 @@ enum eCreatures
 
     NPC_PRIMORDIUS                  = 69017,
     NPC_LIVING_FLUID                = 69069,
-    NPC_VICIOUS_HORROR              = 69070,
+    NPC_VISCOUS_HORROR              = 69070,
 
     NPC_DARK_ANIMUS                 = 69427,
 
@@ -215,6 +215,17 @@ enum eGameObjects
 
     GOB_TORTOS_EXIT_DOOR            = 218980,
     GOB_TORTOS_DEATH_COLLISION      = 218987,
+
+    GOB_FIRST_MOGU_BLOOD_VAT        = 218858,
+    GOB_SECOND_MOGU_BLOOD_VAT       = 218859,
+    GOB_THIRD_MOGU_BLOOD_VAT        = 218860,
+    GOB_FOURTH_MOGU_BLOOD_VAT       = 218861,
+    GOB_FIFTH_MOGU_BLOOD_VAT        = 218862,
+    GOB_SIXTH_MOGU_BLOOD_VAT        = 218863,
+    GOB_SEVENTH_MOGU_BLOOD_VAT      = 218864,
+    GOB_EIGHTH_MOGU_BLOOD_VAT       = 218865,
+    GOB_NINTH_MOGU_BLOOD_VAT        = 218866,
+    GOB_TENTH_MOGU_BLOOD_VAT        = 218867,
 
     GOB_ANCIENT_MOGU_BELL           = 218723,
 

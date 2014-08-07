@@ -76,7 +76,10 @@ enum eSpells
     SPELL_TWISTED_FATE_SECOND_PRINCIPAL  = 137962,
     SPELL_TWISTED_FATE_LINK_VISUAL       = 137967,
     SPELL_TWISTED_FATE_PERIODIC          = 137986,
-    SPELL_SHADOW_VISUAL                  = 32395
+    SPELL_SHADOW_VISUAL                  = 32395,
+    SPELL_BLESSED_TRANSFORMATION_LIGHT   = 140799,
+    SPELL_SHADOWED_TRANSFORMATION        = 137271,
+    SPELL_BLESSED_TRANSFORMATION         = 137198
 };
 
 enum eEvents
@@ -996,6 +999,8 @@ class boss_kazra_jin : public CreatureScript
                                     touchedTarget = true;
                                     hasSpawned = false;
                                     me->SetReactState(REACT_AGGRESSIVE);
+                                    me->SetSpeed(MOVE_WALK, 1.0f);
+                                    me->SetSpeed(MOVE_RUN, 1.0f);
 
                                     std::list<Creature*> creatureList;
                                     GetCreatureListWithEntryInGrid(creatureList, me, 69453, 200.0f);
@@ -1030,6 +1035,9 @@ class boss_kazra_jin : public CreatureScript
                     {
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 200.0f);
+
+                        me->SetSpeed(MOVE_WALK, 2.2f);
+                        me->SetSpeed(MOVE_RUN, 2.2f);
 
                         std::list<Player*>::iterator itr = playerList.begin();
                         Player* target = NULL;
@@ -2038,6 +2046,12 @@ class mob_blessed_loa_spirit : public CreatureScript
                 bossEntry = 0;
             }
 
+            void IsSummonedBy(Unit * /*p_Summoner*/)
+            {
+                me->AddAura(SPELL_BLESSED_TRANSFORMATION_LIGHT, me);
+                me->AddAura(SPELL_BLESSED_TRANSFORMATION, me);
+            }
+
             void UpdateAI(const uint32 diff)
             {
                 events.Update(diff);
@@ -2126,6 +2140,11 @@ class mob_shadowed_lua_spirit : public CreatureScript
 
                 events.ScheduleEvent(EVENT_OS_PLAYER, 20000);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void IsSummonedBy(Unit * /*p_Summoner*/)
+            {
+                me->AddAura(SPELL_SHADOWED_TRANSFORMATION, me);
             }
 
             void SetGUID(uint64 guid, int32 /*index*/)
@@ -2254,6 +2273,9 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
                             for (Creature* creature : creatureList)
                                 creature->DespawnOrUnsummon();
                         }
+
+                        caster->SetSpeed(MOVE_WALK, 1.0f);
+                        caster->SetSpeed(MOVE_RUN, 1.0f);
                     }
                 }
             }
