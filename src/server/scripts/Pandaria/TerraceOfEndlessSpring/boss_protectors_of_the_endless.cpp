@@ -80,7 +80,8 @@ enum eProtectorsActions
     ACTION_SECOND_PROTECTOR_DIED    = 1,
     ACTION_DESPAWN_SUMMONS          = 3,
     ACTION_INIT_MINION_CONTROLLER   = 4,
-    ACTION_RESET_MINION_CONTROLLER  = 5
+    ACTION_RESET_MINION_CONTROLLER  = 5,
+    ACTION_BOSS_WIPE                = 6,
 };
 
 enum eProtectorsEvents
@@ -138,25 +139,26 @@ enum eProtectorsEquipId
     REGAIL_ITEMS    = 81389
 };
 
+enum eProtectorsType
+{
+    TYPE_SET_WIPE = 1,
+    TYPE_UNSET_WIPE,
+};
+
+uint32 bossEntries[3] = { NPC_ANCIENT_ASANI, NPC_ANCIENT_REGAIL, NPC_PROTECTOR_KAOLAN };
+
 uint8 ProtectorsAlive(InstanceScript* instance, Creature* me)
 {
     uint8 count = 0;
     if (!instance || !me)
         return count;
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-    if (asani && asani->isAlive())
-        ++count;
+    for (uint8 i = 0; i < 3; ++i)
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
+            if (protector->isAlive())
+                ++count;
 
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-    if (regail && regail->isAlive())
-        ++count;
-
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-    if (kaolan && kaolan->isAlive())
-        ++count;
-
-    return count;
+        return count;
 }
 
 void RespawnProtectors(InstanceScript* instance, Creature* me)
@@ -164,29 +166,17 @@ void RespawnProtectors(InstanceScript* instance, Creature* me)
     if (!instance || !me)
         return;
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-    if (asani)
+    for (int i = 0; i < 3; ++i)
     {
-        asani->Respawn();
-        asani->GetMotionMaster()->MoveTargetedHome();
-    }
-
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-    if (regail)
-    {
-        regail->Respawn();
-        regail->GetMotionMaster()->MoveTargetedHome();
-    }
-
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-    if (kaolan)
-    {
-        kaolan->Respawn();
-        kaolan->GetMotionMaster()->MoveTargetedHome();
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI)))
+        {
+            protector->Respawn();
+            protector->GetMotionMaster()->MoveTargetedHome();
+        }
     }
 }
 
-void StartProtectors(InstanceScript* instance, Creature* me, Unit* /*target*/)
+void StartProtectors(InstanceScript* instance, Creature* me, Unit* target)
 {
     if (!instance)
         return;
@@ -196,17 +186,14 @@ void StartProtectors(InstanceScript* instance, Creature* me, Unit* /*target*/)
 
     instance->SetBossState(DATA_PROTECTORS, IN_PROGRESS);
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-    if (asani)
-        asani->SetInCombatWithZone();
-
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-    if (regail)
-        regail->SetInCombatWithZone();
-
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-    if (kaolan)
-        kaolan->SetInCombatWithZone();
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
+        {
+            protector->AI()->SetData(TYPE_UNSET_WIPE, 0);
+            protector->AI()->EnterCombat(target);
+        }
+    }
 }
 
 bool IntroDone(InstanceScript* instance, Creature* me)
@@ -217,37 +204,34 @@ bool IntroDone(InstanceScript* instance, Creature* me)
     if (instance->GetData(INTRO_DONE) > 0)
         return true;
 
-    std::list<Creature*> fear;
-    me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_FEAR, 100.0f);
-    std::list<Creature*> terror;
-    me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_TERROR, 100.0f);
-
-    bool done = true;
-    for (auto itr : fear)
-    {
-        if (itr->isAlive())
-        {
-            done = false;
-            break;
-        }
-    }
-
-    for (auto itr : terror)
-    {
-        if (itr->isAlive())
-        {
-            done = false;
-            break;
-        }
-    }
+    bool done = false;
+    if (!GetClosestCreatureWithEntry(me, NPC_APPARITION_OF_FEAR, 100.0f))
+        if (!GetClosestCreatureWithEntry(me, NPC_APPARITION_OF_TERROR, 100.0f))
+            done = true;
 
     if (done && instance)
-    {
         instance->SetData(INTRO_DONE, 1);
-        return true;
+
+    return done;
+}
+
+void ProtectorsWipe(InstanceScript* pInstance)
+{
+    if (!pInstance)
+        return;
+
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        if (Creature* protector = pInstance->instance->GetCreature(pInstance->GetData64(bossEntries[i])))
+        {
+            protector->SetReactState(REACT_DEFENSIVE);
+            protector->AI()->SetData(TYPE_SET_WIPE, 0);
+            protector->GetMotionMaster()->MoveTargetedHome();
+            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, protector);
+        }
     }
 
-    return false;
+    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
 }
 
 //  60585 - Elder Regail
@@ -268,6 +252,7 @@ class boss_ancient_regail : public CreatureScript
 
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
+            bool isInWipeState;
 			
 			void Reset()
 			{
@@ -313,16 +298,15 @@ class boss_ancient_regail : public CreatureScript
 			
 			void JustReachedHome()
             {
-                if (pInstance)
-                {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
-                        return;
-
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
-                }
-
                 _JustReachedHome();
                 Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        EnterCombat(attacker);
             }
 
 			void EnterCombat(Unit* attacker)
@@ -342,18 +326,10 @@ class boss_ancient_regail : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (!pInstance)
+                if (!pInstance || isInWipeState)
                     return;
 
-                EncounterState bossState = pInstance->GetBossState(DATA_PROTECTORS);
-                if (bossState == FAIL || bossState == NOT_STARTED)
-                    return;
-
-                if (pInstance->IsWipe())
-                {
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
-                    me->GetMotionMaster()->MoveTargetedHome();
-                }
+                ProtectorsWipe(pInstance);
             }
 
 			void JustSummoned(Creature* summon)
@@ -496,12 +472,31 @@ class boss_ancient_regail : public CreatureScript
                         break;
                 }
             }
-			
+
+            void SetData(uint32 type, uint32 value)
+            {
+                switch (type)
+                {
+                    case TYPE_SET_WIPE:
+                    {
+                        isInWipeState = true;
+                        break;
+                    }
+                    case TYPE_UNSET_WIPE:
+                    {
+                        isInWipeState = false;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
 			void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
-                    if (pInstance->IsWipe())
+                    if (pInstance->IsWipe() && !isInWipeState)
                     {
                         EnterEvadeMode();
                         return;
@@ -596,6 +591,7 @@ class boss_ancient_asani : public CreatureScript
 
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
+            bool isInWipeState;
 			
 			void Reset()
 			{
@@ -638,16 +634,15 @@ class boss_ancient_asani : public CreatureScript
 			
 			void JustReachedHome()
             {
-                if (pInstance)
-                {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
-                        return;
-
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
-                }
-
                 _JustReachedHome();
                 Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        EnterCombat(attacker);
             }
 
 			void EnterCombat(Unit* attacker)
@@ -663,18 +658,10 @@ class boss_ancient_asani : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (!pInstance)
+                if (!pInstance || isInWipeState)
                     return;
 
-                EncounterState bossState = pInstance->GetBossState(DATA_PROTECTORS);
-                if (bossState == FAIL || bossState == NOT_STARTED)
-                    return;
-
-                if (pInstance->IsWipe())
-                {
-                    pInstance->SetBossState(DATA_PROTECTORS,  FAIL);
-                    me->GetMotionMaster()->MoveTargetedHome();
-                }
+                ProtectorsWipe(pInstance);
             }
 			
 			void JustSummoned(Creature* summon)
@@ -826,11 +813,30 @@ class boss_ancient_asani : public CreatureScript
                 }
             }
 			
+            void SetData(uint32 type, uint32 value)
+            {
+                switch (type)
+                {
+                case TYPE_SET_WIPE:
+                    {
+                        isInWipeState = true;
+                        break;
+                    }
+                case TYPE_UNSET_WIPE:
+                    {
+                        isInWipeState = false;
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+
 			void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
-                    if (pInstance->IsWipe())
+                    if (pInstance->IsWipe() && !isInWipeState)
                     {
                         EnterEvadeMode();
                         return;
@@ -918,6 +924,7 @@ class boss_protector_kaolan : public CreatureScript
 
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
+            bool isInWipeState;
             bool introDone;
 			
 			void Reset()
@@ -960,16 +967,15 @@ class boss_protector_kaolan : public CreatureScript
 			
 			void JustReachedHome()
             {
-                if (pInstance)
-                {
-                    if (pInstance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
-                        return;
-
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
-                }
-
                 _JustReachedHome();
                 Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        EnterCombat(attacker);
             }
 
 			void EnterCombat(Unit* attacker)
@@ -984,18 +990,10 @@ class boss_protector_kaolan : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (!pInstance)
+                if (!pInstance || isInWipeState)
                     return;
 
-                EncounterState bossState = pInstance->GetBossState(DATA_PROTECTORS);
-                if (bossState == FAIL || bossState == NOT_STARTED)
-                    return;
-
-                if (pInstance->IsWipe())
-                {
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
-                    me->GetMotionMaster()->MoveTargetedHome();
-                }
+                ProtectorsWipe(pInstance);
             }
 
 			void JustSummoned(Creature* summon)
@@ -1148,11 +1146,30 @@ class boss_protector_kaolan : public CreatureScript
                 }
             }
 			
+            void SetData(uint32 type, uint32 value)
+            {
+                switch (type)
+                {
+                case TYPE_SET_WIPE:
+                    {
+                        isInWipeState = true;
+                        break;
+                    }
+                case TYPE_UNSET_WIPE:
+                    {
+                        isInWipeState = false;
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+
 			void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
-                    if (pInstance->IsWipe())
+                    if (pInstance->IsWipe() && !isInWipeState)
                     {
                         EnterEvadeMode();
                         return;
