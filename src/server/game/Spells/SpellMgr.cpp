@@ -3459,6 +3459,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA =  TARGET_UNIT_TARGET_ANY;
                 break;
             case 134447:// Submerge
+            case 122841:// Sha Active Sky
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
                 break;
             case 134398:// Slime Trail (aura)

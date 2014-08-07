@@ -239,6 +239,7 @@ class boss_sha_of_fear : public CreatureScript
                 me->ReenableEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->AddUnitState(UNIT_STATE_CANNOT_TURN);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
@@ -263,11 +264,16 @@ class boss_sha_of_fear : public CreatureScript
                 submerged       = false;
                 isInTeleport    = false;
                 healthPctForSecondPhase = 67;
- 
+
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_EXPANSE_AURA);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REACHING_ATTACK);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
 
                     if (IsHeroic())
                     {
@@ -342,6 +348,12 @@ class boss_sha_of_fear : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REACHING_ATTACK);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_EXPANSE_AURA);
+
+                if (me->HasUnitState(UNIT_STATE_CANNOT_TURN))
+                    me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
                 shrine1 = false;
                 shrine2 = false;
@@ -414,6 +426,8 @@ class boss_sha_of_fear : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT_HEROIC);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REACHING_ATTACK);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_EXPANSE_AURA);
                     if (isInSecondPhase)
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEI_SHIS_HOPE);
 
@@ -565,19 +579,6 @@ class boss_sha_of_fear : public CreatureScript
                     // Champion of light now gets Pure Light
                     if (Player* champion = GetChampionOfLight(me))
                         champion->CastSpell(champion, SPELL_CHAMPION_OF_LIGHT_HEROIC, true);
-
-                    if (pInstance)
-                    {
-                        // Removing auras from p1
-                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
-                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
-                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
-
-                        // Applying new auras
-                        pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
-                        pInstance->DoAddAuraOnPlayers(SPELL_DREAD_EXPANSE_AURA);
-                        pInstance->DoAddAuraOnPlayers(SPELL_FADING_LIGHT);
-                    }
 
                     // Teleport part
                     me->SetVisible(false);
@@ -786,8 +787,8 @@ class boss_sha_of_fear : public CreatureScript
                         {
                             if (!IsHeroic())
                                 break;
-
                             me->CastSpell(me, SPELL_IMPLACABLE_STRIKE, false);
+
                             events.ScheduleEvent(EVENT_IMPLACABLE_STRIKE, 60000);
                             break;
                         }
@@ -882,6 +883,7 @@ class boss_sha_of_fear : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
                             me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                            me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
                             isInTeleport = false;
 
                             std::list<Player*> playerList;
@@ -900,8 +902,21 @@ class boss_sha_of_fear : public CreatureScript
                             }
 
                             if (pInstance)
+                            {
                                 if (Creature* travel = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TRAVEL_TO_DREAD_EXPANSE)))
                                     travel->AI()->SetData(0, 1);
+
+                                // Removing auras from p1
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHAMPION_OF_LIGHT);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WALL_OF_LIGHT_BUFF);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEARLESS);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_REACHING_ATTACK);
+
+                                // Applying new auras
+                                pInstance->DoAddAuraOnPlayers(SPELL_LEI_SHIS_HOPE);
+                                pInstance->DoAddAuraOnPlayers(SPELL_DREAD_EXPANSE_AURA);
+                                pInstance->DoAddAuraOnPlayers(SPELL_FADING_LIGHT);
+                            }
                             break;
                         }
                         default:
@@ -1593,6 +1608,12 @@ class mob_dread_spawn : public CreatureScript
                         me->CastSpell(plr, SPELL_ETERNAL_DARKNESS, false);
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                // Prevents dead mob to move towards player with pure light on light transfer
+                events.Reset();
+            }
+
             void DoAction(const int32 action)
             {
                 switch (action)
@@ -1640,17 +1661,17 @@ class mob_dread_spawn : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_GATHERING_SPEED:
-                        {
-                            me->CastSpell(me, SPELL_GATHERING_SPEED, true);
-                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 5000);
-                            break;
-                        }
+                    {
+                        me->CastSpell(me, SPELL_GATHERING_SPEED, true);
+                        events.ScheduleEvent(EVENT_GATHERING_SPEED, 5000);
+                        break;
+                    }
                     case EVENT_CHECK_CHAMPION:
-                        {
-                            ChaseChampionOfLight();
-                            events.ScheduleEvent(EVENT_CHECK_CHAMPION, 1000);
-                            break;
-                        }
+                    {
+                        ChaseChampionOfLight();
+                        events.ScheduleEvent(EVENT_CHECK_CHAMPION, 1000);
+                        break;
+                    }
                     default:
                         break;
                     }
@@ -2249,6 +2270,34 @@ class spell_transfer_light : public SpellScriptLoader
         }
 };
 
+// 120672 - Implacable Strike
+class spell_implacable_strike : public SpellScriptLoader
+{
+    public:
+        spell_implacable_strike() : SpellScriptLoader("spell_implacable_strike") { }
+
+        class spell_implacable_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_implacable_strike_SpellScript);
+
+            void Turn()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->SetFacingTo(caster->GetOrientation());
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_implacable_strike_SpellScript::Turn);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_implacable_strike_SpellScript();
+        }
+};
+
 void AddSC_boss_sha_of_fear()
 {
     new boss_sha_of_fear();             // 60999
@@ -2272,4 +2321,5 @@ void AddSC_boss_sha_of_fear()
     new spell_emerge();                 // 120458
     new spell_sha_waterspout();         // 120519
     new spell_transfer_light();         // 120285
+    new spell_implacable_strike();      // 120672
 }
