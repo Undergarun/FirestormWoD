@@ -72,6 +72,17 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 tribalDoorsGuid[4];
             uint64 warGodJalakGuid;
 
+            uint64 firstMoguBloodVatGuid;
+            uint64 secondMoguBloodVatGuid;
+            uint64 thirdMoguBloodVatGuid;
+            uint64 fourthMoguBloodVatGuid;
+            uint64 fifthMoguBloodVatGuid;
+            uint64 sixthMoguBloodVatGuid;
+            uint64 seventhMoguBloodVatGuid;
+            uint64 eighthMoguBloodVatGuid;
+            uint64 ninthMoguBloodVatGuid;
+            uint64 tenthMoguBloodVatGuid;
+
             uint8 ancientMoguBellActivate;
             uint64 megaeraGuid;
 
@@ -94,6 +105,17 @@ class instance_throne_of_thunder : public InstanceMapScript
 
                 ancientMoguBellActivate = 0;
                 megaeraGuid             = 0;
+
+                firstMoguBloodVatGuid = 0;
+                secondMoguBloodVatGuid = 0;
+                thirdMoguBloodVatGuid = 0;
+                fourthMoguBloodVatGuid = 0;
+                fifthMoguBloodVatGuid = 0;
+                sixthMoguBloodVatGuid = 0;
+                seventhMoguBloodVatGuid = 0;
+                eighthMoguBloodVatGuid = 0;
+                ninthMoguBloodVatGuid = 0;
+                tenthMoguBloodVatGuid = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -192,6 +214,36 @@ class instance_throne_of_thunder : public InstanceMapScript
                     case GOB_AMANI_TRIBAL_DOOR:
                         tribalDoorsGuid[3] = go->GetGUID();
                         break;
+                    case GOB_FIRST_MOGU_BLOOD_VAT:
+                        firstMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_SECOND_MOGU_BLOOD_VAT:
+                        secondMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_THIRD_MOGU_BLOOD_VAT:
+                        thirdMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_FOURTH_MOGU_BLOOD_VAT:
+                        fourthMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_FIFTH_MOGU_BLOOD_VAT:
+                        fifthMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_SIXTH_MOGU_BLOOD_VAT:
+                        sixthMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_SEVENTH_MOGU_BLOOD_VAT:
+                        seventhMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_EIGHTH_MOGU_BLOOD_VAT:
+                        eighthMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_NINTH_MOGU_BLOOD_VAT:
+                        ninthMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case GOB_TENTH_MOGU_BLOOD_VAT:
+                        tenthMoguBloodVatGuid = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -267,6 +319,36 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return tribalDoorsGuid[2];
                     case GOB_AMANI_TRIBAL_DOOR:
                         return tribalDoorsGuid[3];
+                    case GOB_FIRST_MOGU_BLOOD_VAT:
+                        return firstMoguBloodVatGuid;
+                        break;
+                    case GOB_SECOND_MOGU_BLOOD_VAT:
+                        return secondMoguBloodVatGuid;
+                        break;
+                    case GOB_THIRD_MOGU_BLOOD_VAT:
+                        return thirdMoguBloodVatGuid;
+                        break;
+                    case GOB_FOURTH_MOGU_BLOOD_VAT:
+                        return fourthMoguBloodVatGuid;
+                        break;
+                    case GOB_FIFTH_MOGU_BLOOD_VAT:
+                        return fifthMoguBloodVatGuid;
+                        break;
+                    case GOB_SIXTH_MOGU_BLOOD_VAT:
+                        return sixthMoguBloodVatGuid;
+                        break;
+                    case GOB_SEVENTH_MOGU_BLOOD_VAT:
+                        return seventhMoguBloodVatGuid;
+                        break;
+                    case GOB_EIGHTH_MOGU_BLOOD_VAT:
+                        return eighthMoguBloodVatGuid;
+                        break;
+                    case GOB_NINTH_MOGU_BLOOD_VAT:
+                        return ninthMoguBloodVatGuid;
+                        break;
+                    case GOB_TENTH_MOGU_BLOOD_VAT:
+                        return tenthMoguBloodVatGuid;
+                        break;
                     case DATA_STATUE_0:
                         return moguStatuesGuids[0];
                     case DATA_STATUE_1:
