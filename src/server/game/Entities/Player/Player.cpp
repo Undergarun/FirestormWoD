@@ -4710,7 +4710,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 else
                 {
                     WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
-                    data.WriteBits(1, 22);  // Count spells, always one by one
+                    data << uint32(1);  // Count spells, always one by one
                     data << uint32(spellId);
                     GetSession()->SendPacket(&data);
                 }
@@ -5020,9 +5020,10 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     if (learning && IsInWorld())
     {
         WorldPacket data(SMSG_LEARNED_SPELL);
-        data.WriteBit(0);       // auto push in action bar (ReadBit() != 0)
-        data.WriteBits(1, 22);  // count of spell_id to send.
+        data<< uint32(1);       // count of spell_id to send.
         data << uint32(spell_id);
+        data.WriteBit(0);       // auto push in action bar (ReadBit() != 0)
+        data.FlushBits();
         GetSession()->SendPacket(&data);
     }
 
@@ -5256,7 +5257,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (!prev_activate)
     {
         WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
-        data.WriteBits(1, 22);  // Count spells, always one by one
+        data << uint32(1);  // Count spells, always one by one
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
@@ -25335,10 +25336,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     //4374 - summon pet spell in packet - 111896, 111895, 111859, 111897, 111898
     //5376
 
-    data.Initialize(SMSG_UNLEARNED_SPELLS);
-    data.WriteBits(0, 22);                         // count, read uint32 spells id
-    GetSession()->SendPacket(&data);
-
     SendInitialActionButtons();
     m_reputationMgr.SendInitialReputations();
     m_achievementMgr.SendAllAchievementData(this);
@@ -27987,13 +27984,11 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
 
 void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
 {
-    printf("Player::BuildPlayerTalentsInfoData begin\n");
-
     uint8 l_SpeCount = GetSpecsCount();
 
     if (l_SpeCount > MAX_TALENT_SPECS)
         SetSpecsCount(MAX_TALENT_SPECS);
-    printf("%d spe count \n", (uint32)l_SpeCount);
+
     *p_Data << uint8(GetActiveSpec());
     *p_Data << uint32(l_SpeCount);
 
@@ -28018,8 +28013,6 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
 
         p_Data->append(l_Talents);
     }
-
-    printf("Player::BuildPlayerTalentsInfoData end\n");
 }
 
 void Player::SendTalentsInfoData(bool pet)
