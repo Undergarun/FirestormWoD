@@ -992,6 +992,14 @@ enum PlayerCommandStates
     CHEAT_ALL_SPELLS    = 0x20,
 };
 
+enum AttackSwingError
+{
+    ATTACKSWINGERR_CANT_ATTACK  = 0,
+    ATTACKSWINGERR_BAD_FACING   = 1,
+    ATTACKSWINGERR_NOT_IN_RANGE = 2,
+    ATTACKSWINGERR_DEAD_TARGET  = 3,
+}
+
 struct auraEffectData
 {
     auraEffectData(uint8 slot, uint8 effect, uint32 amount, uint32 baseamount) : _slot(slot), _effect(effect), _amount(amount), _baseamount(amount)  {}
@@ -2316,11 +2324,8 @@ class Player : public Unit, public GridObject<Player>
         void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
 
         // notifiers
-        void SendAttackSwingCantAttack();
+        void SendAttackSwingError(AttackSwingError p_Error);
         void SendAttackSwingCancelAttack();
-        void SendAttackSwingDeadTarget();
-        void SendAttackSwingNotInRange();
-        void SendAttackSwingBadFacingAttack();
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 

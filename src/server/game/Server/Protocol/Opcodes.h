@@ -119,6 +119,7 @@ enum Opcodes
         SMSG_ATTACK_START                           = 0x117A,   ///< 6.0.1 18663
         SMSG_ATTACK_STOP                            = 0x058B,   ///< 6.0.1 18663
         SMSG_AI_REACTION                            = 0x1D53,   ///< 6.0.1 18663
+        SMSG_ATTACK_SWING_ERROR                     = 0x1CC8,   ///< 6.0.1 18663
 
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0C65,   ///< 6.0.1 18663
@@ -1146,11 +1147,6 @@ enum Opcodes
     SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0x0000,
     SMSG_ARENA_TEAM_ROSTER                            = 0x0000,
     SMSG_ARENA_TEAM_STATS                             = 0x0000,
-    SMSG_ATTACK_SWING_ERROR                           = 0x0000,
-    SMSG_ATTACK_SWING_BAD_FACING                      = 0x0000,
-    SMSG_ATTACK_SWING_CANT_ATTACK                     = 0x0000,
-    SMSG_ATTACK_SWING_DEAD_TARGET                     = 0x0000,
-    SMSG_ATTACK_SWING_NOT_IN_RANGE                    = 0x0000,
     SMSG_AUCTION_BIDDER_LIST_RESULT                   = 0x0000,
     SMSG_AUCTION_BIDDER_NOTIFICATION                  = 0x0000,
     SMSG_AUCTION_BUYOUT_NOTIFICATION                  = 0x0000,

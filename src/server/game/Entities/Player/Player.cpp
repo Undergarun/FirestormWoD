@@ -2009,7 +2009,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
                     {
-                        SendAttackSwingNotInRange();
+                        SendAttackSwingError(ATTACKSWINGERR_NOT_IN_RANGE);
                         m_swingErrorMsg = 1;
                     }
                 }
@@ -2019,7 +2019,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
                     {
-                        SendAttackSwingBadFacingAttack();
+                        SendAttackSwingError(ATTACKSWINGERR_BAD_FACING);
                         m_swingErrorMsg = 2;
                     }
                 }
@@ -22240,12 +22240,6 @@ bool Player::CanSpeak() const
 /***              LOW LEVEL FUNCTIONS:Notifiers        ***/
 /*********************************************************/
 
-void Player::SendAttackSwingNotInRange()
-{
-    WorldPacket data(SMSG_ATTACK_SWING_NOT_IN_RANGE, 0);
-    GetSession()->SendPacket(&data);
-}
-
 void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
@@ -22297,27 +22291,18 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
     CharacterDatabase.Execute(stmt);
 }
 
-void Player::SendAttackSwingDeadTarget()
+void Player::SendAttackSwingError(AttackSwingError p_Error)
 {
-    WorldPacket data(SMSG_ATTACK_SWING_DEAD_TARGET, 0);
-    GetSession()->SendPacket(&data);
-}
+    WorldPacket l_Data(SMSG_ATTACK_SWING_ERROR, 1);
+    l_Data.WriteBits(p_Error, 2);
+    l_Data.FlushBits();
 
-void Player::SendAttackSwingCantAttack()
-{
-    WorldPacket data(SMSG_ATTACK_SWING_CANT_ATTACK, 0);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendAttackSwingCancelAttack()
 {
     WorldPacket data(SMSG_CANCEL_COMBAT, 0);
-    GetSession()->SendPacket(&data);
-}
-
-void Player::SendAttackSwingBadFacingAttack()
-{
-    WorldPacket data(SMSG_ATTACK_SWING_BAD_FACING, 0);
     GetSession()->SendPacket(&data);
 }
 
