@@ -250,14 +250,11 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
     }
 
     data << uint8(_slot);
-
-    if (!data.WriteBit(remove))
-    {
-        data.FlushBits();
-        return;
-    }
-
+    data.WriteBit(!remove);
     data.FlushBits();
+
+    if (remove)
+        return;
 
     data << uint32(overrideSpell ? overrideSpell : aura->GetId());
     data << uint8(flags);
