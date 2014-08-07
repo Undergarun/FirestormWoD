@@ -78,7 +78,8 @@ enum eSpells
     SPELL_TWISTED_FATE_PERIODIC          = 137986,
     SPELL_SHADOW_VISUAL                  = 32395,
     SPELL_BLESSED_TRANSFORMATION_LIGHT   = 140799,
-    SPELL_SHADOWED_TRANSFORMATION        = 137271
+    SPELL_SHADOWED_TRANSFORMATION        = 137271,
+    SPELL_BLESSED_TRANSFORMATION         = 137198
 };
 
 enum eEvents
@@ -2048,6 +2049,7 @@ class mob_blessed_loa_spirit : public CreatureScript
             void IsSummonedBy(Unit * /*p_Summoner*/)
             {
                 me->AddAura(SPELL_BLESSED_TRANSFORMATION_LIGHT, me);
+                me->AddAura(SPELL_BLESSED_TRANSFORMATION, me);
             }
 
             void UpdateAI(const uint32 diff)

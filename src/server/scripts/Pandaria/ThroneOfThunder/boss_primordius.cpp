@@ -112,8 +112,8 @@ uint32 gobEntries[10] =
     GOB_FOURTH_MOGU_BLOOD_VAT,
     GOB_FIFTH_MOGU_BLOOD_VAT,
     GOB_SIXTH_MOGU_BLOOD_VAT,
-    GOB_SEVENTH_MOGU_BLOOD_VAT
-    GOB_EIGHTH_MOGU_BLOOD_VAT
+    GOB_SEVENTH_MOGU_BLOOD_VAT,
+    GOB_EIGHTH_MOGU_BLOOD_VAT,
     GOB_NINTH_MOGU_BLOOD_VAT,
     GOB_TENTH_MOGU_BLOOD_VAT
 };
@@ -535,7 +535,7 @@ public:
                         VolatilePool();
                     }
 
-                    m_Events.ScheduleEvent(EVENT_VOLATIL_CHECK, 500);
+                    events.ScheduleEvent(EVENT_VOLATIL_CHECK, 500);
 
                     break;
                 }
