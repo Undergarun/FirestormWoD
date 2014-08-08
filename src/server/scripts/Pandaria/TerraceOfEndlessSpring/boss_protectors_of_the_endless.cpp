@@ -168,7 +168,7 @@ void RespawnProtectors(InstanceScript* instance, Creature* me)
 
     for (int i = 0; i < 3; ++i)
     {
-        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI)))
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
         {
             protector->Respawn();
             protector->GetMotionMaster()->MoveTargetedHome();
@@ -1398,15 +1398,10 @@ class mob_minion_of_fear : public CreatureScript
                 {
                     std::list<Creature*> targets;
 
-                    if (Creature* asani = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_ASANI)))
-                        if (asani->isAlive())
-                            targets.push_back(asani);
-                    if (Creature* kaolan = pInstance->instance->GetCreature(pInstance->GetData64(NPC_PROTECTOR_KAOLAN)))
-                        if (kaolan->isAlive())
-                            targets.push_back(kaolan);
-                    if (Creature* regail = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_REGAIL)))
-                        if (regail->isAlive())
-                            targets.push_back(regail);
+                    for (uint8 i = 0; i < 3; ++i)
+                        if (Creature* protector = pInstance->instance->GetCreature(pInstance->GetData64(bossEntries[i])))
+                            if (protector->isAlive())
+                                targets.push_back(protector);
 
                     if (targets.empty())
                     {
