@@ -11856,7 +11856,7 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    if (bag == INVENTORY_SLOT_BAG_0 && slot < BANK_SLOT_BAG_END)
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot < BANK_SLOT_BAG_END || (slot >= REAGENT_BANK_SLOT_BAG_START && slot < REAGENT_BANK_SLOT_BAG_END)))
         return m_items[slot];
     else if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
@@ -11960,6 +11960,16 @@ bool Player::IsBankPos(uint8 bag, uint8 slot)
     return false;
 }
 
+bool Player::IsReagentBankPos(uint8 bag, uint8 slot)
+{
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_BANK_SLOT_BAG_START && slot < REAGENT_BANK_SLOT_BAG_END))
+        return true;
+    if (bag >= REAGENT_BANK_SLOT_BAG_START && bag < REAGENT_BANK_SLOT_BAG_END)
+        return true;
+
+    return false;
+}
+
 bool Player::IsBagPos(uint16 pos)
 {
     uint8 bag = pos >> 8;
@@ -12001,6 +12011,10 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos)
 
         // bank bag slots
         if (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
+            return true;
+
+        // reagent bank bag slots
+        if (slot >= REAGENT_BANK_SLOT_BAG_START && slot < REAGENT_BANK_SLOT_BAG_END)
             return true;
 
         return false;
@@ -13245,6 +13259,69 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         if (count == 0)
             return EQUIP_ERR_OK;
     }
+    return EQUIP_ERR_BANK_FULL;
+}
+
+InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading) const
+{
+    if (!pItem)
+        return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
+
+    uint32 count = pItem->GetCount();
+
+    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: CanReagentBankItem bag = %u, slot = %u, item = %u, count = %u", bag, slot, pItem->GetEntry(), pItem->GetCount());
+
+    ItemTemplate const* pProto = pItem->GetTemplate();
+    if (!pProto)
+        return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
+
+
+    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPPLIES))
+        return EQUIP_ERR_WRONG_SLOT;
+
+    if (pItem->IsBindedNotWith(this))
+        return EQUIP_ERR_NOT_OWNER;
+
+    // check count of items (skip for auto move for same player from bank)
+    InventoryResult res = CanTakeMoreSimilarItems(pItem);
+
+    if (res != EQUIP_ERR_OK)
+        return res;
+
+    // in specific slot
+    if (bag != NULL_BAG && slot != NULL_SLOT)
+    {
+        res = CanStoreItem_InSpecificSlot(bag, slot, dest, pProto, count, swap, pItem);
+
+        if (res != EQUIP_ERR_OK)
+            return res;
+
+        if (count == 0)
+            return EQUIP_ERR_OK;
+    }
+
+    // search stack for merge to
+    if (pProto->Stackable != 1)
+    {
+        // in slots
+        res = CanStoreItem_InInventorySlots(REAGENT_BANK_SLOT_BAG_START, REAGENT_BANK_SLOT_BAG_END, dest, pProto, count, true, pItem, bag, slot);
+
+        if (res != EQUIP_ERR_OK)
+            return res;
+
+        if (count == 0)
+            return EQUIP_ERR_OK;
+    }
+
+    // search free space
+    res = CanStoreItem_InInventorySlots(REAGENT_BANK_SLOT_BAG_START, REAGENT_BANK_SLOT_BAG_END, dest, pProto, count, false, pItem, bag, slot);
+
+    if (res != EQUIP_ERR_OK)
+        return res;
+
+    if (count == 0)
+        return EQUIP_ERR_OK;
+
     return EQUIP_ERR_BANK_FULL;
 }
 
@@ -14611,6 +14688,21 @@ void Player::SwapItem(uint16 src, uint16 dst)
         {
             ItemPosCountVec dest;
             InventoryResult msg = CanBankItem(dstbag, dstslot, dest, pSrcItem, false);
+            if (msg != EQUIP_ERR_OK)
+            {
+                SendEquipError(msg, pSrcItem, NULL);
+                return;
+            }
+
+            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+            RemoveItem(srcbag, srcslot, true);
+            BankItem(dest, pSrcItem, true);
+            ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
+        }
+        else if (IsReagentBankPos(dst))
+        {
+            ItemPosCountVec dest;
+            InventoryResult msg = CanReagentBankItem(dstbag, dstslot, dest, pSrcItem, false);
             if (msg != EQUIP_ERR_OK)
             {
                 SendEquipError(msg, pSrcItem, NULL);
@@ -29926,4 +30018,13 @@ void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
 
     if (m_LastPlayedScene)
         m_LastPlayedScene->SendUpdateToPlayer(this);
+}
+
+bool Player::HasUnlockedReagentBank()
+{
+    return HasFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
+}
+void Player::UnlockReagentBank()
+{
+    SetFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
 }

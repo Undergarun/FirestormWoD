@@ -1167,25 +1167,39 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& p_RecvData)
 
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
+
+void WorldSession::HandleBuyReagentBankOpcode(WorldPacket& p_RecvData)
+{
+    uint64 l_BankerGUID;
+
+    p_RecvData.readPackGUID(l_BankerGUID);
+
+    if (m_Player->HasUnlockedReagentBank())
         return;
-    }
 
-    uint32 price = slotEntry->price;
+    Creature * l_Banker = m_Player->GetNPCIfCanInteractWith(l_BankerGUID, UNIT_NPC_FLAG_BANKER);
 
-    if (!m_Player->HasEnoughMoney(uint64(price)))
+    if (!l_Banker)
     {
-        data << uint32(ERR_BANKSLOT_INSUFFICIENT_FUNDS);
-        SendPacket(&data);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuyReagentBankOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(l_BankerGUID));
         return;
     }
 
-    m_Player->SetBankBagSlotCount(slot);
-    m_Player->ModifyMoney(-int64(price));
+    uint64 l_RegentBankPrice = 1000000;
 
-     data << uint32(ERR_BANKSLOT_OK);
-     SendPacket(&data);
+    if (!m_Player->HasEnoughMoney(uint64(l_RegentBankPrice)))
+        return;
 
-    m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
+    m_Player->ModifyMoney(-int64(l_RegentBankPrice));
+    m_Player->UnlockReagentBank();
+}
+
+void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
+{
+    if (!m_Player->HasUnlockedReagentBank())
+        return;
+
+    /// TODO
 }
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& p_RecvData)

@@ -473,6 +473,8 @@ enum Opcodes
     CMSG_AUTOBANK_ITEM                          = 0x1440,   ///< 6.0.1 18689
     CMSG_AUTOSTORE_BANK_ITEM                    = 0x14BE,   ///< 6.0.1 18689
     CMSG_BUY_BANK_SLOT                          = 0x0C8B,   ///< 6.0.1 18689
+    CMSG_BUY_REAGENT_BANK                       = 0x0747,   ///< 6.0.1 18689
+    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0CB7,   ///< 6.0.1 18689
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot

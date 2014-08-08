@@ -467,6 +467,11 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK31                  = 0x80000000,
 };
 
+enum PlayerFlagsEx
+{
+    PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED = 0x00000001
+};
+
 // used for PLAYER_FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
 // can't use enum for uint64 values
 #define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
@@ -622,7 +627,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 86,
+    PLAYER_SLOT_END             = 184,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -677,11 +682,16 @@ enum BankBagSlots                                           // 7 slots
     BANK_SLOT_BAG_END           = 74
 };
 
-enum BuyBackSlots                                           // 12 slots
+enum BuyBackSlots                                           // 98 slots
 {
-    // stored in m_buybackitems
     BUYBACK_SLOT_START          = 74,
     BUYBACK_SLOT_END            = 86
+};
+
+enum ReagentBankBagSlots
+{
+    REAGENT_BANK_SLOT_BAG_START = 86,
+    REAGENT_BANK_SLOT_BAG_END = 184
 };
 
 enum EquipmentSetUpdateState
@@ -1439,6 +1449,8 @@ class Player : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
+        static bool IsReagentBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
+        static bool IsReagentBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, 2); }
@@ -1471,6 +1483,7 @@ class Player : public Unit, public GridObject<Player>
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
+        InventoryResult CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
@@ -1512,6 +1525,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 CalculateCurrencyWeekCap(uint32 id);
         uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
         void UpdateConquestCurrencyCap(uint32 currency);
+
+        bool HasUnlockedReagentBank();
+        void UnlockReagentBank();
 
         /**
         * @name ModifyCurrency
