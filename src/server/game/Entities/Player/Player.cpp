@@ -18943,8 +18943,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
     // 46      47      48      49      50      51      52           53         54             55               56                 57              58
     //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, "
-    // 59           60              61               62                 63              64                              65
-    //"knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time  FROM characters WHERE guid = '%u'", guid);
+    // 59           60              61               62                 63              64                              65            66
+    //"knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx  FROM characters WHERE guid = '%u'", guid);
 
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
     if (!result)
@@ -19032,6 +19032,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, fields[5].GetUInt8());
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, 1, fields[45].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS, fields[11].GetUInt32());
+    SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX, fields[66].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
 
     SetUInt64Value(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
@@ -21166,6 +21167,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_REST_STATE));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS));
+        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX));
         stmt->setUInt16(index++, (uint16)GetMapId());
         stmt->setUInt32(index++, (uint32)GetInstanceId());
         stmt->setUInt8(index++, (uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4));
@@ -21277,6 +21279,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_REST_STATE));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS));
+        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX));
 
         if (!IsBeingTeleported())
         {
