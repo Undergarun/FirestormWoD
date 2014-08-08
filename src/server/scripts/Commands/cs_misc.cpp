@@ -133,7 +133,7 @@ class misc_commandscript : public CommandScript
         static bool HandleWargameCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             /*
-            .wargame "leaderName1" "leaderName2" MapID
+            .wargame leaderName1 leaderName2
             */
 
             if (!*p_Args)
