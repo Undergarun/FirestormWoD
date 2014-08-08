@@ -148,6 +148,9 @@ enum Opcodes
         SMSG_LOOT_RELEASE_ALL                       = 0x0E8B,   ///< 6.0.1 18689
         SMSG_LOOT_REMOVED                           = 0x1C0C,   ///< 6.0.1 18689
         SMSG_COIN_REMOVED                           = 0x00ED,   ///< 6.0.1 18689
+
+        /// Bank
+        SMSG_SHOW_BANK                              = 0x0E9B,   ///< 6.0.1 18689
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -463,6 +466,13 @@ enum Opcodes
     CMSG_AUTOEQUIP_ITEM                         = 0x143D,   ///< 6.0.1 18689
     CMSG_SWAP_INV_ITEM                          = 0x0620,   ///< 6.0.1 18689
     CMSG_REQUEST_PET_INFO                       = 0x0E3A,   ///< 6.0.1 18689
+    
+    //////////////////////////////////////////////////////////////////////////
+    /// Bank
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_AUTOBANK_ITEM                          = 0x1440,   ///< 6.0.1 18689
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x14BE,   ///< 6.0.1 18689
+    CMSG_BUY_BANK_SLOT                          = 0x0C8B,   ///< 6.0.1 18689
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
@@ -684,11 +694,9 @@ enum Opcodes
     CMSG_AUCTION_PLACE_BID                            = 0x0000,
     CMSG_AUCTION_REMOVE_ITEM                          = 0x0000,
     CMSG_AUCTION_SELL_ITEM                            = 0x0000,
-    CMSG_AUTOBANK_ITEM                                = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x0000,
-    CMSG_AUTOSTORE_BANK_ITEM                          = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
     CMSG_BANKER_ACTIVATE                              = 0x0000,
     CMSG_BATTLEFIELD_JOIN                             = 0x0000,
@@ -711,7 +719,6 @@ enum Opcodes
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x0000,
     CMSG_BLACK_MARKET_PLACE_BID                       = 0x0000,
     CMSG_BOT_DETECTED2                                = 0x0000,
-    CMSG_BUY_BANK_SLOT                                = 0x0000,
     CMSG_CALENDAR_ADD_EVENT                           = 0x0000,
     CMSG_CALENDAR_ARENA_TEAM                          = 0x0000,
     CMSG_CALENDAR_COMPLAIN                            = 0x0000,
@@ -1204,7 +1211,6 @@ enum Opcodes
     SMSG_BLACK_MARKET_WON                             = 0x0000,
     SMSG_BONUS_ROLL_EMPTY                             = 0x0000,
     SMSG_BREAK_TARGET                                 = 0x0000,
-    SMSG_BUY_BANK_SLOT_RESULT                         = 0x0000,
     SMSG_CALENDAR_ACTION_PENDING                      = 0x0000,
     SMSG_CALENDAR_ARENA_TEAM                          = 0x0000,
     SMSG_CALENDAR_CLEAR_PENDING_ACTION                = 0x0000,
@@ -1678,7 +1684,6 @@ enum Opcodes
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
-    SMSG_SHOW_BANK                                    = 0x0000,
     SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI        = 0x0000,
     SMSG_SHOW_RATINGS                                 = 0x0000,
     SMSG_SHOW_ZONES_CHEAT_RESULT                      = 0x0000,

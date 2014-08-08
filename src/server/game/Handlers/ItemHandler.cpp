@@ -1137,35 +1137,36 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     m_Player->StoreItem(dest, pItem, true);
 }
 
-void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BUY_BANK_SLOT");
 
-    ObjectGuid guid;
+    uint64 l_BankerGUID;
 
-    uint8 bitsOrder[8] = { 2, 0, 3, 5, 1, 7, 6, 4 };
-    recvPacket.ReadBitInOrder(guid, bitsOrder);
+    p_RecvData.readPackGUID(l_BankerGUID);
 
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 3, 5, 7, 6, 0, 1, 2 };
-    recvPacket.ReadBytesSeq(guid, bytesOrder);
-
-    uint32 slot = m_Player->GetBankBagSlotCount();
+    uint32 l_Slot = m_Player->GetBankBagSlotCount();
 
     // next slot
-    ++slot;
+    ++l_Slot;
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "PLAYER: Buy bank bag slot, slot number = %u", slot);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "PLAYER: Buy bank bag slot, slot number = %u", l_Slot);
 
-    BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
+    BankBagSlotPricesEntry const* l_SlotEntry = sBankBagSlotPricesStore.LookupEntry(l_Slot);
 
-    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
+    if (!l_SlotEntry)
+        return;
 
-    if (!slotEntry)
-    {
-        data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
-        SendPacket(&data);
+    uint32 l_Price = l_SlotEntry->price;
+
+    if (!m_Player->HasEnoughMoney(uint64(l_Price)))
+        return;
+
+    m_Player->SetBankBagSlotCount(l_Slot);
+    m_Player->ModifyMoney(-int64(l_Price));
+
+    m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
+}
         return;
     }
 
@@ -1187,79 +1188,102 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
 
-void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleAutoBankItemOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOBANK_ITEM");
-    uint8 srcbag, srcslot;
+    uint8 l_PackSlot;
+    uint8 l_Slot;
+    uint8 l_ItemCount;
 
-    recvPacket >> srcbag >> srcslot;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+    l_ItemCount = p_RecvData.ReadBits(2);
 
-    Item* pItem = m_Player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    for (uint32 l_I = 0; l_I < l_ItemCount; ++l_I)
+    {
+        p_RecvData.read_skip<uint8>();    ///< ContainerSlot
+        p_RecvData.read_skip<uint8>();    ///< Slot
+    }
+
+    p_RecvData >> l_Slot;
+    p_RecvData >> l_PackSlot;
+
+    Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
+
+    if (!l_Item)
         return;
 
-    ItemPosCountVec dest;
-    InventoryResult msg = m_Player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
-    if (msg != EQUIP_ERR_OK)
+    ItemPosCountVec l_Dest;
+    InventoryResult l_Msg = m_Player->CanBankItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item, false);
+
+    if (l_Msg != EQUIP_ERR_OK)
     {
-        m_Player->SendEquipError(msg, pItem, NULL);
+        m_Player->SendEquipError(l_Msg, l_Item, NULL);
         return;
     }
 
-    if (dest.size() == 1 && dest[0].pos == pItem->GetPos())
+    if (l_Dest.size() == 1 && l_Dest[0].pos == l_Item->GetPos())
     {
-        m_Player->SendEquipError(EQUIP_ERR_CANT_SWAP, pItem, NULL);
+        m_Player->SendEquipError(EQUIP_ERR_CANT_SWAP, l_Item, NULL);
         return;
     }
 
-    sLog->OutPandashan("HandleAutoBankItemOpcode[%u] %u %u %u", m_Player->GetGUID(), srcbag, srcslot, pItem->GetEntry());
-
-    m_Player->RemoveItem(srcbag, srcslot, true);
-    m_Player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-    m_Player->BankItem(dest, pItem, true);
+    m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+    m_Player->ItemRemovedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
+    m_Player->BankItem(l_Dest, l_Item, true);
 }
 
-void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_BANK_ITEM");
-    uint8 srcbag, srcslot;
+    uint8 l_PackSlot;
+    uint8 l_Slot;
+    uint8 l_ItemCount;
 
-    recvPacket >> srcslot >> srcbag;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+    l_ItemCount = p_RecvData.ReadBits(2);
 
-    Item* pItem = m_Player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    for (uint32 l_I = 0; l_I < l_ItemCount; ++l_I)
+    {
+        p_RecvData.read_skip<uint8>();    ///< ContainerSlot
+        p_RecvData.read_skip<uint8>();    ///< Slot
+    }
+
+    p_RecvData >> l_Slot;
+    p_RecvData >> l_PackSlot;
+
+    Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
+
+    if (!l_Item)
         return;
 
-    sLog->OutPandashan("HandleAutoStoreBankItemOpcode[%u] %u %u %u", m_Player->GetGUID(), srcbag, srcslot, pItem->GetEntry());
+    sLog->OutPandashan("HandleAutoStoreBankItemOpcode[%u] %u %u %u", m_Player->GetGUID(), l_PackSlot, l_Slot, l_Item->GetEntry());
 
-    if (m_Player->IsBankPos(srcbag, srcslot))                 // moving from bank to inventory
+    // moving from bank to inventory
+    if (m_Player->IsBankPos(l_PackSlot, l_Slot))                 
     {
-        ItemPosCountVec dest;
-        InventoryResult msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
-        if (msg != EQUIP_ERR_OK)
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item, false);
+
+        if (l_Msg != EQUIP_ERR_OK)
         {
-            m_Player->SendEquipError(msg, pItem, NULL);
+            m_Player->SendEquipError(l_Msg, l_Item, NULL);
             return;
         }
 
-        m_Player->RemoveItem(srcbag, srcslot, true);
-        m_Player->StoreItem(dest, pItem, true);
-        m_Player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+        m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+        m_Player->StoreItem(l_Dest, l_Item, true);
+        m_Player->ItemAddedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
     }
-    else                                                    // moving from inventory to bank
+    // moving from inventory to bank
+    else                                                    
     {
-        ItemPosCountVec dest;
-        InventoryResult msg = m_Player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
-        if (msg != EQUIP_ERR_OK)
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Msg = m_Player->CanBankItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item, false);
+
+        if (l_Msg != EQUIP_ERR_OK)
         {
-            m_Player->SendEquipError(msg, pItem, NULL);
+            m_Player->SendEquipError(l_Msg, l_Item, NULL);
             return;
         }
 
-        m_Player->RemoveItem(srcbag, srcslot, true);
-        m_Player->BankItem(dest, pItem, true);
+        m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+        m_Player->BankItem(l_Dest, l_Item, true);
     }
 }
 

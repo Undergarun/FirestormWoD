@@ -112,15 +112,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendShowBank(uint64 guid)
 {
     WorldPacket data(SMSG_SHOW_BANK);
-    ObjectGuid npcGuid = guid;
-
-    uint8 bitsOrder[8] = { 1, 2, 0, 4, 6, 3, 5, 7 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
-
-    data.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 6, 0, 5, 7, 3, 2, 1 };
-    data.WriteBytesSeq(npcGuid, bytesOrder);
+    data.appendPackGUID(guid);
 
     SendPacket(&data);
 }
