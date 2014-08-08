@@ -75,6 +75,18 @@ enum eEvents
     EVENT_BLACK_BLOOD               = 7
 };
 
+enum eTalks
+{
+    TALK_INTRO_01,
+    TALK_INTRO_02,
+    TALK_INTRO_03,
+    TALK_INTRO_04,
+    TALK_AGGRO,
+    TALK_EVOLUTION,
+    TALK_SLAY,
+    TALK_DEATH
+};
+
 #define INVIBLE_DISPLAY 11686
 
 uint32 evolutionAuras[7] =
@@ -140,14 +152,20 @@ class boss_primordius : public CreatureScript
 
         struct boss_primordiusAI : public BossAI
         {
-            boss_primordiusAI(Creature * p_Creature) : BossAI(p_Creature, DATA_PRIMORDIUS)
+            boss_primordiusAI(Creature* p_Creature) : BossAI(p_Creature, DATA_PRIMORDIUS)
             {
                 m_Instance = p_Creature->GetInstanceScript();
+
+                m_IntroDone = false;
             }
 
             EventMap m_Events;
-            InstanceScript * m_Instance;
+            InstanceScript* m_Instance;
             bool m_HasEvolued;
+
+            bool m_IntroDone;
+            uint8 m_IntroStep;
+            uint32 m_IntroTimer;
 
             void Reset()
             {
@@ -160,19 +178,22 @@ class boss_primordius : public CreatureScript
                 _Reset();
 
                 m_HasEvolued = false;
+                m_IntroTimer = 0;
 
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
 
-                for (int l_Index = 0; l_Index <= 10; l_Index++)
-                    if (GameObject * l_Vat = m_Instance->instance->GetGameObject(m_Instance->GetData64(gobEntries[l_Index])))
+                for (uint8 l_Index = 0; l_Index <= 10; l_Index++)
+                {
+                    if (GameObject* l_Vat = m_Instance->instance->GetGameObject(m_Instance->GetData64(gobEntries[l_Index])))
                         l_Vat->SetGoState(GO_STATE_READY);
+                }
 
-                std::list<Creature *> l_LivingFluidList;
+                std::list<Creature*> l_LivingFluidList;
 
                 GetCreatureListWithEntryInGrid(l_LivingFluidList, me, NPC_LIVING_FLUID, 200.0f);
 
-                for (Creature * l_LivingFluid: l_LivingFluidList)
+                for (Creature* l_LivingFluid: l_LivingFluidList)
                     l_LivingFluid->DespawnOrUnsummon();
             }
 
@@ -192,34 +213,51 @@ class boss_primordius : public CreatureScript
                 me->RemoveAllAuras();
                 me->GetMotionMaster()->MoveTargetedHome();
 
-                std::list<Creature *> l_LivingFluidList;
-                std::list<Creature *> l_ViscousHorrorList;
+                std::list<Creature*> l_LivingFluidList;
+                std::list<Creature*> l_ViscousHorrorList;
 
                 GetCreatureListWithEntryInGrid(l_LivingFluidList, me, NPC_LIVING_FLUID, 200.0f);
                 GetCreatureListWithEntryInGrid(l_ViscousHorrorList, me, NPC_VISCOUS_HORROR, 200.0f);
 
-                for (Creature * l_LivingFluid: l_LivingFluidList)
+                for (Creature* l_LivingFluid: l_LivingFluidList)
                     l_LivingFluid->DespawnOrUnsummon();
 
-                for (Creature * l_ViscousHorror : l_ViscousHorrorList)
+                for (Creature* l_ViscousHorror : l_ViscousHorrorList)
                     l_ViscousHorror->DespawnOrUnsummon();
 
                 _EnterEvadeMode();
             }
 
-            void JustSummoned(Creature * p_Summon)
+            void JustSummoned(Creature* p_Summon)
             {
                 summons.Summon(p_Summon);
             }
 
-            void SummonedCreatureDespawn(Creature * p_Summon)
+            void SummonedCreatureDespawn(Creature* p_Summon)
             {
                 summons.Despawn(p_Summon);
             }
 
-            void EnterCombat(Unit * /*p_Who*/)
+            void MoveInLineOfSight(Unit* p_Who)
             {
+                if (m_IntroDone)
+                    return;
+
+                if (p_Who->GetTypeId() == TYPEID_PLAYER && p_Who->GetDistance(me) <= 60.f)
+                {
+                    Talk(TALK_INTRO_01);
+                    m_IntroDone = true;
+                    m_IntroTimer = 7500;
+                    m_IntroStep = TALK_INTRO_01;
+                }
+            }
+
+            void EnterCombat(Unit* /*p_Who*/)
+            {
+                Talk(TALK_AGGRO);
+
                 m_Events.Reset();
+
                 m_Events.ScheduleEvent(EVENT_PRIMORDIAL_STRIKE, 2000);
                 m_Events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 7000);
                 m_Events.ScheduleEvent(EVENT_SUMMON_LIVING_FLUID, 5000);
@@ -233,11 +271,19 @@ class boss_primordius : public CreatureScript
                 me->AddAura(SPELL_MUTATED_ABOMINATION, me);
             }
 
-            void JustDied(Unit * /*p_Killer*/)
+            void KilledUnit(Unit* p_Victim)
+            {
+                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(TALK_SLAY);
+            }
+
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
 
                 me->RemoveAura(SPELL_MUTATED_ABOMINATION);
+
+                Talk(TALK_DEATH);
 
                 if (m_Instance)
                 {
@@ -246,7 +292,7 @@ class boss_primordius : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32 & p_Value)
+            void RegeneratePower(Powers p_Power, int32& p_Value)
             {
                 if (p_Power != POWER_ENERGY)
                     return;
@@ -260,6 +306,17 @@ class boss_primordius : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff)
             {
+                if (m_IntroTimer && m_IntroStep < TALK_INTRO_04)
+                {
+                    if (m_IntroTimer <= p_Diff)
+                    {
+                        Talk(++m_IntroStep);
+                        m_IntroTimer = m_IntroStep == TALK_INTRO_03 ? 13000 : 8500;
+                    }
+                    else
+                        m_IntroTimer -= p_Diff;
+                }
+
                 if (m_Instance)
                 {
                     if (m_Instance->IsWipe())
@@ -284,12 +341,14 @@ class boss_primordius : public CreatureScript
 
                 if (!m_HasEvolued)
                 {
-                    if (me->GetPowerPct(POWER_ENERGY) >= 100)
+                    if (me->GetPowerPct(POWER_ENERGY) >= 100.f)
                     {
                         me->AddAura(SPELL_EVOLUTION, me);
                         me->SetPower(POWER_ENERGY, 0, true);
 
                         m_HasEvolued = true;
+
+                        Talk(TALK_EVOLUTION);
                     }
                 }
 
@@ -298,40 +357,35 @@ class boss_primordius : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case EVENT_PRIMORDIAL_STRIKE:
-                        if (Unit * l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, SPELL_PRIMORDIAL_STRIKE, false);
 
                         m_Events.ScheduleEvent(EVENT_PRIMORDIAL_STRIKE, 20000);
                         break;
-
                     case EVENT_MALFORMED_BLOOD:
-                        if (Unit * l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             l_Target->AddAura(SPELL_MALFORMED_BLOOD, l_Target);
 
                         m_Events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 20000);
                         break;
-
                     case EVENT_SUMMON_LIVING_FLUID:
-                        for (int l_Index = 0; l_Index <= 10; l_Index++)
+                        for (uint8 l_Index = 0; l_Index <= 10; l_Index++)
                             me->SummonCreature(NPC_LIVING_FLUID, gSpawnPositions[l_Index]);
 
                         m_Events.ScheduleEvent(EVENT_SUMMON_LIVING_FLUID, 12000);
                         break;
-
                     case EVENT_VISCOUS_HORROR:
                         me->SummonCreature(NPC_VISCOUS_HORROR, gSpawnPositions[urand(0, 9)]);
                         break;
-
                     default:
                         break;
                 }
 
                 DoMeleeAttackIfReady();
             }
-
         };
 
-        CreatureAI * GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
             return new boss_primordiusAI(p_Creature);
         }
@@ -340,296 +394,300 @@ class boss_primordius : public CreatureScript
 /// Living Fluid - 69069
 class mob_living_fluid : public CreatureScript
 {
-public:
-    mob_living_fluid() : CreatureScript("mob_living_fluid") { }
+    public:
+        mob_living_fluid() : CreatureScript("mob_living_fluid") { }
 
-    struct mob_living_fluidAI : public ScriptedAI
-    {
-        mob_living_fluidAI(Creature * p_Creature) : ScriptedAI(p_Creature)
+        struct mob_living_fluidAI : public ScriptedAI
         {
-
-        }
-
-        bool m_StartMutagenicCheck;
-        bool m_StartVolatileCheck;
-
-        void Reset()
-        {
-            me->SetReactState(REACT_PASSIVE);
-
-            me->SetSpeed(MOVE_WALK, 0.3f);
-            me->SetSpeed(MOVE_RUN, 0.3f);
-
-            m_StartVolatileCheck = false;
-            m_StartMutagenicCheck = false;
-        }
-
-        /// Start moving slowly to Primordius position when summoned
-        void IsSummonedBy(Unit * /*p_Summoner*/)
-        {
-            if (Creature * l_Primordius = GetClosestCreatureWithEntry(me, NPC_PRIMORDIUS, 200.0f))
-                me->GetMotionMaster()->MovePoint(0, l_Primordius->GetPositionX(), l_Primordius->GetPositionY(), l_Primordius->GetPositionZ());
-
-        }
-
-        void VolatilePool()
-        {
-            if (!m_StartMutagenicCheck)
+            mob_living_fluidAI(Creature * p_Creature) : ScriptedAI(p_Creature)
             {
-                /// If Living Fluid finds a really near player, it applies a random nephast aura to him.
-                if (Player * l_Player = me->FindNearestPlayer(3.0f))
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            bool m_StartMutagenicCheck;
+            bool m_StartVolatileCheck;
+
+            InstanceScript* m_Instance;
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+
+                me->SetSpeed(MOVE_WALK, 0.3f);
+                me->SetSpeed(MOVE_RUN, 0.3f);
+
+                m_StartVolatileCheck = false;
+                m_StartMutagenicCheck = false;
+            }
+
+            /// Start moving slowly to Primordius position when summoned
+            void IsSummonedBy(Unit* /*p_Summoner*/)
+            {
+                if (m_Instance)
                 {
-                    uint8 l_CountAura = 0;
-
-                    for (uint8 l_Index = 0; l_Index < 4; ++l_Index)
-                        if (l_Player->HasAura(nephastAuras[l_Index]))
-                            ++l_CountAura;
-
-                    if (l_CountAura < 4)
-                    {
-                        uint32 l_Index = urand(0, 3);
-
-                        while (l_Player->HasAura(nephastAuras[l_Index]))
-                            l_Index = urand(0, 3);
-
-                        m_StartVolatileCheck = false;
-
-                        /// Stops checking players.
-                        events.CancelEvent(EVENT_VOLATIL_CHECK);
-
-                        me->AddAura(nephastAuras[l_Index], l_Player);
-                        me->RemoveAura(SPELL_VOLATILE_POOL);
-                        me->DespawnOrUnsummon();
-                    }
+                    if (Creature* l_Primordius = Creature::GetCreature(*me, m_Instance->GetData64(NPC_PRIMORDIUS)))
+                        me->GetMotionMaster()->MovePoint(0, l_Primordius->GetPositionX(), l_Primordius->GetPositionY(), l_Primordius->GetPositionZ());
                 }
             }
-        }
 
-        void MutagenicPool()
-        {
-            if (!m_StartMutagenicCheck)
+            void VolatilePool()
             {
-                /// If players is already mutated, a debuff is applied instead of a buff.
-                if (Player * l_Player = me->FindNearestPlayer(3.0f))
+                if (!m_StartMutagenicCheck)
                 {
-                    if (l_Player->HasAura(SPELL_FULLY_MUTATED))
+                    /// If Living Fluid finds a really near player, it applies a random nephast aura to him.
+                    if (Player* l_Player = me->FindNearestPlayer(3.0f))
                     {
-                        m_StartVolatileCheck = true;
-                        m_StartMutagenicCheck = false;
+                        uint8 l_CountAura = 0;
 
-                        /// Stops checking players.
-                        events.CancelEvent(EVENT_MUTAGENIC_CHECK);
+                        for (uint8 l_Index = 0; l_Index < 4; ++l_Index)
+                            if (l_Player->HasAura(nephastAuras[l_Index]))
+                                ++l_CountAura;
 
-                        VolatilePool();
-
-                        return;
-                    }
-                }
-
-                std::list<AreaTrigger*> l_AreatriggerList;
-                me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
-
-                if (!l_AreatriggerList.empty())
-                {
-                    for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
-                    {
-                        std::list<Player*> l_PlayerList;
-
-                        /// Checks every player in a radius <= 3.0f from the AT.
-                        l_AreaTrigger->GetPlayerListInGrid(l_PlayerList, 3.0f);
-
-                        if (!l_PlayerList.empty())
+                        if (l_CountAura < 4)
                         {
-                            for (Player* l_Player : l_PlayerList)
-                            {
-                                me->AddAura(beneficAuras[urand(0, 3)], l_Player);
+                            uint32 l_Index = urand(0, 3);
 
-                                uint8 l_StackCount = 0;
+                            while (l_Player->HasAura(nephastAuras[l_Index]))
+                                l_Index = urand(0, 3);
 
-                                for (uint8 l_Index = 0; l_Index < 4; ++l_Index)
-                                {
-                                    /// Checks if player has one of the benefic auras.
-                                    if (AuraPtr l_Aura = l_Player->GetAura(beneficAuras[l_Index]))
-                                    {
-                                        l_StackCount += l_Aura->GetStackAmount();
+                            m_StartVolatileCheck = false;
 
-                                        /// If the cumulated stacks >= 5, the player gets transformed, then the AT despawns (player keeps benefic auras).
-                                        if (l_StackCount >= 5)
-                                        {
-                                            me->AddAura(SPELL_FULLY_MUTATED, l_Player);
-                                            me->AddAura(SPELL_SECOND_FULLY_MUTATED, l_Player);
+                            /// Stops checking players.
+                            events.CancelEvent(EVENT_VOLATIL_CHECK);
 
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                /// Stops checking players.
-                                events.CancelEvent(EVENT_MUTAGENIC_CHECK);
-
-                                m_StartMutagenicCheck = false;
-
-                                me->DespawnOrUnsummon();
-
-                                l_AreaTrigger->Remove();
-                            }
+                            me->AddAura(nephastAuras[l_Index], l_Player);
+                            me->RemoveAura(SPELL_VOLATILE_POOL);
+                            me->DespawnOrUnsummon();
                         }
                     }
                 }
             }
-        }
 
-        void DamageTaken(Unit * /*p_Attacker*/, uint32 & p_Damage)
-        {
-            if (p_Damage >= me->GetHealth())
+            void MutagenicPool()
             {
-                p_Damage = 0;
-
-                me->SetReactState(REACT_PASSIVE);
-                me->SetDisplayId(INVIBLE_DISPLAY);
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
-
-                /// 80% chance to apply Volatile Pool.
-                /// 20% chance to apply Mutagenic Pool.
-                me->CastSpell(me, roll_chance_i(80) ? SPELL_VOLATILE_POOL : SPELL_MUTAGENIC_POOL, false);
-
-                /// Starts checking players near for applying instructions.
-                events.ScheduleEvent(EVENT_MUTAGENIC_CHECK, 500);
-            }
-        }
-
-        /// When a Living Fluid reaches Primordius, this one gains one evolution stack, his power is reset, and he gets healed. The Living Fluid despawns.
-        void MovementInform(uint32 p_Type, uint32 p_PointId)
-        {
-            if (p_Type != POINT_MOTION_TYPE)
-                return;
-
-            if (p_PointId == 0)
-            {
-                if (Creature * l_Primordius = GetClosestCreatureWithEntry(me, NPC_PRIMORDIUS, 200.0f)) 
+                if (!m_StartMutagenicCheck)
                 {
-                    l_Primordius->AddAura(SPELL_EVOLUTION, l_Primordius);
-                    l_Primordius->SetPower(POWER_ENERGY, 0, true);
-                    l_Primordius->ModifyHealth(l_Primordius->GetMaxHealth() * 0.10f);
-                }
-
-                me->DespawnOrUnsummon();
-            }
-        }
-
-        void UpdateAI(const uint32 p_Diff)
-        {
-            events.Update(p_Diff);
-
-            switch (events.ExecuteEvent())
-            {
-                /// Checks every 500 ms if there's a player near of living fluid with volatile pool form. If so, call VolatilePool();
-                case EVENT_VOLATIL_CHECK:
-                {
-                    std::list<Player *> l_PlayerList;
-                    me->GetPlayerListInGrid(l_PlayerList, 3.0f);
-
-                    if (!l_PlayerList.empty())
+                    /// If players is already mutated, a debuff is applied instead of a buff.
+                    if (Player* l_Player = me->FindNearestPlayer(3.0f))
                     {
-                        m_StartVolatileCheck = true;
-                        VolatilePool();
+                        if (l_Player->HasAura(SPELL_FULLY_MUTATED))
+                        {
+                            m_StartVolatileCheck = true;
+                            m_StartMutagenicCheck = false;
+
+                            /// Stops checking players.
+                            events.CancelEvent(EVENT_MUTAGENIC_CHECK);
+
+                            VolatilePool();
+
+                            return;
+                        }
                     }
 
-                    events.ScheduleEvent(EVENT_VOLATIL_CHECK, 500);
-
-                    break;
-                }
-                /// Checks every 500 ms if there's an areatrigger, then a player near of this AT. If so, call MutagenicPool();
-                case EVENT_MUTAGENIC_CHECK:
-                {
-                    std::list<AreaTrigger *> l_AreatriggerList;
+                    std::list<AreaTrigger*> l_AreatriggerList;
                     me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
 
                     if (!l_AreatriggerList.empty())
                     {
-                        for (AreaTrigger * l_AreaTrigger : l_AreatriggerList)
+                        for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
                         {
-                            std::list<Player *> l_PlayerList;
+                            std::list<Player*> l_PlayerList;
 
                             /// Checks every player in a radius <= 3.0f from the AT.
                             l_AreaTrigger->GetPlayerListInGrid(l_PlayerList, 3.0f);
 
                             if (!l_PlayerList.empty())
                             {
-                                m_StartMutagenicCheck = true;
-                                MutagenicPool();
+                                for (Player* l_Player : l_PlayerList)
+                                {
+                                    me->AddAura(beneficAuras[urand(0, 3)], l_Player);
+
+                                    uint8 l_StackCount = 0;
+
+                                    for (uint8 l_Index = 0; l_Index < 4; ++l_Index)
+                                    {
+                                        /// Checks if player has one of the benefic auras.
+                                        if (AuraPtr l_Aura = l_Player->GetAura(beneficAuras[l_Index]))
+                                        {
+                                            l_StackCount += l_Aura->GetStackAmount();
+
+                                            /// If the cumulated stacks >= 5, the player gets transformed, then the AT despawns (player keeps benefic auras).
+                                            if (l_StackCount >= 5)
+                                            {
+                                                me->AddAura(SPELL_FULLY_MUTATED, l_Player);
+                                                me->AddAura(SPELL_SECOND_FULLY_MUTATED, l_Player);
+
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    /// Stops checking players.
+                                    events.CancelEvent(EVENT_MUTAGENIC_CHECK);
+
+                                    m_StartMutagenicCheck = false;
+
+                                    me->DespawnOrUnsummon();
+
+                                    l_AreaTrigger->Remove();
+                                }
                             }
                         }
                     }
-
-                    events.ScheduleEvent(EVENT_MUTAGENIC_CHECK, 500);
-
-                    break;
                 }
             }
-        }
-    };
 
-    CreatureAI * GetAI(Creature * p_Creature) const
-    {
-        return new mob_living_fluidAI(p_Creature);
-    }
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage)
+            {
+                if (p_Damage >= me->GetHealth())
+                {
+                    p_Damage = 0;
+
+                    me->SetReactState(REACT_PASSIVE);
+                    me->SetDisplayId(INVIBLE_DISPLAY);
+                    me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
+
+                    /// 80% chance to apply Volatile Pool.
+                    /// 20% chance to apply Mutagenic Pool.
+                    me->CastSpell(me, roll_chance_i(80) ? SPELL_VOLATILE_POOL : SPELL_MUTAGENIC_POOL, false);
+
+                    /// Starts checking players near for applying instructions.
+                    events.ScheduleEvent(EVENT_MUTAGENIC_CHECK, 500);
+                }
+            }
+
+            /// When a Living Fluid reaches Primordius, this one gains one evolution stack, his power is reset, and he gets healed. The Living Fluid despawns.
+            void MovementInform(uint32 p_Type, uint32 p_PointId)
+            {
+                if (p_Type != POINT_MOTION_TYPE)
+                    return;
+
+                if (p_PointId == 0 && m_Instance)
+                {
+                    if (Creature* l_Primordius = Creature::GetCreature(*me, m_Instance->GetData64(NPC_PRIMORDIUS)))
+                    {
+                        l_Primordius->AddAura(SPELL_EVOLUTION, l_Primordius);
+                        l_Primordius->SetPower(POWER_ENERGY, 0, true);
+                        l_Primordius->ModifyHealth(l_Primordius->GetMaxHealth() * 0.10f);
+                    }
+
+                    me->DespawnOrUnsummon();
+                }
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                events.Update(p_Diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    /// Checks every 500 ms if there's a player near of living fluid with volatile pool form. If so, call VolatilePool();
+                    case EVENT_VOLATIL_CHECK:
+                    {
+                        std::list<Player*> l_PlayerList;
+                        me->GetPlayerListInGrid(l_PlayerList, 3.0f);
+
+                        if (!l_PlayerList.empty())
+                        {
+                            m_StartVolatileCheck = true;
+                            VolatilePool();
+                        }
+
+                        events.ScheduleEvent(EVENT_VOLATIL_CHECK, 500);
+                        break;
+                    }
+                    /// Checks every 500 ms if there's an areatrigger, then a player near of this AT. If so, call MutagenicPool();
+                    case EVENT_MUTAGENIC_CHECK:
+                    {
+                        std::list<AreaTrigger*> l_AreatriggerList;
+                        me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
+
+                        if (!l_AreatriggerList.empty())
+                        {
+                            for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
+                            {
+                                std::list<Player*> l_PlayerList;
+
+                                /// Checks every player in a radius <= 3.0f from the AT.
+                                l_AreaTrigger->GetPlayerListInGrid(l_PlayerList, 3.0f);
+
+                                if (!l_PlayerList.empty())
+                                {
+                                    m_StartMutagenicCheck = true;
+                                    MutagenicPool();
+                                }
+                            }
+                        }
+
+                        events.ScheduleEvent(EVENT_MUTAGENIC_CHECK, 500);
+                        break;
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_living_fluidAI(p_Creature);
+        }
 };
 
 /// Viscous Horror - 69070
 class mob_viscous_horror : public CreatureScript
 {
-public:
-    mob_viscous_horror() : CreatureScript("mob_viscous_horror") { }
+    public:
+        mob_viscous_horror() : CreatureScript("mob_viscous_horror") { }
 
-    struct mob_viscous_horrorAI : public ScriptedAI
-    {
-        mob_viscous_horrorAI(Creature * p_Creature) : ScriptedAI(p_Creature)
+        struct mob_viscous_horrorAI : public ScriptedAI
         {
-        }
-
-        void Reset()
-        {
-            events.Reset();
-
-            me->SetReactState(REACT_PASSIVE);
-
-            me->SetSpeed(MOVE_WALK, 0.3f);
-            me->SetSpeed(MOVE_RUN, 0.3f);
-        }
-
-        void EnterCombat(Unit * /*attacker*/)
-        {
-            events.ScheduleEvent(EVENT_BLACK_BLOOD, 10000);
-        }
-
-        void UpdateAI(const uint32 p_Diff)
-        {
-            /// If he gets <= 10.0f distance from primordius, wipes all the raid.
-            if (GetClosestCreatureWithEntry(me, NPC_PRIMORDIUS, 10.0f))
-                me->CastSpell(me, SPELL_DEADLY_MUTAGEN, false);
-
-            events.Update(p_Diff);
-
-            switch (events.ExecuteEvent())
+            mob_viscous_horrorAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                case EVENT_BLACK_BLOOD:
-                    if (Unit * l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, SPELL_BLACK_BLOOD, false);
-
-                    events.ScheduleEvent(EVENT_BLACK_BLOOD, 25000);
-                    break;
-
-                default:
-                    break;
+                m_Instance = p_Creature->GetInstanceScript();
             }
-        }
-    };
 
-    CreatureAI * GetAI(Creature * p_Creature) const
-    {
-        return new mob_viscous_horrorAI(p_Creature);
-    }
+            InstanceScript* m_Instance;
+
+            void Reset()
+            {
+                events.Reset();
+
+                me->SetReactState(REACT_PASSIVE);
+
+                me->SetSpeed(MOVE_WALK, 0.3f);
+                me->SetSpeed(MOVE_RUN, 0.3f);
+            }
+
+            void EnterCombat(Unit* /*attacker*/)
+            {
+                events.ScheduleEvent(EVENT_BLACK_BLOOD, 10000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                /// If he gets <= 10.0f distance from primordius, wipes all the raid.
+                if (m_Instance && Creature::GetCreature(*me, m_Instance->GetData64(NPC_PRIMORDIUS)))
+                    me->CastSpell(me, SPELL_DEADLY_MUTAGEN, false);
+
+                events.Update(p_Diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_BLACK_BLOOD:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_BLACK_BLOOD, false);
+
+                        events.ScheduleEvent(EVENT_BLACK_BLOOD, 25000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_viscous_horrorAI(p_Creature);
+        }
 };
 
 /// Congeal Blood - 136051
@@ -645,10 +703,12 @@ class spell_congeal_blood : public SpellScriptLoader
             /// If target is not Vicious Horror or Living Fluid, damages are set to 0.
             void HandleBeforeHit()
             {
-                if (Unit * l_Target = GetExplTargetUnit())
-                    if (Creature * l_Creature = l_Target->ToCreature())
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (Creature* l_Creature = l_Target->ToCreature())
                         if (l_Creature->GetEntry() != NPC_VISCOUS_HORROR || l_Creature->GetEntry() != NPC_LIVING_FLUID)
                             SetHitDamage(0);
+                }
             }
 
             void Register()
@@ -657,7 +717,7 @@ class spell_congeal_blood : public SpellScriptLoader
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_congeal_blood_SpellScript();
         }
@@ -675,8 +735,8 @@ class spell_primordius_evolution : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit * l_Caster    = GetCaster();
-                Unit * l_Target    = GetTarget();
+                Unit* l_Caster    = GetCaster();
+                Unit* l_Target    = GetTarget();
 
                 if (!l_Caster || !l_Target)
                     return;
@@ -686,7 +746,7 @@ class spell_primordius_evolution : public SpellScriptLoader
                 if (l_Target->GetInstanceScript()->instance->IsHeroic())
                 {
                     /// Checks if Primordius already got one of those auras, and if so put it in a list. Process gets out of the loop if amount > 4.
-                    for (int l_Index = 0; l_Index <= 6; ++l_Index)
+                    for (uint8 l_Index = 0; l_Index <= 6; ++l_Index)
                     {
                         uint32 l_AuraId;
 
@@ -701,9 +761,7 @@ class spell_primordius_evolution : public SpellScriptLoader
 
                     /// In the case Primordius has less than 4 auras, he gets a new random one added.
                     if (l_AuraList.size() < 4)
-                    {
                         l_Caster->AddAura(evolutionAuras[urand(0, 6)], l_Target);
-                    }
                     /// If Primordius has 4 auras or more from the table, one of those auras is removed, then a new random one is added.
                     else if (l_AuraList.size() >= 4)
                     {
@@ -719,7 +777,7 @@ class spell_primordius_evolution : public SpellScriptLoader
                 }
 
                 /// Checks if Primordius already got one of those auras, and if so put it in a list. Process gets out of the loop if amount > 3.
-                for (int l_Index = 0; l_Index <= 6; ++l_Index)
+                for (uint8 l_Index = 0; l_Index <= 6; ++l_Index)
                 {
                     uint32 l_AuraId;
 
