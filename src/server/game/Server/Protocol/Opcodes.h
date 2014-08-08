@@ -93,6 +93,7 @@ enum Opcodes
         SMSG_UPDATE_TALENT_DATA                     = 0x00CD,   ///< 6.0.1 18689
         SMSG_TRANSFER_ABORTED                       = 0x087E,   ///< 6.0.1 18689
         SMSG_TRANSFER_PENDING                       = 0x1249,   ///< 6.0.1 18689
+        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0CC2,   ///< 6.0.1 18689
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CAB,   ///< 6.0.1 18689
@@ -459,6 +460,9 @@ enum Opcodes
     CMSG_SHOWING_HELM                           = 0x0ACE,   ///< 6.0.1 18689
     CMSG_SET_ACTIVE_MOVER                       = 0x125B,   ///< 6.0.1 18689
     CMSG_LEARN_TALENTS                          = 0x09D7,   ///< 6.0.1 18689
+    CMSG_AUTOEQUIP_ITEM                         = 0x143D,   ///< 6.0.1 18689
+    CMSG_SWAP_INV_ITEM                          = 0x0620,   ///< 6.0.1 18689
+    CMSG_REQUEST_PET_INFO                       = 0x0E3A,   ///< 6.0.1 18689
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
@@ -573,7 +577,7 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_GUILD                     = 0x0FD2,   ///< 6.0.1 18689
     CMSG_CHAT_MESSAGE_RAID                      = 0x000A,   ///<
     CMSG_CHAT_MESSAGE_WHISPER                   = 0x098B,   ///< 6.0.1 18689
-    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x000C,   ///<
+    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0FF1,   ///< 6.0.1 18689
 
     CMSG_JOIN_CHANNEL                           = 0x0066,   ///< 6.0.1 18689
 
@@ -682,7 +686,6 @@ enum Opcodes
     CMSG_AUCTION_SELL_ITEM                            = 0x0000,
     CMSG_AUTOBANK_ITEM                                = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
-    CMSG_AUTOEQUIP_ITEM                               = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x0000,
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x0000,
@@ -996,7 +999,6 @@ enum Opcodes
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x0000,
-    CMSG_REQUEST_PET_INFO                             = 0x0000,
     CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x0000,
     CMSG_REQUEST_PVP_REWARDS                          = 0x0000,
     CMSG_REQUEST_RAID_INFO                            = 0x0000,
@@ -1064,7 +1066,6 @@ enum Opcodes
     CMSG_SUMMON_RESPONSE                              = 0x0000,
     CMSG_SUSPEND_TOKEN                                = 0x0000,
     CMSG_SAVE_GUILD_EMBLEM                            = 0x0000,
-    CMSG_SWAP_INV_ITEM                                = 0x0000,
     CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
@@ -1411,7 +1412,6 @@ enum Opcodes
     SMSG_INVALIDATE_DANCE                             = 0x0000,
     SMSG_INVALIDATE_PLAYER                            = 0x0000,
     SMSG_INVALID_PROMOTION_CODE                       = 0x0000,
-    SMSG_INVENTORY_CHANGE_FAILURE                     = 0x0000,
     SMSG_ITEM_ADD_PASSIVE                             = 0x0000,
     SMSG_ITEM_COOLDOWN                                = 0x0000,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x0000,

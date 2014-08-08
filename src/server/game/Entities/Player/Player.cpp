@@ -15070,35 +15070,10 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
         WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE);
 
-        ObjectGuid item1 = pItem ? pItem->GetGUID() : 0;
-        ObjectGuid item2 = pItem2 ? pItem2->GetGUID() : 0;
-
-        data.WriteBit(item1[2]);
-        data.WriteBit(item2[6]);
-        data.WriteBit(item2[5]);
-        data.WriteBit(item1[4]);
-        data.WriteBit(item1[7]);
-        data.WriteBit(item2[7]);
-        data.WriteBit(item1[1]);
-        data.WriteBit(item1[3]);
-        data.WriteBit(item2[4]);
-        data.WriteBit(item2[0]);
-        data.WriteBit(item2[3]);
-        data.WriteBit(item1[6]);
-        data.WriteBit(item2[2]);
-        data.WriteBit(item1[5]);
-        data.WriteBit(item1[0]);
-        data.WriteBit(item2[1]);
-
-        data.WriteByteSeq(item2[4]);
-        data.WriteByteSeq(item1[7]);
-        data.WriteByteSeq(item1[0]);
-        data.WriteByteSeq(item2[0]);
-        data.WriteByteSeq(item1[1]);
-
         data << uint8(msg);
-
-        data.WriteByteSeq(item2[3]);
+        data.appendPackGUID(pItem->GetGUID());
+        data.appendPackGUID(pItem2->GetGUID());
+        data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
 
         if (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I || msg == EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW)
         {
@@ -15106,12 +15081,12 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
             data << uint32(proto ? proto->RequiredLevel : 0);
         }
 
-        data.WriteByteSeq(item1[2]);
-
         // no idea about this one...
         if (msg == EQUIP_ERR_NO_OUTPUT)
         {
+            data.appendPackGUID(0);
             data << uint32(0); // slot
+            data.appendPackGUID(0);
         }
 
         if (msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS ||
@@ -15120,59 +15095,6 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         {
             ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
             data << uint32(proto ? proto->ItemLimitCategory : 0);
-        }
-
-        data.WriteByteSeq(item1[5]);
-        data.WriteByteSeq(item2[7]);
-        data.WriteByteSeq(item1[4]);
-        data.WriteByteSeq(item2[2]);
-        data.WriteByteSeq(item2[5]);
-        data.WriteByteSeq(item2[6]);
-        data.WriteByteSeq(item1[3]);
-        data.WriteByteSeq(item1[6]);
-        data.WriteByteSeq(item2[1]);
-
-        data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
-
-        // no idea about this one...
-        if (msg == EQUIP_ERR_NO_OUTPUT)
-        {
-            ObjectGuid itemGuid = 0;
-            ObjectGuid containerGuid = 0;
-
-            data.WriteBit(itemGuid[2]);
-            data.WriteBit(itemGuid[5]);
-            data.WriteBit(containerGuid[7]);
-            data.WriteBit(itemGuid[6]);
-            data.WriteBit(itemGuid[4]);
-            data.WriteBit(containerGuid[5]);
-            data.WriteBit(containerGuid[6]);
-            data.WriteBit(containerGuid[0]);
-            data.WriteBit(itemGuid[7]);
-            data.WriteBit(containerGuid[2]);
-            data.WriteBit(itemGuid[3]);
-            data.WriteBit(itemGuid[0]);
-            data.WriteBit(itemGuid[1]);
-            data.WriteBit(containerGuid[3]);
-            data.WriteBit(containerGuid[4]);
-            data.WriteBit(containerGuid[1]);
-
-            data.WriteByteSeq(containerGuid[6]);
-            data.WriteByteSeq(containerGuid[4]);
-            data.WriteByteSeq(containerGuid[5]);
-            data.WriteByteSeq(containerGuid[1]);
-            data.WriteByteSeq(itemGuid[1]);
-            data.WriteByteSeq(itemGuid[2]);
-            data.WriteByteSeq(itemGuid[5]);
-            data.WriteByteSeq(containerGuid[0]);
-            data.WriteByteSeq(itemGuid[7]);
-            data.WriteByteSeq(itemGuid[3]);
-            data.WriteByteSeq(containerGuid[2]);
-            data.WriteByteSeq(containerGuid[3]);
-            data.WriteByteSeq(itemGuid[4]);
-            data.WriteByteSeq(itemGuid[0]);
-            data.WriteByteSeq(itemGuid[6]);
-            data.WriteByteSeq(containerGuid[7]);
         }
 
         GetSession()->SendPacket(&data);
