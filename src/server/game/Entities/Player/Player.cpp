@@ -15071,8 +15071,8 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
         WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE);
 
         data << uint8(msg);
-        data.appendPackGUID(pItem->GetGUID());
-        data.appendPackGUID(pItem2->GetGUID());
+        data.appendPackGUID(pItem ? pItem->GetGUID() : 0);
+        data.appendPackGUID(pItem2 ? pItem2->GetGUID() : 0);
         data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
 
         if (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I || msg == EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW)
