@@ -564,7 +564,7 @@ public:
                     uint8 limit = IsHeroic() ? 3 : (me->HasAura(SPELL_WATCHFUL_EYE_1) ? 4 : (me->HasAura(SPELL_WATCHFUL_EYE_2) ? 2 : 0));
 
                     if (GetSpearImpaledAdds() > limit)
-                        DoCast(SPELL_COWARDS);
+                        me->CastSpell(me, SPELL_COWARDS, true);
                     break;
                 }
                 default:
