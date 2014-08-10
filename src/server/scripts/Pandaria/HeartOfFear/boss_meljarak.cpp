@@ -564,7 +564,7 @@ public:
                     uint8 limit = IsHeroic() ? 3 : (me->HasAura(SPELL_WATCHFUL_EYE_1) ? 4 : (me->HasAura(SPELL_WATCHFUL_EYE_2) ? 2 : 0));
 
                     if (GetSpearImpaledAdds() > limit)
-                        me->CastSpell(me, SPELL_COWARDS, true);
+                        DoCast(SPELL_COWARDS);
                     break;
                 }
                 default:
@@ -757,12 +757,16 @@ public:
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
+            if (spell->Id == SPELL_COWARDS || !pInstance)
+                return;
+
             if (me->HasCrowdControlAura())
-                if (pInstance)
-                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            {
+                if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            }
         }
 
         void JustDied(Unit* killer)
@@ -911,12 +915,16 @@ public:
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
+            if (spell->Id == SPELL_COWARDS || !pInstance)
+                return;
+
             if (me->HasCrowdControlAura())
-                if (pInstance)
-                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            {
+                if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            }
         }
 
         void JustDied(Unit* killer)
@@ -1068,12 +1076,16 @@ public:
             
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
+            if (spell->Id == SPELL_COWARDS || !pInstance)
+                return;
+
             if (me->HasCrowdControlAura())
-                if (pInstance)
-                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            {
+                if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            }
         }
 
         void JustDied(Unit* killer)
