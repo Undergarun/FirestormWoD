@@ -83,6 +83,7 @@ DBFilesClient\\Exhaustion.dbc
 DBFilesClient\\Faction.dbc                      
 DBFilesClient\\FactionGroup.dbc                 
 DBFilesClient\\FactionTemplate.dbc              
+DBFilesClient\\FeedbackPath.dbc                 
 DBFilesClient\\FileData.dbc                     
 DBFilesClient\\FootprintTextures.dbc            
 DBFilesClient\\FootstepTerrainLookup.dbc        
@@ -179,6 +180,7 @@ DBFilesClient\\ManifestInterfaceActionIcon.dbc
 DBFilesClient\\ManifestInterfaceData.dbc        
 DBFilesClient\\ManifestInterfaceItemIcon.dbc    
 DBFilesClient\\ManifestInterfaceTOCData.dbc     
+DBFilesClient\\ManifestMP3.dbc                  
 DBFilesClient\\Map.dbc                          
 DBFilesClient\\MapDifficulty.dbc                
 DBFilesClient\\Material.dbc                     
@@ -207,7 +209,6 @@ DBFilesClient\\PaperDollItemFrame.dbc
 DBFilesClient\\ParticleColor.dbc                
 DBFilesClient\\Phase.dbc                        
 DBFilesClient\\PhaseShiftZoneSounds.dbc         
-DBFilesClient\\PlayerCondition.dbc              
 DBFilesClient\\PowerDisplay.dbc                 
 DBFilesClient\\PvpDifficulty.dbc                
 DBFilesClient\\QuestFactionReward.dbc           
@@ -448,6 +449,7 @@ DBFilesClient\\PathNode.db2
 DBFilesClient\\PathNodeProperty.db2               
 DBFilesClient\\PathProperty.db2                   
 DBFilesClient\\PhaseXPhaseGroup.db2               
+DBFilesClient\\PlayerCondition.db2                
 DBFilesClient\\PvpItem.db2                        
 DBFilesClient\\QuestLine.db2                      
 DBFilesClient\\QuestLineXQuest.db2                
