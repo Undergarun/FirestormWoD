@@ -2155,6 +2155,7 @@ class mob_shadowed_lua_spirit : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 events.Update(diff);
+
                 if (Player* player = Player::GetPlayer(*me, targetGuid))
                 {
                     if (despawnTimer <= diff)
@@ -2193,6 +2194,8 @@ class mob_shadowed_lua_spirit : public CreatureScript
                                 SetGUID(target->GetGUID(), 0);
                                 despawnTimer = 20000;
                             }
+                            else
+                                events.ScheduleEvent(EVENT_OS_PLAYER, 500);
                             break;
                         }
                     default:
