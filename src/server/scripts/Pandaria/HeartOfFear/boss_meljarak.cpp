@@ -534,27 +534,37 @@ public:
                 {
                     Talk(SAY_ADD_GROUP_DIES);
                     Talk(SAY_WATCHFUL_EYE);
-                    if (!IsHeroic())
-                        me->AddAura(SPELL_RECKLESNESS_N, me);
-                    else
-                        me->AddAura(SPELL_RECKLESNESS_H, me);
 
-                    uint8 addsAlive = GetLivingAddCount();
-
-                    // Should be 6 or 3 - At least 1 group has been killed
-                    if (addsAlive < 9)
+                    // Heroic mode
+                    if (IsHeroic())
                     {
-                        me->RemoveAura(SPELL_WATCHFUL_EYE_1);
-                        me->AddAura(SPELL_WATCHFUL_EYE_2, me);
-                        // Should be 3 - At least 2 groups have been killed
-                        if (addsAlive < 6)
+                        me->AddAura(SPELL_RECKLESNESS_H, me);
+                        break;
+                    }
+                    // Normal mode
+                    else
+                    {
+                        me->AddAura(SPELL_RECKLESNESS_N, me);
+
+                        uint8 addsAlive = GetLivingAddCount();
+
+                        // Should be 6 or 3 - At least 1 group has been killed
+                        if (addsAlive < 9)
                         {
-                            me->RemoveAura(SPELL_WATCHFUL_EYE_2);
-                            me->AddAura(SPELL_WATCHFUL_EYE_3, me);
+                            me->RemoveAura(SPELL_WATCHFUL_EYE_1);
+                            me->AddAura(SPELL_WATCHFUL_EYE_2, me);
+                            // Should be 3 - At least 2 groups have been killed
+                            if (addsAlive < 6)
+                            {
+                                me->RemoveAura(SPELL_WATCHFUL_EYE_2);
+                                me->AddAura(SPELL_WATCHFUL_EYE_3, me);
+                            }
+                            // 0 - All groups have been killed
+                            if (!addsAlive)
+                                me->RemoveAura(SPELL_WATCHFUL_EYE_3);
                         }
-                        // 0 - All groups have been killed
-                        if (!addsAlive)
-                            me->RemoveAura(SPELL_WATCHFUL_EYE_3);
+                        // Check the controlled adds as limit has changed since a group just died
+                        DoAction(ACTION_CHECK_CONTROLLED_ADDS);
                     }
                     break;
                 }
@@ -705,7 +715,11 @@ public:
             if (allAdds.empty())
                 return livingAdds;
 
-            return uint32(allAdds.size());
+            for (Creature* add : allAdds)
+                if (add->isAlive())
+                    ++livingAdds;
+
+            return livingAdds;
         }
 
         uint32 GetSpearImpaledAdds()
@@ -719,7 +733,9 @@ public:
                 allAdds.clear();
                 GetCreatureListWithEntryInGrid(allAdds, me, addEntries[i], 150.0f);
 
-                impaledAdds += uint32(allAdds.size());
+                for (Creature* add : allAdds)
+                    if (add->isAlive() && add->HasCrowdControlAura())
+                        ++impaledAdds;
             }
             return impaledAdds;
         }
@@ -757,12 +773,16 @@ public:
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
+            if (spell->Id == SPELL_COWARDS || !pInstance)
+                return;
+
             if (me->HasCrowdControlAura())
-                if (pInstance)
-                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            {
+                if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            }
         }
 
         void JustDied(Unit* killer)
@@ -911,12 +931,16 @@ public:
             events.ScheduleEvent(EVENT_CORROSIVE_RESIN, urand(8000, 40000));
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
+            if (spell->Id == SPELL_COWARDS || !pInstance)
+                return;
+
             if (me->HasCrowdControlAura())
-                if (pInstance)
-                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            {
+                if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            }
         }
 
         void JustDied(Unit* killer)
@@ -1068,12 +1092,16 @@ public:
             
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
+            if (spell->Id == SPELL_COWARDS || !pInstance)
+                return;
+
             if (me->HasCrowdControlAura())
-                if (pInstance)
-                    if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
-                        meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            {
+                if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
+                    meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
+            }
         }
 
         void JustDied(Unit* killer)

@@ -2360,22 +2360,22 @@ class mob_mogu_engine_keeper : public CreatureScript
 
 void AddSC_mogu_shan_vault()
 {
-    new mob_cursed_mogu_sculpture();
-    new spell_ghost_essence();
-    new mob_enormous_stone_quilen();
-    new mob_stone_quilen();
-    new mob_zandalari_skullcharger();
-    new spell_mogu_petrification();
-    new npc_lorewalker_cho();
-    new mob_sorcerer_mogu();
-    new mob_mogu_archer();
-    new mob_mounted_mogu();
-    new mob_kingsguard();
-    new mob_subetai();
-    new mob_meng();
-    new mob_zian();
-    new mob_qiang();
-    new mob_mogu_secret_keeper();
-    new mob_mogu_warden();
-    new mob_mogu_engine_keeper();
+    new mob_cursed_mogu_sculpture();    // 61334 / 61989 - Cursed Mogu Sculpture
+    new spell_ghost_essence();          // 120764 - Ghost Essence
+    new mob_enormous_stone_quilen();    // 64183 - Enormous Stone Quilen
+    new mob_stone_quilen();             // 60576 - Stone Quilen
+    new mob_zandalari_skullcharger();   // 60375 - Zandalari Skullcharger
+    new spell_mogu_petrification();     // 125092 - Petrification
+    new npc_lorewalker_cho();           // 61348 - Lorewalker Cho
+    new mob_sorcerer_mogu();            // 61250 - Sorcerer Mogu
+    new mob_mogu_archer();              // 61345 - Mogu Archer
+    new mob_mounted_mogu();             // 61341 - Mounted Mogu
+    new mob_kingsguard();               // 61347 - Kingsguard
+    new mob_subetai();                  // 61427 - Subetai the Swift
+    new mob_meng();                     // 61429 - Meng the Demented
+    new mob_zian();                     // 61421 - Zian of the Endless Shadow
+    new mob_qiang();                    // 61423 - Qiang the Merciless
+    new mob_mogu_secret_keeper();       // 61131 - Mogu'shan Secret-Keeper
+    new mob_mogu_warden();              // 64061/64947 - Mogu'shan Warden + 64063 - Mogu'shan Arcanist
+    new mob_mogu_engine_keeper();       // 64068 - Mogu'shan Engine Keeper
 }

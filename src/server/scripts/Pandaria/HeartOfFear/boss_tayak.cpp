@@ -582,14 +582,7 @@ class boss_tayak : public CreatureScript
                         case EVENT_BLADE_TEMPEST:
                         {
                             DoCast(me, SPELL_BLADE_TEMPEST_AUR);
-
-                            // Pull all players
-                            std::list<Player*> playerList;
-                            GetPlayerListInGrid(playerList, me, 200.0f);
-
-                            for (Player* player : playerList)
-                                player->CastSpell(me, SPELL_BLADE_TEMPES_J_FC, false);
-
+                            DoCast(SPELL_BLADE_TEMPES_J_FC);
                             events.ScheduleEvent(EVENT_BLADE_TEMPEST, 60000);
                             break;
                         }
@@ -1495,7 +1488,8 @@ class spell_blade_tempest : public SpellScriptLoader
             void PullRaid()
             {
                 if (Unit* Tayak = GetCaster())
-                    Tayak->GetAI()->DoAction(ACTION_TAYAK_BT_PULL);
+                    if (Tayak->GetEntry() == NPC_TAYAK)
+                        Tayak->GetAI()->DoAction(ACTION_TAYAK_BT_PULL);
             }
 
             void Register()
