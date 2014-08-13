@@ -3431,6 +3431,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 65077:
             case 64482:
             case 55076:
+            case 60023:
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
                 break;
             case 137200:// Blessed Loa Spirit
