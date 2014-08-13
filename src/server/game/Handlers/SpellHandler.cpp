@@ -61,7 +61,7 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
     }
 }
 
-void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 {
     // TODO: add targets.read() check
     Player* pUser = m_Player;
@@ -73,205 +73,151 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     if (pUser->GetEmoteState())
         pUser->SetEmoteState(0);
 
-    float speed = 0.00f, elevation = 0.00f;
-    std::string unkString;
-    uint8 unkStringLen = 0;
+    std::string l_SrcTargetName;
 
-    uint8 bagIndex, slot, castFlags = 0;
-    uint8 castCount = 0;                                // next cast if exists (single or not)
-    uint8 unkValues = 0;
-    uint32 glyphIndex = 0;                              // something to do with glyphs?
-    uint32 spellId = 0;                                 // casted spell id
-    uint32 unkBits = 0;
+    uint64 l_TargetItemGUID         = 0;
+    uint64 l_SourceTargetGUID       = 0;
+    uint64 l_DestinationTargetGUID  = 0;
+    uint64 l_TargetGUID             = 0;
+    uint64 l_UnkGUID                = 0;
+    uint64 l_ItemGUID               = 0;
 
-    recvPacket >> bagIndex >> slot;
+    float l_MissibleTrajectorySpeed = 0.00f;
+    float l_MissibleTrajectoryPitch = 0.00f;
 
-    ObjectGuid itemGuid, targetGuid, itemTarget, srcTransport, dstTransport, guid6, guid7;
+    uint8   * l_SpellWeightType     = nullptr;
+    uint32  * l_SpellWeightID       = nullptr;
+    uint32  * l_SpellWeightQuantity = nullptr;
 
-    itemGuid[4] = recvPacket.ReadBit();
-    bool bit64 = !recvPacket.ReadBit();
-    bool hasUnkString = !recvPacket.ReadBit();
-    bool hasCastFlags = !recvPacket.ReadBit();
-    itemGuid[5] = recvPacket.ReadBit();
-    bool hasSpellID = !recvPacket.ReadBit();
-    uint8 archeologyCounter = recvPacket.ReadBits(2);
+    uint32 l_SpellID            = 0;
+    uint32 l_Misc               = 0;
+    uint32 l_TargetFlags        = 0;
+    uint32 l_NameLenght         = 0;
+    uint32 l_SpellWeightCount   = 0;
 
-    uint8* archeologyType = new uint8[archeologyCounter];
-    uint32* entry = new uint32[archeologyCounter];
-    uint32* usedCount = new uint32[archeologyCounter];
+    float l_UnkFloat = 0;
 
-    bool hasDstTransport = recvPacket.ReadBit();
-    bool hasMovement = recvPacket.ReadBit();
-    bool unkBit72 = !recvPacket.ReadBit(); // ??
-    bool hasElevation = !recvPacket.ReadBit();
-    bool hasCastCount = !recvPacket.ReadBit();
-    itemGuid[0] = recvPacket.ReadBit();
-    bool hasUnkValues = !recvPacket.ReadBit();
-    itemGuid[6] = recvPacket.ReadBit();
-    itemGuid[2] = recvPacket.ReadBit();
-    itemGuid[1] = recvPacket.ReadBit();
-    bool hasGlyph = !recvPacket.ReadBit();
-    bool hasTransport = recvPacket.ReadBit();
-    bool hasSpeed = !recvPacket.ReadBit(); // ??
+    uint8 l_CastCount       = 0;
+    uint8 l_SendCastFlag    = 0;
+    uint8 l_Slot            = 0;
+    uint8 l_PackSlot        = 0;
 
-    itemGuid[3] = recvPacket.ReadBit();
+    bool l_HasSourceTarget      = false;
+    bool l_HasDestinationTarget = false;
+    bool l_HasUnkFloat          = false;
+    bool l_HasMovementInfos     = false;
 
-    for (uint8 i = 0; i < archeologyCounter; i++)
-        archeologyType[i] = recvPacket.ReadBits(2);
+    WorldLocation l_SourceTargetPosition;
+    WorldLocation l_DestinationTargetPosition;
 
-    itemGuid[7] = recvPacket.ReadBit();
+    p_RecvPacket >> l_PackSlot;
+    p_RecvPacket >> l_Slot;
+    p_RecvPacket.readPackGUID(l_ItemGUID);
 
-    if (hasDstTransport)
+    p_RecvPacket >> l_CastCount;
+    p_RecvPacket >> l_SpellID;
+    p_RecvPacket >> l_Misc;
+
+    l_TargetFlags           = p_RecvPacket.ReadBits(20);
+    l_HasSourceTarget       = p_RecvPacket.ReadBit();
+    l_HasDestinationTarget  = p_RecvPacket.ReadBit();
+    l_HasUnkFloat           = p_RecvPacket.ReadBit();
+    l_NameLenght            = p_RecvPacket.ReadBits(7);
+    p_RecvPacket.readPackGUID(l_TargetGUID);
+    p_RecvPacket.readPackGUID(l_TargetItemGUID);
+
+    if (l_HasSourceTarget)
     {
-        uint8 bitsOrder[8] = { 6, 1, 5, 0, 3, 2, 7, 4 };
-        recvPacket.ReadBitInOrder(dstTransport, bitsOrder);
+        p_RecvPacket.readPackGUID(l_SourceTargetGUID);
+        p_RecvPacket >> l_SourceTargetPosition.m_positionX;
+        p_RecvPacket >> l_SourceTargetPosition.m_positionY;
+        p_RecvPacket >> l_SourceTargetPosition.m_positionZ;
     }
 
-    if (hasMovement)
+    if (l_HasDestinationTarget)
     {
-        // Kebab client side
+        p_RecvPacket.readPackGUID(l_DestinationTargetGUID);
+        p_RecvPacket >> l_DestinationTargetPosition.m_positionX;
+        p_RecvPacket >> l_DestinationTargetPosition.m_positionY;
+        p_RecvPacket >> l_DestinationTargetPosition.m_positionZ;
     }
 
-    uint8 bitsOrder2[8] = { 0, 4, 7, 1, 2, 3, 6, 5 };
-    recvPacket.ReadBitInOrder(targetGuid, bitsOrder2);
+    if (l_HasUnkFloat)
+        p_RecvPacket >> l_UnkFloat;
 
-    if (hasCastFlags)
-        castFlags = recvPacket.ReadBits(20);
+    l_SrcTargetName = p_RecvPacket.ReadString(l_NameLenght);
 
-    if (hasTransport)
+    p_RecvPacket >> l_MissibleTrajectoryPitch;
+    p_RecvPacket >> l_MissibleTrajectorySpeed;
+
+    p_RecvPacket.readPackGUID(l_UnkGUID);
+
+    l_SendCastFlag      = p_RecvPacket.ReadBits(5);
+    l_HasMovementInfos  = p_RecvPacket.ReadBit();
+    l_SpellWeightCount  = p_RecvPacket.ReadBits(2);
+
+    if (l_HasMovementInfos)
+        HandleMovementOpcodes(p_RecvPacket);
+
+    if (l_SpellWeightCount)
     {
-        uint8 bitsOrder[8] = { 2, 0, 1, 5, 7, 4, 3, 6 };
-        recvPacket.ReadBitInOrder(srcTransport, bitsOrder);
-    }
+        l_SpellWeightType       = new uint8[l_SpellWeightCount];
+        l_SpellWeightID         = new uint32[l_SpellWeightCount];
+        l_SpellWeightQuantity   = new uint32[l_SpellWeightCount];
 
-    uint8 bitsOrder3[8] = { 0, 4, 3, 5, 1, 7, 6, 2 };
-    recvPacket.ReadBitInOrder(itemTarget, bitsOrder3);
-
-    if (hasUnkValues)
-        unkValues = recvPacket.ReadBits(5);
-
-    if (hasUnkString)
-        unkStringLen = recvPacket.ReadBits(7);
-
-    recvPacket.FlushBits();
-
-    recvPacket.ReadByteSeq(itemGuid[7]);
-
-    for (uint8 i = 0; i < archeologyCounter; i++)
-    {
-        switch (archeologyType[i])
+        for (uint32 l_I = 0; l_I < l_SpellWeightCount; ++l_I)
         {
-            case 1: // Fragments
-                recvPacket >> entry[i];     // Currency ID
-                recvPacket >> usedCount[i]; // Currency count
-                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], true);
-                break;
-            case 2: // Keystones
-                recvPacket >> entry[i];     // Item ID
-                recvPacket >> usedCount[i]; // ItemCount
-                GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry[i], usedCount[i], false);
-                break;
-            default:
-                break;
+            l_SpellWeightType[l_I] = p_RecvPacket.ReadBits(2);
+            p_RecvPacket >> l_SpellWeightID[l_I];
+            p_RecvPacket >> l_SpellWeightQuantity[l_I];
         }
     }
 
-    delete[] archeologyType;
-    archeologyType = NULL;
-    delete[] usedCount;
-    usedCount = NULL;
-    delete[] entry;
-    entry = NULL;
+    //////////////////////////////////////////////////////////////////////////
 
-    recvPacket.ReadByteSeq(itemGuid[3]);
-    recvPacket.ReadByteSeq(itemGuid[6]);
-    recvPacket.ReadByteSeq(itemGuid[5]);
-    recvPacket.ReadByteSeq(itemGuid[4]);
-    recvPacket.ReadByteSeq(itemGuid[1]);
-    recvPacket.ReadByteSeq(itemGuid[0]);
-    recvPacket.ReadByteSeq(itemGuid[2]);
-
-    uint8 bytesOrder3[8] = { 0, 4, 1, 7, 3, 6, 5, 2 };
-    recvPacket.ReadBytesSeq(itemTarget, bytesOrder3);
-
-    WorldLocation srcPos;
-    if (hasTransport)
+    if (l_SpellWeightCount)
     {
-        recvPacket.ReadByteSeq(srcTransport[7]);
-        recvPacket.ReadByteSeq(srcTransport[5]);
-        recvPacket.ReadByteSeq(srcTransport[6]);
-        recvPacket >> srcPos.m_positionX;
-        recvPacket.ReadByteSeq(srcTransport[3]);
-        recvPacket.ReadByteSeq(srcTransport[1]);
-        recvPacket >> srcPos.m_positionY;
-        recvPacket >> srcPos.m_positionZ;
-        recvPacket.ReadByteSeq(srcTransport[0]);
-        recvPacket.ReadByteSeq(srcTransport[2]);
-        recvPacket.ReadByteSeq(srcTransport[4]);
+        for (int l_I = 0; l_I < l_SpellWeightCount; l_I++)
+        {
+            switch (l_SpellWeightType[l_I])
+            {
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
+                case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        delete[] l_SpellWeightType;
+        delete[] l_SpellWeightID;
+        delete[] l_SpellWeightQuantity;
     }
 
-    if (hasMovement)
-    {
-        // Kebab client side
-    }
+    //////////////////////////////////////////////////////////////////////////
 
-    if (hasCastCount)
-        recvPacket >> castCount;
-
-    WorldLocation destPos;
-    if (hasDstTransport)
-    {
-        recvPacket.ReadByteSeq(dstTransport[6]);
-        recvPacket.ReadByteSeq(dstTransport[1]);
-        recvPacket >> destPos.m_positionZ;
-        recvPacket.ReadByteSeq(dstTransport[0]);
-        recvPacket >> destPos.m_positionX;
-        recvPacket.ReadByteSeq(dstTransport[5]);
-        recvPacket >> destPos.m_positionY;
-        recvPacket.ReadByteSeq(dstTransport[7]);
-        recvPacket.ReadByteSeq(dstTransport[2]);
-        recvPacket.ReadByteSeq(dstTransport[4]);
-        recvPacket.ReadByteSeq(dstTransport[3]);
-    }
-
-    if (hasSpeed)
-        recvPacket >> speed;
-
-    uint8 bytesOrder[8] = { 1, 3, 7, 0, 4, 6, 2, 5 };
-    recvPacket.ReadBytesSeq(targetGuid, bytesOrder);
-
-    if (hasSpellID)
-        recvPacket >> spellId;
-
-    if (hasElevation)
-        recvPacket >> elevation;
-
-    if (hasUnkString)
-        unkString = recvPacket.ReadString(unkStringLen);
-
-    if (hasGlyph)
-        recvPacket >> glyphIndex;
-
-    if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
+    if (l_Misc >= MAX_GLYPH_SLOT_INDEX)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    Item* pItem = pUser->GetUseableItemByPos(bagIndex, slot);
+    Item* pItem = pUser->GetUseableItemByPos(l_PackSlot, l_Slot);
     if (!pItem)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (pItem->GetGUID() != itemGuid)
+    if (pItem->GetGUID() != l_ItemGUID)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", bagIndex, slot, castCount, spellId, pItem->GetEntry(), glyphIndex, (uint32)recvPacket.size());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", l_PackSlot, l_Slot, l_CastCount, l_SpellID, pItem->GetEntry(), l_Misc, (uint32)p_RecvPacket.size());
 
     ItemTemplate const* proto = pItem->GetTemplate();
     if (!proto)
@@ -335,24 +281,20 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     Unit* mover = pUser->m_mover;
     if (mover != pUser && mover->GetTypeId() == TYPEID_PLAYER)
-    {
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
-    }
 
     SpellCastTargets targets;
-    HandleClientCastFlags(recvPacket, castFlags, targets);
 
-    targets.Initialize(castFlags, targetGuid, itemTarget, guid6, destPos, guid7, srcPos);
-    targets.SetElevation(elevation);
-    targets.SetSpeed(speed);
+    targets.Initialize(l_SendCastFlag, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
+    targets.SetElevation(l_MissibleTrajectoryPitch);
+    targets.SetSpeed(l_MissibleTrajectorySpeed);
     targets.Update(mover);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
         // no script or script not process request by self
-        pUser->CastItemUseSpell(pItem, targets, castCount, glyphIndex);
+        pUser->CastItemUseSpell(pItem, targets, l_CastCount, l_Misc);
     }
 }
 

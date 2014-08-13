@@ -495,6 +495,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_CAST_SPELL                             = 0x0968,   ///< 6.0.1 18716
     CMSG_CANCEL_CAST                            = 0x1BF8,   ///< 6.0.1 18716
+    CMSG_USE_ITEM                               = 0x0032,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
@@ -1098,7 +1099,6 @@ enum Opcodes
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x0000,
     CMSG_UPGRADE_ITEM                                 = 0x0000,
     CMSG_USED_FOLLOW                                  = 0x0000,
-    CMSG_USE_ITEM                                     = 0x0000,
     CMSG_VOICE_SESSION_ENABLE                         = 0x0000,
     CMSG_VOID_STORAGE_QUERY                           = 0x0000,
     CMSG_VOID_STORAGE_TRANSFER                        = 0x0000,
