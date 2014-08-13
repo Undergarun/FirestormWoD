@@ -4658,8 +4658,8 @@ void Spell::SendSpellStart()
 
     uint32 unkCounter4 = 0;
 
-    uint64 l_CasterGuid1    = m_caster->GetGUID();
-    uint64 l_CasterGuid2    = m_CastItem ? m_CastItem->GetGUID() : uint64(l_CasterGuid1);
+    uint64 l_CasterGuid1    = m_CastItem ? m_CastItem->GetGUID() : m_caster->GetGUID();
+    uint64 l_CasterGuid2    = m_caster->GetGUID();
     uint64 l_TargetGUID     = m_targets.GetObjectTargetGUID();
     uint64 l_TargetItemGUID = m_targets.GetItemTargetGUID();
 
@@ -4943,8 +4943,8 @@ void Spell::SendSpellGo()
 
     uint32 l_ExtraTargetsCount = m_targets.GetExtraTargetsCount();
 
-    uint64 l_CasterGuid1    = m_caster->GetGUID();
-    uint64 l_CasterGuid2    = m_castItemGUID ? m_castItemGUID : uint64(l_CasterGuid1);
+    uint64 l_CasterGuid1    = m_castItemGUID ? m_castItemGUID : m_caster->GetGUID();
+    uint64 l_CasterGuid2    = m_caster->GetGUID();
     uint64 l_TargetGUID     = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : 0;
     uint64 l_TargetItemGUID = itemTarget ? itemTarget->GetGUID() : 0;
 
