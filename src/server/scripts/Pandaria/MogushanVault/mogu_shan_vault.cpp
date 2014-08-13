@@ -2089,8 +2089,7 @@ class mob_kingsguard : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_KINGS_GUARD_ENRAGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_ENRAGE, false);
+                            me->CastSpell(me, SPELL_ENRAGE, false);
                             events.ScheduleEvent(EVENT_KINGS_GUARD_ENRAGE, 25000);
                             break;
                         case EVENT_KINGS_GUARD_REFLECTIVE_SHIELDS:
