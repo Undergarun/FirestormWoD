@@ -55,13 +55,13 @@ enum Opcodes
     #pragma region JamDispatch
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0028,   ///< 6.0.1 18689
-        SMSG_CACHE_VERSION                          = 0x10EA,   ///< 6.0.1 18689
-        SMSG_ADDON_INFO                             = 0x0EE2,   ///< 6.0.1 18689
+        SMSG_CACHE_VERSION                          = 0x10CE,   ///< 6.0.1 18689
+        SMSG_ADDON_INFO                             = 0x184A,   ///< 6.0.1 18689
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x006D,   ///< 6.0.1 18689
-        SMSG_SET_TIME_ZONE_INFORMATION              = 0x0648,   ///< 6.0.1 18689
+        SMSG_SET_TIME_ZONE_INFORMATION              = 0x137D,   ///< 6.0.1 18689
         SMSG_LOGIN_VERIFY_WORLD                     = 0x16C5,   ///< 6.0.1 18689
         SMSG_NEW_WORLD                              = 0x0E09,   ///< 6.0.1 18689
-        SMSG_LOGIN_SET_TIME_SPEED                   = 0x1654,   ///< 6.0.1 18689
+        SMSG_LOGIN_SET_TIME_SPEED                   = 0x02FD,   ///< 6.0.1 18689
         SMSG_HOTFIX_NOTIFY_BLOB                     = 0x1A49,   ///< 6.0.1 18689
         SMSG_HOTFIX_NOTIFY                          = 0x1FC6,   ///< 6.0.1 18689
         SMSG_WORLD_SERVER_INFO                      = 0x1F61,   ///< 6.0.1 18689
@@ -70,75 +70,75 @@ enum Opcodes
 
         /// Query
         SMSG_DB_REPLY                               = 0x116A,   ///< 6.0.1 18689
-        SMSG_CREATURE_QUERY_RESPONSE                = 0x127A,   ///< 6.0.1 18689
-        SMSG_NPC_TEXT_UPDATE                        = 0x1462,   ///< 6.0.1 18689
-        SMSG_NAME_QUERY_RESPONSE                    = 0x084D,   ///< 6.0.1 18689
-        SMSG_REALM_QUERY_RESPONSE                   = 0x00DA,   ///< 6.0.1 18689
-        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x1E65,   ///< 6.0.1 18689
+        SMSG_CREATURE_QUERY_RESPONSE                = 0x1566,   ///< 6.0.1 18689
+        SMSG_NPC_TEXT_UPDATE                        = 0x1059,   ///< 6.0.1 18689
+        SMSG_NAME_QUERY_RESPONSE                    = 0x1462,   ///< 6.0.1 18689
+        SMSG_REALM_QUERY_RESPONSE                   = 0x0E58,   ///< 6.0.1 18689
+        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x127A,   ///< 6.0.1 18689
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x1E19,   ///< 6.0.1 18689
-        SMSG_SET_PROFICIENCY                        = 0x1ACE,   ///< 6.0.1 18689
-        SMSG_INIT_WORLD_STATES                      = 0x12ED,   ///< 6.0.1 18689
-        SMSG_UPDATE_WORLD_STATE                     = 0x1D61,   ///< 6.0.1 18689
-        SMSG_EMOTE                                  = 0x18FA,   ///< 6.0.1 18689
-        SMSG_EXPLORATION_EXPERIENCE                 = 0x1A4E,   ///< 6.0.1 18689
-        SMSG_LOG_XP_GAIN                            = 0x036E,   ///< 6.0.1 18689
-        SMSG_LEVELUP_INFO                           = 0x0CE5,   ///< 6.0.1 18689
+        SMSG_SET_PROFICIENCY                        = 0x1AFD,   ///< 6.0.1 18689
+        SMSG_INIT_WORLD_STATES                      = 0x0B6D,   ///< 6.0.1 18689
+        SMSG_UPDATE_WORLD_STATE                     = 0x12ED,   ///< 6.0.1 18689
+        SMSG_EMOTE                                  = 0x086D,   ///< 6.0.1 18689
+        SMSG_EXPLORATION_EXPERIENCE                 = 0x0288,   ///< 6.0.1 18689
+        SMSG_LOG_XP_GAIN                            = 0x04E1,   ///< 6.0.1 18689
+        SMSG_LEVELUP_INFO                           = 0x1CE2,   ///< 6.0.1 18689
         SMSG_ITEM_PUSH_RESULT                       = 0x0EBC,   ///< 6.0.1 18689
         SMSG_INIT_CURRENCY                          = 0x1653,   ///< 6.0.1 18689
-        SMSG_EQUIPMENT_SET_LIST                     = 0x0FC5,   ///< 6.0.1 18689
-        SMSG_INITIALIZE_FACTIONS                    = 0x1DD7,   ///< 6.0.1 18689
+        SMSG_EQUIPMENT_SET_LIST                     = 0x1654,   ///< 6.0.1 18689
+        SMSG_INITIALIZE_FACTIONS                    = 0x02FA,   ///< 6.0.1 18689
         SMSG_BIND_POINT_UPDATE                      = 0x1D46,   ///< 6.0.1 18689
         SMSG_UPDATE_TALENT_DATA                     = 0x00CD,   ///< 6.0.1 18689
         SMSG_TRANSFER_ABORTED                       = 0x087E,   ///< 6.0.1 18689
         SMSG_TRANSFER_PENDING                       = 0x1249,   ///< 6.0.1 18689
-        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0CC2,   ///< 6.0.1 18689
+        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0A59,   ///< 6.0.1 18689
 
         /// Interaction
-        SMSG_LOGOUT_RESPONSE                        = 0x0CAB,   ///< 6.0.1 18689
-        SMSG_LOGOUT_CANCEL_ACK                      = 0x087D,   ///< 6.0.1 18689
-        SMSG_LOGOUT_COMPLETE                        = 0x02CE,   ///< 6.0.1 18689
-        SMSG_GOSSIP_POI                             = 0x0AC9,   ///< 6.0.1 18689
+        SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18689
+        SMSG_LOGOUT_CANCEL_ACK                      = 0x02CE,   ///< 6.0.1 18689
+        SMSG_LOGOUT_COMPLETE                        = 0x0CAB,   ///< 6.0.1 18689
+        SMSG_GOSSIP_POI                             = 0x1F45,   ///< 6.0.1 18689
 
         /// World Object management
-        SMSG_UPDATE_OBJECT                          = 0x0E61,   ///< 6.0.1 18689
+        SMSG_UPDATE_OBJECT                          = 0x15C5,   ///< 6.0.1 18689
         SMSG_POWER_UPDATE                           = 0x0000,   ///<
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1561,   ///< 6.0.1 18689
-        SMSG_CREATE_CHAR                            = 0x0447,   ///< 6.0.1 18689
-        SMSG_CHAR_DELETE                            = 0x1CD3,   ///< 6.0.1 18689
+        SMSG_CREATE_CHAR                            = 0x0C2B,   ///< 6.0.1 18689
+        SMSG_CHAR_DELETE                            = 0x0447,   ///< 6.0.1 18689
 
         /// Account data
-        SMSG_ACCOUNT_DATA_TIMES                     = 0x0762,   ///< 6.0.1 18689
-        SMSG_UPDATE_ACCOUNT_DATA                    = 0x137A,   ///< 6.0.1 18689
-        SMSG_TUTORIAL_FLAGS                         = 0x10DD,   ///< 6.0.1 18689
+        SMSG_ACCOUNT_DATA_TIMES                     = 0x137A,   ///< 6.0.1 18689
+        SMSG_UPDATE_ACCOUNT_DATA                    = 0x07C6,   ///< 6.0.1 18689
+        SMSG_TUTORIAL_FLAGS                         = 0x1546,   ///< 6.0.1 18689
 
         /// Combat
-        SMSG_ATTACKER_STATE_UPDATE                  = 0x05E2,   ///< 6.0.1 18689
-        SMSG_ATTACK_START                           = 0x117A,   ///< 6.0.1 18689
-        SMSG_ATTACK_STOP                            = 0x058B,   ///< 6.0.1 18689
-        SMSG_AI_REACTION                            = 0x1D53,   ///< 6.0.1 18689
-        SMSG_ATTACK_SWING_ERROR                     = 0x1CC8,   ///< 6.0.1 18689
+        SMSG_ATTACKER_STATE_UPDATE                  = 0x0654,   ///< 6.0.1 18689
+        SMSG_ATTACK_START                           = 0x1A7D,   ///< 6.0.1 18689
+        SMSG_ATTACK_STOP                            = 0x117A,   ///< 6.0.1 18689
+        SMSG_AI_REACTION                            = 0x024A,   ///< 6.0.1 18689
+        SMSG_ATTACK_SWING_ERROR                     = 0x0008,   ///< 6.0.1 18689
 
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0C65,   ///< 6.0.1 18689
-        SMSG_BUY_FAILED                             = 0x136E,   ///< 6.0.1 18689
-        SMSG_BUY_ITEM                               = 0x0ED4,   ///< 6.0.1 18689
-        SMSG_SELL_ITEM                              = 0x1E42,   ///< 6.0.1 18689
+        SMSG_BUY_FAILED                             = 0x0ED4,   ///< 6.0.1 18689
+        SMSG_BUY_ITEM                               = 0x1E42,   ///< 6.0.1 18689
+        SMSG_SELL_ITEM                              = 0x007E,   ///< 6.0.1 18689
 
         /// Achievement
         SMSG_ALL_ACHIEVEMENT_DATA                   = 0x17E1,   ///< 6.0.1 18689
 
         /// Friends
-        SMSG_CONTACT_LIST                           = 0x17C7,   ///< 6.0.1 18689
+        SMSG_CONTACT_LIST                           = 0x1C9B,   ///< 6.0.1 18689
 
         /// Taxi
-        SMSG_TAXI_NODE_STATUS                       = 0x004A,   ///< 6.0.1 18689
-        SMSG_NEW_TAXI_PATH                          = 0x1DE2,   ///< 6.0.1 18689
+        SMSG_TAXI_NODE_STATUS                       = 0x0049,   ///< 6.0.1 18689
+        SMSG_NEW_TAXI_PATH                          = 0x1ED7,   ///< 6.0.1 18689
         SMSG_SHOW_TAXI_NODES                        = 0x0C2C,   ///< 6.0.1 18689
-        SMSG_ACTIVATE_TAXI_REPLY                    = 0x06C6,   ///< 6.0.1 18689
+        SMSG_ACTIVATE_TAXI_REPLY                    = 0x004A,   ///< 6.0.1 18689
 
         /// Loot
         SMSG_LOOT_LIST                              = 0x1ED8,   ///< 6.0.1 18689
@@ -150,7 +150,7 @@ enum Opcodes
         SMSG_COIN_REMOVED                           = 0x00ED,   ///< 6.0.1 18689
 
         /// Bank
-        SMSG_SHOW_BANK                              = 0x0E9B,   ///< 6.0.1 18689
+        SMSG_SHOW_BANK                              = 0x1DE2,   ///< 6.0.1 18689
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
