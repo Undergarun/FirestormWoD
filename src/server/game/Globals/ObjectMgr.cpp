@@ -2459,6 +2459,8 @@ void ObjectMgr::LoadItemTemplates()
 
         ASSERT(l_EffectsIndex.size() < MAX_ITEM_PROTO_SPELLS);
 
+        memset(&itemTemplate.Spells[0], 0, sizeof(_Spell)* MAX_ITEM_PROTO_SPELLS);
+
         for (uint32 l_I = 0; l_I < l_EffectsIndex.size(); ++l_I)
         {
             const ItemEffectEntry * l_Entry = sItemEffectStore.LookupEntry(l_EffectsIndex[l_I]);
