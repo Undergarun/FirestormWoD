@@ -112,7 +112,7 @@ MovementStatusElements MovementGlobalSequence[] =
 MovementStatusElements PlayerMoveSequence[] =
 {
     MSEGuid,
-    MSETimestamp,
+    MSEAlive32,
     MSEPositionX,
     MSEPositionY,
     MSEPositionZ,
@@ -120,7 +120,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEPitch,
     MSESplineElevation,
     MSEUnkCounter,
-    MSEAlive32,
+    MSETimestamp,
     MSEMovementFlags,
     MSEMovementFlags2,
     MSEHasTransportData,
