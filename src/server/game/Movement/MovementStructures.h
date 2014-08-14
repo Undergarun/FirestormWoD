@@ -64,7 +64,7 @@ enum MovementStatusElements
     MSE_COUNT
 };
 
-/// 6.0.1 18322
+/// 6.0.1 18716
 MovementStatusElements MovementGlobalSequence[] =
 {
     MSEGuid,
@@ -108,9 +108,49 @@ MovementStatusElements MovementGlobalSequence[] =
     MSEEnd,
 };
 
-//5.0.5 16048
+/// 6.0.1 18716
 MovementStatusElements PlayerMoveSequence[] =
 {
+    MSEGuid,
+    MSETimestamp,
+    MSEPositionX,
+    MSEPositionY,
+    MSEPositionZ,
+    MSEOrientation,
+    MSEPitch,
+    MSESplineElevation,
+    MSEUnkCounter,
+    MSEAlive32,
+    MSEMovementFlags,
+    MSEMovementFlags2,
+    MSEHasTransportData,
+    MSEHasFallData,
+    MSEZeroBit,
+    MSEZeroBit,
+    MSEZeroBit,
+    MSEFlushBits,
+
+    MSETransportGuid,
+    MSETransportPositionX,
+    MSETransportPositionY,
+    MSETransportPositionZ,
+    MSETransportOrientation,
+    MSETransportSeat,
+    MSETransportTime,
+    MSEHasTransportTime2,
+    MSEHasTransportTime3,
+    MSEFlushBits,
+    MSETransportTime2,
+    MSETransportTime3,
+
+    MSEFallTime,
+    MSEFallVerticalSpeed,
+    MSEHasFallDirection, 
+    MSEFlushBits,
+    MSEFallCosAngle,
+    MSEFallSinAngle,
+    MSEFallHorizontalSpeed,
+
     MSEEnd,
 };
 

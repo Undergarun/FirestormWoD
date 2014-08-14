@@ -295,6 +295,7 @@ enum Opcodes
         SMSG_MOVE_SET_PITCH_RATE                    = 0x1365,   ///< 6.0.1 18716
 
         /// Player
+        SMSG_MOVE_UPDATE                            = 0x01A5,   ///< 6.0.1 18716
         SMSG_MOVE_TELEPORT                          = 0x0176,   ///< 6.0.1 18716
         SMSG_MOVE_ROOT                              = 0x033E,   ///< 6.0.1 18716
         SMSG_MOVE_UNROOT                            = 0x0B45,   ///< 6.0.1 18716
@@ -1490,7 +1491,6 @@ enum Opcodes
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x0000,
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x0000,
     SMSG_MOVE_KNOCK_BACK                              = 0x0000,
-    SMSG_MOVE_UPDATE                                  = 0x0000,
     SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000,
     SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING              = 0x0000,
     SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x0000,
