@@ -153,6 +153,7 @@ enum Opcodes
         SMSG_SHOW_BANK                              = 0x1DE2,   ///< 6.0.1 18716
 
         /// Group
+        SMSG_PARTY_UPDATE                           = 0x0CE6,   ///< 6.0.1 18716
         SMSG_PARTY_INVITE                           = 0x1FD8,   ///< 6.0.1 18716
         SMSG_GROUP_DECLINE                          = 0x0D65,   ///< 6.0.1 18716
     #pragma endregion
@@ -299,6 +300,7 @@ enum Opcodes
         SMSG_MOVE_SET_PITCH_RATE                    = 0x1365,   ///< 6.0.1 18716
 
         /// Player
+        SMSG_MOVE_UPDATE                            = 0x01A5,   ///< 6.0.1 18716
         SMSG_MOVE_TELEPORT                          = 0x0176,   ///< 6.0.1 18716
         SMSG_MOVE_ROOT                              = 0x033E,   ///< 6.0.1 18716
         SMSG_MOVE_UNROOT                            = 0x0B45,   ///< 6.0.1 18716
@@ -1497,7 +1499,6 @@ enum Opcodes
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x0000,
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x0000,
     SMSG_MOVE_KNOCK_BACK                              = 0x0000,
-    SMSG_MOVE_UPDATE                                  = 0x0000,
     SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000,
     SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING              = 0x0000,
     SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x0000,
@@ -1534,7 +1535,6 @@ enum Opcodes
     SMSG_PARTY_KILL_LOG                               = 0x0000,
     SMSG_PARTY_MEMBER_STATS                           = 0x0000,
     SMSG_PARTY_MEMBER_STATS_FULL                      = 0x0000,
-    SMSG_PARTY_UPDATE                                 = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x0000,
     SMSG_PENDING_RAID_LOCK                            = 0x0000,
     SMSG_PETITION_ALREADY_SIGNED                      = 0x0000,
