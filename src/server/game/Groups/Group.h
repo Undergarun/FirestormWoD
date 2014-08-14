@@ -104,7 +104,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FLAG_POWER_TYPE        = 0x00000010,       // uint8 (PowerType)
     GROUP_UPDATE_FLAG_CUR_POWER         = 0x00000020,       // int16 (power value)
     GROUP_UPDATE_FLAG_MAX_POWER         = 0x00000040,       // int16 (power value)
-    GROUP_UPDATE_FLAG_UNK_80            = 0x00000080,       // unk uint16
+    GROUP_UPDATE_FLAG_SPECIALISATION    = 0x00000080,       // unk uint16
     GROUP_UPDATE_FLAG_LEVEL             = 0x00000100,       // uint16 (level value)
     GROUP_UPDATE_FLAG_ZONE              = 0x00000200,       // uint16 (zone id)
     GROUP_UPDATE_FLAG_UNK400            = 0x00000400,       // int16 (unk
@@ -128,7 +128,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FLAG_MAX_HP |
     GROUP_UPDATE_FLAG_POWER_TYPE |
     GROUP_UPDATE_FLAG_MAX_POWER |
-    GROUP_UPDATE_FLAG_UNK_80 |
+    GROUP_UPDATE_FLAG_SPECIALISATION |
     GROUP_UPDATE_FLAG_LEVEL |
     GROUP_UPDATE_FLAG_ZONE |
     GROUP_UPDATE_FLAG_POSITION |
