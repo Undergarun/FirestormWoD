@@ -154,13 +154,10 @@ enum Opcodes
 
         /// Group
         SMSG_PARTY_UPDATE                           = 0x0CE6,   ///< 6.0.1 18716
-<<<<<<< HEAD
         SMSG_PARTY_MEMBER_STATE_FULL                = 0x12FD,   ///< 6.0.1 18716
         SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x0C1B,   ///< 6.0.1 18716
-=======
         SMSG_PARTY_INVITE                           = 0x1FD8,   ///< 6.0.1 18716
         SMSG_GROUP_DECLINE                          = 0x0D65,   ///< 6.0.1 18716
->>>>>>> origin/WoD2
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
