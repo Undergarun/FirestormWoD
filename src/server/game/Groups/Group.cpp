@@ -470,6 +470,16 @@ bool Group::AddMember(Player* player)
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
+    WorldPacket data;
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, 0, true);
+
+    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* member = itr->getSource();
+        if (member && !member->IsWithinDist(player, member->GetSightRange(), false))
+            member->GetSession()->SendPacket(&data);
+    }
+
     if (player)
     {
         if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
@@ -2183,7 +2193,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
         return;
 
     WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, player->GetGroupUpdateFlag(), player->GetGUID());
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, player->GetGroupUpdateFlag());
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())

@@ -154,6 +154,8 @@ enum Opcodes
 
         /// Group
         SMSG_PARTY_UPDATE                           = 0x0CE6,   ///< 6.0.1 18716
+        SMSG_PARTY_MEMBER_STATE_FULL                = 0x12FD,   ///< 6.0.1 18716
+        SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x0C1B,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1528,8 +1530,6 @@ enum Opcodes
     SMSG_PAGE_TEXT                                    = 0x0000,
     SMSG_PARTY_COMMAND_RESULT                         = 0x0000,
     SMSG_PARTY_KILL_LOG                               = 0x0000,
-    SMSG_PARTY_MEMBER_STATS                           = 0x0000,
-    SMSG_PARTY_MEMBER_STATS_FULL                      = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x0000,
     SMSG_PENDING_RAID_LOCK                            = 0x0000,
     SMSG_PETITION_ALREADY_SIGNED                      = 0x0000,
