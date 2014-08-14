@@ -2454,7 +2454,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     /// Character visible equipment
     for (uint8 l_EquipmentSlot = 0; l_EquipmentSlot < INVENTORY_SLOT_BAG_END; ++l_EquipmentSlot)
     {
-        uint32 l_Visualbase = l_EquipmentSlot * 2;
+        uint32 l_Visualbase = l_EquipmentSlot * 3;
         uint32 l_ItemID     = GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase);
 
         ItemTemplate const * l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
@@ -13948,14 +13948,16 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 0, pItem->GetVisibleEntry());
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 2, 0);
     }
     else
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, 0);
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 2, 0);
     }
 }
 
@@ -21255,7 +21257,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
             ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
 
         // ...and bags for enum opcode
@@ -21381,7 +21383,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
             ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
 
         // ...and bags for enum opcode
@@ -21391,6 +21393,7 @@ void Player::SaveToDB(bool create /*=false*/)
                 ss << item->GetEntry();
             else
                 ss << '0';
+            ss << " 0 ";
             ss << " 0 ";
         }
 
