@@ -745,12 +745,14 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
-    WorldPacket data(SMSG_GROUP_SET_LEADER);
+    uint8 l_PartyIndex = 0;
+    std::string l_Name = slot->name;
 
-    data << uint8(0);
-    data.WriteBits(slot->name.size(), 6);
+    WorldPacket data(SMSG_GROUP_NEW_LEADER);
+    data << uint8(l_PartyIndex);
+    data.WriteBits(l_Name.length(), 8);
     data.FlushBits();
-    data.append(slot->name.c_str(), slot->name.size());
+    data.WriteString(l_Name);
 
     BroadcastPacket(&data, true);
 }

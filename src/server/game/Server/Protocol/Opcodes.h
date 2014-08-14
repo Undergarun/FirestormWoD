@@ -156,6 +156,9 @@ enum Opcodes
         SMSG_PARTY_UPDATE                           = 0x0CE6,   ///< 6.0.1 18716
         SMSG_PARTY_INVITE                           = 0x1FD8,   ///< 6.0.1 18716
         SMSG_GROUP_DECLINE                          = 0x0D65,   ///< 6.0.1 18716
+        SMSG_PARTY_COMMAND_RESULT                   = 0x1D48,   ///< 6.0.1 18716
+        SMSG_GROUP_UNINVITE                         = 0x0542,   ///< 6.0.1 18716
+        SMSG_GROUP_NEW_LEADER                       = 0x16C7,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -636,7 +639,9 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_PARTY_INVITE                           = 0x004A,   ///< 6.0.1 18716
     CMSG_PARTY_INVITE_RESPONSE                  = 0x0FC6,   ///< 6.0.1 18716
-
+    CMSG_LEAVE_GROUP                            = 0x184E,   ///< 6.0.1 18716
+    CMSG_PARTY_UNINVITE                         = 0x0661,   ///< 6.0.1 18716
+    CMSG_SET_PARTY_LEADER                       = 0x1E62,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -848,14 +853,10 @@ enum Opcodes
     CMSG_GROUP_ASSIGNMENT                             = 0x0000,
     CMSG_GROUP_CANCEL                                 = 0x0000,
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x0000,
-    CMSG_GROUP_DISBAND                                = 0x0000,
     CMSG_GROUP_RAID_CONVERT                           = 0x0000,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
-    CMSG_GROUP_SET_LEADER                             = 0x0000,
     CMSG_GROUP_SET_ROLES                              = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
-    CMSG_GROUP_UNINVITE                               = 0x0000,
-    CMSG_GROUP_UNINVITE_GUID                          = 0x0000,
     CMSG_GUILD_ACCEPT                                 = 0x0000,
     CMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0x0000,
     CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY             = 0x0000,
@@ -1411,8 +1412,6 @@ enum Opcodes
     SMSG_GROUP_CANCEL                                 = 0x0000,
     SMSG_GROUP_DESTROYED                              = 0x0000,
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x0000,
-    SMSG_GROUP_SET_LEADER                             = 0x0000,
-    SMSG_GROUP_UNINVITE                               = 0x0000,
     SMSG_HEALTH_UPDATE                                = 0x0000,
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x0000,
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x0000,
@@ -1531,7 +1530,6 @@ enum Opcodes
     SMSG_OVERRIDE_LIGHT                               = 0x0000,
     SMSG_PAGE_TEXT_QUERY_RESPONSE                     = 0x0000,
     SMSG_PAGE_TEXT                                    = 0x0000,
-    SMSG_PARTY_COMMAND_RESULT                         = 0x0000,
     SMSG_PARTY_KILL_LOG                               = 0x0000,
     SMSG_PARTY_MEMBER_STATS                           = 0x0000,
     SMSG_PARTY_MEMBER_STATS_FULL                      = 0x0000,
