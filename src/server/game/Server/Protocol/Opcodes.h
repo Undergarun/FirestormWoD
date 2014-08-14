@@ -151,6 +151,9 @@ enum Opcodes
 
         /// Bank
         SMSG_SHOW_BANK                              = 0x1DE2,   ///< 6.0.1 18716
+
+        /// Group
+        SMSG_PARTY_UPDATE                           = 0x0CE6,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1527,7 +1530,6 @@ enum Opcodes
     SMSG_PARTY_KILL_LOG                               = 0x0000,
     SMSG_PARTY_MEMBER_STATS                           = 0x0000,
     SMSG_PARTY_MEMBER_STATS_FULL                      = 0x0000,
-    SMSG_PARTY_UPDATE                                 = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x0000,
     SMSG_PENDING_RAID_LOCK                            = 0x0000,
     SMSG_PETITION_ALREADY_SIGNED                      = 0x0000,
