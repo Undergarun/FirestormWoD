@@ -1145,7 +1145,7 @@ class WorldSession
         time_t timeLastChannelBanCommand;
         time_t timeLastChannelUnbanCommand;
         time_t timeLastChannelAnnounceCommand;
-        time_t timeLastGroupInviteCommand;
+        time_t m_TimeLastGroupInviteCommand;
         time_t timeLastGuildInviteCommand;
         time_t timeLastChannelModerCommand;
         time_t timeLastChannelOwnerCommand;

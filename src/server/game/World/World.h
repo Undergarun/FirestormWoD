@@ -858,6 +858,8 @@ class World
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
         std::string GetRealmName() { return m_realmName; }
+        std::string GetNormalizedRealmName() const;
+
         void UpdatePhaseDefinitions();
 
         bool AddCharacterName(std::string name)

@@ -138,27 +138,37 @@ std::string ScriptInfo::GetDebugInfo() const
     return std::string(sz);
 }
 
-bool normalizePlayerName(std::string& name)
+bool normalizePlayerName(std::string& p_Name)
 {
-    if (name.empty())
+    if (p_Name.empty())
         return false;
 
-    if (name[0] == -61 && name[1] == -97) // Interdiction d'utiliser ce caractere au debut, il fait planter l'affichage cote client
+    if (p_Name[0] == -61 && p_Name[1] == -97) // Interdiction d'utiliser ce caractere au debut, il fait planter l'affichage cote client
         return false;
 
     wchar_t wstr_buf[MAX_INTERNAL_PLAYER_NAME+1];
     size_t wstr_len = MAX_INTERNAL_PLAYER_NAME;
 
-    if (!Utf8toWStr(name, &wstr_buf[0], wstr_len))
+    if (!Utf8toWStr(p_Name, &wstr_buf[0], wstr_len))
         return false;
 
     wstr_buf[0] = wcharToUpper(wstr_buf[0]);
     for (size_t i = 1; i < wstr_len; ++i)
         wstr_buf[i] = wcharToLower(wstr_buf[i]);
 
-    if (!WStrToUtf8(wstr_buf, wstr_len, name))
+    if (!WStrToUtf8(wstr_buf, wstr_len, p_Name))
         return false;
 
+    std::string l_NewName = "";
+    for (int l_I = 0; l_I < p_Name.length(); l_I++)
+    {
+        if (p_Name[l_I] == '-')
+            break;
+
+        l_NewName += p_Name[l_I];
+    }
+
+    p_Name = l_NewName;
     return true;
 }
 

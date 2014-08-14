@@ -154,8 +154,13 @@ enum Opcodes
 
         /// Group
         SMSG_PARTY_UPDATE                           = 0x0CE6,   ///< 6.0.1 18716
+<<<<<<< HEAD
         SMSG_PARTY_MEMBER_STATE_FULL                = 0x12FD,   ///< 6.0.1 18716
         SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x0C1B,   ///< 6.0.1 18716
+=======
+        SMSG_PARTY_INVITE                           = 0x1FD8,   ///< 6.0.1 18716
+        SMSG_GROUP_DECLINE                          = 0x0D65,   ///< 6.0.1 18716
+>>>>>>> origin/WoD2
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -632,6 +637,13 @@ enum Opcodes
     CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x02CF,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
+    /// Group
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_PARTY_INVITE                           = 0x004A,   ///< 6.0.1 18716
+    CMSG_PARTY_INVITE_RESPONSE                  = 0x0FC6,   ///< 6.0.1 18716
+
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -842,8 +854,6 @@ enum Opcodes
     CMSG_GROUP_CANCEL                                 = 0x0000,
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x0000,
     CMSG_GROUP_DISBAND                                = 0x0000,
-    CMSG_GROUP_INVITE                                 = 0x0000,
-    CMSG_GROUP_INVITE_RESPONSE                        = 0x0000,
     CMSG_GROUP_RAID_CONVERT                           = 0x0000,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
     CMSG_GROUP_SET_LEADER                             = 0x0000,
@@ -1404,9 +1414,7 @@ enum Opcodes
     SMSG_GOD_MODE                                     = 0x0000,
     SMSG_GROUP_ACTION_THROTTLED                       = 0x0000,
     SMSG_GROUP_CANCEL                                 = 0x0000,
-    SMSG_GROUP_DECLINE                                = 0x0000,
     SMSG_GROUP_DESTROYED                              = 0x0000,
-    SMSG_GROUP_INVITE                                 = 0x0000,
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x0000,
     SMSG_GROUP_SET_LEADER                             = 0x0000,
     SMSG_GROUP_UNINVITE                               = 0x0000,
