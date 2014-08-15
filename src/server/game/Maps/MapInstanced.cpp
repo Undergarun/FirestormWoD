@@ -25,7 +25,7 @@
 #include "World.h"
 #include "Group.h"
 
-MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, REGULAR_DIFFICULTY)
+MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, REGULAR_5_DIFFICULTY)
 {
     // initialize instanced maps list
     m_InstancedMaps.clear();
@@ -236,9 +236,9 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     uint8 spawnMode;
 
     if (bracketEntry)
-        spawnMode = REGULAR_DIFFICULTY; // bracketEntry->difficulty;
+        spawnMode = REGULAR_5_DIFFICULTY; // bracketEntry->difficulty;
     else
-        spawnMode = REGULAR_DIFFICULTY;
+        spawnMode = REGULAR_5_DIFFICULTY;
 
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());

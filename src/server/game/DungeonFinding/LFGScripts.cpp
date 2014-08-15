@@ -58,7 +58,7 @@ void LFGPlayerScript::OnLogin(Player* player)
 void LFGPlayerScript::OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool /*permanent*/)
 {
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-    if (mapEntry->IsDungeon() && difficulty > REGULAR_DIFFICULTY)
+    if (mapEntry->IsDungeon() && difficulty > REGULAR_5_DIFFICULTY)
         sLFGMgr->InitializeLockedDungeons(player);
 }
 

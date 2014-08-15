@@ -381,28 +381,27 @@ enum AreaFlags2
 
 enum Difficulty
 {
-    NONE_DIFFICULTY              = 0,                       // entry
+    NONE_DIFFICULTY                 = 0,                    // entry
 
-
-    REGULAR_DIFFICULTY           = 1,                       // difficulty_entry_1
-    HEROIC_DIFFICULTY            = 2,                       // difficulty_entry_2
-    MAN10_DIFFICULTY             = 3,                       // difficulty_entry_3
-    MAN25_DIFFICULTY             = 4,                       // difficulty_entry_4
-    MAN10_HEROIC_DIFFICULTY      = 5,                       // difficulty_entry_5
-    MAN25_HEROIC_DIFFICULTY      = 6,                       // difficulty_entry_6
-    RAID_TOOL_DIFFICULTY         = 7,                       // difficulty_entry_7
-    CHALLENGE_MODE_DIFFICULTY    = 8,                       // difficulty_entry_8
-    MAN40_DIFFICULTY             = 9,                       // difficulty_entry_9
+    REGULAR_5_DIFFICULTY            = 1,                    // difficulty_entry_1
+    HEROIC_5_DIFFICULTY             = 2,                    // difficulty_entry_2
+    LEGACY_MAN10_DIFFICULTY         = 3,                    // difficulty_entry_3
+    LEGACY_MAN25_DIFFICULTY         = 4,                    // difficulty_entry_4
+    LEGACY_MAN10_HEROIC_DIFFICULTY  = 5,                    // difficulty_entry_5
+    LEGACY_MAN25_HEROIC_DIFFICULTY  = 6,                    // difficulty_entry_6
+    RAID_TOOL_DIFFICULTY            = 7,                    // difficulty_entry_7
+    CHALLENGE_MODE_DIFFICULTY       = 8,                    // difficulty_entry_8
+    MAN40_DIFFICULTY                = 9,                    // difficulty_entry_9
                                                             // difficulty_entry_10
-    SCENARIO_HEROIC_DIFFICULTY   = 11,                      // difficulty_entry_11
-    SCENARIO_DIFFICULTY          = 12,                      // difficulty_entry_12
-                                                            // difficulty_entry_13
-    DYNAMIC_DIFFICULTY           = 14,                      // difficulty_entry_14
-                                                            // difficulty_entry_15
-                                                            // difficulty_entry_16
+    SCENARIO_HEROIC_DIFFICULTY      = 11,                   // difficulty_entry_11
+    SCENARIO_DIFFICULTY             = 12,                   // difficulty_entry_12
+    
+    NORMAL_DIFFICULTY               = 14,                   // difficulty_entry_14
+    HEROIC_DIFFICULTY               = 15,                   // difficulty_entry_15
+    MYTHIC_DIFFICULTY               = 16,                   // difficulty_entry_16
                                                             // difficulty_entry_17
-    EVENT_0_DIFFICULTY           = 18,                      // difficulty_entry_18
-    EVENT_1_DIFFICULTY           = 19,                      // difficulty_entry_19
+    EVENT_0_DIFFICULTY              = 18,                   // difficulty_entry_18
+    EVENT_1_DIFFICULTY              = 19,                   // difficulty_entry_19
 };
 
 #define RAID_DIFFICULTY_MASK_25MAN 1                        // since 25man difficulties are 1 and 3, we can check them like that
@@ -415,18 +414,18 @@ enum SpawnMask
 {
     SPAWNMASK_CONTINENT         = (1 << NONE_DIFFICULTY),   // any maps without spawn modes
 
-    SPAWNMASK_DUNGEON_NORMAL    = (1 << REGULAR_DIFFICULTY),
-    SPAWNMASK_DUNGEON_HEROIC    = (1 << HEROIC_DIFFICULTY),
+    SPAWNMASK_DUNGEON_NORMAL    = (1 << REGULAR_5_DIFFICULTY),
+    SPAWNMASK_DUNGEON_HEROIC    = (1 << HEROIC_5_DIFFICULTY),
     SPAWNMASK_DUNGEON_CHALLENGE = (1 << CHALLENGE_MODE_DIFFICULTY),
     SPAWNMASK_DUNGEON_ALL       = (SPAWNMASK_DUNGEON_NORMAL | SPAWNMASK_DUNGEON_HEROIC | SPAWNMASK_DUNGEON_CHALLENGE),
 
-    SPAWNMASK_RAID_10MAN_NORMAL = (1 << MAN10_DIFFICULTY ),
-    SPAWNMASK_RAID_25MAN_NORMAL = (1 << MAN25_DIFFICULTY),
+    SPAWNMASK_RAID_10MAN_NORMAL = (1 << LEGACY_MAN10_DIFFICULTY ),
+    SPAWNMASK_RAID_25MAN_NORMAL = (1 << LEGACY_MAN25_DIFFICULTY),
     SPAWNMASK_RAID_40MAN_NORMAL = (1 << MAN40_DIFFICULTY),
     SPAWNMASK_RAID_NORMAL_ALL   = (SPAWNMASK_RAID_10MAN_NORMAL | SPAWNMASK_RAID_25MAN_NORMAL | SPAWNMASK_RAID_40MAN_NORMAL),
 
-    SPAWNMASK_RAID_10MAN_HEROIC = (1 << MAN10_HEROIC_DIFFICULTY),
-    SPAWNMASK_RAID_25MAN_HEROIC = (1 << MAN25_HEROIC_DIFFICULTY),
+    SPAWNMASK_RAID_10MAN_HEROIC = (1 << LEGACY_MAN10_HEROIC_DIFFICULTY),
+    SPAWNMASK_RAID_25MAN_HEROIC = (1 << LEGACY_MAN25_HEROIC_DIFFICULTY),
     SPAWNMASK_RAID_HEROIC_ALL   = (SPAWNMASK_RAID_10MAN_HEROIC | SPAWNMASK_RAID_25MAN_HEROIC),
 
     SPAWNMASK_RAID_RAID_TOOL    = (1 << RAID_TOOL_DIFFICULTY),

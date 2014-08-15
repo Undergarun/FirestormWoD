@@ -85,7 +85,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
         return NULL;
     }
 
-    if (difficulty >= (entry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
+    if (difficulty >= (entry->IsRaid() ? MYTHIC_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
     {
         sLog->outError(LOG_FILTER_GENERAL, "InstanceSaveManager::AddInstanceSave: mapid = %d, instanceid = %d, wrong difficulty %u!", mapId, instanceId, difficulty);
         return NULL;
@@ -95,7 +95,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
     {
         // initialize reset time
         // for normal instances if no creatures are killed the instance will reset in two hours
-        if (entry->instanceType == MAP_RAID || difficulty > REGULAR_DIFFICULTY)
+        if (entry->instanceType == MAP_RAID || difficulty > REGULAR_5_DIFFICULTY)
             resetTime = GetResetTimeFor(mapId, difficulty);
         else
         {

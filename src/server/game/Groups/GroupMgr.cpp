@@ -122,7 +122,7 @@ void GroupMgr::LoadGroups()
         //                                                        0              1           2             3                 4      5          6      7         8       9
         QueryResult result = CharacterDatabase.Query("SELECT g.leaderGuid, g.lootMethod, g.looterGuid, g.lootThreshold, g.icon1, g.icon2, g.icon3, g.icon4, g.icon5, g.icon6"
             //  10         11          12         13              14            15         16           17
-            ", g.icon7, g.icon8, g.groupType, g.difficulty, g.raiddifficulty, g.guid, lfg.dungeon, lfg.state FROM groups g LEFT JOIN lfg_data lfg ON lfg.guid = g.guid ORDER BY g.guid ASC");
+            ", g.icon7, g.icon8, g.groupType, g.difficulty, g.raiddifficulty, g.guid, lfg.dungeon, lfg.state, g.legacyraiddifficulty FROM groups g LEFT JOIN lfg_data lfg ON lfg.guid = g.guid ORDER BY g.guid ASC");
         if (!result)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group definitions. DB table `groups` is empty!");
@@ -218,7 +218,7 @@ void GroupMgr::LoadGroups()
             }
 
             uint32 diff = fields[4].GetUInt8();
-            if (diff >= uint32(mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
+            if (diff >= uint32(mapEntry->IsRaid() ? MYTHIC_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
             {
                 sLog->outError(LOG_FILTER_SQL, "Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
                 diff = 0;                                   // default for both difficaly types

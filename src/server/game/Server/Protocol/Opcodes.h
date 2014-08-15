@@ -94,6 +94,8 @@ enum Opcodes
         SMSG_TRANSFER_ABORTED                       = 0x087E,   ///< 6.0.1 18716
         SMSG_TRANSFER_PENDING                       = 0x1249,   ///< 6.0.1 18716
         SMSG_INVENTORY_CHANGE_FAILURE               = 0x0A59,   ///< 6.0.1 18716
+        SMSG_SET_DUNGEON_DIFFICULTY                 = 0x1859,   ///< 6.0.1 18716
+        SMSG_SET_RAID_DIFFICULTY                    = 0x1EBC,   ///< 6.0.1 18716
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18716
@@ -163,6 +165,7 @@ enum Opcodes
         SMSG_GROUP_NEW_LEADER                       = 0x16C7,   ///< 6.0.1 18716
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
         SMSG_MINIMAP_PING                           = 0x0C2C,   ///< 6.0.1 18716
+        SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -471,6 +474,7 @@ enum Opcodes
     CMSG_VIOLENCE_LEVEL                         = 0x011D,   ///< 6.0.1 18716
     CMSG_LOAD_SCREEN                            = 0x025D,   ///< 6.0.1 18716
     CMSG_SET_DUNGEON_DIFFICULTY                 = 0x1D42,   ///< 6.0.1 18716
+    CMSG_SET_RAID_DIFFICULTY                    = 0x007E,   ///< 6.0.1 18716
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x18DA,   ///< 6.0.1 18716
     CMSG_SHOWING_CLOAK                          = 0x1B7A,   ///< 6.0.1 18716
     CMSG_SHOWING_HELM                           = 0x0ACE,   ///< 6.0.1 18716
@@ -649,6 +653,7 @@ enum Opcodes
     CMSG_SET_ROLE                               = 0x027E,   ///< 6.0.1 18716
     CMSG_LOOT_ROLL                              = 0x01C5,   ///< 6.0.1 18716
     CMSG_MINIMAP_PING                           = 0x1442,   ///< 6.0.1 18716
+    CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -691,7 +696,6 @@ enum Opcodes
     MSG_MOVE_WATER_WALK = 0x0000,
     MSG_NOTIFY_PARTY_SQUELCH = 0x0000,
     MSG_QUERY_NEXT_MAIL_TIME = 0x0000,
-    MSG_SET_RAID_DIFFICULTY = 0x0000,
 
 
     // CMSG
@@ -1675,7 +1679,6 @@ enum Opcodes
     SMSG_SET_AI_ANIM_KIT                              = 0x0000,
     SMSG_SET_ANIM_TIMER                               = 0x0000,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x0000,
-    SMSG_SET_DUNGEON_DIFFICULTY                       = 0x0000,
     SMSG_SET_FACTION_ATWAR                            = 0x0000,
     SMSG_SET_FACTION_STANDING                         = 0x0000,
     SMSG_SET_FACTION_VISIBLE                          = 0x0000,

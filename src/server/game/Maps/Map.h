@@ -358,17 +358,17 @@ class Map : public GridRefManager<NGridType>
 
         // have meaning only for instanced map (that have set real difficulty)
         Difficulty GetDifficulty() const { return Difficulty(GetSpawnMode()); }
-        bool IsRegularDifficulty() const { return GetDifficulty() == REGULAR_DIFFICULTY; }
+        bool IsRegularDifficulty() const { return GetDifficulty() == REGULAR_5_DIFFICULTY; }
         MapDifficulty const* GetMapDifficulty() const;
 
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
-        bool IsRaidOrHeroicDungeon() const { return IsRaid() || (i_spawnMode == MAN25_DIFFICULTY || i_spawnMode == MAN25_HEROIC_DIFFICULTY || i_spawnMode == MAN10_DIFFICULTY || i_spawnMode == MAN10_HEROIC_DIFFICULTY || i_spawnMode == MAN40_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
-        bool IsHeroic() const {return ( i_spawnMode == MAN25_HEROIC_DIFFICULTY || i_spawnMode == MAN10_HEROIC_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
+        bool IsRaidOrHeroicDungeon() const { return IsRaid() || (i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN10_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY || i_spawnMode == MAN40_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
+        bool IsHeroic() const { return (i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY || i_spawnMode == LEGACY_MAN10_HEROIC_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
         bool IsLFR() const { return i_spawnMode == RAID_TOOL_DIFFICULTY; }
-        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == MAN25_DIFFICULTY || i_spawnMode == MAN25_HEROIC_DIFFICULTY); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY); }   // since 25man difficulties are 1 and 3, we can check them like that
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
