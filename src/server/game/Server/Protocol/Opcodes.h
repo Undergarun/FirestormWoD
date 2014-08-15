@@ -166,7 +166,7 @@ enum Opcodes
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
         SMSG_MINIMAP_PING                           = 0x0C2C,   ///< 6.0.1 18716
         SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6,   ///< 6.0.1 18716
-        SMSG_READY_CHECK_COMPLETED                  = 0x05A9,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_COMPLETED                  = 0x1293,   ///< 6.0.1 18716
         SMSG_READY_CHECK_RESPONSE                   = 0x1C1B,   ///< 6.0.1 18716
         SMSG_READY_CHECK_STARTED                    = 0x02A8,   ///< 6.0.1 18716
         SMSG_ROLL_POLL_INFORM                       = 0x0E47,   ///< 6.0.1 18716
