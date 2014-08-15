@@ -28983,8 +28983,8 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
             if (lenght > MAX_CUF_PROFILE_NAME_LENGTH)
                 continue;
 
-            profile.name = name;
-            profile.nameLen = lenght;
+            profile.Name = name;
+            profile.l_NameLen = lenght;
 
             UnpackDBBinary(&profile.data, sizeof(profile.data), fields[1].GetCString(), fields[1].GetStringLength());
 
@@ -28998,66 +28998,58 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
 
 void Player::SendCUFProfiles()
 {
-    WorldPacket data(SMSG_LOAD_CUF_PROFILES);
+    WorldPacket l_Data(SMSG_LOAD_CUF_PROFILES);
 
-    data.WriteBits(m_cufProfiles.size(), 19);
-
-    for (uint32 i = 0; i < m_cufProfiles.size(); ++i)
-    {
-        CUFProfile& profile = m_cufProfiles[i];
-        CUFProfileData& cdata = profile.data;
-
-        data.WriteBit(cdata.autoPvE);
-        data.WriteBit(cdata.keepGroupsTogether);
-        data.WriteBit(cdata.useClassColors);
-        data.WriteBit(cdata.displayHealPrediction);
-        data.WriteBit(cdata.displayPets);
-        data.WriteBit(cdata.displayNonBossDebuffs);
-        data.WriteBit(cdata.auto5);
-        data.WriteBit(cdata.autoSpec2);
-        data.WriteBit(cdata.displayOnlyDispellableDebuffs);
-        data.WriteBit(cdata.auto10);
-        data.WriteBit(cdata.auto3);
-        data.WriteBit(cdata.horizontalGroups);
-        data.WriteBit(cdata.displayAggroHighlight);
-        data.WriteBit(cdata.displayMainTankAndAssistant);
-        data.WriteBit(cdata.autoPvP);
-        data.WriteBit(cdata.bit13);
-        data.WriteBit(cdata.auto15);
-        data.WriteBit(cdata.displayBorder);
-        data.WriteBit(cdata.auto2);
-        data.WriteBit(cdata.displayPowerBar);
-        data.WriteBit(cdata.displayNonBossDebuffs);
-
-        data.WriteBits(profile.nameLen, 7);
-
-        data.WriteBit(cdata.bit16);
-        data.WriteBit(cdata.bit24);
-        data.WriteBit(cdata.auto40);
-        data.WriteBit(cdata.autoSpec1);
-    }
+    l_Data << uint32(m_cufProfiles.size());
 
     for (uint32 i = 0; i < m_cufProfiles.size(); ++i)
     {
-        CUFProfile& profile = m_cufProfiles[i];
-        CUFProfileData& cdata = profile.data;
+        CUFProfile& l_Profile = m_cufProfiles[i];
+        CUFProfileData& l_ProfileData = l_Profile.data;
 
-        data << cdata.unk0; //150
-        data << cdata.frameHeight; //128
-        data << cdata.sortType; //132
-        data << cdata.frameWidth; //130
-        data << cdata.healthText;//133
-        data << cdata.unk4;//154
-        data << cdata.unk6;//148
-        data << cdata.unk7;//147
-        data << cdata.unk5;//146
+        l_Data.WriteBits(l_Profile.l_NameLen, 7);
+        l_Data.WriteBit(l_ProfileData.KeepGroupsTogether);
+        l_Data.WriteBit(l_ProfileData.DisplayPets);
+        l_Data.WriteBit(l_ProfileData.DisplayMainTankAndAssist);
+        l_Data.WriteBit(l_ProfileData.DisplayHealPrediction);
+        l_Data.WriteBit(l_ProfileData.DisplayAggroHighlight);
+        l_Data.WriteBit(l_ProfileData.DisplayOnlyDispellableDebuffs);
+        l_Data.WriteBit(l_ProfileData.DisplayPowerBar);
+        l_Data.WriteBit(l_ProfileData.DisplayBorder);
+        l_Data.WriteBit(l_ProfileData.UseClassColors);
+        l_Data.WriteBit(l_ProfileData.HorizontalGroups);
+        l_Data.WriteBit(l_ProfileData.DisplayNonBossDebuffs);
+        l_Data.WriteBit(l_ProfileData.DynamicPosition);
+        l_Data.WriteBit(l_ProfileData.Locked);
+        l_Data.WriteBit(l_ProfileData.Shown);
+        l_Data.WriteBit(l_ProfileData.AutoActivate2Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivate3Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivate5Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivate10Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivate15Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivate25Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivate40Players);
+        l_Data.WriteBit(l_ProfileData.AutoActivateSpec1);
+        l_Data.WriteBit(l_ProfileData.AutoActivateSpec2);
+        l_Data.WriteBit(l_ProfileData.AutoActivatePvP);
+        l_Data.WriteBit(l_ProfileData.AutoActivatePvE);
+        l_Data.FlushBits();
 
-        data.append(profile.name.c_str(), profile.nameLen);
+        l_Data << uint16(l_ProfileData.FrameHeight);
+        l_Data << uint16(l_ProfileData.FrameWidth);
+        l_Data << uint8(l_ProfileData.SortBy);
+        l_Data << uint8(l_ProfileData.HealthText);
+        l_Data << uint8(l_ProfileData.TopPoint);
+        l_Data << uint8(l_ProfileData.BottomPoint);
+        l_Data << uint8(l_ProfileData.LeftPoint);
+        l_Data << uint16(l_ProfileData.TopOffset);
+        l_Data << uint16(l_ProfileData.BottomOffset);
+        l_Data << uint16(l_ProfileData.LeftOffset);
 
-        data << cdata.unk1;//152
+        l_Data.append(l_Profile.Name.c_str(), l_Profile.l_NameLen);
     }
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)

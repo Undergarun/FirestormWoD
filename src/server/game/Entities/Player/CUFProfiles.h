@@ -10,54 +10,53 @@
 
 struct CUFProfileData
 {
-    bool displayMainTankAndAssistant:1;
-    bool keepGroupsTogether:1;
-    bool auto5:1;
-    bool auto15:1;
-    bool displayPowerBar:1;
-    bool displayBorder:1;
-    bool autoPvP:1;
-    bool auto40:1;
-    bool autoSpec1:1;
-    bool auto3:1;
-    bool auto2:1;
-    bool useClassColors:1;
-    bool bit13:1;
-    bool autoSpec2:1;
-    bool horizontalGroups:1;
-    bool bit16:1;
-    bool displayOnlyDispellableDebuffs:1;
-    bool displayNonBossDebuffs:1;
-    bool displayPets:1;
-    bool auto25:1;
-    bool displayHealPrediction:1;
-    bool displayAggroHighlight:1;
-    bool auto10:1;
-    bool bit24:1;
-    bool autoPvE:1;
+    bool KeepGroupsTogether : 1;
+    bool DisplayPets : 1;
+    bool DisplayMainTankAndAssist : 1;
+    bool DisplayHealPrediction : 1;
+    bool DisplayAggroHighlight : 1;
+    bool DisplayOnlyDispellableDebuffs : 1;
+    bool DisplayPowerBar : 1;
+    bool DisplayBorder : 1;
+    bool UseClassColors : 1;
+    bool HorizontalGroups : 1;
+    bool DisplayNonBossDebuffs : 1;
+    bool DynamicPosition : 1;
+    bool Locked : 1;
+    bool Shown : 1;
+    bool AutoActivate2Players : 1;
+    bool AutoActivate3Players : 1;
+    bool AutoActivate5Players : 1;
+    bool AutoActivate10Players : 1;
+    bool AutoActivate15Players : 1;
+    bool AutoActivate25Players : 1;
+    bool AutoActivate40Players : 1;
+    bool AutoActivateSpec1 : 1;
+    bool AutoActivateSpec2 : 1;
+    bool AutoActivatePvP : 1;
+    bool AutoActivatePvE : 1;
 
-    uint16 unk0;
-    uint16 unk1;
-    uint16 frameWidth;
-    uint16 frameHeight;
-    uint16 unk4;
-
-    uint8 unk5;
-    uint8 unk6;
-    uint8 unk7;
-    uint8 sortType;
-    uint8 healthText;
+    uint16 FrameHeight;
+    uint16 FrameWidth;
+    uint8 SortBy;
+    uint8 HealthText;
+    uint8 TopPoint;
+    uint8 BottomPoint;
+    uint8 LeftPoint;
+    uint16 TopOffset;
+    uint16 BottomOffset;
+    uint16 LeftOffset;
 };
 
 struct CUFProfile
 {
     CUFProfile()
     {
-        nameLen = 0;
+        l_NameLen = 0;
     }
 
-    uint32 nameLen;
-    std::string name;
+    uint32 l_NameLen;
+    std::string Name;
     CUFProfileData data;
 };
 

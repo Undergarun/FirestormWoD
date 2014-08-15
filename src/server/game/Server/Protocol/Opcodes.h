@@ -96,6 +96,7 @@ enum Opcodes
         SMSG_INVENTORY_CHANGE_FAILURE               = 0x0A59,   ///< 6.0.1 18716
         SMSG_SET_DUNGEON_DIFFICULTY                 = 0x1859,   ///< 6.0.1 18716
         SMSG_SET_RAID_DIFFICULTY                    = 0x1EBC,   ///< 6.0.1 18716
+        SMSG_LOAD_CUF_PROFILES                      = 0x104E,   ///< 6.0.1 18716
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18716
@@ -549,6 +550,7 @@ enum Opcodes
     CMSG_AREATRIGGER                            = 0x02B3,   ///< 6.0.1 18716
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x0369,   ///< 6.0.1 18716
     CMSG_GAMEOBJECT_USE                         = 0x02CE,   ///< 6.0.1 18716
+    CMSG_SAVE_CUF_PROFILES                      = 0x0951,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1049,7 +1051,6 @@ enum Opcodes
     CMSG_RESET_INSTANCES                              = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_RETURN_TO_GRAVEYARD                          = 0x0000,
-    CMSG_SAVE_CUF_PROFILES                            = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
     CMSG_SEARCH_LFG_JOIN                              = 0x0000,
     CMSG_SEARCH_LFG_LEAVE                             = 0x0000,
@@ -1476,7 +1477,6 @@ enum Opcodes
     SMSG_LFG_UPDATE_STATUS                            = 0x0000,
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
-    SMSG_LOAD_CUF_PROFILES                            = 0x0000,
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x0000,
     SMSG_LOOT_ALL_PASSED                              = 0x0000,
     SMSG_LOOT_CONTENTS                                = 0x0000,
