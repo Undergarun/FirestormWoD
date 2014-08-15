@@ -522,6 +522,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_VIOLENCE_LEVEL,                                  STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleViolenceLevel              );
     DEFINE_OPCODE_HANDLER(CMSG_LOAD_SCREEN,                                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleLoadScreenOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_SET_DUNGEON_DIFFICULTY,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetDungeonDifficultyOpcode );
+    DEFINE_OPCODE_HANDLER(CMSG_SET_RAID_DIFFICULTY,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetRaidDifficultyOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_AUTO_DECLINE_GUILD_INVITES,                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAutoDeclineGuildInvites    );
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_CLOAK,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleShowingCloakOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_HELM,                                    STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleShowingHelmOpcode          );
@@ -1105,7 +1106,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_RAID_TARGET_UPDATE_ALL,                  STATUS_NEVER,     PROCESS_THREADUNSAFE, &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(CMSG_RANDOM_ROLL,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRandomRollOpcode          );
     //DEFINE_OPCODE_HANDLER(SMSG_RANDOM_ROLL,                             STATUS_NEVER,     PROCESS_THREADUNSAFE, &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(MSG_SET_RAID_DIFFICULTY,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetRaidDifficultyOpcode   );
     //DEFINE_OPCODE_HANDLER(MSG_TABARDVENDOR_ACTIVATE,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTabardVendorActivateOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_CONFIRM_RESPEC_WIPE,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTalentWipeConfirmOpcode   );
     //DEFINE_OPCODE_HANDLER(SMSG_ACCOUNT_INFO_RESPONSE,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );

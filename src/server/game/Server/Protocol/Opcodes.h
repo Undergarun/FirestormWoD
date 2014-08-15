@@ -471,6 +471,7 @@ enum Opcodes
     CMSG_VIOLENCE_LEVEL                         = 0x011D,   ///< 6.0.1 18716
     CMSG_LOAD_SCREEN                            = 0x025D,   ///< 6.0.1 18716
     CMSG_SET_DUNGEON_DIFFICULTY                 = 0x1D42,   ///< 6.0.1 18716
+    CMSG_SET_RAID_DIFFICULTY                    = 0x007E,   ///< 6.0.1 18716
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x18DA,   ///< 6.0.1 18716
     CMSG_SHOWING_CLOAK                          = 0x1B7A,   ///< 6.0.1 18716
     CMSG_SHOWING_HELM                           = 0x0ACE,   ///< 6.0.1 18716
@@ -690,7 +691,6 @@ enum Opcodes
     MSG_MOVE_WATER_WALK = 0x0000,
     MSG_NOTIFY_PARTY_SQUELCH = 0x0000,
     MSG_QUERY_NEXT_MAIL_TIME = 0x0000,
-    MSG_SET_RAID_DIFFICULTY = 0x0000,
 
 
     // CMSG
