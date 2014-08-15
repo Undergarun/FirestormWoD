@@ -166,6 +166,9 @@ enum Opcodes
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
         SMSG_MINIMAP_PING                           = 0x0C2C,   ///< 6.0.1 18716
         SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6,   ///< 6.0.1 18716
+        SMSG_RANDOM_ROLL                            = 0x06C5,   ///< 6.0.1 18716
+        SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x1E2C,   ///< 6.0.1 18716
+        SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x096E,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -654,6 +657,8 @@ enum Opcodes
     CMSG_LOOT_ROLL                              = 0x01C5,   ///< 6.0.1 18716
     CMSG_MINIMAP_PING                           = 0x1442,   ///< 6.0.1 18716
     CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
+    CMSG_RANDOM_ROLL                            = 0x1DC1,   ///< 6.0.1 18716
+    CMSG_UPDATE_RAID_TARGET                     = 0x1C61,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1008,8 +1013,6 @@ enum Opcodes
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
     CMSG_RAID_LEADER_READY_CHECK                      = 0x0000,
     CMSG_RAID_CONFIRM_READY_CHECK                     = 0x0000,
-    CMSG_RAID_TARGET_UPDATE                           = 0x0000,
-    CMSG_RANDOM_ROLL                                  = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
@@ -1620,10 +1623,7 @@ enum Opcodes
     SMSG_RAID_READY_CHECK_STARTED                     = 0x0000,
     SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0x0000,
     SMSG_RAID_SUMMON_FAILED                           = 0x0000,
-    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0000,
-    SMSG_RAID_TARGET_UPDATE_ALL                       = 0x0000,
     SMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
-    SMSG_RANDOM_ROLL                                  = 0x0000,
     SMSG_RATED_BG_RATING                              = 0x0000,
     SMSG_RATED_BG_STATS                               = 0x0000,
     SMSG_READ_ITEM_FAILED                             = 0x0000,

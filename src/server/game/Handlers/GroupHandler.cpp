@@ -661,77 +661,60 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& p_RecvData)
     GetPlayer()->GetGroup()->BroadcastPacket(&l_Data, true, -1, l_Sender);
 }
 
-void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
+void WorldSession::HandleRandomRollOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RANDOM_ROLL");
 
-    uint32 minimum, maximum, roll;
-    uint8 unk;
-    recvData >> minimum;
-    recvData >> maximum;
-    recvData >> unk;
+    int32 l_Min;
+    int32 l_Max;
+    uint8 l_PartyIndex;
 
-    /** error handling **/
-    if (minimum > maximum || maximum > 10000)                // < 32768 for urand call
+    p_RecvData >> l_Min;
+    p_RecvData >> l_Max;
+    p_RecvData >> l_PartyIndex;
+
+    if (l_Min > l_Max || l_Min > 10000)                ///< < 32768 for urand call
         return;
-    /********************/
 
-    // everything's fine, do it
-    roll = urand(minimum, maximum);
+    uint64 l_Roller     = GetPlayer()->GetGUID();
+    uint64 l_WowAccount = GetWoWAccountGUID();
+    int32 l_Result  = urand(l_Min, l_Max);
+    //int32 l_Max;  ///< From CMSG_RANDOM_ROLL
+    //int32 l_Min;  ///< From CMSG_RANDOM_ROLL
 
-    WorldPacket data(SMSG_RANDOM_ROLL, 4+4+4+8);
-    ObjectGuid guid = GetPlayer()->GetGUID();
-    data << uint32(roll);
-    data << uint32(maximum);
-    data << uint32(minimum);
-
-    uint8 bitsOrder[8] = { 4, 5, 2, 6, 0, 3, 1, 7 };
-    data.WriteBitInOrder(guid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 2, 6, 1, 3, 4, 7, 0, 5 };
-    data.WriteBytesSeq(guid, bytesOrder);
+    WorldPacket l_Data(SMSG_RANDOM_ROLL, 4 + 4 + 4 + 16);
+    l_Data.appendPackGUID(l_Roller);
+    l_Data.appendPackGUID(l_WowAccount);
+    l_Data << int32(l_Min);
+    l_Data << int32(l_Max);
+    l_Data << int32(l_Result);
 
     if (GetPlayer()->GetGroup())
-        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+        GetPlayer()->GetGroup()->BroadcastPacket(&l_Data, false);
     else
-        SendPacket(&data);
+        SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
+void WorldSession::HandleUpdateRaidTargetOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_TARGET_UPDATE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_RAID_TARGET");
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    Group* l_Group = GetPlayer()->GetGroup();
+    if (!l_Group)
         return;
 
-    uint8 x, unk;
-    recvData >> unk;
-    recvData >> x;
+    uint64 l_Target;
+    uint8  l_PartyIndex;
+    uint8  l_Symbol;
 
-    /** error handling **/
-    /********************/
+    p_RecvData >> l_Symbol;
+    p_RecvData.readPackGUID(l_Target);
+    p_RecvData >> l_PartyIndex;
 
-    // everything's fine, do it
-    if (x == 0xFF)                                           // target icon request
-        group->SendTargetIconList(this);
-    else                                                    // target icon update
-    {
-        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
-            return;
+    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+        return;
 
-        ObjectGuid guid;
-
-        uint8 bitOrder[8] = { 2, 1, 6, 4, 5, 0, 7, 3 };
-        recvData.ReadBitInOrder(guid, bitOrder);
-
-        recvData.FlushBits();
-
-        uint8 byteOrder[8] = { 5, 4, 6, 0, 1, 2, 3, 7 };
-        recvData.ReadBytesSeq(guid, byteOrder);
-
-        group->SetTargetIcon(x, m_Player->GetGUID(), guid);
-    }
+    l_Group->SetTargetIcon(l_Symbol, m_Player->GetGUID(), l_Target, l_PartyIndex);
 }
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)

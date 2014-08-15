@@ -307,11 +307,16 @@ class Group
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
         void ChangeMembersGroup(Player* player, uint8 group);
-        void SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid);
+        void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid, uint8 partyIndex);
         void SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag);
         void setGroupMemberRole(uint64 guid, uint32 role);
         uint32 getGroupMemberRole(uint64 guid);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
+
+        uint8 GetPartyIndex() const
+        {
+            return isLFGGroup() ? 3 : 1;
+        }
 
         Difficulty GetDifficulty(bool isRaid) const;
         Difficulty GetDungeonDifficulty() const;
@@ -326,7 +331,7 @@ class Group
 
         // -no description-
         //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session);
+        void SendTargetIconList(WorldSession* session, uint8 partyIndex);
         void SendUpdate();
         void SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot = NULL);
         void UpdatePlayerOutOfRange(Player* player);

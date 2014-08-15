@@ -571,6 +571,8 @@ bool Group::AddMember(Player* player)
             m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
     }
 
+    SendTargetIconList(player->GetSession(), 0);
+
     return true;
 }
 
@@ -1993,102 +1995,69 @@ void Group::CountTheRoll(Rolls::iterator rollI)
     delete roll;
 }
 
-void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
+void Group::SetTargetIcon(uint8 p_Symbol, uint64 p_WhoGuid, uint64 p_TargetGuid, uint8 p_PartyIndex)
 {
-    if (id >= TARGETICONCOUNT)
+    if (p_Symbol >= TARGETICONCOUNT)
         return;
 
     // Clean other icons
-    if (targetGuid != 0)
+    if (p_TargetGuid != 0)
+    {
         for (int i = 0; i < TARGETICONCOUNT; ++i)
-            if (m_targetIcons[i] == targetGuid)
-                SetTargetIcon(i, 0, 0);
+        {
+            if (m_targetIcons[i] == p_TargetGuid)
+                SetTargetIcon(i, 0, 0, p_PartyIndex);
+        }
+    }
 
-    m_targetIcons[id] = targetGuid;
+    m_targetIcons[p_Symbol] = p_TargetGuid;
 
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
+    uint64 l_ChangedBy = p_WhoGuid;
+    uint64 l_Target     = p_TargetGuid;
+    uint8  l_PartyIndex = p_PartyIndex;
+    uint8  l_Symbol     = p_Symbol;
 
-    data.WriteBit(whoGuid[2]);
-    data.WriteBit(whoGuid[4]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(whoGuid[0]);
-    data.WriteBit(whoGuid[5]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(whoGuid[3]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(whoGuid[1]);
-    data.WriteBit(whoGuid[6]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(whoGuid[7]);
+    WorldPacket l_Data(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, (1 + 16 + 1 + 16));
+    l_Data << uint8(l_Symbol);
+    l_Data << uint8(l_PartyIndex);
+    l_Data.appendPackGUID(l_Target);
+    l_Data.appendPackGUID(l_ChangedBy);
 
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(whoGuid[2]);
-    data.WriteByteSeq(whoGuid[6]);
-    data.WriteByteSeq(whoGuid[1]);
-    data.WriteByteSeq(whoGuid[7]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(whoGuid[5]);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(whoGuid[4]);
-
-    data << uint8(id);
-
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(whoGuid[3]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(whoGuid[0]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(targetGuid[3]);
-
-    data << uint8(0);                                       // set targets
-
-    BroadcastPacket(&data, true);
+    BroadcastPacket(&l_Data, true);
 }
 
-void Group::SendTargetIconList(WorldSession* session)
+void Group::SendTargetIconList(WorldSession* p_Session, uint8 p_PartyIndex)
 {
-    if (!session)
+    if (!p_Session)
         return;
 
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (1+TARGETICONCOUNT*9));
-    ByteBuffer dataBuffer;
-    uint32 count = 0;
+    uint8 l_PartyIndex   = p_PartyIndex;
+    uint32 l_TargetsSize = 0;
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    for (uint8 l_I = 0; l_I < TARGETICONCOUNT; ++l_I)
     {
-        if (m_targetIcons[i] == 0)
+        if (m_targetIcons[l_I] == 0)
             continue;
 
-        ++count;
+        ++l_TargetsSize;
     }
 
-    data.WriteBits(0, 23);
+    WorldPacket l_Data(SMSG_SEND_RAID_TARGET_UPDATE_ALL, 4 + 1 + (16 + 1) * TARGETICONCOUNT);
+    l_Data << uint8(l_PartyIndex);
+    l_Data << uint32(l_TargetsSize);
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    for (uint8 l_I = 0; l_I < TARGETICONCOUNT; ++l_I)
     {
-        if (m_targetIcons[i] == 0)
+        uint64 l_Target = m_targetIcons[l_I];
+        uint8  l_Symbol = l_I;
+        if (l_Target == 0)
             continue;
 
-        ObjectGuid guid = m_targetIcons[i];
-
-        uint8 bitOrder[8] = { 7, 6, 3, 1, 0, 4, 5, 2 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        dataBuffer << uint8(i);
-
-        uint8 bytesOrder[8] = { 3, 7, 5, 1, 6, 0, 4, 2 };
-        dataBuffer.WriteBytesSeq(guid, bytesOrder);
+        l_Data.appendPackGUID(l_Target);
+        l_Data << uint8(l_Symbol);
     }
 
-    data.FlushBits();
-    data.append(dataBuffer);
-    data << uint8(1);                                       // list targets
-    session->SendPacket(&data);
+    p_Session->SendPacket(&l_Data);
 }
 
 void Group::SendUpdate()

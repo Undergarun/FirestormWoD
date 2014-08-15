@@ -615,7 +615,7 @@ class WorldSession
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidConfirmReadyCheck(WorldPacket& recvData);
         void HandleRaidLeaderReadyCheck(WorldPacket& recvData);
-        void HandleRaidTargetUpdateOpcode(WorldPacket& recvData);
+        void HandleUpdateRaidTargetOpcode(WorldPacket& recvData);
         void HandleGroupRaidConvertOpcode(WorldPacket& recvData);
         void HandleGroupChangeSubGroupOpcode(WorldPacket& recvData);
         void HandleGroupSwapSubGroupOpcode(WorldPacket& recvData);
