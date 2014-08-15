@@ -1093,6 +1093,8 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
 
 void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate)
 {
+    assert(p_Player && p_Data);
+
     if (p_FullUpdate)
     {
         uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
@@ -1253,9 +1255,228 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
     }
     else
     {
+        uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
+
+        if (p_Player)
+        {
+            l_PlayerStatus |= MEMBER_STATUS_ONLINE;
+
+            if (p_Player->IsPvP())
+                l_PlayerStatus |= MEMBER_STATUS_PVP;
+
+            if (p_Player->isDead())
+                l_PlayerStatus |= MEMBER_STATUS_DEAD;
+
+            if (p_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+                l_PlayerStatus |= MEMBER_STATUS_GHOST;
+
+            if (p_Player->isAFK())
+                l_PlayerStatus |= MEMBER_STATUS_AFK;
+
+            if (p_Player->isDND())
+                l_PlayerStatus |= MEMBER_STATUS_DND;
+        }
+
+        if (p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE)                // if update power type, update current/max power also
+            p_Mask |= (GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER | GROUP_UPDATE_FLAG_SPECIALISATION);
+
+        if (p_Mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)            // same for pets
+            p_Mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
+
+        Pet* pet = NULL;
+        if (!p_Player)
+            p_Mask &= ~GROUP_UPDATE_FULL;
+        else if (!(pet = p_Player->GetPet()))
+            p_Mask &= ~GROUP_UPDATE_PET;
+
         bool l_PetInfo = p_Mask & (GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS);
 
+        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_PARTIAL, 200);
 
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MOP_UNK);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_STATUS);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_CUR_HP);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MAX_HP);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_CUR_POWER);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MAX_POWER);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_LEVEL);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_SPECIALISATION);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_ZONE);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_POSITION);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_AURAS);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(l_PetInfo);
+        p_Data->WriteBit(false);
+        p_Data->FlushBits();
+
+        if (p_Mask & GROUP_UPDATE_FLAG_MOP_UNK)
+        {
+            *p_Data << uint8(1); // Same realms ?
+            *p_Data << uint8(0); // Unk, maybe "instance" status
+        }
+
+        if (p_Mask & GROUP_UPDATE_FLAG_STATUS)
+            *p_Data << uint16(l_PlayerStatus);
+
+        if (p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE)        
+            *p_Data << uint8(p_Player->getPowerType());
+
+        if (p_Mask & GROUP_UPDATE_FLAG_CUR_HP)
+            *p_Data << uint32(p_Player->GetHealth());
+
+        if (p_Mask & GROUP_UPDATE_FLAG_MAX_HP)
+            *p_Data << uint32(p_Player->GetMaxHealth());
+
+        if (p_Mask & GROUP_UPDATE_FLAG_CUR_POWER)
+            *p_Data << uint16(p_Player->GetPower(p_Player->getPowerType()));
+
+        if (p_Mask & GROUP_UPDATE_FLAG_MAX_POWER)
+            *p_Data << uint16(p_Player->GetMaxPower(p_Player->getPowerType()));
+
+        if (p_Mask & GROUP_UPDATE_FLAG_LEVEL)
+            *p_Data << uint16(p_Player->getLevel());
+
+        if (p_Mask & GROUP_UPDATE_FLAG_SPECIALISATION)
+            *p_Data << uint16(p_Player->GetSpecializationId(p_Player->GetActiveSpec()));
+
+        if (p_Mask & GROUP_UPDATE_FLAG_ZONE)
+            *p_Data << uint16(p_Player->GetZoneId());
+
+        if (p_Mask & GROUP_UPDATE_FLAG_POSITION)
+        {
+            *p_Data << uint16(p_Player->GetPositionX());
+            *p_Data << uint16(p_Player->GetPositionY());
+            *p_Data << uint16(p_Player->GetPositionZ());
+        }
+
+        if (p_Mask & GROUP_UPDATE_FLAG_AURAS)
+        {
+            *p_Data << uint32(p_Player->GetVisibleAuras()->size() > MAX_AURAS ? MAX_AURAS : p_Player->GetVisibleAuras()->size());
+
+            uint64 l_AuraMask = p_Player->GetAuraUpdateMaskForRaid();
+
+            for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
+            {
+                if (l_AuraMask & (uint64(1) << l_AuraIT))
+                {
+                    AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
+
+                    if (!l_AuraApplication)
+                    {
+                        *p_Data << uint32(0);
+                        *p_Data << uint8(0);
+                        *p_Data << uint32(0);
+                        *p_Data << uint32(0);
+                        continue;
+                    }
+
+                    uint32 l_EffectCount = 0;
+
+                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                    {
+                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            l_EffectCount++;
+                    }
+
+                    *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
+                    *p_Data << uint8(l_AuraApplication->GetFlags());
+                    *p_Data << uint32(0);
+                    *p_Data << uint32(l_EffectCount);
+
+                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                    {
+                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            *p_Data << float(l_Effect->GetAmount());
+                    }
+                }
+            }
+        }
+
+        if (l_PetInfo)
+        {
+            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_GUID);
+            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_NAME);
+            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_MODEL_ID);
+            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_CUR_HP);
+            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_MAX_HP);
+            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_AURAS);
+            p_Data->FlushBits();
+
+            Pet * l_Pet = p_Player->GetPet();
+
+            if (p_Mask & GROUP_UPDATE_FLAG_PET_GUID)
+                p_Data->appendPackGUID(l_Pet->GetGUID());
+
+            if (p_Mask & GROUP_UPDATE_FLAG_PET_NAME)
+            {
+                p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
+                p_Data->FlushBits();
+
+                if (l_Pet->GetName())
+                    p_Data->WriteString(l_Pet->GetName());
+            }
+
+            if (p_Mask & GROUP_UPDATE_FLAG_PET_MODEL_ID)
+                *p_Data << uint16(l_Pet->GetDisplayId());
+
+            if (p_Mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
+                *p_Data << uint32(l_Pet->GetHealth());
+
+            if (p_Mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
+                *p_Data << uint32(l_Pet->GetMaxHealth());
+
+            if (p_Mask & GROUP_UPDATE_FLAG_PET_AURAS)
+            {
+                *p_Data << uint32(l_Pet->GetVisibleAuras()->size() > MAX_AURAS ? MAX_AURAS : l_Pet->GetVisibleAuras()->size());
+
+                uint64 l_AuraMask = l_Pet->GetAuraUpdateMaskForRaid();
+
+                for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
+                {
+                    if (l_AuraMask & (uint64(1) << l_AuraIT))
+                    {
+                        AuraApplication const* l_AuraApplication = l_Pet->GetVisibleAura(l_AuraIT);
+
+                        if (!l_AuraApplication)
+                        {
+                            *p_Data << uint32(0);
+                            *p_Data << uint8(0);
+                            *p_Data << uint32(0);
+                            *p_Data << uint32(0);
+                            continue;
+                        }
+
+                        uint32 l_EffectCount = 0;
+
+                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                        {
+                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                                l_EffectCount++;
+                        }
+
+                        *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
+                        *p_Data << uint8(l_AuraApplication->GetFlags());
+                        *p_Data << uint32(0);
+                        *p_Data << uint32(l_EffectCount);
+
+                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                        {
+                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                                *p_Data << float(l_Effect->GetAmount());
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
