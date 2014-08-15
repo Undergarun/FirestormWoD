@@ -162,6 +162,7 @@ enum Opcodes
         SMSG_GROUP_UNINVITE                         = 0x0542,   ///< 6.0.1 18716
         SMSG_GROUP_NEW_LEADER                       = 0x16C7,   ///< 6.0.1 18716
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
+        SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -646,6 +647,7 @@ enum Opcodes
     CMSG_PARTY_UNINVITE                         = 0x0661,   ///< 6.0.1 18716
     CMSG_SET_PARTY_LEADER                       = 0x1E62,   ///< 6.0.1 18716
     CMSG_SET_ROLE                               = 0x027E,   ///< 6.0.1 18716
+    CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////

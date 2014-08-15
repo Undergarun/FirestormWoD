@@ -519,6 +519,34 @@ void WorldSession::HandleSetRoleOpcode(WorldPacket& p_RecvData)
         SendPacket(&l_Data);
 }
 
+void WorldSession::HandleSetLootMethodOpcode(WorldPacket& p_RecvData)
+{
+    uint64 l_Master;
+    uint32 l_Threshold;
+    uint8 l_PartyIndex;
+    uint8 l_Method;
+
+    p_RecvData >> l_PartyIndex;
+    p_RecvData >> l_Method;
+    p_RecvData.readPackGUID(l_Master);
+    p_RecvData >> l_Threshold;
+
+    Group * l_Group = GetPlayer()->GetGroup();
+
+    if (!l_Group || !l_Group->IsLeader(m_Player->GetGUID()) || (l_Master != 0 && !l_Group->IsMember(l_Master)))
+    {
+        WorldPacket l_Response(SMSG_SET_LOOT_METHOD_FAILED, 0);
+        SendPacket(&l_Response);
+
+        return;
+    }
+
+    l_Group->SetLootThreshold((ItemQualities)l_Threshold);
+    l_Group->SetLootMethod((LootMethod)l_Method);
+    l_Group->SetLooterGuid(l_Master);
+    l_Group->SendUpdate();
+}
+
 void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LEAVE_GROUP");
@@ -1293,6 +1321,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
         p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_PARTIAL, 200);
 
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(false);
         p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MOP_UNK);
         p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_STATUS);
         p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE);
@@ -1313,6 +1343,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         p_Data->WriteBit(l_PetInfo);
         p_Data->WriteBit(false);
         p_Data->FlushBits();
+
+        p_Data->appendPackGUID(p_Player->GetGUID());
 
         if (p_Mask & GROUP_UPDATE_FLAG_MOP_UNK)
         {
