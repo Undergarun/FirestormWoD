@@ -1480,37 +1480,24 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& p_RecvData)
     GetPlayer()->SetPassOnGroupLoot(l_OptOutOfLoot);
 }
 
-void WorldSession::HandleRolePollBegin(WorldPacket& recvData)
+void WorldSession::HandleRolePollBegin(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ROLE_POLL_BEGIN");
 
-    uint8 unk = 0;
-    recvData >> unk;
+    uint8 l_PartyIndex = 0;
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    p_RecvData >> l_PartyIndex;
+
+    Group* l_Group = GetPlayer()->GetGroup();
+
+    if (!l_Group)
         return;
 
-    ObjectGuid guid = GetPlayer()->GetGUID();
+    WorldPacket l_Response(SMSG_ROLL_POLL_INFORM);
+    l_Response << uint8(l_PartyIndex);
+    l_Response.appendPackGUID(GetPlayer()->GetGUID());
 
-    WorldPacket data(SMSG_ROLL_POLL_INFORM);
-
-    uint8 bitsOrder[8] = { 0, 5, 7, 6, 1, 2, 4, 3 };
-    data.WriteBitInOrder(guid, bitsOrder);
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-
-    data << uint8(unk);
-
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-
-    group->BroadcastPacket(&data, false, -1);
+    l_Group->BroadcastPacket(&l_Response, false, -1);
 }
 
 void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)

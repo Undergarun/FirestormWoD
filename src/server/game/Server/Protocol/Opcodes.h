@@ -169,6 +169,7 @@ enum Opcodes
         SMSG_READY_CHECK_COMPLETED                  = 0x05A9,   ///< 6.0.1 18716
         SMSG_READY_CHECK_RESPONSE                   = 0x1C1B,   ///< 6.0.1 18716
         SMSG_READY_CHECK_STARTED                    = 0x02A8,   ///< 6.0.1 18716
+        SMSG_ROLL_POLL_INFORM                       = 0x0E47,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -661,6 +662,7 @@ enum Opcodes
     CMSG_CONVERT_RAID                           = 0x104E,   ///< 6.0.1 18716
     CMSG_DO_READY_CHECK                         = 0x0761,   ///< 6.0.1 18716
     CMSG_READY_CHECK_RESPONSE                   = 0x1F42,   ///< 6.0.1 18716
+    CMSG_INITIATE_ROLE_POLL                     = 0x1C66,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1047,7 +1049,6 @@ enum Opcodes
     CMSG_RESET_INSTANCES                              = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_RETURN_TO_GRAVEYARD                          = 0x0000,
-    CMSG_ROLE_POLL_BEGIN                              = 0x0000,
     CMSG_SAVE_CUF_PROFILES                            = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
     CMSG_SEARCH_LFG_JOIN                              = 0x0000,
@@ -1651,7 +1652,6 @@ enum Opcodes
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
     SMSG_RESYNC_RUNES                                 = 0x0000,
-    SMSG_ROLL_POLL_INFORM                             = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
     SMSG_SCENARIO_POI                                 = 0x0000,
     SMSG_SCENARIO_PROGRESS_UPDATE                     = 0x0000,
