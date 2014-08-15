@@ -96,6 +96,7 @@ enum Opcodes
         SMSG_INVENTORY_CHANGE_FAILURE               = 0x0A59,   ///< 6.0.1 18716
         SMSG_SET_DUNGEON_DIFFICULTY                 = 0x1859,   ///< 6.0.1 18716
         SMSG_SET_RAID_DIFFICULTY                    = 0x1EBC,   ///< 6.0.1 18716
+        SMSG_LOAD_CUF_PROFILES                      = 0x104E,   ///< 6.0.1 18716
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18716
@@ -169,6 +170,10 @@ enum Opcodes
         SMSG_RANDOM_ROLL                            = 0x06C5,   ///< 6.0.1 18716
         SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x1E2C,   ///< 6.0.1 18716
         SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x096E,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_COMPLETED                  = 0x1293,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_RESPONSE                   = 0x1C1B,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_STARTED                    = 0x02A8,   ///< 6.0.1 18716
+        SMSG_ROLL_POLL_INFORM                       = 0x0E47,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -548,6 +553,7 @@ enum Opcodes
     CMSG_AREATRIGGER                            = 0x02B3,   ///< 6.0.1 18716
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x0369,   ///< 6.0.1 18716
     CMSG_GAMEOBJECT_USE                         = 0x02CE,   ///< 6.0.1 18716
+    CMSG_SAVE_CUF_PROFILES                      = 0x0951,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -600,7 +606,7 @@ enum Opcodes
 
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0001,   ///<
-    CMSG_CHAT_MESSAGE_PARTY                     = 0x0002,   ///<
+    CMSG_CHAT_MESSAGE_PARTY                     = 0x05D1,   ///< 6.0.1 18716
     CMSG_CHAT_MESSAGE_YELL                      = 0x17D6,   ///< 6.0.1 18716
     CMSG_CHAT_MESSAGE_SAY                       = 0x16D2,   ///< 6.0.1 18716
     CMSG_CHAT_MESSAGE_OFFICER                   = 0x18C5,   ///< 6.0.1 18716
@@ -659,6 +665,11 @@ enum Opcodes
     CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
     CMSG_RANDOM_ROLL                            = 0x1DC1,   ///< 6.0.1 18716
     CMSG_UPDATE_RAID_TARGET                     = 0x1C61,   ///< 6.0.1 18716
+    CMSG_OPT_OUT_OF_LOOT                        = 0x02EE,   ///< 6.0.1 18716
+    CMSG_CONVERT_RAID                           = 0x104E,   ///< 6.0.1 18716
+    CMSG_DO_READY_CHECK                         = 0x0761,   ///< 6.0.1 18716
+    CMSG_READY_CHECK_RESPONSE                   = 0x1F42,   ///< 6.0.1 18716
+    CMSG_INITIATE_ROLE_POLL                     = 0x1C66,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -869,7 +880,6 @@ enum Opcodes
     CMSG_GROUP_ASSIGNMENT                             = 0x0000,
     CMSG_GROUP_CANCEL                                 = 0x0000,
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x0000,
-    CMSG_GROUP_RAID_CONVERT                           = 0x0000,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
     CMSG_GUILD_ACCEPT                                 = 0x0000,
@@ -978,7 +988,6 @@ enum Opcodes
     CMSG_OFFER_PETITION                               = 0x0000,
     CMSG_OPENING_CINEMATIC                            = 0x0000,
     CMSG_OPEN_ITEM                                    = 0x0000,
-    CMSG_OPT_OUT_OF_LOOT                              = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PETITION_BUY                                 = 0x0000,
     CMSG_PETITION_DECLINE                             = 0x0000,
@@ -1011,8 +1020,6 @@ enum Opcodes
     CMSG_QUERY_QUESTS_COMPLETED = 0x0000,
     CMSG_QUERY_TIME                                   = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
-    CMSG_RAID_LEADER_READY_CHECK                      = 0x0000,
-    CMSG_RAID_CONFIRM_READY_CHECK                     = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
@@ -1047,8 +1054,6 @@ enum Opcodes
     CMSG_RESET_INSTANCES                              = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_RETURN_TO_GRAVEYARD                          = 0x0000,
-    CMSG_ROLE_POLL_BEGIN                              = 0x0000,
-    CMSG_SAVE_CUF_PROFILES                            = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
     CMSG_SEARCH_LFG_JOIN                              = 0x0000,
     CMSG_SEARCH_LFG_LEAVE                             = 0x0000,
@@ -1475,7 +1480,6 @@ enum Opcodes
     SMSG_LFG_UPDATE_STATUS                            = 0x0000,
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
-    SMSG_LOAD_CUF_PROFILES                            = 0x0000,
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x0000,
     SMSG_LOOT_ALL_PASSED                              = 0x0000,
     SMSG_LOOT_CONTENTS                                = 0x0000,
@@ -1618,10 +1622,6 @@ enum Opcodes
     SMSG_RAID_GROUP_ONLY                              = 0x0000,
     SMSG_RAID_INSTANCE_INFO                           = 0x0000,
     SMSG_RAID_MARKERS_CHANGED                         = 0x0000,
-    SMSG_RAID_READY_CHECK_COMPLETED                   = 0x0000,
-    SMSG_RAID_READY_CHECK_RESPONSE                    = 0x0000,
-    SMSG_RAID_READY_CHECK_STARTED                     = 0x0000,
-    SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0x0000,
     SMSG_RAID_SUMMON_FAILED                           = 0x0000,
     SMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     SMSG_RATED_BG_RATING                              = 0x0000,
@@ -1652,7 +1652,6 @@ enum Opcodes
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
     SMSG_RESYNC_RUNES                                 = 0x0000,
-    SMSG_ROLL_POLL_INFORM                             = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
     SMSG_SCENARIO_POI                                 = 0x0000,
     SMSG_SCENARIO_PROGRESS_UPDATE                     = 0x0000,
