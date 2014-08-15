@@ -161,6 +161,7 @@ enum Opcodes
         SMSG_PARTY_COMMAND_RESULT                   = 0x1D48,   ///< 6.0.1 18716
         SMSG_GROUP_UNINVITE                         = 0x0542,   ///< 6.0.1 18716
         SMSG_GROUP_NEW_LEADER                       = 0x16C7,   ///< 6.0.1 18716
+        SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -644,6 +645,7 @@ enum Opcodes
     CMSG_LEAVE_GROUP                            = 0x184E,   ///< 6.0.1 18716
     CMSG_PARTY_UNINVITE                         = 0x0661,   ///< 6.0.1 18716
     CMSG_SET_PARTY_LEADER                       = 0x1E62,   ///< 6.0.1 18716
+    CMSG_SET_ROLE                               = 0x027E,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -857,7 +859,6 @@ enum Opcodes
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x0000,
     CMSG_GROUP_RAID_CONVERT                           = 0x0000,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
-    CMSG_GROUP_SET_ROLES                              = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
     CMSG_GUILD_ACCEPT                                 = 0x0000,
     CMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0x0000,
@@ -1647,7 +1648,6 @@ enum Opcodes
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
     SMSG_RESYNC_RUNES                                 = 0x0000,
-    SMSG_ROLE_CHANGED_INFORM                          = 0x0000,
     SMSG_ROLL_POLL_INFORM                             = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
     SMSG_SCENARIO_POI                                 = 0x0000,

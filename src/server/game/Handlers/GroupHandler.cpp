@@ -477,80 +477,46 @@ void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetRoleOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_ROLES");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ROLE");
 
-    uint32 newRole = 0;
-    uint8 unk = 0;
-    ObjectGuid assignerGuid = GetPlayer()->GetGUID();   // Assigner GUID
-    ObjectGuid targetGuid;                              // Target GUID
+    uint64 l_ChangedUnit;
+    uint32 l_Role;
+    uint8  l_PartyIndex;
 
-    Group* group = GetPlayer()->GetGroup();
+    p_RecvData >> l_PartyIndex;
+    p_RecvData.readPackGUID(l_ChangedUnit);
+    p_RecvData >> l_Role;
 
-    recvData >> unk;
-    recvData >> newRole;
+    Group* l_Group = GetPlayer()->GetGroup();
 
-    uint8 bitOrder[8] = { 7, 4, 0, 2, 6, 5, 1, 3 };
-    recvData.ReadBitInOrder(targetGuid, bitOrder);
+    if (l_Group                                                 ///< Group Exist
+        && l_ChangedUnit != GetPlayer()->GetGUID()              ///< Player change another player (not himself)
+        && l_Group->GetLeaderGUID() != GetPlayer()->GetGUID())  ///< Player isn't group leader
+        return;
 
-    recvData.FlushBits();
+    //uint8 l_PartyIndex         ///< Already exist in CMSG_SET_ROLE reading
+    //uint64 l_ChangedUnit       ///< Already exist in CMSG_SET_ROLE reading
+    uint32 l_NewRole = l_Role;   ///< From CMSG_SET_ROLE
+    uint64 l_From    = GetPlayer()->GetGUID();
+    uint32 l_OldRole = l_Group ? l_Group->getGroupMemberRole(l_ChangedUnit) : 0;
 
-    uint8 byteOrder[8] = { 0, 6, 3, 7, 1, 5, 4, 2 };
-    recvData.ReadBytesSeq(targetGuid, byteOrder);
+    WorldPacket l_Data(SMSG_ROLE_CHANGED_INFORM, 24);
+    l_Data << uint8(l_PartyIndex);  ///< From CMSG_SET_ROLE
+    l_Data.appendPackGUID(l_From);
+    l_Data.appendPackGUID(l_ChangedUnit);
+    l_Data << uint32(l_OldRole);
+    l_Data << uint32(l_NewRole);
 
-    WorldPacket data(SMSG_ROLE_CHANGED_INFORM, 24);
-
-    if (group)
-        data << uint32(group->getGroupMemberRole(targetGuid)); // Old Role
-    else
-        data << uint32(0);
-
-    data << uint8(unk);
-    data << uint32(newRole); // New Role
-
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(assignerGuid[1]);
-    data.WriteBit(assignerGuid[7]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(assignerGuid[4]);
-    data.WriteBit(assignerGuid[3]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(assignerGuid[6]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(assignerGuid[0]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(assignerGuid[5]);
-    data.WriteBit(assignerGuid[2]);
-
-    data.WriteByteSeq(assignerGuid[3]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(assignerGuid[1]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(assignerGuid[0]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(assignerGuid[6]);
-    data.WriteByteSeq(assignerGuid[2]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(assignerGuid[4]);
-    data.WriteByteSeq(assignerGuid[7]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(targetGuid[5]);
-
-    if (group)
+    if (l_Group)
     {
-        group->setGroupMemberRole(targetGuid, newRole);
-        group->SendUpdate();
-        group->BroadcastPacket(&data, false);
+        l_Group->setGroupMemberRole(l_ChangedUnit, l_NewRole);
+        l_Group->SendUpdate();
+        l_Group->BroadcastPacket(&l_Data, false);
     }
     else
-        SendPacket(&data);
+        SendPacket(&l_Data);
 }
 
 void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
@@ -1125,7 +1091,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false)
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate)
 {
     if (p_FullUpdate)
     {
