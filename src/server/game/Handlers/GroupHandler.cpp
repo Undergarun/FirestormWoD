@@ -955,151 +955,73 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& recvData)
+void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_LEADER_READY_CHECK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DO_READY_CHECK");
 
-    recvData.read_skip<uint8>(); // unk, 0x00
+    uint8 l_PartyIndex;
+    p_RecvData >> l_PartyIndex;
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    Group* l_Group = GetPlayer()->GetGroup();
+    if (!l_Group)
         return;
 
-    if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
         return;
 
-    ObjectGuid groupGUID = group->GetGUID();
+    ObjectGuid groupGUID = l_Group->GetGUID();
     ObjectGuid leaderGUID = GetPlayer()->GetGUID();
 
-    group->SetReadyCheckCount(1);
+    l_Group->SetReadyCheckCount(1);
 
-    WorldPacket data(SMSG_RAID_READY_CHECK_STARTED);
+    WorldPacket l_Response(SMSG_READY_CHECK_STARTED);
 
-    data.WriteBit(groupGUID[5]);
-    data.WriteBit(groupGUID[3]);
-    data.WriteBit(groupGUID[2]);
-    data.WriteBit(leaderGUID[1]);
-    data.WriteBit(leaderGUID[3]);
-    data.WriteBit(leaderGUID[2]);
-    data.WriteBit(groupGUID[4]);
-    data.WriteBit(groupGUID[0]);
-    data.WriteBit(groupGUID[1]);
-    data.WriteBit(leaderGUID[5]);
-    data.WriteBit(leaderGUID[4]);
-    data.WriteBit(leaderGUID[0]);
-    data.WriteBit(leaderGUID[7]);
-    data.WriteBit(groupGUID[6]);
-    data.WriteBit(leaderGUID[6]);
-    data.WriteBit(groupGUID[7]);
+    l_Response << uint8(l_PartyIndex);
+    l_Response.appendPackGUID(l_Group->GetGUID());
+    l_Response.appendPackGUID(GetPlayer()->GetGUID());
+    l_Response << uint32(35000);          ///< Duration
 
-    data.WriteByteSeq(leaderGUID[7]);
-    data.WriteByteSeq(groupGUID[7]);
-    data.WriteByteSeq(leaderGUID[3]);
-    data.WriteByteSeq(groupGUID[2]);
-    data.WriteByteSeq(groupGUID[1]);
-    data.WriteByteSeq(leaderGUID[5]);
-    data.WriteByteSeq(groupGUID[5]);
-    data.WriteByteSeq(groupGUID[6]);
-    data.WriteByteSeq(leaderGUID[2]);
-    data.WriteByteSeq(groupGUID[0]);
-    data.WriteByteSeq(groupGUID[3]);
-
-    data << uint8(0x00);    // unk 5.0.5
-
-    data.WriteByteSeq(leaderGUID[0]);
-    data.WriteByteSeq(leaderGUID[4]);
-    data.WriteByteSeq(groupGUID[4]);
-    data.WriteByteSeq(leaderGUID[1]);
-    data.WriteByteSeq(leaderGUID[6]);
-
-    data << uint32(0x88B8); // unk 5.0.5
-
-    group->BroadcastPacket(&data, false, -1);
-
-    group->OfflineReadyCheck();
+    l_Group->BroadcastPacket(&l_Response, false, -1);
+    l_Group->OfflineReadyCheck();
 }
 
-void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
+void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_CONFIRM_READY_CHECK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_READY_CHECK_RESPONSE");
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    uint64 l_PartyGUID;
+    uint8 l_PartyIndex;
+    bool l_IsIsReady;
+
+    p_RecvData >> l_PartyIndex;
+    p_RecvData.readPackGUID(l_PartyGUID);
+    l_IsIsReady = p_RecvData.ReadBit();
+
+    Group* l_Group = GetPlayer()->GetGroup();
+
+    if (!l_Group || l_Group->GetGUID() != l_PartyGUID)
         return;
 
-    recvData.read_skip<uint8>(); // unk, 0x00
-    bool ready = recvData.ReadBit();
-    recvData.ReadBit();
-    recvData.ReadBit();
+    l_Group->SetReadyCheckCount(l_Group->GetReadyCheckCount() + 1);
 
-    ObjectGuid plGUID = GetPlayer()->GetGUID();
-    ObjectGuid grpGUID = group->GetGUID();
+    WorldPacket l_Response(SMSG_READY_CHECK_RESPONSE);
 
-    group->SetReadyCheckCount(group->GetReadyCheckCount() + 1);
+    l_Response.appendPackGUID(l_Group->GetGUID());
+    l_Response.appendPackGUID(GetPlayer()->GetGUID());
+    l_Response.WriteBit(l_IsIsReady);
+    l_Response.FlushBits();
 
-    WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
+    l_Group->BroadcastPacket(&l_Response, true);
 
-    data.WriteBit(plGUID[1]);
-    data.WriteBit(plGUID[3]);
-    data.WriteBit(plGUID[7]);
-    data.WriteBit(plGUID[0]);
-    data.WriteBit(grpGUID[4]);
-    data.WriteBit(grpGUID[7]);
-    data.WriteBit(plGUID[2]);
-    data.WriteBit(ready);
-    data.WriteBit(grpGUID[2]);
-    data.WriteBit(grpGUID[6]);
-    data.WriteBit(plGUID[4]);
-    data.WriteBit(plGUID[5]);
-    data.WriteBit(grpGUID[1]);
-    data.WriteBit(grpGUID[0]);
-    data.WriteBit(grpGUID[5]);
-    data.WriteBit(grpGUID[3]);
-    data.WriteBit(plGUID[6]);
-
-    data.WriteByteSeq(plGUID[2]);
-    data.WriteByteSeq(plGUID[3]);
-    data.WriteByteSeq(plGUID[7]);
-    data.WriteByteSeq(grpGUID[1]);
-    data.WriteByteSeq(grpGUID[7]);
-    data.WriteByteSeq(plGUID[1]);
-    data.WriteByteSeq(plGUID[0]);
-    data.WriteByteSeq(grpGUID[2]);
-    data.WriteByteSeq(grpGUID[3]);
-    data.WriteByteSeq(plGUID[6]);
-    data.WriteByteSeq(grpGUID[0]);
-    data.WriteByteSeq(plGUID[5]);
-    data.WriteByteSeq(plGUID[4]);
-    data.WriteByteSeq(grpGUID[4]);
-    data.WriteByteSeq(grpGUID[5]);
-    data.WriteByteSeq(grpGUID[6]);
-
-    group->BroadcastPacket(&data, true);
-
-    // Send SMSG_RAID_READY_CHECK_COMPLETED
-    if (group->GetReadyCheckCount() >= group->GetMembersCount())
+    // Send SMSG_READY_CHECK_COMPLETED
+    if (l_Group->GetReadyCheckCount() >= l_Group->GetMembersCount())
     {
-        ObjectGuid grpGUID = group->GetGUID();
+        l_Response.Initialize(SMSG_READY_CHECK_COMPLETED);
 
-        data.Initialize(SMSG_RAID_READY_CHECK_COMPLETED);
+        l_Response << uint8(l_PartyIndex);
+        l_Response.appendPackGUID(l_Group->GetGUID());
 
-        uint8 bitOrder[8] = { 3, 2, 6, 1, 0, 7, 5, 4 };
-        data.WriteBitInOrder(grpGUID, bitOrder);
-
-        data.WriteByteSeq(grpGUID[0]);
-        data.WriteByteSeq(grpGUID[6]);
-        data.WriteByteSeq(grpGUID[2]);
-        data.WriteByteSeq(grpGUID[4]);
-        data.WriteByteSeq(grpGUID[3]);
-        data.WriteByteSeq(grpGUID[5]);
-
-        data << uint8(1);
-
-        data.WriteByteSeq(grpGUID[7]);
-        data.WriteByteSeq(grpGUID[1]);
-
-        group->BroadcastPacket(&data, true);
-
+        l_Group->BroadcastPacket(&l_Response, true);
     }
 }
 

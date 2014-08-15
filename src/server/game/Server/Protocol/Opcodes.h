@@ -166,6 +166,9 @@ enum Opcodes
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
         SMSG_MINIMAP_PING                           = 0x0C2C,   ///< 6.0.1 18716
         SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_COMPLETED                  = 0x05A9,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_RESPONSE                   = 0x1C1B,   ///< 6.0.1 18716
+        SMSG_READY_CHECK_STARTED                    = 0x02A8,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -597,7 +600,7 @@ enum Opcodes
 
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0001,   ///<
-    CMSG_CHAT_MESSAGE_PARTY                     = 0x0002,   ///<
+    CMSG_CHAT_MESSAGE_PARTY                     = 0x05D1,   ///< 6.0.1 18716
     CMSG_CHAT_MESSAGE_YELL                      = 0x17D6,   ///< 6.0.1 18716
     CMSG_CHAT_MESSAGE_SAY                       = 0x16D2,   ///< 6.0.1 18716
     CMSG_CHAT_MESSAGE_OFFICER                   = 0x18C5,   ///< 6.0.1 18716
@@ -656,6 +659,8 @@ enum Opcodes
     CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
     CMSG_OPT_OUT_OF_LOOT                        = 0x02EE,   ///< 6.0.1 18716
     CMSG_CONVERT_RAID                           = 0x104E,   ///< 6.0.1 18716
+    CMSG_DO_READY_CHECK                         = 0x0761,   ///< 6.0.1 18716
+    CMSG_READY_CHECK_RESPONSE                   = 0x1F42,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1006,8 +1011,6 @@ enum Opcodes
     CMSG_QUERY_QUESTS_COMPLETED = 0x0000,
     CMSG_QUERY_TIME                                   = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
-    CMSG_RAID_LEADER_READY_CHECK                      = 0x0000,
-    CMSG_RAID_CONFIRM_READY_CHECK                     = 0x0000,
     CMSG_RAID_TARGET_UPDATE                           = 0x0000,
     CMSG_RANDOM_ROLL                                  = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
@@ -1615,10 +1618,6 @@ enum Opcodes
     SMSG_RAID_GROUP_ONLY                              = 0x0000,
     SMSG_RAID_INSTANCE_INFO                           = 0x0000,
     SMSG_RAID_MARKERS_CHANGED                         = 0x0000,
-    SMSG_RAID_READY_CHECK_COMPLETED                   = 0x0000,
-    SMSG_RAID_READY_CHECK_RESPONSE                    = 0x0000,
-    SMSG_RAID_READY_CHECK_STARTED                     = 0x0000,
-    SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0x0000,
     SMSG_RAID_SUMMON_FAILED                           = 0x0000,
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0000,
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0x0000,

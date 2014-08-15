@@ -2261,53 +2261,22 @@ void Group::BroadcastReadyCheck(WorldPacket* packet)
 
 void Group::OfflineReadyCheck()
 {
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    for (member_citerator l_It = m_memberSlots.begin(); l_It != m_memberSlots.end(); ++l_It)
     {
-        Player* player = ObjectAccessor::FindPlayer(citr->guid);
-        if (!player || !player->GetSession())
+        Player* l_Player = ObjectAccessor::FindPlayer(l_It->guid);
+
+        if (!l_Player || !l_Player->GetSession())
         {
-            bool ready = false;
-            ObjectGuid plGUID = citr->guid;
-            ObjectGuid grpGUID = GetGUID();
+            bool l_IsIsReady = false;
 
-            WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
+            WorldPacket l_Response(SMSG_READY_CHECK_RESPONSE);
 
-            data.WriteBit(plGUID[1]);
-            data.WriteBit(plGUID[3]);
-            data.WriteBit(plGUID[7]);
-            data.WriteBit(plGUID[0]);
-            data.WriteBit(grpGUID[4]);
-            data.WriteBit(grpGUID[7]);
-            data.WriteBit(plGUID[2]);
-            data.WriteBit(ready);
-            data.WriteBit(grpGUID[2]);
-            data.WriteBit(grpGUID[6]);
-            data.WriteBit(plGUID[4]);
-            data.WriteBit(plGUID[5]);
-            data.WriteBit(grpGUID[1]);
-            data.WriteBit(grpGUID[0]);
-            data.WriteBit(grpGUID[5]);
-            data.WriteBit(grpGUID[3]);
-            data.WriteBit(plGUID[6]);
+            l_Response.appendPackGUID(GetGUID());
+            l_Response.appendPackGUID(l_It->guid);
+            l_Response.WriteBit(l_IsIsReady);
+            l_Response.FlushBits();
 
-            data.WriteByteSeq(plGUID[2]);
-            data.WriteByteSeq(plGUID[3]);
-            data.WriteByteSeq(plGUID[7]);
-            data.WriteByteSeq(grpGUID[1]);
-            data.WriteByteSeq(grpGUID[7]);
-            data.WriteByteSeq(plGUID[1]);
-            data.WriteByteSeq(plGUID[0]);
-            data.WriteByteSeq(grpGUID[2]);
-            data.WriteByteSeq(grpGUID[3]);
-            data.WriteByteSeq(plGUID[6]);
-            data.WriteByteSeq(grpGUID[0]);
-            data.WriteByteSeq(plGUID[5]);
-            data.WriteByteSeq(plGUID[4]);
-            data.WriteByteSeq(grpGUID[4]);
-            data.WriteByteSeq(grpGUID[5]);
-            data.WriteByteSeq(grpGUID[6]);
-
-            BroadcastReadyCheck(&data);
+            BroadcastReadyCheck(&l_Response);
 
             m_readyCheckCount++;
         }
