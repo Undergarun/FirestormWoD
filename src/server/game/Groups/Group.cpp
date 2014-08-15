@@ -476,8 +476,14 @@ bool Group::AddMember(Player* player)
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* member = itr->getSource();
-        if (member && !member->IsWithinDist(player, member->GetSightRange(), false))
+        if (member && member != player && !member->IsWithinDist(player, member->GetSightRange(), false))
+        {
+            WorldPacket data2;
+            member->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data2, 0, true);
+
             member->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(&data2);
+        }
     }
 
     if (player)

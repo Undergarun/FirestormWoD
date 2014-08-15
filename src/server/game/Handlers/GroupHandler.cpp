@@ -1125,7 +1125,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false)
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate)
 {
     if (p_FullUpdate)
     {
@@ -1204,7 +1204,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                     {
                         for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                                 l_EffectCount++;
                     }
 
@@ -1258,7 +1258,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                     {
                         for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                                 l_EffectCount++;
                     }
 
@@ -1276,7 +1276,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 }
             }
 
-            p_Data->WriteBits(strlen(l_Pet->GetName()), 8);
+            p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
             p_Data->FlushBits();
 
             if (l_Pet->GetName())
@@ -1287,6 +1287,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
     }
     else
     {
+        bool l_PetInfo = p_Mask & (GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS);
+
 
     }
 }
