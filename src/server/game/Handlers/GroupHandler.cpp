@@ -999,7 +999,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
 
     Group* l_Group = GetPlayer()->GetGroup();
 
-    if (!l_Group || l_Group->GetGUID() != l_PartyGUID)
+    if (!l_Group)
         return;
 
     l_Group->SetReadyCheckCount(l_Group->GetReadyCheckCount() + 1);
