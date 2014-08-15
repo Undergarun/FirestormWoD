@@ -479,7 +479,7 @@ bool Group::AddMember(Player* player)
         if (member && member != player && !member->IsWithinDist(player, member->GetSightRange(), false))
         {
             WorldPacket data2;
-            member->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data2, 0, true);
+            member->GetSession()->BuildPartyMemberStatsChangedPacket(member, &data2, 0, true);
 
             member->GetSession()->SendPacket(&data);
             player->GetSession()->SendPacket(&data2);
