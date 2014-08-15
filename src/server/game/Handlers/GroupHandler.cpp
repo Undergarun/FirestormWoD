@@ -1540,22 +1540,22 @@ void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
     m_Player->SendRaidInfo();
 }
 
-void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& recvData)
+void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_OPT_OUT_OF_LOOT");
 
-    bool passOnLoot = recvData.ReadBit();
-    recvData.FlushBits();
+    bool l_OptOutOfLoot = p_RecvData.ReadBit();
 
     // ignore if player not loaded
     if (!GetPlayer())                                        // needed because STATUS_AUTHED
     {
-        if (passOnLoot)
+        if (l_OptOutOfLoot)
             sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
+
         return;
     }
 
-    GetPlayer()->SetPassOnGroupLoot(passOnLoot);
+    GetPlayer()->SetPassOnGroupLoot(l_OptOutOfLoot);
 }
 
 void WorldSession::HandleRolePollBegin(WorldPacket& recvData)

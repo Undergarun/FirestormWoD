@@ -654,6 +654,7 @@ enum Opcodes
     CMSG_LOOT_ROLL                              = 0x01C5,   ///< 6.0.1 18716
     CMSG_MINIMAP_PING                           = 0x1442,   ///< 6.0.1 18716
     CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
+    CMSG_OPT_OUT_OF_LOOT                        = 0x02EE,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -973,7 +974,6 @@ enum Opcodes
     CMSG_OFFER_PETITION                               = 0x0000,
     CMSG_OPENING_CINEMATIC                            = 0x0000,
     CMSG_OPEN_ITEM                                    = 0x0000,
-    CMSG_OPT_OUT_OF_LOOT                              = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PETITION_BUY                                 = 0x0000,
     CMSG_PETITION_DECLINE                             = 0x0000,
