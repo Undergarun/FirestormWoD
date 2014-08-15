@@ -2255,9 +2255,11 @@ class Player : public Unit, public GridObject<Player>
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficulty() const { return m_raidDifficulty; }
+        Difficulty GetLegacyRaidDifficulty() const { return m_LegacyRaidDifficulty; }
         Difficulty GetStoredRaidDifficulty() const { return m_raidMapDifficulty; } // only for use in difficulty packet after exiting to raid map
         void SetDungeonDifficulty(Difficulty dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
         void SetRaidDifficulty(Difficulty raid_difficulty) { m_raidDifficulty = raid_difficulty; }
+        void SetLegacyRaidDifficulty(Difficulty p_LegacyRaidDifficulty) { m_LegacyRaidDifficulty = p_LegacyRaidDifficulty; }
         void StoreRaidMapDifficulty() { m_raidMapDifficulty = GetMap()->GetDifficulty(); }
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
@@ -3207,6 +3209,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_pmChatCount;
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
+        Difficulty m_LegacyRaidDifficulty;
         Difficulty m_raidMapDifficulty;
 
         uint32 m_atLoginFlags;

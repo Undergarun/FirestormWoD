@@ -58,7 +58,7 @@ Loot* Roll::getLoot()
 }
 
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
-    m_dungeonDifficulty(REGULAR_DIFFICULTY), m_raidDifficulty(MAN10_DIFFICULTY),
+m_dungeonDifficulty(REGULAR_5_DIFFICULTY), m_raidDifficulty(NORMAL_DIFFICULTY), m_LegacyRaidDifficuty(LEGACY_MAN10_DIFFICULTY),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
     m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false)
 {
@@ -119,8 +119,9 @@ bool Group::Create(Player* leader)
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = leaderGuid;
 
-    m_dungeonDifficulty = REGULAR_DIFFICULTY;
-    m_raidDifficulty = MAN10_DIFFICULTY;
+    m_dungeonDifficulty = REGULAR_5_DIFFICULTY;
+    m_raidDifficulty = NORMAL_DIFFICULTY;
+    m_LegacyRaidDifficuty = LEGACY_MAN10_DIFFICULTY;
 
     if (!isBGGroup() && !isBFGroup())
     {
@@ -152,6 +153,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt8(index++, uint8(m_groupType));
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
+        stmt->setUInt32(index++, uint8(m_LegacyRaidDifficuty));
 
         CharacterDatabase.Execute(stmt);
 
@@ -188,18 +190,24 @@ void Group::LoadGroupFromDB(Field* fields)
 
     uint32 diff = fields[13].GetUInt8();
     if (diff >= MAX_DUNGEON_DIFFICULTY)
-        m_dungeonDifficulty = REGULAR_DIFFICULTY;
+        m_dungeonDifficulty = REGULAR_5_DIFFICULTY;
     else
         m_dungeonDifficulty = Difficulty(diff);
 
     uint32 r_diff = fields[14].GetUInt8();
-    if (r_diff >= MAX_RAID_DIFFICULTY)
-        m_raidDifficulty = MAN10_DIFFICULTY;
+    if (r_diff < NORMAL_DIFFICULTY || r_diff > MYTHIC_DIFFICULTY)
+        m_raidDifficulty = NORMAL_DIFFICULTY;
     else
         m_raidDifficulty = Difficulty(r_diff);
 
     if (m_groupType & GROUPTYPE_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
+
+    uint32 l_LegacyRaidDiff = fields[18].GetUInt8();
+    if (l_LegacyRaidDiff < LEGACY_MAN10_DIFFICULTY || l_LegacyRaidDiff > LEGACY_MAN25_HEROIC_DIFFICULTY)
+        m_LegacyRaidDifficuty = LEGACY_MAN10_DIFFICULTY;
+    else
+        m_LegacyRaidDifficuty = Difficulty(l_LegacyRaidDiff);
 }
 
 void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
@@ -2187,9 +2195,9 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     if (l_HasJamCliPartyDifficultySettings)
     {
-        data << uint32(0);
-        data << uint32(GetRaidDifficulty());
         data << uint32(GetDungeonDifficulty());
+        data << uint32(GetRaidDifficulty());
+        data << uint32(GetLegacyRaidDifficulty());
     }
 
     player->GetSession()->SendPacket(&data);
@@ -2592,6 +2600,7 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_RAID_DIFFICULTY);
 
         stmt->setUInt8(0, uint8(m_raidDifficulty));
+        stmt->setUInt8(0, uint8(m_LegacyRaidDifficuty));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -2604,6 +2613,32 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
             continue;
 
         player->SetRaidDifficulty(difficulty);
+        player->SendRaidDifficulty(true);
+    }
+
+    SendUpdate();
+}
+void Group::SetLegacyRaidDifficulty(Difficulty difficulty)
+{
+    m_LegacyRaidDifficuty = difficulty;
+    if (!isBGGroup() && !isBFGroup())
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_RAID_DIFFICULTY);
+
+        stmt->setUInt8(0, uint8(m_raidDifficulty));
+        stmt->setUInt8(0, uint8(m_LegacyRaidDifficuty));
+        stmt->setUInt32(1, m_dbStoreId);
+
+        CharacterDatabase.Execute(stmt);
+    }
+
+    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* player = itr->getSource();
+        if (!player->GetSession())
+            continue;
+
+        player->SetLegacyRaidDifficulty(difficulty);
         player->SendRaidDifficulty(true);
     }
 
@@ -3197,6 +3232,10 @@ Difficulty Group::GetRaidDifficulty() const
 {
     return m_raidDifficulty;
 }
+Difficulty Group::GetLegacyRaidDifficulty() const
+{
+    return m_LegacyRaidDifficuty;
+}
 
 bool Group::isRollLootActive() const
 {
@@ -3404,12 +3443,12 @@ bool Group::CanEnterInInstance()
     {
         switch (GetRaidDifficulty())
         {
-            case MAN10_DIFFICULTY:
-            case MAN10_HEROIC_DIFFICULTY:
+            case LEGACY_MAN10_DIFFICULTY:
+            case LEGACY_MAN10_HEROIC_DIFFICULTY:
                 maxplayers = 10;
                 break;
-            case MAN25_DIFFICULTY:
-            case MAN25_HEROIC_DIFFICULTY:
+            case LEGACY_MAN25_DIFFICULTY:
+            case LEGACY_MAN25_HEROIC_DIFFICULTY:
                 maxplayers = 25;
             case MAN40_DIFFICULTY:
                 maxplayers = 40;

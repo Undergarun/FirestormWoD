@@ -963,20 +963,20 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
-        if (tmpDiff == MAN25_HEROIC_DIFFICULTY)
-            tmpDiff = MAN25_DIFFICULTY;
-        else if (tmpDiff == MAN10_HEROIC_DIFFICULTY)
-            tmpDiff = MAN10_DIFFICULTY;
+        if (tmpDiff == LEGACY_MAN25_HEROIC_DIFFICULTY)
+            tmpDiff = LEGACY_MAN25_DIFFICULTY;
+        else if (tmpDiff == LEGACY_MAN10_HEROIC_DIFFICULTY)
+            tmpDiff = LEGACY_MAN10_DIFFICULTY;
         else
         {
-            tmpDiff = REGULAR_DIFFICULTY;
+            tmpDiff = REGULAR_5_DIFFICULTY;
         }
 
         // Pull new data
         mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));     // We are 10 normal or 25 normal
         if (!mapDiff)
         {
-            tmpDiff = MAN10_DIFFICULTY;
+            tmpDiff = LEGACY_MAN10_DIFFICULTY;
             mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
         }
     }

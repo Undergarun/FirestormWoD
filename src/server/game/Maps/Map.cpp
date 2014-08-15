@@ -2618,7 +2618,7 @@ uint32 InstanceMap::GetMaxPlayers() const
             return mapDiff->maxPlayers;
         else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
-            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), REGULAR_DIFFICULTY);
+            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), REGULAR_5_DIFFICULTY);
             return normalDiff ? normalDiff->maxPlayers : 0;
         }
     }
@@ -2632,12 +2632,11 @@ uint32 InstanceMap::GetMaxPlayers() const
             case Difficulty::HEROIC_DIFFICULTY:
             case Difficulty::CHALLENGE_MODE_DIFFICULTY:
                 return 5;
-            case Difficulty::MAN10_DIFFICULTY:
-            case Difficulty::MAN10_HEROIC_DIFFICULTY:
+            case Difficulty::LEGACY_MAN10_DIFFICULTY:
+            case Difficulty::LEGACY_MAN10_HEROIC_DIFFICULTY:
                 return 10;
-            case Difficulty::MAN25_DIFFICULTY:
-            case Difficulty::MAN25_HEROIC_DIFFICULTY:
-            case Difficulty::DYNAMIC_DIFFICULTY:
+            case Difficulty::LEGACY_MAN25_DIFFICULTY:
+            case Difficulty::LEGACY_MAN25_HEROIC_DIFFICULTY:
                 return 25;
             default:
                 break;

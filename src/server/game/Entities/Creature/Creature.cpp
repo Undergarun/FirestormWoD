@@ -284,18 +284,18 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
                 cinfo = normalInfo;
         }
 
-        if (cinfo == normalInfo && (diff == MAN25_HEROIC_DIFFICULTY || diff == RAID_TOOL_DIFFICULTY) && normalInfo->DifficultyEntry[MAN25_DIFFICULTY - 1])
+        if (cinfo == normalInfo && (diff == LEGACY_MAN25_HEROIC_DIFFICULTY || diff == RAID_TOOL_DIFFICULTY) && normalInfo->DifficultyEntry[LEGACY_MAN25_DIFFICULTY - 1])
         {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[MAN25_DIFFICULTY - 1]);
+            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[LEGACY_MAN25_DIFFICULTY - 1]);
 
             // check and reported at startup, so just ignore (restore normalInfo)
             if (!cinfo)
                 cinfo = normalInfo;
         }
 
-        if (cinfo == normalInfo &&  diff == MAN10_HEROIC_DIFFICULTY && normalInfo->DifficultyEntry[MAN10_DIFFICULTY - 1])
+        if (cinfo == normalInfo &&  diff == LEGACY_MAN10_HEROIC_DIFFICULTY && normalInfo->DifficultyEntry[LEGACY_MAN10_DIFFICULTY - 1])
         {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[MAN10_DIFFICULTY - 1]);
+            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[LEGACY_MAN10_DIFFICULTY - 1]);
 
             // check and reported at startup, so just ignore (restore normalInfo)
             if (!cinfo)

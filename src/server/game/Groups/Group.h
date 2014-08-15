@@ -316,8 +316,10 @@ class Group
         Difficulty GetDifficulty(bool isRaid) const;
         Difficulty GetDungeonDifficulty() const;
         Difficulty GetRaidDifficulty() const;
+        Difficulty GetLegacyRaidDifficulty() const;
         void SetDungeonDifficulty(Difficulty difficulty);
         void SetRaidDifficulty(Difficulty difficulty);
+        void SetLegacyRaidDifficulty(Difficulty difficulty);        
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
@@ -410,6 +412,7 @@ class Group
         GroupType           m_groupType;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
+        Difficulty          m_LegacyRaidDifficuty;
         Battleground*       m_bgGroup;
         Battlefield*        m_bfGroup;
         uint64              m_targetIcons[TARGETICONCOUNT];

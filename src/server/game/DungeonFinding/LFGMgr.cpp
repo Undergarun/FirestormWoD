@@ -566,7 +566,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             lockData.lockstatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
-        else if (dungeon->difficulty > REGULAR_DIFFICULTY && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
+        else if (dungeon->difficulty > REGULAR_5_DIFFICULTY && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
         {
             //if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
@@ -1812,12 +1812,12 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         {
             switch (grp->GetRaidDifficulty())
             {
-                case MAN10_DIFFICULTY:
-                case MAN10_HEROIC_DIFFICULTY:
+                case LEGACY_MAN10_DIFFICULTY:
+                case LEGACY_MAN10_HEROIC_DIFFICULTY:
                     maxPlayersToTeleport = 10;
                     break;
-                case MAN25_DIFFICULTY:
-                case MAN25_HEROIC_DIFFICULTY:
+                case LEGACY_MAN25_DIFFICULTY:
+                case LEGACY_MAN25_HEROIC_DIFFICULTY:
                     maxPlayersToTeleport = 25;
                 case MAN40_DIFFICULTY:
                     maxPlayersToTeleport = 40;

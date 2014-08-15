@@ -95,6 +95,7 @@ enum Opcodes
         SMSG_TRANSFER_PENDING                       = 0x1249,   ///< 6.0.1 18716
         SMSG_INVENTORY_CHANGE_FAILURE               = 0x0A59,   ///< 6.0.1 18716
         SMSG_SET_DUNGEON_DIFFICULTY                 = 0x1859,   ///< 6.0.1 18716
+        SMSG_SET_RAID_DIFFICULTY                    = 0x1EBC,   ///< 6.0.1 18716
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18716
@@ -163,7 +164,7 @@ enum Opcodes
         SMSG_GROUP_UNINVITE                         = 0x0542,   ///< 6.0.1 18716
         SMSG_GROUP_NEW_LEADER                       = 0x16C7,   ///< 6.0.1 18716
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
-        SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6   ///< 6.0.1 18716
+        SMSG_SET_LOOT_METHOD_FAILED                 = 0x06E6,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
