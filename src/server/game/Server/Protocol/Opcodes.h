@@ -655,6 +655,7 @@ enum Opcodes
     CMSG_MINIMAP_PING                           = 0x1442,   ///< 6.0.1 18716
     CMSG_SET_LOOT_METHOD                        = 0x14E5,   ///< 6.0.1 18716
     CMSG_OPT_OUT_OF_LOOT                        = 0x02EE,   ///< 6.0.1 18716
+    CMSG_CONVERT_RAID                           = 0x104E,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -865,7 +866,6 @@ enum Opcodes
     CMSG_GROUP_ASSIGNMENT                             = 0x0000,
     CMSG_GROUP_CANCEL                                 = 0x0000,
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x0000,
-    CMSG_GROUP_RAID_CONVERT                           = 0x0000,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
     CMSG_GUILD_ACCEPT                                 = 0x0000,

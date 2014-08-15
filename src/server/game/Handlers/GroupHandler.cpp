@@ -734,33 +734,33 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_RAID_CONVERT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONVERT_RAID");
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    Group* l_Group = GetPlayer()->GetGroup();
+
+    if (!l_Group)
         return;
 
     if (m_Player->InBattleground())
         return;
 
     // Error handling
-    if (!group->IsLeader(GetPlayer()->GetGUID()) || group->GetMembersCount() < 2)
+    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) || l_Group->GetMembersCount() < 2)
         return;
 
     // Everything's fine, do it (is it 0 (PARTY_OP_INVITE) correct code)
     SendPartyResult(PARTY_CMD_INVITE, "", ERR_PARTY_RESULT_OK);
 
     // New 4.x: it is now possible to convert a raid to a group if member count is 5 or less
+    bool l_Raid;
+    p_RecvData >> l_Raid;
 
-    bool unk;
-    recvData >> unk;
-
-    if (group->isRaidGroup())
-        group->ConvertToGroup();
+    if (l_Group->isRaidGroup())
+        l_Group->ConvertToGroup();
     else
-        group->ConvertToRaid();
+        l_Group->ConvertToRaid();
 }
 
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
