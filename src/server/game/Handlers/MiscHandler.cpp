@@ -1884,9 +1884,9 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE);
     data << realmID;
     data << uint8(REALM_QUERY_NAME_RESPONSE_OK);
-    data.WriteBits(realmName.size(), 8);
-    data.WriteBits(realmName.size(), 8);
     data.WriteBit(1); // Is Locale
+    data.WriteBits(realmName.size(), 8);
+    data.WriteBits(realmName.size(), 8);
     data.FlushBits();
     data.append(realmName.c_str(), realmName.size());
     data.append(realmName.c_str(), realmName.size());
