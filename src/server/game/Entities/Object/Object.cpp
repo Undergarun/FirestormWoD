@@ -327,7 +327,7 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
             l_MapID = p_Target->GetMapId();
-
+            break;
 
         case TYPEID_GAMEOBJECT:
             l_MapID = ToGameObject()->GetMapId();
