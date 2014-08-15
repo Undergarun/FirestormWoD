@@ -94,6 +94,7 @@ enum Opcodes
         SMSG_TRANSFER_ABORTED                       = 0x087E,   ///< 6.0.1 18716
         SMSG_TRANSFER_PENDING                       = 0x1249,   ///< 6.0.1 18716
         SMSG_INVENTORY_CHANGE_FAILURE               = 0x0A59,   ///< 6.0.1 18716
+        SMSG_SET_DUNGEON_DIFFICULTY                 = 0x1859,   ///< 6.0.1 18716
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0CD3,   ///< 6.0.1 18716
@@ -1677,7 +1678,6 @@ enum Opcodes
     SMSG_SET_AI_ANIM_KIT                              = 0x0000,
     SMSG_SET_ANIM_TIMER                               = 0x0000,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x0000,
-    SMSG_SET_DUNGEON_DIFFICULTY                       = 0x0000,
     SMSG_SET_FACTION_ATWAR                            = 0x0000,
     SMSG_SET_FACTION_STANDING                         = 0x0000,
     SMSG_SET_FACTION_VISIBLE                          = 0x0000,
