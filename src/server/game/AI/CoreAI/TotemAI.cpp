@@ -108,24 +108,13 @@ void TotemAI::AttackStart(Unit* /*victim*/)
     // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
-        // everything's fine, do it
-        ObjectGuid totemGuid = me->GetGUID();
-        WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
+        uint64 l_Sender = me->GetGUID();
+        G3D::Vector2 l_Position = G3D::Vector2(me->GetPositionX(), me->GetPositionY());
 
-        uint8 bits[8] = { 6, 5, 1, 2, 4, 0, 3, 7 };
-        data.WriteBitInOrder(totemGuid, bits);
+        WorldPacket l_Data(SMSG_MINIMAP_PING, (16 + 4 + 4));
+        l_Data.appendPackGUID(l_Sender);
+        l_Data.WriteVector2(l_Position);
 
-        data.WriteByteSeq(totemGuid[0]);
-        data.WriteByteSeq(totemGuid[5]);
-        data.WriteByteSeq(totemGuid[2]);
-        data << float(me->GetPositionX());
-        data.WriteByteSeq(totemGuid[4]);
-        data.WriteByteSeq(totemGuid[1]);
-        data.WriteByteSeq(totemGuid[7]);
-        data.WriteByteSeq(totemGuid[3]);
-        data << float(me->GetPositionY());
-        data.WriteByteSeq(totemGuid[6]);
-
-        me->GetOwner()->ToPlayer()->GetSession()->SendPacket(&data);
+        me->GetOwner()->ToPlayer()->GetSession()->SendPacket(&l_Data);
     }
 }

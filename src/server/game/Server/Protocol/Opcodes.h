@@ -136,8 +136,8 @@ enum Opcodes
 
         /// Taxi
         SMSG_TAXI_NODE_STATUS                       = 0x0049,   ///< 6.0.1 18716
-        SMSG_NEW_TAXI_PATH                          = 0x1ED7,   ///< 6.0.1 18716
-        SMSG_SHOW_TAXI_NODES                        = 0x0C2C,   ///< 6.0.1 18716
+        SMSG_NEW_TAXI_PATH                          = 0x06C6,   ///< 6.0.1 18716
+        SMSG_SHOW_TAXI_NODES                        = 0x1ED7,   ///< 6.0.1 18716
         SMSG_ACTIVATE_TAXI_REPLY                    = 0x004A,   ///< 6.0.1 18716
 
         /// Loot
@@ -162,6 +162,7 @@ enum Opcodes
         SMSG_GROUP_UNINVITE                         = 0x0542,   ///< 6.0.1 18716
         SMSG_GROUP_NEW_LEADER                       = 0x16C7,   ///< 6.0.1 18716
         SMSG_ROLE_CHANGED_INFORM                    = 0x06C1,   ///< 6.0.1 18716
+        SMSG_MINIMAP_PING                           = 0x0C2C,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -646,6 +647,8 @@ enum Opcodes
     CMSG_PARTY_UNINVITE                         = 0x0661,   ///< 6.0.1 18716
     CMSG_SET_PARTY_LEADER                       = 0x1E62,   ///< 6.0.1 18716
     CMSG_SET_ROLE                               = 0x027E,   ///< 6.0.1 18716
+    CMSG_LOOT_ROLL                              = 0x01C5,   ///< 6.0.1 18716
+    CMSG_MINIMAP_PING                           = 0x1442,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -939,7 +942,6 @@ enum Opcodes
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
     CMSG_LOOT_METHOD                                  = 0x0000,
-    CMSG_LOOT_ROLL                                    = 0x0000,
     CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0x0000,
     CMSG_MAIL_CREATE_TEXT_ITEM                        = 0x0000,
     CMSG_MAIL_DELETE                                  = 0x0000,
@@ -950,7 +952,6 @@ enum Opcodes
     CMSG_MANEUVER_START                               = 0x0000,
     CMSG_MEETINGSTONE_INFO                            = 0x0000,
     CMSG_MINIGAME_MOVE                                = 0x0000,
-    CMSG_MINIMAP_PING                                 = 0x0000,
     CMSG_MOUNTSPECIAL_ANIM                            = 0x0000,
     CMSG_MOVE_CHARM_TELEPORT_CHEAT                    = 0x0000,
     CMSG_MOVE_CHNG_TRANSPORT                          = 0x0000,
@@ -1488,7 +1489,6 @@ enum Opcodes
     SMSG_MESSAGE_BOX                                  = 0x0000,
     SMSG_MINIGAME_SETUP                               = 0x0000,
     SMSG_MINIGAME_STATE                               = 0x0000,
-    SMSG_MINIMAP_PING                                 = 0x0000,
     SMSG_MISSILE_CANCEL                               = 0x0000,
     SMSG_MODIFY_COOLDOWN                              = 0x0000,
     SMSG_MONEY_NOTIFY                                 = 0x0000,

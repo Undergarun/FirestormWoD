@@ -582,71 +582,55 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleLootRoll(WorldPacket& recvData)
+// @TODO: Verify order, l_RollType & l_LootListID are maybe inversed
+void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
 {
-    ObjectGuid guid;
-    uint8 itemSlot;
-    uint8  rollType;
+    uint64 l_LootObj;
+    uint8  l_LootListID;
+    uint8  l_RollType;
 
-    recvData >> itemSlot; //always 0
-    recvData >> rollType;              // 0: pass, 1: need, 2: greed
-
-    uint8 bitOrder[8] = {5, 7, 2, 3, 4, 0, 6, 7};
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    uint8 byteOrder[8] = {2, 3, 7, 0, 6, 5, 1, 4};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    p_RecvData.readPackGUID(l_LootObj);
+    p_RecvData >> l_RollType;
+    p_RecvData >> l_LootListID;
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    group->CountRollVote(GetPlayer()->GetGUID(), itemSlot, rollType);
+    group->CountRollVote(GetPlayer()->GetGUID(), l_LootListID, l_RollType);
 
-    switch (rollType)
+    switch (l_RollType)
     {
-    case ROLL_NEED:
-        GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
-        break;
-    case ROLL_GREED:
-        GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
-        break;
+        case ROLL_NEED:
+            GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
+            break;
+        case ROLL_GREED:
+            GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
+            break;
     }
 }
 
-void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
+void WorldSession::HandleMinimapPingOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_MINIMAP_PING");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MINIMAP_PING");
 
     if (!GetPlayer()->GetGroup())
         return;
 
-    float x, y;
-    uint8 unk;
+    uint8        l_PartyIndex;
+    G3D::Vector2 l_Position;
 
-    recvData >> y;
-    recvData >> x;
-    recvData >> unk;
+    p_RecvData.ReadVector2(l_Position);
+    p_RecvData >> l_PartyIndex;
 
-    // everything's fine, do it
-    ObjectGuid plrGuid = GetPlayer()->GetGUID();
-    WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
+    uint64 l_Sender = GetPlayer()->GetGUID();
+    //G3D::Vector2 l_Position;  ///< Already in CMSG_MINIMAP_PING
 
-    uint8 bits[8] = { 6, 5, 1, 2, 4, 0, 3, 7 };
-    data.WriteBitInOrder(plrGuid, bits);
+    WorldPacket l_Data(SMSG_MINIMAP_PING, (16 + 4 + 4));
+    l_Data.appendPackGUID(l_Sender);
+    l_Data.WriteVector2(l_Position);
 
-    data.WriteByteSeq(plrGuid[0]);
-    data.WriteByteSeq(plrGuid[5]);
-    data.WriteByteSeq(plrGuid[2]);
-    data << float(x);
-    data.WriteByteSeq(plrGuid[4]);
-    data.WriteByteSeq(plrGuid[1]);
-    data.WriteByteSeq(plrGuid[7]);
-    data.WriteByteSeq(plrGuid[3]);
-    data << float(y);
-    data.WriteByteSeq(plrGuid[6]);
-
-    GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
+    GetPlayer()->GetGroup()->BroadcastPacket(&l_Data, true, -1, l_Sender);
 }
 
 void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)

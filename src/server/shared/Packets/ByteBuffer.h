@@ -24,6 +24,8 @@
 #include "Log.h"
 #include "Utilities/ByteConverter.h"
 #include "Guid.h"
+#include <G3D/Vector2.h>
+#include <G3D/Vector3.h>
 
 //! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
 //! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
@@ -243,6 +245,32 @@ class ByteBuffer
                 l_BitIT += 8;
                 l_MaskIT++;
             } while (l_BitIT < 64);
+        }
+
+        void ReadVector2(G3D::Vector2& p_Vector2)
+        {
+            *this >> p_Vector2.x;
+            *this >> p_Vector2.y;
+        }
+
+        void ReadVector3(G3D::Vector3& p_Vector3)
+        {
+            *this >> p_Vector3.x;
+            *this >> p_Vector3.y;
+            *this >> p_Vector3.z;
+        }
+
+        void WriteVector2(G3D::Vector2& p_Vector2)
+        {
+            *this << float(p_Vector2.x);
+            *this << float(p_Vector2.y);
+        }
+
+        void WriteVector3(G3D::Vector3& p_Vector3)
+        {
+            *this << float(p_Vector3.x);
+            *this << float(p_Vector3.y);
+            *this << float(p_Vector3.z);
         }
 
     public:
