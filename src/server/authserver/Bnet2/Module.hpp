@@ -71,10 +71,10 @@ namespace BNet2 {
             static ModuleManager * GetSingleton();
 
             /// Has module
-            bool HasModule(Module::Ptr & p_Module);
+            bool HasModule(Module::Ptr p_Module);
 
             /// Register module
-            void RegisterModule(Module::Ptr & p_Module);
+            void RegisterModule(Module::Ptr p_Module);
 
             /// Get modules for a specific platform
             std::list<Module::Ptr> GetPlatformModules(BNet2::Platforms p_Platform);

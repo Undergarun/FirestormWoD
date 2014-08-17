@@ -1689,8 +1689,6 @@ struct NameGenEntry
     uint32  gender;                                         // 3        m_Sex
 };
 
-#define MAX_OVERRIDE_SPELL 10
-
 struct PvPDifficultyEntry
 {
     //uint32    id;                                         // 0        m_ID

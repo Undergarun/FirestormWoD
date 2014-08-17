@@ -1,3 +1,5 @@
+#include "Common.h"
+
 #ifndef TRINITY_GUID_H
 #define TRINITY_GUID_H
 

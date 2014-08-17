@@ -85,7 +85,7 @@ namespace BNet2 {
     //////////////////////////////////////////////////////////////////////////
 
     /// Has module
-    bool ModuleManager::HasModule(Module::Ptr & p_Module)
+    bool ModuleManager::HasModule(Module::Ptr p_Module)
     {
         for (std::list<Module::Ptr>::iterator l_It = m_Modules.begin(); l_It != m_Modules.end(); ++l_It)
         {
@@ -99,7 +99,7 @@ namespace BNet2 {
     //////////////////////////////////////////////////////////////////////////
 
     /// Register module
-    void ModuleManager::RegisterModule(Module::Ptr & p_Module)
+    void ModuleManager::RegisterModule(Module::Ptr p_Module)
     {
         if (HasModule(p_Module))
             return;

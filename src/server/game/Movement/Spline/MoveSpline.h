@@ -52,7 +52,7 @@ namespace Movement
         friend class MoveSplineInit;
         friend class Object;
 
-    protected:
+//    protected:
         MySpline        spline;
 
         FacingInfo      facing;
@@ -72,7 +72,7 @@ namespace Movement
         int32           point_Idx_offset;
 
         void init_spline(const MoveSplineInitArgs& args);
-    protected:
+    public:
 
         const MySpline::ControlArray& getPath() const { return spline.getPoints(); }
         void computeParabolicElevation(float& el) const;

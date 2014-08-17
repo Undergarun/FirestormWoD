@@ -17,6 +17,7 @@
  */
 
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"

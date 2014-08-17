@@ -22,6 +22,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "GridNotifiers.h"
 #include "Unit.h"
 #include "SpellScript.h"

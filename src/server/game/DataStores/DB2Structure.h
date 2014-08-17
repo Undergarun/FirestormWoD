@@ -340,6 +340,8 @@ struct HolidaysEntry
     //uint32 flags;                                         // 44       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
+#define MAX_OVERRIDE_SPELL 10
+
 // @author Selenium: 5.4 valid
 struct OverrideSpellDataEntry
 {
