@@ -66,12 +66,13 @@ bool PlayerSocial::AddToSocialList(uint32 friendGuid, bool ignore)
         flag = SOCIAL_FLAG_IGNORED;
 
     PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
+
     if (itr != m_playerSocialMap.end())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, flag);
-        stmt->setUInt32(1, GetPlayerGUID());
+        stmt->setUInt32(1, m_AccountID);
         stmt->setUInt32(2, friendGuid);
 
         CharacterDatabase.Execute(stmt);
@@ -82,7 +83,7 @@ bool PlayerSocial::AddToSocialList(uint32 friendGuid, bool ignore)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SOCIAL);
 
-        stmt->setUInt32(0, GetPlayerGUID());
+        stmt->setUInt32(0, m_AccountID);
         stmt->setUInt32(1, friendGuid);
         stmt->setUInt8(2, flag);
 
@@ -111,7 +112,7 @@ void PlayerSocial::RemoveFromSocialList(uint32 friendGuid, bool ignore)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SOCIAL);
 
-        stmt->setUInt32(0, GetPlayerGUID());
+        stmt->setUInt32(0, m_AccountID);
         stmt->setUInt32(1, friendGuid);
 
         CharacterDatabase.Execute(stmt);
@@ -123,7 +124,7 @@ void PlayerSocial::RemoveFromSocialList(uint32 friendGuid, bool ignore)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, flag);
-        stmt->setUInt32(1, GetPlayerGUID());
+        stmt->setUInt32(1, m_AccountID);
         stmt->setUInt32(2, friendGuid);
 
         CharacterDatabase.Execute(stmt);
@@ -141,7 +142,7 @@ void PlayerSocial::SetFriendNote(uint32 friendGuid, std::string note)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_NOTE);
 
     stmt->setString(0, note);
-    stmt->setUInt32(1, GetPlayerGUID());
+    stmt->setUInt32(1, m_AccountID);
     stmt->setUInt32(2, friendGuid);
 
     CharacterDatabase.Execute(stmt);
@@ -339,10 +340,10 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
     }
 }
 
-PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
+PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid, uint32 account_id)
 {
     PlayerSocial *social = &m_socialMap[guid];
-    social->SetPlayerGUID(guid);
+    social->SetPlayerGUID(guid, account_id);
 
     if (!result)
         return social;

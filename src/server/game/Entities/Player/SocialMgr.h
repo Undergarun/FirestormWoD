@@ -119,11 +119,12 @@ class PlayerSocial
         bool HasFriend(uint32 friend_guid);
         bool HasIgnore(uint32 ignore_guid);
         uint32 GetPlayerGUID() const { return m_playerGUID; }
-        void SetPlayerGUID(uint32 guid) { m_playerGUID = guid; }
+        void SetPlayerGUID(uint32 guid, uint32 p_AccountID) { m_playerGUID = guid; m_AccountID = p_AccountID; }
         uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
     private:
         PlayerSocialMap m_playerSocialMap;
         uint32 m_playerGUID;
+        uint32 m_AccountID;
 };
 
 class SocialMgr
@@ -143,7 +144,7 @@ class SocialMgr
         void SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast);
         void BroadcastToFriendListers(Player* player, WorldPacket* packet);
         // Loading
-        PlayerSocial *LoadFromDB(PreparedQueryResult result, uint32 guid);
+        PlayerSocial *LoadFromDB(PreparedQueryResult result, uint32 guid, uint32 account_id);
     private:
         SocialMap m_socialMap;
 };
