@@ -2537,36 +2537,64 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-void Player::SendTeleportPacket(Position &oldPos)
+void Player::SendTeleportPacket(Position &l_OldPosition)
 {
-    ObjectGuid transGuid = GetTransGUID();
+    ObjectGuid l_TransportGUID = GetTransGUID();
     bool l_HasVehicle = false;
 
-    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
-    data.appendPackGUID(GetGUID());
-    data << uint32(0);                  //  SequenceIndex
-    data << float(GetPositionX());
-    data << float(GetPositionY());
-    data << float(GetPositionZMinusOffset());
-    data << float(GetOrientation());
+    WorldPacket l_TeleportPacket(SMSG_MOVE_TELEPORT, 38);
+    l_TeleportPacket.appendPackGUID(GetGUID());
+    l_TeleportPacket << uint32(0);                  //  SequenceIndex
+    l_TeleportPacket << float(GetPositionX());
+    l_TeleportPacket << float(GetPositionY());
+    l_TeleportPacket << float(GetPositionZMinusOffset());
+    l_TeleportPacket << float(GetOrientation());
 
-    data.WriteBit(uint64(transGuid) != 0LL);
-    data.WriteBit(l_HasVehicle);
-    data.FlushBits();
+    l_TeleportPacket.WriteBit(uint64(l_TransportGUID) != 0LL);
+    l_TeleportPacket.WriteBit(l_HasVehicle);
+    l_TeleportPacket.FlushBits();
 
-    if (transGuid)
-        data.appendPackGUID(GetTransGUID());
+    if (l_TransportGUID)
+        l_TeleportPacket.appendPackGUID(GetTransGUID());
 
     if (l_HasVehicle)
     {
-        data << uint8(0);   ///< VehicleSeatIndex
-        data.WriteBit(0);   ///< VehicleExitVoluntary
-        data.WriteBit(0);   ///< VehicleExitTeleport
-        data.FlushBits();
+        l_TeleportPacket << uint8(0);   ///< VehicleSeatIndex
+        l_TeleportPacket.WriteBit(0);   ///< VehicleExitVoluntary
+        l_TeleportPacket.WriteBit(0);   ///< VehicleExitTeleport
+        l_TeleportPacket.FlushBits();
     }
 
-    Relocate(&oldPos);
-    SendDirectMessage(&data);
+    Relocate(&l_OldPosition);
+    SendDirectMessage(&l_TeleportPacket);
+
+    WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
+
+    GetSession()->WriteMovementInfo(l_TeleportUpdatePacket, &m_mover->m_movementInfo);
+    l_TeleportUpdatePacket << uint32(0);    ///< Movement force count
+
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasWalkSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasRunSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasRunBack
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimBack
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightBack 
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasTurnRate
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasPitchRate
+    l_TeleportUpdatePacket.FlushBits();
+
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_WALK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_RUN));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_RUN_BACK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_SWIM));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_SWIM_BACK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_FLIGHT));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_FLIGHT_BACK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_TURN_RATE));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_PITCH_RATE));
+
+    SendMessageToSet(&l_TeleportUpdatePacket, this);
 }
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)

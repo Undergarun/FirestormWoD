@@ -168,6 +168,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         case CMSG_MOVE_START_STRAFE_RIGHT:
 
         case CMSG_MOVE_JUMP:
+        case CMSG_MOVE_FALL_LAND:
 
         case CMSG_MOVE_HEARTBEAT:
         case CMSG_MOVE_SET_FACING:
@@ -178,6 +179,17 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
             return MovementGlobalSequence;
 
         case SMSG_MOVE_UPDATE:
+        case SMSG_MOVE_UPDATE_TELEPORT:
+        case SMSG_MOVE_UPDATE_RUN_SPEED:
+        case SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED:
+        case SMSG_MOVE_UPDATE_FLIGHT_SPEED:
+        case SMSG_MOVE_UPDATE_PITCH_RATE:
+        case SMSG_MOVE_UPDATE_RUN_BACK_SPEED:
+        case SMSG_MOVE_UPDATE_SWIM_BACK_SPEED:
+        case SMSG_MOVE_UPDATE_SWIM_SPEED:
+        case SMSG_MOVE_UPDATE_TURN_RATE:
+        case SMSG_MOVE_UPDATE_WALK_SPEED:
+        case SMSG_MOVE_UPDATE_KNOCK_BACK:
             return PlayerMoveSequence;
 
         default:

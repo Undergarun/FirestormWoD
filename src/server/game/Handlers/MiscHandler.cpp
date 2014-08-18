@@ -677,11 +677,10 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
 {
-    // sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_STANDSTATECHANGE"); -- too many spam in log at lags/debug stop
-    uint32 animstate;
-    recvData >> animstate;
+    uint32 l_StandState;
+    recvData >> l_StandState;
 
-    m_Player->SetStandState(animstate);
+    m_Player->SetStandState(l_StandState);
 }
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recvData)

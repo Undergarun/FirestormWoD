@@ -15096,15 +15096,15 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     SetSpeed(mtype, speed, forced);
 }
 
-void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
+void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
     if (fabs(rate) <= 0.00000023841858) // From client
         rate = 1.0f;
 
     // Update speed only on change
-    bool clientSideOnly = m_speed_rate[mtype] == rate;
+    bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
 
-    m_speed_rate[mtype] = rate;
+    m_speed_rate[p_MovementType] = rate;
 
     if (!clientSideOnly)
         propagateSpeedChange();
@@ -15114,11 +15114,12 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
     if (!IsInWorld())
         return;
 
-    WorldPacket data;
     ObjectGuid guid = GetGUID();
     if (!forced)
     {
-        switch (mtype)
+        WorldPacket data;
+
+        switch (p_MovementType)
         {
             case MOVE_WALK:
             {
@@ -15130,7 +15131,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(guid[2]);
                 data.WriteByteSeq(guid[6]);
                 data.WriteByteSeq(guid[3]);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 data.WriteByteSeq(guid[0]);
                 data.WriteByteSeq(guid[4]);
                 data.WriteByteSeq(guid[1]);
@@ -15147,7 +15148,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
                 data.WriteBytesSeq(guid, byteOrder);
 
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN_BACK:
@@ -15161,7 +15162,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(guid[6]);
                 data.WriteByteSeq(guid[5]);
                 data.WriteByteSeq(guid[0]);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 data.WriteByteSeq(guid[4]);
                 data.WriteByteSeq(guid[3]);
                 data.WriteByteSeq(guid[2]);
@@ -15175,7 +15176,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
                 data.WriteBitInOrder(guid, bitOrder);
                 data.WriteByteSeq(guid[4]);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 data.WriteByteSeq(guid[7]);
                 data.WriteByteSeq(guid[1]);
                 data.WriteByteSeq(guid[6]);
@@ -15198,7 +15199,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(guid[2]);
                 data.WriteByteSeq(guid[3]);
                 data.WriteByteSeq(guid[7]);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 data.WriteByteSeq(guid[4]);
                 data.WriteByteSeq(guid[1]);
                 data.WriteByteSeq(guid[6]);
@@ -15207,7 +15208,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             case MOVE_TURN_RATE:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
 
                 uint8 bitOrder[8] = {2, 3, 0, 1, 6, 7, 5, 4};
                 data.WriteBitInOrder(guid, bitOrder);
@@ -15223,7 +15224,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 uint8 bitOrder[8] = {7, 1, 5, 6, 4, 3, 0, 2};
                 data.WriteBitInOrder(guid, bitOrder);
                 data.WriteByteSeq(guid[0]);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 data.WriteByteSeq(guid[6]);
                 data.WriteByteSeq(guid[2]);
                 data.WriteByteSeq(guid[3]);
@@ -15248,14 +15249,14 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(guid[4]);
                 data.WriteByteSeq(guid[2]);
                 data.WriteByteSeq(guid[6]);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
                 data.WriteByteSeq(guid[1]);
                 break;
             }
             case MOVE_PITCH_RATE:
             {
                 data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
-                data << float(GetSpeed(mtype));
+                data << float(GetSpeed(p_MovementType));
 
                 uint8 bitOrder[8] = {2, 7, 5, 6, 0, 4, 3, 1};
                 data.WriteBitInOrder(guid, bitOrder);
@@ -15276,98 +15277,174 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         {
             // register forced speed changes for WorldSession::HandleForceSpeedChangeAck
             // and do it only for real sent packets and use run for run/mounted as client expected
-            ++ToPlayer()->m_forced_speed_changes[mtype];
+            ++ToPlayer()->m_forced_speed_changes[p_MovementType];
 
             if (!isInCombat())
                 if (Pet* pet = ToPlayer()->GetPet())
-                    pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
+                    pet->SetSpeed(p_MovementType, m_speed_rate[p_MovementType], forced);
         }
 
-        switch (mtype)
+        WorldPacket l_SelfPacket;
+        WorldPacket l_BroadcastPacket;
+
+        switch (p_MovementType)
         {
             case MOVE_WALK:
             {
-                data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_WALK_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_WALK_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
                 break;
             }
             case MOVE_RUN:
             {
-                data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_RUN_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_RUN_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
                 break;
             }
             case MOVE_RUN_BACK:
             {
-                data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_RUN_BACK_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
                 break;
             }
             case MOVE_SWIM:
             {
-                data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_SWIM_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
                 break;
             }
             case MOVE_SWIM_BACK:
             {
-                data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_SWIM_BACK_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
+
                 break;
             }
             case MOVE_TURN_RATE:
             {
-                data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_TURN_RATE, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_TURN_RATE, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
                 break;
             }
             case MOVE_FLIGHT:
             {
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_FLIGHT_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
+
                 break;
             }
             case MOVE_FLIGHT_BACK:
             {
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4);
-                data.appendPackGUID(guid);
-                data << uint32(0);
-                data << float(GetSpeed(mtype));
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
+
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
 
                 break;
             }
             case MOVE_PITCH_RATE:
             {
-                data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4);
-                data << float(GetSpeed(mtype));
-                data << uint32(0);
+                l_SelfPacket.Initialize(SMSG_MOVE_SET_PITCH_RATE, 16 + 2 + 4 + 4);
+                l_SelfPacket.appendPackGUID(GetGUID());
+                l_SelfPacket << uint32(0);
+                l_SelfPacket << float(GetSpeed(p_MovementType));
 
-                uint8 bitOrder[8] = { 0, 5, 3, 2, 7, 4, 6, 1 };
-                data.WriteBitInOrder(guid, bitOrder);
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_PITCH_RATE, 200);
+                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
+                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
+                }
 
-                uint8 byteOrder[8] = { 1, 3, 2, 4, 6, 7, 5, 0 };
-                data.WriteBytesSeq(guid, byteOrder);
                 break;
             }
             default:
                 return;
         }
 
-        SendMessageToSet(&data, true);
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            ToPlayer()->GetSession()->SendPacket(&l_SelfPacket);
+            SendMessageToSet(&l_BroadcastPacket, false);
+        }
+        else
+            SendMessageToSet(&l_SelfPacket, true);
     }
 }
 
@@ -17927,18 +18004,18 @@ bool Unit::IsStandState() const
     return !IsSitState() && s != UNIT_STAND_STATE_SLEEP && s != UNIT_STAND_STATE_KNEEL;
 }
 
-void Unit::SetStandState(uint8 state)
+void Unit::SetStandState(uint8 p_State)
 {
-    SetByteValue(UNIT_FIELD_ANIM_TIER, 0, state);
+    SetByteValue(UNIT_FIELD_ANIM_TIER, 0, p_State);
 
     if (IsStandState())
        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data(SMSG_STANDSTATE_UPDATE, 1);
-        data << (uint8)state;
-        ToPlayer()->GetSession()->SendPacket(&data);
+        WorldPacket l_Update(SMSG_STANDSTATE_UPDATE, 1);
+        l_Update << (uint8)p_State;
+        ToPlayer()->GetSession()->SendPacket(&l_Update);
     }
 }
 
@@ -19960,31 +20037,21 @@ void Unit::UpdateObjectVisibility(bool forced)
     AINotifyTask::ScheduleAINotify(this);
 }
 
-void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin)
+void Unit::SendMoveKnockBack(Player* p_Player, float p_SpeedXY, float p_SpeedZ, float p_Cos, float p_Sin)
 {
     //if (this->ToPlayer())
     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
 
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1 + 8 + 4 + 4 + 4 + 4 + 4));
+    WorldPacket l_Packet(SMSG_MOVE_KNOCK_BACK, (1 + 8 + 4 + 4 + 4 + 4 + 4));
 
-    uint8 bitOrder[8] = {4, 6, 3, 7, 2, 5, 0, 1};
-    data.WriteBitInOrder(guid, bitOrder);
-    data.WriteByteSeq(guid[2]);
-    data << float(speedZ);
-    data.WriteByteSeq(guid[3]);
-    data << float(vcos);
-    data << float(vsin);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(0);
-    data << float(speedXY);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
+    l_Packet.appendPackGUID(GetGUID());
+    l_Packet << float(p_Sin);
+    l_Packet << float(p_Cos);
+    l_Packet << float(p_SpeedXY);
+    l_Packet << float(p_SpeedZ);
+    l_Packet << uint32(0);
 
-    player->GetSession()->SendPacket(&data);
+    p_Player->GetSession()->SendPacket(&l_Packet);
 }
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
