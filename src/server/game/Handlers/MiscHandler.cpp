@@ -683,35 +683,42 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
     m_Player->SetStandState(l_StandState);
 }
 
-void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
+void WorldSession::HandleContactListOpcode(WorldPacket& p_RecvData)
 {
-    recvData.read_skip<uint32>(); // always 1
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST");
-    m_Player->GetSocial()->SendSocialList(m_Player);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SEND_CONTACT_LIST");
+
+    uint32 l_Flags;
+
+    p_RecvData >> l_Flags;
+
+    if (l_Flags & 1)
+        m_Player->GetSocial()->SendSocialList(m_Player);
 }
 
-void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
+void WorldSession::HandleAddFriendOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_FRIEND");
 
-    std::string friendName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
-    std::string friendNote;
+    std::string l_FriendName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string l_FriendNote;
 
-    recvData >> friendName;
+    uint32 l_NameLen = p_RecvData.ReadBits(9);
+    uint32 l_NoteLen = p_RecvData.ReadBits(10);
 
-    recvData >> friendNote;
+    l_FriendName = p_RecvData.ReadString(l_NameLen);
+    l_FriendNote = p_RecvData.ReadString(l_NoteLen);
 
-    if (!normalizePlayerName(friendName))
+    if (!normalizePlayerName(l_FriendName))
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName(), friendName.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName(), l_FriendName.c_str());
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
 
-    stmt->setString(0, friendName);
+    l_Stmt->setString(0, l_FriendName);
 
-    _addFriendCallback.SetParam(friendNote);
-    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+    _addFriendCallback.SetParam(l_FriendNote);
+    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
 }
 
 void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote)
@@ -770,37 +777,40 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
 
 void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
 {
-    uint64 FriendGUID;
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_FRIEND");
 
-    recvData >> FriendGUID;
+    uint64 l_Guid;
 
-    m_Player->GetSocial()->RemoveFromSocialList(GUID_LOPART(FriendGUID), false);
+    uint32 l_VirtualRealmAddress;
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, GUID_LOPART(FriendGUID), false);
+    recvData >> l_VirtualRealmAddress;
+    recvData.readPackGUID(l_Guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
+    m_Player->GetSocial()->RemoveFromSocialList(GUID_LOPART(l_Guid), false);
+
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, GUID_LOPART(l_Guid), false);
 }
 
-void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
+void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_IGNORE");
 
-    std::string ignoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string l_IgnoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
 
-    recvData >> ignoreName;
+    uint32 l_IgnoreNameLen = p_RecvData.ReadBits(9);
 
-    if (!normalizePlayerName(ignoreName))
+    l_IgnoreName = p_RecvData.ReadString(l_IgnoreNameLen);
+
+    if (!normalizePlayerName(l_IgnoreName))
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'", GetPlayer()->GetName(), ignoreName.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'", GetPlayer()->GetName(), l_IgnoreName.c_str());
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
-    stmt->setString(0, ignoreName);
+    l_Stmt->setString(0, l_IgnoreName);
 
-    _addIgnoreCallback = CharacterDatabase.AsyncQuery(stmt);
+    _addIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
@@ -842,26 +852,35 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 {
-    uint64 IgnoreGUID;
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_IGNORE");
 
-    recvData >> IgnoreGUID;
+    uint64 l_Guid;
 
-    m_Player->GetSocial()->RemoveFromSocialList(GUID_LOPART(IgnoreGUID), true);
+    uint32 l_VirtualRealmAddress;
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, GUID_LOPART(IgnoreGUID), false);
+    recvData >> l_VirtualRealmAddress;
+    recvData.readPackGUID(l_Guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
+    m_Player->GetSocial()->RemoveFromSocialList(GUID_LOPART(l_Guid), true);
+
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, GUID_LOPART(l_Guid), false);
 }
 
-void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetContactNotesOpcode(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_CONTACT_NOTES");
-    uint64 guid;
-    std::string note;
-    recvData >> guid >> note;
-    m_Player->GetSocial()->SetFriendNote(GUID_LOPART(guid), note);
+
+    uint64 l_Guid;
+    uint32 l_VirtualRealmAddress;
+
+    std::string l_Notes;
+
+    p_RecvData >> l_VirtualRealmAddress;
+    p_RecvData.readPackGUID(l_Guid);
+    
+    l_Notes = p_RecvData.ReadString(p_RecvData.ReadBits(10));
+
+    m_Player->GetSocial()->SetFriendNote(GUID_LOPART(l_Guid), l_Notes);
 }
 
 void WorldSession::HandleReportBugOpcode(WorldPacket& recvData)

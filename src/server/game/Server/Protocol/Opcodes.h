@@ -137,6 +137,7 @@ enum Opcodes
 
         /// Friends
         SMSG_CONTACT_LIST                           = 0x1C9B,   ///< 6.0.1 18716
+        SMSG_FRIEND_STATUS                          = 0x17C7,   ///< 6.0.1 18716
 
         /// Taxi
         SMSG_TAXI_NODE_STATUS                       = 0x0049,   ///< 6.0.1 18716
@@ -687,6 +688,16 @@ enum Opcodes
     CMSG_INITIATE_ROLE_POLL                     = 0x1C66,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
+    /// Friend
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_SEND_CONTACT_LIST                      = 0x1279,   ///< 6.0.1 18716
+    CMSG_ADD_FRIEND                             = 0x05E5,   ///< 6.0.1 18716
+    CMSG_ADD_IGNORE                             = 0x16E1,   ///< 6.0.1 18716
+    CMSG_SET_CONTACT_NOTES                      = 0x0C62,   ///< 6.0.1 18716
+    CMSG_DEL_FRIEND                             = 0x0466,   ///< 6.0.1 18716
+    CMSG_DEL_IGNORE                             = 0x1FE1,   ///< 6.0.1 18716
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -733,8 +744,6 @@ enum Opcodes
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
     CMSG_ACCEPT_TRADE                                 = 0x0000,
     CMSG_ADDON_REGISTERED_PREFIXES                    = 0x0000,
-    CMSG_ADD_FRIEND                                   = 0x0000,
-    CMSG_ADD_IGNORE                                   = 0x0000,
     CMSG_ADD_VOICE_IGNORE                             = 0x0000,
     CMSG_ALTER_APPEARANCE                             = 0x0000,
     CMSG_AREA_SPIRIT_HEALER_QUERY                     = 0x0000,
@@ -851,12 +860,9 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                               = 0x0000,
     CMSG_CONFIRM_RESPEC_WIPE                          = 0x0000,
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
-    CMSG_CONTACT_LIST                                 = 0x0000,
     CMSG_CORPSE_MAP_POSITION_QUERY                    = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x0000,
-    CMSG_DEL_FRIEND                                   = 0x0000,
-    CMSG_DEL_IGNORE                                   = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
     CMSG_DESTROY_ITEM                                 = 0x0000,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x0000,
@@ -1083,7 +1089,6 @@ enum Opcodes
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                    = 0x0000,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                    = 0x0000,
     CMSG_SET_CHANNEL_WATCH                            = 0x0000,
-    CMSG_SET_CONTACT_NOTES                            = 0x0000,
     CMSG_SET_CURRENCY_FLAGS                           = 0x0000,
     CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0x0000,
     CMSG_SET_FACTION_ATWAR                            = 0x0000,
@@ -1392,7 +1397,6 @@ enum Opcodes
     SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0x0000,
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0x0000,
     SMSG_FORGE_MASTER_SET                             = 0x0000,
-    SMSG_FRIEND_STATUS                                = 0x0000,
     SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x0000,
     SMSG_GAMEOBJECT_DESPAWN_ANIM                      = 0x0000,
     SMSG_GAMEOBJECT_PAGETEXT                          = 0x0000,

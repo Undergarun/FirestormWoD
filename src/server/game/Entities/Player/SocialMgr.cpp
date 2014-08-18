@@ -251,47 +251,61 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     }
 }
 
-void SocialMgr::MakeFriendStatusPacket(FriendsResult result, uint32 guid, WorldPacket* data)
+void SocialMgr::SendFriendStatus(Player* p_Player, FriendsResult p_Result, uint32 p_FriendLowGuid, bool p_Broadcast)
 {
-    data->Initialize(SMSG_FRIEND_STATUS, 5);
-    *data << uint8(result);
-    *data << uint64(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-}
+    FriendInfo l_FriendInfo;
 
-void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast)
-{
-    FriendInfo fi;
+    Player * l_Friend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(p_FriendLowGuid, 0, HIGHGUID_PLAYER));
 
-    WorldPacket data;
-    MakeFriendStatusPacket(result, friend_guid, &data);
-    GetFriendInfo(player, friend_guid, fi);
-    switch (result)
-    {
-        case FRIEND_ADDED_OFFLINE:
-        case FRIEND_ADDED_ONLINE:
-            data << fi.Note;
-            break;
-        default:
-            break;
-    }
+    GetFriendInfo(p_Player, p_FriendLowGuid, l_FriendInfo);
 
-    switch (result)
+    WorldPacket l_Response(SMSG_FRIEND_STATUS, 50);
+
+    l_Response << uint8(p_Result);
+    l_Response.appendPackGUID(MAKE_NEW_GUID(p_FriendLowGuid, 0, HIGHGUID_PLAYER));
+    l_Response.appendPackGUID(l_Friend ? l_Friend->GetSession()->GetWoWAccountGUID() : 0);
+    l_Response << uint32(realmID);
+    
+    switch (p_Result)
     {
         case FRIEND_ADDED_ONLINE:
         case FRIEND_ONLINE:
-            data << uint8(fi.Status);
-            data << uint32(fi.Area);
-            data << uint32(fi.Level);
-            data << uint32(fi.Class);
+            l_Response << uint8(l_FriendInfo.Status);
+            l_Response << uint32(l_FriendInfo.Area);
+            l_Response << uint32(l_FriendInfo.Level);
+            l_Response << uint32(l_FriendInfo.Class);
             break;
+
         default:
+            l_Response << uint8(0);
+            l_Response << uint32(0);
+            l_Response << uint32(0);
+            l_Response << uint32(0);
             break;
+
     }
 
-    if (broadcast)
-        BroadcastToFriendListers(player, &data);
+    switch (p_Result)
+    {
+        case FRIEND_ADDED_OFFLINE:
+        case FRIEND_ADDED_ONLINE:
+            l_Response.WriteBits(l_FriendInfo.Note.size(), 10);
+            l_Response.FlushBits();
+
+            l_Response.WriteString(l_FriendInfo.Note);
+            break;
+
+        default:
+            l_Response.WriteBits(0, 10);
+            l_Response.FlushBits();
+            break;
+
+    }
+    
+    if (p_Broadcast)
+        BroadcastToFriendListers(p_Player, &l_Response);
     else
-        player->GetSession()->SendPacket(&data);
+        p_Player->GetSession()->SendPacket(&l_Response);
 }
 
 void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
